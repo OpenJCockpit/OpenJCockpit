@@ -1,7 +1,7 @@
 /**
  * OIDC discovery and Direct Access Grant helpers against the local Keycloak.
  *
- * The `metafactory` client is `publicClient: true` — there is no client
+ * The `openjcockpit` client is `publicClient: true` — there is no client
  * secret anywhere in this file, or anywhere in this package.
  *
  * The Direct Access Grant (Resource Owner Password) helper here is used only
@@ -110,7 +110,7 @@ export type BearerTokenProvider = (opts?: { forceRefresh?: boolean }) => Promise
 /**
  * Creates a bearer-token provider with proactive refresh.
  *
- * Rationale (ADR-3 / ADR-8): infrastructure/keycloak/metafactory-realm.json
+ * Rationale (ADR-3 / ADR-8): infrastructure/keycloak/openjcockpit-realm.json
  * sets no `accessTokenLifespan`, so Keycloak's default 300 second token
  * lifespan applies. A downstream long-running agent test can run up to 600
  * seconds. Without proactive refresh, a slow run would hit a spurious 401

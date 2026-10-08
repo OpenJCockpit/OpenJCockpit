@@ -320,7 +320,7 @@ class PlaceholderSkillsMarketplaceClientTest {
 
     @Test
     void doesNotLeakAnAuthenticatedCallersJwtEvenWhenPresentInSecurityContext() throws Exception {
-        var jwt = Jwt.withTokenValue("caller-metafactory-access-token")
+        var jwt = Jwt.withTokenValue("caller-openjcockpit-access-token")
                 .header("alg", "RS256")
                 .claim("sub", "user1")
                 .issuedAt(Instant.now())
@@ -336,8 +336,8 @@ class PlaceholderSkillsMarketplaceClientTest {
 
         var recorded = server.takeRequest();
         assertThat(recorded.getHeaders().values("Authorization")).containsExactly("Bearer vendor-api-key");
-        assertThat(recorded.getHeaders().toString()).doesNotContain("caller-metafactory-access-token");
-        assertThat(recorded.getBody().readUtf8()).doesNotContain("caller-metafactory-access-token");
+        assertThat(recorded.getHeaders().toString()).doesNotContain("caller-openjcockpit-access-token");
+        assertThat(recorded.getBody().readUtf8()).doesNotContain("caller-openjcockpit-access-token");
     }
 
     // ── MarketplaceQuery.toString() redaction (BR-8/AC-26) ───────────────────

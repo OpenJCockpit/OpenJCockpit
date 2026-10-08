@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties("metafactory.spec-workflow")
+@ConfigurationProperties("openjcockpit.spec-workflow")
 public class SpecWorkflowProperties {
 
     /** Root folder that holds AGENTS.md, specs/ and templates/specs/. */

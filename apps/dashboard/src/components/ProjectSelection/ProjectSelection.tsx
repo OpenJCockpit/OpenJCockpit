@@ -52,7 +52,7 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
 
       <div className="project-selection-content">
         <div className="project-selection-header">
-          <img src="/metafactory-logo.png" alt="Metafactory" className="brand-logo" />
+          <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
           <h1 className="project-selection-title">Select a project</h1>
           <p className="project-selection-subtitle">Choose the project you want to work on</p>
         </div>

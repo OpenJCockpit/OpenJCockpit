@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * AC-22: a context booted with an unrecognised property key under
- * "metafactory.workflow-definitions" must still start, and the autowired
+ * "openjcockpit.workflow-definitions" must still start, and the autowired
  * {@link WorkflowDefinitionProperties} must still bind "path" normally — relaxed binding for a
  * {@code @ConfigurationProperties} class that does not set {@code ignoreUnknownFields = false}
  * ignores unknown keys, generalising to any future property removal from this class.
@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
-        properties = "metafactory.workflow-definitions.some-removed-legacy-flag=true")
+        properties = "openjcockpit.workflow-definitions.some-removed-legacy-flag=true")
 class WorkflowDefinitionPropertiesUnknownKeyBootTest {
 
     @TempDir
@@ -35,7 +35,7 @@ class WorkflowDefinitionPropertiesUnknownKeyBootTest {
 
     @DynamicPropertySource
     static void workflowDefinitionsPath(DynamicPropertyRegistry registry) {
-        registry.add("metafactory.workflow-definitions.path", () -> workflowDefinitionsDir.toString());
+        registry.add("openjcockpit.workflow-definitions.path", () -> workflowDefinitionsDir.toString());
     }
 
     @MockitoBean

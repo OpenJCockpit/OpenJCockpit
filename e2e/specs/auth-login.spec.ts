@@ -48,7 +48,7 @@ test.describe('dashboard authentication (clean profile)', () => {
       if (url.includes('/protocol/openid-connect/auth')) {
         authorizeRequests.push(url);
       }
-      if (url.includes('metafactory-login.css')) {
+      if (url.includes('openjcockpit-login.css')) {
         sawThemeStylesheet = true;
       }
       if (containsClientSecret(url, request.postData())) {
@@ -63,7 +63,7 @@ test.describe('dashboard authentication (clean profile)', () => {
     await expect(page.getByTestId(testIds.projectCard)).toHaveCount(0);
 
     // The themed login form, asserted by its stable, locale-independent ids
-    // (infrastructure/themes/metafactory/login/login.ftl) — never by CSS
+    // (infrastructure/themes/openjcockpit/login/login.ftl) — never by CSS
     // class, DOM structure, or an emoji glyph alone (AC-22). This also
     // covers the custom-theme regression surface from
     // docs/delivery/login-realm-label-typo/.
@@ -71,7 +71,7 @@ test.describe('dashboard authentication (clean profile)', () => {
     await expect(page.locator('#kc-form-login')).toBeVisible();
     await expect
       .poll(() => sawThemeStylesheet, {
-        message: 'expected a request for the themed metafactory-login.css stylesheet',
+        message: 'expected a request for the themed openjcockpit-login.css stylesheet',
       })
       .toBe(true);
 
@@ -82,7 +82,7 @@ test.describe('dashboard authentication (clean profile)', () => {
       expect(parsed.searchParams.get('code_challenge_method')).toBe('S256');
     }
 
-    // Hard security assertions: the `metafactory` client is public
+    // Hard security assertions: the `openjcockpit` client is public
     // (publicClient: true) — no client secret exists anywhere, and none may
     // appear on the wire, in the authorize request or any other request.
     expect(clientSecretLeaks).toEqual([]);

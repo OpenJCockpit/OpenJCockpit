@@ -15,7 +15,7 @@ public record AgentRunRequest(
         ApprovalGateConfig approvalGate,
         // MADP-54: the base branch that agentic branches are cut from and that pull requests
         // target. Resolved once per run at start from the project's defaultBranch
-        // (WorkflowStartEnrichmentService); null falls back to metafactory.spec-git.base-branch.
+        // (WorkflowStartEnrichmentService); null falls back to openjcockpit.spec-git.base-branch.
         // Like approvalGate, deliberately NOT part of ai-control's AgentRunRequestDto/contract.
         String baseBranch,
         String workflowId,

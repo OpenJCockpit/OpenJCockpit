@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@ConfigurationProperties("metafactory.agent-pipeline")
+@ConfigurationProperties("openjcockpit.agent-pipeline")
 public class AgentPipelineProperties {
 
     private List<String> sequence = new ArrayList<>(List.of(

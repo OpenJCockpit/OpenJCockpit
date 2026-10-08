@@ -371,7 +371,7 @@ function App() {
 
       <header className="site-header">
         <div className="brand">
-          <img src="/metafactory-logo.png" alt="Metafactory" className="brand-logo" />
+          <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
         </div>
 
         <nav className="main-nav" aria-label="Primary navigation">

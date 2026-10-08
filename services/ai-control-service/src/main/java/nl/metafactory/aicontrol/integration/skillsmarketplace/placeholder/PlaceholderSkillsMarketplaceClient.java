@@ -61,7 +61,7 @@ public class PlaceholderSkillsMarketplaceClient implements SkillsMarketplaceClie
         Map<String, String> headers = new LinkedHashMap<>();
         headers.put("Accept", MediaType.APPLICATION_JSON_VALUE);
         headers.put("Authorization", "Bearer " + query.apiKey());
-        headers.put("User-Agent", "metafactory-ai-control");
+        headers.put("User-Agent", "openjcockpit-ai-control");
 
         String connectionId = query.connectionId() != null ? query.connectionId().toString() : null;
         OutboundHttpResult result = gateway.get(uri, headers, connectionId, query.connectionName());

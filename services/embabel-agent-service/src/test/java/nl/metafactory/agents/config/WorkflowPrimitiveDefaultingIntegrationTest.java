@@ -51,7 +51,7 @@ class WorkflowPrimitiveDefaultingIntegrationTest {
 
     @DynamicPropertySource
     static void workflowDefinitionsPath(DynamicPropertyRegistry registry) {
-        registry.add("metafactory.workflow-definitions.path", () -> workflowDefinitionsDir.toString());
+        registry.add("openjcockpit.workflow-definitions.path", () -> workflowDefinitionsDir.toString());
     }
 
     @MockitoBean

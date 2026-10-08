@@ -47,7 +47,7 @@ public class DefaultWorkflowImporter implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         if (!properties.isSeedDefaults()) {
-            log.info("Default workflow import is disabled (metafactory.workflow-definitions.seed-defaults=false)");
+            log.info("Default workflow import is disabled (openjcockpit.workflow-definitions.seed-defaults=false)");
             return;
         }
         importDefaults();

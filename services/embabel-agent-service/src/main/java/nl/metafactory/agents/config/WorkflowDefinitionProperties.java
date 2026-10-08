@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties("metafactory.workflow-definitions")
+@ConfigurationProperties("openjcockpit.workflow-definitions")
 public class WorkflowDefinitionProperties {
 
     private String path = System.getProperty("java.io.tmpdir") + "/embabel-workflow-definitions";

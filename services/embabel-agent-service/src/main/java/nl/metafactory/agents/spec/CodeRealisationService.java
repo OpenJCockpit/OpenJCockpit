@@ -55,7 +55,7 @@ public class CodeRealisationService {
                                      RealisationIteration iteration) {
         if (!properties.isEnabled()) {
             return StageChangeReports.notApplicable(
-                    "Spec git publication is disabled (metafactory.spec-git.enabled=false)");
+                    "Spec git publication is disabled (openjcockpit.spec-git.enabled=false)");
         }
         String repositoryUrl = request.repositoryUrl();
         if (repositoryUrl == null || repositoryUrl.isBlank()) {
@@ -77,7 +77,7 @@ public class CodeRealisationService {
         if (baseBranch == null) {
             return StageChangeReports.publishFailed(branch,
                     "No base branch determined: the project has no branch configured and "
-                            + "metafactory.spec-git.base-branch is empty");
+                            + "openjcockpit.spec-git.base-branch is empty");
         }
         if (iteration.isFirst()) {
             log.info("Realisation for run {} uses base branch {} ({})",

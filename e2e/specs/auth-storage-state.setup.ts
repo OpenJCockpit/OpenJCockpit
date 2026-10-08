@@ -41,7 +41,7 @@ test('authenticate once via the themed Keycloak login form and save storage stat
 
   // keycloak.init({ onLoad: 'login-required' }) redirects the browser to the
   // themed Keycloak login form; assert on its stable, locale-independent ids
-  // (infrastructure/themes/metafactory/login/login.ftl) rather than on
+  // (infrastructure/themes/openjcockpit/login/login.ftl) rather than on
   // Dutch copy.
   await expect(page.locator('#mf-login-title')).toBeVisible();
 

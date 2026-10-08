@@ -48,7 +48,7 @@ import java.util.List;
  * finding, not something this class attempts to fix.
  */
 @Configuration
-@ConditionalOnProperty(name = "metafactory.llm.coding.route", havingValue = "gateway", matchIfMissing = true)
+@ConditionalOnProperty(name = "openjcockpit.llm.coding.route", havingValue = "gateway", matchIfMissing = true)
 public class LiteLlmGatewayModelConfig {
 
     private static final Logger log = LoggerFactory.getLogger(LiteLlmGatewayModelConfig.class);
@@ -83,11 +83,11 @@ public class LiteLlmGatewayModelConfig {
      */
     @Bean
     SpringAiLlmService litellmCodingLlm(
-            @Value("${metafactory.llm.gateway.base-url:http://localhost:4000/v1}") String baseUrl,
-            @Value("${metafactory.llm.gateway.api-key:sk-metafactory-embabel-local}") String apiKey,
-            @Value("${metafactory.llm.ollama.model:qwen3.6:27b}") String model,
-            @Value("${metafactory.llm.connect-timeout-seconds:45}") long connectTimeoutSeconds,
-            @Value("${metafactory.llm.read-timeout-seconds:600}") long readTimeoutSeconds,
+            @Value("${openjcockpit.llm.gateway.base-url:http://localhost:4000/v1}") String baseUrl,
+            @Value("${openjcockpit.llm.gateway.api-key:sk-openjcockpit-embabel-local}") String apiKey,
+            @Value("${openjcockpit.llm.ollama.model:qwen3.6:27b}") String model,
+            @Value("${openjcockpit.llm.connect-timeout-seconds:45}") long connectTimeoutSeconds,
+            @Value("${openjcockpit.llm.read-timeout-seconds:600}") long readTimeoutSeconds,
             ObservationRegistry observationRegistry) {
         OpenAiChatOptions chatOptions = OpenAiChatOptions.builder()
                 .baseUrl(baseUrl)

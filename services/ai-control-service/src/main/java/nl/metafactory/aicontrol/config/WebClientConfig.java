@@ -14,7 +14,7 @@ public class WebClientConfig {
 
     @Bean
     WebClient embabelWebClient(
-            @Value("${metafactory.embabel-agent-service.base-url}") String baseUrl) {
+            @Value("${openjcockpit.embabel-agent-service.base-url}") String baseUrl) {
         var mapper = JsonMapper.builder().build();
         var strategies = ExchangeStrategies.builder()
                 .codecs(c -> {

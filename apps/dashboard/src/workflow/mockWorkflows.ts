@@ -127,7 +127,7 @@ export const mockDocumentFolderConfig: DocumentFolderConfig = {
 export const mockOpaConfig: OpaConfig = {
   enabled: false,
   baseUrl: '',
-  policyPath: '/v1/data/metafactory/workflow/decision',
+  policyPath: '/v1/data/openjcockpit/workflow/decision',
   healthPath: '/health',
   timeoutSeconds: 3,
   failMode: 'FAIL_CLOSED',

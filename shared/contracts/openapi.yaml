@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Metafactory AI Delivery Factory API
+  title: OpenJCockpit API
   version: 0.1.0
 security:
   - bearerAuth: []

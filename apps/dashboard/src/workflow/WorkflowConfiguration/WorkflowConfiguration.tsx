@@ -272,7 +272,7 @@ export function WorkflowConfiguration({ project }: Props) {
             className="settings-input"
             value={opaForm.policyPath}
             onChange={(e) => setOpaForm((f) => ({ ...f, policyPath: e.target.value }))}
-            placeholder="/v1/data/metafactory/workflow/decision"
+            placeholder="/v1/data/openjcockpit/workflow/decision"
           />
         </label>
         <label>

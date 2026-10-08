@@ -50,7 +50,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://keycloak:8080/realms/metafactory/protocol/openid-connect/certs
+          jwk-set-uri: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs
   # Frozen Contract #2 (workflow-approval-gate work plan §5) — implemented verbatim. Makes
   # today's implicit Spring Boot defaults explicit and tunable; not load-bearing for correctness
   # under the return-and-resume design (a parked run holds no thread), but documentation-as-
@@ -75,10 +75,10 @@ spring:
 
 embabel:
   models:
-    default-llm: "${metafactory.llm.ollama.model}"
+    default-llm: "${openjcockpit.llm.ollama.model}"
     default-embedding-model: text-embedding-3-small
     llms:
-      coding: "${metafactory.llm.ollama.model}"
+      coding: "${openjcockpit.llm.ollama.model}"
       best: gpt-4.1-mini
       cheapest: gpt-4.1-mini
     embedding-services:
@@ -90,8 +90,8 @@ embabel:
         prompts:
           # Embabel wraps every LLM call in future.get(defaultTimeout) (ChatClientLlmOperations).
           # Its default is 60s, which silently caps calls far below the 600s HTTP read timeout in
-          # metafactory.llm.read-timeout-seconds. A 27B local model routinely needs minutes, so the
-          # two budgets are aligned here. Keep this >= metafactory.llm.read-timeout-seconds.
+          # openjcockpit.llm.read-timeout-seconds. A 27B local model routinely needs minutes, so the
+          # two budgets are aligned here. Keep this >= openjcockpit.llm.read-timeout-seconds.
           default-timeout: ${LLM_OPERATION_TIMEOUT:600s}
         data-binding:
           # LlmDataBindingProperties' own default (maxAttempts=10, fixedBackoffMillis=30) exists to
@@ -100,7 +100,7 @@ embabel:
           # timeout above. Because it re-issues the *same* slow call with only a 30ms backoff, a
           # genuinely-slow-but-working local model can be retried up to 10x, each burning the full
           # read-timeout budget again, before the run finally fails (worst case ~10x
-          # metafactory.llm.read-timeout-seconds). Capped lower here so a slow response still gets
+          # openjcockpit.llm.read-timeout-seconds). Capped lower here so a slow response still gets
           # one retry without multiplying the wait an order of magnitude.
           max-attempts: ${LLM_DATA_BINDING_MAX_ATTEMPTS:2}
 
@@ -139,7 +139,7 @@ info:
     description: Embabel Agent Service — runs AI agent pipelines via Embabel GOAP
     version: "@project.version@"
 
-metafactory:
+openjcockpit:
   llm:
     # Matches the OpenAI SDK's own documented default timeout (10 minutes) — reasoning-heavy
     # calls (e.g. realisation's CodeChangeSet generation) can take a while.
@@ -152,7 +152,7 @@ metafactory:
       route: ${LLM_CODING_ROUTE:gateway}
     gateway:
       base-url: ${LITELLM_BASE_URL:http://localhost:4000/v1}
-      api-key: ${LITELLM_VIRTUAL_KEY:sk-metafactory-embabel-local}
+      api-key: ${LITELLM_VIRTUAL_KEY:sk-openjcockpit-embabel-local}
     ollama:
       base-url: ${OLLAMA_BASE_URL:http://localhost:11434}         # UNCHANGED
       model: "${OLLAMA_MODEL:qwen3.6:27b}"                        # UNCHANGED
@@ -163,7 +163,7 @@ metafactory:
       - name: git
         url: ${GIT_MCP_SERVER_URL:http://localhost:8093}
   security:
-    jwt-issuer: http://localhost:8080/realms/metafactory
+    jwt-issuer: http://localhost:8080/realms/openjcockpit
   agent-pipeline:
     sequence:
       - requirement
@@ -191,7 +191,7 @@ metafactory:
   opa:
     enabled: ${OPA_ENABLED:false}
     base-url: ${OPA_BASE_URL:http://localhost:8181}
-    policy-path: ${OPA_POLICY_PATH:/v1/data/metafactory/workflow/decision}
+    policy-path: ${OPA_POLICY_PATH:/v1/data/openjcockpit/workflow/decision}
     health-path: ${OPA_HEALTH_PATH:/health}
     timeout-seconds: ${OPA_TIMEOUT_SECONDS:3}
     fail-mode: ${OPA_FAIL_MODE:FAIL_CLOSED}

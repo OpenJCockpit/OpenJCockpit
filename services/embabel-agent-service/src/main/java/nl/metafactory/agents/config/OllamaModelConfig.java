@@ -47,11 +47,11 @@ import java.util.List;
  * byte on the wire is the first actual chat call.
  * <p>
  * This class is now the deliberately-retained BR-14 "Revert B" path. It is activated by setting the property
- * {@code metafactory.llm.coding.route} to {@code direct} while {@code OLLAMA_BASE_URL} still points at the host
+ * {@code openjcockpit.llm.coding.route} to {@code direct} while {@code OLLAMA_BASE_URL} still points at the host
  * Ollama daemon. The container's {@code extra_hosts} grant for {@code host.docker.internal} access is retained
  * specifically to keep this revert path viable without any {@code docker-compose.yml} edit.
  */
-@ConditionalOnProperty(name = "metafactory.llm.coding.route", havingValue = "direct")
+@ConditionalOnProperty(name = "openjcockpit.llm.coding.route", havingValue = "direct")
 @Configuration
 public class OllamaModelConfig {
 
@@ -59,10 +59,10 @@ public class OllamaModelConfig {
 
     @Bean
     SpringAiLlmService ollamaCodingLlm(
-            @Value("${metafactory.llm.ollama.base-url:http://localhost:11434}") String baseUrl,
-            @Value("${metafactory.llm.ollama.model:qwen3.6:27b}") String model,
-            @Value("${metafactory.llm.connect-timeout-seconds:45}") long connectTimeoutSeconds,
-            @Value("${metafactory.llm.read-timeout-seconds:600}") long readTimeoutSeconds,
+            @Value("${openjcockpit.llm.ollama.base-url:http://localhost:11434}") String baseUrl,
+            @Value("${openjcockpit.llm.ollama.model:qwen3.6:27b}") String model,
+            @Value("${openjcockpit.llm.connect-timeout-seconds:45}") long connectTimeoutSeconds,
+            @Value("${openjcockpit.llm.read-timeout-seconds:600}") long readTimeoutSeconds,
             ObservationRegistry observationRegistry) {
         var requestFactory = new ReactorClientHttpRequestFactory();
         requestFactory.setConnectTimeout(Duration.ofSeconds(connectTimeoutSeconds));

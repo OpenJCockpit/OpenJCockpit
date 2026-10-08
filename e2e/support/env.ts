@@ -98,14 +98,14 @@ function assertLocalhost(varName: string, url: string): void {
   } catch {
     throw new Error(
       `${varName}="${url}" is not a valid URL. It must be an "http://localhost:<port>" ` +
-        "URL (BR-22): the metafactory realm's redirectUris/webOrigins are keyed on the " +
+        "URL (BR-22): the openjcockpit realm's redirectUris/webOrigins are keyed on the " +
         'literal hostname "localhost", not 127.0.0.1, not an IP, and not any other hostname.',
     );
   }
   if (hostname !== 'localhost') {
     throw new Error(
       `${varName}="${url}" has hostname "${hostname}", not "localhost" (BR-22): the ` +
-        "metafactory realm's redirectUris/webOrigins are keyed on the literal hostname " +
+        "openjcockpit realm's redirectUris/webOrigins are keyed on the literal hostname " +
         '"localhost" (127.0.0.1:4000 is not a registered redirect_uri, for example). ' +
         'Point this variable at a "localhost" origin.',
     );
@@ -135,8 +135,8 @@ function resolveEnv(): E2eEnv {
     dashboardBaseUrl,
     landingBaseUrl,
     keycloakUrl,
-    keycloakRealm: readString('E2E_KEYCLOAK_REALM', 'metafactory'),
-    keycloakClientId: readString('E2E_KEYCLOAK_CLIENT_ID', 'metafactory'),
+    keycloakRealm: readString('E2E_KEYCLOAK_REALM', 'openjcockpit'),
+    keycloakClientId: readString('E2E_KEYCLOAK_CLIENT_ID', 'openjcockpit'),
     apiBaseUrl,
     username: readString('E2E_USERNAME', 'e2e'),
     // Local-only seed credential, fixed and documented (CLAUDE.md permits this for seed
@@ -150,7 +150,7 @@ function resolveEnv(): E2eEnv {
     // Must never be logged. Only ever sent as an Authorization header from support/litellm.ts.
     litellmMasterKey: readFirstString(
       ['E2E_LITELLM_MASTER_KEY', 'LITELLM_MASTER_KEY'],
-      'sk-metafactory-litellm-local',
+      'sk-openjcockpit-litellm-local',
     ),
     litellmKeyAlias: readString('E2E_LITELLM_KEY_ALIAS', 'embabel-agent-service'),
     ollamaModel: readFirstString(['E2E_OLLAMA_MODEL', 'OLLAMA_MODEL'], 'qwen3.6:27b'),

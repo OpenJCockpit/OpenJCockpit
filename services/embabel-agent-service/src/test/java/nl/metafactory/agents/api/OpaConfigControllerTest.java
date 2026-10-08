@@ -45,7 +45,7 @@ class OpaConfigControllerTest {
     void setUp() {
         when(properties.isEnabled()).thenReturn(false);
         when(properties.getBaseUrl()).thenReturn("http://localhost:8181");
-        when(properties.getPolicyPath()).thenReturn("/v1/data/metafactory/workflow/decision");
+        when(properties.getPolicyPath()).thenReturn("/v1/data/openjcockpit/workflow/decision");
         when(properties.getHealthPath()).thenReturn("/health");
         when(properties.getTimeoutSeconds()).thenReturn(3);
         when(properties.getFailMode()).thenReturn(FailMode.FAIL_CLOSED);

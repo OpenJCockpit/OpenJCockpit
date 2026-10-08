@@ -6,14 +6,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Activates the central MCP client when metafactory.mcp.enabled=true; otherwise
+ * Activates the central MCP client when openjcockpit.mcp.enabled=true; otherwise
  * the NoOpMcpToolExecutor stays active and the behaviour does not change.
  */
 @Configuration
 public class McpClientConfig {
 
     @Bean
-    @ConditionalOnProperty(prefix = "metafactory.mcp", name = "enabled", havingValue = "true")
+    @ConditionalOnProperty(prefix = "openjcockpit.mcp", name = "enabled", havingValue = "true")
     public McpToolExecutor remoteMcpToolExecutor(McpClientProperties properties) {
         return new RemoteMcpToolExecutor(new McpConnectionFactory(properties).connections());
     }

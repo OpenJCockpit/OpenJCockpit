@@ -54,9 +54,9 @@ if [ -n "$INFRA_ONLY" ]; then
   mf::log_step "Starting infrastructure only: postgres, keycloak"
   docker compose "${COMPOSE_ARGS[@]}" up -d --build postgres keycloak
 
-  mf::wait_for_http "Keycloak" "http://localhost:8080/realms/metafactory/.well-known/openid-configuration" 120 3
+  mf::wait_for_http "Keycloak" "http://localhost:8080/realms/openjcockpit/.well-known/openid-configuration" 120 3
 
-  mf::log_info "Infrastructure is up. To run ai-control-service locally against it, first create the metafactory database:"
+  mf::log_info "Infrastructure is up. To run ai-control-service locally against it, first create the openjcockpit database:"
   mf::log_info "  docker compose ${COMPOSE_ARGS[*]} run --rm postgres-init"
   mf::log_info "To run the dashboard/landing frontends locally, start Vite yourself, e.g.:"
   mf::log_info "  cd apps/dashboard && npm run dev"
@@ -67,7 +67,7 @@ mf::log_step "Building and starting the full stack"
 docker compose "${COMPOSE_ARGS[@]}" up -d --build
 
 mf::log_step "Waiting for services to become healthy"
-mf::wait_for_http "Keycloak" "http://localhost:8080/realms/metafactory/.well-known/openid-configuration" 120 3
+mf::wait_for_http "Keycloak" "http://localhost:8080/realms/openjcockpit/.well-known/openid-configuration" 120 3
 mf::wait_for_http "ai-control-service" "http://localhost:9080/actuator/health" 180 3
 mf::wait_for_http "embabel-agent-service" "http://localhost:8091/actuator/health" 180 3
 

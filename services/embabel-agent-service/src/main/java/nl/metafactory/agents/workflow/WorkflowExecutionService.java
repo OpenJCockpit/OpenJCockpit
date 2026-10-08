@@ -157,7 +157,7 @@ public class WorkflowExecutionService implements ChildWorkflowStarter {
         String startedBy = currentUserProvider.currentUsername().orElse(null);
         // MADP-54: baseBranch has no ExecutionConfig counterpart (spec §4 non-goal) — the start
         // input is the only source. Blank → null, which the publishers fall back on
-        // (metafactory.spec-git.base-branch). Resolved once here, per run.
+        // (openjcockpit.spec-git.base-branch). Resolved once here, per run.
         String baseBranch = input.baseBranch() != null && !input.baseBranch().isBlank()
                 ? input.baseBranch() : null;
 

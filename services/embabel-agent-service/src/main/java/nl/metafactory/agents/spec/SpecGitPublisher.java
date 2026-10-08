@@ -25,7 +25,7 @@ import java.util.Map;
  * so OPA policies remain in effect.
  *
  * <p>Credentials: the project credentials passed per run (from the
- * ai-control-service) take precedence over the static {@code metafactory.spec-git}
+ * ai-control-service) take precedence over the static {@code openjcockpit.spec-git}
  * configuration, so that every push and pull request uses the credentials of the
  * active project.
  */
@@ -80,7 +80,7 @@ public class SpecGitPublisher {
                                         String commitMsg, String prTitle, String prBody) {
         if (!properties.isEnabled()) {
             return SpecPublication.skipped(
-                    "Spec git publication is disabled (metafactory.spec-git.enabled=false)");
+                    "Spec git publication is disabled (openjcockpit.spec-git.enabled=false)");
         }
         String repositoryUrl = request.repositoryUrl();
         if (repositoryUrl == null || repositoryUrl.isBlank()) {
@@ -100,7 +100,7 @@ public class SpecGitPublisher {
         if (baseBranch == null) {
             return SpecPublication.failed(branch,
                     "No base branch determined: the project has no branch configured and "
-                            + "metafactory.spec-git.base-branch is empty");
+                            + "openjcockpit.spec-git.base-branch is empty");
         }
         log.info("{} publication for run {} uses base branch {} ({})",
                 label, runId, baseBranch, baseBranchOrigin(request));

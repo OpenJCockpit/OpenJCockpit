@@ -28,7 +28,7 @@ public class StubSpecRepositoryClient implements SpecRepositoryClient {
     private final File specRepositoryRoot;
 
     public StubSpecRepositoryClient(
-            @Value("${metafactory.spec-repository.path:../../spec-repository-stub}") String path) {
+            @Value("${openjcockpit.spec-repository.path:../../spec-repository-stub}") String path) {
         this.specRepositoryRoot = new File(path);
     }
 

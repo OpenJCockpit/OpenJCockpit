@@ -118,7 +118,7 @@ test.describe('workflow-trigger-workflow-orb: unauthenticated / foreign-issuer a
       btoa(JSON.stringify(obj)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     const header = base64url({ alg: 'RS256', typ: 'JWT' });
     const payload = base64url({
-      iss: 'https://foreign-issuer.invalid/realms/not-metafactory',
+      iss: 'https://foreign-issuer.invalid/realms/not-openjcockpit',
       sub: 'e2e-foreign-subject',
       preferred_username: 'e2e-foreign-user',
       exp: Math.floor(Date.now() / 1000) + 3600,

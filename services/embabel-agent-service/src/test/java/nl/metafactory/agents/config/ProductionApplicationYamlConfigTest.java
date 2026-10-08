@@ -99,30 +99,30 @@ class ProductionApplicationYamlConfigTest {
 
         assertThat(properties.getProperty("embabel.models.default-llm"))
                 .as("ADR-003/F-2 regression guard: embabel.models.default-llm must stay the property "
-                        + "placeholder ${metafactory.llm.ollama.model}, never a literal tag - otherwise "
+                        + "placeholder ${openjcockpit.llm.ollama.model}, never a literal tag - otherwise "
                         + "overriding OLLAMA_MODEL at runtime would make ConfigurableModelProvider fail "
                         + "fast and the service would refuse to start")
-                .isEqualTo("${metafactory.llm.ollama.model}");
+                .isEqualTo("${openjcockpit.llm.ollama.model}");
 
         assertThat(properties.getProperty("embabel.models.llms.coding"))
                 .as("ADR-003/F-2 regression guard: embabel.models.llms.coding must stay the property "
-                        + "placeholder ${metafactory.llm.ollama.model}, never a literal tag - otherwise "
+                        + "placeholder ${openjcockpit.llm.ollama.model}, never a literal tag - otherwise "
                         + "overriding OLLAMA_MODEL at runtime would make ConfigurableModelProvider fail "
                         + "fast and the service would refuse to start")
-                .isEqualTo("${metafactory.llm.ollama.model}");
+                .isEqualTo("${openjcockpit.llm.ollama.model}");
     }
 
     @Test
     void ollamaBaseUrlAndModelPropertiesHaveTheDocumentedPlaceholderShape() {
         Properties properties = loadProductionYaml();
 
-        assertThat(properties.getProperty("metafactory.llm.ollama.model"))
-                .as("metafactory.llm.ollama.model must stay overridable via OLLAMA_MODEL with the "
+        assertThat(properties.getProperty("openjcockpit.llm.ollama.model"))
+                .as("openjcockpit.llm.ollama.model must stay overridable via OLLAMA_MODEL with the "
                         + "documented default qwen3.6:27b")
                 .isEqualTo("${OLLAMA_MODEL:qwen3.6:27b}");
 
-        assertThat(properties.getProperty("metafactory.llm.ollama.base-url"))
-                .as("metafactory.llm.ollama.base-url must stay overridable via OLLAMA_BASE_URL with the "
+        assertThat(properties.getProperty("openjcockpit.llm.ollama.base-url"))
+                .as("openjcockpit.llm.ollama.base-url must stay overridable via OLLAMA_BASE_URL with the "
                         + "documented loopback default")
                 .isEqualTo("${OLLAMA_BASE_URL:http://localhost:11434}");
     }
@@ -131,29 +131,29 @@ class ProductionApplicationYamlConfigTest {
     void gatewayPropertiesHaveTheDocumentedPlaceholderShape() {
         Properties properties = loadProductionYaml();
 
-        assertThat(properties.getProperty("metafactory.llm.gateway.base-url"))
-                .as("metafactory.llm.gateway.base-url must stay overridable via LITELLM_BASE_URL with the "
+        assertThat(properties.getProperty("openjcockpit.llm.gateway.base-url"))
+                .as("openjcockpit.llm.gateway.base-url must stay overridable via LITELLM_BASE_URL with the "
                         + "documented default http://localhost:4000/v1")
                 .isEqualTo("${LITELLM_BASE_URL:http://localhost:4000/v1}");
 
-        assertThat(properties.getProperty("metafactory.llm.gateway.api-key"))
-                .as("metafactory.llm.gateway.api-key must stay overridable via LITELLM_VIRTUAL_KEY with the "
-                        + "documented local default sk-metafactory-embabel-local")
-                .isEqualTo("${LITELLM_VIRTUAL_KEY:sk-metafactory-embabel-local}");
+        assertThat(properties.getProperty("openjcockpit.llm.gateway.api-key"))
+                .as("openjcockpit.llm.gateway.api-key must stay overridable via LITELLM_VIRTUAL_KEY with the "
+                        + "documented local default sk-openjcockpit-embabel-local")
+                .isEqualTo("${LITELLM_VIRTUAL_KEY:sk-openjcockpit-embabel-local}");
 
-        assertThat(properties.getProperty("metafactory.llm.coding.route"))
-                .as("BR-14 regression guard: metafactory.llm.coding.route is the configuration-only revert "
+        assertThat(properties.getProperty("openjcockpit.llm.coding.route"))
+                .as("BR-14 regression guard: openjcockpit.llm.coding.route is the configuration-only revert "
                         + "switch between the LiteLLM gateway route and the direct-Ollama route; its default "
                         + "must stay gateway so the LiteLLM gateway is the production-active route")
                 .isEqualTo("${LLM_CODING_ROUTE:gateway}");
 
         PropertyPlaceholderHelper helper = new PropertyPlaceholderHelper("${", "}", ":", null, true);
         String resolvedReadTimeout = helper.replacePlaceholders(
-                properties.getProperty("metafactory.llm.read-timeout-seconds"),
+                properties.getProperty("openjcockpit.llm.read-timeout-seconds"),
                 properties::getProperty);
 
         assertThat(resolvedReadTimeout)
-                .as("BR-19 pairing regression guard: metafactory.llm.read-timeout-seconds must resolve to 600 "
+                .as("BR-19 pairing regression guard: openjcockpit.llm.read-timeout-seconds must resolve to 600 "
                         + "seconds, matching the embabel.agent.platform.llm-operations.prompts.default-timeout "
                         + "600s assertion in springAiModelSelectorsStayPinnedToOpenAiAndTheEmbabelOperationTimeoutResolvesTo600Seconds")
                 .isEqualTo("600");
@@ -227,7 +227,7 @@ class ProductionApplicationYamlConfigTest {
 
         assertThat(resolvedTimeout)
                 .as("ADR-007/F-1 regression guard: embabel.agent.platform.llm-operations.prompts.default-timeout "
-                        + "must resolve to 600s so it is not silently shorter than metafactory.llm.read-timeout-seconds")
+                        + "must resolve to 600s so it is not silently shorter than openjcockpit.llm.read-timeout-seconds")
                 .isEqualTo("600s");
     }
 }

@@ -6,8 +6,8 @@ export function getKeycloak(): Keycloak {
   if (!_keycloak) {
     _keycloak = new Keycloak({
       url: 'http://localhost:8080',
-      realm: 'metafactory',
-      clientId: 'metafactory',
+      realm: 'openjcockpit',
+      clientId: 'openjcockpit',
     });
   }
   return _keycloak;

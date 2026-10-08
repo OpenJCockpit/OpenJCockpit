@@ -12,10 +12,10 @@ Futuristic dashboard, build with React, Vite, Docker Compose, Keycloak and Postg
 - Intro-animation with `Hi <surname>!`, where the surname is retrieved from the Keycloak-token.
 - Topbar with Profile, Notifications, Messages and Logout.
 - Two glow-spheres: Business and Implementation.
-- Keycloak realm-import file: `keycloak/metafactory-realm.json`.
+- Keycloak realm-import file: `keycloak/openjcockpit-realm.json`.
 - PostgreSQL as database for Keycloak.
-- Custom Keycloak login theme: `themes/metafactory/login`.
-- The realm `metafactory` uses `loginTheme: metafactory` by default.
+- Custom Keycloak login theme: `themes/openjcockpit/login`.
+- The realm `openjcockpit` uses `loginTheme: openjcockpit` by default.
 
 ## Starting the application with Docker Compose
 
@@ -82,9 +82,9 @@ defined in `.env.example` (commented out by default) and overridable in
 
 | Variable               | Default                              | Meaning                                                                 |
 | ---------------------- | ------------------------------------ | ----------------------------------------------------------------------- |
-| `LITELLM_MASTER_KEY`   | `sk-metafactory-litellm-local`       | The LiteLLM proxy admin/master API key.                                 |
-| `LITELLM_SALT_KEY`     | `sk-metafactory-litellm-salt-local`  | LiteLLM's encryption salt key — changing it invalidates stored credentials. |
-| `LITELLM_VIRTUAL_KEY`  | `sk-metafactory-embabel-local`       | The virtual key `embabel-agent-service` presents to the gateway.        |
+| `LITELLM_MASTER_KEY`   | `sk-openjcockpit-litellm-local`       | The LiteLLM proxy admin/master API key.                                 |
+| `LITELLM_SALT_KEY`     | `sk-openjcockpit-litellm-salt-local`  | LiteLLM's encryption salt key — changing it invalidates stored credentials. |
+| `LITELLM_VIRTUAL_KEY`  | `sk-openjcockpit-embabel-local`       | The virtual key `embabel-agent-service` presents to the gateway.        |
 | `LITELLM_UI_USERNAME`  | `ricky`                              | LiteLLM admin UI username.                                              |
 | `LITELLM_UI_PASSWORD`  | `Welkom01!`                          | LiteLLM admin UI password.                                              |
 | `LLM_CODING_ROUTE`     | unset (commented out)                | Set to `direct` to bypass the gateway and call the host Ollama daemon directly (Revert B, see below). |
@@ -174,7 +174,7 @@ You can open the following URLs in your browser:
 - App: http://localhost:3000
 - Keycloak admin: http://localhost:8080/admin
 
-The app will send you automatically to the custom Metafactory login page of Keycloak. After a valid login, you will be redirected to the landing page.
+The app will send you automatically to the custom OpenJCockpit login page of Keycloak. After a valid login, you will be redirected to the landing page.
 
 ## Keycloak data
 
@@ -185,19 +185,19 @@ Admin for the `master` realm:
 
 imported realm:
 
-- Realm: `metafactory`
-- Client: `metafactory`
-- Login theme: `metafactory`
+- Realm: `openjcockpit`
+- Client: `openjcockpit`
+- Login theme: `openjcockpit`
 - Default locale: `nl`
 
-Standard users in the `metafactory` realm:
+Standard users in the `openjcockpit` realm:
 
 | Username | Password    |
 | -------- | ----------- |
 | `tony`   | `Welkom01!` |
 | `koen`   | `Welkom01!` |
 | `ricky`  | `Welkom01!` |
-| `e2e` (`e2e@metafactory.local`) | `E2eRunner01!` |
+| `e2e` (`e2e@openjcockpit.local`) | `E2eRunner01!` |
 
 The `e2e` user is a dedicated, local-only seed identity used exclusively by the Playwright E2E suite
 (see "End-to-end tests (Playwright)" below) — deliberately not shared with `tony`/`koen`/`ricky`, so a
@@ -213,18 +213,18 @@ for gitignored, per-developer local users.
 The custom theme has the following location:
 
 ```text
-themes/metafactory/login/
+themes/openjcockpit/login/
 ├── login.ftl
 ├── theme.properties
 ├── messages/
 │   ├── messages_en.properties
 │   └── messages_nl.properties
 └── resources/
-    ├── css/metafactory-login.css
-    └── js/metafactory-login.js
+    ├── css/openjcockpit-login.css
+    └── js/openjcockpit-login.js
 ```
 
-The login page remains functionally the standard Keycloak flow: username/password, remember me, reset-password link and any social identity providers are rendered via Keycloak variables. The styling has been replaced with a futuristic Metafactory look, with glow, scanlines, orb, octagon/corner-frame and neon input states.
+The login page remains functionally the standard Keycloak flow: username/password, remember me, reset-password link and any social identity providers are rendered via Keycloak variables. The styling has been replaced with a futuristic OpenJCockpit look, with glow, scanlines, orb, octagon/corner-frame and neon input states.
 
 The `docker-compose.yml` mount the theme to Keycloak:
 
@@ -287,7 +287,7 @@ suite is a **local and QA-agent gate only** — see "Continuous Integration" bel
 
 ## Important
 
-The passwords are intentionally plaintext in `keycloak/metafactory-realm.json`, because this is a local dev/import setup. Do not use this as-is in production.
+The passwords are intentionally plaintext in `keycloak/openjcockpit-realm.json`, because this is a local dev/import setup. Do not use this as-is in production.
 
 ## MCP: central tools for agents (git-mcp-server)
 
@@ -315,7 +315,7 @@ The JGit implementation sits behind a `GitWorkspaceOperations` port
 changes, that happens in one place.
 
 **Client — embabel-agent-service**: the `RemoteMcpToolExecutor` connects to one
-or more MCP servers (configuration `metafactory.mcp.servers`, MCP Java SDK over
+or more MCP servers (configuration `openjcockpit.mcp.servers`, MCP Java SDK over
 SSE) and routes every tool call to the first server that offers the tool.
 Tool calling stays centralized: agents only reach tools through the
 existing `PolicyGuardedMcpToolGateway`, so every call first passes the
@@ -402,7 +402,7 @@ the existing plan is found).
 
 The import is idempotent: records are only added if their id does not yet
 exist, so your own changes to these workflows are preserved. Disable
-with `metafactory.workflow-definitions.seed-defaults=false`.
+with `openjcockpit.workflow-definitions.seed-defaults=false`.
 
 Without specs, the dashboard shows one of two flows depending on the repository state:
 
@@ -464,7 +464,7 @@ the project's git URL and decrypts the active project credential
 project URL, the run falls back to the workflow's execution configuration;
 without a project credential, to `SPEC_GIT_USERNAME`/`SPEC_GIT_TOKEN`. Other
 configuration via `SPEC_GIT_ENABLED` and `SPEC_GIT_BASE_BRANCH` (see
-`metafactory.spec-git` in the embabel-agent-service's application.yml).
+`openjcockpit.spec-git` in the embabel-agent-service's application.yml).
 
 ## Workflow Design: groups and JSON export/import
 
@@ -894,11 +894,11 @@ docker compose logs embabel-agent-service | grep "Reconciled agentIds"
 
 ### The `reconcile-agent-ids` kill switch
 
-The property is `metafactory.workflow-definitions.reconcile-agent-ids`,
+The property is `openjcockpit.workflow-definitions.reconcile-agent-ids`,
 boolean, default `true`, configured in
 `services/embabel-agent-service/src/main/resources/application.yml`.
 
-- It is **independent** of `metafactory.workflow-definitions.seed-defaults` —
+- It is **independent** of `openjcockpit.workflow-definitions.seed-defaults` —
   seeding and reconciliation are separate switches.
 - It is **deliberately not** exposed as a `docker-compose.yml` environment
   variable — there is no `${...}` override for it in Compose, by design.

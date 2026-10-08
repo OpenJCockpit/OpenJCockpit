@@ -43,14 +43,14 @@ class ComposeEmbabelDatasourceWiringContractTest {
     }
 
     @Test
-    void dbUsernameIsEmbabelAppNotMetafactoryApp() throws IOException {
+    void dbUsernameIsEmbabelAppNotOpenjcockpitApp() throws IOException {
         JsonNode root = parseCompose();
         JsonNode environment = root.path("services")
                 .path("embabel-agent-service")
                 .path("environment");
         String value = environment.path("DB_USERNAME").asString();
         assertEquals("embabel_app", value);
-        assertFalse("metafactory_app".equals(value));
+        assertFalse("openjcockpit_app".equals(value));
     }
 
     @Test

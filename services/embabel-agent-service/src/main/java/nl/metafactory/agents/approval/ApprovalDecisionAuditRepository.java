@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * File-based store for approval-decision audit entries (ADR-004) — a directory sibling to the
  * pre-existing policy decision-log store, reusing the same {@link YamlDefinitionStore}
- * infrastructure and the same configured root ({@code metafactory.workflow-definitions.path}).
+ * infrastructure and the same configured root ({@code openjcockpit.workflow-definitions.path}).
  * No new volume, no migration.
  *
  * <p>Key = {@code runId + "-" + iteration (%03d)} — deterministic, so a hypothetical duplicate

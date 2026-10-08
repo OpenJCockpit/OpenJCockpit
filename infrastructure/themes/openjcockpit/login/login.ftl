@@ -1,5 +1,5 @@
 <#--
-  Metafactory Keycloak login theme.
+  OpenJCockpit Keycloak login theme.
   This page keeps the standard Keycloak username/password login flow but
   replaces the default visual layer with an Arwes-inspired futuristic UI.
 -->
@@ -19,11 +19,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>${msg("loginTitle", (realm.displayName!'Metafactory'))}</title>
+    <title>${msg("loginTitle", (realm.displayName!'OpenJCockpit'))}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="${url.resourcesPath}/css/metafactory-login.css" />
+    <link rel="stylesheet" href="${url.resourcesPath}/css/openjcockpit-login.css" />
   </head>
 
   <body class="mf-auth-body">
@@ -50,12 +50,12 @@
             <span class="mf-orb-grid"></span>
           </div>
           <p class="mf-orb-label">AUTHENTICATED ACCESS</p>
-          <p class="mf-orb-copy">Secure launch sequence for the Metafactory portal.</p>
+          <p class="mf-orb-copy">Secure launch sequence for the OpenJCockpit portal.</p>
         </aside>
 
         <section class="mf-form-panel">
           <div class="mf-brand-row">
-            <span class="mf-brand-kicker">MetaFactory Realm</span>
+            <span class="mf-brand-kicker">OpenJCockpit Realm</span>
             <span class="mf-system-status">ONLINE</span>
           </div>
 
@@ -165,6 +165,6 @@
       </section>
     </main>
 
-    <script src="${url.resourcesPath}/js/metafactory-login.js"></script>
+    <script src="${url.resourcesPath}/js/openjcockpit-login.js"></script>
   </body>
 </html>

@@ -4,19 +4,19 @@ set -e
 psql -h postgres -U keycloak -d keycloak -v ON_ERROR_STOP=1 <<-'EOSQL'
   DO $$
   BEGIN
-    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'metafactory_app') THEN
-      CREATE USER metafactory_app WITH PASSWORD 'metafactory_app';
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'openjcockpit_app') THEN
+      CREATE USER openjcockpit_app WITH PASSWORD 'openjcockpit_app';
     END IF;
   END
   $$;
 EOSQL
 
-if ! psql -h postgres -U keycloak -d keycloak -tAc "SELECT 1 FROM pg_database WHERE datname='metafactory'" | grep -q 1; then
-  psql -h postgres -U keycloak -d keycloak -c "CREATE DATABASE metafactory OWNER metafactory_app"
-  psql -h postgres -U keycloak -d keycloak -c "GRANT ALL PRIVILEGES ON DATABASE metafactory TO metafactory_app"
+if ! psql -h postgres -U keycloak -d keycloak -tAc "SELECT 1 FROM pg_database WHERE datname='openjcockpit'" | grep -q 1; then
+  psql -h postgres -U keycloak -d keycloak -c "CREATE DATABASE openjcockpit OWNER openjcockpit_app"
+  psql -h postgres -U keycloak -d keycloak -c "GRANT ALL PRIVILEGES ON DATABASE openjcockpit TO openjcockpit_app"
 fi
 
-echo "metafactory database ready"
+echo "openjcockpit database ready"
 
 psql -h postgres -U keycloak -d keycloak -v ON_ERROR_STOP=1 <<-'EOSQL'
   DO $$

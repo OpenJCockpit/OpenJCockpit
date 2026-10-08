@@ -11,8 +11,8 @@ public class CredentialEncryptionService {
     private final TextEncryptor encryptor;
 
     public CredentialEncryptionService(
-            @Value("${metafactory.encryption.secret}") String secret,
-            @Value("${metafactory.encryption.salt}") String salt) {
+            @Value("${openjcockpit.encryption.secret}") String secret,
+            @Value("${openjcockpit.encryption.salt}") String salt) {
         this.encryptor = Encryptors.delux(secret, salt);
     }
 
