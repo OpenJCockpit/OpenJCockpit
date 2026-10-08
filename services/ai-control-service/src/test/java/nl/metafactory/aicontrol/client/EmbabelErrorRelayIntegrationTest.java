@@ -85,7 +85,7 @@ class EmbabelErrorRelayIntegrationTest {
     static void embabelBaseUrl(DynamicPropertyRegistry registry) throws IOException {
         embabel = new MockWebServer();
         embabel.start();
-        registry.add("metafactory.embabel-agent-service.base-url", () -> embabel.url("/").toString());
+        registry.add("openjcockpit.embabel-agent-service.base-url", () -> embabel.url("/").toString());
     }
 
     @AfterAll

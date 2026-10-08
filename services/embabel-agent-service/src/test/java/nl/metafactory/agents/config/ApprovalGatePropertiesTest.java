@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Frozen Contract #2: every field default here must match the shipped
  * {@code application.yml}'s {@code ${VAR:default}} value, so a truncated or absent
- * {@code metafactory.approval-gate} YAML block cannot produce a permissive value.
+ * {@code openjcockpit.approval-gate} YAML block cannot produce a permissive value.
  */
 class ApprovalGatePropertiesTest {
 

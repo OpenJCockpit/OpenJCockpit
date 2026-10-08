@@ -12,7 +12,7 @@ Usage: stack-stop.sh [--with-local-marketplace]
 Stops the local Docker Compose stack without deleting any data.
 This script never removes a container, network, image, or volume;
 it only calls "docker compose ... stop", which preserves all state
-(the Keycloak realm, the metafactory database, and every named volume).
+(the Keycloak realm, the openjcockpit database, and every named volume).
 
 Options:
   --with-local-marketplace   Also target the mock-skills-marketplace overlay

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 // Admin endpoints (create/update/activate/deactivate) are open to all authenticated users.
-// TODO: Add @PreAuthorize("hasRole('METAFACTORY_ADMIN')") and @EnableMethodSecurity in SecurityConfig
+// TODO: Add @PreAuthorize("hasRole('OPENJCOCKPIT_ADMIN')") and @EnableMethodSecurity in SecurityConfig
 //       once Keycloak realm roles are configured. See ProjectService for context.
 @RestController
 public class ProjectController implements ProjectApi {

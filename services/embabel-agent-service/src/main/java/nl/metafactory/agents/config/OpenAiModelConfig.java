@@ -39,8 +39,8 @@ public class OpenAiModelConfig {
 
     @Bean
     OpenAiHttpClientBuilderCustomizer openAiHttpClientBuilderCustomizer(
-            @Value("${metafactory.llm.connect-timeout-seconds:45}") long connectTimeoutSeconds,
-            @Value("${metafactory.llm.read-timeout-seconds:600}") long readTimeoutSeconds) {
+            @Value("${openjcockpit.llm.connect-timeout-seconds:45}") long connectTimeoutSeconds,
+            @Value("${openjcockpit.llm.read-timeout-seconds:600}") long readTimeoutSeconds) {
         return builder -> builder.timeout(com.openai.core.Timeout.builder()
                 .connect(Duration.ofSeconds(connectTimeoutSeconds))
                 .read(Duration.ofSeconds(readTimeoutSeconds))

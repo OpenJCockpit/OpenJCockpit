@@ -56,7 +56,7 @@ public class RunWorkspaceReaper {
      * <p>This method never touches anything outside the {@code runs/} directory, including the
      * legacy shared-clone path directly under {@code workspaceBasePath}.
      */
-    @Scheduled(fixedDelayString = "${metafactory.git-mcp.run-workspace-reap-interval:PT1H}")
+    @Scheduled(fixedDelayString = "${openjcockpit.git-mcp.run-workspace-reap-interval:PT1H}")
     public void reapStaleRunWorkspaces() {
         Path runsDirectory = Path.of(properties.getWorkspaceBasePath()).resolve("runs");
         if (!Files.isDirectory(runsDirectory)) {

@@ -109,7 +109,7 @@ mf::confirm() {
 }
 
 mf::acquire_lock() {
-  local lock_dir="${TMPDIR:-/tmp}/metafactory-stack.lock"
+  local lock_dir="${TMPDIR:-/tmp}/openjcockpit-stack.lock"
   if ! mkdir "$lock_dir" 2>/dev/null; then
     mf::die "Another lifecycle script invocation appears to be in progress (lock: $lock_dir). Wait for it to finish or remove the lock manually if stale."
   fi

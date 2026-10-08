@@ -7,7 +7,7 @@ import java.time.Duration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * These defaults are the only source of truth for {@code metafactory.workflow-trigger} until a
+ * These defaults are the only source of truth for {@code openjcockpit.workflow-trigger} until a
  * later work package adds the corresponding {@code application.yml} keys (see
  * {@link WorkflowTriggerProperties}'s class Javadoc).
  */

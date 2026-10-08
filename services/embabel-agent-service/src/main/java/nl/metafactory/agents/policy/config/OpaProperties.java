@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
  * defaults below on service restart.
  */
 @Component
-@ConfigurationProperties("metafactory.opa")
+@ConfigurationProperties("openjcockpit.opa")
 public class OpaProperties {
 
     private boolean enabled = false;
     private String baseUrl = "";
-    private String policyPath = "/v1/data/metafactory/workflow/decision";
+    private String policyPath = "/v1/data/openjcockpit/workflow/decision";
     private String healthPath = "/health";
     private int timeoutSeconds = 3;
     private FailMode failMode = FailMode.FAIL_CLOSED;

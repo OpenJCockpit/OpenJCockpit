@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties("metafactory.git-mcp")
+@ConfigurationProperties("openjcockpit.git-mcp")
 public class GitToolsProperties {
 
     /** Base directory that holds one workspace clone per repository. */

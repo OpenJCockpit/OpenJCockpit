@@ -5,13 +5,13 @@ import org.springframework.stereotype.Component;
 
 /**
  * Frozen Contract #2 (workflow-approval-gate work plan §5): every default here is also a Java
- * field initialiser, so a truncated or absent {@code metafactory.approval-gate} YAML block cannot
+ * field initialiser, so a truncated or absent {@code openjcockpit.approval-gate} YAML block cannot
  * produce a permissive value. Follows the same {@code @Component @ConfigurationProperties} pattern
  * as {@link AgentPipelineProperties}/{@link WorkflowDefinitionProperties} — no explicit
  * {@code @EnableConfigurationProperties} registration is needed or added.
  */
 @Component
-@ConfigurationProperties("metafactory.approval-gate")
+@ConfigurationProperties("openjcockpit.approval-gate")
 public class ApprovalGateProperties {
 
     /** BR-27/A13: at most this many feedback iterations per gate (i.e. at most +1 gate openings). */

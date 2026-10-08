@@ -20,7 +20,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8080/realms/metafactory/protocol/openid-connect/certs
+          jwk-set-uri: http://localhost:8080/realms/openjcockpit/protocol/openid-connect/certs
   web:
     error:
       # Discovered during the Spring Boot 3.5.0 -> 4.1.1 upgrade: BasicErrorController's message
@@ -31,9 +31,9 @@ spring:
       # forward anyway); EmbabelErrorRelayIntegrationTest sets this directly via
       # @TestPropertySource since src/test/resources shadows src/main/resources.
       include-message: always
-metafactory:
+openjcockpit:
   security:
-    jwt-issuer: http://localhost:8080/realms/metafactory
+    jwt-issuer: http://localhost:8080/realms/openjcockpit
   embabel-agent-service:
     base-url: http://localhost:8081
   encryption:

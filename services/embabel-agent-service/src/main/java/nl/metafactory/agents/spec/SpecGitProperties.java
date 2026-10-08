@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties("metafactory.spec-git")
+@ConfigurationProperties("openjcockpit.spec-git")
 public class SpecGitProperties {
 
     /** Publish specs produced by the requirement stage to git via the git MCP tools. */

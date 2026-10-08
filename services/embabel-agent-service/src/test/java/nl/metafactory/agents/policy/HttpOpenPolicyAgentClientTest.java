@@ -35,7 +35,7 @@ class HttpOpenPolicyAgentClientTest {
         server.start();
         properties = new OpaProperties();
         properties.setBaseUrl(server.url("/").toString().replaceAll("/$", ""));
-        properties.setPolicyPath("/v1/data/metafactory/workflow/decision");
+        properties.setPolicyPath("/v1/data/openjcockpit/workflow/decision");
         properties.setHealthPath("/health");
         properties.setTimeoutSeconds(2);
         client = new HttpOpenPolicyAgentClient(WebClient.builder(), properties);
@@ -105,7 +105,7 @@ class HttpOpenPolicyAgentClientTest {
 
         var recorded = server.takeRequest();
         assertThat(recorded.getMethod()).isEqualTo("POST");
-        assertThat(recorded.getPath()).isEqualTo("/v1/data/metafactory/workflow/decision");
+        assertThat(recorded.getPath()).isEqualTo("/v1/data/openjcockpit/workflow/decision");
     }
 
     @Test

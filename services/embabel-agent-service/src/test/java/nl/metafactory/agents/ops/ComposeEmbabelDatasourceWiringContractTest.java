@@ -39,18 +39,18 @@ class ComposeEmbabelDatasourceWiringContractTest {
                 .path("environment");
         String value = environment.path("DB_URL").asString();
         assertEquals("jdbc:postgresql://postgres:5432/embabel", value);
-        assertFalse(value.contains("metafactory"));
+        assertFalse(value.contains("openjcockpit"));
     }
 
     @Test
-    void dbUsernameIsEmbabelAppNotMetafactoryApp() throws IOException {
+    void dbUsernameIsEmbabelAppNotOpenjcockpitApp() throws IOException {
         JsonNode root = parseCompose();
         JsonNode environment = root.path("services")
                 .path("embabel-agent-service")
                 .path("environment");
         String value = environment.path("DB_USERNAME").asString();
         assertEquals("embabel_app", value);
-        assertFalse("metafactory_app".equals(value));
+        assertFalse("openjcockpit_app".equals(value));
     }
 
     @Test

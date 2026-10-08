@@ -15,7 +15,7 @@ import org.springframework.validation.annotation.Validated;
  * flag must never be enabled in a deployed environment.</p>
  */
 @Validated
-@ConfigurationProperties(prefix = "metafactory.skills-marketplace")
+@ConfigurationProperties(prefix = "openjcockpit.skills-marketplace")
 public class SkillsMarketplaceProperties {
 
     private int requestTimeoutSeconds = 5;

@@ -1,6 +1,6 @@
-# Metafactory AI Delivery Factory — Frontend
+# OpenJCockpit — Frontend
 
-Minimalist, futuristic React/Vite frontend for the Metafactory workspace.
+Minimalist, futuristic React/Vite frontend for the OpenJCockpit workspace.
 
 This version follows the calmer cockpit layout from the latest reference image:
 

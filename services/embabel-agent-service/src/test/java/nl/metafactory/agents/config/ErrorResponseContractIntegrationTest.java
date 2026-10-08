@@ -79,7 +79,7 @@ class ErrorResponseContractIntegrationTest {
     @DynamicPropertySource
     static void workflowDefinitionsPath(DynamicPropertyRegistry registry) {
         // Isolates this test's workflow writes from other tests/the shared /tmp default.
-        registry.add("metafactory.workflow-definitions.path", () -> workflowDefinitionsDir.toString());
+        registry.add("openjcockpit.workflow-definitions.path", () -> workflowDefinitionsDir.toString());
     }
 
     @MockitoBean

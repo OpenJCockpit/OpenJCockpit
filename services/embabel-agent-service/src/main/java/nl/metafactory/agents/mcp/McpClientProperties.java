@@ -11,7 +11,7 @@ import java.util.List;
  * tools are available to all agents via the PolicyGuardedMcpToolGateway.
  */
 @Component
-@ConfigurationProperties("metafactory.mcp")
+@ConfigurationProperties("openjcockpit.mcp")
 public class McpClientProperties {
 
     /** Enable the remote MCP tool executor; without it the no-op executor is used. */

@@ -11,7 +11,7 @@ function opaConfig(overrides: Partial<OpaConfig> = {}): OpaConfig {
   return {
     enabled: false,
     baseUrl: '',
-    policyPath: '/v1/data/metafactory/workflow/decision',
+    policyPath: '/v1/data/openjcockpit/workflow/decision',
     healthPath: '/health',
     timeoutSeconds: 3,
     failMode: 'FAIL_CLOSED',

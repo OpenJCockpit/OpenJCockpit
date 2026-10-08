@@ -23,7 +23,7 @@ export default function AuthStatusScreen({ status, error }) {
           }}
         />
         <div className="auth-card-content">
-          <span className="eyebrow">Metafactory Auth</span>
+          <span className="eyebrow">OpenJCockpit Auth</span>
           <h1>{status === 'error' ? 'Authentication failed' : 'Checking authentication'}</h1>
           <p>
             {status === 'error'

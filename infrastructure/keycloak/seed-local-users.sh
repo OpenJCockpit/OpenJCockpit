@@ -1,6 +1,6 @@
 #!/bin/sh
 # Idempotently seeds gitignored, per-developer Keycloak users into the
-# metafactory realm from infrastructure/keycloak/local-users/*.local.json.
+# openjcockpit realm from infrastructure/keycloak/local-users/*.local.json.
 # See infrastructure/keycloak/local-users/README.md for the supported format.
 set -e
 
@@ -9,7 +9,7 @@ set -e
 trap 'rm -f /tmp/kc-local-users.tsv /tmp/kc-resp.json' EXIT
 
 KC_URL="${KC_URL:-http://keycloak:8080}"
-KC_REALM="${KC_REALM:-metafactory}"
+KC_REALM="${KC_REALM:-openjcockpit}"
 KC_LOCAL_USERS_DIR="${KC_LOCAL_USERS_DIR:-/local-users}"
 
 # 1. No-op guard: busybox sh has no nullglob, so an unmatched glob stays literal.

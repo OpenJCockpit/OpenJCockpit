@@ -23,7 +23,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8080/realms/metafactory/protocol/openid-connect/certs
+          jwk-set-uri: http://localhost:8080/realms/openjcockpit/protocol/openid-connect/certs
   datasource:
     url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_UPPER=false;DEFAULT_NULL_ORDERING=HIGH
     driver-class-name: org.h2.Driver
@@ -34,9 +34,9 @@ spring:
       ddl-auto: none
   flyway:
     locations: classpath:db/migration
-metafactory:
+openjcockpit:
   security:
-    jwt-issuer: http://localhost:8080/realms/metafactory
+    jwt-issuer: http://localhost:8080/realms/openjcockpit
 embabel:
   agent-platform:
     scanning:

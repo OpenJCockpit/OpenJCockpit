@@ -13,7 +13,7 @@ class OpaPropertiesTest {
 
         assertThat(properties.isEnabled()).isFalse();
         assertThat(properties.getFailMode()).isEqualTo(FailMode.FAIL_CLOSED);
-        assertThat(properties.getPolicyPath()).isEqualTo("/v1/data/metafactory/workflow/decision");
+        assertThat(properties.getPolicyPath()).isEqualTo("/v1/data/openjcockpit/workflow/decision");
         assertThat(properties.getHealthPath()).isEqualTo("/health");
         assertThat(properties.getTimeoutSeconds()).isEqualTo(3);
         assertThat(properties.isDecisionLoggingEnabled()).isTrue();

@@ -7,14 +7,14 @@ import java.time.Duration;
 
 /**
  * Every default here is also a Java field initialiser, so a truncated or absent
- * {@code metafactory.workflow-trigger} YAML block cannot produce a permissive value — the same
+ * {@code openjcockpit.workflow-trigger} YAML block cannot produce a permissive value — the same
  * frozen-contract posture documented on {@link ApprovalGateProperties}. No
- * {@code metafactory.workflow-trigger} keys exist in any {@code application.yml} yet (that is a
+ * {@code openjcockpit.workflow-trigger} keys exist in any {@code application.yml} yet (that is a
  * separate, later work package); until then, these Java initialisers are the only source of
  * truth for this feature's configuration.
  */
 @Component
-@ConfigurationProperties("metafactory.workflow-trigger")
+@ConfigurationProperties("openjcockpit.workflow-trigger")
 public class WorkflowTriggerProperties {
 
     private Duration sequentialMaxWait = Duration.ofMinutes(30);

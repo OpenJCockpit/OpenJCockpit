@@ -66,7 +66,7 @@ const WORKFLOW: WorkflowDefinition = {
 };
 
 async function renderDashboard() {
-  localStorage.setItem('metafactory_project_id', PROJECT.id);
+  localStorage.setItem('openjcockpit_project_id', PROJECT.id);
   vi.mocked(api.loadProjects).mockResolvedValue([PROJECT]);
   vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
   vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);

@@ -130,7 +130,9 @@ button {
 .brand-logo {
   height: 32px;
   width: auto;
-  filter: brightness(0) invert(1);
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #fff;
 }
 
 .main-nav {

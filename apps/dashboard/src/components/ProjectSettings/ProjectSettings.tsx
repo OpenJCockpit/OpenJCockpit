@@ -269,7 +269,7 @@ export function ProjectSettings({ onBack }: Props) {
 
       <header className="site-header">
         <div className="brand">
-          <img src="/metafactory-logo.png" alt="Metafactory" className="brand-logo" />
+          <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
         </div>
         <div className="header-actions">
           <button className="back-button" onClick={onBack}>

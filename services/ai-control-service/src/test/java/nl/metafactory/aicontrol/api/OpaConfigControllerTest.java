@@ -33,7 +33,7 @@ class OpaConfigControllerTest {
     @MockitoBean EmbabelAgentClient client;
 
     private OpaConfigDto config() {
-        return new OpaConfigDto(true, "http://localhost:8181", "/v1/data/metafactory/workflow/decision",
+        return new OpaConfigDto(true, "http://localhost:8181", "/v1/data/openjcockpit/workflow/decision",
                 "/health", 3, "FAIL_CLOSED", true, true, "staging", "noordzee", "onboarding", false);
     }
 

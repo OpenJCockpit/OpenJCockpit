@@ -1,6 +1,6 @@
 {
-  "realm": "metafactory",
-  "displayName": "Metafactory",
+  "realm": "openjcockpit",
+  "displayName": "OpenJCockpit",
   "enabled": true,
   "sslRequired": "external",
   "registrationAllowed": false,
@@ -11,9 +11,9 @@
   "bruteForceProtected": true,
   "clients": [
     {
-      "clientId": "metafactory",
-      "name": "metafactory",
-      "description": "Metafactory landing page SPA",
+      "clientId": "openjcockpit",
+      "name": "openjcockpit",
+      "description": "OpenJCockpit landing page SPA",
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": true,
@@ -68,8 +68,8 @@
       "enabled": true,
       "emailVerified": true,
       "firstName": "Tony",
-      "lastName": "Metafactory",
-      "email": "tony@metafactory.local",
+      "lastName": "OpenJCockpit",
+      "email": "tony@openjcockpit.local",
       "credentials": [
         {
           "type": "password",
@@ -84,8 +84,8 @@
       "enabled": true,
       "emailVerified": true,
       "firstName": "Koen",
-      "lastName": "Metafactory",
-      "email": "koen@metafactory.local",
+      "lastName": "OpenJCockpit",
+      "email": "koen@openjcockpit.local",
       "credentials": [
         {
           "type": "password",
@@ -100,8 +100,8 @@
       "enabled": true,
       "emailVerified": true,
       "firstName": "Ricky",
-      "lastName": "Metafactory",
-      "email": "ricky@metafactory.local",
+      "lastName": "OpenJCockpit",
+      "email": "ricky@openjcockpit.local",
       "credentials": [
         {
           "type": "password",
@@ -117,7 +117,7 @@
       "emailVerified": true,
       "firstName": "E2E",
       "lastName": "Runner",
-      "email": "e2e@metafactory.local",
+      "email": "e2e@openjcockpit.local",
       "credentials": [
         {
           "type": "password",
@@ -128,7 +128,7 @@
       "requiredActions": []
     }
   ],
-  "loginTheme": "metafactory",
+  "loginTheme": "openjcockpit",
   "internationalizationEnabled": true,
   "defaultLocale": "nl",
   "supportedLocales": [

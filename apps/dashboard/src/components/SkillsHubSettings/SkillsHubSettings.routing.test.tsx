@@ -85,7 +85,7 @@ describe('Skills Hub Settings — routing (AC-27)', () => {
   });
 
   it('opens Skills Hub Settings from the Settings control and returns to the Skills Hub (not the dashboard) on back', async () => {
-    localStorage.setItem('metafactory_project_id', PROJECT.id);
+    localStorage.setItem('openjcockpit_project_id', PROJECT.id);
     vi.mocked(api.loadProjects).mockResolvedValue([PROJECT]);
     vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
     vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);

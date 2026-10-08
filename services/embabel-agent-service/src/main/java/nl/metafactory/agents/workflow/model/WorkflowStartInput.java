@@ -15,7 +15,7 @@ public record WorkflowStartInput(
         String gitToken,
         // MADP-54: server-populated base branch (the project's defaultBranch, resolved in
         // ai-control's WorkflowStartEnrichmentService). Absent/blank → the agent service falls
-        // back to metafactory.spec-git.base-branch. Only the dashboard-button start path carries
+        // back to openjcockpit.spec-git.base-branch. Only the dashboard-button start path carries
         // it; Hermes-signal and project-folder-file starts pass WorkflowStartInput.empty().
         String baseBranch
 ) {

@@ -3,7 +3,7 @@
 This directory lets you define your own, personal Keycloak users for local
 development — without ever committing a personal account or password to git.
 
-The committed `metafactory-realm.json` seeds three fixed, shared users
+The committed `openjcockpit-realm.json` seeds three fixed, shared users
 (`tony`, `koen`, `ricky`). If you want an extra login (your own name, a
 throwaway QA account, a role combination you're testing), add a file here
 instead of editing the realm file or clicking around in the Keycloak admin
@@ -76,7 +76,7 @@ Example:
 [
   {
     "username": "<dev>",
-    "email": "<dev>@metafactory.local",
+    "email": "<dev>@openjcockpit.local",
     "firstName": "<firstname>",
     "lastName": "<lastname>",
     "enabled": true,
@@ -89,9 +89,9 @@ Example:
 
 ## About `realmRoles`
 
-`realmRoles` entries must already exist as realm roles in the `metafactory`
+`realmRoles` entries must already exist as realm roles in the `openjcockpit`
 realm — the seed script fails loudly (naming the missing role) rather than
-silently skipping it. **`metafactory-realm.json` currently defines no realm
+silently skipping it. **`openjcockpit-realm.json` currently defines no realm
 roles at all**, so leave `realmRoles` as an empty array (`[]`) unless a role
 has been added to the realm first. There is deliberately no default role.
 
@@ -121,7 +121,7 @@ Keycloak.
   nothing to do and exits successfully — this is the default, expected
   state on a fresh checkout.
 - A failure naming an unknown realm role means a role listed in
-  `realmRoles` does not exist in the `metafactory` realm; either remove it
+  `realmRoles` does not exist in the `openjcockpit` realm; either remove it
   or add the role to the realm first.
 - `docker compose up keycloak-local-users` always exits `0` at the shell
   level (that's standard Compose behavior for `up`, it doesn't propagate a

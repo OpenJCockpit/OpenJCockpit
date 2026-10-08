@@ -112,7 +112,7 @@ export async function stopAgentRun(runId: string): Promise<void> {
   if (!response.ok) throw new Error(`Failed to stop agent run: ${response.status}`);
 }
 
-const PROJECT_KEY = 'metafactory_project_id';
+const PROJECT_KEY = 'openjcockpit_project_id';
 
 export function getStoredProjectId(): string | null {
   return localStorage.getItem(PROJECT_KEY);

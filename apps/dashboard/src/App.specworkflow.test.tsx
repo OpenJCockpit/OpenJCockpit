@@ -90,7 +90,7 @@ const WORKFLOW: WorkflowDefinition = {
 };
 
 async function renderDashboard(specs: SpecFile[], workflows: WorkflowDefinition[] = [WORKFLOW]) {
-  localStorage.setItem('metafactory_project_id', PROJECT.id);
+  localStorage.setItem('openjcockpit_project_id', PROJECT.id);
   vi.mocked(api.loadProjects).mockResolvedValue([PROJECT]);
   vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
   vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);
@@ -323,7 +323,7 @@ describe('when a spec-init pull request is already open', () => {
   });
 
   async function renderWithPendingBranch() {
-    localStorage.setItem('metafactory_project_id', PROJECT.id);
+    localStorage.setItem('openjcockpit_project_id', PROJECT.id);
     vi.mocked(api.loadProjects).mockResolvedValue([PROJECT]);
     vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
     vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);
@@ -395,7 +395,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
   };
 
   async function renderWithExistingTemplate(workflows = [SPEC_CREATE_WORKFLOW], pending = false) {
-    localStorage.setItem('metafactory_project_id', PROJECT.id);
+    localStorage.setItem('openjcockpit_project_id', PROJECT.id);
     vi.mocked(api.loadProjects).mockResolvedValue([PROJECT]);
     vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
     vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);

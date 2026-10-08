@@ -30,7 +30,7 @@ public class GitConnectivityService {
             ProjectRepository projectRepository,
             ProjectGitCredentialRepository credentialRepository,
             CredentialEncryptionService encryptionService,
-            @Value("${metafactory.git.check-timeout-seconds:10}") int checkTimeoutSeconds,
+            @Value("${openjcockpit.git.check-timeout-seconds:10}") int checkTimeoutSeconds,
             JGitPort jGitPort,
             GitHubPort gitHubPort) {
         this.projectRepository = projectRepository;

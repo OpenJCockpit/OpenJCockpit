@@ -72,7 +72,7 @@ class OllamaAutoConfigurationAbsenceBootTest {
     @Test
     void bothHandBuiltLlmBeansArePresentAndNoOthers() {
         // The default/coding LLM now transits the LiteLLM gateway by default (BR-13/ADR-1);
-        // the Ollama-native bean is retained but is now conditional on `metafactory.llm.coding.route=direct` (BR-14 Revert B).
+        // the Ollama-native bean is retained but is now conditional on `openjcockpit.llm.coding.route=direct` (BR-14 Revert B).
         assertThat(Set.of(context.getBeanNamesForType(SpringAiLlmService.class)))
                 .as("exactly the two hand-built Llm beans must be registered, by name")
                 .isEqualTo(Set.of("litellmCodingLlm", "gpt41Mini"));
@@ -80,13 +80,13 @@ class OllamaAutoConfigurationAbsenceBootTest {
 
     @Nested
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK,
-            properties = "metafactory.llm.coding.route=direct")
+            properties = "openjcockpit.llm.coding.route=direct")
     class DirectRouteRevertB {
 
         @Test
         void directRouteActivatesTheOllamaNativeBeanSetInsteadOfTheGatewayOne() {
             assertThat(Set.of(context.getBeanNamesForType(SpringAiLlmService.class)))
-                    .as("setting metafactory.llm.coding.route=direct must activate the pre-gateway bean set")
+                    .as("setting openjcockpit.llm.coding.route=direct must activate the pre-gateway bean set")
                     .isEqualTo(Set.of("ollamaCodingLlm", "gpt41Mini"));
             assertThat(Set.of(context.getBeanNamesForType(ChatModel.class)))
                     .as("the direct route must not expose any extra ChatModel bean")

@@ -3,12 +3,12 @@
 # resolves them before interpolation -- verified with `docker compose config`.
 x-ollama-base-url: &ollama-base-url ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
 x-ollama-model: &ollama-model ${OLLAMA_MODEL:-qwen3.6:27b}
-x-litellm-master-key: &litellm-master-key ${LITELLM_MASTER_KEY:-sk-metafactory-litellm-local}
-x-litellm-virtual-key: &litellm-virtual-key ${LITELLM_VIRTUAL_KEY:-sk-metafactory-embabel-local}
+x-litellm-master-key: &litellm-master-key ${LITELLM_MASTER_KEY:-sk-openjcockpit-litellm-local}
+x-litellm-virtual-key: &litellm-virtual-key ${LITELLM_VIRTUAL_KEY:-sk-openjcockpit-embabel-local}
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: metafactory-postgres
+    container_name: openjcockpit-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: keycloak
@@ -27,13 +27,13 @@ services:
     environment:
       PGPASSWORD: keycloak
     volumes:
-      - ./infrastructure/postgres/ensure-metafactory-db.sh:/ensure-metafactory-db.sh:ro
-    command: ["/bin/sh", "/ensure-metafactory-db.sh"]
+      - ./infrastructure/postgres/ensure-openjcockpit-db.sh:/ensure-openjcockpit-db.sh:ro
+    command: ["/bin/sh", "/ensure-openjcockpit-db.sh"]
     restart: "no"
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.6.4
-    container_name: metafactory-keycloak
+    container_name: openjcockpit-keycloak
     restart: unless-stopped
     command: ["start-dev", "--import-realm"]
     environment:
@@ -64,7 +64,7 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./infrastructure/keycloak/metafactory-realm.json:/opt/keycloak/data/import/metafactory-realm.json:ro
+      - ./infrastructure/keycloak/openjcockpit-realm.json:/opt/keycloak/data/import/openjcockpit-realm.json:ro
       - ./infrastructure/themes:/opt/keycloak/themes:ro
 
   # One-shot seeding of per-developer, gitignored Keycloak users.
@@ -77,7 +77,7 @@ services:
         condition: service_healthy
     environment:
       KC_URL: http://keycloak:8080
-      KC_REALM: metafactory
+      KC_REALM: openjcockpit
       # Mirrors the bootstrap admin of the keycloak service above (local dev only,
       # no new secret is introduced by this service).
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
@@ -89,7 +89,7 @@ services:
     restart: "no"
 
   # One-shot seeding of the fixed Playwright E2E test user into the
-  # metafactory realm. See infrastructure/keycloak/seed-e2e-user.sh.
+  # openjcockpit realm. See infrastructure/keycloak/seed-e2e-user.sh.
   keycloak-e2e-user:
     image: curlimages/curl:8.21.0
     depends_on:
@@ -97,13 +97,13 @@ services:
         condition: service_healthy
     environment:
       KC_URL: http://keycloak:8080
-      KC_REALM: metafactory
+      KC_REALM: openjcockpit
       # Mirrors the bootstrap admin of the keycloak service above (local dev only,
       # no new secret is introduced by this service).
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       E2E_SEED_USERNAME: e2e
-      E2E_SEED_EMAIL: e2e@metafactory.local
+      E2E_SEED_EMAIL: e2e@openjcockpit.local
       # E2E_SEED_PASSWORD is deliberately not set here: seed-e2e-user.sh
       # already defaults it to the same literal, and this is one of exactly
       # four places (architecture §7.3) that literal is allowed to appear —
@@ -119,7 +119,7 @@ services:
   # proxied). Host port 4100 -- LiteLLM's conventional 4000 collides with `dashboard`.
   litellm:
     image: ghcr.io/berriai/litellm:v1.101.2
-    container_name: metafactory-litellm
+    container_name: openjcockpit-litellm
     restart: unless-stopped
     ports:
       - "4100:4000"
@@ -128,7 +128,7 @@ services:
       DATABASE_URL: postgresql://litellm_app:litellm_app@postgres:5432/litellm
       ENFORCE_PRISMA_MIGRATION_CHECK: "True"
       LITELLM_MASTER_KEY: *litellm-master-key
-      LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:-sk-metafactory-litellm-salt-local}
+      LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:-sk-openjcockpit-litellm-salt-local}
       UI_USERNAME: ${LITELLM_UI_USERNAME:-ricky}
       UI_PASSWORD: ${LITELLM_UI_PASSWORD:-Welkom01!}
       STORE_MODEL_IN_DB: "True"
@@ -178,7 +178,7 @@ services:
     build:
       context: apps/landing
       dockerfile: Dockerfile
-    container_name: metafactory-landing
+    container_name: openjcockpit-landing
     restart: unless-stopped
     ports:
       - "3000:80"
@@ -189,7 +189,7 @@ services:
     build:
       context: apps/dashboard
       dockerfile: Dockerfile
-    container_name: metafactory-dashboard
+    container_name: openjcockpit-dashboard
     restart: unless-stopped
     ports:
       - "4000:80"
@@ -202,7 +202,7 @@ services:
   # network therefore gets full control over the host — local dev only.
   docker-socat:
     image: alpine/socat
-    container_name: metafactory-docker-socat
+    container_name: openjcockpit-docker-socat
     restart: unless-stopped
     command: tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock
     volumes:
@@ -212,7 +212,7 @@ services:
     build:
       context: .
       dockerfile: services/ai-control-service/Dockerfile
-    container_name: metafactory-ai-control
+    container_name: openjcockpit-ai-control
     restart: unless-stopped
     ports:
       - "9080:8080"
@@ -220,9 +220,9 @@ services:
       EMBABEL_AGENT_SERVICE_BASE_URL: http://embabel-agent-service:8081
       SPEC_REPOSITORY_PATH: /spec-repository
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      DB_URL: jdbc:postgresql://postgres:5432/metafactory
-      DB_USERNAME: metafactory_app
-      DB_PASSWORD: metafactory_app
+      DB_URL: jdbc:postgresql://postgres:5432/openjcockpit
+      DB_USERNAME: openjcockpit_app
+      DB_PASSWORD: openjcockpit_app
       ENCRYPTION_SECRET: ${ENCRYPTION_SECRET:-prod-change-this-32chars-minimum!}
       ENCRYPTION_SALT: ${ENCRYPTION_SALT:-0123456789abcdef}
       # Workflow container settings
@@ -250,7 +250,7 @@ services:
     build:
       context: .
       dockerfile: services/embabel-agent-service/Dockerfile
-    container_name: metafactory-embabel-agents
+    container_name: openjcockpit-embabel-agents
     restart: unless-stopped
     ports:
       - "8091:8081"
@@ -324,7 +324,7 @@ services:
     build:
       context: .
       dockerfile: services/git-mcp-server/Dockerfile
-    container_name: metafactory-git-mcp
+    container_name: openjcockpit-git-mcp
     restart: unless-stopped
     ports:
       - "8093:8093"
@@ -339,7 +339,7 @@ services:
 
   opa:
     image: openpolicyagent/opa:0.70.0
-    container_name: metafactory-opa
+    container_name: openjcockpit-opa
     restart: unless-stopped
     # Policies are mounted as plain files (no bundle service) so edits under
     # infrastructure/opa/policies are picked up on container restart without a rebuild.

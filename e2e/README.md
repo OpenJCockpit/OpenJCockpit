@@ -97,8 +97,8 @@ green with none of them set, given the documented environment.
 | `E2E_DASHBOARD_BASE_URL`       | `http://localhost:4000`                                                                                                                             | dashboard project base URL                                                               |
 | `E2E_LANDING_BASE_URL`         | `http://localhost:3000`                                                                                                                             | landing project base URL                                                                 |
 | `E2E_KEYCLOAK_URL`             | `http://localhost:8080`                                                                                                                             | setup project, readiness, Direct Access Grant                                            |
-| `E2E_KEYCLOAK_REALM`           | `metafactory`                                                                                                                                       | as above                                                                                 |
-| `E2E_KEYCLOAK_CLIENT_ID`       | `metafactory`                                                                                                                                       | as above (public client — no secret variable exists anywhere in this harness)            |
+| `E2E_KEYCLOAK_REALM`           | `openjcockpit`                                                                                                                                       | as above                                                                                 |
+| `E2E_KEYCLOAK_CLIENT_ID`       | `openjcockpit`                                                                                                                                       | as above (public client — no secret variable exists anywhere in this harness)            |
 | `E2E_API_BASE_URL`             | `http://localhost:9080`                                                                                                                             | direct-to-`ai-control-service` assertions (e.g. the unauthenticated 401/200 pair)        |
 | `E2E_USERNAME`                 | `e2e`                                                                                                                                               | the seeded test identity                                                                 |
 | `E2E_PASSWORD`                 | the seeded local-only password documented in the repository root `README.md`'s Keycloak-data table — never repeated here                            | as above                                                                                 |
@@ -119,7 +119,7 @@ This harness does not read the repository root `.env` file — the `LITELLM_MAST
 
 `support/env.ts` throws — before any test runs — if any base-URL variable's hostname is anything
 other than the literal string `localhost` (not `127.0.0.1`, not an IP, not any other hostname). This
-exists because the `metafactory` realm's `redirectUris`/`webOrigins` are keyed on that exact literal;
+exists because the `openjcockpit` realm's `redirectUris`/`webOrigins` are keyed on that exact literal;
 `http://127.0.0.1:4000` in particular is **not** a registered redirect URI. Without this guard, a
 misconfigured base URL surfaces as an opaque Keycloak `Invalid parameter: redirect_uri` error far away
 from the actual cause. The guard turns that into a named, actionable failure at suite startup instead. This rule also covers `E2E_LITELLM_BASE_URL`, `E2E_EMBABEL_BASE_URL`, and `E2E_OLLAMA_BASE_URL`. Note the LLM-path preflight's Ollama reachability probe uses `localhost` while the `embabel-agent-service` container itself reaches Ollama via `host.docker.internal` — on this stack's supported local topology they resolve to the same daemon, so this is a documented approximation, not a guarantee, if that mapping is ever overridden.
@@ -217,7 +217,7 @@ execution model.
 
 ### No role/permission (403) coverage (AC-14)
 
-`infrastructure/keycloak/metafactory-realm.json` defines **no realm roles and no client roles** — it
+`infrastructure/keycloak/openjcockpit-realm.json` defines **no realm roles and no client roles** — it
 has no `roles` key populated with role definitions, and no user carries `realmRoles`/`clientRoles`.
 Both backend services authorize with `anyRequest().authenticated()` only, with no role or scope check
 (`services/ai-control-service/src/main/java/nl/metafactory/aicontrol/config/SecurityConfig.java` and
@@ -254,13 +254,13 @@ treatment AC-14 already receives: named explicitly, with the two files responsib
 
 ### No wrong-password scenario
 
-The `metafactory` realm has `bruteForceProtected: true`. A flaky or misconfigured suite that
+The `openjcockpit` realm has `bruteForceProtected: true`. A flaky or misconfigured suite that
 deliberately submits a wrong password would risk temporarily locking out the shared `e2e` identity,
 turning a test-design choice into a self-inflicted outage of the whole suite. No scenario in this
 suite submits incorrect credentials.
 
 **Recovery, if the `e2e` identity does get locked out** (e.g. by a developer experimenting locally):
-unlock it via the Keycloak Admin Console → realm `metafactory` → Users → `e2e` → the unlock action on
+unlock it via the Keycloak Admin Console → realm `openjcockpit` → Users → `e2e` → the unlock action on
 that user's page, or simply wait out Keycloak's configured lockout window.
 
 ### No ESLint in `e2e/` (named, accepted gap)

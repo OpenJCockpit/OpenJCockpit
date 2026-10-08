@@ -66,15 +66,15 @@ class OllamaModelResolutionTest {
                 .bind("embabel.models", ConfigurableModelProviderProperties.class)
                 .orElseThrow(() -> new AssertionError("embabel.models did not bind from the real production application.yml"));
 
-        String ollamaTag = resolved.getProperty("metafactory.llm.ollama.model");
+        String ollamaTag = resolved.getProperty("openjcockpit.llm.ollama.model");
         assertThat(ollamaTag).as("resolved Ollama model tag").isNotBlank();
 
         // The production-active bean is now the LiteLLM gateway one, so this test must exercise the path
         // production actually takes. ADR-003/F-2 alias resolution is unaffected because both routes derive
-        // the LLM's registered name from the same metafactory.llm.ollama.model property.
+        // the LLM's registered name from the same openjcockpit.llm.ollama.model property.
         SpringAiLlmService codingLlm = new LiteLlmGatewayModelConfig().litellmCodingLlm(
-                resolved.getProperty("metafactory.llm.gateway.base-url"),
-                resolved.getProperty("metafactory.llm.gateway.api-key"),
+                resolved.getProperty("openjcockpit.llm.gateway.base-url"),
+                resolved.getProperty("openjcockpit.llm.gateway.api-key"),
                 ollamaTag,
                 45L,
                 600L,
@@ -126,11 +126,11 @@ class OllamaModelResolutionTest {
                 .bind("embabel.models", ConfigurableModelProviderProperties.class)
                 .orElseThrow(() -> new AssertionError("embabel.models did not bind from the real production application.yml"));
 
-        String ollamaTag = resolved.getProperty("metafactory.llm.ollama.model");
+        String ollamaTag = resolved.getProperty("openjcockpit.llm.ollama.model");
         assertThat(ollamaTag).as("resolved Ollama model tag").isNotBlank();
 
         SpringAiLlmService directOllamaLlm = new OllamaModelConfig().ollamaCodingLlm(
-                resolved.getProperty("metafactory.llm.ollama.base-url"),
+                resolved.getProperty("openjcockpit.llm.ollama.base-url"),
                 ollamaTag,
                 45L,
                 600L,

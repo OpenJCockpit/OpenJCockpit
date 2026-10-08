@@ -7,7 +7,7 @@ spring:
   ai:
     mcp:
       server:
-        name: metafactory-git-mcp-server
+        name: openjcockpit-git-mcp-server
         version: 0.1.0
         # Spring AI 2.0.1 changed the default value of spring.ai.mcp.server.protocol from SSE-based to streamable
         # (Streamable HTTP) and deprecated sse-endpoint/sse-message-endpoint. This service's paired MCP client
@@ -16,7 +16,7 @@ spring:
         # here preserves the existing transport exactly (see ADR-005).
         protocol: sse
 
-metafactory:
+openjcockpit:
   git-mcp:
     workspace-base-path: ${GIT_MCP_WORKSPACE_BASE:${java.io.tmpdir}/git-mcp-workspaces}
     timeout-seconds: ${GIT_MCP_TIMEOUT_SECONDS:120}

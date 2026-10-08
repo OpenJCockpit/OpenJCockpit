@@ -16,9 +16,9 @@ decision_logs:
   console: true
 
 # Queried when a request omits an explicit policy path — matches the default
-# metafactory.opa.policy-path (/v1/data/metafactory/workflow/decision) on the client side.
-default_decision: /metafactory/workflow/decision
+# openjcockpit.opa.policy-path (/v1/data/openjcockpit/workflow/decision) on the client side.
+default_decision: /openjcockpit/workflow/decision
 
 labels:
-  app: metafactory-opa
+  app: openjcockpit-opa
   environment: local

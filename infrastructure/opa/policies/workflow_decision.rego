@@ -1,11 +1,11 @@
-# Default policy for metafactory.opa.policy-path (/v1/data/metafactory/workflow/decision).
+# Default policy for openjcockpit.opa.policy-path (/v1/data/openjcockpit/workflow/decision).
 #
 # This is a starting point, not final governance logic — replace/extend the rules below with
 # your organization's real approval and risk requirements. Every field in each `result` object
 # below maps 1:1 onto embabel-agent-service's OpaDecisionResponse.OpaResult (see
 # nl.metafactory.agents.policy.model.OpaDecisionResponse and PolicyDecisionContext for the full
 # shape of `input`).
-package metafactory.workflow
+package openjcockpit.workflow
 
 # Rules are evaluated top to bottom; the first matching branch wins.
 decision = result {

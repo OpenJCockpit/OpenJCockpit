@@ -47,7 +47,7 @@ public class SecurityConfig {
     @Bean
     JwtDecoder jwtDecoder(
             @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwkSetUri,
-            @Value("${metafactory.security.jwt-issuer}") String issuerUri
+            @Value("${openjcockpit.security.jwt-issuer}") String issuerUri
     ) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
         decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuerUri));

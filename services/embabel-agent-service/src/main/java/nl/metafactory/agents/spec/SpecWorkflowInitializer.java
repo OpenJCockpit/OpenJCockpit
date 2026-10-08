@@ -55,7 +55,7 @@ public class SpecWorkflowInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         if (!properties.isInitEnabled()) {
-            log.info("Spec workflow initialization is disabled (metafactory.spec-workflow.init-enabled=false)");
+            log.info("Spec workflow initialization is disabled (openjcockpit.spec-workflow.init-enabled=false)");
             return;
         }
         initialize(Path.of(properties.getBasePath()));

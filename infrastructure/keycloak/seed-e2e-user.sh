@@ -1,12 +1,12 @@
 #!/bin/sh
-# Idempotently seeds the fixed E2E test user into the metafactory realm.
+# Idempotently seeds the fixed E2E test user into the openjcockpit realm.
 set -e
 
 # Always clean up temp files, on every exit path (success or failure).
 trap 'rm -f /tmp/kc-e2e-user-resp.json' EXIT
 
 KC_URL="${KC_URL:-http://keycloak:8080}"
-KC_REALM="${KC_REALM:-metafactory}"
+KC_REALM="${KC_REALM:-openjcockpit}"
 
 if [ -z "$KC_BOOTSTRAP_ADMIN_USERNAME" ] || [ -z "$KC_BOOTSTRAP_ADMIN_PASSWORD" ]; then
   echo "keycloak-e2e-user: KC_BOOTSTRAP_ADMIN_USERNAME / KC_BOOTSTRAP_ADMIN_PASSWORD must be set"
@@ -14,7 +14,7 @@ if [ -z "$KC_BOOTSTRAP_ADMIN_USERNAME" ] || [ -z "$KC_BOOTSTRAP_ADMIN_PASSWORD" 
 fi
 
 E2E_SEED_USERNAME="${E2E_SEED_USERNAME:-e2e}"
-E2E_SEED_EMAIL="${E2E_SEED_EMAIL:-e2e@metafactory.local}"
+E2E_SEED_EMAIL="${E2E_SEED_EMAIL:-e2e@openjcockpit.local}"
 E2E_SEED_PASSWORD="${E2E_SEED_PASSWORD:-E2eRunner01!}"
 
 # Fixed fields, not configurable
