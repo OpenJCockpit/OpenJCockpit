@@ -58,28 +58,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## O-1 decision (recorded, accepted)
+## O-1 decision (recorded; revisited on going public)
 
 The MIT + Commons Clause rider was verified during architecture (§2.7/§6.3) and was
-**not** what Decision 1 originally assumed (no rider). The user accepted this exposure
-for a private commercial product (architecture §14a, O-1: "accepted. Proceed with
-vendoring the adapted `DecryptedText`, full attribution and licence text in
-`ATTRIBUTION.md`, and the non-republication note added to `CLAUDE.md`.").
+**not** what Decision 1 originally assumed (no rider). The O-1 acceptance
+(architecture §14a) was given when this was a private commercial product.
+
+This repository is now **public**: https://github.com/OpenJCockpit/OpenJCockpit
+(Apache-2.0, see the root `LICENSE` and `NOTICE`). The change in visibility is the
+trigger the earlier non-republication constraint required a re-review for.
 
 The Commons Clause permits use and distribution *as part of an application, website, or
 product*, including commercially, and forbids selling, sublicensing or redistributing
-the components themselves — alone, bundled, or ported. This repository is private
-(verified: `https://api.github.com/repos/MetaFactory/AI-Delivery-Pipeline` returns 404
-unauthenticated), and only one small, materially adapted component is used inside this
-application. That use is squarely permitted.
+the components themselves — alone, bundled, or ported. Only one small, materially
+adapted component (`DecipherText.jsx`) is used, as part of this application. Publishing
+its source in a public repository is nonetheless a form of redistribution, and the
+Apache-2.0 licence of the rest of the repository does **not** apply to this directory:
+it remains under the upstream MIT + Commons Clause terms reproduced above.
 
-**Non-republication constraint (binding, also recorded in `CLAUDE.md`):**
-- Files under `apps/landing/src/ui/vendor/**` must not be republished outside this
-  application.
-- They must not be copied into `docs-site/` or any other published surface.
-- They must be re-reviewed against this licence before any change in this
-  repository's visibility (e.g. before open-sourcing any part of it, or before
-  extracting `ui/vendor/**` into a separately distributed package).
+**Constraints (binding):**
+- Files under `apps/landing/src/ui/vendor/**` stay under the upstream licence above,
+  not Apache-2.0; the root `NOTICE` records this.
+- They must not be extracted into a separately distributed package, published
+  standalone, or copied into `docs-site/` or any other surface outside this application.
+- If the licence review concludes that public distribution of the adapted file is not
+  acceptable, replace `DecipherText.jsx` with an original implementation and remove
+  this directory.
 
 ## Ownership and adaptation (ADR-6)
 
