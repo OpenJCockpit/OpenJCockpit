@@ -1,0 +1,240 @@
+SpecQueueState:
+  type: string
+  enum:
+    - ACTIVE
+    - PAUSED
+    - HALTED
+
+SpecQueueItemStatus:
+  type: string
+  enum:
+    - QUEUED
+    - STARTING
+    - RUNNING
+    - AWAITING_MERGE
+    - MERGING
+    - MERGED
+    - COMPLETED_NO_CHANGES
+    - FAILED
+    - SKIPPED
+    - CANCELLED
+    - REMOVED
+
+SpecQueueMergeState:
+  type: string
+  enum:
+    - WAITING_FOR_MERGEABILITY
+    - MERGE_IN_PROGRESS
+
+SpecQueueFailureReason:
+  type: string
+  enum:
+    - WORKFLOW_INVALID
+    - PREFLIGHT_FAILED
+    - START_REJECTED
+    - START_OUTCOME_UNKNOWN
+    - RUN_FAILED
+    - RUN_CANCELLED
+    - APPROVAL_DENIED
+    - RUN_BLOCKED
+    - RUN_TIMED_OUT
+    - RUN_STATE_LOST
+    - PR_NOT_CREATED
+    - PUBLICATION_FAILED
+    - PR_URL_INVALID
+    - PR_HOST_UNSUPPORTED
+    - PR_CLOSED_UNMERGED
+    - MERGE_CONFLICT
+    - MERGE_BLOCKED
+    - MERGE_AUTH_FAILED
+    - MERGE_OUTCOME_UNKNOWN
+
+SpecQueuePollErrorDto:
+  type: object
+  required:
+    - code
+    - at
+  properties:
+    code:
+      type: string
+      enum:
+        - EMBABEL_UNAVAILABLE
+        - EMBABEL_UNAUTHORIZED
+        - RUNNER_NOT_CONFIGURED
+        - GITHUB_UNAVAILABLE
+        - GITHUB_RATE_LIMITED
+    at:
+      type: string
+      format: date-time
+
+SpecQueueRunnerStatusDto:
+  type: object
+  required:
+    - enabled
+    - configured
+  properties:
+    enabled:
+      type: boolean
+    configured:
+      type: boolean
+
+SpecQueueSettingsDto:
+  type: object
+  required:
+    - autoMergeAllowed
+  properties:
+    autoMergeAllowed:
+      type: boolean
+    updatedAt:
+      type: string
+      format: date-time
+      nullable: true
+
+SpecQueueSettingsRequest:
+  type: object
+  required:
+    - autoMergeAllowed
+  properties:
+    autoMergeAllowed:
+      type: boolean
+
+SpecQueueEnqueueRequest:
+  type: object
+  required:
+    - specFile
+    - workflowId
+  properties:
+    specFile:
+      type: string
+      minLength: 1
+      maxLength: 500
+      description: Path of the spec file relative to the specs folder, exactly as listed by the project spec files.
+    workflowId:
+      type: string
+      minLength: 1
+      maxLength: 200
+    autoMerge:
+      type: boolean
+      default: false
+
+SpecQueueItemUpdateRequest:
+  type: object
+  minProperties: 1
+  properties:
+    workflowId:
+      type: string
+      minLength: 1
+      maxLength: 200
+    autoMerge:
+      type: boolean
+
+SpecQueueOrderRequest:
+  type: object
+  required:
+    - itemIds
+  properties:
+    itemIds:
+      type: array
+      minItems: 1
+      maxItems: 500
+      uniqueItems: true
+      description: Every queued item id of the project, in the desired order.
+      items:
+        type: string
+        format: uuid
+
+SpecQueueItemDto:
+  type: object
+  required:
+    - id
+    - projectId
+    - specFile
+    - workflowId
+    - autoMerge
+    - status
+    - pullRequestUrls
+    - createdBy
+    - createdAt
+  properties:
+    id:
+      type: string
+      format: uuid
+    projectId:
+      type: string
+      format: uuid
+    specFile:
+      type: string
+    workflowId:
+      type: string
+    workflowName:
+      type: string
+      nullable: true
+    autoMerge:
+      type: boolean
+    position:
+      type: integer
+      nullable: true
+      description: 1-based rank among QUEUED items; null for every other status.
+    status:
+      $ref: '#/SpecQueueItemStatus'
+    failureReason:
+      $ref: '#/SpecQueueFailureReason'
+    workflowRunId:
+      type: string
+      nullable: true
+    runStatus:
+      type: string
+      nullable: true
+    mergeState:
+      $ref: '#/SpecQueueMergeState'
+    pullRequestUrls:
+      type: array
+      items:
+        type: string
+    createdBy:
+      type: string
+    createdAt:
+      type: string
+      format: date-time
+    startedAt:
+      type: string
+      format: date-time
+      nullable: true
+    finishedAt:
+      type: string
+      format: date-time
+      nullable: true
+
+SpecQueueDto:
+  type: object
+  required:
+    - projectId
+    - state
+    - autoMergeAllowed
+    - items
+    - recentlyFinished
+    - runner
+  properties:
+    projectId:
+      type: string
+      format: uuid
+    state:
+      $ref: '#/SpecQueueState'
+    autoMergeAllowed:
+      type: boolean
+    items:
+      type: array
+      items:
+        $ref: '#/SpecQueueItemDto'
+    recentlyFinished:
+      type: array
+      items:
+        $ref: '#/SpecQueueItemDto'
+    lastPolledAt:
+      type: string
+      format: date-time
+      nullable: true
+    lastPollError:
+      $ref: '#/SpecQueuePollErrorDto'
+    runner:
+      $ref: '#/SpecQueueRunnerStatusDto'

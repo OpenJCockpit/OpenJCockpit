@@ -2,6 +2,11 @@ package nl.metafactory.aicontrol.api;
 
 import nl.metafactory.aicontrol.generated.api.AgenticWorkflowApi;
 import nl.metafactory.aicontrol.model.GitWorkspaceJobDto;
+import nl.metafactory.aicontrol.model.GitWorkspaceJobErrorCode;
+import nl.metafactory.aicontrol.model.PreflightError;
+import nl.metafactory.aicontrol.specqueue.app.SpecQueueActiveItemGuard;
+import nl.metafactory.aicontrol.specqueue.app.SpecQueueException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import nl.metafactory.aicontrol.model.GitWorkspaceJobEventDto;
 import nl.metafactory.aicontrol.model.StartWorkflowRequest;
 import nl.metafactory.aicontrol.model.StartWorkflowResponse;
@@ -23,15 +28,19 @@ public class AgenticWorkflowController implements AgenticWorkflowApi {
 
     private final GitWorkspaceJobService jobService;
     private final WorkflowPreflightService preflightService;
+    private final SpecQueueActiveItemGuard activeItemGuard;
 
-    public AgenticWorkflowController(GitWorkspaceJobService jobService, WorkflowPreflightService preflightService) {
+    public AgenticWorkflowController(GitWorkspaceJobService jobService, WorkflowPreflightService preflightService,
+                                     SpecQueueActiveItemGuard activeItemGuard) {
         this.jobService = jobService;
         this.preflightService = preflightService;
+        this.activeItemGuard = activeItemGuard;
     }
 
     @Override
     public ResponseEntity<StartWorkflowResponse> startWorkflow(StartWorkflowRequest request) {
         UUID projectId = request.projectId();
+        activeItemGuard.assertNoActiveItem(projectId);
         WorkflowPreflightResult preflight = preflightService.validateBeforeWorkflowStart(projectId);
         if (!preflight.passed()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -65,5 +74,11 @@ public class AgenticWorkflowController implements AgenticWorkflowApi {
         return (auth != null && auth.getPrincipal() instanceof Jwt jwt)
                 ? jwt.getClaimAsString("preferred_username")
                 : "unknown";
+    }
+
+    @ExceptionHandler(SpecQueueException.class)
+    public ResponseEntity<StartWorkflowResponse> handleSpecQueueException(SpecQueueException e) {
+        return ResponseEntity.status(e.getHttpStatus()).body(StartWorkflowResponse.failed(List.of(
+                new PreflightError(GitWorkspaceJobErrorCode.SPEC_QUEUE_ITEM_ACTIVE, e.getMessage()))));
     }
 }

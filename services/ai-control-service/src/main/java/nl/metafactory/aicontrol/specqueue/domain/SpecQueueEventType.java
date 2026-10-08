@@ -1,0 +1,27 @@
+package nl.metafactory.aicontrol.specqueue.domain;
+
+public enum SpecQueueEventType {
+    ENQUEUED,
+    UPDATED,
+    REORDERED,
+    REMOVED,
+    SELECTED,
+    STARTED,
+    START_REJECTED,
+    START_REVERTED,
+    RUN_FINISHED,
+    AWAITING_MERGE,
+    MERGE_ATTEMPTED,
+    MERGED,
+    COMPLETED_NO_CHANGES,
+    FAILED,
+    HALTED,
+    SKIPPED,
+    RETRIED,
+    CANCELLED,
+    PAUSED,
+    RESUMED,
+    SETTING_CHANGED,
+    AUTO_MERGE_DOWNGRADED,
+    ORPHAN_RUN_DETECTED
+}

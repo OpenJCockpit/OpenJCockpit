@@ -48,6 +48,7 @@ GitWorkspaceJobErrorCode:
     - TIMEOUT
     - DOCKER_UNAVAILABLE
     - GIT_REPOSITORY_UNAVAILABLE
+    - SPEC_QUEUE_ITEM_ACTIVE
 
 PreflightError:
   type: object

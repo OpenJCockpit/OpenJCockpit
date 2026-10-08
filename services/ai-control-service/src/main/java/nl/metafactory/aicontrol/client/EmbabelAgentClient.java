@@ -1,6 +1,7 @@
 package nl.metafactory.aicontrol.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,7 +18,7 @@ public class EmbabelAgentClient {
 
     private final WebClient webClient;
 
-    public EmbabelAgentClient(WebClient embabelWebClient) {
+    public EmbabelAgentClient(@Qualifier("embabelWebClient") WebClient embabelWebClient) {
         this.webClient = embabelWebClient;
     }
 
@@ -104,6 +105,27 @@ public class EmbabelAgentClient {
             return Optional.empty();
         } catch (Exception e) {
             return Optional.empty();
+        }
+    }
+
+    /**
+     * Like {@link #getWorkflow(String)} but never hides an upstream failure: empty means the workflow
+     * does not exist (404), anything else that goes wrong is a 502.
+     */
+    public Optional<WorkflowDefinitionDto> getWorkflowStrict(String id) {
+        try {
+            var workflow = webClient.get().uri("/api/workflows/{id}", id).retrieve()
+                    .bodyToMono(WorkflowDefinitionDto.class).block();
+            if (workflow == null) {
+                throw upstreamUnavailable(WORKFLOWS_UNAVAILABLE);
+            }
+            return Optional.of(workflow);
+        } catch (WebClientResponseException.NotFound e) {
+            return Optional.empty();
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw upstreamUnavailable(WORKFLOWS_UNAVAILABLE);
         }
     }
 
@@ -199,6 +221,24 @@ public class EmbabelAgentClient {
             return Optional.empty();
         } catch (Exception e) {
             return Optional.empty();
+        }
+    }
+
+    /** Strict variant of {@link #getWorkflowGroup(String)}: empty only on 404, otherwise 502. */
+    public Optional<WorkflowGroupDto> getWorkflowGroupStrict(String id) {
+        try {
+            var group = webClient.get().uri("/api/workflow-groups/{id}", id).retrieve()
+                    .bodyToMono(WorkflowGroupDto.class).block();
+            if (group == null) {
+                throw upstreamUnavailable(WORKFLOWS_UNAVAILABLE);
+            }
+            return Optional.of(group);
+        } catch (WebClientResponseException.NotFound e) {
+            return Optional.empty();
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw upstreamUnavailable(WORKFLOWS_UNAVAILABLE);
         }
     }
 

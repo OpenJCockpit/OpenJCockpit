@@ -39,6 +39,24 @@ paths:
     $ref: 'paths/project-spec.yaml#/specInitStatus'
   /api/projects/{projectId}/spec-init:
     $ref: 'paths/project-spec.yaml#/specInit'
+  /api/projects/{projectId}/spec-queue:
+    $ref: 'paths/spec-queue.yaml#/specQueue'
+  /api/projects/{projectId}/spec-queue/items:
+    $ref: 'paths/spec-queue.yaml#/specQueueItems'
+  /api/projects/{projectId}/spec-queue/items/{itemId}:
+    $ref: 'paths/spec-queue.yaml#/specQueueItem'
+  /api/projects/{projectId}/spec-queue/items/{itemId}/retry:
+    $ref: 'paths/spec-queue.yaml#/specQueueItemRetry'
+  /api/projects/{projectId}/spec-queue/items/{itemId}/skip:
+    $ref: 'paths/spec-queue.yaml#/specQueueItemSkip'
+  /api/projects/{projectId}/spec-queue/order:
+    $ref: 'paths/spec-queue.yaml#/specQueueOrder'
+  /api/projects/{projectId}/spec-queue/pause:
+    $ref: 'paths/spec-queue.yaml#/specQueuePause'
+  /api/projects/{projectId}/spec-queue/resume:
+    $ref: 'paths/spec-queue.yaml#/specQueueResume'
+  /api/projects/{projectId}/spec-queue/settings:
+    $ref: 'paths/spec-queue.yaml#/specQueueSettings'
   /api/agents:
     $ref: 'paths/agents.yaml#/agentsCollection'
   /api/agent-runs:
@@ -264,6 +282,32 @@ components:
       $ref: 'schemas/skills-marketplace.yaml#/SkillsMarketplaceConnectionDto'
     SkillsMarketplaceConnectionRequest:
       $ref: 'schemas/skills-marketplace.yaml#/SkillsMarketplaceConnectionRequest'
+    SpecQueueDto:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueueDto'
+    SpecQueueItemDto:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueueItemDto'
+    SpecQueueState:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueueState'
+    SpecQueueItemStatus:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueueItemStatus'
+    SpecQueueMergeState:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueueMergeState'
+    SpecQueueFailureReason:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueueFailureReason'
+    SpecQueueEnqueueRequest:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueueEnqueueRequest'
+    SpecQueueItemUpdateRequest:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueueItemUpdateRequest'
+    SpecQueueOrderRequest:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueueOrderRequest'
+    SpecQueueSettingsDto:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueueSettingsDto'
+    SpecQueueSettingsRequest:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueueSettingsRequest'
+    SpecQueuePollErrorDto:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueuePollErrorDto'
+    SpecQueueRunnerStatusDto:
+      $ref: 'schemas/spec-queue.yaml#/SpecQueueRunnerStatusDto'
     ApiErrorResponse:
       $ref: 'schemas/common.yaml#/ApiErrorResponse'
     SkillCatalogDto:

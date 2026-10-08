@@ -259,6 +259,19 @@
                                 <importMapping>ApprovalDecisionAuditEntryDto=nl.metafactory.aicontrol.client.ApprovalDecisionAuditEntryDto</importMapping>
                                 <importMapping>WorkflowExecutionSummaryDto=nl.metafactory.aicontrol.client.WorkflowExecutionSummaryDto</importMapping>
                                 <importMapping>WorkflowExecutionPageDto=nl.metafactory.aicontrol.client.WorkflowExecutionPageDto</importMapping>
+                                <importMapping>SpecQueueDto=nl.metafactory.aicontrol.model.SpecQueueDto</importMapping>
+                                <importMapping>SpecQueueItemDto=nl.metafactory.aicontrol.model.SpecQueueItemDto</importMapping>
+                                <importMapping>SpecQueueState=nl.metafactory.aicontrol.model.SpecQueueState</importMapping>
+                                <importMapping>SpecQueueItemStatus=nl.metafactory.aicontrol.model.SpecQueueItemStatus</importMapping>
+                                <importMapping>SpecQueueMergeState=nl.metafactory.aicontrol.model.SpecQueueMergeState</importMapping>
+                                <importMapping>SpecQueueFailureReason=nl.metafactory.aicontrol.model.SpecQueueFailureReason</importMapping>
+                                <importMapping>SpecQueueEnqueueRequest=nl.metafactory.aicontrol.model.SpecQueueEnqueueRequest</importMapping>
+                                <importMapping>SpecQueueItemUpdateRequest=nl.metafactory.aicontrol.model.SpecQueueItemUpdateRequest</importMapping>
+                                <importMapping>SpecQueueOrderRequest=nl.metafactory.aicontrol.model.SpecQueueOrderRequest</importMapping>
+                                <importMapping>SpecQueueSettingsDto=nl.metafactory.aicontrol.model.SpecQueueSettingsDto</importMapping>
+                                <importMapping>SpecQueueSettingsRequest=nl.metafactory.aicontrol.model.SpecQueueSettingsRequest</importMapping>
+                                <importMapping>SpecQueuePollErrorDto=nl.metafactory.aicontrol.model.SpecQueuePollErrorDto</importMapping>
+                                <importMapping>SpecQueueRunnerStatusDto=nl.metafactory.aicontrol.model.SpecQueueRunnerStatusDto</importMapping>
                             </importMappings>
                             <schemaMappings>
                                 <schemaMapping>Workspace=nl.metafactory.aicontrol.model.Workspace</schemaMapping>
@@ -338,6 +351,19 @@
                                 <schemaMapping>ApprovalDecisionAuditEntryDto=nl.metafactory.aicontrol.client.ApprovalDecisionAuditEntryDto</schemaMapping>
                                 <schemaMapping>WorkflowExecutionSummaryDto=nl.metafactory.aicontrol.client.WorkflowExecutionSummaryDto</schemaMapping>
                                 <schemaMapping>WorkflowExecutionPageDto=nl.metafactory.aicontrol.client.WorkflowExecutionPageDto</schemaMapping>
+                                <schemaMapping>SpecQueueDto=nl.metafactory.aicontrol.model.SpecQueueDto</schemaMapping>
+                                <schemaMapping>SpecQueueItemDto=nl.metafactory.aicontrol.model.SpecQueueItemDto</schemaMapping>
+                                <schemaMapping>SpecQueueState=nl.metafactory.aicontrol.model.SpecQueueState</schemaMapping>
+                                <schemaMapping>SpecQueueItemStatus=nl.metafactory.aicontrol.model.SpecQueueItemStatus</schemaMapping>
+                                <schemaMapping>SpecQueueMergeState=nl.metafactory.aicontrol.model.SpecQueueMergeState</schemaMapping>
+                                <schemaMapping>SpecQueueFailureReason=nl.metafactory.aicontrol.model.SpecQueueFailureReason</schemaMapping>
+                                <schemaMapping>SpecQueueEnqueueRequest=nl.metafactory.aicontrol.model.SpecQueueEnqueueRequest</schemaMapping>
+                                <schemaMapping>SpecQueueItemUpdateRequest=nl.metafactory.aicontrol.model.SpecQueueItemUpdateRequest</schemaMapping>
+                                <schemaMapping>SpecQueueOrderRequest=nl.metafactory.aicontrol.model.SpecQueueOrderRequest</schemaMapping>
+                                <schemaMapping>SpecQueueSettingsDto=nl.metafactory.aicontrol.model.SpecQueueSettingsDto</schemaMapping>
+                                <schemaMapping>SpecQueueSettingsRequest=nl.metafactory.aicontrol.model.SpecQueueSettingsRequest</schemaMapping>
+                                <schemaMapping>SpecQueuePollErrorDto=nl.metafactory.aicontrol.model.SpecQueuePollErrorDto</schemaMapping>
+                                <schemaMapping>SpecQueueRunnerStatusDto=nl.metafactory.aicontrol.model.SpecQueueRunnerStatusDto</schemaMapping>
                             </schemaMappings>
                         </configuration>
                     </execution>

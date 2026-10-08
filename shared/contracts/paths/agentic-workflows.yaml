@@ -18,7 +18,7 @@ agenticWorkflowsStart:
             schema:
               $ref: '../schemas/workflow.yaml#/StartWorkflowResponse'
       '409':
-        description: Preflight failed, workflow not started
+        description: Preflight failed, workflow not started. Also returned as a failed response with preflight error code SPEC_QUEUE_ITEM_ACTIVE when a spec queue item is active for the project
         content:
           application/json:
             schema:
