@@ -215,16 +215,17 @@ execution model.
 
 ## What is deliberately excluded, and why
 
-### No role/permission (403) coverage (AC-14)
+### Role/permission (403) coverage (AC-14)
 
-`infrastructure/keycloak/openjcockpit-realm.json` defines **no realm roles and no client roles** — it
-has no `roles` key populated with role definitions, and no user carries `realmRoles`/`clientRoles`.
-Both backend services authorize with `anyRequest().authenticated()` only, with no role or scope check
-(`services/ai-control-service/src/main/java/nl/metafactory/aicontrol/config/SecurityConfig.java` and
-the equivalent `SecurityConfig.java` in `services/embabel-agent-service`). There is therefore nothing
-to construct a 403/role-boundary scenario against today. This suite contains **no** fabricated role
-scenario. This is recorded here as a follow-up to be delivered together with the platform's first
-Keycloak role, not silently omitted from the QA traceability matrix.
+The realm defines one realm role, `openjcockpit-admin`, held only by `tony`. The 403 on the
+spec-queue settings `PUT` as the non-admin `e2e` user is covered. The positive admin path stays
+open: no scenario logs in as `tony`.
+
+### Named gap: spec-queue end to end
+
+The e2e stack has no embabel workflow run and no git remote. The 409 `SPEC_QUEUE_ITEM_ACTIVE` and the
+full enqueue-to-merge chain are proven by backend tests; Postgres-specific behaviour only by the
+manual `scripts/spec-queue-postgres-check.sh`.
 
 ### `WorkflowPromptDialog` dialog semantics — not executable as an E2E scenario today (AC-23)
 
@@ -287,7 +288,7 @@ dependencies needing separate sign-off.
   model output quality.
 - **Anything requiring a real git remote or credentials.** The seeded project's git URL is not a real,
   writable repository, and this suite never introduces one.
-- **Role/permission (403) scenarios** — see above.
+- **Positive admin-role scenarios** — see above.
 - **Visual regression / screenshot diffing.**
 - **Automated accessibility scanning** (e.g. axe or equivalent) as a gate. Targeted keyboard/ARIA
   assertions live inside individual scenarios; an automated scanner is a separate tool and a separate

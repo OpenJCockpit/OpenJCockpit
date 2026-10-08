@@ -5,6 +5,9 @@ x-ollama-base-url: &ollama-base-url ${OLLAMA_BASE_URL:-http://host.docker.intern
 x-ollama-model: &ollama-model ${OLLAMA_MODEL:-qwen3.6:27b}
 x-litellm-master-key: &litellm-master-key ${LITELLM_MASTER_KEY:-sk-openjcockpit-litellm-local}
 x-litellm-virtual-key: &litellm-virtual-key ${LITELLM_VIRTUAL_KEY:-sk-openjcockpit-embabel-local}
+# LOCAL-ONLY placeholder: HS256 key shared by ai-control-service (signs runner tokens) and
+# embabel-agent-service (verifies them). At least 32 bytes; override in any shared environment.
+x-spec-queue-runner-secret: &spec-queue-runner-secret ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:-local-only-spec-queue-runner-secret-CHANGE-ME-outside-local}
 services:
   postgres:
     image: postgres:16-alpine
@@ -67,6 +70,27 @@ services:
       - ./infrastructure/keycloak/openjcockpit-realm.json:/opt/keycloak/data/import/openjcockpit-realm.json:ro
       - ./infrastructure/themes:/opt/keycloak/themes:ro
 
+  # One-shot, idempotent seeding of the openjcockpit-admin realm role (covers existing
+  # Keycloak databases, where --import-realm is skipped). See
+  # infrastructure/keycloak/seed-realm-roles.sh.
+  keycloak-realm-roles:
+    image: curlimages/curl:8.21.0
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      KC_URL: http://keycloak:8080
+      KC_REALM: openjcockpit
+      # Mirrors the bootstrap admin of the keycloak service above (local dev only,
+      # no new secret is introduced by this service).
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_ADMIN_ROLE_USERS: tony
+    volumes:
+      - ./infrastructure/keycloak/seed-realm-roles.sh:/seed-realm-roles.sh:ro
+    entrypoint: ["/bin/sh", "/seed-realm-roles.sh"]
+    restart: "no"
+
   # One-shot seeding of per-developer, gitignored Keycloak users.
   # See infrastructure/keycloak/local-users/README.md. No-op when the directory
   # contains no *.local.json files, which is the default for a fresh checkout.
@@ -75,6 +99,8 @@ services:
     depends_on:
       keycloak:
         condition: service_healthy
+      keycloak-realm-roles:
+        condition: service_completed_successfully
     environment:
       KC_URL: http://keycloak:8080
       KC_REALM: openjcockpit
@@ -235,6 +261,9 @@ services:
       WORKFLOW_WORKSPACE_BASE: /workflow-workspaces
       AGENTIC_CONTAINER_ENABLED: ${AGENTIC_CONTAINER_ENABLED:-true}
       AGENTIC_CONTAINER_IMAGE: ${AGENTIC_CONTAINER_IMAGE:-eclipse-temurin:25-jre}
+      SPEC_QUEUE_RUNNER_ENABLED: ${SPEC_QUEUE_RUNNER_ENABLED:-true}
+      SPEC_QUEUE_POLL_INTERVAL: ${SPEC_QUEUE_POLL_INTERVAL:-PT20S}
+      SPEC_QUEUE_RUNNER_TOKEN_SECRET: *spec-queue-runner-secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -291,6 +320,8 @@ services:
       WORKFLOW_TRIGGER_MAX_CHAIN_DEPTH: ${WORKFLOW_TRIGGER_MAX_CHAIN_DEPTH:-3}
       WORKFLOW_TRIGGER_MAX_ORBS_PER_WORKFLOW: ${WORKFLOW_TRIGGER_MAX_ORBS_PER_WORKFLOW:-5}
       WORKFLOW_TRIGGER_ENABLED: ${WORKFLOW_TRIGGER_ENABLED:-true}
+      # Must be identical to the value given to ai-control-service.
+      SPEC_QUEUE_RUNNER_TOKEN_SECRET: *spec-queue-runner-secret
     # Required so the container can resolve the host on Linux Docker (where
     # host.docker.internal is not built in). Harmless on Docker Desktop, which already
     # provides the name. Host access is granted to exactly two services -- litellm, because

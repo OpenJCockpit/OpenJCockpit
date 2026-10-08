@@ -50,6 +50,21 @@ openjcockpit:
     max-connections-per-fetch: 25
     egress:
       allow-private-addresses: false
+  spec-queue:
+    runner:
+      enabled: false
+      poll-interval: ${SPEC_QUEUE_POLL_INTERVAL:PT20S}
+      start-lease: ${SPEC_QUEUE_START_LEASE:PT5M}
+      merge-lease: ${SPEC_QUEUE_MERGE_LEASE:PT5M}
+      embabel-timeout: ${SPEC_QUEUE_EMBABEL_TIMEOUT:PT30S}
+      github-timeout: ${SPEC_QUEUE_GITHUB_TIMEOUT:PT30S}
+      recently-finished-limit: 20
+      max-queued-items: 500
+      token:
+        secret: test-only-spec-queue-runner-secret-32-bytes-minimum
+        issuer: urn:openjcockpit:ai-control-service:spec-queue-runner
+        audience: embabel-agent-service
+        ttl: PT60S
 
 agentic:
   workflow:

@@ -16,6 +16,7 @@
       <ul class="nav-links">
         <li><a href="#about">About</a></li>
         <li><a href="#tutorial">Getting started</a></li>
+        <li><a href="#spec-queue">Spec queue</a></li>
         <li><a href="https://github.com/OpenJCockpit/OpenJCockpit">GitHub</a></li>
       </ul>
     </div>
@@ -97,6 +98,38 @@
         policy-guarded MCP gateway before it is allowed to run, so agents
         only ever get the least privilege they need.
       </p>
+    </section>
+
+    <section id="spec-queue">
+      <h2>Spec queue</h2>
+      <p>
+        Each project has one queue of specs that the runner works through one at a time.
+        Item statuses: <code>QUEUED</code>, <code>STARTING</code>, <code>RUNNING</code>,
+        <code>AWAITING_MERGE</code>, <code>MERGING</code>, <code>MERGED</code>,
+        <code>COMPLETED_NO_CHANGES</code>, <code>FAILED</code>, <code>SKIPPED</code>,
+        <code>CANCELLED</code>, <code>REMOVED</code>. Queue states: <code>ACTIVE</code>,
+        <code>PAUSED</code>, <code>HALTED</code>. Users can enqueue, edit, reorder, cancel and
+        remove items and pause or resume the queue.
+      </p>
+      <h3>Auto-merge risk</h3>
+      <p>
+        With auto-merge, a pull request is merged without a human review once its checks pass.
+        It is off per item by default and requires the admin-only project setting
+        <code>autoMergeAllowed</code> (role <code>openjcockpit-admin</code>).
+      </p>
+      <h3>Poll errors</h3>
+      <p>
+        <code>EMBABEL_UNAVAILABLE</code>, <code>EMBABEL_UNAUTHORIZED</code>,
+        <code>RUNNER_NOT_CONFIGURED</code>, <code>GITHUB_UNAVAILABLE</code>,
+        <code>GITHUB_RATE_LIMITED</code>.
+      </p>
+      <h3>Failure reasons</h3>
+      <p>
+        TODO: copy the codes from the backend enum <code>SpecQueueFailureReason</code> once the
+        backend is applied; keep this list in sync with it.
+      </p>
+      <h3>Known limits</h3>
+      <p>R2, R4, R5 and R9 from the spec-queue risk register apply; see the README for details.</p>
     </section>
 
     <section id="tutorial">

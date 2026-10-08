@@ -9,6 +9,14 @@
   "resetPasswordAllowed": false,
   "editUsernameAllowed": false,
   "bruteForceProtected": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "openjcockpit-admin",
+        "description": "May change project-level spec-queue settings (autoMergeAllowed). Local seed only."
+      }
+    ]
+  },
   "clients": [
     {
       "clientId": "openjcockpit",
@@ -70,6 +78,10 @@
       "firstName": "Tony",
       "lastName": "OpenJCockpit",
       "email": "tony@openjcockpit.local",
+      "realmRoles": [
+        "default-roles-openjcockpit",
+        "openjcockpit-admin"
+      ],
       "credentials": [
         {
           "type": "password",

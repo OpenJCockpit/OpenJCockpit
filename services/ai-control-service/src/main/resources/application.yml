@@ -110,6 +110,21 @@ openjcockpit:
       # Never enable this in a deployed environment. It exists solely so this feature can be
       # exercised locally against a dev/test-only marketplace double (BR-14).
       allow-private-addresses: ${SKILLS_MARKETPLACE_ALLOW_PRIVATE_EGRESS:false}
+  spec-queue:
+    runner:
+      enabled: ${SPEC_QUEUE_RUNNER_ENABLED:true}
+      poll-interval: ${SPEC_QUEUE_POLL_INTERVAL:PT20S}
+      start-lease: ${SPEC_QUEUE_START_LEASE:PT5M}
+      merge-lease: ${SPEC_QUEUE_MERGE_LEASE:PT5M}
+      embabel-timeout: ${SPEC_QUEUE_EMBABEL_TIMEOUT:PT30S}
+      github-timeout: ${SPEC_QUEUE_GITHUB_TIMEOUT:PT30S}
+      recently-finished-limit: 20
+      max-queued-items: 500
+      token:
+        secret: ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:}
+        issuer: urn:openjcockpit:ai-control-service:spec-queue-runner
+        audience: embabel-agent-service
+        ttl: PT60S
 
 agentic:
   workflow:
