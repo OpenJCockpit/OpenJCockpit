@@ -1,0 +1,95 @@
+parameters:
+  ProjectIdPathParam:
+    name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+  ProjectSpecIdPathParam:
+    name: projectId
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+  # Shared decision-logs query parameters (Batch 3), reused by both
+  # GET /api/workflows/{id}/decision-logs and GET /api/workflow-executions/{id}/decision-logs.
+  DecisionLogsFromParam:
+    name: from
+    in: query
+    required: false
+    schema:
+      type: string
+      format: date-time
+  DecisionLogsToParam:
+    name: to
+    in: query
+    required: false
+    schema:
+      type: string
+      format: date-time
+  DecisionLogsAgentIdParam:
+    name: agentId
+    in: query
+    required: false
+    schema:
+      type: string
+  DecisionLogsSubagentIdParam:
+    name: subagentId
+    in: query
+    required: false
+    schema:
+      type: string
+  DecisionLogsSkillIdParam:
+    name: skillId
+    in: query
+    required: false
+    schema:
+      type: string
+  DecisionLogsMcpToolNameParam:
+    name: mcpToolName
+    in: query
+    required: false
+    schema:
+      type: string
+  DecisionLogsResultParam:
+    name: result
+    in: query
+    required: false
+    schema:
+      type: string
+  MarketplaceIdPathParam:
+    name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+  WorkflowExecutionsLimitParam:
+    name: limit
+    in: query
+    required: false
+    schema:
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 100
+      default: 20
+  WorkflowExecutionsOffsetParam:
+    name: offset
+    in: query
+    required: false
+    schema:
+      type: integer
+      format: int32
+      minimum: 0
+      default: 0
+
+ApiErrorResponse:
+  type: object
+  properties:
+    code:
+      type: string
+    message:
+      type: string

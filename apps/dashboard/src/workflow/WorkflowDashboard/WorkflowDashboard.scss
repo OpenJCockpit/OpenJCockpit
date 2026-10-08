@@ -1,0 +1,22 @@
+/* ── Workflow dashboard ────────────────────────────────────────────────── */
+.workflow-dashboard {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 48px 64px;
+}
+.workflow-dashboard-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  & h1 {
+    margin: 4px 0 0;
+    font-size: 26px;
+    letter-spacing: -0.03em;
+    color: var(--violet);
+  }
+}

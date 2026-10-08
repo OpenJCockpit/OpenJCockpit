@@ -1,0 +1,53 @@
+SkillsMarketplaceConnectionDto:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    name:
+      type: string
+    marketplaceUrl:
+      type: string
+    description:
+      type: string
+      nullable: true
+    enabled:
+      type: boolean
+    hasApiKey:
+      type: boolean
+    createdBy:
+      type: string
+      nullable: true
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+
+SkillsMarketplaceConnectionRequest:
+  type: object
+  required:
+    - name
+    - marketplaceUrl
+    - enabled
+  properties:
+    name:
+      type: string
+      minLength: 1
+      maxLength: 100
+    marketplaceUrl:
+      type: string
+      maxLength: 500
+      pattern: '^https?://\S+$'
+    apiKey:
+      type: string
+      maxLength: 4096
+      writeOnly: true
+    description:
+      type: string
+      maxLength: 500
+      nullable: true
+    enabled:
+      type: boolean
+      default: true

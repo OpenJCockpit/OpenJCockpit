@@ -1,0 +1,46 @@
+opaConfig:
+  get:
+    tags:
+      - OpaConfig
+    operationId: get
+    summary: Get the current OPA configuration
+    responses:
+      '200':
+        description: Current OPA configuration
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/opa.yaml#/OpaConfigDto'
+  put:
+    tags:
+      - OpaConfig
+    operationId: update
+    summary: Save the OPA configuration
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/opa.yaml#/OpaConfigRequestDto'
+    responses:
+      '200':
+        description: OPA configuration saved
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/opa.yaml#/OpaConfigDto'
+opaConfigHealth:
+  get:
+    tags:
+      - OpaConfig
+    operationId: health
+    summary: Check whether the configured OPA endpoint is reachable
+    responses:
+      '200':
+        description: OPA reachability status
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: boolean

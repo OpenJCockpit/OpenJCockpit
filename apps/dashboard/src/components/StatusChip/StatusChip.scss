@@ -1,0 +1,33 @@
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-width: 64px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(124, 222, 255, 0.16);
+  font-size: 12px;
+  line-height: 1;
+  color: var(--cyan);
+  background: rgba(39, 231, 255, 0.05);
+}
+.status-chip--active,
+.status-chip--ok {
+  color: var(--teal);
+  border-color: rgba(55, 247, 194, 0.25);
+  background: var(--teal-soft);
+}
+.status-chip--done,
+.status-chip--review,
+.status-chip--open {
+  color: var(--blue);
+  border-color: rgba(90, 169, 255, 0.28);
+  background: rgba(90, 169, 255, 0.08);
+}
+.status-chip--waiting,
+.status-chip--changes {
+  color: var(--warn);
+  border-color: rgba(246, 165, 37, 0.32);
+  background: rgba(246, 165, 37, 0.1);
+}

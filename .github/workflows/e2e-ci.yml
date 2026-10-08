@@ -1,0 +1,95 @@
+name: E2E CI
+
+# Non-blocking, informational leg (AC-29 follow-up, see e2e/README.md). It is
+# intentionally NOT wired into ci-summary.yml's gate: a failure here must
+# never fail a PR. It does not upload playwright-report/test-results as
+# artifacts, because they can contain live bearer tokens and Keycloak session
+# cookies for the seeded e2e identity (see e2e/README.md, "Warning: traces,
+# screenshots, videos, and storage state contain live credentials") — that
+# remains a stated follow-up if this leg is ever made blocking.
+
+on:
+  pull_request:
+    paths:
+      - "e2e/**"
+      - "apps/dashboard/**"
+      - "apps/landing/**"
+      - "services/ai-control-service/**"
+      - "infrastructure/keycloak/**"
+      - "docker-compose.yml"
+      - ".env.example"
+      - ".github/workflows/e2e-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "e2e/**"
+      - "apps/dashboard/**"
+      - "apps/landing/**"
+      - "services/ai-control-service/**"
+      - "infrastructure/keycloak/**"
+      - "docker-compose.yml"
+      - ".env.example"
+      - ".github/workflows/e2e-ci.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: playwright (reduced mode, non-blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            e2e/package-lock.json
+            apps/dashboard/package-lock.json
+            apps/landing/package-lock.json
+
+      - name: Install e2e dependencies
+        working-directory: e2e
+        run: npm ci
+
+      - name: Install dashboard dependencies
+        working-directory: apps/dashboard
+        run: npm ci
+
+      - name: Install landing dependencies
+        working-directory: apps/landing
+        run: npm ci
+
+      - name: Install Playwright browser
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Provide a non-empty OPENAI_API_KEY so ai-control-service can boot
+        run: cp .env.example .env
+
+      - name: Start reduced stack (postgres, keycloak, ai-control-service)
+        working-directory: e2e
+        run: npm run stack:reduced
+
+      - name: Run Playwright e2e suite (reduced mode)
+        id: e2e_run
+        working-directory: e2e
+        continue-on-error: true
+        run: npm run e2e:reduced
+
+      - name: Stop reduced stack
+        if: always()
+        working-directory: e2e
+        run: npm run stack:reduced:stop
+
+      - name: Surface e2e result
+        run: |
+          echo "::notice::Playwright e2e outcome: ${{ steps.e2e_run.outcome }} (non-blocking leg — does not fail this workflow or gate CI, see e2e/README.md)"

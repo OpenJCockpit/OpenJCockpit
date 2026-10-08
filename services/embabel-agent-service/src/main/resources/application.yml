@@ -1,0 +1,222 @@
+server:
+  port: 8081
+  error:
+    # AC-03 (workflow-approval-gate): the 400 raised by WorkflowController.validateApprovalGate
+    # (and the pre-existing requireGroupOrProject 400) must name the offending stage in the
+    # response body, so ai-control-service's badRequest() relay and the dashboard's message
+    # display have something real to show instead of a generic "Bad Request".
+    include-message: always
+
+
+spring:
+  # Spring Boot 4.1.1 moved the HTTP error response message inclusion control from
+  # server.error.include-message (ServerProperties, prefix "server") to
+  # spring.web.error.include-message (WebProperties, prefix "spring.web"). Both bind the same
+  # underlying ErrorProperties class, just at different prefixes.
+  web:
+    error:
+      include-message: always
+  application:
+    name: embabel-agent-service
+  # Jackson 3's auto-configured JsonMapper defaults DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES
+  # to enabled, whereas Jackson 2 defaulted it to disabled. This broke POST /api/workflows (and any
+  # other endpoint whose request DTO has a primitive field, e.g. WorkflowDefinition.promptRequired,
+  # a primitive boolean): omitting such a field now 400s with a raw Jackson parse-error diagnostic
+  # before bean validation even runs, instead of deserializing to the field's default value and
+  # proceeding to normal validation as it did before this framework upgrade. This restores Jackson
+  # 2's tolerant default. (Separately, FAIL_ON_NULL_FOR_PRIMITIVES was already disabled for the two
+  # hand-built internal mappers YamlDefinitionStore and DefaultWorkflowBundleReader - this setting
+  # closes the same gap for Spring MVC's auto-configured request-body mapper.)
+  jackson:
+    deserialization:
+      fail-on-null-for-primitives: false
+  ai:
+    model:
+      chat: openai
+      embedding: openai
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      # The effective spring.ai.openai.chat.max-retries is the framework default of 3,
+      # replacing the previously hand-built RetryUtils.DEFAULT_RETRY_TEMPLATE retry behavior —
+      # this is a disclosed, accepted change for this delivery.
+      chat:
+        model: gpt-4.1-mini
+      embedding:
+        model: text-embedding-3-small
+    mcp:
+      client:
+        enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://keycloak:8080/realms/metafactory/protocol/openid-connect/certs
+  # Frozen Contract #2 (workflow-approval-gate work plan §5) — implemented verbatim. Makes
+  # today's implicit Spring Boot defaults explicit and tunable; not load-bearing for correctness
+  # under the return-and-resume design (a parked run holds no thread), but documentation-as-
+  # configuration plus headroom for resume bursts. queue-capacity is left unbounded deliberately
+  # so a resume submission can never be rejected.
+  task:
+    execution:
+      thread-name-prefix: pipeline-
+      pool:
+        core-size: ${PIPELINE_POOL_CORE_SIZE:8}
+        max-size: ${PIPELINE_POOL_MAX_SIZE:16}
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/embabel}
+    username: ${DB_USERNAME:embabel_app}
+    password: ${DB_PASSWORD:embabel_app}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+
+embabel:
+  models:
+    default-llm: "${metafactory.llm.ollama.model}"
+    default-embedding-model: text-embedding-3-small
+    llms:
+      coding: "${metafactory.llm.ollama.model}"
+      best: gpt-4.1-mini
+      cheapest: gpt-4.1-mini
+    embedding-services:
+      best: text-embedding-3-small
+      cheapest: text-embedding-3-small
+  agent:
+    platform:
+      llm-operations:
+        prompts:
+          # Embabel wraps every LLM call in future.get(defaultTimeout) (ChatClientLlmOperations).
+          # Its default is 60s, which silently caps calls far below the 600s HTTP read timeout in
+          # metafactory.llm.read-timeout-seconds. A 27B local model routinely needs minutes, so the
+          # two budgets are aligned here. Keep this >= metafactory.llm.read-timeout-seconds.
+          default-timeout: ${LLM_OPERATION_TIMEOUT:600s}
+        data-binding:
+          # LlmDataBindingProperties' own default (maxAttempts=10, fixedBackoffMillis=30) exists to
+          # re-ask a model whose JSON response failed to bind (com.embabel.agent.spi.support
+          # .LlmDataBindingProperties) -- it also catches HTTP-level failures such as the read
+          # timeout above. Because it re-issues the *same* slow call with only a 30ms backoff, a
+          # genuinely-slow-but-working local model can be retried up to 10x, each burning the full
+          # read-timeout budget again, before the run finally fails (worst case ~10x
+          # metafactory.llm.read-timeout-seconds). Capped lower here so a slow response still gets
+          # one retry without multiplying the wait an order of magnitude.
+          max-attempts: ${LLM_DATA_BINDING_MAX_ATTEMPTS:2}
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db
+    web:
+      exposure:
+          include: health,info,metrics, loggers
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  info:
+    env:
+      enabled: true
+    build:
+      enabled: true
+
+info:
+  app:
+    name: ${spring.application.name}
+    description: Embabel Agent Service — runs AI agent pipelines via Embabel GOAP
+    version: "@project.version@"
+
+metafactory:
+  llm:
+    # Matches the OpenAI SDK's own documented default timeout (10 minutes) — reasoning-heavy
+    # calls (e.g. realisation's CodeChangeSet generation) can take a while.
+    connect-timeout-seconds: ${LLM_CONNECT_TIMEOUT_SECONDS:45}
+    read-timeout-seconds: ${LLM_READ_TIMEOUT_SECONDS:600}
+    coding:
+      # BR-14 Revert B: `gateway` (default) routes the default/coding LLM through the
+      # LiteLLM container; `direct` restores the pre-gateway path straight to host
+      # Ollama. Configuration-only switch -- no rebuild, no docker-compose.yml edit.
+      route: ${LLM_CODING_ROUTE:gateway}
+    gateway:
+      base-url: ${LITELLM_BASE_URL:http://localhost:4000/v1}
+      api-key: ${LITELLM_VIRTUAL_KEY:sk-metafactory-embabel-local}
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}         # UNCHANGED
+      model: "${OLLAMA_MODEL:qwen3.6:27b}"                        # UNCHANGED
+  mcp:
+    enabled: ${MCP_CLIENT_ENABLED:false}
+    request-timeout-seconds: ${MCP_REQUEST_TIMEOUT_SECONDS:120}
+    servers:
+      - name: git
+        url: ${GIT_MCP_SERVER_URL:http://localhost:8093}
+  security:
+    jwt-issuer: http://localhost:8080/realms/metafactory
+  agent-pipeline:
+    sequence:
+      - requirement
+      - impact
+      - test-design
+      - implementation
+      - review
+      - realisation
+      - evidence
+  workflow-definitions:
+    path: ${WORKFLOW_DEFINITIONS_PATH:/tmp/embabel-workflow-definitions}
+
+  spec-workflow:
+    base-path: ${SPEC_WORKFLOW_BASE:.}
+    init-enabled: ${SPEC_WORKFLOW_INIT_ENABLED:true}
+  spec-git:
+    enabled: ${SPEC_GIT_ENABLED:true}
+    base-branch: ${SPEC_GIT_BASE_BRANCH:main}
+    branch-prefix: ${SPEC_GIT_BRANCH_PREFIX:spec}
+    spec-directory: ${SPEC_GIT_SPEC_DIRECTORY:specs}
+    username: ${SPEC_GIT_USERNAME:}
+    token: ${SPEC_GIT_TOKEN:}
+    author-name: ${SPEC_GIT_AUTHOR_NAME:Agentic Workflow}
+    author-email: ${SPEC_GIT_AUTHOR_EMAIL:agentic@metafactory.nl}
+  opa:
+    enabled: ${OPA_ENABLED:false}
+    base-url: ${OPA_BASE_URL:http://localhost:8181}
+    policy-path: ${OPA_POLICY_PATH:/v1/data/metafactory/workflow/decision}
+    health-path: ${OPA_HEALTH_PATH:/health}
+    timeout-seconds: ${OPA_TIMEOUT_SECONDS:3}
+    fail-mode: ${OPA_FAIL_MODE:FAIL_CLOSED}
+    decision-logging-enabled: ${OPA_DECISION_LOGGING_ENABLED:true}
+    decision-log-export-enabled: ${OPA_DECISION_LOG_EXPORT_ENABLED:true}
+    environment: ${OPA_ENVIRONMENT:}
+    customer-label: ${OPA_CUSTOMER_LABEL:}
+    project-label: ${OPA_PROJECT_LABEL:}
+    auth-token: ${OPA_AUTH_TOKEN:}
+  # Frozen Contract #2 (workflow-approval-gate work plan §5) — implemented verbatim.
+  approval-gate:
+    max-feedback-iterations: ${APPROVAL_GATE_MAX_FEEDBACK_ITERATIONS:3}
+    comment-max-length: ${APPROVAL_GATE_COMMENT_MAX_LENGTH:4000}
+    max-changed-paths-in-context: ${APPROVAL_GATE_MAX_CHANGED_PATHS:50}
+  # New, dedicated timeout — deliberately unrelated to ExecutionConfig.timeoutSeconds, which is
+  # dead configuration (persisted and exposed in the API contract but never read by any code).
+  # max-chain-depth and max-orbs-per-workflow are cost and blast-radius controls as much as
+  # safety controls: each chain level multiplies LLM calls, git operations, and pull requests.
+  workflow-trigger:
+    sequential-max-wait: ${WORKFLOW_TRIGGER_SEQUENTIAL_MAX_WAIT:30m}
+    max-chain-depth: ${WORKFLOW_TRIGGER_MAX_CHAIN_DEPTH:3}
+    max-orbs-per-workflow: ${WORKFLOW_TRIGGER_MAX_ORBS_PER_WORKFLOW:5}
+    enabled: ${WORKFLOW_TRIGGER_ENABLED:true}
+
+logging:
+  level:
+    nl.metafactory.agents: INFO
+    com.embabel.agent: DEBUG

@@ -1,0 +1,137 @@
+hermesConfig:
+  get:
+    tags:
+      - ProjectIntegrationConfig
+    operationId: getHermesConfig
+    summary: Get the Hermes integration config for a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    responses:
+      '200':
+        description: Hermes config (defaults if none saved)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/project.yaml#/ProjectHermesConfigDto'
+  post:
+    tags:
+      - ProjectIntegrationConfig
+    operationId: saveHermesConfig
+    summary: Save the Hermes integration config for a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/project.yaml#/ProjectHermesConfigRequest'
+    responses:
+      '201':
+        description: Hermes config saved
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/project.yaml#/ProjectHermesConfigDto'
+  delete:
+    tags:
+      - ProjectIntegrationConfig
+    operationId: deleteHermesConfig
+    summary: Deactivate the Hermes integration config for a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    responses:
+      '204':
+        description: Hermes config deactivated
+
+jiraConfig:
+  get:
+    tags:
+      - ProjectIntegrationConfig
+    operationId: getJiraConfig
+    summary: Get the Jira integration config for a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    responses:
+      '200':
+        description: Jira config (defaults if none saved)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/project.yaml#/ProjectJiraConfigDto'
+  post:
+    tags:
+      - ProjectIntegrationConfig
+    operationId: saveJiraConfig
+    summary: Save the Jira integration config for a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/project.yaml#/ProjectJiraConfigRequest'
+    responses:
+      '201':
+        description: Jira config saved
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/project.yaml#/ProjectJiraConfigDto'
+  delete:
+    tags:
+      - ProjectIntegrationConfig
+    operationId: deleteJiraConfig
+    summary: Deactivate the Jira integration config for a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    responses:
+      '204':
+        description: Jira config deactivated
+
+documentFolderConfig:
+  get:
+    tags:
+      - ProjectIntegrationConfig
+    operationId: getDocumentFolderConfig
+    summary: Get the document-folder integration config for a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    responses:
+      '200':
+        description: Document folder config (defaults if none saved)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/project.yaml#/ProjectDocumentFolderConfigDto'
+  post:
+    tags:
+      - ProjectIntegrationConfig
+    operationId: saveDocumentFolderConfig
+    summary: Save the document-folder integration config for a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/project.yaml#/ProjectDocumentFolderConfigRequest'
+    responses:
+      '201':
+        description: Document folder config saved
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/project.yaml#/ProjectDocumentFolderConfigDto'
+  delete:
+    tags:
+      - ProjectIntegrationConfig
+    operationId: deleteDocumentFolderConfig
+    summary: Deactivate the document-folder integration config for a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    responses:
+      '204':
+        description: Document folder config deactivated

@@ -1,0 +1,436 @@
+# Schemas for AgenticWorkflowController (Batch 2).
+# Extended in Batch 3 with Workflow/WorkflowExecution/WorkflowGroup schemas.
+#
+# Batch 3 note: this file's DTOs come from nl.metafactory.aicontrol.client, not
+# .model (see WorkflowController/WorkflowExecutionController/WorkflowGroupController,
+# which are backed by EmbabelAgentClient — Embabel-facing contracts).
+
+GitWorkspaceJobStatus:
+  type: string
+  enum:
+    - CREATED
+    - CONTAINER_CREATED
+    - CONTAINER_STARTED
+    - SPEC_READY
+    - CLONING
+    - BRANCH_CREATED
+    - AGENTS_RUNNING
+    - CHANGES_DETECTED
+    - NO_CHANGES
+    - COMMITTING
+    - PUSHING
+    - PUSHED
+    - CLEANING_UP
+    - COMPLETED
+    - FAILED
+    - CANCELLED
+
+GitWorkspaceJobErrorCode:
+  type: string
+  enum:
+    - NO_SELECTED_PROJECT
+    - PROJECT_INACTIVE
+    - PROJECT_NOT_FOUND
+    - GIT_URL_MISSING
+    - GIT_AUTH_FAILED
+    - GIT_REPOSITORY_NOT_FOUND
+    - GIT_CLONE_FAILED
+    - BRANCH_CREATE_FAILED
+    - SPEC_FILE_INVALID
+    - AGENT_EXECUTION_FAILED
+    - NO_CHANGES
+    - COMMIT_FAILED
+    - PUSH_FAILED
+    - CONTAINER_CREATE_FAILED
+    - CONTAINER_START_FAILED
+    - CONTAINER_EXECUTION_FAILED
+    - CLEANUP_FAILED
+    - TIMEOUT
+    - DOCKER_UNAVAILABLE
+    - GIT_REPOSITORY_UNAVAILABLE
+
+PreflightError:
+  type: object
+  properties:
+    code:
+      $ref: '#/GitWorkspaceJobErrorCode'
+    message:
+      type: string
+
+WorkflowPreflightResult:
+  type: object
+  properties:
+    passed:
+      type: boolean
+    errors:
+      type: array
+      items:
+        $ref: '#/PreflightError'
+
+StartWorkflowRequest:
+  type: object
+  required:
+    - specFileRef
+  properties:
+    specFileRef:
+      type: string
+    projectId:
+      type: string
+      format: uuid
+    dryRun:
+      type: boolean
+
+StartWorkflowResponse:
+  type: object
+  properties:
+    status:
+      type: string
+    preflightPassed:
+      type: boolean
+    jobId:
+      type: string
+      format: uuid
+    message:
+      type: string
+    errors:
+      type: array
+      items:
+        $ref: '#/PreflightError'
+
+GitWorkspaceJobDto:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    projectId:
+      type: string
+      format: uuid
+    specFileRef:
+      type: string
+    status:
+      $ref: '#/GitWorkspaceJobStatus'
+    baseBranch:
+      type: string
+    workingBranch:
+      type: string
+    commitHash:
+      type: string
+    errorCode:
+      $ref: '#/GitWorkspaceJobErrorCode'
+    errorMessage:
+      type: string
+    startedBy:
+      type: string
+    startedAt:
+      type: string
+      format: date-time
+    completedAt:
+      type: string
+      format: date-time
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+
+GitWorkspaceJobEventDto:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    jobId:
+      type: string
+      format: uuid
+    eventType:
+      type: string
+    message:
+      type: string
+    createdAt:
+      type: string
+      format: date-time
+
+# ---------------------------------------------------------------------------
+# Batch 3: Workflow / WorkflowExecution / WorkflowGroup (nl.metafactory.aicontrol.client)
+# ---------------------------------------------------------------------------
+
+TriggerConfigDto:
+  type: object
+  properties:
+    dashboardButtonEnabled:
+      type: boolean
+    hermesSignalEnabled:
+      type: boolean
+    hermesSignalType:
+      type: string
+    fileDeliveryEnabled:
+      type: boolean
+    fileDeliveryFolderPath:
+      type: string
+
+ExecutionConfigDto:
+  type: object
+  properties:
+    customerId:
+      type: string
+    repositoryUrl:
+      type: string
+    timeoutSeconds:
+      type: integer
+      format: int32
+
+WorkflowDefinitionDto:
+  type: object
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    projectName:
+      type: string
+    groupId:
+      type: string
+    description:
+      type: string
+    agentIds:
+      type: array
+      minItems: 1
+      description: >-
+        The authoritative, effective set of pipeline agent stage ids selected for this
+        workflow. At least one pipeline agent is required — a workflow with no agents
+        cannot be started.
+      items:
+        type: string
+    subagentNames:
+      type: array
+      items:
+        type: string
+    skillNames:
+      type: array
+      items:
+        type: string
+    mcpTools:
+      type: array
+      items:
+        $ref: 'agent.yaml#/McpToolRefDto'
+    trigger:
+      $ref: '#/TriggerConfigDto'
+    execution:
+      $ref: '#/ExecutionConfigDto'
+    promptRequired:
+      type: boolean
+    promptInstructions:
+      type: string
+    approvalGate:
+      $ref: '#/ApprovalGateConfigDto'
+    workflowOrbs:
+      type: array
+      items:
+        $ref: '#/WorkflowOrbDto'
+    status:
+      type: string
+    lastExecutionStatus:
+      type: string
+    lastExecutionAt:
+      type: string
+      format: date-time
+
+# ---------------------------------------------------------------------------
+# workflow-approval-gate delivery, batch B2. See approval-gate.yaml for the
+# gate's runtime context/decision/audit schemas; this one is the workflow
+# definition's persisted configuration, hence it lives beside WorkflowDefinitionDto.
+# ---------------------------------------------------------------------------
+
+ApprovalGateConfigDto:
+  type: object
+  properties:
+    enabled:
+      type: boolean
+    placementStage:
+      type: string
+
+WorkflowOrbMode:
+  type: string
+  enum: [SEQUENTIAL, PARALLEL]
+
+WorkflowOrbDto:
+  type: object
+  required: [workflowId, mode]
+  properties:
+    workflowId:
+      type: string
+    mode:
+      $ref: '#/WorkflowOrbMode'
+    placementStage:
+      type: string
+      description: >-
+        Same shape and semantics as ApprovalGateConfigDto.placementStage: the id of one of
+        this workflow's own agentIds, after whose completion the orb runs. Absent or blank
+        means the orb runs first, before any of this workflow's agent stages (BR-4).
+
+WorkflowGroupDto:
+  type: object
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    description:
+      type: string
+    projectName:
+      type: string
+
+WorkflowExportBundleDto:
+  type: object
+  properties:
+    groups:
+      type: array
+      items:
+        $ref: '#/WorkflowGroupDto'
+    workflows:
+      type: array
+      items:
+        $ref: '#/WorkflowDefinitionDto'
+
+WorkflowImportResultDto:
+  type: object
+  properties:
+    groupsImported:
+      type: integer
+      format: int32
+    workflowsImported:
+      type: integer
+      format: int32
+    violations:
+      type: array
+      items:
+        type: string
+
+WorkflowStartInputDto:
+  type: object
+  properties:
+    prompt:
+      type: string
+    specFile:
+      type: string
+    repositoryUrl:
+      type: string
+    projectId:
+      type: string
+    gitUsername:
+      type: string
+    gitToken:
+      type: string
+
+WorkflowStartResponseDto:
+  type: object
+  properties:
+    workflowId:
+      type: string
+    executionId:
+      type: string
+    status:
+      type: string
+    startedAt:
+      type: string
+      format: date-time
+    message:
+      type: string
+
+PolicyDecisionAuditEntryDto:
+  type: object
+  properties:
+    id:
+      type: string
+    workflowId:
+      type: string
+    workflowExecutionId:
+      type: string
+    projectId:
+      type: string
+    projectName:
+      type: string
+    customerId:
+      type: string
+    customerName:
+      type: string
+    agentId:
+      type: string
+    subagentId:
+      type: string
+    skillId:
+      type: string
+    mcpToolName:
+      type: string
+    triggerSource:
+      type: string
+    requestedAction:
+      type: string
+    opaDecisionId:
+      type: string
+    opaDecisionResult:
+      type: string
+    policyReason:
+      type: string
+    riskLevel:
+      type: string
+    requiredApproval:
+      type: boolean
+    auditTags:
+      type: array
+      items:
+        type: string
+    timestamp:
+      type: string
+      format: date-time
+    policyRevision:
+      type: string
+    policyUnavailable:
+      type: boolean
+    failModeApplied:
+      type: string
+
+WorkflowExecutionSummaryDto:
+  type: object
+  properties:
+    runId:
+      type: string
+    workflowId:
+      type: string
+    status:
+      type: string
+    startedAt:
+      type: string
+      format: date-time
+    completedAt:
+      type: string
+      format: date-time
+      nullable: true
+    durationMillis:
+      type: integer
+      format: int64
+      nullable: true
+    startedBy:
+      type: string
+      nullable: true
+
+WorkflowExecutionPageDto:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/WorkflowExecutionSummaryDto'
+    limit:
+      type: integer
+      format: int32
+    offset:
+      type: integer
+      format: int32
+    total:
+      type: integer
+      format: int64
+    hasMore:
+      type: boolean

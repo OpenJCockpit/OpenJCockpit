@@ -1,0 +1,111 @@
+skillDefinitionsCollection:
+  get:
+    tags:
+      - SkillDefinition
+    operationId: listSkillDefinitions
+    summary: List all skill definitions
+    responses:
+      '200':
+        description: Skill definitions
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/agent.yaml#/SkillSpecDto'
+  post:
+    tags:
+      - SkillDefinition
+    operationId: create
+    summary: Create a new skill definition
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/agent.yaml#/SkillSpecDto'
+    responses:
+      '201':
+        description: Skill definition created
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/SkillSpecDto'
+
+skillDefinitionByName:
+  get:
+    tags:
+      - SkillDefinition
+    operationId: get
+    summary: Get a skill definition by name
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Skill definition
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/SkillSpecDto'
+  put:
+    tags:
+      - SkillDefinition
+    operationId: update
+    summary: Update an existing skill definition
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/agent.yaml#/SkillSpecDto'
+    responses:
+      '200':
+        description: Skill definition updated
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/SkillSpecDto'
+  delete:
+    tags:
+      - SkillDefinition
+    operationId: delete
+    summary: Delete a skill definition
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Skill definition deleted
+
+skillDefinitionsGenerateFromPrompt:
+  post:
+    tags:
+      - SkillDefinition
+    operationId: generateFromPrompt
+    summary: Generate a skill definition draft from a natural-language prompt
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/agent.yaml#/PromptRequestDto'
+    responses:
+      '200':
+        description: Generated skill definition draft
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/SkillSpecDto'

@@ -1,0 +1,153 @@
+/* ── Project selection ─────────────────────────────────────────────────── */
+.project-selection-shell {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.project-selection-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 880px;
+  padding: 48px 32px;
+}
+
+.project-selection-header {
+  text-align: center;
+  margin-bottom: 40px;
+  & .brand-logo {
+    height: 36px;
+    margin-bottom: 24px;
+  }
+}
+
+.project-selection-title {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 24px;
+  color: var(--cyan);
+  margin: 0 0 8px;
+  letter-spacing: 0.04em;
+}
+
+.project-selection-subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+.project-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    background 0.15s;
+  text-align: left;
+
+  &:hover,
+  &:focus-visible {
+    border-color: rgba(39, 231, 255, 0.45);
+    box-shadow: 0 0 24px rgba(39, 231, 255, 0.12);
+    background: rgba(39, 231, 255, 0.05);
+    outline: none;
+  }
+}
+
+.project-card-icon {
+  font-size: 22px;
+  color: var(--cyan);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.project-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.project-card-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cyan);
+  margin: 0 0 4px;
+}
+
+.project-card-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.project-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  & span {
+    font-size: 11px;
+    color: var(--faint);
+    background: rgba(39, 231, 255, 0.06);
+    border: 1px solid rgba(39, 231, 255, 0.15);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+}
+
+.project-card-arrow {
+  color: var(--muted);
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition:
+    color 0.15s,
+    transform 0.15s;
+}
+
+.project-card:hover .project-card-arrow {
+  color: var(--cyan);
+  transform: translateX(3px);
+}
+
+.project-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 48px 0;
+}
+
+.project-selection-footer {
+  text-align: center;
+  margin-top: 16px;
+}
+
+/* ── Project card disabled state ───────────────────────────────────────── */
+.project-card--disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  pointer-events: auto;
+  &:hover {
+    border-color: var(--line);
+    box-shadow: none;
+    background: var(--surface);
+  }
+  &:hover .project-card-arrow {
+    color: var(--muted);
+    transform: none;
+  }
+}
+
+.project-card-notice {
+  font-size: 11px;
+  color: #ff8a8a;
+  margin: 6px 0 0;
+}

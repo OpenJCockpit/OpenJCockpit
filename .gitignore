@@ -1,0 +1,34 @@
+# Node
+node_modules/
+dist/
+
+# Java / Maven
+target/
+
+# IDE
+.idea/
+*.iml
+
+# Env
+.env
+!.env.example
+
+# OS
+.DS_Store
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Docker Compose auto-merges this filename by convention; committing it would make
+# any opt-in overlay (e.g. docker-compose.local-marketplace.yml) default-on.
+docker-compose.override.yml
+# Local (per-developer) Keycloak users — never commit personal accounts/passwords
+infrastructure/keycloak/local-users/*.local.json
+
+# Playwright e2e harness (e2e/) — storage state contains live Keycloak SSO
+# cookies, and report/artifact directories can contain bearer tokens (see
+# e2e/README.md). Never commit any of these.
+e2e/.auth/
+e2e/test-results/
+e2e/playwright-report/
+e2e/blob-report/

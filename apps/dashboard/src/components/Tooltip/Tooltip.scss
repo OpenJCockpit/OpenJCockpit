@@ -1,0 +1,15 @@
+.tooltip {
+  position: fixed;
+  min-width: 160px;
+  max-width: 220px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(39, 231, 255, 0.35);
+  background: rgba(4, 16, 28, 0.95);
+  box-shadow: 0 0 16px rgba(39, 231, 255, 0.2);
+  pointer-events: none;
+  z-index: 30;
+}

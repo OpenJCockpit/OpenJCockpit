@@ -1,0 +1,16 @@
+OpenJCockpit
+
+Copyright (c) 2026 MetaFactory B.V.
+
+This project is licensed under the Apache License, Version 2.0.
+See the LICENSE file for the full text of the license.
+
+This project may include third-party software components, such as the Maven and npm
+dependencies it builds on and the container images it runs with. Those components are
+subject to their own license terms and notices.
+
+This project contains source code adapted from React Bits
+(https://github.com/DavidHDev/react-bits), Copyright (c) 2026 David Haz, licensed under
+the MIT License with the Commons Clause rider. The adapted code lives in
+`apps/landing/src/ui/vendor/react-bits/`; its origin, full license text and the changes
+made are recorded in `apps/landing/src/ui/vendor/react-bits/ATTRIBUTION.md`.

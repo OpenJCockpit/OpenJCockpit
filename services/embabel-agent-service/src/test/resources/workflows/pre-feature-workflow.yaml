@@ -1,0 +1,19 @@
+# Fixture written before the workflow-approval-gate feature existed: no `approvalGate` key at
+# all. AC-05/BR-34: loading it must succeed and the gate must read as disabled (null).
+id: "pre-feature-workflow"
+name: "Legacy workflow"
+projectName: "Noordzee Logistics"
+groupId: null
+description: "desc"
+agentIds:
+  - "requirement"
+subagentNames: []
+skillNames: []
+mcpTools: []
+trigger: null
+execution: null
+promptRequired: false
+promptInstructions: null
+status: "ACTIVE"
+lastExecutionStatus: null
+lastExecutionAt: null

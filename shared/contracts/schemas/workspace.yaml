@@ -1,0 +1,206 @@
+Workspace:
+  type: object
+  properties:
+    customer:
+      $ref: '#/CustomerSummary'
+    selectedSpecFile:
+      type: string
+    specs:
+      type: array
+      items:
+        $ref: '#/SpecFile'
+    agents:
+      type: array
+      items:
+        $ref: '#/AgentCard'
+    pullRequests:
+      type: array
+      items:
+        $ref: '#/PullRequestSummary'
+    evidenceEvents:
+      type: array
+      items:
+        $ref: '#/EvidenceEvent'
+    evidenceDetails:
+      $ref: '#/EvidenceDetails'
+    qualityControls:
+      type: array
+      items:
+        $ref: '#/QualityControl'
+    stack:
+      type: array
+      items:
+        $ref: '#/StackServiceStatus'
+    footer:
+      $ref: '#/FooterStatus'
+
+SpecFile:
+  type: object
+  properties:
+    id:
+      type: string
+    fileName:
+      type: string
+    owner:
+      type: string
+    lastChanged:
+      type: string
+    status:
+      type: string
+    selected:
+      type: boolean
+    content:
+      type: string
+    repositoryUrl:
+      type: string
+
+CustomerSummary:
+  type: object
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    sector:
+      type: string
+    environment:
+      type: string
+    lastActive:
+      type: string
+    dataClassification:
+      type: string
+    region:
+      type: string
+
+AgentCard:
+  type: object
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    description:
+      type: string
+    status:
+      type: string
+    statusKind:
+      type: string
+
+PullRequestSummary:
+  type: object
+  properties:
+    id:
+      type: string
+    title:
+      type: string
+    branch:
+      type: string
+    createdAt:
+      type: string
+    ownerLabel:
+      type: string
+    ownerName:
+      type: string
+    status:
+      type: string
+    statusKind:
+      type: string
+
+EvidenceEvent:
+  type: object
+  properties:
+    time:
+      type: string
+    title:
+      type: string
+    actor:
+      type: string
+    status:
+      type: string
+
+EvidenceDetails:
+  type: object
+  properties:
+    specVersion:
+      type: string
+    runId:
+      type: string
+    agentFlow:
+      type: string
+    lastUpdate:
+      type: string
+
+QualityControl:
+  type: object
+  properties:
+    name:
+      type: string
+    status:
+      type: string
+    statusText:
+      type: string
+
+StackServiceStatus:
+  type: object
+  properties:
+    name:
+      type: string
+    description:
+      type: string
+    status:
+      type: string
+
+FooterStatus:
+  type: object
+  properties:
+    environment:
+      type: string
+    region:
+      type: string
+    dataClassification:
+      type: string
+    embabelVersion:
+      type: string
+    springAiControlVersion:
+      type: string
+
+ModelRouteRequest:
+  type: object
+  required:
+    - customerId
+    - specFile
+    - taskType
+  properties:
+    customerId:
+      type: string
+    specFile:
+      type: string
+    dataClassification:
+      $ref: '#/DataClassification'
+    taskType:
+      type: string
+
+ModelRouteDecision:
+  type: object
+  properties:
+    route:
+      type: string
+    modelProfile:
+      type: string
+    cloudAllowed:
+      type: boolean
+    reason:
+      type: string
+    requiredControls:
+      type: array
+      items:
+        type: string
+
+DataClassification:
+  type: string
+  enum:
+    - L0_PUBLIC
+    - L1_INTERNAL
+    - L2_CONFIDENTIAL
+    - L3_PERSONAL
+    - L4_SECRET

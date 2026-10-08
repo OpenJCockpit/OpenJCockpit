@@ -1,0 +1,31 @@
+# Opt-in overlay for manually exercising the Skills Marketplace integration against a
+# controllable local double. This file is NEVER merged automatically by Docker Compose
+# (only docker-compose.override.yml is) and must always be started with an explicit
+# second -f, e.g.:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.local-marketplace.yml up
+#
+# See README.md ("Local Skills Marketplace double (opt-in, dev-only)") for the full
+# walkthrough, the documented dev API key, and the mandatory warning about
+# SKILLS_MARKETPLACE_ALLOW_PRIVATE_EGRESS.
+#
+# Do not add this service, or the SKILLS_MARKETPLACE_ALLOW_PRIVATE_EGRESS variable, to
+# docker-compose.yml. Do not create docker-compose.override.yml.
+
+services:
+  mock-skills-marketplace:
+    image: nginx:1.27-alpine
+    container_name: metafactory-mock-skills-marketplace
+    restart: "no"
+    volumes:
+      - ./infrastructure/mock-skills-marketplace/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/mock-skills-marketplace/skills.json:/usr/share/nginx/html/skills.json:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "--header=Authorization: Bearer dev-mock-marketplace-key", "http://127.0.0.1/skills"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ai-control-service:
+    environment:
+      SKILLS_MARKETPLACE_ALLOW_PRIVATE_EGRESS: "true"

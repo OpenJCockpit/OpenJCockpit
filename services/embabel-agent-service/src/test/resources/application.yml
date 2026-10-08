@@ -1,0 +1,52 @@
+spring:
+  # Spring Boot 4.1.1 moved the HTTP error response message inclusion control from
+  # server.error.include-message (ServerProperties, prefix "server") to
+  # spring.web.error.include-message (WebProperties, prefix "spring.web"). Both bind the same
+  # underlying ErrorProperties class, just at different prefixes.
+  web:
+    error:
+      include-message: always
+  # See src/main/resources/application.yml for the full rationale: restores Jackson 2's default tolerant handling of omitted primitive request fields.
+  jackson:
+    deserialization:
+      fail-on-null-for-primitives: false
+  ai:
+    model:
+      chat: openai
+      embedding: openai
+    openai:
+      api-key: test
+    mcp:
+      client:
+        enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/realms/metafactory/protocol/openid-connect/certs
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_UPPER=false;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  flyway:
+    locations: classpath:db/migration
+metafactory:
+  security:
+    jwt-issuer: http://localhost:8080/realms/metafactory
+embabel:
+  agent-platform:
+    scanning:
+      auto: false
+  models:
+    default-llm: test-llm
+    default-embedding-model: test
+    embedding-services:
+      best: test
+      cheapest: test
+    llms:
+      best: test-llm
+      cheapest: test-llm

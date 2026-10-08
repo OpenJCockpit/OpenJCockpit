@@ -1,0 +1,361 @@
+# Single source of truth for values shared by embabel-agent-service and litellm.
+# YAML anchors keep each literal in exactly ONE place (BR-6); docker compose
+# resolves them before interpolation -- verified with `docker compose config`.
+x-ollama-base-url: &ollama-base-url ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+x-ollama-model: &ollama-model ${OLLAMA_MODEL:-qwen3.6:27b}
+x-litellm-master-key: &litellm-master-key ${LITELLM_MASTER_KEY:-sk-metafactory-litellm-local}
+x-litellm-virtual-key: &litellm-virtual-key ${LITELLM_VIRTUAL_KEY:-sk-metafactory-embabel-local}
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: metafactory-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  postgres-init:
+    image: postgres:16-alpine
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: keycloak
+    volumes:
+      - ./infrastructure/postgres/ensure-metafactory-db.sh:/ensure-metafactory-db.sh:ro
+    command: ["/bin/sh", "/ensure-metafactory-db.sh"]
+    restart: "no"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.6.4
+    container_name: metafactory-keycloak
+    restart: unless-stopped
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HEALTH_ENABLED: "true"
+      KC_SPI_THEME_CACHE_THEMES: "false"
+      KC_SPI_THEME_CACHE_TEMPLATES: "false"
+      KC_SPI_THEME_STATIC_MAX_AGE: "-1"
+      KC_HOSTNAME_URL: "http://localhost:8080"
+    healthcheck:
+      # KC_HEALTH_ENABLED exposes /health/ready on the management port (9000).
+      # The Keycloak image ships no curl/wget, so use bash's /dev/tcp.
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '\"status\": \"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./infrastructure/keycloak/metafactory-realm.json:/opt/keycloak/data/import/metafactory-realm.json:ro
+      - ./infrastructure/themes:/opt/keycloak/themes:ro
+
+  # One-shot seeding of per-developer, gitignored Keycloak users.
+  # See infrastructure/keycloak/local-users/README.md. No-op when the directory
+  # contains no *.local.json files, which is the default for a fresh checkout.
+  keycloak-local-users:
+    image: curlimages/curl:8.21.0
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      KC_URL: http://keycloak:8080
+      KC_REALM: metafactory
+      # Mirrors the bootstrap admin of the keycloak service above (local dev only,
+      # no new secret is introduced by this service).
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    volumes:
+      - ./infrastructure/keycloak/local-users:/local-users:ro
+      - ./infrastructure/keycloak/seed-local-users.sh:/seed-local-users.sh:ro
+    entrypoint: ["/bin/sh", "/seed-local-users.sh"]
+    restart: "no"
+
+  # One-shot seeding of the fixed Playwright E2E test user into the
+  # metafactory realm. See infrastructure/keycloak/seed-e2e-user.sh.
+  keycloak-e2e-user:
+    image: curlimages/curl:8.21.0
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      KC_URL: http://keycloak:8080
+      KC_REALM: metafactory
+      # Mirrors the bootstrap admin of the keycloak service above (local dev only,
+      # no new secret is introduced by this service).
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      E2E_SEED_USERNAME: e2e
+      E2E_SEED_EMAIL: e2e@metafactory.local
+      # E2E_SEED_PASSWORD is deliberately not set here: seed-e2e-user.sh
+      # already defaults it to the same literal, and this is one of exactly
+      # four places (architecture §7.3) that literal is allowed to appear —
+      # a fifth, redundant copy here would make a future rotation a
+      # five-edit change instead of four.
+    volumes:
+      - ./infrastructure/keycloak/seed-e2e-user.sh:/seed-e2e-user.sh:ro
+    entrypoint: ["/bin/sh", "/seed-e2e-user.sh"]
+    restart: "no"
+
+  # OpenAI-compatible gateway in front of the HOST's Ollama daemon. This is now the
+  # only route embabel-agent-service takes to the local model (BR-13: OpenAI is NOT
+  # proxied). Host port 4100 -- LiteLLM's conventional 4000 collides with `dashboard`.
+  litellm:
+    image: ghcr.io/berriai/litellm:v1.101.2
+    container_name: metafactory-litellm
+    restart: unless-stopped
+    ports:
+      - "4100:4000"
+    environment:
+      CONFIG_FILE_PATH: /app/config.yaml
+      DATABASE_URL: postgresql://litellm_app:litellm_app@postgres:5432/litellm
+      ENFORCE_PRISMA_MIGRATION_CHECK: "True"
+      LITELLM_MASTER_KEY: *litellm-master-key
+      LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:-sk-metafactory-litellm-salt-local}
+      UI_USERNAME: ${LITELLM_UI_USERNAME:-ricky}
+      UI_PASSWORD: ${LITELLM_UI_PASSWORD:-Welkom01!}
+      STORE_MODEL_IN_DB: "True"
+      OLLAMA_BASE_URL: *ollama-base-url
+      OLLAMA_MODEL: *ollama-model
+      # OPENAI_API_KEY is deliberately ABSENT (BR-13, AC-12).
+    volumes:
+      - ./infrastructure/litellm/config.yaml:/app/config.yaml:ro
+    # The gateway is now the component that reaches the host daemon (BR-17).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      # BR-5/BR-16: /health/liveliness is unauthenticated and touches NOTHING but this
+      # process. NEVER use /health -- it is authenticated and health-checks every model
+      # in config.yaml, i.e. it would call Ollama (its own docstring says
+      # "USE /health/liveliness to health check the proxy").
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:4000/health/liveliness')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
+
+  # One-shot, idempotent seeding of the dedicated non-admin virtual key used by
+  # embabel-agent-service (BR-15). Mirrors keycloak-e2e-user exactly.
+  litellm-seed-key:
+    image: curlimages/curl:8.21.0
+    depends_on:
+      litellm:
+        condition: service_healthy
+    environment:
+      LITELLM_URL: http://litellm:4000
+      LITELLM_MASTER_KEY: *litellm-master-key
+      LITELLM_VIRTUAL_KEY: *litellm-virtual-key
+      LITELLM_KEY_ALIAS: embabel-agent-service
+      LITELLM_KEY_MODEL: *ollama-model
+    volumes:
+      - ./infrastructure/litellm/seed-virtual-key.sh:/seed-virtual-key.sh:ro
+    entrypoint: ["/bin/sh", "/seed-virtual-key.sh"]
+    restart: "no"
+
+  landing:
+    build:
+      context: apps/landing
+      dockerfile: Dockerfile
+    container_name: metafactory-landing
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - keycloak
+
+  dashboard:
+    build:
+      context: apps/dashboard
+      dockerfile: Dockerfile
+    container_name: metafactory-dashboard
+    restart: unless-stopped
+    ports:
+      - "4000:80"
+    depends_on:
+      - ai-control-service
+
+  # Proxied access to the Docker daemon for services within the compose network.
+  # SECURITY NOTE: this exposes the Docker daemon without TLS on the internal
+  # Docker network (port 2375, not published to the host). Every container in this
+  # network therefore gets full control over the host — local dev only.
+  docker-socat:
+    image: alpine/socat
+    container_name: metafactory-docker-socat
+    restart: unless-stopped
+    command: tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  ai-control-service:
+    build:
+      context: .
+      dockerfile: services/ai-control-service/Dockerfile
+    container_name: metafactory-ai-control
+    restart: unless-stopped
+    ports:
+      - "9080:8080"
+    environment:
+      EMBABEL_AGENT_SERVICE_BASE_URL: http://embabel-agent-service:8081
+      SPEC_REPOSITORY_PATH: /spec-repository
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      DB_URL: jdbc:postgresql://postgres:5432/metafactory
+      DB_USERNAME: metafactory_app
+      DB_PASSWORD: metafactory_app
+      ENCRYPTION_SECRET: ${ENCRYPTION_SECRET:-prod-change-this-32chars-minimum!}
+      ENCRYPTION_SALT: ${ENCRYPTION_SALT:-0123456789abcdef}
+      # Workflow container settings
+      # SECURITY NOTE: access to the Docker daemon gives ai-control-service full control
+      # over the host. Only use this in a trusted environment. Consider Docker-in-Docker or
+      # Kubernetes jobs in production.
+      # The daemon is reached via the docker-socat service in this compose network; that also
+      # works on macOS, where a unix-socket mount from inside a container is not reliable.
+      AGENTIC_DOCKER_HOST: ${AGENTIC_DOCKER_HOST:-tcp://docker-socat:2375}
+      WORKFLOW_WORKSPACE_BASE: /workflow-workspaces
+      AGENTIC_CONTAINER_ENABLED: ${AGENTIC_CONTAINER_ENABLED:-true}
+      AGENTIC_CONTAINER_IMAGE: ${AGENTIC_CONTAINER_IMAGE:-eclipse-temurin:25-jre}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
+      docker-socat:
+        condition: service_started
+    volumes:
+      - ./infrastructure/spec-repository-stub:/spec-repository:ro
+      - workflow-workspaces:/workflow-workspaces
+
+  embabel-agent-service:
+    build:
+      context: .
+      dockerfile: services/embabel-agent-service/Dockerfile
+    container_name: metafactory-embabel-agents
+    restart: unless-stopped
+    ports:
+      - "8091:8081"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/embabel
+      DB_USERNAME: embabel_app
+      DB_PASSWORD: embabel_app
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      WORKFLOW_DEFINITIONS_PATH: /workflow-definitions
+      OPA_ENABLED: ${OPA_ENABLED:-true}
+      OPA_BASE_URL: http://opa:8181
+      MCP_CLIENT_ENABLED: ${MCP_CLIENT_ENABLED:-true}
+      GIT_MCP_SERVER_URL: http://git-mcp-server:8093
+      # Local Ollama for the default/coding LLM. The container reaches the HOST's Ollama daemon
+      # via host.docker.internal (see extra_hosts below); the in-code default is loopback for
+      # host-run execution. No Ollama container is part of this stack -- the operator installs
+      # Ollama on the host and runs `ollama pull qwen3.6:27b` before starting the stack.
+      # WARNING: setting OLLAMA_BASE_URL in .env to a host-oriented value such as
+      # http://localhost:11434 leaks into this container and will break it (nothing listens on
+      # the container's own loopback). Leave it unset unless you know you need a different host.
+      OLLAMA_BASE_URL: *ollama-base-url
+      OLLAMA_MODEL: *ollama-model
+      # The default/coding LLM now transits the LiteLLM gateway (BR-13/BR-14).
+      LITELLM_BASE_URL: http://litellm:4000/v1
+      LITELLM_VIRTUAL_KEY: *litellm-virtual-key
+      # Spec publication to git: after the requirement phase the spec is committed
+      # on a branch spec/<workflow>-<run> and pushed via the git-mcp-server.
+      SPEC_GIT_ENABLED: ${SPEC_GIT_ENABLED:-true}
+      SPEC_GIT_BASE_BRANCH: ${SPEC_GIT_BASE_BRANCH:-main}
+      SPEC_GIT_USERNAME: ${SPEC_GIT_USERNAME:-}
+      SPEC_GIT_TOKEN: ${SPEC_GIT_TOKEN:-}
+      APPROVAL_GATE_MAX_FEEDBACK_ITERATIONS: ${APPROVAL_GATE_MAX_FEEDBACK_ITERATIONS:-3}
+      APPROVAL_GATE_COMMENT_MAX_LENGTH: ${APPROVAL_GATE_COMMENT_MAX_LENGTH:-4000}
+      APPROVAL_GATE_MAX_CHANGED_PATHS: ${APPROVAL_GATE_MAX_CHANGED_PATHS:-50}
+      # Workflow-chaining tunables: max wait for a sequential child, max chain depth, max orbs
+      # per workflow, and a runtime kill switch.
+      WORKFLOW_TRIGGER_SEQUENTIAL_MAX_WAIT: ${WORKFLOW_TRIGGER_SEQUENTIAL_MAX_WAIT:-30m}
+      WORKFLOW_TRIGGER_MAX_CHAIN_DEPTH: ${WORKFLOW_TRIGGER_MAX_CHAIN_DEPTH:-3}
+      WORKFLOW_TRIGGER_MAX_ORBS_PER_WORKFLOW: ${WORKFLOW_TRIGGER_MAX_ORBS_PER_WORKFLOW:-5}
+      WORKFLOW_TRIGGER_ENABLED: ${WORKFLOW_TRIGGER_ENABLED:-true}
+    # Required so the container can resolve the host on Linux Docker (where
+    # host.docker.internal is not built in). Harmless on Docker Desktop, which already
+    # provides the name. Host access is granted to exactly two services -- litellm, because
+    # it is now the component that calls the host Ollama daemon, and embabel-agent-service,
+    # because retaining that grant is what makes a revert to direct Ollama access a
+    # configuration-only change (no docker-compose.yml edit) during an incident. No other
+    # service needs host access, including the dynamically spawned workflow containers.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
+      opa:
+        condition: service_started
+      git-mcp-server:
+        condition: service_started
+      litellm:
+        condition: service_healthy                    # BR-16
+      litellm-seed-key:
+        condition: service_completed_successfully     # D-2: the key must exist before the first call
+    volumes:
+      - workflow-workspaces:/workflow-workspaces
+      - workflow-definitions:/workflow-definitions
+
+  # MCP server that exposes the git integration as tools (checkout, create branch,
+  # pull, commit, push). Agents use it via the central MCP client in the
+  # embabel-agent-service, so the git implementation lives in one place.
+  git-mcp-server:
+    build:
+      context: .
+      dockerfile: services/git-mcp-server/Dockerfile
+    container_name: metafactory-git-mcp
+    restart: unless-stopped
+    ports:
+      - "8093:8093"
+    environment:
+      GIT_MCP_WORKSPACE_BASE: /git-mcp-workspaces
+      # Retention window and reap interval for the per-run git workspace isolation directories
+      # under the existing git-mcp-workspaces named volume — no new volume is created.
+      GIT_MCP_RUN_WORKSPACE_RETENTION: ${GIT_MCP_RUN_WORKSPACE_RETENTION:-PT24H}
+      GIT_MCP_RUN_WORKSPACE_REAP_INTERVAL: ${GIT_MCP_RUN_WORKSPACE_REAP_INTERVAL:-PT1H}
+    volumes:
+      - git-mcp-workspaces:/git-mcp-workspaces
+
+  opa:
+    image: openpolicyagent/opa:0.70.0
+    container_name: metafactory-opa
+    restart: unless-stopped
+    # Policies are mounted as plain files (no bundle service) so edits under
+    # infrastructure/opa/policies are picked up on container restart without a rebuild.
+    command:
+      - "run"
+      - "--server"
+      - "--addr=0.0.0.0:8181"
+      - "--config-file=/config/config.yaml"
+      - "/policies"
+    ports:
+      - "8181:8181"
+    volumes:
+      - ./infrastructure/opa/config.yaml:/config/config.yaml:ro
+      - ./infrastructure/opa/policies:/policies:ro
+
+volumes:
+  workflow-workspaces:
+  workflow-definitions:
+  git-mcp-workspaces:

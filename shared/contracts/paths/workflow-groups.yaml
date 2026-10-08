@@ -1,0 +1,93 @@
+workflowGroupsCollection:
+  get:
+    tags:
+      - WorkflowGroup
+    operationId: list
+    summary: List all workflow groups
+    responses:
+      '200':
+        description: Workflow groups
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/workflow.yaml#/WorkflowGroupDto'
+  post:
+    tags:
+      - WorkflowGroup
+    operationId: create
+    summary: Create a new workflow group
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/workflow.yaml#/WorkflowGroupDto'
+    responses:
+      '201':
+        description: Workflow group created
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/WorkflowGroupDto'
+
+workflowGroupById:
+  get:
+    tags:
+      - WorkflowGroup
+    operationId: get
+    summary: Get a workflow group by id
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Workflow group
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/WorkflowGroupDto'
+      '404':
+        description: Workflow group not found
+  put:
+    tags:
+      - WorkflowGroup
+    operationId: update
+    summary: Update an existing workflow group
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/workflow.yaml#/WorkflowGroupDto'
+    responses:
+      '200':
+        description: Workflow group updated
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/WorkflowGroupDto'
+  delete:
+    tags:
+      - WorkflowGroup
+    operationId: delete
+    summary: Delete a workflow group
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Workflow group deleted

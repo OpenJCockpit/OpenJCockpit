@@ -1,0 +1,196 @@
+.portal-orb {
+  position: relative;
+}
+
+.orb-core {
+  position: relative;
+}
+
+.portal-orb {
+  width: clamp(230px, 25vw, 328px);
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text);
+  background: transparent;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: filter 260ms ease;
+}
+
+.portal-orb:hover {
+  filter: brightness(1.14);
+}
+
+.portal-orb:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 12px;
+}
+
+.portal-orb-inner {
+  position: absolute;
+  inset: 0;
+  transition: transform 260ms ease;
+}
+
+.portal-orb:hover .portal-orb-inner {
+  transform: translateY(-8px) scale(1.03);
+}
+
+.orb-halo,
+.orb-core,
+.orb-grid {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+}
+
+.orb-halo {
+  animation: haloPulse 3.4s ease-in-out infinite;
+}
+
+.business .orb-halo {
+  background:
+    radial-gradient(circle, rgba(39, 247, 255, 0.34), transparent 62%),
+    conic-gradient(from 180deg, transparent, rgba(39, 247, 255, 0.82), transparent 34%);
+  box-shadow:
+    0 0 44px rgba(39, 247, 255, 0.42),
+    0 0 108px rgba(39, 247, 255, 0.18);
+}
+
+.implementation .orb-halo {
+  background:
+    radial-gradient(circle, rgba(157, 107, 255, 0.36), transparent 62%),
+    conic-gradient(from 180deg, transparent, rgba(157, 107, 255, 0.86), transparent 34%);
+  box-shadow:
+    0 0 44px rgba(157, 107, 255, 0.42),
+    0 0 108px rgba(157, 107, 255, 0.2);
+  animation-delay: -1.6s;
+}
+
+.orb-core {
+  inset: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.02)),
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.24), transparent 24%),
+    rgba(4, 12, 28, 0.78);
+  box-shadow:
+    inset 0 0 34px rgba(255, 255, 255, 0.05),
+    inset 0 -18px 48px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(16px);
+}
+
+.business .orb-core {
+  box-shadow:
+    inset 0 0 34px rgba(39, 247, 255, 0.1),
+    inset 0 -18px 48px rgba(0, 0, 0, 0.34);
+}
+
+.implementation .orb-core {
+  box-shadow:
+    inset 0 0 34px rgba(157, 107, 255, 0.12),
+    inset 0 -18px 48px rgba(0, 0, 0, 0.34);
+}
+
+.orb-grid {
+  opacity: 0.24;
+  background:
+    repeating-conic-gradient(
+      rgba(255, 255, 255, 0.5) 0deg 1deg,
+      transparent 1deg 45deg
+    ),
+    repeating-radial-gradient(
+      circle,
+      transparent 0px,
+      transparent 16px,
+      rgba(255, 255, 255, 0.38) 17px,
+      transparent 18px
+    );
+  mask-image: radial-gradient(circle, #000 0%, #000 58%, transparent 74%);
+  animation: none;
+}
+
+.orb-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(39, 247, 255, 0.55) 0deg 14deg,
+    rgba(39, 247, 255, 0.08) 14deg 38deg,
+    transparent 38deg
+  );
+  mask-image: radial-gradient(circle, #000 0%, #000 58%, transparent 74%);
+  animation: radarSweep 3s linear infinite;
+}
+
+.implementation .orb-grid::after {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(157, 107, 255, 0.6) 0deg 14deg,
+    rgba(157, 107, 255, 0.10) 14deg 38deg,
+    transparent 38deg
+  );
+}
+
+.orb-title {
+  z-index: 1;
+  font-size: clamp(1.8rem, 3vw, 2.45rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+.orb-subtitle {
+  z-index: 1;
+  max-width: 210px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.orb-status {
+  position: absolute;
+  left: 50%;
+  bottom: -28px;
+  transform: translateX(-50%);
+  color: rgba(222, 244, 255, 0.58);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+
+@keyframes haloPulse {
+  0%,
+  100% {
+    transform: scale(0.98) rotate(0deg);
+    opacity: 0.72;
+  }
+
+  50% {
+    transform: scale(1.08) rotate(14deg);
+    opacity: 1;
+  }
+}
+
+@keyframes radarSweep {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@media (max-width: 760px) {
+  .portal-orb {
+    width: min(78vw, 300px);
+  }
+}

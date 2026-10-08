@@ -1,0 +1,33 @@
+name: Renovate
+
+on:
+  # Runs hourly; renovate-config.json's "schedule" gates when PRs are actually
+  # opened/updated (weekly, before 6am Europe/Amsterdam). Off-window runs are
+  # cheap no-ops but let Renovate pick up urgent (e.g. vulnerability) updates
+  # and rebase conflicted branches promptly.
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: renovate
+  cancel-in-progress: true
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Run Renovate
+        uses: renovatebot/github-action@v46.2.5
+        env:
+          LOG_LEVEL: info
+          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+          RENOVATE_CONFIG_FILE: renovate-config.json
+          RENOVATE_REPOSITORIES: ${{ github.repository }}

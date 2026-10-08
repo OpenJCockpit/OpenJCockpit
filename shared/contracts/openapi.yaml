@@ -1,0 +1,274 @@
+openapi: 3.0.3
+info:
+  title: Metafactory AI Delivery Factory API
+  version: 0.1.0
+security:
+  - bearerAuth: []
+paths:
+  /api/workspaces/{customerId}:
+    $ref: 'paths/workspace.yaml#/getWorkspace'
+  /api/model-routing/decision:
+    $ref: 'paths/workspace.yaml#/decideModelRoute'
+  /api/projects:
+    $ref: 'paths/projects.yaml#/projectsCollection'
+  /api/projects/all:
+    $ref: 'paths/projects.yaml#/projectsAll'
+  /api/projects/{id}:
+    $ref: 'paths/projects.yaml#/projectById'
+  /api/projects/{id}/activate:
+    $ref: 'paths/projects.yaml#/projectActivate'
+  /api/projects/{id}/deactivate:
+    $ref: 'paths/projects.yaml#/projectDeactivate'
+  /api/projects/{id}/new-project:
+    $ref: 'paths/projects.yaml#/projectNewProjectFlag'
+  /api/projects/{id}/hermes-config:
+    $ref: 'paths/project-integration-config.yaml#/hermesConfig'
+  /api/projects/{id}/jira-config:
+    $ref: 'paths/project-integration-config.yaml#/jiraConfig'
+  /api/projects/{id}/document-folder-config:
+    $ref: 'paths/project-integration-config.yaml#/documentFolderConfig'
+  /api/projects/{id}/git-check:
+    $ref: 'paths/git-check.yaml#/gitCheckTrigger'
+  /api/projects/{id}/git-status:
+    $ref: 'paths/git-check.yaml#/gitStatus'
+  /api/projects/{id}/git-credentials:
+    $ref: 'paths/git-credentials.yaml#/gitCredentials'
+  /api/projects/{projectId}/spec-files:
+    $ref: 'paths/project-spec.yaml#/specFiles'
+  /api/projects/{projectId}/spec-init/status:
+    $ref: 'paths/project-spec.yaml#/specInitStatus'
+  /api/projects/{projectId}/spec-init:
+    $ref: 'paths/project-spec.yaml#/specInit'
+  /api/agents:
+    $ref: 'paths/agents.yaml#/agentsCollection'
+  /api/agent-runs:
+    $ref: 'paths/agents.yaml#/agentRunsCollection'
+  /api/agent-runs/{runId}:
+    $ref: 'paths/agents.yaml#/agentRunById'
+  /api/agent-runs/{runId}/approval-gate:
+    $ref: 'paths/approval-gate.yaml#/approvalGateContext'
+  /api/agent-runs/{runId}/approval-gate/decision:
+    $ref: 'paths/approval-gate.yaml#/approvalGateDecision'
+  /api/agent-runs/{runId}/approval-decisions:
+    $ref: 'paths/approval-gate.yaml#/approvalGateDecisions'
+  /api/agent-definitions:
+    $ref: 'paths/agent-definitions.yaml#/agentDefinitionsCollection'
+  /api/agent-definitions/{name}:
+    $ref: 'paths/agent-definitions.yaml#/agentDefinitionByName'
+  /api/agent-definitions/generate-from-prompt:
+    $ref: 'paths/agent-definitions.yaml#/agentDefinitionsGenerateFromPrompt'
+  /api/skill-definitions:
+    $ref: 'paths/skill-definitions.yaml#/skillDefinitionsCollection'
+  /api/skill-definitions/{name}:
+    $ref: 'paths/skill-definitions.yaml#/skillDefinitionByName'
+  /api/skill-definitions/generate-from-prompt:
+    $ref: 'paths/skill-definitions.yaml#/skillDefinitionsGenerateFromPrompt'
+  /api/subagent-definitions:
+    $ref: 'paths/subagent-definitions.yaml#/subagentDefinitionsCollection'
+  /api/subagent-definitions/{name}:
+    $ref: 'paths/subagent-definitions.yaml#/subagentDefinitionByName'
+  /api/subagent-definitions/generate-from-prompt:
+    $ref: 'paths/subagent-definitions.yaml#/subagentDefinitionsGenerateFromPrompt'
+  /api/agentic-workflows/start:
+    $ref: 'paths/agentic-workflows.yaml#/agenticWorkflowsStart'
+  /api/agentic-workflows/preflight:
+    $ref: 'paths/agentic-workflows.yaml#/agenticWorkflowsPreflight'
+  /api/git-workspace-jobs/{jobId}:
+    $ref: 'paths/agentic-workflows.yaml#/gitWorkspaceJobById'
+  /api/git-workspace-jobs/{jobId}/events:
+    $ref: 'paths/agentic-workflows.yaml#/gitWorkspaceJobEvents'
+  /api/workflows:
+    $ref: 'paths/workflows.yaml#/workflowsCollection'
+  /api/workflows/export:
+    $ref: 'paths/workflows.yaml#/workflowsExport'
+  /api/workflows/import:
+    $ref: 'paths/workflows.yaml#/workflowsImport'
+  /api/workflows/{id}:
+    $ref: 'paths/workflows.yaml#/workflowById'
+  /api/workflows/{id}/start:
+    $ref: 'paths/workflows.yaml#/workflowStart'
+  /api/workflows/{id}/decision-logs:
+    $ref: 'paths/workflows.yaml#/workflowDecisionLogs'
+  /api/workflow-executions/{id}/decision-logs:
+    $ref: 'paths/workflow-executions.yaml#/workflowExecutionDecisionLogs'
+  /api/workflows/{id}/executions:
+    $ref: 'paths/workflow-execution-history.yaml#/listWorkflowExecutions'
+  /api/workflows/{id}/executions/{runId}:
+    $ref: 'paths/workflow-execution-history.yaml#/getWorkflowExecution'
+  /api/workflow-groups:
+    $ref: 'paths/workflow-groups.yaml#/workflowGroupsCollection'
+  /api/workflow-groups/{id}:
+    $ref: 'paths/workflow-groups.yaml#/workflowGroupById'
+  /api/opa-config:
+    $ref: 'paths/opa-config.yaml#/opaConfig'
+  /api/opa-config/health:
+    $ref: 'paths/opa-config.yaml#/opaConfigHealth'
+  /api/specs/{customerId}:
+    $ref: 'paths/specs.yaml#/specsByCustomer'
+  /api/skills-marketplaces:
+    $ref: 'paths/skills-marketplaces.yaml#/skillsMarketplacesCollection'
+  /api/skills-marketplaces/{id}:
+    $ref: 'paths/skills-marketplaces.yaml#/skillsMarketplaceById'
+  /api/skill-catalog:
+    $ref: 'paths/skill-catalog.yaml#/skillCatalog'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Workspace:
+      $ref: 'schemas/workspace.yaml#/Workspace'
+    SpecFile:
+      $ref: 'schemas/workspace.yaml#/SpecFile'
+    CustomerSummary:
+      $ref: 'schemas/workspace.yaml#/CustomerSummary'
+    AgentCard:
+      $ref: 'schemas/workspace.yaml#/AgentCard'
+    PullRequestSummary:
+      $ref: 'schemas/workspace.yaml#/PullRequestSummary'
+    EvidenceEvent:
+      $ref: 'schemas/workspace.yaml#/EvidenceEvent'
+    EvidenceDetails:
+      $ref: 'schemas/workspace.yaml#/EvidenceDetails'
+    QualityControl:
+      $ref: 'schemas/workspace.yaml#/QualityControl'
+    StackServiceStatus:
+      $ref: 'schemas/workspace.yaml#/StackServiceStatus'
+    FooterStatus:
+      $ref: 'schemas/workspace.yaml#/FooterStatus'
+    ModelRouteRequest:
+      $ref: 'schemas/workspace.yaml#/ModelRouteRequest'
+    ModelRouteDecision:
+      $ref: 'schemas/workspace.yaml#/ModelRouteDecision'
+    DataClassification:
+      $ref: 'schemas/workspace.yaml#/DataClassification'
+    ProjectDto:
+      $ref: 'schemas/project.yaml#/ProjectDto'
+    ProjectRequest:
+      $ref: 'schemas/project.yaml#/ProjectRequest'
+    NewProjectFlagRequest:
+      $ref: 'schemas/project.yaml#/NewProjectFlagRequest'
+    ProjectHermesConfigDto:
+      $ref: 'schemas/project.yaml#/ProjectHermesConfigDto'
+    ProjectHermesConfigRequest:
+      $ref: 'schemas/project.yaml#/ProjectHermesConfigRequest'
+    ProjectJiraConfigDto:
+      $ref: 'schemas/project.yaml#/ProjectJiraConfigDto'
+    ProjectJiraConfigRequest:
+      $ref: 'schemas/project.yaml#/ProjectJiraConfigRequest'
+    ProjectDocumentFolderConfigDto:
+      $ref: 'schemas/project.yaml#/ProjectDocumentFolderConfigDto'
+    ProjectDocumentFolderConfigRequest:
+      $ref: 'schemas/project.yaml#/ProjectDocumentFolderConfigRequest'
+    GitCredentialType:
+      $ref: 'schemas/git.yaml#/GitCredentialType'
+    GitStatus:
+      $ref: 'schemas/git.yaml#/GitStatus'
+    ProjectGitStatusDto:
+      $ref: 'schemas/git.yaml#/ProjectGitStatusDto'
+    ProjectGitCredentialDto:
+      $ref: 'schemas/git.yaml#/ProjectGitCredentialDto'
+    ProjectGitCredentialRequest:
+      $ref: 'schemas/git.yaml#/ProjectGitCredentialRequest'
+    SpecInitResult:
+      $ref: 'schemas/spec.yaml#/SpecInitResult'
+    SpecInitStatus:
+      $ref: 'schemas/spec.yaml#/SpecInitStatus'
+    SpecFileSaveRequest:
+      $ref: 'schemas/spec.yaml#/SpecFileSaveRequest'
+    SpecErrorResponse:
+      $ref: 'schemas/spec.yaml#/SpecErrorResponse'
+    AgentDefinitionDto:
+      $ref: 'schemas/agent.yaml#/AgentDefinitionDto'
+    AgentEventDto:
+      $ref: 'schemas/agent.yaml#/AgentEventDto'
+    AgentRunDto:
+      $ref: 'schemas/agent.yaml#/AgentRunDto'
+    AgentRunRequestDto:
+      $ref: 'schemas/agent.yaml#/AgentRunRequestDto'
+    McpToolRefDto:
+      $ref: 'schemas/agent.yaml#/McpToolRefDto'
+    AgentSpecDto:
+      $ref: 'schemas/agent.yaml#/AgentSpecDto'
+    SkillSpecDto:
+      $ref: 'schemas/agent.yaml#/SkillSpecDto'
+    SubagentSpecDto:
+      $ref: 'schemas/agent.yaml#/SubagentSpecDto'
+    PromptRequestDto:
+      $ref: 'schemas/agent.yaml#/PromptRequestDto'
+    GitWorkspaceJobStatus:
+      $ref: 'schemas/workflow.yaml#/GitWorkspaceJobStatus'
+    GitWorkspaceJobErrorCode:
+      $ref: 'schemas/workflow.yaml#/GitWorkspaceJobErrorCode'
+    PreflightError:
+      $ref: 'schemas/workflow.yaml#/PreflightError'
+    WorkflowPreflightResult:
+      $ref: 'schemas/workflow.yaml#/WorkflowPreflightResult'
+    StartWorkflowRequest:
+      $ref: 'schemas/workflow.yaml#/StartWorkflowRequest'
+    StartWorkflowResponse:
+      $ref: 'schemas/workflow.yaml#/StartWorkflowResponse'
+    GitWorkspaceJobDto:
+      $ref: 'schemas/workflow.yaml#/GitWorkspaceJobDto'
+    GitWorkspaceJobEventDto:
+      $ref: 'schemas/workflow.yaml#/GitWorkspaceJobEventDto'
+    TriggerConfigDto:
+      $ref: 'schemas/workflow.yaml#/TriggerConfigDto'
+    ExecutionConfigDto:
+      $ref: 'schemas/workflow.yaml#/ExecutionConfigDto'
+    WorkflowDefinitionDto:
+      $ref: 'schemas/workflow.yaml#/WorkflowDefinitionDto'
+    ApprovalGateConfigDto:
+      $ref: 'schemas/workflow.yaml#/ApprovalGateConfigDto'
+    WorkflowOrbDto:
+      $ref: 'schemas/workflow.yaml#/WorkflowOrbDto'
+    WorkflowOrbMode:
+      $ref: 'schemas/workflow.yaml#/WorkflowOrbMode'
+    ApprovalStageOutcome:
+      $ref: 'schemas/approval-gate.yaml#/ApprovalStageOutcome'
+    ApprovalDecisionKind:
+      $ref: 'schemas/approval-gate.yaml#/ApprovalDecisionKind'
+    ApprovalGateCommentDto:
+      $ref: 'schemas/approval-gate.yaml#/ApprovalGateCommentDto'
+    ApprovalGateContextDto:
+      $ref: 'schemas/approval-gate.yaml#/ApprovalGateContextDto'
+    ApprovalDecisionRequestDto:
+      $ref: 'schemas/approval-gate.yaml#/ApprovalDecisionRequestDto'
+    ApprovalDecisionResultDto:
+      $ref: 'schemas/approval-gate.yaml#/ApprovalDecisionResultDto'
+    ApprovalDecisionAuditEntryDto:
+      $ref: 'schemas/approval-gate.yaml#/ApprovalDecisionAuditEntryDto'
+    WorkflowGroupDto:
+      $ref: 'schemas/workflow.yaml#/WorkflowGroupDto'
+    WorkflowExportBundleDto:
+      $ref: 'schemas/workflow.yaml#/WorkflowExportBundleDto'
+    WorkflowImportResultDto:
+      $ref: 'schemas/workflow.yaml#/WorkflowImportResultDto'
+    WorkflowStartInputDto:
+      $ref: 'schemas/workflow.yaml#/WorkflowStartInputDto'
+    WorkflowStartResponseDto:
+      $ref: 'schemas/workflow.yaml#/WorkflowStartResponseDto'
+    PolicyDecisionAuditEntryDto:
+      $ref: 'schemas/workflow.yaml#/PolicyDecisionAuditEntryDto'
+    WorkflowExecutionSummaryDto:
+      $ref: 'schemas/workflow.yaml#/WorkflowExecutionSummaryDto'
+    WorkflowExecutionPageDto:
+      $ref: 'schemas/workflow.yaml#/WorkflowExecutionPageDto'
+    OpaConfigDto:
+      $ref: 'schemas/opa.yaml#/OpaConfigDto'
+    OpaConfigRequestDto:
+      $ref: 'schemas/opa.yaml#/OpaConfigRequestDto'
+    SkillsMarketplaceConnectionDto:
+      $ref: 'schemas/skills-marketplace.yaml#/SkillsMarketplaceConnectionDto'
+    SkillsMarketplaceConnectionRequest:
+      $ref: 'schemas/skills-marketplace.yaml#/SkillsMarketplaceConnectionRequest'
+    ApiErrorResponse:
+      $ref: 'schemas/common.yaml#/ApiErrorResponse'
+    SkillCatalogDto:
+      $ref: 'schemas/skill-catalog.yaml#/SkillCatalogDto'
+    ExternalSkillDto:
+      $ref: 'schemas/skill-catalog.yaml#/ExternalSkillDto'
+    SkillCatalogSourceStatusDto:
+      $ref: 'schemas/skill-catalog.yaml#/SkillCatalogSourceStatusDto'

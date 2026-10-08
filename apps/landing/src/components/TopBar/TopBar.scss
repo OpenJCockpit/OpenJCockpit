@@ -1,0 +1,115 @@
+.brand {
+  position: relative;
+}
+
+.topbar-actions {
+  position: relative;
+}
+
+.topbar {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 76px;
+  padding: 16px 20px;
+  border-radius: 18px;
+  backdrop-filter: blur(18px);
+}
+
+.brand {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  box-shadow:
+    0 0 24px rgba(39, 247, 255, 0.22),
+    inset 0 0 18px rgba(39, 247, 255, 0.08);
+}
+
+.brand strong {
+  display: block;
+  letter-spacing: 0.16em;
+  font-size: 0.82rem;
+}
+
+.brand small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+}
+
+.topbar-actions {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logout-button {
+  border-color: rgba(84, 255, 198, 0.35);
+  color: #dfffee;
+}
+
+.topbar-popover {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 12px);
+  right: 18px;
+  width: min(320px, calc(100vw - 48px));
+  padding: 18px;
+  border: 1px solid rgba(127, 236, 255, 0.32);
+  border-radius: 18px;
+  background: rgba(5, 10, 24, 0.92);
+  box-shadow:
+    0 0 42px rgba(39, 247, 255, 0.16),
+    inset 0 0 24px rgba(39, 247, 255, 0.06);
+  backdrop-filter: blur(20px);
+}
+
+.topbar-popover strong {
+  display: block;
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.topbar-popover p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+@media (max-width: 760px) {
+  .topbar,
+  .topbar-actions {
+    align-items: stretch;
+  }
+
+  .topbar {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .topbar-actions {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+}

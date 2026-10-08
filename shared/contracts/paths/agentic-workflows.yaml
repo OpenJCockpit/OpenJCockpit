@@ -1,0 +1,90 @@
+agenticWorkflowsStart:
+  post:
+    tags:
+      - AgenticWorkflow
+    operationId: startWorkflow
+    summary: Start an agentic workflow for a project, after running preflight checks
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/workflow.yaml#/StartWorkflowRequest'
+    responses:
+      '202':
+        description: Preflight passed, workflow started
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/StartWorkflowResponse'
+      '409':
+        description: Preflight failed, workflow not started
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/StartWorkflowResponse'
+
+agenticWorkflowsPreflight:
+  post:
+    tags:
+      - AgenticWorkflow
+    operationId: checkPreflight
+    summary: Run the preflight checks for a project without starting a workflow
+    parameters:
+      - name: projectId
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: Preflight result
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/WorkflowPreflightResult'
+
+gitWorkspaceJobById:
+  get:
+    tags:
+      - AgenticWorkflow
+    operationId: getJob
+    summary: Get a Git workspace job by id
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: Git workspace job
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/GitWorkspaceJobDto'
+
+gitWorkspaceJobEvents:
+  get:
+    tags:
+      - AgenticWorkflow
+    operationId: getJobEvents
+    summary: List the events for a Git workspace job
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: Git workspace job events
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/workflow.yaml#/GitWorkspaceJobEventDto'

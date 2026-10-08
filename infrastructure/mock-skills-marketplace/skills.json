@@ -1,0 +1,15 @@
+[
+  {
+    "name": "code-review",
+    "description": "Reviews a pull request diff and leaves inline comments on style and correctness issues."
+  },
+  {
+    "name": "changelog-writer",
+    "description": "Drafts a human-readable changelog entry from a set of merged commits."
+  },
+  {
+    "name": "test-gap-finder",
+    "description": "Scans a module for uncovered branches and suggests missing test cases.",
+    "vendorCategory": "quality"
+  }
+]

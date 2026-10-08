@@ -1,0 +1,31 @@
+gitCheckTrigger:
+  post:
+    tags:
+      - GitCheck
+    operationId: triggerGitCheck
+    summary: Trigger a Git connectivity check for a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    responses:
+      '200':
+        description: Git status after the check
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/git.yaml#/ProjectGitStatusDto'
+
+gitStatus:
+  get:
+    tags:
+      - GitCheck
+    operationId: getGitStatus
+    summary: Get the last known Git status for a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    responses:
+      '200':
+        description: Stored Git status
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/git.yaml#/ProjectGitStatusDto'

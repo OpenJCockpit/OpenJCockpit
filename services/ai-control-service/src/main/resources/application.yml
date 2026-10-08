@@ -1,0 +1,136 @@
+server:
+  port: 8080
+  error:
+    # D-QA-1 (workflow-approval-gate QA report §9): ai-control-service's own 400/404/409 responses
+    # (both the ones it raises itself, e.g. requireGroupOrProject-equivalent validation, and the
+    # ones EmbabelAgentClient relays via ResponseStatusException after extracting the upstream
+    # message) must carry a real "message" field, exactly like embabel-agent-service. Unlike
+    # embabel-agent-service, this module does not depend on the Embabel agent platform and has no
+    # competing ErrorController bean, so this setting alone is sufficient here.
+    #
+    # Discovered during the Spring Boot 3.5.0 -> 4.1.1 upgrade: this "server.error.include-message"
+    # key is now inert for BasicErrorController's own message inclusion. In Boot 4.1.1,
+    # org.springframework.boot.webmvc.autoconfigure.error.ErrorMvcAutoConfiguration#basicErrorController
+    # reads its ErrorProperties from org.springframework.boot.autoconfigure.web.WebProperties#getError()
+    # (bound at "spring.web.error.*"), not from ServerProperties#getError() (which no longer exists in
+    # Boot 4.1.1) - see the "spring.web.error.include-message" key below, which is the property that
+    # actually now governs whether error responses carry a "message" field. This key is kept for
+    # documentation/back-compat clarity, and because other, unrelated code in this module still binds
+    # ErrorProperties directly to "server.error" (see ProductionApplicationYamlConfigTest).
+    include-message: always
+
+
+spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+  application:
+    name: ai-control-service
+  # Jackson 3's auto-configured JsonMapper defaults DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES
+  # to enabled, whereas Jackson 2 defaulted it to disabled. This broke POST /api/projects (and any
+  # other endpoint whose request DTO has a primitive field, e.g. ProjectRequest.newProject, a
+  # primitive short listed as optional - not required - in the OpenAPI contract): omitting such a
+  # field now 400s with a raw Jackson parse-error diagnostic before bean validation even runs,
+  # instead of deserializing to the field's default value and proceeding to normal validation as it
+  # did before this framework upgrade. This restores Jackson 2's tolerant default.
+  jackson:
+    deserialization:
+      fail-on-null-for-primitives: false
+  web:
+    error:
+      # See the comment on server.error.include-message above - this is the actual property that
+      # controls BasicErrorController's message inclusion in Boot 4.1.1.
+      include-message: always
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/metafactory}
+    username: ${DB_USERNAME:metafactory_app}
+    password: ${DB_PASSWORD:metafactory_app}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://keycloak:8080/realms/metafactory/protocol/openid-connect/certs
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  info:
+    env:
+      enabled: true
+    build:
+      enabled: true
+
+info:
+  app:
+    name: ${spring.application.name}
+    description: AI Control Service — orchestrates workspace and model routing
+    version: "@project.version@"
+
+metafactory:
+  security:
+    jwt-issuer: http://localhost:8080/realms/metafactory
+  embabel-agent-service:
+    base-url: ${EMBABEL_AGENT_SERVICE_BASE_URL:http://localhost:8081}
+  spec-repository:
+    mode: stub
+    path: ${SPEC_REPOSITORY_PATH:../../spec-repository-stub}
+  encryption:
+    secret: ${ENCRYPTION_SECRET:dev-only-secret-32chars-minimum!}
+    salt: ${ENCRYPTION_SALT:0123456789abcdef}
+  git:
+    check-timeout-seconds: ${GIT_CHECK_TIMEOUT_SECONDS:10}
+  skills-marketplace:
+    request-timeout-seconds: ${SKILLS_MARKETPLACE_REQUEST_TIMEOUT_SECONDS:5}
+    connect-timeout-seconds: ${SKILLS_MARKETPLACE_CONNECT_TIMEOUT_SECONDS:2}
+    max-response-bytes: ${SKILLS_MARKETPLACE_MAX_RESPONSE_BYTES:262144}
+    max-items: ${SKILLS_MARKETPLACE_MAX_ITEMS:500}
+    max-redirects: ${SKILLS_MARKETPLACE_MAX_REDIRECTS:1}
+    max-connections-per-fetch: ${SKILLS_MARKETPLACE_MAX_CONNECTIONS_PER_FETCH:25}
+    egress:
+      # Never enable this in a deployed environment. It exists solely so this feature can be
+      # exercised locally against a dev/test-only marketplace double (BR-14).
+      allow-private-addresses: ${SKILLS_MARKETPLACE_ALLOW_PRIVATE_EGRESS:false}
+
+agentic:
+  workflow:
+    workspace-base-path: ${WORKFLOW_WORKSPACE_BASE:/tmp/agentic-workspaces}
+    cleanup-enabled: ${WORKFLOW_CLEANUP_ENABLED:true}
+    default-base-branch: ${WORKFLOW_DEFAULT_BRANCH:main}
+    branch-prefix: ${WORKFLOW_BRANCH_PREFIX:agentic}
+    max-concurrent-jobs: ${WORKFLOW_MAX_CONCURRENT_JOBS:4}
+    clone-timeout-seconds: ${WORKFLOW_CLONE_TIMEOUT:120}
+    agent-timeout-seconds: ${WORKFLOW_AGENT_TIMEOUT:600}
+    push-timeout-seconds: ${WORKFLOW_PUSH_TIMEOUT:120}
+    container:
+      enabled: ${AGENTIC_CONTAINER_ENABLED:true}
+      # Docker daemon endpoint. Leave empty for the docker-java default (DOCKER_HOST env
+      # or the local unix socket). When running via docker-compose this is set to the
+      # docker-socat proxy service (tcp://docker-socat:2375), which also works on macOS.
+      docker-host: ${AGENTIC_DOCKER_HOST:${DOCKER_HOST:}}
+      image: ${AGENTIC_CONTAINER_IMAGE:eclipse-temurin:25-jre}
+      memory-mb: ${AGENTIC_CONTAINER_MEMORY_MB:512}
+      network-mode: ${AGENTIC_CONTAINER_NETWORK:bridge}
+    tmpfs:
+      size-mb: ${AGENTIC_TMPFS_SIZE_MB:512}
+    preflight:
+      docker-timeout-seconds: ${AGENTIC_PREFLIGHT_DOCKER_TIMEOUT:5}

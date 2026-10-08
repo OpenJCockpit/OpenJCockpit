@@ -1,0 +1,113 @@
+projectsCollection:
+  get:
+    tags:
+      - Project
+    operationId: listActive
+    summary: List active projects
+    responses:
+      '200':
+        description: Active projects
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/project.yaml#/ProjectDto'
+  post:
+    tags:
+      - Project
+    operationId: create
+    summary: Create a new project
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/project.yaml#/ProjectRequest'
+    responses:
+      '201':
+        description: Project created
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/project.yaml#/ProjectDto'
+
+projectsAll:
+  get:
+    tags:
+      - Project
+    operationId: listAll
+    summary: List all projects, including inactive ones
+    responses:
+      '200':
+        description: All projects
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/project.yaml#/ProjectDto'
+
+projectById:
+  put:
+    tags:
+      - Project
+    operationId: update
+    summary: Update an existing project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/project.yaml#/ProjectRequest'
+    responses:
+      '200':
+        description: Project updated
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/project.yaml#/ProjectDto'
+
+projectActivate:
+  patch:
+    tags:
+      - Project
+    operationId: activate
+    summary: Activate a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    responses:
+      '204':
+        description: Project activated
+
+projectDeactivate:
+  patch:
+    tags:
+      - Project
+    operationId: deactivate
+    summary: Deactivate a project
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    responses:
+      '204':
+        description: Project deactivated
+
+projectNewProjectFlag:
+  patch:
+    tags:
+      - Project
+    operationId: setNewProject
+    summary: Set the "new project" onboarding flag
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/project.yaml#/NewProjectFlagRequest'
+    responses:
+      '204':
+        description: Flag updated

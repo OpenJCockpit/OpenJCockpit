@@ -1,0 +1,63 @@
+SkillCatalogDto:
+  type: object
+  required:
+    - localSkills
+    - externalSkills
+    - sources
+  properties:
+    localSkills:
+      type: array
+      items:
+        $ref: 'agent.yaml#/SkillSpecDto'
+    externalSkills:
+      type: array
+      items:
+        $ref: '#/ExternalSkillDto'
+    sources:
+      type: array
+      items:
+        $ref: '#/SkillCatalogSourceStatusDto'
+
+ExternalSkillDto:
+  type: object
+  properties:
+    marketplaceId:
+      type: string
+      format: uuid
+    marketplaceName:
+      type: string
+    name:
+      type: string
+    description:
+      type: string
+      nullable: true
+
+SkillCatalogSourceStatusDto:
+  type: object
+  properties:
+    kind:
+      type: string
+      enum:
+        - LOCAL
+        - MARKETPLACE
+    marketplaceId:
+      type: string
+      format: uuid
+      nullable: true
+    name:
+      type: string
+    outcome:
+      type: string
+      enum:
+        - SUCCESS
+        - AUTH_FAILED
+        - UNREACHABLE
+        - TIMEOUT
+        - INVALID_RESPONSE
+        - BLOCKED_BY_POLICY
+        - CONFIG_ERROR
+    itemCount:
+      type: integer
+    httpStatus:
+      type: integer
+      nullable: true

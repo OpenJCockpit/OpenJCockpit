@@ -1,0 +1,52 @@
+.spec-files-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  & > .spec-panel {
+    flex: 0 0 320px;
+    grid-column: auto;
+    grid-row: auto;
+  }
+  & .spec-list {
+    max-height: 560px;
+    overflow-y: auto;
+  }
+}
+.spec-editor {
+  flex: 1;
+  min-width: 0;
+  padding: 20px 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  & .panel-header {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  &__textarea {
+    width: 100%;
+    min-height: 480px;
+    resize: vertical;
+    padding: 16px 18px;
+    background: rgba(6, 21, 34, 0.75);
+    border: 1px solid rgba(39, 231, 255, 0.35);
+    border-radius: 10px;
+    color: #dfffff;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 13px;
+    line-height: 1.6;
+    &:focus {
+      outline: none;
+      border-color: rgba(39, 231, 255, 0.6);
+    }
+  }
+}
+@media (max-width: 900px) {
+  .spec-files-body {
+    flex-direction: column;
+  }
+  .spec-files-body > .spec-panel {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+}

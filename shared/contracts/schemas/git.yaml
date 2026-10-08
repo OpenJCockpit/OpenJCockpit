@@ -1,0 +1,54 @@
+GitCredentialType:
+  type: string
+  enum:
+    - NONE
+    - HTTPS_TOKEN
+    - USERNAME_PASSWORD
+    - GITHUB_PAT
+    - GITHUB_APP
+
+GitStatus:
+  type: string
+  enum:
+    - UNKNOWN
+    - ACCESSIBLE
+    - NOT_ACCESSIBLE
+    - CHECK_FAILED
+
+ProjectGitStatusDto:
+  type: object
+  properties:
+    projectId:
+      type: string
+      format: uuid
+    gitStatus:
+      $ref: '#/GitStatus'
+    gitStatusCheckedAt:
+      type: string
+      format: date-time
+    gitStatusMessage:
+      type: string
+
+ProjectGitCredentialDto:
+  type: object
+  properties:
+    credentialType:
+      $ref: '#/GitCredentialType'
+    username:
+      type: string
+    githubApiUrl:
+      type: string
+    hasSecret:
+      type: boolean
+
+ProjectGitCredentialRequest:
+  type: object
+  properties:
+    credentialType:
+      $ref: '#/GitCredentialType'
+    username:
+      type: string
+    secret:
+      type: string
+    githubApiUrl:
+      type: string

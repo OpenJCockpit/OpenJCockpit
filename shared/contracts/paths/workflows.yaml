@@ -1,0 +1,210 @@
+workflowsCollection:
+  get:
+    tags:
+      - Workflow
+    operationId: list
+    summary: List all workflows
+    responses:
+      '200':
+        description: Workflows
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/workflow.yaml#/WorkflowDefinitionDto'
+      '502':
+        description: >-
+          The upstream agent service could not be reached, or failed while listing workflow
+          definitions (e.g. a malformed definition file). The response body carries the upstream
+          message. Clients MUST distinguish this from a 200 with an empty array, which means
+          "no workflows are defined".
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+  post:
+    tags:
+      - Workflow
+    operationId: create
+    summary: Create a new workflow
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/workflow.yaml#/WorkflowDefinitionDto'
+    responses:
+      '201':
+        description: Workflow created
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/WorkflowDefinitionDto'
+      '400':
+        description: Validation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+workflowsExport:
+  get:
+    tags:
+      - Workflow
+    operationId: export
+    summary: Export all workflow groups and workflows as a single bundle
+    responses:
+      '200':
+        description: Export bundle
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/WorkflowExportBundleDto'
+
+workflowsImport:
+  post:
+    tags:
+      - Workflow
+    operationId: importBundle
+    summary: Import a workflow export bundle (groups and workflows)
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/workflow.yaml#/WorkflowExportBundleDto'
+    responses:
+      '200':
+        description: Import result
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/WorkflowImportResultDto'
+      '400':
+        description: Validation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+workflowById:
+  get:
+    tags:
+      - Workflow
+    operationId: get
+    summary: Get a workflow by id
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Workflow
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/WorkflowDefinitionDto'
+      '404':
+        description: Workflow not found
+  put:
+    tags:
+      - Workflow
+    operationId: update
+    summary: Update an existing workflow
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/workflow.yaml#/WorkflowDefinitionDto'
+    responses:
+      '200':
+        description: Workflow updated
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/WorkflowDefinitionDto'
+      '400':
+        description: Validation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+  delete:
+    tags:
+      - Workflow
+    operationId: delete
+    summary: Delete a workflow
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Workflow deleted
+
+workflowStart:
+  post:
+    tags:
+      - Workflow
+    operationId: start
+    summary: Start a workflow execution, enriched with project repository/credential data
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/workflow.yaml#/WorkflowStartInputDto'
+    responses:
+      '200':
+        description: Workflow execution started
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/WorkflowStartResponseDto'
+
+workflowDecisionLogs:
+  get:
+    tags:
+      - Workflow
+    operationId: decisionLogs
+    summary: List policy decision audit entries for a workflow
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsFromParam'
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsToParam'
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsAgentIdParam'
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsSubagentIdParam'
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsSkillIdParam'
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsMcpToolNameParam'
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsResultParam'
+    responses:
+      '200':
+        description: Policy decision audit entries
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/workflow.yaml#/PolicyDecisionAuditEntryDto'

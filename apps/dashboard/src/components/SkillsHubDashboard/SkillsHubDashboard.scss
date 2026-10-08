@@ -1,0 +1,41 @@
+/* ── Skills hub ─────────────────────────────────────────────────────────── */
+.skills-hub-search {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  &__input {
+    flex: 1;
+    max-width: 360px;
+  }
+}
+.skills-hub-panel {
+  padding: 4px 20px 14px;
+  overflow-x: auto;
+}
+.skills-hub-table {
+  min-width: 480px;
+  & td {
+    vertical-align: middle;
+  }
+}
+.skill-category-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.skill-row {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  align-items: center;
+  & strong {
+    display: block;
+    font-size: 14px;
+  }
+  & span {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+}

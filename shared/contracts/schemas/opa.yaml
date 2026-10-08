@@ -1,0 +1,55 @@
+OpaConfigDto:
+  type: object
+  properties:
+    enabled:
+      type: boolean
+    baseUrl:
+      type: string
+    policyPath:
+      type: string
+    healthPath:
+      type: string
+    timeoutSeconds:
+      type: integer
+    failMode:
+      type: string
+    decisionLoggingEnabled:
+      type: boolean
+    decisionLogExportEnabled:
+      type: boolean
+    environment:
+      type: string
+    customerLabel:
+      type: string
+    projectLabel:
+      type: string
+    hasAuthToken:
+      type: boolean
+
+OpaConfigRequestDto:
+  type: object
+  properties:
+    enabled:
+      type: boolean
+    baseUrl:
+      type: string
+    policyPath:
+      type: string
+    healthPath:
+      type: string
+    timeoutSeconds:
+      type: integer
+    failMode:
+      type: string
+    decisionLoggingEnabled:
+      type: boolean
+    decisionLogExportEnabled:
+      type: boolean
+    environment:
+      type: string
+    customerLabel:
+      type: string
+    projectLabel:
+      type: string
+    authToken:
+      type: string

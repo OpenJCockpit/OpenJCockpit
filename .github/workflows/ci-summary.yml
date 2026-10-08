@@ -1,0 +1,129 @@
+name: CI
+
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.detect.outputs.backend }}
+      frontend: ${{ steps.detect.outputs.frontend }}
+      infra: ${{ steps.detect.outputs.infra }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed areas
+        id: detect
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -uo pipefail
+
+          fail_open() {
+            echo "::warning::$1 - failing open, running all CI legs"
+            echo "changed files: <unavailable, fail-open>"
+            echo "backend=true frontend=true infra=true"
+            {
+              echo "backend=true"
+              echo "frontend=true"
+              echo "infra=true"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+
+          changed_files=""
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            if [ -z "$BASE_SHA" ]; then
+              fail_open "no pull_request base sha available"
+            fi
+            changed_files="$(git diff --name-only "$BASE_SHA" HEAD)" || fail_open "git diff failed for pull_request event"
+          elif [ "$EVENT_NAME" = "push" ]; then
+            if [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+              fail_open "no usable 'before' sha for push event (first push to branch)"
+            fi
+            changed_files="$(git diff --name-only "$BEFORE_SHA" "$HEAD_SHA")" || fail_open "git diff failed for push event"
+          else
+            fail_open "unhandled event '$EVENT_NAME' (e.g. workflow_dispatch)"
+          fi
+
+          echo "Changed files:"
+          echo "$changed_files"
+
+          backend=false
+          frontend=false
+          infra=false
+
+          if echo "$changed_files" | grep -Eq '^(services/|pom\.xml$|shared/contracts/|\.github/workflows/(backend-ci|ci-summary)\.yml$)'; then
+            backend=true
+          fi
+          if echo "$changed_files" | grep -Eq '^(apps/(dashboard|landing)/|\.github/workflows/(frontend-ci|ci-summary)\.yml$)'; then
+            frontend=true
+          fi
+          if echo "$changed_files" | grep -Eq '^(docker-compose\.yml$|infrastructure/|\.env\.example$|\.github/workflows/(infra-ci|ci-summary)\.yml$)'; then
+            infra=true
+          fi
+
+          echo "backend=$backend frontend=$frontend infra=$infra"
+
+          {
+            echo "backend=$backend"
+            echo "frontend=$frontend"
+            echo "infra=$infra"
+          } >> "$GITHUB_OUTPUT"
+
+  backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    uses: ./.github/workflows/backend-ci.yml
+    permissions:
+      contents: read
+
+  frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/frontend-ci.yml
+    permissions:
+      contents: read
+
+  infra:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    uses: ./.github/workflows/infra-ci.yml
+    permissions:
+      contents: read
+
+  gate:
+    name: ci-summary
+    needs: [changes, backend, frontend, infra]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check CI leg results
+        env:
+          RESULTS: "changes=${{ needs.changes.result }} backend=${{ needs.backend.result }} frontend=${{ needs.frontend.result }} infra=${{ needs.infra.result }}"
+        run: |
+          set -euo pipefail
+          echo "$RESULTS"
+          for entry in $RESULTS; do
+            case "${entry#*=}" in
+              success|skipped) ;;
+              *) echo "::error::CI leg ${entry%%=*} concluded '${entry#*=}'"; exit 1 ;;
+            esac
+          done

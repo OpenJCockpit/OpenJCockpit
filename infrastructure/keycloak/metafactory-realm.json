@@ -1,0 +1,138 @@
+{
+  "realm": "metafactory",
+  "displayName": "Metafactory",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "clients": [
+    {
+      "clientId": "metafactory",
+      "name": "metafactory",
+      "description": "Metafactory landing page SPA",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "rootUrl": "http://localhost:3000",
+      "baseUrl": "/",
+      "adminUrl": "http://localhost:3000",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://127.0.0.1:3000/*",
+        "http://localhost:5173/*",
+        "http://127.0.0.1:5173/*",
+        "http://localhost:4000/*",
+        "http://127.0.0.1:4000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:4000",
+        "http://127.0.0.1:4000"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "tony",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Tony",
+      "lastName": "Metafactory",
+      "email": "tony@metafactory.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Welkom01!",
+          "temporary": false
+        }
+      ],
+      "requiredActions": []
+    },
+    {
+      "username": "koen",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Koen",
+      "lastName": "Metafactory",
+      "email": "koen@metafactory.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Welkom01!",
+          "temporary": false
+        }
+      ],
+      "requiredActions": []
+    },
+    {
+      "username": "ricky",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Ricky",
+      "lastName": "Metafactory",
+      "email": "ricky@metafactory.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Welkom01!",
+          "temporary": false
+        }
+      ],
+      "requiredActions": []
+    },
+    {
+      "username": "e2e",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "E2E",
+      "lastName": "Runner",
+      "email": "e2e@metafactory.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "E2eRunner01!",
+          "temporary": false
+        }
+      ],
+      "requiredActions": []
+    }
+  ],
+  "loginTheme": "metafactory",
+  "internationalizationEnabled": true,
+  "defaultLocale": "nl",
+  "supportedLocales": [
+    "nl",
+    "en"
+  ]
+}

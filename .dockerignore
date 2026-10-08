@@ -1,0 +1,11 @@
+apps/
+infrastructure/themes/
+node_modules
+dist
+.git
+*.md
+screen.jpg
+.env
+.idea/
+.DS_Store
+*.log

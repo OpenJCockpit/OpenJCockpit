@@ -1,0 +1,36 @@
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+
+  &--active {
+    color: var(--teal);
+    background: var(--teal-soft);
+    border: 1px solid rgba(55, 247, 194, 0.25);
+  }
+
+  &--inactive {
+    color: var(--muted);
+    background: rgba(134, 166, 184, 0.1);
+    border: 1px solid rgba(134, 166, 184, 0.2);
+  }
+}
+
+/* ── New project checkbox ──────────────────────────────────────────────── */
+.new-project-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+  cursor: pointer;
+  user-select: none;
+  & input[type='checkbox'] {
+    cursor: pointer;
+    accent-color: var(--cyan);
+  }
+}

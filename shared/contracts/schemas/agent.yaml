@@ -1,0 +1,181 @@
+AgentDefinitionDto:
+  type: object
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    description:
+      type: string
+    role:
+      type: string
+    sequenceOrder:
+      type: integer
+    inputType:
+      type: string
+    outputType:
+      type: string
+
+AgentEventDto:
+  type: object
+  properties:
+    timestamp:
+      type: string
+      format: date-time
+    agentId:
+      type: string
+    title:
+      type: string
+    status:
+      type: string
+    evidenceRef:
+      type: string
+
+AgentRunDto:
+  type: object
+  properties:
+    runId:
+      type: string
+    customerId:
+      type: string
+    specFile:
+      type: string
+    repositoryUrl:
+      type: string
+    status:
+      type: string
+    startedAt:
+      type: string
+      format: date-time
+    events:
+      type: array
+      items:
+        $ref: '#/AgentEventDto'
+    generatedArtifacts:
+      type: array
+      items:
+        type: string
+    workflowId:
+      type: string
+      nullable: true
+    startedBy:
+      type: string
+      nullable: true
+    completedAt:
+      type: string
+      format: date-time
+      nullable: true
+    failureSummary:
+      type: string
+      nullable: true
+      maxLength: 512
+      description: >-
+        Sanitised, bounded summary of the terminal failure of a FAILED run: the
+        exception class chain plus an allow-listed, non-sensitive reason. Null for
+        every run whose status is not FAILED. Never contains a raw exception
+        message, a file system path, a repository URL, a credential, prompt text
+        or spec content — the raw message is never read at any depth of the cause
+        chain. Bounded to 512 characters; a longer value is truncated with a
+        trailing "..." marker.
+
+AgentRunRequestDto:
+  type: object
+  properties:
+    customerId:
+      type: string
+    specFile:
+      type: string
+    agentIds:
+      type: array
+      items:
+        type: string
+    requestedBy:
+      type: string
+    repositoryUrl:
+      type: string
+
+McpToolRefDto:
+  type: object
+  properties:
+    name:
+      type: string
+    description:
+      type: string
+
+AgentSpecDto:
+  type: object
+  properties:
+    name:
+      type: string
+    description:
+      type: string
+    role:
+      type: string
+    instructions:
+      type: string
+    subagentNames:
+      type: array
+      items:
+        type: string
+    skillNames:
+      type: array
+      items:
+        type: string
+    mcpTools:
+      type: array
+      items:
+        $ref: '#/McpToolRefDto'
+    workflowId:
+      type: string
+    builtIn:
+      type: boolean
+
+SkillSpecDto:
+  type: object
+  properties:
+    name:
+      type: string
+    description:
+      type: string
+    inputContract:
+      type: string
+    outputContract:
+      type: string
+    executionInstructions:
+      type: string
+    mcpTools:
+      type: array
+      items:
+        $ref: '#/McpToolRefDto'
+    policyNotes:
+      type: string
+
+SubagentSpecDto:
+  type: object
+  properties:
+    name:
+      type: string
+    parentAgent:
+      type: string
+    description:
+      type: string
+    responsibilities:
+      type: string
+    instructions:
+      type: string
+    skillNames:
+      type: array
+      items:
+        type: string
+    mcpTools:
+      type: array
+      items:
+        $ref: '#/McpToolRefDto'
+    workflowId:
+      type: string
+
+PromptRequestDto:
+  type: object
+  properties:
+    prompt:
+      type: string

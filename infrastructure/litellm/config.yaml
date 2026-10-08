@@ -1,0 +1,32 @@
+# Single source of truth for LiteLLM's model list and runtime policy.
+# Mounted read-only at /app/config.yaml; loaded via CONFIG_FILE_PATH.
+# Every credential arrives via the environment (docker-compose.yml) -- none here.
+model_list:
+  # BR-18: BOTH the exposed id and the upstream tag come from ONE variable.
+  - model_name: os.environ/OLLAMA_MODEL
+    litellm_params:
+      model: os.environ/OLLAMA_MODEL
+      custom_llm_provider: ollama_chat          # /api/chat, native tool calling
+      api_base: os.environ/OLLAMA_BASE_URL      # host.docker.internal:11434
+      keep_alive: "30m"                         # BR-19/NFR: model residency parity
+      timeout: 600                              # BR-19 layer 7
+      stream_timeout: 600                       # BR-19 layer 8
+    model_info:
+      mode: chat
+
+litellm_settings:
+  request_timeout: 600        # BR-19 layer 9 (vendor default is 6000)
+  num_retries: 0              # BR-19 layer 11
+  drop_params: false          # fail loudly on an unsupported param, never silently
+  turn_off_message_logging: true        # BR-9 (vendor default: false)
+  redact_messages_in_exceptions: true   # AC-4/AC-24/AC-26: no prompt text in errors
+
+router_settings:
+  num_retries: 0              # BR-19 layer 10 (vendor default: openai.DEFAULT_MAX_RETRIES == 2)
+  timeout: 600
+  disable_cooldowns: true     # single deployment: a cooldown turns the 2nd failure
+                              # into a misleading "no deployments available"
+
+general_settings:
+  store_prompts_in_spend_logs: false  # BR-9/AC-31, explicit not inherited
+  # master_key intentionally absent: supplied via LITELLM_MASTER_KEY (BR-6).

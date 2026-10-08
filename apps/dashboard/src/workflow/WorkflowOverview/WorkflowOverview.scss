@@ -1,0 +1,46 @@
+.workflow-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 18px;
+}
+.workflow-card {
+  padding: 20px 22px;
+}
+.workflow-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  & h2 {
+    margin: 2px 0 0;
+    font-size: 18px;
+  }
+}
+.workflow-card-meta {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 16px;
+  font-size: 13px;
+  & dt {
+    color: var(--faint);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+  & dd {
+    margin: 0;
+    color: #dfeaf2;
+  }
+}
+.workflow-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.workflow-card-feedback {
+  font-size: 12px;
+  color: var(--muted);
+}

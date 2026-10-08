@@ -1,0 +1,99 @@
+skillsMarketplacesCollection:
+  get:
+    tags:
+      - SkillsMarketplace
+    operationId: listSkillsMarketplaces
+    summary: List all skills marketplace connections
+    responses:
+      '200':
+        description: Skills marketplace connections, ordered by name (case-insensitive)
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/skills-marketplace.yaml#/SkillsMarketplaceConnectionDto'
+  post:
+    tags:
+      - SkillsMarketplace
+    operationId: createSkillsMarketplace
+    summary: Register a new skills marketplace connection
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/skills-marketplace.yaml#/SkillsMarketplaceConnectionRequest'
+    responses:
+      '201':
+        description: Skills marketplace connection created
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/skills-marketplace.yaml#/SkillsMarketplaceConnectionDto'
+      '400':
+        description: Validation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: A connection with this name already exists
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+skillsMarketplaceById:
+  parameters:
+    - $ref: '../schemas/common.yaml#/parameters/MarketplaceIdPathParam'
+  put:
+    tags:
+      - SkillsMarketplace
+    operationId: updateSkillsMarketplace
+    summary: Update a skills marketplace connection
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/skills-marketplace.yaml#/SkillsMarketplaceConnectionRequest'
+    responses:
+      '200':
+        description: Skills marketplace connection updated
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/skills-marketplace.yaml#/SkillsMarketplaceConnectionDto'
+      '400':
+        description: Validation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '404':
+        description: No connection with this id exists
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: Another connection with this name already exists
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+  delete:
+    tags:
+      - SkillsMarketplace
+    operationId: deleteSkillsMarketplace
+    summary: Remove a skills marketplace connection
+    responses:
+      '204':
+        description: Skills marketplace connection removed
+      '404':
+        description: No connection with this id exists
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'

@@ -1,0 +1,38 @@
+.agent-log-console {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 70%;
+  margin: 8px auto 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  &__label {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    text-align: center;
+  }
+  &__output {
+    width: 100%;
+    height: 150px;
+    resize: none;
+    padding: 14px 16px;
+    background: rgba(6, 21, 34, 0.75);
+    border: 1px solid rgba(39, 231, 255, 0.35);
+    border-radius: 10px;
+    color: #dfffff;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre;
+    overflow-y: auto;
+    &:focus {
+      outline: none;
+      border-color: rgba(39, 231, 255, 0.6);
+    }
+  }
+}

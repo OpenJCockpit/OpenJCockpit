@@ -1,0 +1,70 @@
+spring:
+  ai:
+    openai:
+      api-key: test
+  # See src/main/resources/application.yml for the full rationale: restores Jackson 2's default tolerant handling of omitted primitive request fields.
+  jackson:
+    deserialization:
+      fail-on-null-for-primitives: false
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_UPPER=false;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  flyway:
+    locations: classpath:db/migration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/realms/metafactory/protocol/openid-connect/certs
+  web:
+    error:
+      # Discovered during the Spring Boot 3.5.0 -> 4.1.1 upgrade: BasicErrorController's message
+      # inclusion is governed by spring.web.error.include-message (WebProperties), not by
+      # server.error.include-message (the removed ServerProperties#getError()). Kept here for
+      # test/production parity even though most tests in this module assert only HTTP status via
+      # MockMvc slices (which per the D-QA-1 finding do not exercise the real container /error
+      # forward anyway); EmbabelErrorRelayIntegrationTest sets this directly via
+      # @TestPropertySource since src/test/resources shadows src/main/resources.
+      include-message: always
+metafactory:
+  security:
+    jwt-issuer: http://localhost:8080/realms/metafactory
+  embabel-agent-service:
+    base-url: http://localhost:8081
+  encryption:
+    secret: test-only-secret-32-characters!!
+    salt: 0123456789abcdef
+  git:
+    check-timeout-seconds: 5
+  skills-marketplace:
+    request-timeout-seconds: 5
+    connect-timeout-seconds: 2
+    max-response-bytes: 262144
+    max-items: 500
+    max-redirects: 1
+    max-connections-per-fetch: 25
+    egress:
+      allow-private-addresses: false
+
+agentic:
+  workflow:
+    workspace-base-path: /tmp/agentic-test-workspaces
+    cleanup-enabled: true
+    default-base-branch: main
+    branch-prefix: agentic
+    max-concurrent-jobs: 2
+    clone-timeout-seconds: 30
+    agent-timeout-seconds: 60
+    push-timeout-seconds: 30
+    container:
+      enabled: false
+      image: eclipse-temurin:25-jre
+      memory-mb: 256
+      network-mode: bridge
+    tmpfs:
+      size-mb: 128

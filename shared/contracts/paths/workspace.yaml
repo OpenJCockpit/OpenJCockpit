@@ -1,0 +1,38 @@
+getWorkspace:
+  get:
+    tags:
+      - Workspace
+    operationId: workspace
+    summary: Get the full workspace for a selected customer
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Workspace loaded
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workspace.yaml#/Workspace'
+decideModelRoute:
+  post:
+    tags:
+      - Workspace
+    operationId: decideModelRoute
+    summary: Decide the model route for a customer/spec/task combination
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/workspace.yaml#/ModelRouteRequest'
+    responses:
+      '200':
+        description: Model route decision
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workspace.yaml#/ModelRouteDecision'

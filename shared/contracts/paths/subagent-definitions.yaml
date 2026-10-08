@@ -1,0 +1,111 @@
+subagentDefinitionsCollection:
+  get:
+    tags:
+      - SubagentDefinition
+    operationId: listSubagentDefinitions
+    summary: List all subagent definitions
+    responses:
+      '200':
+        description: Subagent definitions
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/agent.yaml#/SubagentSpecDto'
+  post:
+    tags:
+      - SubagentDefinition
+    operationId: create
+    summary: Create a new subagent definition
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/agent.yaml#/SubagentSpecDto'
+    responses:
+      '201':
+        description: Subagent definition created
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/SubagentSpecDto'
+
+subagentDefinitionByName:
+  get:
+    tags:
+      - SubagentDefinition
+    operationId: get
+    summary: Get a subagent definition by name
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Subagent definition
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/SubagentSpecDto'
+  put:
+    tags:
+      - SubagentDefinition
+    operationId: update
+    summary: Update an existing subagent definition
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/agent.yaml#/SubagentSpecDto'
+    responses:
+      '200':
+        description: Subagent definition updated
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/SubagentSpecDto'
+  delete:
+    tags:
+      - SubagentDefinition
+    operationId: delete
+    summary: Delete a subagent definition
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Subagent definition deleted
+
+subagentDefinitionsGenerateFromPrompt:
+  post:
+    tags:
+      - SubagentDefinition
+    operationId: generateFromPrompt
+    summary: Generate a subagent definition draft from a natural-language prompt
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/agent.yaml#/PromptRequestDto'
+    responses:
+      '200':
+        description: Generated subagent definition draft
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/SubagentSpecDto'

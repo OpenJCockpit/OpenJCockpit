@@ -1,0 +1,21 @@
+specsByCustomer:
+  get:
+    tags:
+      - Spec
+    operationId: listSpecs
+    summary: List the spec files for a customer
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Spec files for the customer (empty array if none/unknown customer)
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/workspace.yaml#/SpecFile'

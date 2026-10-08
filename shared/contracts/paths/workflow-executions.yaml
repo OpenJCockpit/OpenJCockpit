@@ -1,0 +1,28 @@
+workflowExecutionDecisionLogs:
+  get:
+    tags:
+      - WorkflowExecution
+    operationId: decisionLogs
+    summary: List policy decision audit entries for a workflow execution
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsFromParam'
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsToParam'
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsAgentIdParam'
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsSubagentIdParam'
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsSkillIdParam'
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsMcpToolNameParam'
+      - $ref: '../schemas/common.yaml#/parameters/DecisionLogsResultParam'
+    responses:
+      '200':
+        description: Policy decision audit entries
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/workflow.yaml#/PolicyDecisionAuditEntryDto'

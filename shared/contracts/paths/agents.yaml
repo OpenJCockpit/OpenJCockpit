@@ -1,0 +1,69 @@
+agentsCollection:
+  get:
+    tags:
+      - Agent
+    operationId: listAgents
+    summary: List the agent definitions used by the delivery pipeline, in sequence order
+    responses:
+      '200':
+        description: Agent definitions
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/agent.yaml#/AgentDefinitionDto'
+
+agentRunsCollection:
+  post:
+    tags:
+      - Agent
+    operationId: startAgentRun
+    summary: Start an agent run for a customer spec
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/agent.yaml#/AgentRunRequestDto'
+    responses:
+      '202':
+        description: Agent run accepted
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/AgentRunDto'
+
+agentRunById:
+  get:
+    tags:
+      - Agent
+    operationId: getAgentRun
+    summary: Get the latest state of an agent run
+    parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Agent run
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/AgentRunDto'
+  delete:
+    tags:
+      - Agent
+    operationId: stopAgentRun
+    summary: Stop an agent run
+    parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Agent run stopped

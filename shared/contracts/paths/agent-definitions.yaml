@@ -1,0 +1,111 @@
+agentDefinitionsCollection:
+  get:
+    tags:
+      - AgentDefinition
+    operationId: listAgentDefinitions
+    summary: List all agent definitions
+    responses:
+      '200':
+        description: Agent definitions
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/agent.yaml#/AgentSpecDto'
+  post:
+    tags:
+      - AgentDefinition
+    operationId: create
+    summary: Create a new agent definition
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/agent.yaml#/AgentSpecDto'
+    responses:
+      '201':
+        description: Agent definition created
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/AgentSpecDto'
+
+agentDefinitionByName:
+  get:
+    tags:
+      - AgentDefinition
+    operationId: get
+    summary: Get an agent definition by name
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Agent definition
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/AgentSpecDto'
+  put:
+    tags:
+      - AgentDefinition
+    operationId: update
+    summary: Update an existing agent definition
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/agent.yaml#/AgentSpecDto'
+    responses:
+      '200':
+        description: Agent definition updated
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/AgentSpecDto'
+  delete:
+    tags:
+      - AgentDefinition
+    operationId: delete
+    summary: Delete an agent definition
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '204':
+        description: Agent definition deleted
+
+agentDefinitionsGenerateFromPrompt:
+  post:
+    tags:
+      - AgentDefinition
+    operationId: generateFromPrompt
+    summary: Generate an agent definition draft from a natural-language prompt
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/agent.yaml#/PromptRequestDto'
+    responses:
+      '200':
+        description: Generated agent definition draft
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/AgentSpecDto'

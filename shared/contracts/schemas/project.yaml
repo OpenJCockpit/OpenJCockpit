@@ -1,0 +1,164 @@
+ProjectDto:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    name:
+      type: string
+    customerId:
+      type: string
+    gitUrl:
+      type: string
+    description:
+      type: string
+    defaultBranch:
+      type: string
+    environment:
+      type: string
+    owner:
+      type: string
+    active:
+      type: integer
+    newProject:
+      type: integer
+    gitStatus:
+      $ref: 'git.yaml#/GitStatus'
+    gitStatusCheckedAt:
+      type: string
+      format: date-time
+    gitStatusMessage:
+      type: string
+    hasCredentials:
+      type: boolean
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+
+ProjectRequest:
+  type: object
+  required:
+    - name
+  properties:
+    name:
+      type: string
+    customerId:
+      type: string
+    gitUrl:
+      type: string
+    description:
+      type: string
+    defaultBranch:
+      type: string
+    environment:
+      type: string
+    owner:
+      type: string
+    newProject:
+      type: integer
+
+NewProjectFlagRequest:
+  type: object
+  properties:
+    newProject:
+      type: integer
+
+ProjectHermesConfigDto:
+  type: object
+  properties:
+    projectId:
+      type: string
+      format: uuid
+    enabled:
+      type: boolean
+    endpointUrl:
+      type: string
+    signalType:
+      type: string
+    workflowId:
+      type: string
+    hasAuthToken:
+      type: boolean
+
+ProjectHermesConfigRequest:
+  type: object
+  properties:
+    enabled:
+      type: boolean
+    endpointUrl:
+      type: string
+    authToken:
+      type: string
+    signalType:
+      type: string
+    workflowId:
+      type: string
+
+ProjectJiraConfigDto:
+  type: object
+  properties:
+    projectId:
+      type: string
+      format: uuid
+    enabled:
+      type: boolean
+    baseUrl:
+      type: string
+    projectKey:
+      type: string
+    issueTypeMapping:
+      type: string
+    workflowId:
+      type: string
+    hasAuthToken:
+      type: boolean
+
+ProjectJiraConfigRequest:
+  type: object
+  properties:
+    enabled:
+      type: boolean
+    baseUrl:
+      type: string
+    projectKey:
+      type: string
+    authToken:
+      type: string
+    issueTypeMapping:
+      type: string
+    workflowId:
+      type: string
+
+ProjectDocumentFolderConfigDto:
+  type: object
+  properties:
+    projectId:
+      type: string
+      format: uuid
+    projectName:
+      type: string
+    folderName:
+      type: string
+    folderPath:
+      type: string
+    fileTriggerEnabled:
+      type: boolean
+    allowedDocumentTypes:
+      type: string
+    workflowId:
+      type: string
+
+ProjectDocumentFolderConfigRequest:
+  type: object
+  properties:
+    folderPath:
+      type: string
+    fileTriggerEnabled:
+      type: boolean
+    allowedDocumentTypes:
+      type: string
+    workflowId:
+      type: string

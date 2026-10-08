@@ -1,0 +1,30 @@
+name: Infra CI
+
+on:
+  workflow_call: {}
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Report Docker Compose version
+        run: docker compose version
+
+      - name: Validate compose configuration
+        run: |
+          set -euo pipefail
+          docker compose --env-file .env.example config -q 2> compose-config.err || {
+            cat compose-config.err
+            exit 1
+          }
+          cat compose-config.err
+          if grep -q 'variable is not set' compose-config.err; then
+            echo "::error::docker-compose.yml references a variable that is not defined in .env.example"
+            exit 1
+          fi

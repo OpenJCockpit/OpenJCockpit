@@ -1,0 +1,103 @@
+# Paths for the workflow human approval gate (workflow-approval-gate delivery, batch B2).
+# See docs/delivery/workflow-approval-gate/02-architecture.md §6.2 for the frozen wire contract.
+# agentRunById/AgentRunDto (paths/agents.yaml, schemas/agent.yaml) are unchanged (ADR-005).
+
+approvalGateContext:
+  get:
+    tags:
+      - ApprovalGate
+    operationId: getApprovalGateContext
+    summary: Get the approval context for a run currently awaiting approval
+    parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Approval gate context
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/approval-gate.yaml#/ApprovalGateContextDto'
+      '401':
+        description: Unauthenticated
+      '404':
+        description: Unknown run, or no gate currently open for this run
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+approvalGateDecision:
+  post:
+    tags:
+      - ApprovalGate
+    operationId: submitApprovalDecision
+    summary: Submit a decision (accept, deny, or accept with comments) for the open approval gate
+    parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/approval-gate.yaml#/ApprovalDecisionRequestDto'
+    responses:
+      '200':
+        description: Decision accepted
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/approval-gate.yaml#/ApprovalDecisionResultDto'
+      '400':
+        description: >
+          Invalid decision — empty/over-long comment, ACCEPT_WITH_COMMENTS at a non-realisation
+          gate (AC-59), or the feedback iteration bound is exhausted (AC-24)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '401':
+        description: Unauthenticated
+      '404':
+        description: Unknown run
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: The gate iteration was already decided, or the run is not currently awaiting approval
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+approvalGateDecisions:
+  get:
+    tags:
+      - ApprovalGate
+    operationId: listApprovalDecisions
+    summary: List the durable audit trail of approval decisions for a run, in chronological order
+    parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Approval decision audit entries
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/approval-gate.yaml#/ApprovalDecisionAuditEntryDto'
+      '401':
+        description: Unauthenticated

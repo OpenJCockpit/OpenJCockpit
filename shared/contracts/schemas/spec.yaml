@@ -1,0 +1,48 @@
+SpecInitResult:
+  type: object
+  properties:
+    projectId:
+      type: string
+      format: uuid
+    branch:
+      type: string
+    baseBranch:
+      type: string
+    commitHash:
+      type: string
+    fileName:
+      type: string
+    pullRequestUrl:
+      type: string
+    message:
+      type: string
+
+SpecInitStatus:
+  type: object
+  properties:
+    pending:
+      type: boolean
+    branch:
+      type: string
+    branchUrl:
+      type: string
+    pullRequestUrl:
+      type: string
+    templateExists:
+      type: boolean
+
+SpecFileSaveRequest:
+  type: object
+  properties:
+    fileName:
+      type: string
+    content:
+      type: string
+
+SpecErrorResponse:
+  type: object
+  properties:
+    code:
+      type: string
+    message:
+      type: string

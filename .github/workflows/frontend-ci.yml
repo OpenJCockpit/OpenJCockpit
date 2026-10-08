@@ -1,0 +1,45 @@
+name: Frontend CI
+
+on:
+  workflow_call: {}
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [dashboard, landing]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/${{ matrix.app }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/${{ matrix.app }}
+        run: npm ci
+
+      - name: Run tests
+        if: matrix.app == 'dashboard'
+        working-directory: apps/dashboard
+        run: npm run test -- --reporter=default --reporter=junit --outputFile=${{ runner.temp }}/vitest-junit.xml
+
+      - name: Build
+        working-directory: apps/${{ matrix.app }}
+        run: npm run build
+
+      - uses: actions/upload-artifact@v4
+        if: failure() && matrix.app == 'dashboard'
+        with:
+          name: dashboard-vitest-report
+          path: ${{ runner.temp }}/vitest-junit.xml
+          if-no-files-found: ignore
+          retention-days: 7

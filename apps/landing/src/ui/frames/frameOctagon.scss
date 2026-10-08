@@ -1,0 +1,75 @@
+/* Faithful reimplementation of the Arwes react-frames package's
+   <FrameOctagon /> output. Mirrors that package's internal root-positioning
+   styles exactly, and its createFrameOctagonSettings for the two visual
+   layers (closed "bg" fill, open "line" stroke pair). */
+
+.frame-octagon {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  /* Intentional, documented deviation from Arwes (R-13): the filled bg path
+     must never swallow clicks on the retry button, topbar actions or the
+     portal orbs. Content wrappers already sit at z-index: 1 above this SVG,
+     so this only removes a latent hazard. */
+  pointer-events: none;
+}
+
+.frame-octagon-bg {
+  stroke-width: 0;
+  fill: var(--frame-bg-color, transparent);
+  animation: frameOctagonFadeIn var(--frame-duration, 1s) ease both;
+}
+
+.frame-octagon-lines {
+  fill: none;
+  stroke: var(--frame-line-color, currentcolor);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1;
+}
+
+.frame-octagon-line {
+  vector-effect: non-scaling-stroke;
+  shape-rendering: geometricPrecision;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: frameOctagonDraw var(--frame-duration, 1s) ease both;
+}
+
+@keyframes frameOctagonFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes frameOctagonDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Deterministic end-state for ui/frames/FrameOctagon.jsx. Zeroing
+     animation-duration via the global reset in styles.css is not by itself
+     a guarantee the final keyframe is what paints (a browser could in
+     principle settle on an intermediate 0.001ms frame); this rule removes
+     the animation outright and sets the completed-state values directly, so
+     the octagon frame is always fully visible, undistorted and in place
+     under reduced motion (BR-9, AC-11). This extends the global reset in
+     styles.css; it does not replace or weaken it. */
+  .frame-octagon-bg,
+  .frame-octagon-line {
+    animation: none !important;
+    opacity: 1 !important;
+    stroke-dashoffset: 0 !important;
+  }
+}

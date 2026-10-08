@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+package-lock.json
+eslint-suppressions.json
+docs
+*.md
+public

@@ -1,0 +1,20 @@
+skillCatalog:
+  get:
+    tags:
+      - SkillCatalog
+    operationId: getSkillCatalog
+    summary: Merged read-only catalogue of local and marketplace-provided skills
+    description: >
+      Returns local skills (from embabel-agent-service) together with skills offered by every
+      active, enabled marketplace connection, plus a per-source status entry. Always returns 200
+      on partial marketplace failure; failures are reported as data in the sources array, never
+      as an HTTP error. No credential of any kind is ever present in this response.
+    responses:
+      '200':
+        description: Merged skill catalogue
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/skill-catalog.yaml#/SkillCatalogDto'
+      '401':
+        description: Unauthenticated

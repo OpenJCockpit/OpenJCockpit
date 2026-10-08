@@ -1,0 +1,141 @@
+specFiles:
+  get:
+    tags:
+      - ProjectSpec
+    operationId: listSpecFiles
+    summary: List spec files for a project's spec repository
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+    responses:
+      '200':
+        description: Spec files
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/workspace.yaml#/SpecFile'
+      '404':
+        description: No project selected, or project not found
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecErrorResponse'
+      '409':
+        description: Project is inactive
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecErrorResponse'
+      '502':
+        description: Underlying Git operation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecErrorResponse'
+  put:
+    tags:
+      - ProjectSpec
+    operationId: saveSpecFile
+    summary: Save changes to a spec file and push them to a branch
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/spec.yaml#/SpecFileSaveRequest'
+    responses:
+      '200':
+        description: Spec file saved and pushed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecInitResult'
+      '404':
+        description: No project selected, or project not found
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecErrorResponse'
+      '409':
+        description: Project is inactive, Git credentials/URL missing, or no changes to push
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecErrorResponse'
+      '502':
+        description: Underlying Git operation failed (invalid spec file, push failure, ...)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecErrorResponse'
+
+specInitStatus:
+  get:
+    tags:
+      - ProjectSpec
+    operationId: specInitStatus
+    summary: Get the status of a pending/completed spec-folder initialization
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+    responses:
+      '200':
+        description: Spec-init status
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecInitStatus'
+      '404':
+        description: No project selected, or project not found
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecErrorResponse'
+      '409':
+        description: Project is inactive
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecErrorResponse'
+      '502':
+        description: Underlying Git operation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecErrorResponse'
+
+specInit:
+  post:
+    tags:
+      - ProjectSpec
+    operationId: initSpecFolder
+    summary: Initialize the spec folder for a project on a new branch
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+    responses:
+      '200':
+        description: Spec folder initialized
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecInitResult'
+      '404':
+        description: No project selected, or project not found
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecErrorResponse'
+      '409':
+        description: Project is inactive, Git credentials/URL missing, or spec folder already initialized
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecErrorResponse'
+      '502':
+        description: Underlying Git operation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec.yaml#/SpecErrorResponse'

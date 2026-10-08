@@ -1,0 +1,24 @@
+# Persistent runtime configuration for the local OPA server used by embabel-agent-service.
+# Loaded via `opa run --server --config-file=/config/config.yaml /policies` (see docker-compose.yml).
+# This only configures the OPA server process itself (logging, labels, default decision path) —
+# the connection settings on the *client* side (base URL, policy path, auth token, fail mode) are
+# configured separately in embabel-agent-service via OpaProperties / the Workflow Configuration UI.
+
+services: {}
+
+# No remote bundle service configured for local/dev — policies are mounted directly from
+# infrastructure/opa/policies and loaded as plain files at startup instead of via a bundle.
+bundles: {}
+
+# Print every decision to stdout so policy evaluations are visible in `docker compose logs opa`
+# during local development. Point this at a real log sink in production.
+decision_logs:
+  console: true
+
+# Queried when a request omits an explicit policy path — matches the default
+# metafactory.opa.policy-path (/v1/data/metafactory/workflow/decision) on the client side.
+default_decision: /metafactory/workflow/decision
+
+labels:
+  app: metafactory-opa
+  environment: local

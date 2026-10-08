@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
+:root {
+  --bg: #050713;
+  --panel: rgba(10, 18, 38, 0.68);
+  --line: rgba(127, 236, 255, 0.42);
+  --text: #f5fbff;
+  --muted: rgba(222, 244, 255, 0.68);
+  --cyan: #27f7ff;
+  --cyan-soft: rgba(39, 247, 255, 0.24);
+  --purple: #9d6bff;
+  --purple-soft: rgba(157, 107, 255, 0.26);
+  --green: #54ffc6;
+
+  /* Design tokens consumed by ui/frames/FrameOctagon.jsx. Renamed away from
+     Arwes' --arwes-frames-* equivalents (architecture §3.4); per-call-site
+     values are still set inline in App.jsx, these are just safe fallbacks. */
+  --frame-line-color: hsl(184 100% 58%);
+  --frame-bg-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(39, 247, 255, 0.16), transparent 32%),
+    radial-gradient(circle at 80% 18%, rgba(157, 107, 255, 0.18), transparent 34%),
+    linear-gradient(135deg, #03040b 0%, #080d22 48%, #02030a 100%);
+}
+
+button {
+  font: inherit;
+}
+
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 28px;
+}
+
+.app-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -5;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: radial-gradient(circle at center, #000 0%, transparent 76%);
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0.08;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.5) 0,
+    rgba(255, 255, 255, 0.5) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  mix-blend-mode: screen;
+}
+
+.ambient {
+  position: fixed;
+  width: 420px;
+  height: 420px;
+  border-radius: 999px;
+  filter: blur(32px);
+  pointer-events: none;
+  z-index: -4;
+  animation: ambientDrift 9s ease-in-out infinite alternate;
+}
+
+.ambient-blue {
+  left: -130px;
+  top: 18%;
+  background: var(--cyan-soft);
+}
+
+.ambient-purple {
+  right: -120px;
+  bottom: 6%;
+  background: var(--purple-soft);
+  animation-delay: -3s;
+}
+
+@keyframes ambientDrift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(28px, -38px, 0) scale(1.1);
+  }
+}
+
+.eyebrow {
+  display: inline-flex;
+  margin-bottom: 12px;
+  padding: 7px 13px;
+  border: 1px solid rgba(84, 255, 198, 0.3);
+  border-radius: 999px;
+  color: var(--green);
+  background: rgba(84, 255, 198, 0.06);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.nav-button {
+  position: relative;
+}
+
+.nav-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(127, 236, 255, 0.28);
+  border-radius: 999px;
+  color: var(--text);
+  background: rgba(9, 19, 42, 0.56);
+  box-shadow: inset 0 0 14px rgba(39, 247, 255, 0.05);
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.nav-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(39, 247, 255, 0.82);
+  background: rgba(18, 36, 72, 0.72);
+  box-shadow: 0 0 28px rgba(39, 247, 255, 0.14);
+}
+
+@media (max-width: 760px) {
+  body {
+    overflow: auto;
+  }
+
+  .app-shell {
+    min-height: auto;
+    padding: 16px;
+  }
+
+  .nav-button {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

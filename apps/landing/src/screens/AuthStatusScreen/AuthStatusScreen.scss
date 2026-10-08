@@ -1,0 +1,54 @@
+.auth-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+}
+
+.auth-card {
+  position: relative;
+  width: min(92vw, 680px);
+  min-height: 300px;
+  padding: 40px;
+  backdrop-filter: blur(18px);
+
+  &-content {
+    position: relative;
+    display: flex;
+    width: auto;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 12px 0 0;
+    font-size: clamp(2rem, 5vw, 4.3rem);
+    line-height: 0.95;
+    letter-spacing: -0.065em;
+  }
+
+  p {
+    max-width: 500px;
+    margin: 18px auto 0;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+}
+
+.auth-error {
+  max-width: 90%;
+  margin: 5% auto 0;
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid rgba(255, 120, 120, 0.35);
+  border-radius: 12px;
+  color: #ffdede;
+  background: rgba(80, 0, 10, 0.22);
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+.auth-retry {
+  margin-top: 22px;
+}

@@ -1,0 +1,142 @@
+# Schemas for the workflow human approval gate (workflow-approval-gate delivery, batch B2).
+# ApprovalGateConfigDto lives in workflow.yaml, next to WorkflowDefinitionDto which it extends.
+# See docs/delivery/workflow-approval-gate/02-architecture.md §6.1 for the frozen wire contract.
+
+ApprovalStageOutcome:
+  type: string
+  enum:
+    - PUBLISHED
+    - PUBLISH_FAILED
+    - NO_CHANGE
+    - NOT_APPLICABLE
+
+ApprovalDecisionKind:
+  type: string
+  enum:
+    - ACCEPT
+    - DENY
+    - ACCEPT_WITH_COMMENTS
+
+ApprovalGateCommentDto:
+  type: object
+  properties:
+    iteration:
+      type: integer
+      format: int32
+    author:
+      type: string
+    comment:
+      type: string
+    submittedAt:
+      type: string
+      format: date-time
+
+ApprovalGateContextDto:
+  type: object
+  properties:
+    runId:
+      type: string
+    workflowId:
+      type: string
+    placementStage:
+      type: string
+    stageOutcome:
+      $ref: '#/ApprovalStageOutcome'
+    outcomeReason:
+      type: string
+    changeSummary:
+      type: string
+    changedPaths:
+      type: array
+      items:
+        type: string
+    changedFileCount:
+      type: integer
+      format: int32
+    omittedFileCount:
+      type: integer
+      format: int32
+    branchName:
+      type: string
+    pullRequestUrl:
+      type: string
+    branchCompareUrl:
+      type: string
+    iteration:
+      type: integer
+      format: int32
+    maxFeedbackIterations:
+      type: integer
+      format: int32
+    feedbackSupported:
+      type: boolean
+    furtherFeedbackAllowed:
+      type: boolean
+    commentHistory:
+      type: array
+      items:
+        $ref: '#/ApprovalGateCommentDto'
+    openedAt:
+      type: string
+      format: date-time
+
+ApprovalDecisionRequestDto:
+  type: object
+  required:
+    - decision
+    - iteration
+  properties:
+    decision:
+      $ref: '#/ApprovalDecisionKind'
+    iteration:
+      type: integer
+      format: int32
+      minimum: 1
+    comment:
+      type: string
+      maxLength: 4000
+
+ApprovalDecisionResultDto:
+  type: object
+  properties:
+    runId:
+      type: string
+    status:
+      type: string
+    iteration:
+      type: integer
+      format: int32
+    message:
+      type: string
+
+ApprovalDecisionAuditEntryDto:
+  type: object
+  properties:
+    id:
+      type: string
+    runId:
+      type: string
+    workflowId:
+      type: string
+    gateStage:
+      type: string
+    iteration:
+      type: integer
+      format: int32
+    decision:
+      $ref: '#/ApprovalDecisionKind'
+    comment:
+      type: string
+    actorUsername:
+      type: string
+    actorSubject:
+      type: string
+    stageOutcome:
+      $ref: '#/ApprovalStageOutcome'
+    branchName:
+      type: string
+    pullRequestUrl:
+      type: string
+    timestamp:
+      type: string
+      format: date-time

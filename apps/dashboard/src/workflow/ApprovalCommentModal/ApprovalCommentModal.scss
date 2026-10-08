@@ -1,0 +1,23 @@
+.approval-comment-dialog h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+// .approval-modal-actions is a deliberate verbatim duplicate of the rule in
+// ApprovalDecisionModal.scss (requirement A3) — keep both copies in sync.
+.approval-modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+.approval-comment-field {
+  display: block;
+  margin: 12px 0 10px;
+  font-size: 12px;
+  color: var(--muted);
+  & textarea {
+    margin-top: 8px;
+    width: 100%;
+  }
+}

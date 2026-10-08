@@ -1,0 +1,5 @@
+{
+  "pricing-rules.spec.md": "https://github.com/noordzee-logistics/pricing-engine",
+  "approval-flow.spec.md": "https://github.com/noordzee-logistics/approval-service",
+  "customer-profile-update.spec.md": "https://github.com/noordzee-logistics/customer-service"
+}

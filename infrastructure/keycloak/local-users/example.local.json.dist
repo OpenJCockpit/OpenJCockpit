@@ -1,0 +1,12 @@
+[
+  {
+    "username": "developer",
+    "email": "developer@metafactory.local",
+    "firstName": "Local",
+    "lastName": "Developer",
+    "enabled": true,
+    "emailVerified": true,
+    "password": "changeit",
+    "realmRoles": []
+  }
+]

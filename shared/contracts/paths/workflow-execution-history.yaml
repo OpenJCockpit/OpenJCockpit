@@ -1,0 +1,46 @@
+listWorkflowExecutions:
+  get:
+    tags:
+      - WorkflowExecution
+    operationId: listWorkflowExecutions
+    summary: List execution history for a workflow
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '../schemas/common.yaml#/parameters/WorkflowExecutionsLimitParam'
+      - $ref: '../schemas/common.yaml#/parameters/WorkflowExecutionsOffsetParam'
+    responses:
+      '200':
+        description: Paged workflow execution history
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/workflow.yaml#/WorkflowExecutionPageDto'
+
+getWorkflowExecution:
+  get:
+    tags:
+      - WorkflowExecution
+    operationId: getWorkflowExecution
+    summary: Get a single workflow execution scoped to its workflow
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Workflow execution detail
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent.yaml#/AgentRunDto'

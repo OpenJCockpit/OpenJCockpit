@@ -1,0 +1,208 @@
+/* Agent Sequencer */
+.agent-sequencer {
+  z-index: 1;
+  width: 100%;
+  margin: 14px 0 20px;
+  padding: 16px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+.sequencer-connector {
+  flex: 1;
+  min-width: 8px;
+  max-width: 36px;
+  height: 1px;
+  background: repeating-linear-gradient(
+    to right,
+    rgba(39, 231, 255, 0.5) 0,
+    rgba(39, 231, 255, 0.5) 5px,
+    transparent 5px,
+    transparent 9px
+  );
+}
+@keyframes sequencer-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  8% {
+    opacity: 0.2;
+    transform: scale(1.1);
+  }
+  22% {
+    opacity: 0.3;
+    transform: scale(1.2);
+  }
+  40% {
+    opacity: 0.4;
+    transform: scale(1.2);
+  }
+  60% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+  80% {
+    opacity: 0.3;
+    transform: scale(1.1);
+  }
+  90% {
+    opacity: 0.1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+.sequencer-item.is-dragging .sequencer-node {
+  opacity: 0.45;
+  border-style: dashed;
+}
+.sequencer-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 8px;
+  width: 110px;
+  min-width: 110px;
+  height: 110px;
+  border: 1px solid rgba(39, 231, 255, 0.35);
+  border-radius: 50%;
+  background: rgba(6, 21, 34, 0.65);
+  box-shadow:
+    0 0 12px rgba(39, 231, 255, 0.3),
+    0 0 28px rgba(39, 231, 255, 0.15),
+    inset 0 0 18px rgba(39, 231, 255, 0.06);
+  cursor: grab;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s,
+    scale 0.2s,
+    opacity 0.2s;
+  user-select: none;
+  &--active {
+    border-color: rgba(39, 231, 255, 0.95);
+  }
+  // Two expanding ring pulses, offset by half a cycle so one is always
+  // growing outward. Only transform + opacity animate, both of which the
+  // compositor handles on their own layer, so it stays smooth; animating
+  // box-shadow on the node itself repaints a large blurred area every
+  // frame and is what made this flicker.
+  &--active::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 50%;
+    pointer-events: none;
+    border: 1px solid rgba(39, 231, 255, 0.9);
+    box-shadow:
+      0 0 24px rgba(39, 231, 255, 0.6),
+      0 0 48px rgba(39, 231, 255, 0.3);
+    transform-origin: center;
+    will-change: transform, opacity;
+    animation: sequencer-pulse 2.4s linear infinite;
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: rgba(39, 231, 255, 0.75);
+    background: rgba(6, 21, 34, 0.8);
+    box-shadow:
+      0 0 20px rgba(39, 231, 255, 0.55),
+      0 0 48px rgba(39, 231, 255, 0.3),
+      inset 0 0 24px rgba(39, 231, 255, 0.1);
+  }
+  &:focus-visible {
+    outline: 2px solid rgba(39, 231, 255, 0.9);
+    outline-offset: 3px;
+  }
+}
+.drag-handle {
+  display: none;
+}
+.sequencer-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(39, 231, 255, 0.6);
+  color: #dfffff;
+  background: rgba(39, 231, 255, 0.07);
+  font-size: 14px;
+}
+.sequencer-meta {
+  min-width: 0;
+  text-align: center;
+  & strong {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+  }
+}
+.sequencer-node--orb {
+  border-radius: 12px;
+  border-color: rgba(180, 140, 255, 0.45);
+  background: rgba(20, 12, 40, 0.65);
+  box-shadow:
+    0 0 12px rgba(180, 140, 255, 0.25),
+    0 0 28px rgba(180, 140, 255, 0.12),
+    inset 0 0 18px rgba(180, 140, 255, 0.05);
+  cursor: pointer;
+  &.sequencer-node--active {
+    border-color: rgba(180, 140, 255, 0.95);
+  }
+  &:hover,
+  &:focus-visible {
+    border-color: rgba(180, 140, 255, 0.75);
+    background: rgba(20, 12, 40, 0.8);
+    box-shadow:
+      0 0 20px rgba(180, 140, 255, 0.5),
+      0 0 48px rgba(180, 140, 255, 0.25),
+      inset 0 0 24px rgba(180, 140, 255, 0.08);
+  }
+  &:focus-visible {
+    outline-color: rgba(180, 140, 255, 0.9);
+  }
+}
+.sequencer-orb-mode {
+  display: block;
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(180, 140, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.sequencer-output {
+  display: none;
+}
+.sequencer-tooltip-status {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(39, 231, 255, 0.7);
+}
+.sequencer-tooltip-text {
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.4;
+  word-break: break-word;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sequencer-node--active::after {
+    animation: none;
+    opacity: 0.7;
+    transform: scale(1);
+  }
+}

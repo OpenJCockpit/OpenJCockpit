@@ -1,0 +1,180 @@
+{
+  "groups": [
+    {
+      "id": "wg-spec-workflow",
+      "name": "Spec-driven development",
+      "description": "Default workflows for the spec-driven development cycle: spec folder initialization, spec creation from a prompt and spec implementation.",
+      "projectName": ""
+    }
+  ],
+  "workflows": [
+    {
+      "id": "wf-spec-init",
+      "name": "Spec folder initialization",
+      "projectName": "",
+      "groupId": "wg-spec-workflow",
+      "description": "Initializes the repository's spec structure: pushes .specify/templates/spec-template.md as a pull request so that agentic workflows can run against the repository.",
+      "agentIds": [
+        "realisation"
+      ],
+      "subagentNames": [],
+      "skillNames": [],
+      "mcpTools": [],
+      "trigger": {
+        "dashboardButtonEnabled": true,
+        "hermesSignalEnabled": false,
+        "fileDeliveryEnabled": false
+      },
+      "promptRequired": false,
+      "status": "ACTIVE",
+      "promptInstructions": null
+    },
+    {
+      "id": "wf-spec-create",
+      "name": "Create spec from prompt (RAG)",
+      "projectName": "",
+      "groupId": "wg-spec-workflow",
+      "description": "Creates small, executable spec files in specs/ based on a prompt and the repository contents (RAG) — small enough to be picked up by the implementation workflow in a single run.",
+      "agentIds": [
+        "requirement"
+      ],
+      "subagentNames": [],
+      "skillNames": [],
+      "mcpTools": [
+        {
+          "name": "git_create_branch",
+          "description": "Create and check out a new branch from the base branch"
+        },
+        {
+          "name": "git_checkout_branch",
+          "description": "Check out an existing branch of the project repository"
+        },
+        {
+          "name": "git_pull",
+          "description": "Pull the latest changes for the active branch"
+        },
+        {
+          "name": "git_commit",
+          "description": "Stage and commit all changes in the workspace"
+        },
+        {
+          "name": "git_push",
+          "description": "Push the branch to origin so a pull request can be opened"
+        }
+      ],
+      "trigger": {
+        "dashboardButtonEnabled": true,
+        "hermesSignalEnabled": false,
+        "fileDeliveryEnabled": false
+      },
+      "promptRequired": true,
+      "status": "ACTIVE",
+      "promptInstructions": "You are creating a new feature spec in this repository, following its spec-driven workflow. Perform ALL of the following steps:\n1. Create a new git branch named spec/<NNN-feature-slug> from the default branch.\n2. Read the spec template at .specify/templates/spec-template.md and the existing specs/_index.md.\n3. Determine the next free feature number NNN and derive a short feature slug from the request below.\n4. Create specs/NNN-feature-slug/spec.md based on the template: fill in the frontmatter (workflow_id, spec_id, feature_slug, title, created_at/updated_at) and every section. Use the repository content (RAG) for context and keep the spec small enough to be implemented by the implementation workflow in a single run — split large requests into multiple specs.\n5. Update specs/_index.md with an entry for the new feature folder.\n6. Commit the new and changed files and push the branch to origin so a pull request can be opened.\n\nUser request for the spec:"
+    },
+    {
+      "id": "wf-spec-implement",
+      "name": "Implement spec",
+      "projectName": "",
+      "groupId": "wg-spec-workflow",
+      "description": "Implements the selected spec file via the agent pipeline: impact analysis, test design, implementation, review and evidence.",
+      "agentIds": [
+        "impact",
+        "test-design",
+        "implementation",
+        "review",
+        "evidence"
+      ],
+      "subagentNames": [],
+      "skillNames": [],
+      "mcpTools": [
+        {
+          "name": "git_create_branch",
+          "description": "Create and check out a new branch from the base branch"
+        },
+        {
+          "name": "git_checkout_branch",
+          "description": "Check out an existing branch of the project repository"
+        },
+        {
+          "name": "git_pull",
+          "description": "Pull the latest changes for the active branch"
+        },
+        {
+          "name": "git_commit",
+          "description": "Stage and commit all changes in the workspace"
+        },
+        {
+          "name": "git_push",
+          "description": "Push the branch to origin so a pull request can be opened"
+        }
+      ],
+      "trigger": {
+        "dashboardButtonEnabled": true,
+        "hermesSignalEnabled": false,
+        "fileDeliveryEnabled": false
+      },
+      "promptRequired": false,
+      "status": "ACTIVE",
+      "promptInstructions": null
+    },
+    {
+      "id": "wf-spec-realise",
+      "name": "Realise spec (code)",
+      "projectName": "",
+      "groupId": "wg-spec-workflow",
+      "description": "Actually applies the implementation in the repository: uses an existing implementation plan from specs/ for the selected feature spec (or creates that plan first in the same run), generates code changes based on the repository contents and pushes them as a feature branch with a pull request.",
+      "agentIds": [
+        "impact",
+        "test-design",
+        "implementation",
+        "review",
+        "realisation",
+        "evidence"
+      ],
+      "subagentNames": [],
+      "skillNames": [],
+      "mcpTools": [
+        {
+          "name": "git_create_branch",
+          "description": "Create and check out a new branch from the base branch"
+        },
+        {
+          "name": "git_checkout_branch",
+          "description": "Check out an existing branch of the project repository"
+        },
+        {
+          "name": "git_list_files",
+          "description": "List the files in the repository workspace"
+        },
+        {
+          "name": "git_read_file",
+          "description": "Read a file from the repository workspace"
+        },
+        {
+          "name": "git_write_file",
+          "description": "Write generated file contents into the workspace"
+        },
+        {
+          "name": "git_commit",
+          "description": "Stage and commit all changes in the workspace"
+        },
+        {
+          "name": "git_push",
+          "description": "Push the branch to origin"
+        },
+        {
+          "name": "git_create_pull_request",
+          "description": "Open a pull request for the pushed branch"
+        }
+      ],
+      "trigger": {
+        "dashboardButtonEnabled": true,
+        "hermesSignalEnabled": false,
+        "fileDeliveryEnabled": false
+      },
+      "promptRequired": false,
+      "status": "ACTIVE",
+      "promptInstructions": null
+    }
+  ]
+}

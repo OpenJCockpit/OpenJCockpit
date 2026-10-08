@@ -1,0 +1,48 @@
+.workflow-execution-history {
+  margin-bottom: 20px;
+  & h3 {
+    margin: 0 0 10px;
+    font-size: 15px;
+  }
+
+  &-table {
+    width: 100%;
+    border-collapse: collapse;
+    & caption {
+      text-align: left;
+      font-size: 12px;
+      opacity: 0.7;
+      margin-bottom: 6px;
+    }
+    & th,
+    & td {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 13px;
+    }
+  }
+
+  &-row--selected {
+    background: rgba(39, 231, 255, 0.08);
+  }
+
+  &-error {
+    padding: 16px;
+    border: 1px solid rgba(255, 80, 80, 0.35);
+    border-radius: 12px;
+    background: rgba(255, 80, 80, 0.06);
+  }
+
+  &-empty {
+    opacity: 0.75;
+  }
+
+  &-loading {
+    opacity: 0.75;
+  }
+
+  &-load-more {
+    margin-top: 10px;
+  }
+}

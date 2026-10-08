@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MetaFactory AI Delivery Pipeline — Docs</title>
+  <meta name="description" content="About the MetaFactory AI Delivery Pipeline and a tutorial for running your first spec-driven workflow." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top">Meta<span>Factory</span> AI Delivery Pipeline</a>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#tutorial">Getting started</a></li>
+        <li><a href="https://github.com/MetaFactory/AI-Delivery-Pipeline">GitHub</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="hero" id="top">
+      <h1>MetaFactory AI Delivery Pipeline</h1>
+      <p class="lede">
+        A spec-driven delivery platform where AI agents turn a written
+        requirement into a reviewable pull request — plan first, code
+        second — while every action stays gated by policy and human
+        review.
+      </p>
+    </div>
+
+    <section id="about">
+      <h2>About</h2>
+      <p>
+        The MetaFactory AI Delivery Pipeline is a multi-module application
+        that lets a team drive feature work through AI agents without
+        losing the standard review discipline of a normal engineering
+        workflow. Instead of an agent pushing straight to a branch, every
+        run produces specs, plans, and code changes as ordinary
+        <strong>pull requests</strong> that a human still reviews and
+        merges.
+      </p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h4>Dashboard</h4>
+          <p>React/Vite frontend (<code>apps/dashboard</code>) — projects, workflow design, and live run logs, secured with Keycloak.</p>
+        </div>
+        <div class="card">
+          <h4>ai-control-service</h4>
+          <p>OpenAPI-first Spring Boot API (<code>services/ai-control-service</code>) — the contract-driven front door for projects, credentials, and workflows.</p>
+        </div>
+        <div class="card">
+          <h4>embabel-agent-service</h4>
+          <p>The Embabel agent application (<code>services/embabel-agent-service</code>) that orchestrates the spec-driven pipeline: impact analysis, planning, review, and code realization.</p>
+        </div>
+        <div class="card">
+          <h4>git-mcp-server</h4>
+          <p>A Spring AI MCP server (<code>services/git-mcp-server</code>) exposing git operations (branch, commit, push, PR) as tools, called only through a policy-gated gateway.</p>
+        </div>
+      </div>
+
+      <h3>Spec-driven, not vibes-driven</h3>
+      <p>
+        Every feature lives as its own folder under <code>specs/</code>
+        (<code>NNN-feature-slug</code>) with <code>spec.md</code>,
+        <code>plan.md</code>, <code>tasks.md</code>, and
+        <code>review.md</code>. Four default workflows drive the pipeline
+        end to end:
+      </p>
+      <table>
+        <thead>
+          <tr><th>Workflow</th><th>Id</th><th>Produces</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Spec folder initialization</td><td><code>wf-spec-init</code></td><td>PR adding the <code>.specify</code> template structure</td></tr>
+          <tr><td>Create spec from prompt (RAG)</td><td><code>wf-spec-create</code></td><td>PR with a new spec file under <code>specs/</code></td></tr>
+          <tr><td>Implement spec</td><td><code>wf-spec-implement</code></td><td>PR with a plan only — no code changes</td></tr>
+          <tr><td>Realize spec (code)</td><td><code>wf-spec-realise</code></td><td>PR with the actual code changes (reuses an existing plan if one was already merged)</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Because git publishing is deterministic — handled by the service
+        itself rather than left to the model — every run ends in a real
+        branch and pull request, regardless of how closely the LLM output
+        follows instructions.
+      </p>
+
+      <h3>Security by default</h3>
+      <p>
+        Access to the dashboard requires a valid Keycloak token
+        (Authorization Code + PKCE). Every tool call an agent makes —
+        including all git operations — passes through a
+        policy-guarded MCP gateway before it is allowed to run, so agents
+        only ever get the least privilege they need.
+      </p>
+    </section>
+
+    <section id="tutorial">
+      <h2>Tutorial: your first project and workflow run</h2>
+      <p>
+        This walks through running the platform locally with Docker
+        Compose, connecting a repository, and letting the pipeline open
+        its first pull request.
+      </p>
+
+      <ol class="steps">
+        <li>
+          <h3>Prerequisites</h3>
+          <p>You'll need:</p>
+          <ul>
+            <li>Docker and Docker Compose</li>
+            <li>An OpenAI API key for the agents</li>
+            <li>A GitHub personal access token with repo access, for the repository you want the pipeline to work on</li>
+            <li>Ollama installed and running on your host machine, with the <code>qwen3.6:27b</code> model pulled (<code>ollama pull qwen3.6:27b</code>) — it serves the pipeline's default local LLM and is not part of the Docker Compose stack; the pipeline now reaches Ollama through the in-stack LiteLLM gateway rather than calling it directly</li>
+          </ul>
+        </li>
+
+        <li>
+          <h3>Configure your environment</h3>
+          <p>From the repository root:</p>
+          <pre><code>cp .env.example .env
+# edit .env and set OPENAI_API_KEY</code></pre>
+          <p>
+            Optionally set <code>OLLAMA_BASE_URL</code> and
+            <code>OLLAMA_MODEL</code> in <code>.env</code> to point the
+            pipeline at a differently located Ollama daemon or model tag;
+            both have working defaults, see the project <code>README.md</code>.
+          </p>
+        </li>
+
+        <li>
+          <h3>Start the stack</h3>
+          <pre><code>docker compose up --build</code></pre>
+          <p>Once the containers are healthy, open:</p>
+          <ul>
+            <li><code>http://localhost:3000</code> — the dashboard</li>
+            <li><code>http://localhost:8080/admin</code> — Keycloak admin console</li>
+            <li><code>http://localhost:4100</code> — LiteLLM gateway admin UI (local-only credentials)</li>
+          </ul>
+          <p>
+            The dashboard redirects to a custom Keycloak login page. Sign
+            in with one of the seeded local users (e.g. <code>ricky</code>
+            / <code>Welkom01!</code>) — see the project <code>README.md</code>
+            for the full list.
+          </p>
+          <p>
+            For the full LiteLLM variable table, both revert paths, and the
+            local-only credential warning, see the project
+            <code>README.md</code>.
+          </p>
+        </li>
+
+        <li>
+          <h3>Add your project</h3>
+          <p>
+            In the dashboard, create a project pointing at the git
+            repository you want the pipeline to operate on, and add a git
+            credential (your personal access token) under
+            <em>Settings → Git credentials</em>. The pipeline uses this
+            repository URL and credential for every workflow run against
+            this project.
+          </p>
+        </li>
+
+        <li>
+          <h3>Initialize the spec structure</h3>
+          <p>
+            If the target repository has no <code>.specify</code> folder
+            yet, the dashboard shows a prompt to run the
+            <strong>spec-init</strong> workflow. Starting it opens a pull
+            request that adds the spec template structure to the
+            repository. Merge that PR before continuing.
+          </p>
+        </li>
+
+        <li>
+          <h3>Create your first spec</h3>
+          <p>
+            Once <code>.specify</code> exists, the dashboard shows the
+            <strong>✨ Create spec with prompt</strong> button. Click it and
+            describe the feature you want in plain language — this starts
+            the <em>Create spec from prompt (RAG)</em> workflow, which
+            writes a small, self-contained spec file under
+            <code>specs/</code> and opens it as a pull request. Review and
+            merge it.
+          </p>
+        </li>
+
+        <li>
+          <h3>Run the workflow</h3>
+          <p>
+            Select the merged spec file and start
+            <strong>Realize spec (code)</strong>. The pipeline runs impact
+            analysis, test design, an implementation plan, and a review,
+            then generates the actual file changes and opens a pull
+            request on a <code>feat/&lt;workflow-id&gt;-&lt;run-id&gt;</code>
+            branch. Watch progress live in the run's agent log console.
+          </p>
+          <div class="callout">
+            Prefer a plan you approve separately first? Run
+            <strong>Implement spec</strong> instead, merge its plan-only
+            PR, then start <strong>Realize spec (code)</strong> — it will
+            find and reuse the merged plan rather than generating a new
+            one.
+          </div>
+        </li>
+
+        <li>
+          <h3>Review and merge</h3>
+          <p>
+            Treat the generated pull request like any other: review the
+            diff, run your existing CI checks, and merge when it's ready.
+            The agent never merges on its own — that decision always stays
+            with your team.
+          </p>
+        </li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    <div class="nav-inner" style="max-width: 960px; margin: 0 auto; padding: 0;">
+      MetaFactory AI Delivery Pipeline — documentation site.
+    </div>
+  </footer>
+</body>
+</html>
