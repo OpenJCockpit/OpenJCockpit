@@ -39,7 +39,7 @@ class ComposeEmbabelDatasourceWiringContractTest {
                 .path("environment");
         String value = environment.path("DB_URL").asString();
         assertEquals("jdbc:postgresql://postgres:5432/embabel", value);
-        assertFalse(value.contains("metafactory"));
+        assertFalse(value.contains("openjcockpit"));
     }
 
     @Test
