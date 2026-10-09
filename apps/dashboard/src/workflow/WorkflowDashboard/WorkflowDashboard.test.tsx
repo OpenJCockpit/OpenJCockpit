@@ -95,6 +95,51 @@ describe('WorkflowDashboard', () => {
     expect(workflowApi.listWorkflows).toHaveBeenCalledTimes(1);
   });
 
+  it('opens on the Execution tab scoped to initialExecution', async () => {
+    vi.mocked(workflowApi.getWorkflow).mockResolvedValue({
+      id: 'wf-9',
+      name: 'Queued Workflow',
+      description: '',
+      agentIds: [],
+      subagentNames: [],
+      skillNames: [],
+      mcpTools: [],
+      status: 'ACTIVE',
+    } as unknown as WorkflowDefinition);
+
+    await act(async () => {
+      render(
+        <WorkflowDashboard
+          project={PROJECT}
+          onBack={vi.fn()}
+          initialExecution={{ workflowId: 'wf-9', runId: 'run-9' }}
+        />,
+      );
+    });
+
+    expect(screen.getByText('Workflow Execution')).toHaveClass('workflow-tab--active');
+    expect(workflowApi.getWorkflow).toHaveBeenCalledWith('wf-9');
+    expect((await screen.findAllByText('Queued Workflow')).length).toBeGreaterThan(0);
+  });
+
+  it('shows an alert when the workflow of the initial run cannot be loaded', async () => {
+    vi.mocked(workflowApi.getWorkflow).mockRejectedValue(new Error('Failed to load workflow: 404'));
+
+    await act(async () => {
+      render(
+        <WorkflowDashboard
+          project={PROJECT}
+          onBack={vi.fn()}
+          initialExecution={{ workflowId: 'wf-9', runId: 'run-9' }}
+        />,
+      );
+    });
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The workflow of this run could not be loaded — Failed to load workflow: 404',
+    );
+  });
+
   it('switches to the Configuration tab when clicked', async () => {
     await act(async () => {
       render(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);

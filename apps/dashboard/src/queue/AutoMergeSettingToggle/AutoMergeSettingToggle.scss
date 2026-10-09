@@ -1,0 +1,18 @@
+.auto-merge-setting {
+  &__control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    & input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--teal);
+    }
+    &:has(input:disabled) {
+      color: var(--muted);
+    }
+  }
+  &__description {
+    margin-top: 6px;
+  }
+}

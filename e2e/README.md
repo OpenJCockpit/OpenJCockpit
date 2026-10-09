@@ -97,8 +97,8 @@ green with none of them set, given the documented environment.
 | `E2E_DASHBOARD_BASE_URL`       | `http://localhost:4000`                                                                                                                             | dashboard project base URL                                                               |
 | `E2E_LANDING_BASE_URL`         | `http://localhost:3000`                                                                                                                             | landing project base URL                                                                 |
 | `E2E_KEYCLOAK_URL`             | `http://localhost:8080`                                                                                                                             | setup project, readiness, Direct Access Grant                                            |
-| `E2E_KEYCLOAK_REALM`           | `openjcockpit`                                                                                                                                       | as above                                                                                 |
-| `E2E_KEYCLOAK_CLIENT_ID`       | `openjcockpit`                                                                                                                                       | as above (public client — no secret variable exists anywhere in this harness)            |
+| `E2E_KEYCLOAK_REALM`           | `openjcockpit`                                                                                                                                      | as above                                                                                 |
+| `E2E_KEYCLOAK_CLIENT_ID`       | `openjcockpit`                                                                                                                                      | as above (public client — no secret variable exists anywhere in this harness)            |
 | `E2E_API_BASE_URL`             | `http://localhost:9080`                                                                                                                             | direct-to-`ai-control-service` assertions (e.g. the unauthenticated 401/200 pair)        |
 | `E2E_USERNAME`                 | `e2e`                                                                                                                                               | the seeded test identity                                                                 |
 | `E2E_PASSWORD`                 | the seeded local-only password documented in the repository root `README.md`'s Keycloak-data table — never repeated here                            | as above                                                                                 |
@@ -215,17 +215,29 @@ execution model.
 
 ## What is deliberately excluded, and why
 
-### Role/permission (403) coverage (AC-14)
+### Role/permission (403) coverage (AC-14) — partially closed
 
-The realm defines one realm role, `openjcockpit-admin`, held only by `tony`. The 403 on the
-spec-queue settings `PUT` as the non-admin `e2e` user is covered. The positive admin path stays
-open: no scenario logs in as `tony`.
+The realm defines one realm role, `openjcockpit-admin`, held only by `tony`.
 
-### Named gap: spec-queue end to end
+- **Covered:** the non-admin `e2e` user's `PUT /api/projects/{id}/spec-queue/settings` returns 403
+  and leaves the setting unchanged, and the dashboard shows the auto-merge toggle read-only.
+- **Still open:** the positive admin path. No scenario logs in as `tony`, so no admin identity
+  exists in e2e.
 
-The e2e stack has no embabel workflow run and no git remote. The 409 `SPEC_QUEUE_ITEM_ACTIVE` and the
-full enqueue-to-merge chain are proven by backend tests; Postgres-specific behaviour only by the
-manual `scripts/spec-queue-postgres-check.sh`.
+### Spec queue — named gap
+
+Playwright covers only `specs/spec-queue.spec.ts` (read-only queue view, Add-dialog spec-listing
+failure, non-admin 403) and the eleven unauthenticated-401 tests in `specs/api-unauthenticated.spec.ts`.
+
+- It does **not** cover the full enqueue-to-merge chain, the BR-6 409 `SPEC_QUEUE_ITEM_ACTIVE`, or
+  reorder with real items: the e2e stack has no embabel workflow run and no git remote. Those are
+  proven by the backend suites in `mvn verify`.
+- PostgreSQL-specific behaviour is covered only by the optional manual
+  `scripts/spec-queue-postgres-check.sh`.
+- Keyboard Enter/Space on the reorder buttons, and focus retention after the 5 s poll, are covered
+  by neither Playwright nor jsdom.
+- Concurrency semantics, multi-process runners, migration on PostgreSQL and the lock-timeout value
+  are likewise only exercised by the backend suites.
 
 ### `WorkflowPromptDialog` dialog semantics — not executable as an E2E scenario today (AC-23)
 

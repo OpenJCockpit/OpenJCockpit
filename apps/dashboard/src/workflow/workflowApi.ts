@@ -34,7 +34,7 @@ const JSON_HEADERS = { 'Content-Type': 'application/json' };
 // Parses the server's ApiErrorResponse.message from a failed response body, falling
 // back to a generic "<fallback>: <status>" message when the body isn't JSON or has
 // no message (e.g. a 401 from an infrastructure layer with no JSON body at all).
-async function errorMessageFrom(response: Response, fallback: string): Promise<string> {
+export async function errorMessageFrom(response: Response, fallback: string): Promise<string> {
   try {
     const body = await response.json();
     if (body && typeof body.message === 'string' && body.message.trim()) return body.message;
@@ -101,7 +101,7 @@ export async function startWorkflow(
     headers: { ...JSON_HEADERS, ...authHeaders() },
     body: JSON.stringify(input),
   });
-  if (!response.ok) throw new Error(`Failed to start workflow: ${response.status}`);
+  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to start workflow'));
   return response.json();
 }
 

@@ -140,3 +140,61 @@ test.describe('workflow-trigger-workflow-orb: unauthenticated / foreign-issuer a
     expect(response.status()).toBe(401);
   });
 });
+
+/**
+ * spec-queue: every one of the eleven operations sits behind the same
+ * `.anyRequest().authenticated()` filter chain, which rejects before any
+ * handler runs — so placeholder UUIDs prove the 401 without creating
+ * anything.
+ */
+test.describe('spec-queue: unauthenticated access to all eleven operations', () => {
+  const PROJECT = '00000000-0000-4000-a000-000000000001';
+  const ITEM = '00000000-0000-4000-a000-000000000002';
+  const BASE = `/api/projects/${PROJECT}/spec-queue`;
+
+  const operations: { operationId: string; method: string; path: string; data?: unknown }[] = [
+    { operationId: 'getSpecQueue', method: 'GET', path: BASE },
+    {
+      operationId: 'enqueueSpecQueueItem',
+      method: 'POST',
+      path: `${BASE}/items`,
+      data: { specFile: 'a.md', workflowId: 'w', autoMerge: false },
+    },
+    {
+      operationId: 'updateSpecQueueItem',
+      method: 'PATCH',
+      path: `${BASE}/items/${ITEM}`,
+      data: { autoMerge: false },
+    },
+    { operationId: 'removeSpecQueueItem', method: 'DELETE', path: `${BASE}/items/${ITEM}` },
+    {
+      operationId: 'reorderSpecQueue',
+      method: 'PUT',
+      path: `${BASE}/order`,
+      data: { itemIds: [] },
+    },
+    { operationId: 'pauseSpecQueue', method: 'POST', path: `${BASE}/pause` },
+    { operationId: 'resumeSpecQueue', method: 'POST', path: `${BASE}/resume` },
+    { operationId: 'retrySpecQueueItem', method: 'POST', path: `${BASE}/items/${ITEM}/retry` },
+    { operationId: 'skipSpecQueueItem', method: 'POST', path: `${BASE}/items/${ITEM}/skip` },
+    { operationId: 'getSpecQueueSettings', method: 'GET', path: `${BASE}/settings` },
+    {
+      operationId: 'updateSpecQueueSettings',
+      method: 'PUT',
+      path: `${BASE}/settings`,
+      data: { autoMergeAllowed: true },
+    },
+  ];
+
+  for (const op of operations) {
+    test(`${op.operationId}: ${op.method} ${op.path.replace(PROJECT, '{p}').replace(ITEM, '{i}')} without a bearer token is rejected with 401`, async ({
+      request,
+    }) => {
+      const response = await request.fetch(`${env.apiBaseUrl}${op.path}`, {
+        method: op.method,
+        data: op.data,
+      });
+      expect(response.status()).toBe(401);
+    });
+  }
+});

@@ -2,6 +2,7 @@ import './SpecFilesDashboard.scss';
 import { useEffect, useState } from 'react';
 import { loadProjectSpecs, saveSpecFile } from '../../api';
 import { IconBox } from '../../components/IconBox/IconBox';
+import { AddToQueueDialog } from '../../queue/AddToQueueDialog/AddToQueueDialog';
 import type { Project, SpecFile, SpecInitResult } from '../../types';
 
 interface Props {
@@ -17,6 +18,8 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
   const [saving, setSaving] = useState(false);
   const [saveResult, setSaveResult] = useState<SpecInitResult | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [queueDialogOpen, setQueueDialogOpen] = useState(false);
+  const [queuedNotice, setQueuedNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (!project) {
@@ -46,6 +49,7 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
     setDraftContent(spec.content ?? '');
     setSaveResult(null);
     setSaveError(null);
+    setQueuedNotice(null);
   }
 
   async function handleSave() {
@@ -138,14 +142,35 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
                     <div className="panel-title">
                       <h2>{selected.fileName}</h2>
                     </div>
-                    <button
-                      className="button button--small"
-                      onClick={() => void handleSave()}
-                      disabled={!isDirty || saving}
-                    >
-                      {saving ? '⟳ Saving…' : '💾 Save'}
-                    </button>
+                    <div className="spec-editor__actions">
+                      <button
+                        className="button button--small"
+                        onClick={() => void handleSave()}
+                        disabled={!isDirty || saving}
+                      >
+                        {saving ? '⟳ Saving…' : '💾 Save'}
+                      </button>
+                      <button
+                        className="button button--small"
+                        data-testid="spec-add-to-queue"
+                        onClick={() => setQueueDialogOpen(true)}
+                        disabled={isDirty || saving}
+                        aria-describedby={isDirty ? 'add-to-queue-hint' : undefined}
+                      >
+                        ➕ Add to queue
+                      </button>
+                    </div>
                   </header>
+                  {isDirty && (
+                    <p id="add-to-queue-hint" className="settings-desc">
+                      Save the spec first: the queue runs the version in the repository.
+                    </p>
+                  )}
+                  {queuedNotice && (
+                    <p className="settings-desc" role="status" data-testid="spec-queued-notice">
+                      {queuedNotice}
+                    </p>
+                  )}
                   <textarea
                     className="spec-editor__textarea"
                     value={draftContent}
@@ -177,6 +202,17 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
           </div>
         )}
       </main>
+      {queueDialogOpen && project && selected && (
+        <AddToQueueDialog
+          project={project}
+          fixedSpecFile={selected.fileName}
+          onCancel={() => setQueueDialogOpen(false)}
+          onAdded={(item) => {
+            setQueueDialogOpen(false);
+            setQueuedNotice(`${item.specFile} was added to the queue.`);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -5,6 +5,23 @@ import * as api from '../../api';
 import type { Project, SpecFile } from '../../types';
 
 vi.mock('../../api');
+vi.mock('../../queue/AddToQueueDialog/AddToQueueDialog', () => ({
+  AddToQueueDialog: ({
+    fixedSpecFile,
+    onAdded,
+    onCancel,
+  }: {
+    fixedSpecFile: string;
+    onAdded: (i: { specFile: string }) => void;
+    onCancel: () => void;
+  }) => (
+    <div role="dialog" aria-label="Add to queue">
+      <span>{fixedSpecFile}</span>
+      <button onClick={() => onAdded({ specFile: fixedSpecFile })}>stub-add</button>
+      <button onClick={onCancel}>stub-cancel</button>
+    </div>
+  ),
+}));
 
 const PROJECT: Project = {
   id: 'project-1',
@@ -136,5 +153,49 @@ describe('SpecFilesDashboard', () => {
     });
 
     expect(onBack).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('SpecFilesDashboard — Add to queue', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(api.loadProjectSpecs).mockResolvedValue([SPEC]);
+  });
+
+  it('queues the selected spec through the dialog and shows a notice', async () => {
+    await act(async () => {
+      render(<SpecFilesDashboard project={PROJECT} onBack={vi.fn()} />);
+    });
+    fireEvent.click(await screen.findByTestId('spec-add-to-queue'));
+    expect(screen.getByRole('dialog', { name: 'Add to queue' })).toHaveTextContent(
+      'pricing-rules.md',
+    );
+    fireEvent.click(screen.getByText('stub-add'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByTestId('spec-queued-notice')).toHaveTextContent(
+      'pricing-rules.md was added to the queue.',
+    );
+  });
+
+  it('closes the dialog on cancel without queuing', async () => {
+    await act(async () => {
+      render(<SpecFilesDashboard project={PROJECT} onBack={vi.fn()} />);
+    });
+    fireEvent.click(await screen.findByTestId('spec-add-to-queue'));
+    fireEvent.click(screen.getByText('stub-cancel'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('spec-queued-notice')).not.toBeInTheDocument();
+  });
+
+  it('is disabled with a visible reason while the spec has unsaved edits', async () => {
+    await act(async () => {
+      render(<SpecFilesDashboard project={PROJECT} onBack={vi.fn()} />);
+    });
+    const textarea = await screen.findByLabelText('Contents of pricing-rules.md');
+    fireEvent.change(textarea, { target: { value: '# changed' } });
+    const button = screen.getByTestId('spec-add-to-queue');
+    expect(button).toBeDisabled();
+    expect(button).toHaveAccessibleDescription(/Save the spec first/);
+    expect(screen.getByText(/Save the spec first/)).toBeVisible();
   });
 });

@@ -1,0 +1,72 @@
+.spec-queue {
+  display: grid;
+  gap: 16px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 48px 64px;
+  & h1 {
+    margin: 4px 0 0;
+    font-size: 26px;
+    color: var(--violet);
+  }
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  &__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  &__banner {
+    margin: 0;
+    padding: 10px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    font-size: 13px;
+    background: var(--cyan-soft);
+    &--warn {
+      border-color: rgba(246, 165, 37, 0.45);
+      background: rgba(246, 165, 37, 0.1);
+    }
+  }
+  &__panel {
+    padding: 18px 20px;
+    & h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+  }
+  &__items {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  &__polled {
+    margin: 12px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  &__visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  @media (max-width: 720px) {
+    padding: 24px 16px 48px;
+  }
+}

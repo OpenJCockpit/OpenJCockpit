@@ -180,7 +180,9 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
         onWorkflowStarted?.(workflow, result.executionId);
       }
     } catch (error) {
-      setFeedback((prev) => ({ ...prev, [workflow.id]: 'Failed to start workflow' }));
+      const message =
+        error instanceof Error && error.message ? error.message : 'Failed to start workflow';
+      setFeedback((prev) => ({ ...prev, [workflow.id]: message }));
       console.warn('Failed to start workflow', error);
     } finally {
       setStartingId(null);

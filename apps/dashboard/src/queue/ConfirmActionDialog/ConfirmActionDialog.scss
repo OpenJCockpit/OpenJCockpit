@@ -1,0 +1,27 @@
+.confirm-action-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(2, 8, 16, 0.72);
+  backdrop-filter: blur(6px);
+}
+.confirm-action-dialog {
+  width: min(480px, 100%);
+  padding: 26px 28px;
+  border-color: var(--line-strong);
+  box-shadow:
+    0 0 40px rgba(39, 231, 255, 0.14),
+    var(--shadow);
+  & h2 {
+    margin: 0 0 12px;
+    font-size: 20px;
+  }
+  &__actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+  }
+}

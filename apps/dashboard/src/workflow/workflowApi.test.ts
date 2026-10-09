@@ -4,6 +4,8 @@ import {
   listAgentSpecs,
   listWorkflowExecutions,
   getWorkflowExecution,
+  startWorkflow,
+  errorMessageFrom,
 } from './workflowApi';
 
 const mockFetch = vi.fn();
@@ -192,5 +194,57 @@ describe('workflowApi', () => {
 
       await expect(getWorkflowExecution('wf-1', 'run-1')).rejects.toMatchObject({ status: 404 });
     });
+  });
+});
+
+describe('startWorkflow / errorMessageFrom', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', mockFetch);
+    mockFetch.mockReset();
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('rejects with the server message on a 409 (BR-6 SPEC_QUEUE_ITEM_ACTIVE)', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 409,
+      json: () =>
+        Promise.resolve({ code: 'SPEC_QUEUE_ITEM_ACTIVE', message: 'A queue item is active' }),
+    });
+    await expect(startWorkflow('wf-1')).rejects.toThrow('A queue item is active');
+  });
+
+  it('rejects with the status fallback when the body is not JSON', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: () => Promise.reject(new Error('not json')),
+    });
+    await expect(startWorkflow('wf-1')).rejects.toThrow('Failed to start workflow: 500');
+  });
+
+  it('POSTs JSON and resolves to the parsed response', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ runId: 'r1' }),
+    });
+    await expect(startWorkflow('wf-1', { prompt: 'hi' })).resolves.toEqual({ runId: 'r1' });
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toContain('/api/workflows/wf-1/start');
+    expect(init.method).toBe('POST');
+    expect(init.body).toBe(JSON.stringify({ prompt: 'hi' }));
+  });
+
+  it('errorMessageFrom returns the message', async () => {
+    const response = { status: 400, json: () => Promise.resolve({ message: 'nope' }) } as Response;
+    await expect(errorMessageFrom(response, 'Fallback')).resolves.toBe('nope');
+  });
+
+  it('errorMessageFrom falls back to "<fallback>: <status>" on a blank message', async () => {
+    const response = { status: 400, json: () => Promise.resolve({ message: '  ' }) } as Response;
+    await expect(errorMessageFrom(response, 'Fallback')).resolves.toBe('Fallback: 400');
   });
 });

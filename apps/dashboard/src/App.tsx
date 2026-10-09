@@ -23,6 +23,7 @@ import { ProjectSelection } from './components/ProjectSelection/ProjectSelection
 import { ProjectSettings } from './components/ProjectSettings/ProjectSettings';
 import { SkillsHubDashboard } from './components/SkillsHubDashboard/SkillsHubDashboard';
 import { SkillsHubSettings } from './components/SkillsHubSettings/SkillsHubSettings';
+import { SpecQueueDashboard } from './queue/SpecQueueDashboard/SpecQueueDashboard';
 import { SpecFilesDashboard } from './spec/SpecFilesDashboard/SpecFilesDashboard';
 import { WorkflowDashboard } from './workflow/WorkflowDashboard/WorkflowDashboard';
 import { WorkflowExecution } from './workflow/WorkflowExecution/WorkflowExecution';
@@ -37,6 +38,7 @@ type AppView =
   | 'settings'
   | 'workflow'
   | 'spec-files'
+  | 'spec-queue'
   | 'skills-hub'
   | 'skills-hub-settings';
 
@@ -174,6 +176,8 @@ function App() {
     runId: string;
   } | null>(null);
   const [runEnded, setRunEnded] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
+  const [runLink, setRunLink] = useState<{ workflowId: string; runId: string } | null>(null);
   const [initResult, setInitResult] = useState<SpecInitResult | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
   const [specInitStatus, setSpecInitStatus] = useState<SpecInitStatus | null>(null);
@@ -237,6 +241,7 @@ function App() {
       return;
     }
     setButtonState('starting');
+    setStartError(null);
     try {
       const result = await startWorkflow(workflow.id, {
         ...input,
@@ -248,7 +253,8 @@ function App() {
       setActiveRun({ workflow, runId: result.executionId });
       setRunEnded(false);
       setButtonState('idle');
-    } catch {
+    } catch (error) {
+      setStartError(error instanceof Error ? error.message : 'Failed to start workflow');
       setButtonState('error');
     }
   }
@@ -314,7 +320,24 @@ function App() {
     return (
       <WorkflowDashboard
         project={selectedProject}
+        initialExecution={runLink ?? undefined}
+        onBack={() => {
+          setRunLink(null);
+          setView(selectedProject ? 'dashboard' : 'project-selection');
+        }}
+      />
+    );
+  }
+
+  if (view === 'spec-queue') {
+    return (
+      <SpecQueueDashboard
+        project={selectedProject}
         onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
+        onOpenRun={(workflowId, runId) => {
+          setRunLink({ workflowId, runId });
+          setView('workflow');
+        }}
       />
     );
   }
@@ -398,6 +421,14 @@ function App() {
             data-testid="nav-spec-files"
           >
             📄 Spec Files
+          </button>
+          <button
+            className="button button--workflow"
+            onClick={() => setView('spec-queue')}
+            title="Spec Queue"
+            data-testid="nav-spec-queue"
+          >
+            📋 Spec Queue
           </button>
           <button
             className="button button--workflow"
@@ -696,6 +727,12 @@ function App() {
                   </button>
                 )}
               </>
+            )}
+
+            {!activeRun && startError && (
+              <p className="workflow-launcher-error" role="alert" data-testid="start-error">
+                {startError}
+              </p>
             )}
 
             {!activeRun && !specsLoading && hasSpecs && (
