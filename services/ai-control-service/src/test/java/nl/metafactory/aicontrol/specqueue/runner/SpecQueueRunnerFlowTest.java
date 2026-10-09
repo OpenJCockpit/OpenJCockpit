@@ -346,6 +346,23 @@ class SpecQueueRunnerFlowTest {
     }
 
     @Test
+    void staleStartingWithOrphanRunSurfacesTheOrphanRunId() {
+        var item = item("a.md", false);
+        tx.executeWithoutResult(s -> {
+            var i = reload(item);
+            i.transitionTo(SpecQueueItemStatus.STARTING, Instant.now());
+            i.recordStartClaim(Instant.now().minusSeconds(3600));
+            items.saveAndFlush(i);
+            events.save(new nl.metafactory.aicontrol.specqueue.domain.SpecQueueEvent(projectId, i.getId(),
+                    SpecQueueEventType.ORPHAN_RUN_DETECTED, "SYSTEM", Instant.now())
+                    .withWorkflow(i.getWorkflowId(), "orphan-run"));
+        });
+        runner.tick();
+        assertThat(reload(item).getFailureReason()).isEqualTo(SpecQueueFailureReason.START_OUTCOME_UNKNOWN);
+        assertThat(reload(item).getWorkflowRunId()).isEqualTo("orphan-run");
+    }
+
+    @Test
     void expiredMergeAttemptIsDecidedByOneReadAndNeverMergedAgain() throws Exception {
         allowAutoMerge();
         var item = item("a.md", true);

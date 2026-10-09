@@ -3,6 +3,7 @@ package nl.metafactory.aicontrol.specqueue.app;
 import nl.metafactory.aicontrol.model.SpecQueueItemStatus;
 import nl.metafactory.aicontrol.specqueue.domain.SpecQueue;
 import nl.metafactory.aicontrol.specqueue.domain.SpecQueueEvent;
+import nl.metafactory.aicontrol.specqueue.domain.SpecQueueEventType;
 import nl.metafactory.aicontrol.specqueue.domain.SpecQueueItem;
 import nl.metafactory.aicontrol.specqueue.persistence.SpecQueueEventRepository;
 import nl.metafactory.aicontrol.specqueue.persistence.SpecQueueItemRepository;
@@ -70,6 +71,16 @@ public class SpecQueueTransitions {
     @Transactional(propagation = Propagation.MANDATORY)
     public void appendEvent(SpecQueueEvent event) {
         events.save(event);
+    }
+
+    /** The run id of a run that started but could not be bound to the item, if one was recorded. */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public Optional<String> findOrphanRunId(UUID itemId) {
+        return events.findByItemIdOrderByCreatedAtAsc(itemId).stream()
+                .filter(e -> e.getEventType() == SpecQueueEventType.ORPHAN_RUN_DETECTED)
+                .map(SpecQueueEvent::getWorkflowRunId)
+                .filter(java.util.Objects::nonNull)
+                .reduce((first, second) -> second);
     }
 
     @Transactional(propagation = Propagation.MANDATORY)

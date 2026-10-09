@@ -157,8 +157,12 @@ public class SpecQueueRunnerTransitions {
         SpecQueue queue = transitions.lockQueue(projectId);
         loadInStatus(projectId, itemId, SpecQueueItemStatus.STARTING)
                 .filter(i -> isLeaseElapsed(i.getStartClaimedAt(), config.getStartLease(), clock.instant()))
-                .ifPresent(i -> failAndHalt(queue, i, SpecQueueFailureReason.START_OUTCOME_UNKNOWN,
-                        SpecQueueEventType.FAILED, null));
+                .ifPresent(i -> {
+                    // An orphan run keeps going: surface its id on the failed item so a human can stop it.
+                    transitions.findOrphanRunId(i.getId()).ifPresent(runId -> i.recordRun(runId, null));
+                    failAndHalt(queue, i, SpecQueueFailureReason.START_OUTCOME_UNKNOWN,
+                            SpecQueueEventType.FAILED, null);
+                });
     }
 
     /** The start provably never reached the agent service: back to QUEUED, keeping its position. */
