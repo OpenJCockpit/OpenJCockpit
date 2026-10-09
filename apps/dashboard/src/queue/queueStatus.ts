@@ -58,6 +58,7 @@ const FAILURE_TEXT: Record<SpecQueueFailureReason, string> = {
   PR_CLOSED_UNMERGED: 'The pull request was closed without merging',
   MERGE_CONFLICT: 'The pull request has a merge conflict',
   MERGE_BLOCKED: 'The merge is blocked by checks or reviews',
+  MERGE_WAIT_TIMEOUT: 'The pull request did not become mergeable in time',
   MERGE_AUTH_FAILED: 'Not authorised to merge the pull request',
   MERGE_OUTCOME_UNKNOWN: 'It is unknown whether the merge happened — check the pull request',
 };

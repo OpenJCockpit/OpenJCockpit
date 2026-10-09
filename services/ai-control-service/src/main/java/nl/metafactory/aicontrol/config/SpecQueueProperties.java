@@ -38,6 +38,8 @@ public class SpecQueueProperties {
         @NotNull @DurationMin(seconds = 1)
         private Duration mergeLease = Duration.ofMinutes(5);
         @NotNull @DurationMin(seconds = 1)
+        private Duration mergeWaitTimeout = Duration.ofMinutes(30);
+        @NotNull @DurationMin(seconds = 1)
         private Duration embabelTimeout = Duration.ofSeconds(30);
         @NotNull @DurationMin(seconds = 1)
         private Duration githubTimeout = Duration.ofSeconds(30);
@@ -59,6 +61,8 @@ public class SpecQueueProperties {
         public void setStartLease(Duration startLease) { this.startLease = startLease; }
         public Duration getMergeLease() { return mergeLease; }
         public void setMergeLease(Duration mergeLease) { this.mergeLease = mergeLease; }
+        public Duration getMergeWaitTimeout() { return mergeWaitTimeout; }
+        public void setMergeWaitTimeout(Duration mergeWaitTimeout) { this.mergeWaitTimeout = mergeWaitTimeout; }
         public Duration getEmbabelTimeout() { return embabelTimeout; }
         public void setEmbabelTimeout(Duration embabelTimeout) { this.embabelTimeout = embabelTimeout; }
         public Duration getGithubTimeout() { return githubTimeout; }

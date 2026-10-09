@@ -186,6 +186,29 @@ class SpecQueueRunnerFlowTest {
     }
 
     @Test
+    void autoMergeThatNeverBecomesMergeableFailsAfterTheWaitTimeout() throws Exception {
+        allowAutoMerge();
+        var item = item("a.md", true);
+        started("run-1");
+        runner.tick();
+        when(embabel.getRun("run-1")).thenReturn(new RunLookup.Found(run("COMPLETED", "pull-request:" + PR_URL)));
+        runner.tick();
+        when(gitHub.readPullRequest(any(), anyString(), anyString())).thenReturn(pr(true, false, "unknown"));
+        runner.tick();
+        assertThat(reload(item).getStatus()).isEqualTo(SpecQueueItemStatus.MERGING);
+
+        jdbc.update("update spec_queue_items set updated_at = ? where id = ?",
+                java.sql.Timestamp.from(Instant.now().minus(java.time.Duration.ofHours(2))), item.getId());
+        runner.tick();
+
+        var failed = reload(item);
+        assertThat(failed.getStatus()).isEqualTo(SpecQueueItemStatus.FAILED);
+        assertThat(failed.getFailureReason()).isEqualTo(SpecQueueFailureReason.MERGE_WAIT_TIMEOUT);
+        assertThat(state()).isEqualTo(SpecQueueState.HALTED);
+        verify(gitHub, never()).squashMergePullRequest(any(), any(), any(), any(), any());
+    }
+
+    @Test
     void autoMergeNotPermittedByProjectWaitsForHumanThenCompletes() throws Exception {
         var item = item("a.md", true); // project setting stays off
         started("run-1");

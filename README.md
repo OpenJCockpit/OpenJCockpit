@@ -304,9 +304,13 @@ suite is a **local and QA-agent gate only** — see "Continuous Integration" bel
 | `SPEC_QUEUE_RUNNER_ENABLED` | `true` | `false` stops the runner from starting queued items. |
 | `SPEC_QUEUE_POLL_INTERVAL` | `PT20S` | Duration between runner ticks (`PT1S` to `PT1H`). |
 
-`SPEC_QUEUE_START_LEASE`, `SPEC_QUEUE_MERGE_LEASE` (`PT5M`), `SPEC_QUEUE_EMBABEL_TIMEOUT` and
-`SPEC_QUEUE_GITHUB_TIMEOUT` (`PT30S`, max `PT30S`) are read by the backend `application.yml` only.
-GitHub calls that time out are retried twice.
+`SPEC_QUEUE_START_LEASE`, `SPEC_QUEUE_MERGE_LEASE` (`PT5M`), `SPEC_QUEUE_MERGE_WAIT_TIMEOUT` (`PT30M`),
+`SPEC_QUEUE_EMBABEL_TIMEOUT` and `SPEC_QUEUE_GITHUB_TIMEOUT` (`PT30S`, max `PT30S`) are read by the backend
+`application.yml` only. GitHub calls that time out are retried twice.
+
+`SPEC_QUEUE_MERGE_WAIT_TIMEOUT` bounds how long an auto-merge item waits for its pull request to become
+mergeable (checks pending, mergeability still unknown). When it elapses the item fails with `MERGE_WAIT_TIMEOUT`
+and the queue halts, so one stuck pull request cannot hold the project's active slot forever.
 
 ### The `openjcockpit-admin` role
 

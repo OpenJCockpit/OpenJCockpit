@@ -114,8 +114,20 @@ public class RunnerMergeStep {
             case CLOSED_UNMERGED -> fail(item, SpecQueueItemStatus.MERGING, SpecQueueFailureReason.PR_CLOSED_UNMERGED);
             case CONFLICT -> fail(item, SpecQueueItemStatus.MERGING, SpecQueueFailureReason.MERGE_CONFLICT);
             case BLOCKED -> fail(item, SpecQueueItemStatus.MERGING, SpecQueueFailureReason.MERGE_BLOCKED);
-            case WAIT -> transitions.recordPollSuccess(projectId);
+            case WAIT -> waitOrFail(item);
             case MERGE -> mergeOnce(item, ready, state.headSha());
+        }
+    }
+
+    /**
+     * The pull request is not mergeable yet. Nothing else touches an unclaimed MERGING item, so its updatedAt is
+     * the moment it entered MERGING; past the wait timeout it fails instead of holding the active slot forever.
+     */
+    private void waitOrFail(SpecQueueItem item) {
+        if (SpecQueueRunnerTransitions.isLeaseElapsed(item.getUpdatedAt(), config.getMergeWaitTimeout(), clock.instant())) {
+            fail(item, SpecQueueItemStatus.MERGING, SpecQueueFailureReason.MERGE_WAIT_TIMEOUT);
+        } else {
+            transitions.recordPollSuccess(item.getProjectId());
         }
     }
 
@@ -135,7 +147,7 @@ public class RunnerMergeStep {
     private void mergeOnce(SpecQueueItem item, Access.Ready ready, String headSha) {
         UUID projectId = item.getProjectId();
         if (headSha == null || headSha.isBlank()) {
-            transitions.recordPollSuccess(projectId);
+            waitOrFail(item);
             return;
         }
         var claim = transitions.claimMergeAttempt(projectId, item.getId(), headSha);
@@ -200,6 +212,7 @@ public class RunnerMergeStep {
             case MERGE_AUTH_FAILED -> "AUTH_FAILED";
             case MERGE_BLOCKED -> "BLOCKED";
             case MERGE_CONFLICT -> "CONFLICT";
+            case MERGE_WAIT_TIMEOUT -> "WAIT_TIMEOUT";
             case MERGE_OUTCOME_UNKNOWN -> "OUTCOME_UNKNOWN";
             default -> null;
         };

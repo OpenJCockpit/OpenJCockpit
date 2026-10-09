@@ -43,6 +43,7 @@ const REASONS: SpecQueueFailureReason[] = [
   'PR_CLOSED_UNMERGED',
   'MERGE_CONFLICT',
   'MERGE_BLOCKED',
+  'MERGE_WAIT_TIMEOUT',
   'MERGE_AUTH_FAILED',
   'MERGE_OUTCOME_UNKNOWN',
 ];
@@ -66,10 +67,10 @@ describe('queueStatus', () => {
     );
   });
 
-  it('has 19 distinct failure texts', () => {
+  it('has 20 distinct failure texts', () => {
     const texts = REASONS.map(failureReasonText);
     expect(texts.every(Boolean)).toBe(true);
-    expect(new Set(texts).size).toBe(19);
+    expect(new Set(texts).size).toBe(20);
   });
 
   it('has poll-error and state texts', () => {

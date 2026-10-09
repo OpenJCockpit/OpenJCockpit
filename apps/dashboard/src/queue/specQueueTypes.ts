@@ -30,6 +30,7 @@ export type SpecQueueFailureReason =
   | 'PR_CLOSED_UNMERGED'
   | 'MERGE_CONFLICT'
   | 'MERGE_BLOCKED'
+  | 'MERGE_WAIT_TIMEOUT'
   | 'MERGE_AUTH_FAILED'
   | 'MERGE_OUTCOME_UNKNOWN';
 export type SpecQueuePollErrorCode =

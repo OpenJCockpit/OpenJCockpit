@@ -116,6 +116,7 @@ openjcockpit:
       poll-interval: ${SPEC_QUEUE_POLL_INTERVAL:PT20S}
       start-lease: ${SPEC_QUEUE_START_LEASE:PT5M}
       merge-lease: ${SPEC_QUEUE_MERGE_LEASE:PT5M}
+      merge-wait-timeout: ${SPEC_QUEUE_MERGE_WAIT_TIMEOUT:PT30M}
       embabel-timeout: ${SPEC_QUEUE_EMBABEL_TIMEOUT:PT30S}
       github-timeout: ${SPEC_QUEUE_GITHUB_TIMEOUT:PT30S}
       recently-finished-limit: 20
