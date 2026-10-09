@@ -1,0 +1,6 @@
+package nl.metafactory.aicontrol.specqueue.planner;
+
+public enum PlannerOverride {
+    INVALID_SELECTION, PLANNER_FAILED, NULL_DECISION, FAILURE_FORCES_HALT,
+    MERGE_NOT_PERMITTED, PULL_REQUESTS_PRESENT, NO_PULL_REQUESTS, UNEXPECTED_OUTCOME
+}

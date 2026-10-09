@@ -1,5 +1,6 @@
 package nl.metafactory.aicontrol.config;
 
+import nl.metafactory.aicontrol.service.GitHubApiPort;
 import nl.metafactory.aicontrol.service.GitHubPort;
 import nl.metafactory.aicontrol.service.GitWorkspaceOperations;
 import nl.metafactory.aicontrol.service.JGitPort;
@@ -10,7 +11,7 @@ import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
-import org.kohsuke.github.GitHubBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,6 +21,18 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class GitAdapterConfig {
+
+    private final SpecQueueProperties specQueueProperties;
+
+    @Autowired
+    public GitAdapterConfig(SpecQueueProperties specQueueProperties) {
+        this.specQueueProperties = specQueueProperties;
+    }
+
+    /** For tests outside a Spring context. */
+    public GitAdapterConfig() {
+        this(new SpecQueueProperties());
+    }
 
     @Bean
     public JGitPort jGitPort() {
@@ -32,10 +45,7 @@ public class GitAdapterConfig {
 
     @Bean
     public GitHubPort gitHubPort() {
-        return (owner, repo, apiUrl, token) -> {
-            var github = new GitHubBuilder().withEndpoint(apiUrl).withOAuthToken(token).build();
-            github.getRepository(owner + "/" + repo);
-        };
+        return new GitHubApiPort(specQueueProperties.getRunner().getGithubTimeout());
     }
 
     @Bean

@@ -36,8 +36,10 @@ class SkillsMarketplaceEgressWiringTest {
     EmbabelAgentClient embabelAgentClient;
 
     @Test
-    void webClientBeanNamesAreExactlyEmbabelWebClient() {
-        assertThat(context.getBeanNamesForType(WebClient.class)).containsExactly("embabelWebClient");
+    void webClientBeanNamesAreExactlyTheEmbabelClients() {
+        // embabelRunnerWebClient authenticates as the spec-queue runner service identity and never relays a user token.
+        assertThat(context.getBeanNamesForType(WebClient.class))
+                .containsExactlyInAnyOrder("embabelWebClient", "embabelRunnerWebClient");
     }
 
     @Test

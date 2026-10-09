@@ -164,12 +164,13 @@ openjcockpit:
         url: ${GIT_MCP_SERVER_URL:http://localhost:8093}
   security:
     jwt-issuer: http://localhost:8080/realms/openjcockpit
-  spec-queue-runner:
-    # Blank secret disables this auth path. Issuer/audience must match ai-control-service.
-    secret: ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:}
-    issuer: urn:openjcockpit:ai-control-service:spec-queue-runner
-    audience: embabel-agent-service
-    max-lifetime-seconds: 120
+    spec-queue-runner:
+      # Blank secret disables this auth path. Issuer/audience must match ai-control-service.
+      secret: ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:}
+      issuer: urn:openjcockpit:ai-control-service:spec-queue-runner
+      audience: embabel-agent-service
+      max-lifetime-seconds: 120
+      clock-skew-seconds: 30
     clock-skew-seconds: 30
   agent-pipeline:
     sequence:
