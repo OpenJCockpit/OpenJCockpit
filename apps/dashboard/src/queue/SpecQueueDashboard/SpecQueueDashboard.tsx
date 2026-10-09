@@ -32,6 +32,7 @@ interface Confirmation {
 }
 
 const POLL_INTERVAL_MS = 5000;
+const MAX_POLL_INTERVAL_MS = 60000;
 
 function messageOf(e: unknown, fallback: string): string {
   return e instanceof Error && e.message ? e.message : fallback;
@@ -84,6 +85,10 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
   const listRef = useRef<HTMLOListElement>(null);
   const pendingFocus = useRef<{ itemId: string; direction: MoveDirection } | null>(null);
   const mounted = useRef(true);
+  // Bumped on every queue write and on project change: a response only applies if no newer
+  // write happened while it was in flight.
+  const generation = useRef(0);
+  const pendingLoads = useRef(0);
 
   useEffect(() => {
     mounted.current = true;
@@ -92,16 +97,28 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
     };
   }, []);
 
-  const refresh = useCallback(async () => {
-    if (!projectId) return;
+  const applyQueue = useCallback((next: SpecQueue) => {
+    generation.current += 1;
+    setQueue(next);
+  }, []);
+
+  /** Resolves false only when the load itself failed (a superseded response is not a failure). */
+  const refresh = useCallback(async (): Promise<boolean> => {
+    if (!projectId) return true;
+    const ticket = ++generation.current;
+    pendingLoads.current += 1;
     try {
       const loaded = await getSpecQueue(projectId);
-      if (!mounted.current) return;
+      if (!mounted.current || ticket !== generation.current) return true;
       setQueue(loaded);
       setLoadError(null);
+      return true;
     } catch (e) {
-      if (!mounted.current) return;
+      if (!mounted.current || ticket !== generation.current) return true;
       setLoadError(messageOf(e, 'Failed to load the spec queue'));
+      return false;
+    } finally {
+      pendingLoads.current -= 1;
     }
   }, [projectId]);
 
@@ -110,9 +127,36 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
     setLoadError(null);
     setActionError(null);
     if (!projectId) return;
-    void refresh();
-    const timer = setInterval(() => void refresh(), POLL_INTERVAL_MS);
-    return () => clearInterval(timer);
+    // Poll while the tab is visible; back off exponentially while loads keep failing.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let failures = 0;
+    let stopped = false;
+    const schedule = () => {
+      clearTimeout(timer);
+      if (stopped || document.hidden) return;
+      const delay = Math.min(POLL_INTERVAL_MS * 2 ** failures, MAX_POLL_INTERVAL_MS);
+      timer = setTimeout(tick, delay);
+    };
+    const load = async () => {
+      failures = (await refresh()) ? 0 : failures + 1;
+      schedule();
+    };
+    const tick = () => {
+      if (pendingLoads.current === 0) void load();
+      else schedule();
+    };
+    const onVisibilityChange = () => {
+      clearTimeout(timer);
+      if (!document.hidden && pendingLoads.current === 0) void load();
+    };
+    void load();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      generation.current += 1; // drop responses for the previous project
+    };
   }, [projectId, refresh]);
 
   // After a reorder, keep keyboard focus on the moved row's move button.
@@ -162,7 +206,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
         const response = await reorderSpecQueue(projectId, ids);
         if (!mounted.current) return;
         pendingFocus.current = { itemId: item.id, direction };
-        setQueue(response);
+        applyQueue(response);
         setAnnouncement(`${item.specFile} moved to position ${to + 1} of ${ids.length}`);
       },
       'Failed to reorder the queue',
@@ -176,7 +220,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
       async () => {
         const response = await (pause ? pauseSpecQueue(projectId) : resumeSpecQueue(projectId));
         if (!mounted.current) return;
-        setQueue(response);
+        applyQueue(response);
         setAnnouncement(pause ? 'Queue paused' : 'Queue resumed');
       },
       pause ? 'Failed to pause the queue' : 'Failed to resume the queue',
@@ -261,7 +305,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
         </div>
         <div className="header-actions">
           <button className="back-button" onClick={onBack} title="Back to dashboard">
-            ← Terug
+            ← Back
           </button>
         </div>
       </header>
@@ -270,7 +314,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
         <div className="spec-queue__header">
           <div>
             <span className="eyebrow">Spec Queue</span>
-            <h1>{project ? project.name : 'Geen project geselecteerd'}</h1>
+            <h1>{project ? project.name : 'No project selected'}</h1>
           </div>
           {project && queue && (
             <div className="spec-queue__controls">
@@ -319,11 +363,11 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
         </div>
 
         {!project && (
-          <p className="settings-desc">Selecteer eerst een project om de spec queue te beheren.</p>
+          <p className="settings-desc">Select a project first to manage its spec queue.</p>
         )}
         {project && !queue && !loadError && (
           <p className="settings-desc" data-testid="queue-loading">
-            Queue laden…
+            Loading the queue…
           </p>
         )}
         {project && !queue && loadError && (
@@ -394,9 +438,10 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
               <AutoMergeSettingToggle
                 projectId={project.id}
                 autoMergeAllowed={queue.autoMergeAllowed}
-                onChanged={(settings) =>
-                  setQueue((q) => (q ? { ...q, autoMergeAllowed: settings.autoMergeAllowed } : q))
-                }
+                onChanged={(settings) => {
+                  generation.current += 1;
+                  setQueue((q) => (q ? { ...q, autoMergeAllowed: settings.autoMergeAllowed } : q));
+                }}
               />
             </section>
 

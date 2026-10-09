@@ -69,7 +69,7 @@ describe('SpecQueueDashboard', () => {
 
   it('asks for a project when none is selected', () => {
     render(<SpecQueueDashboard project={null} onBack={vi.fn()} />);
-    expect(screen.getByText(/Selecteer eerst een project/)).toBeInTheDocument();
+    expect(screen.getByText(/Select a project first/)).toBeInTheDocument();
     expect(api.getSpecQueue).not.toHaveBeenCalled();
   });
 
@@ -117,6 +117,111 @@ describe('SpecQueueDashboard', () => {
         await vi.advanceTimersByTimeAsync(15000);
       });
       expect(api.getSpecQueue).toHaveBeenCalledTimes(2);
+    });
+
+    it('skips a poll tick while the previous request is still in flight', async () => {
+      render(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />);
+      await act(async () => {});
+      vi.mocked(api.getSpecQueue).mockReturnValue(new Promise(() => {}));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(5000);
+      });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(15000);
+      });
+      expect(api.getSpecQueue).toHaveBeenCalledTimes(2);
+    });
+
+    it('backs off exponentially while loads keep failing', async () => {
+      vi.mocked(api.getSpecQueue).mockRejectedValue(new Error('offline'));
+      render(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />);
+      await act(async () => {});
+      expect(api.getSpecQueue).toHaveBeenCalledTimes(1);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(9999); // first retry waits 10 s
+      });
+      expect(api.getSpecQueue).toHaveBeenCalledTimes(1);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1);
+      });
+      expect(api.getSpecQueue).toHaveBeenCalledTimes(2);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(19999); // then 20 s
+      });
+      expect(api.getSpecQueue).toHaveBeenCalledTimes(2);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1);
+      });
+      expect(api.getSpecQueue).toHaveBeenCalledTimes(3);
+    });
+
+    it('stops polling while the tab is hidden and reloads when it is visible again', async () => {
+      let hidden = false;
+      const spy = vi.spyOn(document, 'hidden', 'get').mockImplementation(() => hidden);
+      try {
+        render(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />);
+        await act(async () => {});
+        expect(api.getSpecQueue).toHaveBeenCalledTimes(1);
+
+        hidden = true;
+        await act(async () => {
+          document.dispatchEvent(new Event('visibilitychange'));
+          await vi.advanceTimersByTimeAsync(30000);
+        });
+        expect(api.getSpecQueue).toHaveBeenCalledTimes(1);
+
+        hidden = false;
+        await act(async () => {
+          document.dispatchEvent(new Event('visibilitychange'));
+        });
+        expect(api.getSpecQueue).toHaveBeenCalledTimes(2);
+      } finally {
+        spy.mockRestore();
+      }
+    });
+
+    it('ignores a poll response that resolves after a newer reorder response', async () => {
+      render(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />);
+      await act(async () => {});
+
+      let resolvePoll!: (q: SpecQueue) => void;
+      vi.mocked(api.getSpecQueue).mockReturnValue(
+        new Promise<SpecQueue>((resolve) => {
+          resolvePoll = resolve;
+        }),
+      );
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(5000);
+      });
+
+      vi.mocked(api.reorderSpecQueue).mockResolvedValue(
+        queue({ items: [item('b'), item('a'), item('c')] }),
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Move a.md down' }));
+      await act(async () => {});
+      expect(screen.getAllByTestId('queue-item')[0]).toHaveAttribute('data-item-id', 'b');
+
+      await act(async () => resolvePoll(queue())); // stale order a, b, c
+      expect(screen.getAllByTestId('queue-item')[0]).toHaveAttribute('data-item-id', 'b');
+    });
+
+    it('drops a response for the previous project after switching projects', async () => {
+      let resolveOld!: (q: SpecQueue) => void;
+      vi.mocked(api.getSpecQueue).mockReturnValueOnce(
+        new Promise<SpecQueue>((resolve) => {
+          resolveOld = resolve;
+        }),
+      );
+      const other = { id: 'p2', name: 'Other' } as Project;
+      const { rerender } = render(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />);
+      vi.mocked(api.getSpecQueue).mockResolvedValue(queue({ projectId: 'p2', items: [item('z')] }));
+      rerender(<SpecQueueDashboard project={other} onBack={vi.fn()} />);
+      await act(async () => {});
+
+      await act(async () => resolveOld(queue()));
+      expect(
+        screen.getAllByTestId('queue-item').map((r) => r.getAttribute('data-item-id')),
+      ).toEqual(['z']);
     });
   });
 

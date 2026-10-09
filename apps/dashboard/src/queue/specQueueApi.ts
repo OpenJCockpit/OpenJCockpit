@@ -96,9 +96,13 @@ export async function updateSpecQueueSettings(
   autoMergeAllowed: boolean,
 ): Promise<SpecQueueSettings> {
   const response = await fetch(queueUrl(projectId, '/settings'), init('PUT', { autoMergeAllowed }));
-  if (response.status === 403) throw new Error('Only administrators can change this setting.');
   if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to update the queue settings'));
+    // errorMessageFrom prefers the server's own message; the fallback covers a bodiless 403.
+    const fallback =
+      response.status === 403
+        ? 'Only administrators can change this setting.'
+        : 'Failed to update the queue settings';
+    throw new Error(await errorMessageFrom(response, fallback));
   }
   return response.json();
 }

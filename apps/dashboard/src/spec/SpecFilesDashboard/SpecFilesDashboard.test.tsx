@@ -116,6 +116,8 @@ describe('SpecFilesDashboard', () => {
       ),
     );
     expect(await screen.findByText(/Changes pushed/)).toBeInTheDocument();
+    expect(screen.getByTestId('spec-add-to-queue-unmerged')).toHaveTextContent(/not merged yet/);
+    expect(screen.getByTestId('spec-add-to-queue')).toBeDisabled();
     expect(screen.getByRole('link', { name: /Open pull request/ })).toHaveAttribute(
       'href',
       'https://github.com/org/repo/compare/main...spec-edit/test-project/20260705-abc?expand=1',

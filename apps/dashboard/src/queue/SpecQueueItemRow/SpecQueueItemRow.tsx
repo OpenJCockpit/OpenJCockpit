@@ -89,7 +89,10 @@ export function SpecQueueItemRow({
       <div className="queue-item__meta">
         {actions.canEdit ? (
           <>
-            <label className="queue-item__auto-merge">
+            <label
+              className="queue-item__auto-merge"
+              title={autoMergeAllowed ? undefined : 'Auto-merge is not allowed for this project'}
+            >
               <input
                 type="checkbox"
                 data-testid="queue-item-auto-merge"
@@ -101,7 +104,11 @@ export function SpecQueueItemRow({
               />
               <span aria-hidden="true">Auto-merge</span>
             </label>
-            <span id={noteId} className="queue-item__auto-merge-note">
+            <span
+              id={noteId}
+              className="queue-item__auto-merge-note"
+              data-testid="queue-item-auto-merge-note"
+            >
               Merged without human review unless the workflow has an approval gate.
               {!autoMergeAllowed && ' Auto-merge is not allowed for this project.'}
             </span>

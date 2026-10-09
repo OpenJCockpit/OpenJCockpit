@@ -162,8 +162,14 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
                     </div>
                   </header>
                   {isDirty && (
-                    <p id="add-to-queue-hint" className="settings-desc">
-                      Save the spec first: the queue runs the version in the repository.
+                    <p
+                      id="add-to-queue-hint"
+                      className="settings-desc"
+                      data-testid={saveResult ? 'spec-add-to-queue-unmerged' : undefined}
+                    >
+                      {saveResult
+                        ? 'Your changes are saved on a branch and not merged yet. The queue runs the version on the default branch, so merge the pull request first.'
+                        : "Save the spec first. The queue only runs the version on the repository's default branch, so merge the pull request from saving before it runs."}
                     </p>
                   )}
                   {queuedNotice && (

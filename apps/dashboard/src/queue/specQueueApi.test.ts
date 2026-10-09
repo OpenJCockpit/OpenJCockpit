@@ -79,6 +79,11 @@ describe('specQueueApi', () => {
     );
   });
 
+  it("prefers the server's message on a 403 settings PUT", async () => {
+    mockFetch.mockResolvedValueOnce(fail(403, { message: 'Project is archived' }));
+    await expect(updateSpecQueueSettings('p1', true)).rejects.toThrow('Project is archived');
+  });
+
   it('uses the queue-settings fallback for other settings failures', async () => {
     mockFetch.mockResolvedValueOnce(fail(500));
     await expect(updateSpecQueueSettings('p1', true)).rejects.toThrow(
