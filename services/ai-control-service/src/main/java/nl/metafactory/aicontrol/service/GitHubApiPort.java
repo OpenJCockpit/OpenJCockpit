@@ -117,6 +117,9 @@ public final class GitHubApiPort implements GitHubPort {
                         failing++;
                     }
                 }
+                if (runs.hasNext()) {
+                    pending++; // truncated: unseen check runs, so never read this as settled
+                }
                 seen = 0;
                 Map<String, GHCommitStatus> newest = new HashMap<>();
                 var statuses = repository.listCommitStatuses(sha).withPageSize(PAGE_SIZE).iterator();
@@ -127,6 +130,9 @@ public final class GitHubApiPort implements GitHubPort {
                     if (current == null || isNewer(status, current)) {
                         newest.put(context, status);
                     }
+                }
+                if (statuses.hasNext()) {
+                    pending++;
                 }
                 for (GHCommitStatus status : newest.values()) {
                     GHCommitState state = status.getState();
@@ -142,14 +148,11 @@ public final class GitHubApiPort implements GitHubPort {
         }
     }
 
-    private static boolean isNewer(GHCommitStatus candidate, GHCommitStatus current) {
-        try {
-            var a = candidate.getCreatedAt();
-            var b = current.getCreatedAt();
-            return a != null && b != null && a.after(b);
-        } catch (IOException | RuntimeException e) {
-            return false;
-        }
+    /** A failure to read a timestamp propagates (as a poll error) instead of silently keeping a stale status. */
+    private static boolean isNewer(GHCommitStatus candidate, GHCommitStatus current) throws IOException {
+        var a = candidate.getCreatedAt();
+        var b = current.getCreatedAt();
+        return a != null && b != null && a.after(b);
     }
 
     @Override

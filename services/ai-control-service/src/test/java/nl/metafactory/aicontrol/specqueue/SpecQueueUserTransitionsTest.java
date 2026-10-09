@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 /** Drives the transaction beans directly against H2 to reach the refusal branches. */
 @SpringBootTest
@@ -127,6 +128,20 @@ class SpecQueueUserTransitionsTest {
 
     private void guardCheck() {
         guard.assertNoActiveItem(projectId);
+    }
+
+    @Test
+    void retryAtTheFrontKeepsPositionsPositive() {
+        SpecQueueItem first = add("a.md");
+        SpecQueueItem failed = withStatus("b.md", SpecQueueItemStatus.FAILED);
+        assertThat(first.getPosition()).isEqualTo(1);
+
+        SpecQueueItem retried = transitions.retry(projectId, failed.getId(), actor);
+
+        assertThat(retried.getStatus()).isEqualTo(SpecQueueItemStatus.QUEUED);
+        assertThat(items.findByProjectIdOrderByPositionAsc(projectId))
+                .extracting(SpecQueueItem::getId, SpecQueueItem::getPosition)
+                .containsExactly(tuple(failed.getId(), 1L), tuple(first.getId(), 2L));
     }
 
     @Test

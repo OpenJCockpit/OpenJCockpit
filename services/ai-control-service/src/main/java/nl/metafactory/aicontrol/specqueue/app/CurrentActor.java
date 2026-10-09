@@ -1,5 +1,10 @@
 package nl.metafactory.aicontrol.specqueue.app;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,12 +26,25 @@ public record CurrentActor(String subject, String displayName) {
             throw new AuthenticationCredentialsNotFoundException("JWT has no subject");
         }
         String name = jwt.getClaimAsString("preferred_username");
-        return new CurrentActor(truncate(sub, MAX_SUBJECT), name == null ? null : truncate(name, MAX_DISPLAY_NAME));
+        return new CurrentActor(shorten(sub), name == null ? null : truncate(name, MAX_DISPLAY_NAME));
     }
 
     /** Audit label stored in {@code actor VARCHAR(80)}. */
     public String eventLabel() {
         return "USER:" + subject;
+    }
+
+    /** Long subjects keep a readable prefix plus a hash suffix, so two of them never share a label. */
+    private static String shorten(String subject) {
+        if (subject.length() <= MAX_SUBJECT) {
+            return subject;
+        }
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(subject.getBytes(StandardCharsets.UTF_8));
+            return subject.substring(0, MAX_SUBJECT - 15) + "~" + HexFormat.of().formatHex(digest, 0, 7);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private static String truncate(String value, int max) {

@@ -59,6 +59,7 @@ public class RunnerMergeStep {
         }
         Project project = project(projectId);
         Map<UUID, PrObservation> observations = new HashMap<>();
+        var readError = (String) null;
         for (SpecQueueItemPullRequest pr : prs) {
             if (pr.getMergedAt() != null) {
                 continue;
@@ -68,15 +69,22 @@ public class RunnerMergeStep {
                 fail(item, SpecQueueItemStatus.AWAITING_MERGE, unusable.reason());
                 return;
             }
-            Optional<GitHubPullRequestState> state = read(projectId, (Access.Ready) access);
-            if (state.isEmpty()) {
-                return;
+            try {
+                var ready = (Access.Ready) access;
+                var s = gitHub.readPullRequest(ready.ref(), ready.apiUrl(), ready.token());
+                observations.put(pr.getId(), s.merged() ? PrObservation.MERGED
+                        : s.open() ? PrObservation.OPEN : PrObservation.CLOSED_UNMERGED);
+            } catch (GitHubApiException e) {
+                readError = RunnerPollErrorCodes.forGitHub(e);
             }
-            var s = state.get();
-            observations.put(pr.getId(), s.merged() ? PrObservation.MERGED
-                    : s.open() ? PrObservation.OPEN : PrObservation.CLOSED_UNMERGED);
         }
-        transitions.applyPullRequestObservations(projectId, item.getId(), observations);
+        // Keep what was read even when another PR failed; the error is recorded last so it is not cleared.
+        if (!observations.isEmpty() || readError == null) {
+            transitions.applyPullRequestObservations(projectId, item.getId(), observations);
+        }
+        if (readError != null) {
+            transitions.recordPollError(projectId, readError);
+        }
     }
 
     // ── auto merge ───────────────────────────────────────────────────────────

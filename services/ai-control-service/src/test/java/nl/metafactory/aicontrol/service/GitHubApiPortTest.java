@@ -93,6 +93,23 @@ class GitHubApiPortTest {
     }
 
     @Test
+    void truncatedCheckRunListCountsAsPending() throws Exception {
+        String runs = String.join(",", java.util.Collections.nCopies(501,
+                "{\"id\":1,\"status\":\"completed\",\"conclusion\":\"success\"}"));
+        handler = r -> {
+            String p = r.getPath();
+            if (p.endsWith("/repos/acme/repo")) return json(200, REPO);
+            if (p.contains("/pulls/7")) return json(200, pr("open", false, false));
+            if (p.contains("/check-runs")) return json(200, "{\"total_count\":501,\"check_runs\":[" + runs + "]}");
+            if (p.contains("/statuses")) return json(200, "[]");
+            return json(404, "{}");
+        };
+        var state = port.readPullRequest(REF, api(), "tok");
+        assertThat(state.checksSucceeded()).isEqualTo(500);
+        assertThat(state.checksPending()).isEqualTo(1);
+    }
+
+    @Test
     void mergedPullRequestMakesNoCheckCalls() throws Exception {
         handler = r -> r.getPath().endsWith("/repos/acme/repo") ? json(200, REPO) : json(200, pr("closed", true, false));
         var state = port.readPullRequest(REF, api(), "tok");

@@ -75,10 +75,8 @@ public class SpecQueueUserTransitions {
         long position = items.findFirstByProjectIdOrderByPositionDesc(projectId)
                 .map(i -> i.getPosition() + 1).orElse(1L);
         SpecQueueItem item = new SpecQueueItem(projectId, request.specFile(), workflow.workflowId(),
-                workflow.workflowName(), request.autoMerge(), position, actor.subject(),
+                workflow.workflowName(), request.autoMerge(), position, specFileSizeBytes, actor.subject(),
                 actor.displayName(), now);
-        item.reassign(request.specFile(), workflow.workflowId(), workflow.workflowName(),
-                request.autoMerge(), specFileSizeBytes, now);
         items.saveAndFlush(item);
         record(new SpecQueueEvent(projectId, item.getId(), SpecQueueEventType.ENQUEUED, actor.eventLabel(), now)
                 .withStatusChange(null, SpecQueueItemStatus.QUEUED)
@@ -239,7 +237,11 @@ public class SpecQueueUserTransitions {
         String previousRun = item.getWorkflowRunId();
         long front = items.findFirstByProjectIdOrderByPositionAsc(projectId)
                 .map(i -> i.getPosition() - 1).orElse(1L);
-        item.moveTo(front, now);
+        if (front < 1) {
+            renumberWithFirst(projectId, item, now);
+        } else {
+            item.moveTo(front, now);
+        }
         item.transitionTo(SpecQueueItemStatus.QUEUED, now);
         item.recordFailureReason(null, now);
         item.recordRun(null, null);
@@ -254,6 +256,24 @@ public class SpecQueueUserTransitions {
                 .withReasonCode(previousReason)
                 .withWorkflow(item.getWorkflowId(), previousRun));
         return item;
+    }
+
+    /** Keeps positions positive: renumbers the project's items 1..n with {@code first} at the front. */
+    private void renumberWithFirst(UUID projectId, SpecQueueItem first, Instant now) {
+        List<SpecQueueItem> ordered = new ArrayList<>();
+        ordered.add(first);
+        items.findByProjectIdOrderByPositionAsc(projectId).stream()
+                .filter(i -> !i.getId().equals(first.getId())).forEach(ordered::add);
+        long max = ordered.stream().mapToLong(SpecQueueItem::getPosition).max().orElse(0L);
+        // Two phases, as in reorder, so UNIQUE(project_id, position) is never violated mid-way.
+        for (int i = 0; i < ordered.size(); i++) {
+            ordered.get(i).moveTo(max + 1 + i, now);
+        }
+        items.flush();
+        for (int i = 0; i < ordered.size(); i++) {
+            ordered.get(i).moveTo(i + 1L, now);
+        }
+        items.flush();
     }
 
     @Transactional

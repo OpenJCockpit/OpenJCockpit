@@ -65,6 +65,7 @@ class SpecQueueRunnerFlowTest {
     @Autowired SpecQueueItemRepository items;
     @Autowired SpecQueueRepository queues;
     @Autowired SpecQueueEventRepository events;
+    @Autowired nl.metafactory.aicontrol.specqueue.persistence.SpecQueueItemPullRequestRepository pullRequests;
     @Autowired SpecQueueTransitions transitions;
     @Autowired JdbcTemplate jdbc;
     @Autowired TransactionTemplate tx;
@@ -410,6 +411,47 @@ class SpecQueueRunnerFlowTest {
         runner.tick();
         assertThat(reload(item).getStatus()).isEqualTo(SpecQueueItemStatus.AWAITING_MERGE);
         assertThat(queues.findById(projectId).orElseThrow().getLastPollErrorCode()).isEqualTo("GITHUB_RATE_LIMITED");
+    }
+
+    @Test
+    void readErrorOnOnePullRequestKeepsTheObservationOfTheOther() throws Exception {
+        var item = item("a.md", false);
+        started("run-1");
+        runner.tick();
+        String second = "https://github.com/acme/repo/pull/6";
+        when(embabel.getRun("run-1")).thenReturn(new RunLookup.Found(
+                run("COMPLETED", "pull-request:" + PR_URL, "pull-request:" + second)));
+        runner.tick();
+        assertThat(reload(item).getStatus()).isEqualTo(SpecQueueItemStatus.AWAITING_MERGE);
+
+        when(gitHub.readPullRequest(any(), anyString(), anyString())).thenAnswer(i -> {
+            if (((nl.metafactory.aicontrol.service.GitHubPullRequestRef) i.getArgument(0)).number() == 6) {
+                throw new GitHubApiException(429, true);
+            }
+            return pr(false, true, "clean");
+        });
+        runner.tick();
+
+        assertThat(reload(item).getStatus()).isEqualTo(SpecQueueItemStatus.AWAITING_MERGE);
+        assertThat(pullRequests.findByItemIdOrderByCreatedAtAsc(item.getId()))
+                .filteredOn(pr -> pr.getUrl().equals(PR_URL))
+                .allSatisfy(pr -> assertThat(pr.getMergedAt()).isNotNull());
+        assertThat(queues.findById(projectId).orElseThrow().getLastPollErrorCode()).isEqualTo("GITHUB_RATE_LIMITED");
+    }
+
+    @Test
+    void cancelledRunWithPersistedCancelRequestIsClassifiedAsCancelledByQueue() {
+        var item = item("a.md", false);
+        started("run-1");
+        runner.tick();
+        // crash window: the cancel request was persisted but the process died before completeCancel
+        jdbc.update("update spec_queue_items set cancel_requested_at = ? where id = ?",
+                java.sql.Timestamp.from(Instant.now()), item.getId());
+        when(embabel.getRun("run-1")).thenReturn(new RunLookup.Found(run("CANCELLED")));
+        runner.tick();
+
+        assertThat(reload(item).getStatus()).isEqualTo(SpecQueueItemStatus.CANCELLED);
+        assertThat(state()).isEqualTo(SpecQueueState.PAUSED);
     }
 
     @Test

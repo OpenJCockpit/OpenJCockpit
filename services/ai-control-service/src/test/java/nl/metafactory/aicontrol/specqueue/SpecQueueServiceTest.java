@@ -132,8 +132,7 @@ class SpecQueueServiceTest {
         assertThat(enqueueCode()).isEqualTo(Code.DUPLICATE_SPEC_FILE);
 
         when(items.findByProjectIdAndOpenSpecKey(projectId, "a.md")).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> service.enqueue(projectId, new SpecQueueEnqueueRequest("a.md", "wf", false), actor))
-                .isInstanceOf(DataIntegrityViolationException.class);
+        assertThat(enqueueCode()).isEqualTo(Code.QUEUE_BUSY);
     }
 
     @Test

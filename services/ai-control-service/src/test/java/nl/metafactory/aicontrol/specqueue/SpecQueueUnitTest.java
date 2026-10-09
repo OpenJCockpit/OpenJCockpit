@@ -59,6 +59,13 @@ class SpecQueueUnitTest {
     // ── domain ──────────────────────────────────────────────────────────────
 
     @Test
+    void constructorWithSizeStoresItAndOldConstructorLeavesItNull() {
+        var sized = new SpecQueueItem(projectId, "a.md", "wf", "WF", false, 1, 42, "sub", "alice", T0);
+        assertThat(sized.getSpecFileSizeBytes()).isEqualTo(42);
+        assertThat(item().getSpecFileSizeBytes()).isNull();
+    }
+
+    @Test
     void itemDerivesActiveSlotAndOpenKeyFromStatus() {
         SpecQueueItem i = item();
         assertThat(i.getActiveSlot()).isNull();
@@ -281,6 +288,19 @@ class SpecQueueUnitTest {
 
     private static void authenticate(Jwt jwt) {
         SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt));
+    }
+
+    @Test
+    void longSubjectsThatShareAPrefixGetDistinctLabels() {
+        String prefix = "s".repeat(90);
+        authenticate(jwt(prefix + "a", null));
+        CurrentActor first = CurrentActor.fromSecurityContext();
+        authenticate(jwt(prefix + "b", null));
+        CurrentActor second = CurrentActor.fromSecurityContext();
+        assertThat(first.subject()).hasSize(70).isNotEqualTo(second.subject());
+        assertThat(first.eventLabel()).hasSize(75);
+        authenticate(jwt(prefix + "a", null));
+        assertThat(CurrentActor.fromSecurityContext().subject()).isEqualTo(first.subject());
     }
 
     @Test

@@ -104,6 +104,14 @@ public class SpecQueueItem {
     public SpecQueueItem(UUID projectId, String specFile, String workflowId, String workflowName,
                          boolean autoMerge, long position, String createdBySub,
                          String createdByUsername, Instant createdAt) {
+        this(projectId, specFile, workflowId, workflowName, autoMerge, position, null,
+                createdBySub, createdByUsername, createdAt);
+    }
+
+    public SpecQueueItem(UUID projectId, String specFile, String workflowId, String workflowName,
+                         boolean autoMerge, long position, Integer specFileSizeBytes, String createdBySub,
+                         String createdByUsername, Instant createdAt) {
+        this.specFileSizeBytes = specFileSizeBytes;
         this.id = UUID.randomUUID();
         this.projectId = projectId;
         this.specFile = specFile;

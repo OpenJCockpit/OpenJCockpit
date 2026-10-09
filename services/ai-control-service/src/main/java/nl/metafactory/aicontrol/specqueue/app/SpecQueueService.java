@@ -105,7 +105,8 @@ public class SpecQueueService {
             if (items.findByProjectIdAndOpenSpecKey(projectId, request.specFile()).isPresent()) {
                 throw new SpecQueueException(Code.DUPLICATE_SPEC_FILE, "This spec file is already queued for the project");
             }
-            throw e;
+            // e.g. a concurrent append took the same position: nothing is wrong with the request itself.
+            throw new SpecQueueException(Code.QUEUE_BUSY, "The queue is busy; try again");
         }
     }
 
