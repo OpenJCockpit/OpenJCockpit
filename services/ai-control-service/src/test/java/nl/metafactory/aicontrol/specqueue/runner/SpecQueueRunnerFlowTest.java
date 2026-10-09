@@ -302,6 +302,17 @@ class SpecQueueRunnerFlowTest {
     }
 
     @Test
+    void preflightRuntimeExceptionRevertsInsteadOfHalting() {
+        var item = item("a.md", false);
+        when(preflight.validateBeforeWorkflowStart(any())).thenThrow(new IllegalStateException("git unreachable"));
+        runner.tick();
+        assertThat(reload(item).getStatus()).isEqualTo(SpecQueueItemStatus.QUEUED);
+        assertThat(queues.findById(projectId).orElseThrow().getLastPollErrorCode()).isEqualTo("PREFLIGHT_UNAVAILABLE");
+        assertThat(state()).isEqualTo(SpecQueueState.ACTIVE);
+        verify(embabel, never()).startWorkflow(any(), any());
+    }
+
+    @Test
     void embabelOutageOnlyRecordsPollError() {
         var item = item("a.md", false);
         started("run-1");

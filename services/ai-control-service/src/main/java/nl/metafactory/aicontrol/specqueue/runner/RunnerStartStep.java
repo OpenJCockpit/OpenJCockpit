@@ -77,7 +77,9 @@ public class RunnerStartStep {
             input = enrichmentService.enrich(new WorkflowStartInputDto(null, claim.specFile(), null,
                     projectId.toString(), null, null, null));
         } catch (RuntimeException e) {
-            transitions.failStart(projectId, claim.itemId(), SpecQueueFailureReason.PREFLIGHT_FAILED, SpecQueueEventType.FAILED);
+            // Nothing was sent, so a transient preflight or enrich error is retried on the next tick.
+            log.warn("spec-queue.preflight-unavailable projectId={} itemId={} error={}", projectId, claim.itemId(), e.getClass().getSimpleName());
+            transitions.revertStart(projectId, claim.itemId(), RunnerPollErrorCodes.PREFLIGHT_UNAVAILABLE);
             return;
         }
 

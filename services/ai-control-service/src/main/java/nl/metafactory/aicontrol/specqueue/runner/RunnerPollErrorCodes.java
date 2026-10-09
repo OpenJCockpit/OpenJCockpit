@@ -7,6 +7,7 @@ public final class RunnerPollErrorCodes {
     public static final String EMBABEL_UNAUTHORIZED = "EMBABEL_UNAUTHORIZED";
     public static final String GITHUB_UNAVAILABLE = "GITHUB_UNAVAILABLE";
     public static final String GITHUB_RATE_LIMITED = "GITHUB_RATE_LIMITED";
+    public static final String PREFLIGHT_UNAVAILABLE = "PREFLIGHT_UNAVAILABLE";
     public static final String RUNNER_NOT_CONFIGURED = "RUNNER_NOT_CONFIGURED";
 
     private RunnerPollErrorCodes() {

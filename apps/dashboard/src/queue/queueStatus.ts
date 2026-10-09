@@ -71,6 +71,7 @@ const POLL_ERROR_TEXT: Record<SpecQueuePollErrorCode, string> = {
   EMBABEL_UNAVAILABLE: 'The agent service is unavailable',
   EMBABEL_UNAUTHORIZED: 'The queue runner is not authorised by the agent service',
   RUNNER_NOT_CONFIGURED: 'The queue runner has no identity configured',
+  PREFLIGHT_UNAVAILABLE: 'Project preflight checks could not run; retrying',
   GITHUB_UNAVAILABLE: 'GitHub is unavailable',
   GITHUB_RATE_LIMITED: 'GitHub rate limit reached',
 };
