@@ -423,9 +423,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
   it('offers the spec-create workflow instead of the init pull-request flow', async () => {
     await renderWithExistingTemplate();
 
-    expect(
-      screen.getByText(/already has a \.specify folder, but no specs/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/already has a \.specify folder, but no specs/)).toBeInTheDocument();
     expect(screen.queryByText(/Spec folder initialization/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Merge the corresponding pull request/)).not.toBeInTheDocument();
   });
@@ -574,7 +572,9 @@ describe('spec folder initialisation when no specs are found', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('NO_CHANGES: Spec folder already contains files')).toBeInTheDocument();
+      expect(
+        screen.getByText('NO_CHANGES: Spec folder already contains files'),
+      ).toBeInTheDocument();
     });
   });
 

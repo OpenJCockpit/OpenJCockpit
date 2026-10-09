@@ -65,9 +65,7 @@ describe('ProjectSettings — Git credentials', () => {
       screen.getByText('Update credentials').click();
     });
 
-    expect(
-      await screen.findByPlaceholderText('Required — no secret set yet'),
-    ).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('Required — no secret set yet')).toBeInTheDocument();
   });
 
   it('shows the backend error message when saving fails validation', async () => {

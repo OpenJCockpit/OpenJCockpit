@@ -34,8 +34,8 @@ export function WorkflowPromptDialog({ workflowName, busy, onSubmit, onCancel }:
         <h2>{workflowName}</h2>
       </header>
       <p className="settings-desc">
-        Describe what the workflow should deliver. The prompt is combined with the
-        repository contents (RAG) to create small, executable spec files.
+        Describe what the workflow should deliver. The prompt is combined with the repository
+        contents (RAG) to create small, executable spec files.
       </p>
       <label className="workflow-prompt-dialog__field">
         Prompt

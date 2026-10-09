@@ -79,7 +79,7 @@ export const mockWorkspace: Workspace = {
       kind: 'agent',
       id: 'test-design',
       name: 'Test Design Agent',
-      description: "Design test scenarios",
+      description: 'Design test scenarios',
       status: 'Active',
       statusKind: 'active',
     },

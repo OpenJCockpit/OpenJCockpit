@@ -310,7 +310,8 @@ export async function listSkillsMarketplaces(): Promise<SkillsMarketplaceConnect
   const response = await fetch(`${API_BASE_URL}/api/skills-marketplaces`, {
     headers: authHeaders(),
   });
-  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to load marketplaces'));
+  if (!response.ok)
+    throw new Error(await errorMessageFrom(response, 'Failed to load marketplaces'));
   return response.json();
 }
 

@@ -452,7 +452,11 @@ function App() {
               ))}
             </select>
           )}
-          <button className="back-button" onClick={() => setView('settings')} title="Project management">
+          <button
+            className="back-button"
+            onClick={() => setView('settings')}
+            title="Project management"
+          >
             ⚙
           </button>
           <button
@@ -775,8 +779,7 @@ function App() {
                 </button>
                 {projectWorkflows.length === 0 && (
                   <p className="workflow-launcher-hint">
-                    No workflows for this project. Create one via Workflow Design &amp;
-                    Execution.
+                    No workflows for this project. Create one via Workflow Design &amp; Execution.
                   </p>
                 )}
               </div>
@@ -790,9 +793,9 @@ function App() {
                 <div className="spec-init-result">
                   <StatusChip label="Spec structure present" kind="ok" />
                   <p>
-                    The repository already has a .specify folder, but no specs in the specs/
-                    folder yet. Create the first spec with a prompt — the workflow combines your
-                    prompt with the repository contents (RAG) into a small, executable spec file.
+                    The repository already has a .specify folder, but no specs in the specs/ folder
+                    yet. Create the first spec with a prompt — the workflow combines your prompt
+                    with the repository contents (RAG) into a small, executable spec file.
                   </p>
                   <button
                     className="button button--start"
@@ -803,8 +806,8 @@ function App() {
                   </button>
                   {!specCreateWorkflow && (
                     <p className="workflow-launcher-hint">
-                      De workflow &quot;Create spec from prompt (RAG)&quot; is not available
-                      for this project.
+                      De workflow &quot;Create spec from prompt (RAG)&quot; is not available for
+                      this project.
                     </p>
                   )}
                 </div>
@@ -888,8 +891,8 @@ function App() {
                           : '▶ Start'}
                   </button>
                   <p className="workflow-launcher-hint">
-                    This workflow creates a .specify folder with the spec template and offers it
-                    as a pull request on the repository.
+                    This workflow creates a .specify folder with the spec template and offers it as
+                    a pull request on the repository.
                   </p>
                   {initError && <p className="workflow-launcher-error">{initError}</p>}
                 </div>

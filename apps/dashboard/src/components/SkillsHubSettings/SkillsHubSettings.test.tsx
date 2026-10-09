@@ -217,9 +217,7 @@ describe('SkillsHubSettings', () => {
 
   it('shows the server error message when delete fails (AC-13)', async () => {
     vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([CONNECTION]);
-    vi.mocked(api.deleteSkillsMarketplace).mockRejectedValue(
-      new Error('Marketplace not found'),
-    );
+    vi.mocked(api.deleteSkillsMarketplace).mockRejectedValue(new Error('Marketplace not found'));
 
     await act(async () => {
       render(<SkillsHubSettings onBack={vi.fn()} />);

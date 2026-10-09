@@ -470,8 +470,8 @@ export function ProjectSettings({ onBack }: Props) {
                   </label>
                 </div>
                 <p className="settings-desc">
-                  On save, a Git check is first run with these credentials; they are only
-                  stored if the check succeeds.
+                  On save, a Git check is first run with these credentials; they are only stored if
+                  the check succeeds.
                 </p>
               </>
             )}
@@ -524,9 +524,7 @@ export function ProjectSettings({ onBack }: Props) {
                 </td>
                 <td>
                   {project.hasCredentials ? (
-                    <span style={{ color: 'var(--teal)', fontSize: 12 }}>
-                      Credentials set
-                    </span>
+                    <span style={{ color: 'var(--teal)', fontSize: 12 }}>Credentials set</span>
                   ) : (
                     <span style={{ color: 'var(--faint)', fontSize: 12 }}>None</span>
                   )}
