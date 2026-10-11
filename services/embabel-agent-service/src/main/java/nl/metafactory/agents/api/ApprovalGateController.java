@@ -10,9 +10,6 @@ import nl.metafactory.agents.approval.model.ApprovalDecisionRequest;
 import nl.metafactory.agents.approval.model.ApprovalDecisionResult;
 import nl.metafactory.agents.approval.model.ApprovalGateContext;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -55,26 +52,12 @@ public class ApprovalGateController {
     public ApprovalDecisionResult submitApprovalDecision(@PathVariable String runId,
                                                           @RequestBody ApprovalDecisionRequest request) {
         var command = new ApprovalDecisionCommand(request.decision(), request.iteration(), request.comment(),
-                currentUsername(), currentSubject());
+                CurrentUser.username(), CurrentUser.subject());
         return decisionService.submit(runId, command);
     }
 
     @GetMapping("/approval-decisions")
     public List<ApprovalDecisionAuditEntry> listApprovalDecisions(@PathVariable String runId) {
         return auditRepository.findByRunId(runId);
-    }
-
-    private String currentUsername() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (auth != null && auth.getPrincipal() instanceof Jwt jwt)
-                ? jwt.getClaimAsString("preferred_username")
-                : "unknown";
-    }
-
-    private String currentSubject() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (auth != null && auth.getPrincipal() instanceof Jwt jwt)
-                ? jwt.getClaimAsString("sub")
-                : "unknown";
     }
 }

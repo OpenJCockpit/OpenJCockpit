@@ -10,9 +10,6 @@ import nl.metafactory.aicontrol.service.GitWorkspaceJobService;
 import nl.metafactory.aicontrol.service.WorkflowPreflightService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -38,7 +35,7 @@ public class AgenticWorkflowController implements AgenticWorkflowApi {
                     .body(StartWorkflowResponse.failed(preflight.errors()));
         }
 
-        String username = currentUsername();
+        String username = CurrentUser.username();
         GitWorkspaceJobDto job = jobService.createJob(projectId, request.specFileRef(), username);
         jobService.runWorkflowAsync(job.id());
         return ResponseEntity.status(HttpStatus.ACCEPTED)
@@ -58,12 +55,5 @@ public class AgenticWorkflowController implements AgenticWorkflowApi {
     @Override
     public ResponseEntity<List<GitWorkspaceJobEventDto>> getJobEvents(UUID jobId) {
         return ResponseEntity.ok(jobService.findEvents(jobId));
-    }
-
-    private String currentUsername() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (auth != null && auth.getPrincipal() instanceof Jwt jwt)
-                ? jwt.getClaimAsString("preferred_username")
-                : "unknown";
     }
 }

@@ -8,9 +8,6 @@ import nl.metafactory.aicontrol.service.SkillsMarketplaceConnectionService;
 import nl.metafactory.aicontrol.service.SkillsMarketplaceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,27 +39,20 @@ public class SkillsMarketplaceController implements SkillsMarketplaceApi {
 
     @Override
     public ResponseEntity<SkillsMarketplaceConnectionDto> createSkillsMarketplace(SkillsMarketplaceConnectionRequest request) {
-        var dto = service.create(request, currentUsername());
+        var dto = service.create(request, CurrentUser.username());
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @Override
     public ResponseEntity<SkillsMarketplaceConnectionDto> updateSkillsMarketplace(UUID id, SkillsMarketplaceConnectionRequest request) {
-        var dto = service.update(id, request, currentUsername());
+        var dto = service.update(id, request, CurrentUser.username());
         return ResponseEntity.ok(dto);
     }
 
     @Override
     public ResponseEntity<Void> deleteSkillsMarketplace(UUID id) {
-        service.delete(id, currentUsername());
+        service.delete(id, CurrentUser.username());
         return ResponseEntity.noContent().build();
-    }
-
-    private String currentUsername() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (auth != null && auth.getPrincipal() instanceof Jwt jwt)
-                ? jwt.getClaimAsString("preferred_username")
-                : "unknown";
     }
 
     @ExceptionHandler(SkillsMarketplaceException.class)
