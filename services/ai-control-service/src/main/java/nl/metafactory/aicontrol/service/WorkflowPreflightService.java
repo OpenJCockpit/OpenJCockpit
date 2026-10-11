@@ -7,7 +7,6 @@ import nl.metafactory.aicontrol.model.PreflightError;
 import nl.metafactory.aicontrol.model.Project;
 import nl.metafactory.aicontrol.model.ProjectGitCredential;
 import nl.metafactory.aicontrol.model.WorkflowPreflightResult;
-import nl.metafactory.aicontrol.repository.ProjectGitCredentialRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,19 +21,16 @@ public class WorkflowPreflightService {
 
     private static final Logger log = LoggerFactory.getLogger(WorkflowPreflightService.class);
 
-    private final GitWorkspaceJobService jobService;
-    private final ProjectGitCredentialRepository credentialRepository;
+    private final ProjectGitResolver projectGit;
     private final GitConnectivityService gitConnectivityService;
     private final ContainerRuntime containerRuntime;
     private final AgenticWorkflowProperties properties;
 
-    public WorkflowPreflightService(GitWorkspaceJobService jobService,
-                                     ProjectGitCredentialRepository credentialRepository,
+    public WorkflowPreflightService(ProjectGitResolver projectGit,
                                      GitConnectivityService gitConnectivityService,
                                      ContainerRuntime containerRuntime,
                                      AgenticWorkflowProperties properties) {
-        this.jobService = jobService;
-        this.credentialRepository = credentialRepository;
+        this.projectGit = projectGit;
         this.gitConnectivityService = gitConnectivityService;
         this.containerRuntime = containerRuntime;
         this.properties = properties;
@@ -65,15 +61,13 @@ public class WorkflowPreflightService {
     private void checkGit(UUID projectId, List<PreflightError> errors) {
         Project project;
         try {
-            project = jobService.validateSelectedProject(projectId);
+            project = projectGit.validateProject(projectId);
         } catch (GitWorkspaceException e) {
             errors.add(new PreflightError(e.getErrorCode(), e.getMessage()));
             return;
         }
 
-        ProjectGitCredential credential = credentialRepository
-                .findFirstByProjectIdAndActiveOrderByCreatedAtDesc(projectId, (short) 1)
-                .orElse(null);
+        ProjectGitCredential credential = projectGit.loadCredential(projectId);
 
         var result = gitConnectivityService.checkGitAccess(project.getGitUrl(), credential);
         if (result.status() != GitStatus.ACCESSIBLE) {

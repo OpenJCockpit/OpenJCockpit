@@ -7,8 +7,6 @@ import nl.metafactory.aicontrol.model.ProjectGitCredential;
 import nl.metafactory.aicontrol.model.SpecFile;
 import nl.metafactory.aicontrol.model.SpecInitResult;
 import nl.metafactory.aicontrol.model.SpecInitStatus;
-import nl.metafactory.aicontrol.repository.ProjectGitCredentialRepository;
-import nl.metafactory.aicontrol.repository.ProjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,11 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -46,31 +41,28 @@ public class ProjectSpecService {
     static final String SPEC_TEMPLATE_RESOURCE = "spec-workflow/spec-template.md";
     private static final DateTimeFormatter TIMESTAMP = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 
-    private final ProjectRepository projectRepo;
-    private final ProjectGitCredentialRepository credRepo;
+    private final ProjectGitResolver projectGit;
     private final GitOperationService gitOps;
     private final BranchNameGenerator branchNameGenerator;
     private final AgenticWorkflowProperties properties;
 
-    public ProjectSpecService(ProjectRepository projectRepo,
-                              ProjectGitCredentialRepository credRepo,
+    public ProjectSpecService(ProjectGitResolver projectGit,
                               GitOperationService gitOps,
                               BranchNameGenerator branchNameGenerator,
                               AgenticWorkflowProperties properties) {
-        this.projectRepo = projectRepo;
-        this.credRepo = credRepo;
+        this.projectGit = projectGit;
         this.gitOps = gitOps;
         this.branchNameGenerator = branchNameGenerator;
         this.properties = properties;
     }
 
     public List<SpecFile> listSpecFiles(UUID projectId) {
-        Project project = validateProject(projectId);
-        ProjectGitCredential credential = loadCredential(projectId);
+        Project project = projectGit.validateProject(projectId);
+        ProjectGitCredential credential = projectGit.loadCredential(projectId);
         Path workDir = createWorkDir("spec-list");
         try {
             Path repoDir = workDir.resolve("repo");
-            gitOps.cloneDefaultBranch(project.getGitUrl(), resolveBaseBranch(project), repoDir, credential);
+            gitOps.cloneDefaultBranch(project.getGitUrl(), projectGit.resolveBaseBranch(project), repoDir, credential);
             return readSpecFiles(repoDir.resolve(SPECS_FOLDER), project.getGitUrl());
         } finally {
             deleteRecursively(workDir);
@@ -78,8 +70,8 @@ public class ProjectSpecService {
     }
 
     public SpecInitStatus specInitStatus(UUID projectId) {
-        Project project = validateProject(projectId);
-        ProjectGitCredential credential = loadCredential(projectId);
+        Project project = projectGit.validateProject(projectId);
+        ProjectGitCredential credential = projectGit.loadCredential(projectId);
         // If .specify already exists on the base branch, spec-init (and any still
         // open spec-init PR) is no longer relevant: the dashboard then offers the
         // spec-creation workflow with a prompt instead of the pull-request flow.
@@ -90,7 +82,7 @@ public class ProjectSpecService {
         }
         return new SpecInitStatus(true, pendingBranch,
                 branchUrl(project.getGitUrl(), pendingBranch),
-                pullRequestUrl(project.getGitUrl(), resolveBaseBranch(project), pendingBranch),
+                pullRequestUrl(project.getGitUrl(), projectGit.resolveBaseBranch(project), pendingBranch),
                 templateExists);
     }
 
@@ -98,7 +90,7 @@ public class ProjectSpecService {
         Path workDir = createWorkDir("spec-status");
         try {
             Path repoDir = workDir.resolve("repo");
-            gitOps.cloneDefaultBranch(project.getGitUrl(), resolveBaseBranch(project), repoDir, credential);
+            gitOps.cloneDefaultBranch(project.getGitUrl(), projectGit.resolveBaseBranch(project), repoDir, credential);
             return Files.isDirectory(repoDir.resolve(SPECIFY_FOLDER));
         } finally {
             deleteRecursively(workDir);
@@ -106,8 +98,8 @@ public class ProjectSpecService {
     }
 
     public SpecInitResult initSpecFolder(UUID projectId, String requestedBy) {
-        Project project = validateProject(projectId);
-        ProjectGitCredential credential = loadCredential(projectId);
+        Project project = projectGit.validateProject(projectId);
+        ProjectGitCredential credential = projectGit.loadCredential(projectId);
         // Anonymously cloning a public repository works, but pushing over https always
         // requires credentials — so fail before cloning with a clear message.
         if (credential == null && project.getGitUrl().startsWith("http")) {
@@ -122,7 +114,7 @@ public class ProjectSpecService {
                     "A spec-init branch is already open for project " + project.getName()
                     + ": " + pendingBranch + " — merge the corresponding pull request first.");
         }
-        String baseBranch = resolveBaseBranch(project);
+        String baseBranch = projectGit.resolveBaseBranch(project);
         Path workDir = createWorkDir("spec-init");
         try {
             Path repoDir = workDir.resolve("repo");
@@ -152,15 +144,15 @@ public class ProjectSpecService {
     }
 
     public SpecInitResult saveSpecFile(UUID projectId, String fileName, String content, String requestedBy) {
-        Project project = validateProject(projectId);
-        ProjectGitCredential credential = loadCredential(projectId);
+        Project project = projectGit.validateProject(projectId);
+        ProjectGitCredential credential = projectGit.loadCredential(projectId);
         if (credential == null && project.getGitUrl().startsWith("http")) {
             throw new GitWorkspaceException(GitWorkspaceJobErrorCode.GIT_AUTH_FAILED,
                     "No active git credentials for project " + project.getName()
                     + " — saving the spec requires write access to the repository. "
                     + "Configure credentials via Project management.");
         }
-        String baseBranch = resolveBaseBranch(project);
+        String baseBranch = projectGit.resolveBaseBranch(project);
         Path workDir = createWorkDir("spec-save");
         try {
             Path repoDir = workDir.resolve("repo");
@@ -220,37 +212,6 @@ public class ProjectSpecService {
     }
 
     // ── Private helpers ──────────────────────────────────────────────────────
-
-    Project validateProject(UUID projectId) {
-        if (projectId == null) {
-            throw new GitWorkspaceException(GitWorkspaceJobErrorCode.NO_SELECTED_PROJECT,
-                    "No project selected");
-        }
-        Project project = projectRepo.findById(projectId)
-                .orElseThrow(() -> new GitWorkspaceException(
-                        GitWorkspaceJobErrorCode.PROJECT_NOT_FOUND,
-                        "Project not found: " + projectId));
-        if (project.getActive() != 1) {
-            throw new GitWorkspaceException(GitWorkspaceJobErrorCode.PROJECT_INACTIVE,
-                    "Project is inactive: " + project.getName());
-        }
-        if (project.getGitUrl() == null || project.getGitUrl().isBlank()) {
-            throw new GitWorkspaceException(GitWorkspaceJobErrorCode.GIT_URL_MISSING,
-                    "Project has no Git URL: " + project.getName());
-        }
-        return project;
-    }
-
-    private ProjectGitCredential loadCredential(UUID projectId) {
-        return credRepo.findFirstByProjectIdAndActiveOrderByCreatedAtDesc(projectId, (short) 1)
-                .orElse(null);
-    }
-
-    private String resolveBaseBranch(Project project) {
-        return project.getDefaultBranch() != null && !project.getDefaultBranch().isBlank()
-                ? project.getDefaultBranch()
-                : properties.getDefaultBaseBranch();
-    }
 
     private Path createWorkDir(String prefix) {
         Path dir = Path.of(properties.getWorkspaceBasePath()).resolve(prefix + "-" + UUID.randomUUID());
@@ -385,18 +346,7 @@ public class ProjectSpecService {
 
     private void deleteRecursively(Path dir) {
         try {
-            Files.walkFileTree(dir, new SimpleFileVisitor<>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-                @Override
-                public FileVisitResult postVisitDirectory(Path d, IOException exc) throws IOException {
-                    Files.delete(d);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
+            WorkspaceFiles.deleteTree(dir);
         } catch (Exception e) {
             log.warn("Failed to clean up spec workspace for {}: {}", dir, e.getMessage());
         }

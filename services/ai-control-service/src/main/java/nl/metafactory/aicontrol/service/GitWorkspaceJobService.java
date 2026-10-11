@@ -13,7 +13,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
@@ -26,8 +25,7 @@ public class GitWorkspaceJobService {
 
     private final GitWorkspaceJobRepository jobRepo;
     private final GitWorkspaceJobEventRepository eventRepo;
-    private final ProjectRepository projectRepo;
-    private final ProjectGitCredentialRepository credRepo;
+    private final ProjectGitResolver projectGit;
     private final BranchNameGenerator branchNameGenerator;
     private final SpecFileService specFileService;
     private final GitOperationService gitOps;
@@ -37,8 +35,7 @@ public class GitWorkspaceJobService {
 
     public GitWorkspaceJobService(GitWorkspaceJobRepository jobRepo,
                                    GitWorkspaceJobEventRepository eventRepo,
-                                   ProjectRepository projectRepo,
-                                   ProjectGitCredentialRepository credRepo,
+                                   ProjectGitResolver projectGit,
                                    BranchNameGenerator branchNameGenerator,
                                    SpecFileService specFileService,
                                    GitOperationService gitOps,
@@ -47,8 +44,7 @@ public class GitWorkspaceJobService {
                                    AgenticWorkflowProperties properties) {
         this.jobRepo = jobRepo;
         this.eventRepo = eventRepo;
-        this.projectRepo = projectRepo;
-        this.credRepo = credRepo;
+        this.projectGit = projectGit;
         this.branchNameGenerator = branchNameGenerator;
         this.specFileService = specFileService;
         this.gitOps = gitOps;
@@ -59,13 +55,13 @@ public class GitWorkspaceJobService {
 
     @Transactional
     public GitWorkspaceJobDto createJob(UUID projectId, String specFileRef, String startedBy) {
-        Project project = validateSelectedProject(projectId);
+        Project project = projectGit.validateProject(projectId);
 
         var job = new GitWorkspaceJob();
         job.setProjectId(projectId);
         job.setSpecFileRef(specFileRef);
         job.setStatus(GitWorkspaceJobStatus.CREATED);
-        job.setBaseBranch(resolveBaseBranch(project));
+        job.setBaseBranch(projectGit.resolveBaseBranch(project));
         job.setStartedBy(startedBy);
         job.setStartedAt(Instant.now());
 
@@ -81,8 +77,8 @@ public class GitWorkspaceJobService {
         String containerId = null;
 
         try {
-            Project project = validateSelectedProject(job.getProjectId());
-            ProjectGitCredential credential = loadCredential(job.getProjectId());
+            Project project = projectGit.validateProject(job.getProjectId());
+            ProjectGitCredential credential = projectGit.loadCredential(job.getProjectId());
 
             // 1. Prepare workspace
             workspaceDir = prepareWorkspace(job);
@@ -183,37 +179,6 @@ public class GitWorkspaceJobService {
 
     // ── Private helpers ──────────────────────────────────────────────────────
 
-    Project validateSelectedProject(UUID projectId) {
-        if (projectId == null) {
-            throw new GitWorkspaceException(GitWorkspaceJobErrorCode.NO_SELECTED_PROJECT,
-                    "No project selected");
-        }
-        Project project = projectRepo.findById(projectId)
-                .orElseThrow(() -> new GitWorkspaceException(
-                        GitWorkspaceJobErrorCode.PROJECT_NOT_FOUND,
-                        "Project not found: " + projectId));
-        if (project.getActive() != 1) {
-            throw new GitWorkspaceException(GitWorkspaceJobErrorCode.PROJECT_INACTIVE,
-                    "Project is inactive: " + project.getName());
-        }
-        if (project.getGitUrl() == null || project.getGitUrl().isBlank()) {
-            throw new GitWorkspaceException(GitWorkspaceJobErrorCode.GIT_URL_MISSING,
-                    "Project has no Git URL: " + project.getName());
-        }
-        return project;
-    }
-
-    private ProjectGitCredential loadCredential(UUID projectId) {
-        return credRepo.findFirstByProjectIdAndActiveOrderByCreatedAtDesc(projectId, (short) 1)
-                .orElse(null);
-    }
-
-    private String resolveBaseBranch(Project project) {
-        return project.getDefaultBranch() != null && !project.getDefaultBranch().isBlank()
-                ? project.getDefaultBranch()
-                : properties.getDefaultBaseBranch();
-    }
-
     private Path prepareWorkspace(GitWorkspaceJob job) throws IOException {
         Path base = Path.of(properties.getWorkspaceBasePath());
         Files.createDirectories(base);
@@ -235,18 +200,7 @@ public class GitWorkspaceJobService {
     private void deleteWorkspace(Path dir, UUID jobId) {
         if (dir == null) return;
         try {
-            Files.walkFileTree(dir, new SimpleFileVisitor<>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-                @Override
-                public FileVisitResult postVisitDirectory(Path d, IOException exc) throws IOException {
-                    Files.delete(d);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
+            WorkspaceFiles.deleteTree(dir);
             log.info("Workspace deleted for job {}", jobId);
         } catch (Exception e) {
             log.warn("Failed to delete workspace for job {}: {}", jobId, e.getMessage());

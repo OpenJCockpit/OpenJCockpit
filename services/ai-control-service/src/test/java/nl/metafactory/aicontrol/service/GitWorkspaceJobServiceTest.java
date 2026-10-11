@@ -58,7 +58,8 @@ class GitWorkspaceJobServiceTest {
         properties.setWorkspaceBasePath(tempDir.toString());
         properties.setDefaultBaseBranch("main");
 
-        service = new GitWorkspaceJobService(jobRepo, eventRepo, projectRepo, credRepo,
+        service = new GitWorkspaceJobService(jobRepo, eventRepo,
+                new ProjectGitResolver(projectRepo, credRepo, properties),
                 branchNameGenerator, specFileService, gitOps, containerService, agentService, properties);
 
         projectId = UUID.randomUUID();
