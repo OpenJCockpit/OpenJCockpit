@@ -14,6 +14,7 @@ import {
   SpecInitStatus,
   Workspace,
 } from './types';
+import { errorMessageFrom } from './httpErrors';
 import { mockWorkspace } from './mockWorkspace';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
@@ -209,16 +210,6 @@ export async function saveGitCredentials(
   if (!response.ok) {
     throw new Error(await errorMessageFrom(response, 'Failed to save git credentials'));
   }
-}
-
-async function errorMessageFrom(response: Response, fallback: string): Promise<string> {
-  try {
-    const body = await response.json();
-    if (body && typeof body.message === 'string' && body.message.trim()) return body.message;
-  } catch {
-    // response body wasn't JSON (or was empty) — fall back below
-  }
-  return `${fallback}: ${response.status}`;
 }
 
 export async function deleteGitCredentials(id: string): Promise<void> {
