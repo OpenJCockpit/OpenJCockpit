@@ -3,10 +3,10 @@ import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'rea
 
 const WIDE = { gridColumn: '1 / -1' } as const;
 
-type TextInputProps = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'onChange' | 'value' | 'className'
->;
+/** Base input class plus any caller-supplied classes. */
+const joinClasses = (base: string, extra?: string) => (extra ? `${base} ${extra}` : base);
+
+type TextInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'>;
 
 interface TextFieldProps extends TextInputProps {
   label: ReactNode;
@@ -17,7 +17,7 @@ interface TextFieldProps extends TextInputProps {
 }
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField(
-  { label, value, onChange, wide, ...inputProps },
+  { label, value, onChange, wide, className, ...inputProps },
   ref,
 ) {
   return (
@@ -25,8 +25,8 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
       {label}
       <input
         ref={ref}
-        className="settings-input"
         {...inputProps}
+        className={joinClasses('settings-input', className)}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -34,10 +34,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
   );
 });
 
-type TextAreaProps = Omit<
-  TextareaHTMLAttributes<HTMLTextAreaElement>,
-  'onChange' | 'value' | 'className'
->;
+type TextAreaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange' | 'value'>;
 
 interface TextAreaFieldProps extends TextAreaProps {
   label: ReactNode;
@@ -51,14 +48,15 @@ export function TextAreaField({
   value,
   onChange,
   wide,
+  className,
   ...textAreaProps
 }: TextAreaFieldProps) {
   return (
     <label style={wide ? WIDE : undefined}>
       {label}
       <textarea
-        className="settings-input"
         {...textAreaProps}
+        className={joinClasses('settings-input', className)}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />

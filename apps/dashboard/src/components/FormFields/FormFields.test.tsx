@@ -33,6 +33,20 @@ describe('FormFields', () => {
     });
   });
 
+  it('TextField and TextAreaField extend settings-input with a custom className', () => {
+    render(
+      <>
+        <TextField label="Name" value="" onChange={vi.fn()} className="mono" />
+        <TextAreaField label="Notes" value="" onChange={vi.fn()} className="tall" />
+        <TextField label="Plain" value="" onChange={vi.fn()} />
+      </>,
+    );
+
+    expect(screen.getByLabelText('Name')).toHaveClass('settings-input', 'mono');
+    expect(screen.getByLabelText('Notes')).toHaveClass('settings-input', 'tall');
+    expect(screen.getByLabelText('Plain').className).toBe('settings-input');
+  });
+
   it('CheckboxField reports the checked state', () => {
     const onChange = vi.fn();
     render(<CheckboxField label="Enabled" checked={false} onChange={onChange} />);
