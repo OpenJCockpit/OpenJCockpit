@@ -32,7 +32,9 @@ public class GitHubToolsService {
             @ToolParam(description = "Branch with the changes, e.g. impl/001-feature") String headBranch,
             @ToolParam(description = "Title of the pull request") String title,
             @ToolParam(description = "Description (markdown body) of the pull request", required = false) String body,
-            @ToolParam(description = "GitHub token with permission to create pull requests") String token) {
+            @ToolParam(description = "GitHub token with permission to create pull requests") String token,
+            @ToolParam(description = "Optional workspace key, accepted for parity with the other git tools. "
+                    + "Ignored: creating a pull request is a GitHub API call and uses no local workspace.", required = false) String workspaceKey) {
         try {
             if (token == null || token.isBlank()) {
                 return GitHubToolResult.failure("A GitHub token is required to create a pull request");
