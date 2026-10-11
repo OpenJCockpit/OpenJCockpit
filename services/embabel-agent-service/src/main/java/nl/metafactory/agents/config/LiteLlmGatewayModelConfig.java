@@ -3,8 +3,6 @@ package nl.metafactory.agents.config;
 import com.embabel.agent.spi.support.springai.SpringAiLlmService;
 import com.embabel.common.ai.model.LlmOptions;
 import com.embabel.common.ai.model.OptionsConverter;
-import com.embabel.common.ai.model.PricingModel;
-import com.embabel.common.ai.prompt.PromptContributor;
 import io.micrometer.observation.ObservationRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +15,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
-import java.time.LocalDate;
-import java.util.List;
 
 /**
  * Production-active LLM route for the coding agent.
@@ -116,17 +112,8 @@ public class LiteLlmGatewayModelConfig {
         OptionsConverter gatewayOptionsConverter =
                 (llmOptions, modelName) -> convertToGatewayOptions(readTimeoutSeconds, llmOptions, modelName);
 
-        return new SpringAiLlmService(
-                model,
-                "LiteLLM",
-                chatModel,
-                gatewayOptionsConverter,
-                LocalDate.of(2025, 4, 1),
-                List.of(NO_THINK_PROMPT_CONTRIBUTOR),
-                PricingModel.usdPer1MTokens(0.0, 0.0));
+        return CodingLlmServices.create(model, "LiteLLM", chatModel, gatewayOptionsConverter);
     }
-
-    static final PromptContributor NO_THINK_PROMPT_CONTRIBUTOR = PromptContributor.fixed("/no_think");
 
     /**
      * Converts {@link LlmOptions} to gateway-specific {@link OpenAiChatOptions}.
