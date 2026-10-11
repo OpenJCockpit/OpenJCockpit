@@ -2,15 +2,7 @@ package nl.metafactory.aicontrol.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-
-import java.time.Instant;
-import java.util.UUID;
 
 /**
  * A registered connection to an external skills marketplace. Global (not per-project) — see
@@ -30,11 +22,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "skills_marketplace_connections")
-public class SkillsMarketplaceConnection {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+public class SkillsMarketplaceConnection extends AuditedEntity {
 
     @Column(nullable = false, length = 100)
     private String name;
@@ -54,31 +42,8 @@ public class SkillsMarketplaceConnection {
     @Column(nullable = false)
     private short enabled = 1;
 
-    @Column(nullable = false)
-    private short active = 1;
-
     @Column(name = "created_by")
     private String createdBy;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
-    @PrePersist
-    void prePersist() {
-        createdAt = Instant.now();
-        updatedAt = createdAt;
-    }
-
-    @PreUpdate
-    void preUpdate() {
-        updatedAt = Instant.now();
-    }
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -98,15 +63,6 @@ public class SkillsMarketplaceConnection {
     public short getEnabled() { return enabled; }
     public void setEnabled(short enabled) { this.enabled = enabled; }
 
-    public short getActive() { return active; }
-    public void setActive(short active) { this.active = active; }
-
     public String getCreatedBy() { return createdBy; }
     public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
-
-    public Instant getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-
-    public Instant getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }
