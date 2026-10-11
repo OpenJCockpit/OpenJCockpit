@@ -148,17 +148,25 @@ class LifecycleScriptSourceContractTest {
                 "services/ai-control-service/src/main/java/nl/metafactory/aicontrol/config/SecurityConfig.java");
         Path embabelConfig = repoRoot().resolve(
                 "services/embabel-agent-service/src/main/java/nl/metafactory/agents/config/SecurityConfig.java");
+        Path commonConfig = repoRoot().resolve(
+                "services/service-common/src/main/java/nl/metafactory/common/security/ResourceServerSecurityConfig.java");
 
+        // The permitAll guard lives in the shared config; each service must keep building its API chain through it.
         for (Path p : List.of(aiControlConfig, embabelConfig)) {
             if (!Files.exists(p)) {
                 fail("Expected SecurityConfig.java to exist at " + p);
             }
-            String content = read(p);
-            assertTrue(content.contains("/actuator/health"),
-                    p + " must still permit /actuator/health");
-            assertTrue(content.contains("permitAll"),
-                    p + " must still contain a permitAll guard");
+            assertTrue(read(p).contains("ResourceServerSecurityConfig.buildApiChain"),
+                    p + " must still build its API chain via the shared ResourceServerSecurityConfig");
         }
+        if (!Files.exists(commonConfig)) {
+            fail("Expected ResourceServerSecurityConfig.java to exist at " + commonConfig);
+        }
+        String content = read(commonConfig);
+        assertTrue(content.contains("/actuator/health"),
+                commonConfig + " must still permit /actuator/health");
+        assertTrue(content.contains("permitAll"),
+                commonConfig + " must still contain a permitAll guard");
     }
 
     @Test
