@@ -4,8 +4,7 @@ import App from './App';
 import * as api from './api';
 import * as workflowApi from './workflow/workflowApi';
 import { mockWorkspace } from './mockWorkspace';
-import type { Project } from './types';
-import type { WorkflowDefinition } from './workflow/workflowTypes';
+import { mockDashboardApis, WORKFLOW } from './testUtils/dashboardFixtures';
 
 vi.mock('./auth/keycloak', () => ({
   getKeycloak: () => ({
@@ -43,36 +42,8 @@ vi.mock('./workflow/workflowApi', async () => {
   };
 });
 
-const PROJECT: Project = {
-  id: 'project-1',
-  name: 'Test Project',
-  active: 1,
-  newProject: 0,
-  gitStatus: 'ACCESSIBLE',
-  createdAt: '2026-01-01T00:00:00Z',
-  updatedAt: '2026-01-01T00:00:00Z',
-};
-
-const WORKFLOW: WorkflowDefinition = {
-  id: 'wf-1',
-  name: 'Spec to pull request',
-  projectName: 'Test Project',
-  description: 'Executes the spec',
-  agentIds: ['agent-1'],
-  subagentNames: [],
-  skillNames: [],
-  mcpTools: [],
-  status: 'ACTIVE',
-};
-
 async function renderDashboard() {
-  localStorage.setItem('openjcockpit_project_id', PROJECT.id);
-  vi.mocked(api.loadProjects).mockResolvedValue([PROJECT]);
-  vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
-  vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);
-  vi.mocked(api.loadProjectSpecs).mockResolvedValue(mockWorkspace.specs);
-  vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
-  vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
+  mockDashboardApis();
 
   render(<App />);
   await screen.findByText('▶ Start');

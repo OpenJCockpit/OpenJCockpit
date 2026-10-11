@@ -4,7 +4,8 @@ import App from './App';
 import * as api from './api';
 import * as workflowApi from './workflow/workflowApi';
 import { mockWorkspace } from './mockWorkspace';
-import type { Project, SpecFile } from './types';
+import { mockDashboardApis, PROJECT, WORKFLOW } from './testUtils/dashboardFixtures';
+import type { SpecFile } from './types';
 import type { WorkflowDefinition } from './workflow/workflowTypes';
 
 vi.mock('./auth/keycloak', () => ({
@@ -43,17 +44,6 @@ vi.mock('./workflow/workflowApi', async () => {
   };
 });
 
-const PROJECT: Project = {
-  id: 'project-1',
-  name: 'Test Project',
-  active: 1,
-  gitUrl: 'https://github.com/org/test-project.git',
-  newProject: 0,
-  gitStatus: 'ACCESSIBLE',
-  createdAt: '2026-01-01T00:00:00Z',
-  updatedAt: '2026-01-01T00:00:00Z',
-};
-
 const SPECS: SpecFile[] = [
   {
     id: 'checkout-flow',
@@ -77,29 +67,18 @@ const SPECS: SpecFile[] = [
   },
 ];
 
-const WORKFLOW: WorkflowDefinition = {
-  id: 'wf-1',
-  name: 'Spec to pull request',
-  projectName: 'Test Project',
-  description: 'Executes the spec',
-  agentIds: ['agent-1'],
-  subagentNames: [],
-  skillNames: [],
-  mcpTools: [],
-  status: 'ACTIVE',
-};
+const PROJECT_WITH_GIT = { ...PROJECT, gitUrl: 'https://github.com/org/test-project.git' };
 
 async function renderDashboard(specs: SpecFile[], workflows: WorkflowDefinition[] = [WORKFLOW]) {
-  localStorage.setItem('openjcockpit_project_id', PROJECT.id);
-  vi.mocked(api.loadProjects).mockResolvedValue([PROJECT]);
-  vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
-  vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);
-  vi.mocked(api.loadProjectSpecs).mockResolvedValue(specs);
+  mockDashboardApis({
+    project: PROJECT_WITH_GIT,
+    specs,
+    workflows,
+    groups: [
+      { id: 'wg-spec-workflow', name: 'Spec-driven development', description: '', projectName: '' },
+    ],
+  });
   vi.mocked(api.getSpecInitStatus).mockResolvedValue({ pending: false });
-  vi.mocked(workflowApi.listWorkflows).mockResolvedValue(workflows);
-  vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([
-    { id: 'wg-spec-workflow', name: 'Spec-driven development', description: '', projectName: '' },
-  ]);
 
   render(<App />);
   await screen.findByText('▶ Start');
@@ -324,7 +303,7 @@ describe('when a spec-init pull request is already open', () => {
 
   async function renderWithPendingBranch() {
     localStorage.setItem('openjcockpit_project_id', PROJECT.id);
-    vi.mocked(api.loadProjects).mockResolvedValue([PROJECT]);
+    vi.mocked(api.loadProjects).mockResolvedValue([PROJECT_WITH_GIT]);
     vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
     vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);
     vi.mocked(api.loadProjectSpecs).mockResolvedValue([]);
@@ -396,7 +375,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
 
   async function renderWithExistingTemplate(workflows = [SPEC_CREATE_WORKFLOW], pending = false) {
     localStorage.setItem('openjcockpit_project_id', PROJECT.id);
-    vi.mocked(api.loadProjects).mockResolvedValue([PROJECT]);
+    vi.mocked(api.loadProjects).mockResolvedValue([PROJECT_WITH_GIT]);
     vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
     vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);
     vi.mocked(api.loadProjectSpecs).mockResolvedValue([]);
@@ -423,9 +402,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
   it('offers the spec-create workflow instead of the init pull-request flow', async () => {
     await renderWithExistingTemplate();
 
-    expect(
-      screen.getByText(/already has a \.specify folder, but no specs/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/already has a \.specify folder, but no specs/)).toBeInTheDocument();
     expect(screen.queryByText(/Spec folder initialization/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Merge the corresponding pull request/)).not.toBeInTheDocument();
   });
@@ -574,7 +551,9 @@ describe('spec folder initialisation when no specs are found', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('NO_CHANGES: Spec folder already contains files')).toBeInTheDocument();
+      expect(
+        screen.getByText('NO_CHANGES: Spec folder already contains files'),
+      ).toBeInTheDocument();
     });
   });
 
