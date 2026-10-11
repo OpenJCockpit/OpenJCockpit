@@ -1,5 +1,6 @@
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { clickAsync, renderAsync } from '../../testUtils/dom';
 import { WorkflowOverview } from './WorkflowOverview';
 import * as workflowApi from '../workflowApi';
 import type { WorkflowDefinition } from '../workflowTypes';
@@ -54,6 +55,21 @@ const FULL_AGENT_CATALOGUE = [
   },
 ];
 
+function mockStartResponse(
+  workflowId: string,
+  executionId: string,
+  status: string,
+  message: string,
+) {
+  vi.mocked(workflowApi.startWorkflow).mockResolvedValue({
+    workflowId,
+    executionId,
+    status,
+    startedAt: new Date().toISOString(),
+    message,
+  });
+}
+
 describe('WorkflowOverview', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -81,9 +97,7 @@ describe('WorkflowOverview', () => {
   it('renders the workflow list once loaded', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
 
     expect(await screen.findByText('Customer Onboarding')).toBeInTheDocument();
     expect(screen.getByText('wf-1')).toBeInTheDocument();
@@ -99,21 +113,19 @@ describe('WorkflowOverview', () => {
     };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW, globalWorkflow]);
 
-    await act(async () => {
-      render(
-        <WorkflowOverview
-          project={{
-            id: 'p1',
-            name: 'Completely Different Project',
-            active: 1,
-            newProject: 0,
-            gitStatus: 'ACCESSIBLE',
-            createdAt: '2026-01-01T00:00:00Z',
-            updatedAt: '2026-01-01T00:00:00Z',
-          }}
-        />,
-      );
-    });
+    await renderAsync(
+      <WorkflowOverview
+        project={{
+          id: 'p1',
+          name: 'Completely Different Project',
+          active: 1,
+          newProject: 0,
+          gitStatus: 'ACCESSIBLE',
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-01T00:00:00Z',
+        }}
+      />,
+    );
 
     expect(await screen.findByText('Spec folder initialization')).toBeInTheDocument();
     expect(screen.queryByText('Customer Onboarding')).not.toBeInTheDocument();
@@ -123,9 +135,7 @@ describe('WorkflowOverview', () => {
   it('does not call startWorkflow before the Start button is clicked', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
     expect(workflowApi.startWorkflow).not.toHaveBeenCalled();
@@ -133,22 +143,12 @@ describe('WorkflowOverview', () => {
 
   it('calls startWorkflow when the Start button is clicked', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
-    vi.mocked(workflowApi.startWorkflow).mockResolvedValue({
-      workflowId: 'wf-1',
-      executionId: 'run-1',
-      status: 'RUNNING',
-      startedAt: new Date().toISOString(),
-      message: 'started',
-    });
+    mockStartResponse('wf-1', 'run-1', 'RUNNING', 'started');
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await act(async () => {
-      screen.getByText('▶ Start').click();
-    });
+    await clickAsync(screen.getByText('▶ Start'));
 
     await waitFor(() => {
       expect(workflowApi.startWorkflow).toHaveBeenCalledWith('wf-1', {});
@@ -163,22 +163,12 @@ describe('WorkflowOverview', () => {
       promptRequired: true,
     };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([promptWorkflow]);
-    vi.mocked(workflowApi.startWorkflow).mockResolvedValue({
-      workflowId: 'wf-spec-create',
-      executionId: 'run-9',
-      status: 'RUNNING',
-      startedAt: new Date().toISOString(),
-      message: 'started',
-    });
+    mockStartResponse('wf-spec-create', 'run-9', 'RUNNING', 'started');
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Create spec from prompt (RAG)');
 
-    await act(async () => {
-      screen.getByText('▶ Start').click();
-    });
+    await clickAsync(screen.getByText('▶ Start'));
 
     expect(workflowApi.startWorkflow).not.toHaveBeenCalled();
     const dialog = screen.getByRole('dialog');
@@ -187,9 +177,7 @@ describe('WorkflowOverview', () => {
     fireEvent.change(screen.getByLabelText('Prompt'), {
       target: { value: 'Create a small spec for login' },
     });
-    await act(async () => {
-      screen.getByText('▶ Start with prompt').click();
-    });
+    await clickAsync(screen.getByText('▶ Start with prompt'));
 
     await waitFor(() => {
       expect(workflowApi.startWorkflow).toHaveBeenCalledWith('wf-spec-create', {
@@ -208,17 +196,11 @@ describe('WorkflowOverview', () => {
     };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([promptWorkflow]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Create spec from prompt (RAG)');
 
-    await act(async () => {
-      screen.getByText('▶ Start').click();
-    });
-    await act(async () => {
-      screen.getByText('Cancel').click();
-    });
+    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Cancel'));
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(workflowApi.startWorkflow).not.toHaveBeenCalled();
@@ -226,22 +208,12 @@ describe('WorkflowOverview', () => {
 
   it('shows feedback and re-enables the Start button after starting', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
-    vi.mocked(workflowApi.startWorkflow).mockResolvedValue({
-      workflowId: 'wf-1',
-      executionId: 'run-1',
-      status: 'RUNNING',
-      startedAt: new Date().toISOString(),
-      message: 'started',
-    });
+    mockStartResponse('wf-1', 'run-1', 'RUNNING', 'started');
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await act(async () => {
-      screen.getByText('▶ Start').click();
-    });
+    await clickAsync(screen.getByText('▶ Start'));
 
     await waitFor(() => {
       expect(screen.getByText(/Started — execution run-1/)).toBeInTheDocument();
@@ -251,23 +223,13 @@ describe('WorkflowOverview', () => {
 
   it('calls onWorkflowStarted with the workflow and execution id after a successful start', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
-    vi.mocked(workflowApi.startWorkflow).mockResolvedValue({
-      workflowId: 'wf-1',
-      executionId: 'run-1',
-      status: 'RUNNING',
-      startedAt: new Date().toISOString(),
-      message: 'started',
-    });
+    mockStartResponse('wf-1', 'run-1', 'RUNNING', 'started');
     const onWorkflowStarted = vi.fn();
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} onWorkflowStarted={onWorkflowStarted} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} onWorkflowStarted={onWorkflowStarted} />);
     await screen.findByText('Customer Onboarding');
 
-    await act(async () => {
-      screen.getByText('▶ Start').click();
-    });
+    await clickAsync(screen.getByText('▶ Start'));
 
     await waitFor(() => {
       expect(onWorkflowStarted).toHaveBeenCalledWith(WORKFLOW, 'run-1');
@@ -276,23 +238,13 @@ describe('WorkflowOverview', () => {
 
   it('does not call onWorkflowStarted when the workflow start is blocked', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
-    vi.mocked(workflowApi.startWorkflow).mockResolvedValue({
-      workflowId: 'wf-1',
-      executionId: '',
-      status: 'BLOCKED',
-      startedAt: new Date().toISOString(),
-      message: 'denied',
-    });
+    mockStartResponse('wf-1', '', 'BLOCKED', 'denied');
     const onWorkflowStarted = vi.fn();
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} onWorkflowStarted={onWorkflowStarted} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} onWorkflowStarted={onWorkflowStarted} />);
     await screen.findByText('Customer Onboarding');
 
-    await act(async () => {
-      screen.getByText('▶ Start').click();
-    });
+    await clickAsync(screen.getByText('▶ Start'));
 
     await waitFor(() => {
       expect(workflowApi.startWorkflow).toHaveBeenCalled();
@@ -304,14 +256,10 @@ describe('WorkflowOverview', () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
     const onViewExecutionTab = vi.fn();
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} onViewExecutionTab={onViewExecutionTab} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} onViewExecutionTab={onViewExecutionTab} />);
     await screen.findByText('Customer Onboarding');
 
-    await act(async () => {
-      screen.getByText(/Open Workflow Execution/).click();
-    });
+    await clickAsync(screen.getByText(/Open Workflow Execution/));
 
     expect(onViewExecutionTab).toHaveBeenCalledTimes(1);
     expect(onViewExecutionTab).toHaveBeenCalledWith(WORKFLOW);
@@ -321,9 +269,7 @@ describe('WorkflowOverview', () => {
     const runningWorkflow: WorkflowDefinition = { ...WORKFLOW, status: 'RUNNING' };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([runningWorkflow]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
     const chip = screen.getByText('RUNNING');
@@ -339,21 +285,19 @@ describe('WorkflowOverview', () => {
     };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW, otherWorkflow]);
 
-    await act(async () => {
-      render(
-        <WorkflowOverview
-          project={{
-            id: 'p1',
-            name: 'Noordzee Logistics B.V.',
-            active: 1,
-            newProject: 0,
-            gitStatus: 'ACCESSIBLE',
-            createdAt: '',
-            updatedAt: '',
-          }}
-        />,
-      );
-    });
+    await renderAsync(
+      <WorkflowOverview
+        project={{
+          id: 'p1',
+          name: 'Noordzee Logistics B.V.',
+          active: 1,
+          newProject: 0,
+          gitStatus: 'ACCESSIBLE',
+          createdAt: '',
+          updatedAt: '',
+        }}
+      />,
+    );
 
     expect(await screen.findByText('Customer Onboarding')).toBeInTheDocument();
     expect(screen.queryByText('Other Workflow')).not.toBeInTheDocument();
@@ -398,9 +342,7 @@ describe('WorkflowOverview', () => {
       },
     ]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
 
     expect(await screen.findByText('Enabled')).toBeInTheDocument();
     expect(await screen.findByText(/Last decision: DENIED \(opa-decision-2\)/)).toBeInTheDocument();
@@ -410,9 +352,7 @@ describe('WorkflowOverview', () => {
   it('shows disabled and no-decisions state when OPA is off', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
 
     expect(await screen.findByText('Disabled')).toBeInTheDocument();
     expect(screen.getByText('No decisions recorded yet')).toBeInTheDocument();
@@ -446,14 +386,10 @@ describe('WorkflowOverview', () => {
         return el;
       });
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await act(async () => {
-      screen.getByText('⬇ Export decision logs').click();
-    });
+    await clickAsync(screen.getByText('⬇ Export decision logs'));
 
     await waitFor(() => {
       expect(workflowApi.getWorkflowDecisionLogs).toHaveBeenCalledWith('wf-1');
@@ -472,9 +408,7 @@ describe('WorkflowOverview', () => {
       new Error('Workflow storage is unavailable'),
     );
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
 
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent('Workflow storage is unavailable');
@@ -485,9 +419,7 @@ describe('WorkflowOverview', () => {
   it('shows the empty state when the workflow list resolves to an empty array', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
 
     expect(await screen.findByText(/No workflows defined yet/)).toBeInTheDocument();
     expect(screen.queryByText(/Workflows could not be loaded/)).toBeNull();
@@ -496,9 +428,7 @@ describe('WorkflowOverview', () => {
   it('does not show a list error when the workflow list loads successfully', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
 
     expect(await screen.findByText('Customer Onboarding')).toBeInTheDocument();
     expect(screen.queryByText(/Workflows could not be loaded/)).toBeNull();
@@ -510,9 +440,7 @@ describe('WorkflowOverview', () => {
       new Error('decision log service down'),
     );
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
 
     expect(await screen.findByText('Customer Onboarding')).toBeInTheDocument();
     expect(screen.queryByText(/Workflows could not be loaded/)).toBeNull();
@@ -533,14 +461,10 @@ describe('WorkflowOverview', () => {
       message: 'blocked reason text',
     });
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await act(async () => {
-      screen.getByText('▶ Start').click();
-    });
+    await clickAsync(screen.getByText('▶ Start'));
 
     await waitFor(() => {
       expect(workflowApi.startWorkflow).toHaveBeenCalled();
@@ -562,14 +486,10 @@ describe('WorkflowOverview', () => {
       message: 'blocked reason text 2',
     });
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await act(async () => {
-      screen.getByText('▶ Start').click();
-    });
+    await clickAsync(screen.getByText('▶ Start'));
 
     await waitFor(() => {
       expect(workflowApi.startWorkflow).toHaveBeenCalled();
@@ -589,14 +509,10 @@ describe('WorkflowOverview', () => {
       message: 'started',
     });
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await act(async () => {
-      screen.getByText('▶ Start').click();
-    });
+    await clickAsync(screen.getByText('▶ Start'));
 
     await waitFor(() => {
       expect(workflowApi.startWorkflow).toHaveBeenCalled();
@@ -642,14 +558,10 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
         "Workflow 'wf-1' has no pipeline agents configured; select at least one agent in Design → Workflows.",
     });
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await act(async () => {
-      screen.getByText('▶ Start').click();
-    });
+    await clickAsync(screen.getByText('▶ Start'));
 
     await waitFor(() => {
       expect(
@@ -663,9 +575,7 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
   it('never renders the literal string None for a workflow that has agents configured (AC-22)', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
     expect(screen.getByText('Requirement Agent, Evidence Agent')).toBeInTheDocument();
@@ -678,9 +588,7 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
     const workflow: WorkflowDefinition = { ...WORKFLOW, agentIds: ['requirement', 'evidence'] };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflow]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
     expect(screen.getByText('Requirement Agent, Evidence Agent')).toBeInTheDocument();
@@ -693,9 +601,7 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
     const workflow: WorkflowDefinition = { ...WORKFLOW, agentIds: ['evidence', 'impact'] };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflow]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
     expect(screen.getByText('Impact Agent, Evidence Agent')).toBeInTheDocument();
@@ -722,9 +628,7 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
     };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflowA, workflowB, workflowC]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Workflow A');
     await screen.findByText('Workflow B');
     await screen.findByText('Workflow C');
@@ -737,9 +641,7 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
     const workflow: WorkflowDefinition = { ...WORKFLOW, agentIds: ['requirement', 'evidence'] };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflow]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
     expect(screen.getByText('requirement, evidence')).toBeInTheDocument();
@@ -755,9 +657,7 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
     };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflow]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
     expect(screen.getByText('Requirement Agent, unknown-agent (unrecognised)')).toBeInTheDocument();
@@ -767,9 +667,7 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
     const workflow: WorkflowDefinition = { ...WORKFLOW, agentIds: [] };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflow]);
 
-    await act(async () => {
-      render(<WorkflowOverview project={null} />);
-    });
+    await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
     const agentsRow = screen.getByText('Agents').closest('div')!;
