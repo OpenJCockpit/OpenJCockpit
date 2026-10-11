@@ -12,6 +12,7 @@ import {
   triggerGitCheck,
   updateProject,
 } from '../../api';
+import { AppShell, AppHeader } from '../AppShell/AppShell';
 
 interface Props {
   onBack: () => void;
@@ -262,21 +263,9 @@ export function ProjectSettings({ onBack }: Props) {
   }
 
   return (
-    <div className="app-shell">
-      <div className="neural-bg" aria-hidden="true" />
-      <div className="orb orb--left" aria-hidden="true" />
-      <div className="orb orb--right" aria-hidden="true" />
+    <AppShell>
 
-      <header className="site-header">
-        <div className="brand">
-          <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
-        </div>
-        <div className="header-actions">
-          <button className="back-button" onClick={onBack}>
-            ← Projects
-          </button>
-        </div>
-      </header>
+      <AppHeader onBack={onBack} backLabel="← Projects" />
 
       <main style={{ padding: '32px 48px', maxWidth: 1100, margin: '0 auto' }}>
         <div
@@ -576,6 +565,6 @@ export function ProjectSettings({ onBack }: Props) {
           </tbody>
         </table>
       </main>
-    </div>
+    </AppShell>
   );
 }

@@ -6,6 +6,7 @@ import { WorkflowConfiguration } from '../WorkflowConfiguration/WorkflowConfigur
 import { WorkflowDesign } from '../WorkflowDesign/WorkflowDesign';
 import { WorkflowExecution } from '../WorkflowExecution/WorkflowExecution';
 import type { WorkflowDefinition } from '../workflowTypes';
+import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
 
 type WorkflowTab = 'overview' | 'configuration' | 'design' | 'execution';
 
@@ -31,21 +32,9 @@ export function WorkflowDashboard({ project, onBack }: Props) {
   }
 
   return (
-    <div className="app-shell">
-      <div className="neural-bg" aria-hidden="true" />
-      <div className="orb orb--left" aria-hidden="true" />
-      <div className="orb orb--right" aria-hidden="true" />
+    <AppShell>
 
-      <header className="site-header">
-        <div className="brand">
-          <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
-        </div>
-        <div className="header-actions">
-          <button className="back-button" onClick={onBack} title="Back to dashboard">
-            ← Back
-          </button>
-        </div>
-      </header>
+      <AppHeader onBack={onBack} backTitle="Back to dashboard" />
 
       <main className="workflow-dashboard">
         <div className="workflow-dashboard-header">
@@ -98,6 +87,6 @@ export function WorkflowDashboard({ project, onBack }: Props) {
           />
         )}
       </main>
-    </div>
+    </AppShell>
   );
 }

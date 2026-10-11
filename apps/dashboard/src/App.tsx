@@ -30,6 +30,7 @@ import { WorkflowPromptDialog } from './workflow/WorkflowPromptDialog/WorkflowPr
 import { listWorkflowGroups, listWorkflows, startWorkflow } from './workflow/workflowApi';
 import type { WorkflowDefinition, WorkflowGroup } from './workflow/workflowTypes';
 import { workflowsForProject } from './workflow/workflowVisibility';
+import { AppShell } from './components/AppShell/AppShell';
 
 type AppView =
   | 'project-selection'
@@ -350,10 +351,7 @@ function App() {
   }
 
   return (
-    <div className="app-shell">
-      <div className="neural-bg" aria-hidden="true" />
-      <div className="orb orb--left" aria-hidden="true" />
-      <div className="orb orb--right" aria-hidden="true" />
+    <AppShell>
 
       {promptWorkflow && (
         <WorkflowPromptDialog
@@ -967,7 +965,7 @@ function App() {
         <span>Spring AI Control Service: {workspace.footer.springAiControlVersion}</span>
         <span>© 2026 Metafactory B.V.</span>
       </footer>
-    </div>
+    </AppShell>
   );
 }
 

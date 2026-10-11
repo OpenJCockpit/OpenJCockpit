@@ -6,6 +6,7 @@ import {
   updateSkillsMarketplace,
 } from '../../api';
 import type { SkillsMarketplaceConnection, SkillsMarketplaceConnectionRequest } from '../../types';
+import { AppShell, AppHeader } from '../AppShell/AppShell';
 
 interface Props {
   onBack: () => void;
@@ -130,21 +131,9 @@ export function SkillsHubSettings({ onBack }: Props) {
   }
 
   return (
-    <div className="app-shell">
-      <div className="neural-bg" aria-hidden="true" />
-      <div className="orb orb--left" aria-hidden="true" />
-      <div className="orb orb--right" aria-hidden="true" />
+    <AppShell>
 
-      <header className="site-header">
-        <div className="brand">
-          <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
-        </div>
-        <div className="header-actions">
-          <button className="back-button" onClick={onBack} title="Back to Skills Hub">
-            ← Back
-          </button>
-        </div>
-      </header>
+      <AppHeader onBack={onBack} backTitle="Back to Skills Hub" />
 
       <main className="spec-files-dashboard">
         <div className="spec-files-dashboard-header">
@@ -278,6 +267,6 @@ export function SkillsHubSettings({ onBack }: Props) {
           </tbody>
         </table>
       </main>
-    </div>
+    </AppShell>
   );
 }
