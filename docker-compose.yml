@@ -16,6 +16,9 @@ x-litellm-ai-control-key: &litellm-ai-control-key ${LITELLM_AI_CONTROL_KEY:-sk-o
 # Local-only key that encrypts the secrets of A2A services added in the dashboard (salt: hex).
 x-a2a-service-encryption-secret: &a2a-service-encryption-secret ${A2A_SERVICE_ENCRYPTION_SECRET:-openjcockpit-a2a-services-local-secret}
 x-a2a-service-encryption-salt: &a2a-service-encryption-salt ${A2A_SERVICE_ENCRYPTION_SALT:-a2a5e7c1ce5a17ed}
+# LOCAL-ONLY placeholder: HS256 key shared by ai-control-service (signs runner tokens) and
+# embabel-agent-service (verifies them). At least 32 bytes; override in any shared environment.
+x-spec-queue-runner-secret: &spec-queue-runner-secret ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:-local-only-spec-queue-runner-secret-CHANGE-ME-outside-local}
 services:
   postgres:
     image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
@@ -367,6 +370,8 @@ services:
       WORKFLOW_TRIGGER_MAX_CHAIN_DEPTH: ${WORKFLOW_TRIGGER_MAX_CHAIN_DEPTH:-3}
       WORKFLOW_TRIGGER_MAX_ORBS_PER_WORKFLOW: ${WORKFLOW_TRIGGER_MAX_ORBS_PER_WORKFLOW:-5}
       WORKFLOW_TRIGGER_ENABLED: ${WORKFLOW_TRIGGER_ENABLED:-true}
+      # Must be identical to the value given to ai-control-service.
+      SPEC_QUEUE_RUNNER_TOKEN_SECRET: *spec-queue-runner-secret
     # Required so the container can resolve the host on Linux Docker (where
     # host.docker.internal is not built in). Harmless on Docker Desktop, which already
     # provides the name. Host access is granted to exactly two services -- litellm, because
