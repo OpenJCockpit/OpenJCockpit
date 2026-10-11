@@ -1,8 +1,9 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProjectSettings } from './ProjectSettings';
 import * as api from '../../api';
 import type { Project } from '../../types';
+import { clickAsync, renderAsync } from '../../testUtils/dom';
 
 vi.mock('../../api');
 
@@ -19,6 +20,16 @@ const PROJECT: Project = {
   updatedAt: '2026-01-01T00:00:00Z',
 };
 
+async function renderSettings() {
+  await renderAsync(<ProjectSettings onBack={vi.fn()} />);
+  await screen.findByText('Absence Pro Solutions');
+}
+
+async function openCredentialsForm() {
+  await renderSettings();
+  await clickAsync(screen.getByText('Update credentials'));
+}
+
 describe('ProjectSettings — Git credentials', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -33,14 +44,7 @@ describe('ProjectSettings — Git credentials', () => {
       hasSecret: true,
     });
 
-    await act(async () => {
-      render(<ProjectSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Absence Pro Solutions');
-
-    await act(async () => {
-      screen.getByText('Update credentials').click();
-    });
+    await openCredentialsForm();
 
     await waitFor(() => expect(api.getGitCredentials).toHaveBeenCalledWith('project-1'));
     expect(await screen.findByDisplayValue('ci-bot')).toBeInTheDocument();
@@ -56,18 +60,9 @@ describe('ProjectSettings — Git credentials', () => {
       hasSecret: false,
     });
 
-    await act(async () => {
-      render(<ProjectSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Absence Pro Solutions');
+    await openCredentialsForm();
 
-    await act(async () => {
-      screen.getByText('Update credentials').click();
-    });
-
-    expect(
-      await screen.findByPlaceholderText('Required — no secret set yet'),
-    ).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('Required — no secret set yet')).toBeInTheDocument();
   });
 
   it('shows the backend error message when saving fails validation', async () => {
@@ -79,19 +74,10 @@ describe('ProjectSettings — Git credentials', () => {
       new Error('A secret/token is required for credential type GITHUB_PAT'),
     );
 
-    await act(async () => {
-      render(<ProjectSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Absence Pro Solutions');
-
-    await act(async () => {
-      screen.getByText('Update credentials').click();
-    });
+    await openCredentialsForm();
     await screen.findByText('Type');
 
-    await act(async () => {
-      screen.getByText('Save').click();
-    });
+    await clickAsync(screen.getByText('Save'));
 
     expect(
       await screen.findByText('A secret/token is required for credential type GITHUB_PAT'),
@@ -107,19 +93,10 @@ describe('ProjectSettings — Git credentials', () => {
       new Error('Git credentials could not be verified: Authentication failed'),
     );
 
-    await act(async () => {
-      render(<ProjectSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Absence Pro Solutions');
-
-    await act(async () => {
-      screen.getByText('Update credentials').click();
-    });
+    await openCredentialsForm();
     await screen.findByText('Type');
 
-    await act(async () => {
-      screen.getByText('Save').click();
-    });
+    await clickAsync(screen.getByText('Save'));
 
     expect(
       await screen.findByText('Git credentials could not be verified: Authentication failed'),
@@ -133,19 +110,10 @@ describe('ProjectSettings — Git credentials', () => {
     });
     vi.mocked(api.saveGitCredentials).mockResolvedValue(undefined);
 
-    await act(async () => {
-      render(<ProjectSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Absence Pro Solutions');
-
-    await act(async () => {
-      screen.getByText('Update credentials').click();
-    });
+    await openCredentialsForm();
     await screen.findByText('Type');
 
-    await act(async () => {
-      screen.getByText('Save').click();
-    });
+    await clickAsync(screen.getByText('Save'));
 
     await waitFor(() =>
       expect(api.saveGitCredentials).toHaveBeenCalledWith('project-1', expect.any(Object)),
@@ -156,14 +124,7 @@ describe('ProjectSettings — Git credentials', () => {
   it('shows a load error and does not crash when fetching existing credentials fails', async () => {
     vi.mocked(api.getGitCredentials).mockRejectedValue(new Error('network error'));
 
-    await act(async () => {
-      render(<ProjectSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Absence Pro Solutions');
-
-    await act(async () => {
-      screen.getByText('Update credentials').click();
-    });
+    await openCredentialsForm();
 
     expect(await screen.findByText('Failed to load existing credentials.')).toBeInTheDocument();
   });
@@ -176,19 +137,12 @@ describe('ProjectSettings — name validation', () => {
   });
 
   it('renders the required-name error as an alert associated with the name input via aria-describedby', async () => {
-    await act(async () => {
-      render(<ProjectSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Absence Pro Solutions');
+    await renderSettings();
 
-    await act(async () => {
-      screen.getByText('+ New project').click();
-    });
+    await clickAsync(screen.getByText('+ New project'));
     const nameInput = await screen.findByPlaceholderText('Project name');
 
-    await act(async () => {
-      screen.getByText('Save').click();
-    });
+    await clickAsync(screen.getByText('Save'));
 
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent('Name is required');
@@ -197,19 +151,12 @@ describe('ProjectSettings — name validation', () => {
   });
 
   it('moves focus to the name input when saving fails required-name validation', async () => {
-    await act(async () => {
-      render(<ProjectSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Absence Pro Solutions');
+    await renderSettings();
 
-    await act(async () => {
-      screen.getByText('+ New project').click();
-    });
+    await clickAsync(screen.getByText('+ New project'));
     const nameInput = await screen.findByPlaceholderText('Project name');
 
-    await act(async () => {
-      screen.getByText('Save').click();
-    });
+    await clickAsync(screen.getByText('Save'));
 
     await waitFor(() => expect(document.activeElement).toBe(nameInput));
   });
