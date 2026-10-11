@@ -3,6 +3,7 @@ package nl.metafactory.agents.approval;
 import nl.metafactory.agents.approval.model.ApprovalGateContext;
 import nl.metafactory.agents.approval.model.ApprovalGateState;
 import nl.metafactory.agents.config.ApprovalGateProperties;
+import nl.metafactory.agents.spec.GitUrls;
 import nl.metafactory.agents.orchestration.PipelineState;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +35,7 @@ public class ApprovalGateContextAssembler {
         String workflowId = workflowId(state.request().requestedBy());
         String repositoryUrl = state.request().repositoryUrl();
         String branchCompareUrl = gate.retainedPullRequestUrl() == null && gate.retainedBranch() != null
-                ? compareUrl(repositoryUrl, gate.retainedBranch())
+                ? GitUrls.compareUrl(repositoryUrl, gate.retainedBranch())
                 : null;
 
         boolean furtherFeedbackAllowed = gate.feedbackSupported() && gate.iteration() <= gate.maxFeedbackIterations();
@@ -72,14 +73,5 @@ public class ApprovalGateContextAssembler {
             return requestedBy.substring(WORKFLOW_PREFIX.length());
         }
         return null;
-    }
-
-    private static String compareUrl(String repositoryUrl, String branch) {
-        if (repositoryUrl == null || !repositoryUrl.startsWith("http")) {
-            return null;
-        }
-        String base = repositoryUrl.endsWith(".git")
-                ? repositoryUrl.substring(0, repositoryUrl.length() - 4) : repositoryUrl;
-        return base + "/compare/" + branch + "?expand=1";
     }
 }

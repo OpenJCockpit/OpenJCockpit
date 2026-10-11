@@ -156,7 +156,7 @@ public class SpecGitPublisher {
                 return SpecPublication.published(branch, pullRequest.url(),
                         base + " — pull request: " + pullRequest.url());
             }
-            String compare = compareUrl(repositoryUrl, branch);
+            String compare = GitUrls.compareUrl(repositoryUrl, branch);
             String manual = compare != null ? "; open manually: " + compare : "";
             log.info("{} published to branch {} for run {} (pull request not created: {})",
                     label, branch, runId, pullRequest.message());
@@ -189,16 +189,6 @@ public class SpecGitPublisher {
     static String baseBranchOrigin(AgentRunRequest request) {
         return (request.baseBranch() != null && !request.baseBranch().isBlank())
                 ? "project setting" : "configured default";
-    }
-
-    /** GitHub compare URL as a manual fallback when the PR tool fails. */
-    static String compareUrl(String repositoryUrl, String branch) {
-        if (repositoryUrl == null || !repositoryUrl.startsWith("http")) {
-            return null;
-        }
-        String base = repositoryUrl.endsWith(".git")
-                ? repositoryUrl.substring(0, repositoryUrl.length() - 4) : repositoryUrl;
-        return base + "/compare/" + branch + "?expand=1";
     }
 
     /** The workflow id from requestedBy ("workflow:&lt;id&gt;"); null for other starters. */

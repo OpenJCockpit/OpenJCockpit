@@ -224,7 +224,7 @@ public class CodeRealisationService {
                 return StageChangeReports.published(branch, pullRequest.url(), changeSet.summary(), changedPaths,
                         base + " — pull request: " + pullRequest.url());
             }
-            String compare = SpecGitPublisher.compareUrl(repositoryUrl, branch);
+            String compare = GitUrls.compareUrl(repositoryUrl, branch);
             String manual = compare != null ? "; open manually: " + compare : "";
             return StageChangeReports.published(branch, null, changeSet.summary(), changedPaths,
                     base + " (failed to create pull request: " + pullRequest.message() + manual + ")");
