@@ -1,4 +1,4 @@
-package nl.metafactory.agents.policy.model;
+package nl.metafactory.common.policy;
 
 import java.time.Instant;
 import java.util.List;

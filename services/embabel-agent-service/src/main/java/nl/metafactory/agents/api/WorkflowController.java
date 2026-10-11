@@ -2,7 +2,7 @@ package nl.metafactory.agents.api;
 
 import nl.metafactory.agents.model.RunInitiator;
 import nl.metafactory.agents.policy.PolicyDecisionLogExportService;
-import nl.metafactory.agents.policy.model.PolicyDecisionAuditEntry;
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import nl.metafactory.agents.workflow.WorkflowDefinitionValidator;
 import nl.metafactory.agents.workflow.WorkflowDefinitionRepository;
 import nl.metafactory.agents.workflow.WorkflowExecutionService;

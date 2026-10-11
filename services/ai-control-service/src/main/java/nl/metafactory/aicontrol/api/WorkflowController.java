@@ -1,7 +1,7 @@
 package nl.metafactory.aicontrol.api;
 
 import nl.metafactory.aicontrol.client.EmbabelAgentClient;
-import nl.metafactory.aicontrol.client.PolicyDecisionAuditEntryDto;
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import nl.metafactory.aicontrol.client.WorkflowDefinitionDto;
 import nl.metafactory.aicontrol.client.WorkflowExportBundleDto;
 import nl.metafactory.aicontrol.client.WorkflowImportResultDto;
@@ -79,7 +79,7 @@ public class WorkflowController implements WorkflowApi {
     }
 
     @Override
-    public ResponseEntity<List<PolicyDecisionAuditEntryDto>> decisionLogs(
+    public ResponseEntity<List<PolicyDecisionAuditEntry>> decisionLogs(
             String id, Instant from, Instant to, String agentId, String subagentId,
             String skillId, String mcpToolName, String result) {
         return ResponseEntity.ok(

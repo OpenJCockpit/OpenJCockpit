@@ -1,7 +1,7 @@
 package nl.metafactory.agents.api;
 
 import nl.metafactory.agents.policy.PolicyDecisionLogExportService;
-import nl.metafactory.agents.policy.model.PolicyDecisionAuditEntry;
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

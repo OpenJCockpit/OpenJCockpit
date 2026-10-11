@@ -3,7 +3,7 @@ package nl.metafactory.aicontrol.api;
 import tools.jackson.databind.json.JsonMapper;
 import nl.metafactory.aicontrol.client.ApprovalGateConfigDto;
 import nl.metafactory.aicontrol.client.EmbabelAgentClient;
-import nl.metafactory.aicontrol.client.PolicyDecisionAuditEntryDto;
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import nl.metafactory.aicontrol.client.WorkflowDefinitionDto;
 import nl.metafactory.aicontrol.client.WorkflowExportBundleDto;
 import nl.metafactory.aicontrol.client.WorkflowGroupDto;
@@ -223,7 +223,7 @@ class WorkflowControllerTest {
 
     @Test
     void decisionLogsReturnsEntriesFromClient() throws Exception {
-        var entry = new PolicyDecisionAuditEntryDto("d-1", "wf-1", "run-1", null, "Noordzee Logistics", null, null,
+        var entry = new PolicyDecisionAuditEntry("d-1", "wf-1", "run-1", null, "Noordzee Logistics", null, null,
                 "requirement", null, null, null, "dashboard-button", "agent.use", "opa-decision-1", "ALLOWED",
                 "allowed by policy", "low", false, List.of("agent.use"), Instant.now(), "v1", false, null);
         when(client.getDecisionLogsForWorkflow("wf-1", null, null, null, null, null, null, null))

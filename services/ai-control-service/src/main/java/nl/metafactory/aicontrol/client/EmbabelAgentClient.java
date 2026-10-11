@@ -1,5 +1,6 @@
 package nl.metafactory.aicontrol.client;
 
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -230,7 +231,7 @@ public class EmbabelAgentClient {
         }
     }
 
-    public List<PolicyDecisionAuditEntryDto> getDecisionLogsForWorkflow(String workflowId, Instant from, Instant to,
+    public List<PolicyDecisionAuditEntry> getDecisionLogsForWorkflow(String workflowId, Instant from, Instant to,
                                                                          String agentId, String subagentId, String skillId,
                                                                          String mcpToolName, String result) {
         try {
@@ -238,14 +239,14 @@ public class EmbabelAgentClient {
                     .uri(uriBuilder -> decisionLogUri(uriBuilder, "/api/workflows/{id}/decision-logs", from, to,
                             agentId, subagentId, skillId, mcpToolName, result, workflowId))
                     .retrieve()
-                    .bodyToFlux(PolicyDecisionAuditEntryDto.class).collectList().block();
+                    .bodyToFlux(PolicyDecisionAuditEntry.class).collectList().block();
             return entries != null ? entries : List.of();
         } catch (Exception e) {
             return List.of();
         }
     }
 
-    public List<PolicyDecisionAuditEntryDto> getDecisionLogsForWorkflowExecution(String workflowExecutionId, Instant from, Instant to,
+    public List<PolicyDecisionAuditEntry> getDecisionLogsForWorkflowExecution(String workflowExecutionId, Instant from, Instant to,
                                                                                   String agentId, String subagentId, String skillId,
                                                                                   String mcpToolName, String result) {
         try {
@@ -253,7 +254,7 @@ public class EmbabelAgentClient {
                     .uri(uriBuilder -> decisionLogUri(uriBuilder, "/api/workflow-executions/{id}/decision-logs", from, to,
                             agentId, subagentId, skillId, mcpToolName, result, workflowExecutionId))
                     .retrieve()
-                    .bodyToFlux(PolicyDecisionAuditEntryDto.class).collectList().block();
+                    .bodyToFlux(PolicyDecisionAuditEntry.class).collectList().block();
             return entries != null ? entries : List.of();
         } catch (Exception e) {
             return List.of();

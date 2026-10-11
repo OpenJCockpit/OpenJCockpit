@@ -3,7 +3,7 @@ package nl.metafactory.agents.api;
 import tools.jackson.databind.json.JsonMapper;
 import nl.metafactory.agents.config.WorkflowTriggerProperties;
 import nl.metafactory.agents.policy.PolicyDecisionLogExportService;
-import nl.metafactory.agents.policy.model.PolicyDecisionAuditEntry;
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import nl.metafactory.agents.workflow.WorkflowDefinitionRepository;
 import nl.metafactory.agents.workflow.WorkflowExecutionService;
 import nl.metafactory.agents.workflow.WorkflowDefinitionValidator;

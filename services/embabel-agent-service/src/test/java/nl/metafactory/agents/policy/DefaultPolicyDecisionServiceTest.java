@@ -236,8 +236,8 @@ class DefaultPolicyDecisionServiceTest {
         assertThat(decision.allowed()).isTrue();
     }
 
-    private static nl.metafactory.agents.policy.model.PolicyDecisionAuditEntry argThat(
-            java.util.function.Predicate<nl.metafactory.agents.policy.model.PolicyDecisionAuditEntry> predicate) {
+    private static nl.metafactory.common.policy.PolicyDecisionAuditEntry argThat(
+            java.util.function.Predicate<nl.metafactory.common.policy.PolicyDecisionAuditEntry> predicate) {
         return org.mockito.ArgumentMatchers.argThat(predicate::test);
     }
 }

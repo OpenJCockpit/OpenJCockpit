@@ -3,7 +3,7 @@ package nl.metafactory.agents.policy;
 import nl.metafactory.agents.policy.config.OpaProperties;
 import nl.metafactory.agents.policy.model.OpaDecisionRequest;
 import nl.metafactory.agents.policy.model.PolicyDecision;
-import nl.metafactory.agents.policy.model.PolicyDecisionAuditEntry;
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import nl.metafactory.agents.policy.model.PolicyDecisionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
