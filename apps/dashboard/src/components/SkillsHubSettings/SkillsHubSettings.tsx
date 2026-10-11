@@ -7,6 +7,7 @@ import {
 } from '../../api';
 import type { SkillsMarketplaceConnection, SkillsMarketplaceConnectionRequest } from '../../types';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
+import { TextAreaField, TextField } from '../FormFields/FormFields';
 
 interface Props {
   onBack: () => void;
@@ -132,7 +133,6 @@ export function SkillsHubSettings({ onBack }: Props) {
 
   return (
     <AppShell>
-
       <AppHeader onBack={onBack} backTitle="Back to Skills Hub" />
 
       <main className="spec-files-dashboard">
@@ -157,25 +157,19 @@ export function SkillsHubSettings({ onBack }: Props) {
             {editingId === null ? 'New marketplace' : 'Edit marketplace'}
           </h2>
           <div className="settings-form-grid">
-            <label>
-              Name *
-              <input
-                ref={nameInputRef}
-                className="settings-input"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="e.g. Acme Skills"
-              />
-            </label>
-            <label>
-              Marketplace URL *
-              <input
-                className="settings-input"
-                value={form.marketplaceUrl}
-                onChange={(e) => setForm((f) => ({ ...f, marketplaceUrl: e.target.value }))}
-                placeholder="https://marketplace.example.com/api"
-              />
-            </label>
+            <TextField
+              label="Name *"
+              ref={nameInputRef}
+              value={form.name}
+              onChange={(v) => setForm((f) => ({ ...f, name: v }))}
+              placeholder="e.g. Acme Skills"
+            />
+            <TextField
+              label="Marketplace URL *"
+              value={form.marketplaceUrl}
+              onChange={(v) => setForm((f) => ({ ...f, marketplaceUrl: v }))}
+              placeholder="https://marketplace.example.com/api"
+            />
             <label>
               API key {editingId === null && '*'}
               <input
@@ -190,16 +184,14 @@ export function SkillsHubSettings({ onBack }: Props) {
                 }
               />
             </label>
-            <label style={{ gridColumn: '1 / -1' }}>
-              Description
-              <textarea
-                className="settings-input"
-                rows={3}
-                value={form.description ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                placeholder="Optional description"
-              />
-            </label>
+            <TextAreaField
+              label="Description"
+              wide
+              rows={3}
+              value={form.description ?? ''}
+              onChange={(v) => setForm((f) => ({ ...f, description: v }))}
+              placeholder="Optional description"
+            />
             <label style={{ gridColumn: '1 / -1', fontSize: 13 }}>
               <input
                 type="checkbox"
