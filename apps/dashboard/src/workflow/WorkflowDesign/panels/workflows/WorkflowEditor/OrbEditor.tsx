@@ -1,4 +1,5 @@
 import type { AgentDefinition } from '../../../../../types';
+import { SelectField } from '../../../../../components/FormFields/SelectField/SelectField';
 import type { WorkflowDefinition, WorkflowOrb } from '../../../../workflowTypes';
 
 const MAX_ORBS = 5;
@@ -35,22 +36,19 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
       )}
       {orbs.map((orb, index) => (
         <div key={index} className="workflow-orb-row">
-          <label htmlFor={`orb-target-${index}`}>
-            Referenced workflow
-            <select
-              id={`orb-target-${index}`}
-              className="settings-input"
-              value={orb.workflowId}
-              onChange={(e) => updateOrb(index, { workflowId: e.target.value })}
-            >
-              <option value="">Select a workflow…</option>
-              {candidates.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SelectField
+            id={`orb-target-${index}`}
+            label="Referenced workflow"
+            value={orb.workflowId}
+            onChange={(v) => updateOrb(index, { workflowId: v })}
+          >
+            <option value="">Select a workflow…</option>
+            {candidates.map((w) => (
+              <option key={w.id} value={w.id}>
+                {w.name}
+              </option>
+            ))}
+          </SelectField>
           <fieldset aria-describedby={error ? 'workflow-orb-error' : undefined}>
             <legend>Execution mode</legend>
             <label>
@@ -74,22 +72,19 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
               Parallel — start it and continue immediately
             </label>
           </fieldset>
-          <label htmlFor={`orb-placement-${index}`}>
-            Placement anchor
-            <select
-              id={`orb-placement-${index}`}
-              className="settings-input"
-              value={orb.placementStage ?? ''}
-              onChange={(e) => updateOrb(index, { placementStage: e.target.value })}
-            >
-              <option value="">Run first (before any agent stage)</option>
-              {stages.map((agent) => (
-                <option key={agent.id} value={agent.id}>
-                  {agent.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SelectField
+            id={`orb-placement-${index}`}
+            label="Placement anchor"
+            value={orb.placementStage ?? ''}
+            onChange={(v) => updateOrb(index, { placementStage: v })}
+          >
+            <option value="">Run first (before any agent stage)</option>
+            {stages.map((agent) => (
+              <option key={agent.id} value={agent.id}>
+                {agent.name}
+              </option>
+            ))}
+          </SelectField>
           <button type="button" className="button button--small" onClick={() => removeOrb(index)}>
             Remove orb
           </button>

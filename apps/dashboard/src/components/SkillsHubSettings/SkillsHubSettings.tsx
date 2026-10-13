@@ -7,7 +7,8 @@ import {
 } from '../../api';
 import type { SkillsMarketplaceConnection, SkillsMarketplaceConnectionRequest } from '../../types';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
-import { TextAreaField, TextField } from '../FormFields/FormFields';
+import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
+import { TextField } from '../FormFields/TextField/TextField';
 
 interface Props {
   onBack: () => void;
@@ -170,20 +171,17 @@ export function SkillsHubSettings({ onBack }: Props) {
               onChange={(v) => setForm((f) => ({ ...f, marketplaceUrl: v }))}
               placeholder="https://marketplace.example.com/api"
             />
-            <label>
-              API key {editingId === null && '*'}
-              <input
-                className="settings-input"
-                type="password"
-                value={form.apiKey ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, apiKey: e.target.value }))}
-                placeholder={
-                  editingId !== null && editingHasApiKey
-                    ? 'Leave empty to keep the current API key'
-                    : 'Required — no API key set yet'
-                }
-              />
-            </label>
+            <TextField
+              label={`API key${editingId === null ? ' *' : ''}`}
+              type="password"
+              value={form.apiKey ?? ''}
+              onChange={(v) => setForm((f) => ({ ...f, apiKey: v }))}
+              placeholder={
+                editingId !== null && editingHasApiKey
+                  ? 'Leave empty to keep the current API key'
+                  : 'Required — no API key set yet'
+              }
+            />
             <TextAreaField
               label="Description"
               wide

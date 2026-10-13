@@ -20,12 +20,11 @@ import {
 } from '../mockWorkflows';
 import { StatusChip } from '../../components/StatusChip/StatusChip';
 import type { StatusKind } from '../../types';
-import {
-  CheckboxField,
-  IntegrationConfigForm,
-  SecretField,
-  TextField,
-} from '../../components/FormFields/FormFields';
+import { CheckboxField } from '../../components/FormFields/CheckboxField/CheckboxField';
+import { IntegrationConfigForm } from './IntegrationConfigForm/IntegrationConfigForm';
+import { SecretField } from '../../components/FormFields/SecretField/SecretField';
+import { SelectField } from '../../components/FormFields/SelectField/SelectField';
+import { TextField } from '../../components/FormFields/TextField/TextField';
 
 interface Props {
   project: Project | null;
@@ -123,6 +122,8 @@ interface FolderFormState {
   allowedDocumentTypes: string;
   workflowId: string;
 }
+
+const noop = () => {};
 
 export function WorkflowConfiguration({ project }: Props) {
   const [loaded, setLoaded] = useState(false);
@@ -269,29 +270,23 @@ export function WorkflowConfiguration({ project }: Props) {
           onChange={(v) => setOpaForm((f) => ({ ...f, policyPath: v }))}
           placeholder="/v1/data/openjcockpit/workflow/decision"
         />
-        <label>
-          Timeout (seconds)
-          <input
-            className="settings-input"
-            type="number"
-            min="1"
-            value={opaForm.timeoutSeconds}
-            onChange={(e) => setOpaForm((f) => ({ ...f, timeoutSeconds: e.target.value }))}
-          />
-        </label>
-        <label>
-          Fail mode
-          <select
-            className="settings-input"
-            value={opaForm.failMode}
-            onChange={(e) => setOpaForm((f) => ({ ...f, failMode: e.target.value }))}
-          >
-            <option value="FAIL_CLOSED">
-              FAIL_CLOSED — block sensitive actions when unreachable
-            </option>
-            <option value="FAIL_OPEN">FAIL_OPEN — allow but log as policy-check-unavailable</option>
-          </select>
-        </label>
+        <TextField
+          label="Timeout (seconds)"
+          type="number"
+          min="1"
+          value={opaForm.timeoutSeconds}
+          onChange={(v) => setOpaForm((f) => ({ ...f, timeoutSeconds: v }))}
+        />
+        <SelectField
+          label="Fail mode"
+          value={opaForm.failMode}
+          onChange={(v) => setOpaForm((f) => ({ ...f, failMode: v }))}
+        >
+          <option value="FAIL_CLOSED">
+            FAIL_CLOSED — block sensitive actions when unreachable
+          </option>
+          <option value="FAIL_OPEN">FAIL_OPEN — allow but log as policy-check-unavailable</option>
+        </SelectField>
         <TextField
           label="Environment label"
           value={opaForm.environment}
@@ -320,19 +315,12 @@ export function WorkflowConfiguration({ project }: Props) {
           checked={opaForm.decisionLogExportEnabled}
           onChange={(v) => setOpaForm((f) => ({ ...f, decisionLogExportEnabled: v }))}
         />
-        <label style={{ gridColumn: '1 / -1' }}>
-          Auth token{' '}
-          {opaHasAuthToken && (
-            <span className="settings-desc">(already configured — leave blank to keep)</span>
-          )}
-          <input
-            className="settings-input"
-            type="password"
-            value={opaForm.authToken}
-            onChange={(e) => setOpaForm((f) => ({ ...f, authToken: e.target.value }))}
-            placeholder={opaHasAuthToken ? '••••••••' : ''}
-          />
-        </label>
+        <SecretField
+          label="Auth token"
+          hasValue={opaHasAuthToken}
+          value={opaForm.authToken}
+          onChange={(v) => setOpaForm((f) => ({ ...f, authToken: v }))}
+        />
       </div>
       <button
         className="button button--start"
@@ -571,24 +559,25 @@ export function WorkflowConfiguration({ project }: Props) {
         saving={saving === 'folder'}
         onSave={() => void handleSaveFolder()}
       >
-        <label>
-          Project name
-          <input className="settings-input" value={project.name} disabled />
-        </label>
-        <label>
-          Folder name (CamelCase, no spaces — derived from the project name)
-          <input className="settings-input" value={folderName} disabled />
-        </label>
+        <TextField label="Project name" value={project.name} onChange={noop} disabled />
+        <TextField
+          label="Folder name (CamelCase, no spaces — derived from the project name)"
+          value={folderName}
+          onChange={noop}
+          disabled
+        />
         <TextField
           label="Folder base location"
           value={folderBasePath}
           onChange={(v) => handleFolderBasePathChange(v)}
           placeholder="/documents"
         />
-        <label>
-          Folder location (folder name is always appended automatically)
-          <input className="settings-input" value={folderForm.folderPath} disabled />
-        </label>
+        <TextField
+          label="Folder location (folder name is always appended automatically)"
+          value={folderForm.folderPath}
+          onChange={noop}
+          disabled
+        />
         <TextField
           label="Allowed document types"
           value={folderForm.allowedDocumentTypes}
