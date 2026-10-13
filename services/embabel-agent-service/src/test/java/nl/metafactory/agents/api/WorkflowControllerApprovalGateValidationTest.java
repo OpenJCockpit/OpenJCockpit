@@ -1,5 +1,6 @@
 package nl.metafactory.agents.api;
 
+import nl.metafactory.common.test.UnsecuredWebMvcTest;
 import tools.jackson.databind.json.JsonMapper;
 import nl.metafactory.agents.approval.model.ApprovalGateConfig;
 import nl.metafactory.agents.config.WorkflowTriggerProperties;
@@ -14,11 +15,6 @@ import nl.metafactory.agents.workflow.model.WorkflowDefinition;
 import nl.metafactory.agents.workflow.model.WorkflowExportBundle;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.security.oauth2.server.resource.autoconfigure.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
-import org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterAutoConfiguration;
-import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -38,10 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * AC-03 (server 400 naming the offending stage) and AC-03b (a non-realisation placement is valid
  * configuration, not a validation error) for {@code WorkflowController.validateApprovalGate}.
  */
-@WebMvcTest(
-        controllers = WorkflowController.class,
-        excludeAutoConfiguration = {SecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class, OAuth2ResourceServerAutoConfiguration.class, ServletWebSecurityAutoConfiguration.class}
-)
+@UnsecuredWebMvcTest(WorkflowController.class)
 @org.springframework.context.annotation.Import({WorkflowDefinitionValidator.class, WorkflowOrbValidator.class})
 class WorkflowControllerApprovalGateValidationTest {
 
