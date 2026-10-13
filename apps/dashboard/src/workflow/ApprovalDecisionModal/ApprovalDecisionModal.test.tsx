@@ -1,6 +1,8 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
+import type { ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { ApprovalDecisionModal } from './ApprovalDecisionModal';
+import { renderAsync } from '../../testUtils/dom';
 import type { ApprovalGateContext } from '../workflowTypes';
 
 const BASE_CONTEXT: ApprovalGateContext = {
@@ -23,20 +25,23 @@ const BASE_CONTEXT: ApprovalGateContext = {
   openedAt: new Date().toISOString(),
 };
 
+async function renderModal(props: Partial<ComponentProps<typeof ApprovalDecisionModal>> = {}) {
+  await renderAsync(
+    <ApprovalDecisionModal
+      context={BASE_CONTEXT}
+      submitting={false}
+      onAccept={vi.fn()}
+      onDeny={vi.fn()}
+      onAcceptWithComments={vi.fn()}
+      onDismiss={vi.fn()}
+      {...props}
+    />,
+  );
+}
+
 describe('ApprovalDecisionModal', () => {
   it('renders three decision controls when feedback is supported and further iterations are allowed', async () => {
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={BASE_CONTEXT}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal();
 
     expect(screen.getByRole('button', { name: 'Accept' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Deny' })).toBeInTheDocument();
@@ -49,18 +54,7 @@ describe('ApprovalDecisionModal', () => {
       iteration: 4,
       furtherFeedbackAllowed: false,
     };
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={context}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ context });
 
     expect(screen.getByRole('button', { name: 'Accept' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Deny' })).toBeInTheDocument();
@@ -88,18 +82,7 @@ describe('ApprovalDecisionModal', () => {
         },
       ],
     };
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={context}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ context });
 
     expect(screen.getByRole('button', { name: 'Accept' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Deny' })).toBeInTheDocument();
@@ -115,18 +98,7 @@ describe('ApprovalDecisionModal', () => {
       feedbackSupported: false,
       furtherFeedbackAllowed: false,
     };
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={context}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ context });
 
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     const dialog = screen.getByRole('dialog');
@@ -150,18 +122,7 @@ describe('ApprovalDecisionModal', () => {
         },
       ],
     };
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={context}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ context });
 
     expect(screen.queryByText('earlier feedback')).not.toBeInTheDocument();
   });
@@ -179,18 +140,7 @@ describe('ApprovalDecisionModal', () => {
         },
       ],
     };
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={context}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ context });
 
     expect(screen.getByText('<script>alert(1)</script>')).toBeInTheDocument();
     expect(document.querySelector('script')).not.toBeInTheDocument();
@@ -201,18 +151,7 @@ describe('ApprovalDecisionModal', () => {
       ...BASE_CONTEXT,
       changeSummary: '<script>alert(1)</script>',
     };
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={context}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ context });
 
     expect(screen.getByText('<script>alert(1)</script>')).toBeInTheDocument();
     expect(document.querySelector('script')).not.toBeInTheDocument();
@@ -224,36 +163,14 @@ describe('ApprovalDecisionModal', () => {
       changedFileCount: 55,
       omittedFileCount: 5,
     };
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={context}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ context });
 
     expect(screen.getByText('55 files changed')).toBeInTheDocument();
     expect(screen.getByText('5 more files')).toBeInTheDocument();
   });
 
   it('renders the branch/PR link with rel="noopener noreferrer" when a URL is available', async () => {
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={BASE_CONTEXT}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal();
 
     const link = screen.getByRole('link', { name: 'View pull request' });
     expect(link).toHaveAttribute('href', BASE_CONTEXT.pullRequestUrl);
@@ -270,18 +187,7 @@ describe('ApprovalDecisionModal', () => {
       pullRequestUrl: undefined,
       branchCompareUrl: undefined,
     };
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={context}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ context });
 
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
     expect(
@@ -295,18 +201,7 @@ describe('ApprovalDecisionModal', () => {
       iteration: 2,
       maxFeedbackIterations: 3,
     };
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={context}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ context });
 
     expect(
       screen.getByText('Review 2 of up to 4 — 2 feedback iterations remaining.'),
@@ -319,18 +214,7 @@ describe('ApprovalDecisionModal', () => {
       feedbackSupported: false,
       furtherFeedbackAllowed: false,
     };
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={context}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ context });
 
     expect(
       screen.getByText('Review 1 of 1 — this checkpoint offers Accept and Deny only.'),
@@ -340,18 +224,7 @@ describe('ApprovalDecisionModal', () => {
   it('calls onAccept and onDeny when their controls are activated', async () => {
     const onAccept = vi.fn();
     const onDeny = vi.fn();
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={BASE_CONTEXT}
-          submitting={false}
-          onAccept={onAccept}
-          onDeny={onDeny}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ onAccept, onDeny });
 
     fireEvent.click(screen.getByRole('button', { name: 'Accept' }));
     fireEvent.click(screen.getByRole('button', { name: 'Deny' }));
@@ -362,18 +235,7 @@ describe('ApprovalDecisionModal', () => {
 
   it('opens the comment modal without recording any decision when "Accept with my comments" is activated', async () => {
     const onAcceptWithComments = vi.fn();
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={BASE_CONTEXT}
-          submitting={false}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={onAcceptWithComments}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ onAcceptWithComments });
 
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Accept with my comments' }));
@@ -384,18 +246,7 @@ describe('ApprovalDecisionModal', () => {
   });
 
   it('disables all decision controls and conveys aria-busy while a decision is submitting', async () => {
-    await act(async () => {
-      render(
-        <ApprovalDecisionModal
-          context={BASE_CONTEXT}
-          submitting={true}
-          onAccept={vi.fn()}
-          onDeny={vi.fn()}
-          onAcceptWithComments={vi.fn()}
-          onDismiss={vi.fn()}
-        />,
-      );
-    });
+    await renderModal({ submitting: true });
 
     expect(screen.getByRole('button', { name: 'Accept' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Accept' })).toHaveAttribute('aria-busy', 'true');

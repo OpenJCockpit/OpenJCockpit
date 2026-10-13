@@ -1,8 +1,9 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SkillsHubSettings } from './SkillsHubSettings';
 import * as api from '../../api';
 import type { SkillsMarketplaceConnection } from '../../types';
+import { clickAsync, renderAsync, setInputValue } from '../../testUtils/dom';
 
 vi.mock('../../api');
 
@@ -18,6 +19,19 @@ const CONNECTION: SkillsMarketplaceConnection = {
   updatedAt: '2026-01-05T10:00:00Z',
 };
 
+const KEY_PLACEHOLDER = 'Leave empty to keep the current API key';
+
+async function renderSettings(connections: SkillsMarketplaceConnection[], readyText: string) {
+  vi.mocked(api.listSkillsMarketplaces).mockResolvedValue(connections);
+  await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
+  await screen.findByText(readyText);
+}
+
+async function openEditForm() {
+  await clickAsync(screen.getByRole('button', { name: 'Edit' }));
+  await screen.findByPlaceholderText(KEY_PLACEHOLDER);
+}
+
 describe('SkillsHubSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -26,9 +40,7 @@ describe('SkillsHubSettings', () => {
   it('shows an empty-state row and no error when there are no connections (AC-02)', async () => {
     vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([]);
 
-    await act(async () => {
-      render(<SkillsHubSettings onBack={vi.fn()} />);
-    });
+    await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
 
     expect(await screen.findByText('No marketplaces connected yet.')).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -39,22 +51,16 @@ describe('SkillsHubSettings', () => {
       new Error('Failed to load marketplaces: 500'),
     );
 
-    await act(async () => {
-      render(<SkillsHubSettings onBack={vi.fn()} />);
-    });
+    await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Failed to load marketplaces: 500');
     expect(screen.queryByText('No marketplaces connected yet.')).not.toBeInTheDocument();
   });
 
   it('creates a connection and shows it in the table with the key input cleared (AC-03)', async () => {
-    vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([]);
     vi.mocked(api.createSkillsMarketplace).mockResolvedValue(CONNECTION);
 
-    await act(async () => {
-      render(<SkillsHubSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('No marketplaces connected yet.');
+    await renderSettings([], 'No marketplaces connected yet.');
 
     await act(async () => {
       const nameInput = screen.getByLabelText<HTMLInputElement>('Name *');
@@ -66,9 +72,7 @@ describe('SkillsHubSettings', () => {
       setInputValue(keyInput, 'secret-key-value');
     });
 
-    await act(async () => {
-      screen.getByText('Save').click();
-    });
+    await clickAsync(screen.getByText('Save'));
 
     await waitFor(() =>
       expect(api.createSkillsMarketplace).toHaveBeenCalledWith({
@@ -90,15 +94,11 @@ describe('SkillsHubSettings', () => {
   });
 
   it('renders the server error message on a validation failure (AC-13)', async () => {
-    vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([]);
     vi.mocked(api.createSkillsMarketplace).mockRejectedValue(
       new Error('marketplaceUrl: must be an absolute http(s) URL'),
     );
 
-    await act(async () => {
-      render(<SkillsHubSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('No marketplaces connected yet.');
+    await renderSettings([], 'No marketplaces connected yet.');
 
     await act(async () => {
       setInputValue(screen.getByLabelText('Name *'), 'Acme Skills');
@@ -106,9 +106,7 @@ describe('SkillsHubSettings', () => {
       setInputValue(screen.getByLabelText('API key *'), 'secret-key-value');
     });
 
-    await act(async () => {
-      screen.getByText('Save').click();
-    });
+    await clickAsync(screen.getByText('Save'));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'marketplaceUrl: must be an absolute http(s) URL',
@@ -116,16 +114,9 @@ describe('SkillsHubSettings', () => {
   });
 
   it('shows the "keep current key" placeholder when editing a connection that already has one (AC-05/AC-22)', async () => {
-    vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([CONNECTION]);
+    await renderSettings([CONNECTION], 'Acme Skills');
 
-    await act(async () => {
-      render(<SkillsHubSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Acme Skills');
-
-    await act(async () => {
-      screen.getByRole('button', { name: 'Edit' }).click();
-    });
+    await clickAsync(screen.getByRole('button', { name: 'Edit' }));
 
     const keyInput = await screen.findByPlaceholderText('Leave empty to keep the current API key');
     expect(keyInput).toHaveValue('');
@@ -134,29 +125,20 @@ describe('SkillsHubSettings', () => {
   });
 
   it('keeps the stored key unchanged when the edit form is submitted with an empty API key (AC-05)', async () => {
-    vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([CONNECTION]);
     vi.mocked(api.updateSkillsMarketplace).mockResolvedValue({
       ...CONNECTION,
       marketplaceUrl: 'https://new.example.com',
     });
 
-    await act(async () => {
-      render(<SkillsHubSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Acme Skills');
+    await renderSettings([CONNECTION], 'Acme Skills');
 
-    await act(async () => {
-      screen.getByRole('button', { name: 'Edit' }).click();
-    });
-    await screen.findByPlaceholderText('Leave empty to keep the current API key');
+    await openEditForm();
 
     await act(async () => {
       setInputValue(screen.getByLabelText('Marketplace URL *'), 'https://new.example.com');
     });
 
-    await act(async () => {
-      screen.getByText('Save').click();
-    });
+    await clickAsync(screen.getByText('Save'));
 
     await waitFor(() =>
       expect(api.updateSkillsMarketplace).toHaveBeenCalledWith(
@@ -168,26 +150,17 @@ describe('SkillsHubSettings', () => {
   });
 
   it('re-encrypts when a new API key value is submitted on edit (AC-06)', async () => {
-    vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([CONNECTION]);
     vi.mocked(api.updateSkillsMarketplace).mockResolvedValue(CONNECTION);
 
-    await act(async () => {
-      render(<SkillsHubSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Acme Skills');
+    await renderSettings([CONNECTION], 'Acme Skills');
 
-    await act(async () => {
-      screen.getByRole('button', { name: 'Edit' }).click();
-    });
-    await screen.findByPlaceholderText('Leave empty to keep the current API key');
+    await openEditForm();
 
     await act(async () => {
       setInputValue(screen.getByLabelText(/^API key/), 'brand-new-key');
     });
 
-    await act(async () => {
-      screen.getByText('Save').click();
-    });
+    await clickAsync(screen.getByText('Save'));
 
     await waitFor(() =>
       expect(api.updateSkillsMarketplace).toHaveBeenCalledWith(
@@ -198,17 +171,11 @@ describe('SkillsHubSettings', () => {
   });
 
   it('removes the row and announces the result on delete', async () => {
-    vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([CONNECTION]);
     vi.mocked(api.deleteSkillsMarketplace).mockResolvedValue(undefined);
 
-    await act(async () => {
-      render(<SkillsHubSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Acme Skills');
+    await renderSettings([CONNECTION], 'Acme Skills');
 
-    await act(async () => {
-      screen.getByRole('button', { name: 'Delete' }).click();
-    });
+    await clickAsync(screen.getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => expect(api.deleteSkillsMarketplace).toHaveBeenCalledWith('mp-1'));
     expect(screen.queryByText('Acme Skills')).not.toBeInTheDocument();
@@ -216,30 +183,17 @@ describe('SkillsHubSettings', () => {
   });
 
   it('shows the server error message when delete fails (AC-13)', async () => {
-    vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([CONNECTION]);
-    vi.mocked(api.deleteSkillsMarketplace).mockRejectedValue(
-      new Error('Marketplace not found'),
-    );
+    vi.mocked(api.deleteSkillsMarketplace).mockRejectedValue(new Error('Marketplace not found'));
 
-    await act(async () => {
-      render(<SkillsHubSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Acme Skills');
+    await renderSettings([CONNECTION], 'Acme Skills');
 
-    await act(async () => {
-      screen.getByRole('button', { name: 'Delete' }).click();
-    });
+    await clickAsync(screen.getByRole('button', { name: 'Delete' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Marketplace not found');
   });
 
   it('exposes accessible form controls, a semantic table, and a live region (AC-22/23/24/25)', async () => {
-    vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([CONNECTION]);
-
-    await act(async () => {
-      render(<SkillsHubSettings onBack={vi.fn()} />);
-    });
-    await screen.findByText('Acme Skills');
+    await renderSettings([CONNECTION], 'Acme Skills');
 
     expect(screen.getByLabelText('Name *')).toBeInTheDocument();
     expect(screen.getByLabelText('Marketplace URL *')).toBeInTheDocument();
@@ -263,13 +217,3 @@ describe('SkillsHubSettings', () => {
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 });
-
-function setInputValue(element: HTMLInputElement | HTMLTextAreaElement, value: string) {
-  const prototype =
-    element instanceof HTMLTextAreaElement
-      ? HTMLTextAreaElement.prototype
-      : HTMLInputElement.prototype;
-  const setter = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
-  setter?.call(element, value);
-  element.dispatchEvent(new Event('input', { bubbles: true }));
-}

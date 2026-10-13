@@ -1,6 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { act } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { clickAsync, renderAsync } from '../../testUtils/dom';
 import { WorkflowDashboard } from './WorkflowDashboard';
 import * as workflowApi from '../workflowApi';
 import * as api from '../../api';
@@ -19,6 +19,27 @@ const PROJECT: Project = {
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
 };
+
+function makeWorkflow(overrides: Partial<WorkflowDefinition>): WorkflowDefinition {
+  return {
+    id: 'wf-1',
+    name: 'Customer Onboarding',
+    projectName: 'Test Project',
+    description: 'desc',
+    agentIds: ['requirement'],
+    subagentNames: [],
+    skillNames: [],
+    mcpTools: [],
+    trigger: {
+      dashboardButtonEnabled: true,
+      hermesSignalEnabled: false,
+      fileDeliveryEnabled: false,
+    },
+    execution: { customerId: 'cust-1', repositoryUrl: '', timeoutSeconds: 600 },
+    status: 'ACTIVE',
+    ...overrides,
+  };
+}
 
 describe('WorkflowDashboard', () => {
   beforeEach(() => {
@@ -87,70 +108,40 @@ describe('WorkflowDashboard', () => {
   });
 
   it('defaults to the Overview tab when opened', async () => {
-    await act(async () => {
-      render(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
-    });
+    await renderAsync(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
 
     expect(screen.getByText('Overview')).toHaveClass('workflow-tab--active');
     expect(workflowApi.listWorkflows).toHaveBeenCalledTimes(1);
   });
 
   it('switches to the Configuration tab when clicked', async () => {
-    await act(async () => {
-      render(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
-    });
+    await renderAsync(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
 
-    await act(async () => {
-      screen.getByText('Configuration').click();
-    });
+    await clickAsync(screen.getByText('Configuration'));
 
     expect(screen.getByText('Configuration')).toHaveClass('workflow-tab--active');
   });
 
   it('switches to the Design tab when clicked', async () => {
-    await act(async () => {
-      render(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
-    });
+    await renderAsync(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
 
-    await act(async () => {
-      screen.getByText('Design').click();
-    });
+    await clickAsync(screen.getByText('Design'));
 
     expect(screen.getByText('Design')).toHaveClass('workflow-tab--active');
     expect(screen.getByText('Workflows')).toHaveClass('workflow-tab--active');
   });
 
   it('switches to the Workflow Execution tab when clicked', async () => {
-    await act(async () => {
-      render(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
-    });
+    await renderAsync(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
 
-    await act(async () => {
-      screen.getByText('Workflow Execution').click();
-    });
+    await clickAsync(screen.getByText('Workflow Execution'));
 
     expect(screen.getByText('Workflow Execution')).toHaveClass('workflow-tab--active');
     expect(screen.getByText(/Start a workflow from the Overview tab/)).toBeInTheDocument();
   });
 
   it('automatically switches to the Workflow Execution tab after starting a workflow from Overview', async () => {
-    const workflow: WorkflowDefinition = {
-      id: 'wf-1',
-      name: 'Customer Onboarding',
-      projectName: 'Test Project',
-      description: 'desc',
-      agentIds: ['requirement'],
-      subagentNames: [],
-      skillNames: [],
-      mcpTools: [],
-      trigger: {
-        dashboardButtonEnabled: true,
-        hermesSignalEnabled: false,
-        fileDeliveryEnabled: false,
-      },
-      execution: { customerId: 'cust-1', repositoryUrl: '', timeoutSeconds: 600 },
-      status: 'ACTIVE',
-    };
+    const workflow = makeWorkflow({});
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflow]);
     vi.mocked(workflowApi.startWorkflow).mockResolvedValue({
       workflowId: 'wf-1',
@@ -160,14 +151,10 @@ describe('WorkflowDashboard', () => {
       message: 'started',
     });
 
-    await act(async () => {
-      render(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
-    });
+    await renderAsync(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
     await screen.findByText('Customer Onboarding');
 
-    await act(async () => {
-      screen.getByText('▶ Start').click();
-    });
+    await clickAsync(screen.getByText('▶ Start'));
 
     await waitFor(() => {
       expect(screen.getByText('Workflow Execution')).toHaveClass('workflow-tab--active');
@@ -176,33 +163,13 @@ describe('WorkflowDashboard', () => {
   });
 
   it('scopes the Workflow Execution tab to the clicked workflow when opened via "Open Workflow Execution" from Overview (not just a bare tab switch)', async () => {
-    const workflow: WorkflowDefinition = {
-      id: 'wf-2',
-      name: 'Invoice Reconciliation',
-      projectName: 'Test Project',
-      description: 'desc',
-      agentIds: ['requirement'],
-      subagentNames: [],
-      skillNames: [],
-      mcpTools: [],
-      trigger: {
-        dashboardButtonEnabled: true,
-        hermesSignalEnabled: false,
-        fileDeliveryEnabled: false,
-      },
-      execution: { customerId: 'cust-2', repositoryUrl: '', timeoutSeconds: 600 },
-      status: 'ACTIVE',
-    };
+    const workflow = makeWorkflow({ id: 'wf-2', name: 'Invoice Reconciliation' });
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflow]);
 
-    await act(async () => {
-      render(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
-    });
+    await renderAsync(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
     await screen.findByText('Invoice Reconciliation');
 
-    await act(async () => {
-      screen.getByText(/Open Workflow Execution/).click();
-    });
+    await clickAsync(screen.getByText(/Open Workflow Execution/));
 
     expect(screen.getByText('Workflow Execution')).toHaveClass('workflow-tab--active');
     // The execution tab must be scoped to the clicked workflow, not left in the
@@ -213,13 +180,9 @@ describe('WorkflowDashboard', () => {
 
   it('calls onBack when the back button is clicked', async () => {
     const onBack = vi.fn();
-    await act(async () => {
-      render(<WorkflowDashboard project={PROJECT} onBack={onBack} />);
-    });
+    await renderAsync(<WorkflowDashboard project={PROJECT} onBack={onBack} />);
 
-    await act(async () => {
-      screen.getByTitle('Back to dashboard').click();
-    });
+    await clickAsync(screen.getByTitle('Back to dashboard'));
 
     expect(onBack).toHaveBeenCalledTimes(1);
   });
