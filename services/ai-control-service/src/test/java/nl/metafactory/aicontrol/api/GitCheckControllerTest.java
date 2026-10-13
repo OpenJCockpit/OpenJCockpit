@@ -1,5 +1,6 @@
 package nl.metafactory.aicontrol.api;
 
+import nl.metafactory.common.test.UnsecuredWebMvcTest;
 import nl.metafactory.aicontrol.model.GitStatus;
 import nl.metafactory.aicontrol.model.ProjectDto;
 import nl.metafactory.aicontrol.service.GitConnectivityService;

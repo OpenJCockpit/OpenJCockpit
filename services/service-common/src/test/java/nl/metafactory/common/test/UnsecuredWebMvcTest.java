@@ -1,4 +1,4 @@
-package nl.metafactory.aicontrol.api;
+package nl.metafactory.common.test;
 
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 @WebMvcTest(
         excludeAutoConfiguration = {SecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class, OAuth2ResourceServerAutoConfiguration.class, ServletWebSecurityAutoConfiguration.class}
 )
-@interface UnsecuredWebMvcTest {
+public @interface UnsecuredWebMvcTest {
 
     @AliasFor(annotation = WebMvcTest.class, attribute = "controllers")
     Class<?>[] value();

@@ -1,5 +1,6 @@
 package nl.metafactory.aicontrol.api;
 
+import nl.metafactory.common.test.UnsecuredWebMvcTest;
 import nl.metafactory.aicontrol.client.EmbabelAgentClient;
 import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import org.junit.jupiter.api.Test;

@@ -1,5 +1,6 @@
 package nl.metafactory.agents.api;
 
+import nl.metafactory.common.test.UnsecuredWebMvcTest;
 import nl.metafactory.agents.policy.PolicyDecisionLogExportService;
 import nl.metafactory.agents.policy.model.DecisionLogFilter;
 import nl.metafactory.common.policy.PolicyDecisionAuditEntry;

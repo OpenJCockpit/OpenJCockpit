@@ -1,5 +1,6 @@
 package nl.metafactory.aicontrol.api;
 
+import nl.metafactory.common.test.UnsecuredWebMvcTest;
 import nl.metafactory.aicontrol.model.SpecFile;
 import nl.metafactory.aicontrol.service.SpecRepositoryClient;
 import org.junit.jupiter.api.Test;

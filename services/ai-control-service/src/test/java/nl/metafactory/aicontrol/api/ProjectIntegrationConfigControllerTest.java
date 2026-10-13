@@ -1,5 +1,6 @@
 package nl.metafactory.aicontrol.api;
 
+import nl.metafactory.common.test.UnsecuredWebMvcTest;
 import tools.jackson.databind.json.JsonMapper;
 import nl.metafactory.aicontrol.model.ProjectDocumentFolderConfig;
 import nl.metafactory.aicontrol.model.ProjectDocumentFolderConfigRequest;

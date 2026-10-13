@@ -1,5 +1,6 @@
 package nl.metafactory.agents.api;
 
+import nl.metafactory.common.test.UnsecuredWebMvcTest;
 import tools.jackson.databind.json.JsonMapper;
 import nl.metafactory.agents.model.AgentRun;
 import nl.metafactory.agents.workflow.WorkflowExecutionHistoryService;
