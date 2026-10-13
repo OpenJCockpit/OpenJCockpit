@@ -1,0 +1,58 @@
+import type { AgentDefinition } from '../../types';
+import type { SkillCatalogSourceStatus, WorkflowExportBundle } from '../workflowTypes';
+
+export function toList(value: string): string[] {
+  return value
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+export function readFileText(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file);
+  });
+}
+
+export function downloadWorkflowBundle(bundle: WorkflowExportBundle) {
+  const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'workflow-export.json';
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+export function describeSourceOutcome(source: SkillCatalogSourceStatus): string {
+  switch (source.outcome) {
+    case 'AUTH_FAILED':
+      return `${source.name}: authentication was rejected (HTTP ${source.httpStatus ?? 'unknown'}).`;
+    case 'TIMEOUT':
+      return `${source.name}: timed out.`;
+    case 'UNREACHABLE':
+      return `${source.name}: could not be reached.`;
+    case 'INVALID_RESPONSE':
+      return `${source.name}: returned an invalid response.`;
+    case 'BLOCKED_BY_POLICY':
+      return `${source.name}: blocked by egress policy.`;
+    case 'CONFIG_ERROR':
+      return `${source.name}: configuration error — check its API key.`;
+    default:
+      return `${source.name}: unknown status.`;
+  }
+}
+
+// Stages currently selected in the "Pipeline agents" picker, in pipeline order —
+// the gate placement dropdown offers exactly these and nothing else (AC-02).
+export function selectedStagesInOrder(
+  availableAgents: AgentDefinition[],
+  agentIds: string[],
+): AgentDefinition[] {
+  return availableAgents
+    .filter((agent) => agentIds.includes(agent.id))
+    .sort((a, b) => a.sequenceOrder - b.sequenceOrder);
+}

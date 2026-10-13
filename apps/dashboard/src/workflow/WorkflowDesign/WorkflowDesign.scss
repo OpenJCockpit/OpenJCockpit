@@ -61,3 +61,16 @@
 .approval-gate-note {
   margin-top: 6px;
 }
+
+.workflow-design-field--full {
+  grid-column: 1 / -1;
+}
+
+.workflow-design-form-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.workflow-design-hidden-input {
+  display: none;
+}
