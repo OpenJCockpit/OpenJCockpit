@@ -15,6 +15,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>nl.metafactory</groupId>
+            <artifactId>service-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -238,7 +243,7 @@
                                 <importMapping>WorkflowImportResultDto=nl.metafactory.aicontrol.client.WorkflowImportResultDto</importMapping>
                                 <importMapping>WorkflowStartInputDto=nl.metafactory.aicontrol.client.WorkflowStartInputDto</importMapping>
                                 <importMapping>WorkflowStartResponseDto=nl.metafactory.aicontrol.client.WorkflowStartResponseDto</importMapping>
-                                <importMapping>PolicyDecisionAuditEntryDto=nl.metafactory.aicontrol.client.PolicyDecisionAuditEntryDto</importMapping>
+                                <importMapping>PolicyDecisionAuditEntryDto=nl.metafactory.common.policy.PolicyDecisionAuditEntry</importMapping>
                                 <importMapping>OpaConfigDto=nl.metafactory.aicontrol.client.OpaConfigDto</importMapping>
                                 <importMapping>OpaConfigRequestDto=nl.metafactory.aicontrol.client.OpaConfigRequestDto</importMapping>
                                 <importMapping>SkillsMarketplaceConnectionDto=nl.metafactory.aicontrol.model.SkillsMarketplaceConnectionDto</importMapping>
@@ -317,7 +322,7 @@
                                 <schemaMapping>WorkflowImportResultDto=nl.metafactory.aicontrol.client.WorkflowImportResultDto</schemaMapping>
                                 <schemaMapping>WorkflowStartInputDto=nl.metafactory.aicontrol.client.WorkflowStartInputDto</schemaMapping>
                                 <schemaMapping>WorkflowStartResponseDto=nl.metafactory.aicontrol.client.WorkflowStartResponseDto</schemaMapping>
-                                <schemaMapping>PolicyDecisionAuditEntryDto=nl.metafactory.aicontrol.client.PolicyDecisionAuditEntryDto</schemaMapping>
+                                <schemaMapping>PolicyDecisionAuditEntryDto=nl.metafactory.common.policy.PolicyDecisionAuditEntry</schemaMapping>
                                 <schemaMapping>OpaConfigDto=nl.metafactory.aicontrol.client.OpaConfigDto</schemaMapping>
                                 <schemaMapping>OpaConfigRequestDto=nl.metafactory.aicontrol.client.OpaConfigRequestDto</schemaMapping>
                                 <schemaMapping>SkillsMarketplaceConnectionDto=nl.metafactory.aicontrol.model.SkillsMarketplaceConnectionDto</schemaMapping>

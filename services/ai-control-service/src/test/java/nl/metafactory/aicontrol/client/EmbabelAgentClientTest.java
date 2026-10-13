@@ -1,5 +1,6 @@
 package nl.metafactory.aicontrol.client;
 
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import tools.jackson.databind.json.JsonMapper;
 import nl.metafactory.aicontrol.config.BearerTokenRelayFilter;
 import okhttp3.mockwebserver.MockResponse;
@@ -536,8 +537,8 @@ class EmbabelAgentClientTest {
 
     // ── Decision logs and OPA configuration ──────────────────────────────────
 
-    private PolicyDecisionAuditEntryDto decisionEntry(String id) {
-        return new PolicyDecisionAuditEntryDto(id, "wf-1", "run-1", null, "Noordzee Logistics", null, null,
+    private PolicyDecisionAuditEntry decisionEntry(String id) {
+        return new PolicyDecisionAuditEntry(id, "wf-1", "run-1", null, "Noordzee Logistics", null, null,
                 "requirement", null, null, null, "dashboard-button", "agent.use", "opa-decision-1", "ALLOWED",
                 "allowed by policy", "low", false, List.of("agent.use"), Instant.now(), "v1", false, null);
     }

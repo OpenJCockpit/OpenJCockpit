@@ -1,7 +1,7 @@
 package nl.metafactory.aicontrol.api;
 
 import nl.metafactory.aicontrol.client.EmbabelAgentClient;
-import nl.metafactory.aicontrol.client.PolicyDecisionAuditEntryDto;
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.oauth2.server.resource.autoconfigure.OAuth2ResourceServerAutoConfiguration;
@@ -31,7 +31,7 @@ class WorkflowExecutionControllerTest {
 
     @Test
     void decisionLogsReturnsEntriesFromClient() throws Exception {
-        var entry = new PolicyDecisionAuditEntryDto("d-1", "wf-1", "run-1", null, "Noordzee Logistics", null, null,
+        var entry = new PolicyDecisionAuditEntry("d-1", "wf-1", "run-1", null, "Noordzee Logistics", null, null,
                 "requirement", null, null, null, "dashboard-button", "agent.use", "opa-decision-1", "DENIED",
                 "denied by policy", "high", false, List.of("agent.use"), Instant.now(), "v1", false, null);
         when(client.getDecisionLogsForWorkflowExecution("run-1", null, null, null, null, null, null, null))

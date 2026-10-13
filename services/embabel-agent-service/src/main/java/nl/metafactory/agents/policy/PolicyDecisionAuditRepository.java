@@ -1,7 +1,7 @@
 package nl.metafactory.agents.policy;
 
 import nl.metafactory.agents.config.WorkflowDefinitionProperties;
-import nl.metafactory.agents.policy.model.PolicyDecisionAuditEntry;
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import nl.metafactory.agents.workflow.YamlDefinitionStore;
 import org.springframework.stereotype.Component;
 

@@ -2,7 +2,7 @@ package nl.metafactory.agents.api;
 
 import nl.metafactory.agents.policy.PolicyDecisionLogExportService;
 import nl.metafactory.agents.policy.model.DecisionLogFilter;
-import nl.metafactory.agents.policy.model.PolicyDecisionAuditEntry;
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.oauth2.server.resource.autoconfigure.OAuth2ResourceServerAutoConfiguration;

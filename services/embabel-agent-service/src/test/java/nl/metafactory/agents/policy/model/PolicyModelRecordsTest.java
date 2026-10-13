@@ -1,5 +1,6 @@
 package nl.metafactory.agents.policy.model;
 
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;

@@ -1,7 +1,7 @@
 package nl.metafactory.agents.policy;
 
 import nl.metafactory.agents.policy.model.DecisionLogFilter;
-import nl.metafactory.agents.policy.model.PolicyDecisionAuditEntry;
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
