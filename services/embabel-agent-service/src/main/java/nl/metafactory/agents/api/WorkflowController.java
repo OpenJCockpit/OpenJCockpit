@@ -2,9 +2,8 @@ package nl.metafactory.agents.api;
 
 import nl.metafactory.agents.model.RunInitiator;
 import nl.metafactory.agents.policy.PolicyDecisionLogExportService;
-import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
-import nl.metafactory.agents.workflow.WorkflowDefinitionValidator;
 import nl.metafactory.agents.workflow.WorkflowDefinitionRepository;
+import nl.metafactory.agents.workflow.WorkflowDefinitionValidator;
 import nl.metafactory.agents.workflow.WorkflowExecutionService;
 import nl.metafactory.agents.workflow.WorkflowGroupRepository;
 import nl.metafactory.agents.workflow.WorkflowLastExecutionService;
@@ -15,10 +14,9 @@ import nl.metafactory.agents.workflow.model.WorkflowGroup;
 import nl.metafactory.agents.workflow.model.WorkflowImportResult;
 import nl.metafactory.agents.workflow.model.WorkflowStartInput;
 import nl.metafactory.agents.workflow.model.WorkflowStartResponse;
+import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
+import nl.metafactory.common.security.CurrentUser;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -137,26 +135,12 @@ public class WorkflowController {
     @PostMapping("/{id}/start")
     public WorkflowStartResponse start(@PathVariable String id,
                                        @RequestBody(required = false) WorkflowStartInput input) {
-        RunInitiator initiator = RunInitiator.human(currentUsername(), currentSubject());
+        RunInitiator initiator = RunInitiator.human(CurrentUser.username(), CurrentUser.subject());
         return executionService.startWorkflow(id, input != null ? input : WorkflowStartInput.empty(), initiator);
     }
 
     @GetMapping("/{id}/decision-logs")
     public List<PolicyDecisionAuditEntry> decisionLogs(@PathVariable String id, DecisionLogQuery query) {
         return decisionLogExportService.exportDecisionLogsForWorkflow(id, query.toFilter());
-    }
-
-    private String currentUsername() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (auth != null && auth.getPrincipal() instanceof Jwt jwt)
-                ? jwt.getClaimAsString("preferred_username")
-                : "unknown";
-    }
-
-    private String currentSubject() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (auth != null && auth.getPrincipal() instanceof Jwt jwt)
-                ? jwt.getClaimAsString("sub")
-                : "unknown";
     }
 }

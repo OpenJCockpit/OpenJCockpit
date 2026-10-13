@@ -7,11 +7,9 @@ import nl.metafactory.aicontrol.model.SpecInitResult;
 import nl.metafactory.aicontrol.model.SpecInitStatus;
 import nl.metafactory.aicontrol.service.GitWorkspaceException;
 import nl.metafactory.aicontrol.service.ProjectSpecService;
+import nl.metafactory.common.security.CurrentUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,21 +39,14 @@ public class ProjectSpecController implements ProjectSpecApi {
 
     @Override
     public ResponseEntity<SpecInitResult> initSpecFolder(UUID projectId) {
-        String username = currentUsername();
+        String username = CurrentUser.username();
         return ResponseEntity.ok(service.initSpecFolder(projectId, username));
     }
 
     @Override
     public ResponseEntity<SpecInitResult> saveSpecFile(UUID projectId, SpecFileSaveRequest request) {
-        String username = currentUsername();
+        String username = CurrentUser.username();
         return ResponseEntity.ok(service.saveSpecFile(projectId, request.fileName(), request.content(), username));
-    }
-
-    private String currentUsername() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (auth != null && auth.getPrincipal() instanceof Jwt jwt)
-                ? jwt.getClaimAsString("preferred_username")
-                : "unknown";
     }
 
     @ExceptionHandler(GitWorkspaceException.class)
