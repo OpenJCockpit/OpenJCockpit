@@ -7,7 +7,7 @@ x-litellm-master-key: &litellm-master-key ${LITELLM_MASTER_KEY:-sk-openjcockpit-
 x-litellm-virtual-key: &litellm-virtual-key ${LITELLM_VIRTUAL_KEY:-sk-openjcockpit-embabel-local}
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
     container_name: openjcockpit-postgres
     restart: unless-stopped
     environment:
@@ -20,7 +20,7 @@ services:
       timeout: 5s
       retries: 10
   postgres-init:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
     depends_on:
       postgres:
         condition: service_healthy
@@ -32,7 +32,7 @@ services:
     restart: "no"
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.6.4
+    image: quay.io/keycloak/keycloak:26.6.4@sha256:0aae0de7fca85525f727d3354df17896092de8bb26ae4c12d89c77e5df8cbce4
     container_name: openjcockpit-keycloak
     restart: unless-stopped
     command: ["start-dev", "--import-realm"]
@@ -71,7 +71,7 @@ services:
   # See infrastructure/keycloak/local-users/README.md. No-op when the directory
   # contains no *.local.json files, which is the default for a fresh checkout.
   keycloak-local-users:
-    image: curlimages/curl:8.21.0
+    image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
     depends_on:
       keycloak:
         condition: service_healthy
@@ -91,7 +91,7 @@ services:
   # One-shot seeding of the fixed Playwright E2E test user into the
   # openjcockpit realm. See infrastructure/keycloak/seed-e2e-user.sh.
   keycloak-e2e-user:
-    image: curlimages/curl:8.21.0
+    image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
     depends_on:
       keycloak:
         condition: service_healthy
@@ -118,7 +118,7 @@ services:
   # only route embabel-agent-service takes to the local model (BR-13: OpenAI is NOT
   # proxied). Host port 4100 -- LiteLLM's conventional 4000 collides with `dashboard`.
   litellm:
-    image: ghcr.io/berriai/litellm:v1.101.2
+    image: ghcr.io/berriai/litellm:v1.101.2@sha256:7b51c4228797a1afedab58c8b43a627c03497f4e470a65d6e2a9bef5a983664c
     container_name: openjcockpit-litellm
     restart: unless-stopped
     ports:
@@ -159,7 +159,7 @@ services:
   # One-shot, idempotent seeding of the dedicated non-admin virtual key used by
   # embabel-agent-service (BR-15). Mirrors keycloak-e2e-user exactly.
   litellm-seed-key:
-    image: curlimages/curl:8.21.0
+    image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
     depends_on:
       litellm:
         condition: service_healthy
@@ -201,7 +201,7 @@ services:
   # Docker network (port 2375, not published to the host). Every container in this
   # network therefore gets full control over the host — local dev only.
   docker-socat:
-    image: alpine/socat
+    image: alpine/socat@sha256:fb3862c949af7c79996d0e514ee96128644d840835ed5368eeecb14a869de361
     container_name: openjcockpit-docker-socat
     restart: unless-stopped
     command: tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock
@@ -338,7 +338,7 @@ services:
       - git-mcp-workspaces:/git-mcp-workspaces
 
   opa:
-    image: openpolicyagent/opa:0.70.0
+    image: openpolicyagent/opa:0.70.0@sha256:2b1c4b231f6dfa6a2baea4af4109203b10cd4b65e836d72f03bfe5d8dfce7095
     container_name: openjcockpit-opa
     restart: unless-stopped
     # Policies are mounted as plain files (no bundle service) so edits under
