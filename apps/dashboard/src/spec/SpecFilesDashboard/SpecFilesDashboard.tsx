@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { loadProjectSpecs, saveSpecFile } from '../../api';
 import { IconBox } from '../../components/IconBox/IconBox';
 import type { Project, SpecFile, SpecInitResult } from '../../types';
+import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
 
 interface Props {
   project: Project | null;
@@ -65,21 +66,9 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
   }
 
   return (
-    <div className="app-shell">
-      <div className="neural-bg" aria-hidden="true" />
-      <div className="orb orb--left" aria-hidden="true" />
-      <div className="orb orb--right" aria-hidden="true" />
+    <AppShell>
 
-      <header className="site-header">
-        <div className="brand">
-          <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
-        </div>
-        <div className="header-actions">
-          <button className="back-button" onClick={onBack} title="Back to dashboard">
-            ← Back
-          </button>
-        </div>
-      </header>
+      <AppHeader onBack={onBack} backTitle="Back to dashboard" />
 
       <main className="spec-files-dashboard">
         <div className="spec-files-dashboard-header">
@@ -177,6 +166,6 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
           </div>
         )}
       </main>
-    </div>
+    </AppShell>
   );
 }

@@ -20,6 +20,12 @@ import {
 } from '../mockWorkflows';
 import { StatusChip } from '../../components/StatusChip/StatusChip';
 import type { StatusKind } from '../../types';
+import {
+  CheckboxField,
+  IntegrationConfigForm,
+  SecretField,
+  TextField,
+} from '../../components/FormFields/FormFields';
 
 interface Props {
   project: Project | null;
@@ -240,41 +246,29 @@ export function WorkflowConfiguration({ project }: Props) {
       {opaError && <p className="settings-error">{opaError}</p>}
       {opaSavedMessage && <p className="workflow-saved-message">{opaSavedMessage}</p>}
       <div className="settings-form-grid">
-        <label>
-          Enabled
-          <input
-            type="checkbox"
-            checked={opaForm.enabled}
-            onChange={(e) => setOpaForm((f) => ({ ...f, enabled: e.target.checked }))}
-          />
-        </label>
-        <label>
-          Base URL
-          <input
-            className="settings-input"
-            value={opaForm.baseUrl}
-            onChange={(e) => setOpaForm((f) => ({ ...f, baseUrl: e.target.value }))}
-            placeholder="http://localhost:8181"
-          />
-        </label>
-        <label>
-          Health check path
-          <input
-            className="settings-input"
-            value={opaForm.healthPath}
-            onChange={(e) => setOpaForm((f) => ({ ...f, healthPath: e.target.value }))}
-            placeholder="/health"
-          />
-        </label>
-        <label>
-          Policy decision endpoint
-          <input
-            className="settings-input"
-            value={opaForm.policyPath}
-            onChange={(e) => setOpaForm((f) => ({ ...f, policyPath: e.target.value }))}
-            placeholder="/v1/data/openjcockpit/workflow/decision"
-          />
-        </label>
+        <CheckboxField
+          label="Enabled"
+          checked={opaForm.enabled}
+          onChange={(v) => setOpaForm((f) => ({ ...f, enabled: v }))}
+        />
+        <TextField
+          label="Base URL"
+          value={opaForm.baseUrl}
+          onChange={(v) => setOpaForm((f) => ({ ...f, baseUrl: v }))}
+          placeholder="http://localhost:8181"
+        />
+        <TextField
+          label="Health check path"
+          value={opaForm.healthPath}
+          onChange={(v) => setOpaForm((f) => ({ ...f, healthPath: v }))}
+          placeholder="/health"
+        />
+        <TextField
+          label="Policy decision endpoint"
+          value={opaForm.policyPath}
+          onChange={(v) => setOpaForm((f) => ({ ...f, policyPath: v }))}
+          placeholder="/v1/data/openjcockpit/workflow/decision"
+        />
         <label>
           Timeout (seconds)
           <input
@@ -298,53 +292,34 @@ export function WorkflowConfiguration({ project }: Props) {
             <option value="FAIL_OPEN">FAIL_OPEN — allow but log as policy-check-unavailable</option>
           </select>
         </label>
-        <label>
-          Environment label
-          <input
-            className="settings-input"
-            value={opaForm.environment}
-            onChange={(e) => setOpaForm((f) => ({ ...f, environment: e.target.value }))}
-            placeholder="production"
-          />
-        </label>
-        <label>
-          Customer/tenant label
-          <input
-            className="settings-input"
-            value={opaForm.customerLabel}
-            onChange={(e) => setOpaForm((f) => ({ ...f, customerLabel: e.target.value }))}
-            placeholder="noordzee"
-          />
-        </label>
-        <label>
-          Project label
-          <input
-            className="settings-input"
-            value={opaForm.projectLabel}
-            onChange={(e) => setOpaForm((f) => ({ ...f, projectLabel: e.target.value }))}
-            placeholder="onboarding"
-          />
-        </label>
-        <label>
-          Decision logging enabled
-          <input
-            type="checkbox"
-            checked={opaForm.decisionLoggingEnabled}
-            onChange={(e) =>
-              setOpaForm((f) => ({ ...f, decisionLoggingEnabled: e.target.checked }))
-            }
-          />
-        </label>
-        <label>
-          Decision log export enabled
-          <input
-            type="checkbox"
-            checked={opaForm.decisionLogExportEnabled}
-            onChange={(e) =>
-              setOpaForm((f) => ({ ...f, decisionLogExportEnabled: e.target.checked }))
-            }
-          />
-        </label>
+        <TextField
+          label="Environment label"
+          value={opaForm.environment}
+          onChange={(v) => setOpaForm((f) => ({ ...f, environment: v }))}
+          placeholder="production"
+        />
+        <TextField
+          label="Customer/tenant label"
+          value={opaForm.customerLabel}
+          onChange={(v) => setOpaForm((f) => ({ ...f, customerLabel: v }))}
+          placeholder="noordzee"
+        />
+        <TextField
+          label="Project label"
+          value={opaForm.projectLabel}
+          onChange={(v) => setOpaForm((f) => ({ ...f, projectLabel: v }))}
+          placeholder="onboarding"
+        />
+        <CheckboxField
+          label="Decision logging enabled"
+          checked={opaForm.decisionLoggingEnabled}
+          onChange={(v) => setOpaForm((f) => ({ ...f, decisionLoggingEnabled: v }))}
+        />
+        <CheckboxField
+          label="Decision log export enabled"
+          checked={opaForm.decisionLogExportEnabled}
+          onChange={(v) => setOpaForm((f) => ({ ...f, decisionLogExportEnabled: v }))}
+        />
         <label style={{ gridColumn: '1 / -1' }}>
           Auth token{' '}
           {opaHasAuthToken && (
@@ -510,200 +485,128 @@ export function WorkflowConfiguration({ project }: Props) {
       {error && <p className="settings-error">{error}</p>}
       {savedMessage && <p className="workflow-saved-message">{savedMessage}</p>}
 
-      <div className="settings-form">
-        <h2 className="settings-form-title">Hermes Agent integration</h2>
-        <div className="settings-form-grid">
-          <label>
-            Enabled
-            <input
-              type="checkbox"
-              checked={hermesForm.enabled}
-              onChange={(e) => setHermesForm((f) => ({ ...f, enabled: e.target.checked }))}
-            />
-          </label>
-          <label>
-            Signal source / endpoint
-            <input
-              className="settings-input"
-              value={hermesForm.endpointUrl}
-              onChange={(e) => setHermesForm((f) => ({ ...f, endpointUrl: e.target.value }))}
-              placeholder="https://hermes.example.com/signals"
-            />
-          </label>
-          <label>
-            Signal type
-            <input
-              className="settings-input"
-              value={hermesForm.signalType}
-              onChange={(e) => setHermesForm((f) => ({ ...f, signalType: e.target.value }))}
-              placeholder="issue.created"
-            />
-          </label>
-          <label>
-            Workflow ID to start
-            <input
-              className="settings-input"
-              value={hermesForm.workflowId}
-              onChange={(e) => setHermesForm((f) => ({ ...f, workflowId: e.target.value }))}
-              placeholder="wf-onboarding"
-            />
-          </label>
-          <label style={{ gridColumn: '1 / -1' }}>
-            Auth token{' '}
-            {hasAuthTokens.hermes && (
-              <span className="settings-desc">(already configured — leave blank to keep)</span>
-            )}
-            <input
-              className="settings-input"
-              type="password"
-              value={hermesForm.authToken}
-              onChange={(e) => setHermesForm((f) => ({ ...f, authToken: e.target.value }))}
-              placeholder={hasAuthTokens.hermes ? '••••••••' : ''}
-            />
-          </label>
-        </div>
-        <button
-          className="button button--start"
-          onClick={() => void handleSaveHermes()}
-          disabled={saving === 'hermes'}
-        >
-          {saving === 'hermes' ? '⟳ Saving…' : 'Save Hermes config'}
-        </button>
-      </div>
+      <IntegrationConfigForm
+        title="Hermes Agent integration"
+        saveLabel="Save Hermes config"
+        saving={saving === 'hermes'}
+        onSave={() => void handleSaveHermes()}
+      >
+        <CheckboxField
+          label="Enabled"
+          checked={hermesForm.enabled}
+          onChange={(v) => setHermesForm((f) => ({ ...f, enabled: v }))}
+        />
+        <TextField
+          label="Signal source / endpoint"
+          value={hermesForm.endpointUrl}
+          onChange={(v) => setHermesForm((f) => ({ ...f, endpointUrl: v }))}
+          placeholder="https://hermes.example.com/signals"
+        />
+        <TextField
+          label="Signal type"
+          value={hermesForm.signalType}
+          onChange={(v) => setHermesForm((f) => ({ ...f, signalType: v }))}
+          placeholder="issue.created"
+        />
+        <TextField
+          label="Workflow ID to start"
+          value={hermesForm.workflowId}
+          onChange={(v) => setHermesForm((f) => ({ ...f, workflowId: v }))}
+          placeholder="wf-onboarding"
+        />
+        <SecretField
+          label="Auth token"
+          hasValue={hasAuthTokens.hermes}
+          value={hermesForm.authToken}
+          onChange={(v) => setHermesForm((f) => ({ ...f, authToken: v }))}
+        />
+      </IntegrationConfigForm>
 
-      <div className="settings-form">
-        <h2 className="settings-form-title">Jira connector</h2>
-        <div className="settings-form-grid">
-          <label>
-            Enabled
-            <input
-              type="checkbox"
-              checked={jiraForm.enabled}
-              onChange={(e) => setJiraForm((f) => ({ ...f, enabled: e.target.checked }))}
-            />
-          </label>
-          <label>
-            Jira base URL
-            <input
-              className="settings-input"
-              value={jiraForm.baseUrl}
-              onChange={(e) => setJiraForm((f) => ({ ...f, baseUrl: e.target.value }))}
-              placeholder="https://your-org.atlassian.net"
-            />
-          </label>
-          <label>
-            Project key
-            <input
-              className="settings-input"
-              value={jiraForm.projectKey}
-              onChange={(e) => setJiraForm((f) => ({ ...f, projectKey: e.target.value }))}
-              placeholder="NL"
-            />
-          </label>
-          <label>
-            Issue type mapping
-            <input
-              className="settings-input"
-              value={jiraForm.issueTypeMapping}
-              onChange={(e) => setJiraForm((f) => ({ ...f, issueTypeMapping: e.target.value }))}
-              placeholder="Bug=bugfix-workflow"
-            />
-          </label>
-          <label>
-            Workflow ID to start
-            <input
-              className="settings-input"
-              value={jiraForm.workflowId}
-              onChange={(e) => setJiraForm((f) => ({ ...f, workflowId: e.target.value }))}
-              placeholder="wf-onboarding"
-            />
-          </label>
-          <label style={{ gridColumn: '1 / -1' }}>
-            Auth token{' '}
-            {hasAuthTokens.jira && (
-              <span className="settings-desc">(already configured — leave blank to keep)</span>
-            )}
-            <input
-              className="settings-input"
-              type="password"
-              value={jiraForm.authToken}
-              onChange={(e) => setJiraForm((f) => ({ ...f, authToken: e.target.value }))}
-              placeholder={hasAuthTokens.jira ? '••••••••' : ''}
-            />
-          </label>
-        </div>
-        <button
-          className="button button--start"
-          onClick={() => void handleSaveJira()}
-          disabled={saving === 'jira'}
-        >
-          {saving === 'jira' ? '⟳ Saving…' : 'Save Jira config'}
-        </button>
-      </div>
+      <IntegrationConfigForm
+        title="Jira connector"
+        saveLabel="Save Jira config"
+        saving={saving === 'jira'}
+        onSave={() => void handleSaveJira()}
+      >
+        <CheckboxField
+          label="Enabled"
+          checked={jiraForm.enabled}
+          onChange={(v) => setJiraForm((f) => ({ ...f, enabled: v }))}
+        />
+        <TextField
+          label="Jira base URL"
+          value={jiraForm.baseUrl}
+          onChange={(v) => setJiraForm((f) => ({ ...f, baseUrl: v }))}
+          placeholder="https://your-org.atlassian.net"
+        />
+        <TextField
+          label="Project key"
+          value={jiraForm.projectKey}
+          onChange={(v) => setJiraForm((f) => ({ ...f, projectKey: v }))}
+          placeholder="NL"
+        />
+        <TextField
+          label="Issue type mapping"
+          value={jiraForm.issueTypeMapping}
+          onChange={(v) => setJiraForm((f) => ({ ...f, issueTypeMapping: v }))}
+          placeholder="Bug=bugfix-workflow"
+        />
+        <TextField
+          label="Workflow ID to start"
+          value={jiraForm.workflowId}
+          onChange={(v) => setJiraForm((f) => ({ ...f, workflowId: v }))}
+          placeholder="wf-onboarding"
+        />
+        <SecretField
+          label="Auth token"
+          hasValue={hasAuthTokens.jira}
+          value={jiraForm.authToken}
+          onChange={(v) => setJiraForm((f) => ({ ...f, authToken: v }))}
+        />
+      </IntegrationConfigForm>
 
-      <div className="settings-form">
-        <h2 className="settings-form-title">Project document folder</h2>
-        <div className="settings-form-grid">
-          <label>
-            Project name
-            <input className="settings-input" value={project.name} disabled />
-          </label>
-          <label>
-            Folder name (CamelCase, no spaces — derived from the project name)
-            <input className="settings-input" value={folderName} disabled />
-          </label>
-          <label>
-            Folder base location
-            <input
-              className="settings-input"
-              value={folderBasePath}
-              onChange={(e) => handleFolderBasePathChange(e.target.value)}
-              placeholder="/documents"
-            />
-          </label>
-          <label>
-            Folder location (folder name is always appended automatically)
-            <input className="settings-input" value={folderForm.folderPath} disabled />
-          </label>
-          <label>
-            Allowed document types
-            <input
-              className="settings-input"
-              value={folderForm.allowedDocumentTypes}
-              onChange={(e) =>
-                setFolderForm((f) => ({ ...f, allowedDocumentTypes: e.target.value }))
-              }
-              placeholder="pdf,docx,md"
-            />
-          </label>
-          <label>
-            Workflow ID to start on new file
-            <input
-              className="settings-input"
-              value={folderForm.workflowId}
-              onChange={(e) => setFolderForm((f) => ({ ...f, workflowId: e.target.value }))}
-              placeholder="wf-onboarding"
-            />
-          </label>
-          <label>
-            File trigger enabled
-            <input
-              type="checkbox"
-              checked={folderForm.fileTriggerEnabled}
-              onChange={(e) =>
-                setFolderForm((f) => ({ ...f, fileTriggerEnabled: e.target.checked }))
-              }
-            />
-          </label>
-        </div>
-        <button
-          className="button button--start"
-          onClick={() => void handleSaveFolder()}
-          disabled={saving === 'folder'}
-        >
-          {saving === 'folder' ? '⟳ Saving…' : 'Save document folder config'}
-        </button>
-      </div>
+      <IntegrationConfigForm
+        title="Project document folder"
+        saveLabel="Save document folder config"
+        saving={saving === 'folder'}
+        onSave={() => void handleSaveFolder()}
+      >
+        <label>
+          Project name
+          <input className="settings-input" value={project.name} disabled />
+        </label>
+        <label>
+          Folder name (CamelCase, no spaces — derived from the project name)
+          <input className="settings-input" value={folderName} disabled />
+        </label>
+        <TextField
+          label="Folder base location"
+          value={folderBasePath}
+          onChange={(v) => handleFolderBasePathChange(v)}
+          placeholder="/documents"
+        />
+        <label>
+          Folder location (folder name is always appended automatically)
+          <input className="settings-input" value={folderForm.folderPath} disabled />
+        </label>
+        <TextField
+          label="Allowed document types"
+          value={folderForm.allowedDocumentTypes}
+          onChange={(v) => setFolderForm((f) => ({ ...f, allowedDocumentTypes: v }))}
+          placeholder="pdf,docx,md"
+        />
+        <TextField
+          label="Workflow ID to start on new file"
+          value={folderForm.workflowId}
+          onChange={(v) => setFolderForm((f) => ({ ...f, workflowId: v }))}
+          placeholder="wf-onboarding"
+        />
+        <CheckboxField
+          label="File trigger enabled"
+          checked={folderForm.fileTriggerEnabled}
+          onChange={(v) => setFolderForm((f) => ({ ...f, fileTriggerEnabled: v }))}
+        />
+      </IntegrationConfigForm>
     </section>
   );
 }

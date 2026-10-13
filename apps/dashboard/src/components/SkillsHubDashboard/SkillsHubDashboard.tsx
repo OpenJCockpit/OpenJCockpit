@@ -4,6 +4,7 @@ import type { FormEvent } from 'react';
 import { IconBox } from '../IconBox/IconBox';
 import { StatusChip } from '../StatusChip/StatusChip';
 import type { StatusKind } from '../../types';
+import { AppShell, AppHeader } from '../AppShell/AppShell';
 
 interface Props {
   onBack: () => void;
@@ -66,24 +67,13 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
   }
 
   return (
-    <div className="app-shell">
-      <div className="neural-bg" aria-hidden="true" />
-      <div className="orb orb--left" aria-hidden="true" />
-      <div className="orb orb--right" aria-hidden="true" />
+    <AppShell>
 
-      <header className="site-header">
-        <div className="brand">
-          <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
-        </div>
-        <div className="header-actions">
-          <button className="back-button" onClick={onSettings} title="Skills Hub settings">
-            ⚙ Settings
-          </button>
-          <button className="back-button" onClick={onBack} title="Back to dashboard">
-            ← Back
-          </button>
-        </div>
-      </header>
+      <AppHeader onBack={onBack} backTitle="Back to dashboard">
+        <button className="back-button" onClick={onSettings} title="Skills Hub settings">
+          ⚙ Settings
+        </button>
+      </AppHeader>
 
       <main className="spec-files-dashboard">
         <div className="spec-files-dashboard-header">
@@ -151,6 +141,6 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
           </table>
         </div>
       </main>
-    </div>
+    </AppShell>
   );
 }

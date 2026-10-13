@@ -30,6 +30,8 @@ import { WorkflowPromptDialog } from './workflow/WorkflowPromptDialog/WorkflowPr
 import { listWorkflowGroups, listWorkflows, startWorkflow } from './workflow/workflowApi';
 import type { WorkflowDefinition, WorkflowGroup } from './workflow/workflowTypes';
 import { workflowsForProject } from './workflow/workflowVisibility';
+import { AppShell } from './components/AppShell/AppShell';
+import { StackServiceIcon } from './components/StackServiceIcon/StackServiceIcon';
 
 type AppView =
   | 'project-selection'
@@ -350,10 +352,7 @@ function App() {
   }
 
   return (
-    <div className="app-shell">
-      <div className="neural-bg" aria-hidden="true" />
-      <div className="orb orb--left" aria-hidden="true" />
-      <div className="orb orb--right" aria-hidden="true" />
+    <AppShell>
 
       {promptWorkflow && (
         <WorkflowPromptDialog
@@ -482,102 +481,7 @@ function App() {
           <div className="stack-status">
             {workspace.stack.map((service, index) => (
               <article className="stack-card" key={service.name}>
-                {index === 0 ? (
-                  <span className="icon-box" aria-hidden="true">
-                    <svg
-                      width="38"
-                      height="38"
-                      viewBox="0 0 38 38"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <circle cx="19" cy="19" r="7" fill="rgba(39,231,255,0.12)" />
-                      <circle cx="19" cy="19" r="4" fill="#27e7ff" />
-                      <circle cx="19" cy="6" r="2.5" fill="#27e7ff" opacity="0.7" />
-                      <circle cx="30" cy="12.5" r="2.5" fill="#27e7ff" opacity="0.7" />
-                      <circle cx="30" cy="25.5" r="2.5" fill="#27e7ff" opacity="0.7" />
-                      <circle cx="19" cy="32" r="2.5" fill="#27e7ff" opacity="0.7" />
-                      <circle cx="8" cy="25.5" r="2.5" fill="#27e7ff" opacity="0.7" />
-                      <circle cx="8" cy="12.5" r="2.5" fill="#27e7ff" opacity="0.7" />
-                      <line
-                        x1="19"
-                        y1="15"
-                        x2="19"
-                        y2="8.5"
-                        stroke="#27e7ff"
-                        strokeWidth="1"
-                        opacity="0.45"
-                      />
-                      <line
-                        x1="22.5"
-                        y1="17"
-                        x2="27.5"
-                        y2="14"
-                        stroke="#27e7ff"
-                        strokeWidth="1"
-                        opacity="0.45"
-                      />
-                      <line
-                        x1="22.5"
-                        y1="21"
-                        x2="27.5"
-                        y2="24"
-                        stroke="#27e7ff"
-                        strokeWidth="1"
-                        opacity="0.45"
-                      />
-                      <line
-                        x1="19"
-                        y1="23"
-                        x2="19"
-                        y2="29.5"
-                        stroke="#27e7ff"
-                        strokeWidth="1"
-                        opacity="0.45"
-                      />
-                      <line
-                        x1="15.5"
-                        y1="21"
-                        x2="10.5"
-                        y2="24"
-                        stroke="#27e7ff"
-                        strokeWidth="1"
-                        opacity="0.45"
-                      />
-                      <line
-                        x1="15.5"
-                        y1="17"
-                        x2="10.5"
-                        y2="14"
-                        stroke="#27e7ff"
-                        strokeWidth="1"
-                        opacity="0.45"
-                      />
-                    </svg>
-                  </span>
-                ) : (
-                  <span className="icon-box" aria-hidden="true">
-                    <svg
-                      width="38"
-                      height="38"
-                      viewBox="0 0 38 38"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <circle cx="19" cy="19" r="17" fill="rgba(109,179,63,0.10)" />
-                      <circle cx="19" cy="19" r="16" fill="#6DB33F" />
-                      <path d="M 9 30 C 3 20, 10 8, 29 8 C 32 21, 20 32, 9 30 Z" fill="white" />
-                      <path
-                        d="M 11 27 C 16 20, 22 14, 27 10"
-                        stroke="#6DB33F"
-                        strokeWidth="1.5"
-                        fill="none"
-                        strokeLinecap="round"
-                        opacity="0.5"
-                      />
-                    </svg>
-                  </span>
-                )}
+                <StackServiceIcon variant={index === 0 ? 'hub' : 'spring'} />
                 <div>
                   <strong>{service.name}</strong>
                   <span>{service.description}</span>
@@ -967,7 +871,7 @@ function App() {
         <span>Spring AI Control Service: {workspace.footer.springAiControlVersion}</span>
         <span>© 2026 Metafactory B.V.</span>
       </footer>
-    </div>
+    </AppShell>
   );
 }
 

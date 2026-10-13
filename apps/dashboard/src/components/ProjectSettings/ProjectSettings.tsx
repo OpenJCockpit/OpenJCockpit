@@ -12,6 +12,8 @@ import {
   triggerGitCheck,
   updateProject,
 } from '../../api';
+import { AppShell, AppHeader } from '../AppShell/AppShell';
+import { TextAreaField, TextField } from '../FormFields/FormFields';
 
 interface Props {
   onBack: () => void;
@@ -262,21 +264,8 @@ export function ProjectSettings({ onBack }: Props) {
   }
 
   return (
-    <div className="app-shell">
-      <div className="neural-bg" aria-hidden="true" />
-      <div className="orb orb--left" aria-hidden="true" />
-      <div className="orb orb--right" aria-hidden="true" />
-
-      <header className="site-header">
-        <div className="brand">
-          <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
-        </div>
-        <div className="header-actions">
-          <button className="back-button" onClick={onBack}>
-            ← Projects
-          </button>
-        </div>
-      </header>
+    <AppShell>
+      <AppHeader onBack={onBack} backLabel="← Projects" />
 
       <main style={{ padding: '32px 48px', maxWidth: 1100, margin: '0 auto' }}>
         <div
@@ -314,73 +303,53 @@ export function ProjectSettings({ onBack }: Props) {
               {editingId === 'new' ? 'New project' : 'Edit project'}
             </h2>
             <div className="settings-form-grid">
-              <label>
-                Name *
-                <input
-                  ref={nameInputRef}
-                  className="settings-input"
-                  value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="Project name"
-                  aria-invalid={nameInvalid ? true : undefined}
-                  aria-describedby={nameInvalid ? 'project-name-error' : undefined}
-                />
-              </label>
-              <label>
-                Customer ID (stub)
-                <input
-                  className="settings-input"
-                  value={form.customerId ?? ''}
-                  onChange={(e) => setForm((f) => ({ ...f, customerId: e.target.value }))}
-                  placeholder="e.g. noordzee-logistics"
-                />
-              </label>
-              <label>
-                Git URL
-                <input
-                  className="settings-input"
-                  value={form.gitUrl ?? ''}
-                  onChange={(e) => setForm((f) => ({ ...f, gitUrl: e.target.value }))}
-                  placeholder="https://github.com/org/repo"
-                />
-              </label>
-              <label>
-                Branch
-                <input
-                  className="settings-input"
-                  value={form.defaultBranch ?? ''}
-                  onChange={(e) => setForm((f) => ({ ...f, defaultBranch: e.target.value }))}
-                  placeholder="main"
-                />
-              </label>
-              <label>
-                Environment
-                <input
-                  className="settings-input"
-                  value={form.environment ?? ''}
-                  onChange={(e) => setForm((f) => ({ ...f, environment: e.target.value }))}
-                  placeholder="prod / staging / dev"
-                />
-              </label>
-              <label>
-                Owner
-                <input
-                  className="settings-input"
-                  value={form.owner ?? ''}
-                  onChange={(e) => setForm((f) => ({ ...f, owner: e.target.value }))}
-                  placeholder="Name or team"
-                />
-              </label>
-              <label style={{ gridColumn: '1 / -1' }}>
-                Description
-                <textarea
-                  className="settings-input"
-                  rows={3}
-                  value={form.description ?? ''}
-                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                  placeholder="Short description"
-                />
-              </label>
+              <TextField
+                label="Name *"
+                ref={nameInputRef}
+                value={form.name}
+                onChange={(v) => setForm((f) => ({ ...f, name: v }))}
+                placeholder="Project name"
+                aria-invalid={nameInvalid ? true : undefined}
+                aria-describedby={nameInvalid ? 'project-name-error' : undefined}
+              />
+              <TextField
+                label="Customer ID (stub)"
+                value={form.customerId ?? ''}
+                onChange={(v) => setForm((f) => ({ ...f, customerId: v }))}
+                placeholder="e.g. noordzee-logistics"
+              />
+              <TextField
+                label="Git URL"
+                value={form.gitUrl ?? ''}
+                onChange={(v) => setForm((f) => ({ ...f, gitUrl: v }))}
+                placeholder="https://github.com/org/repo"
+              />
+              <TextField
+                label="Branch"
+                value={form.defaultBranch ?? ''}
+                onChange={(v) => setForm((f) => ({ ...f, defaultBranch: v }))}
+                placeholder="main"
+              />
+              <TextField
+                label="Environment"
+                value={form.environment ?? ''}
+                onChange={(v) => setForm((f) => ({ ...f, environment: v }))}
+                placeholder="prod / staging / dev"
+              />
+              <TextField
+                label="Owner"
+                value={form.owner ?? ''}
+                onChange={(v) => setForm((f) => ({ ...f, owner: v }))}
+                placeholder="Name or team"
+              />
+              <TextAreaField
+                label="Description"
+                wide
+                rows={3}
+                value={form.description ?? ''}
+                onChange={(v) => setForm((f) => ({ ...f, description: v }))}
+                placeholder="Short description"
+              />
               <label
                 className="new-project-checkbox"
                 style={{ gridColumn: '1 / -1', fontSize: 13 }}
@@ -436,15 +405,12 @@ export function ProjectSettings({ onBack }: Props) {
                       <option value="GITHUB_APP">GitHub App</option>
                     </select>
                   </label>
-                  <label>
-                    Username
-                    <input
-                      className="settings-input"
-                      value={credForm.username ?? ''}
-                      onChange={(e) => setCredForm((f) => ({ ...f, username: e.target.value }))}
-                      placeholder="optional"
-                    />
-                  </label>
+                  <TextField
+                    label="Username"
+                    value={credForm.username ?? ''}
+                    onChange={(v) => setCredForm((f) => ({ ...f, username: v }))}
+                    placeholder="optional"
+                  />
                   <label>
                     Secret / token / password
                     <input
@@ -459,15 +425,12 @@ export function ProjectSettings({ onBack }: Props) {
                       }
                     />
                   </label>
-                  <label>
-                    GitHub API URL (GitHub Enterprise)
-                    <input
-                      className="settings-input"
-                      value={credForm.githubApiUrl ?? ''}
-                      onChange={(e) => setCredForm((f) => ({ ...f, githubApiUrl: e.target.value }))}
-                      placeholder="https://github.example.com/api/v3"
-                    />
-                  </label>
+                  <TextField
+                    label="GitHub API URL (GitHub Enterprise)"
+                    value={credForm.githubApiUrl ?? ''}
+                    onChange={(v) => setCredForm((f) => ({ ...f, githubApiUrl: v }))}
+                    placeholder="https://github.example.com/api/v3"
+                  />
                 </div>
                 <p className="settings-desc">
                   On save, a Git check is first run with these credentials; they are only
@@ -576,6 +539,6 @@ export function ProjectSettings({ onBack }: Props) {
           </tbody>
         </table>
       </main>
-    </div>
+    </AppShell>
   );
 }
