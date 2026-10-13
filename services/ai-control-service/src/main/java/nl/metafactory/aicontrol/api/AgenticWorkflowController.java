@@ -8,6 +8,7 @@ import nl.metafactory.aicontrol.model.StartWorkflowResponse;
 import nl.metafactory.aicontrol.model.WorkflowPreflightResult;
 import nl.metafactory.aicontrol.service.GitWorkspaceJobService;
 import nl.metafactory.aicontrol.service.WorkflowPreflightService;
+import nl.metafactory.common.security.CurrentUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;

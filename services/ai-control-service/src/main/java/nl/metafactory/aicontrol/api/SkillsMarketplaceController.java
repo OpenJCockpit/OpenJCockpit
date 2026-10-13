@@ -6,6 +6,7 @@ import nl.metafactory.aicontrol.model.SkillsMarketplaceConnectionDto;
 import nl.metafactory.aicontrol.model.SkillsMarketplaceConnectionRequest;
 import nl.metafactory.aicontrol.service.SkillsMarketplaceConnectionService;
 import nl.metafactory.aicontrol.service.SkillsMarketplaceException;
+import nl.metafactory.common.security.CurrentUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

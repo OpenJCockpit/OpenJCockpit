@@ -9,6 +9,7 @@ import nl.metafactory.agents.approval.model.ApprovalDecisionCommand;
 import nl.metafactory.agents.approval.model.ApprovalDecisionRequest;
 import nl.metafactory.agents.approval.model.ApprovalDecisionResult;
 import nl.metafactory.agents.approval.model.ApprovalGateContext;
+import nl.metafactory.common.security.CurrentUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;

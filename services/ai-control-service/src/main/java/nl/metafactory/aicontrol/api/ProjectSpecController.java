@@ -7,6 +7,7 @@ import nl.metafactory.aicontrol.model.SpecInitResult;
 import nl.metafactory.aicontrol.model.SpecInitStatus;
 import nl.metafactory.aicontrol.service.GitWorkspaceException;
 import nl.metafactory.aicontrol.service.ProjectSpecService;
+import nl.metafactory.common.security.CurrentUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
