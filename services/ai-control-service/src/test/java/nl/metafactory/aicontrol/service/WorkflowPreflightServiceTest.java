@@ -5,11 +5,9 @@ import nl.metafactory.aicontrol.model.GitStatus;
 import nl.metafactory.aicontrol.model.GitWorkspaceJobErrorCode;
 import nl.metafactory.aicontrol.model.Project;
 import nl.metafactory.aicontrol.model.ProjectGitCredential;
-import nl.metafactory.aicontrol.repository.ProjectGitCredentialRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,9 +21,8 @@ import static org.mockito.Mockito.when;
 
 class WorkflowPreflightServiceTest {
 
-    private GitWorkspaceJobService jobService;
-    private ProjectGitCredentialRepository credentialRepository;
-    private GitConnectivityService gitConnectivityService;
+    private ProjectGitResolver projectGit;
+        private GitConnectivityService gitConnectivityService;
     private ContainerRuntime containerRuntime;
     private AgenticWorkflowProperties properties;
     private WorkflowPreflightService service;
@@ -35,13 +32,12 @@ class WorkflowPreflightServiceTest {
 
     @BeforeEach
     void setUp() {
-        jobService = mock(GitWorkspaceJobService.class);
-        credentialRepository = mock(ProjectGitCredentialRepository.class);
+        projectGit = mock(ProjectGitResolver.class);
         gitConnectivityService = mock(GitConnectivityService.class);
         containerRuntime = mock(ContainerRuntime.class);
         properties = new AgenticWorkflowProperties();
 
-        service = new WorkflowPreflightService(jobService, credentialRepository,
+        service = new WorkflowPreflightService(projectGit,
                 gitConnectivityService, containerRuntime, properties);
 
         projectId = UUID.randomUUID();
@@ -50,9 +46,9 @@ class WorkflowPreflightServiceTest {
         project.setGitUrl("https://github.com/org/repo");
         project.setActive((short) 1);
 
-        when(jobService.validateSelectedProject(projectId)).thenReturn(project);
-        when(credentialRepository.findFirstByProjectIdAndActiveOrderByCreatedAtDesc(eq(projectId), eq((short) 1)))
-                .thenReturn(Optional.empty());
+        when(projectGit.validateProject(projectId)).thenReturn(project);
+        when(projectGit.loadCredential(projectId))
+                .thenReturn(null);
         when(gitConnectivityService.checkGitAccess(any(), any()))
                 .thenReturn(new GitConnectivityService.CheckResult(GitStatus.ACCESSIBLE, "Reachable"));
     }
@@ -90,7 +86,7 @@ class WorkflowPreflightServiceTest {
 
     @Test
     void failsWithProjectCode_whenNoProjectSelected() {
-        when(jobService.validateSelectedProject(null))
+        when(projectGit.validateProject(null))
                 .thenThrow(new GitWorkspaceException(GitWorkspaceJobErrorCode.NO_SELECTED_PROJECT, "No project selected"));
 
         var result = service.validateBeforeWorkflowStart(null);
@@ -103,7 +99,7 @@ class WorkflowPreflightServiceTest {
 
     @Test
     void failsWithProjectInactiveCode_andSkipsGitCheck() {
-        when(jobService.validateSelectedProject(projectId))
+        when(projectGit.validateProject(projectId))
                 .thenThrow(new GitWorkspaceException(GitWorkspaceJobErrorCode.PROJECT_INACTIVE, "Project is inactive"));
 
         var result = service.validateBeforeWorkflowStart(projectId);
@@ -116,7 +112,7 @@ class WorkflowPreflightServiceTest {
 
     @Test
     void failsWithGitUrlMissingCode() {
-        when(jobService.validateSelectedProject(projectId))
+        when(projectGit.validateProject(projectId))
                 .thenThrow(new GitWorkspaceException(GitWorkspaceJobErrorCode.GIT_URL_MISSING, "No Git URL"));
 
         var result = service.validateBeforeWorkflowStart(projectId);
@@ -208,8 +204,8 @@ class WorkflowPreflightServiceTest {
         var credential = new ProjectGitCredential();
         credential.setProjectId(projectId);
         credential.setUsername("user");
-        when(credentialRepository.findFirstByProjectIdAndActiveOrderByCreatedAtDesc(eq(projectId), eq((short) 1)))
-                .thenReturn(Optional.of(credential));
+        when(projectGit.loadCredential(projectId))
+                .thenReturn(credential);
 
         service.validateBeforeWorkflowStart(projectId);
 

@@ -58,7 +58,7 @@ class ProjectSpecServiceTest {
         properties.setWorkspaceBasePath(tempDir.toString());
         properties.setDefaultBaseBranch("main");
 
-        service = new ProjectSpecService(projectRepo, credRepo, gitOps,
+        service = new ProjectSpecService(new ProjectGitResolver(projectRepo, credRepo, properties), gitOps,
                 new BranchNameGenerator(properties), properties);
 
         projectId = UUID.randomUUID();
@@ -614,7 +614,7 @@ class ProjectSpecServiceTest {
 
     @Test
     void specTemplateContentThrowsSpecFileInvalidWhenResourceMissing() {
-        ProjectSpecService broken = new ProjectSpecService(projectRepo, credRepo, gitOps,
+        ProjectSpecService broken = new ProjectSpecService(new ProjectGitResolver(projectRepo, credRepo, properties), gitOps,
                 new BranchNameGenerator(properties), properties) {
             @Override
             InputStream openSpecTemplateResource() {
@@ -631,7 +631,7 @@ class ProjectSpecServiceTest {
 
     @Test
     void specTemplateContentWrapsResourceReadFailure() {
-        ProjectSpecService broken = new ProjectSpecService(projectRepo, credRepo, gitOps,
+        ProjectSpecService broken = new ProjectSpecService(new ProjectGitResolver(projectRepo, credRepo, properties), gitOps,
                 new BranchNameGenerator(properties), properties) {
             @Override
             InputStream openSpecTemplateResource() {
