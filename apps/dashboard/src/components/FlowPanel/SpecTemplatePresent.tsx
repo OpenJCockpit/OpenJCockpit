@@ -1,0 +1,33 @@
+import type { WorkflowDefinition } from '../../workflow/workflowTypes';
+import { StatusChip } from '../StatusChip/StatusChip';
+
+interface Props {
+  specCreateWorkflow: WorkflowDefinition | undefined;
+  onCreateSpec: () => void;
+}
+
+/** The repository has a .specify folder but no specs yet. */
+export function SpecTemplatePresent({ specCreateWorkflow, onCreateSpec }: Props) {
+  return (
+    <div className="spec-init-result">
+      <StatusChip label="Spec structure present" kind="ok" />
+      <p>
+        The repository already has a .specify folder, but no specs in the specs/ folder yet. Create
+        the first spec with a prompt — the workflow combines your prompt with the repository
+        contents (RAG) into a small, executable spec file.
+      </p>
+      <button
+        className="button button--start"
+        onClick={onCreateSpec}
+        disabled={!specCreateWorkflow}
+      >
+        ✨ Create spec with prompt
+      </button>
+      {!specCreateWorkflow && (
+        <p className="workflow-launcher-hint">
+          De workflow &quot;Create spec from prompt (RAG)&quot; is not available for this project.
+        </p>
+      )}
+    </div>
+  );
+}
