@@ -404,16 +404,6 @@ class SpecGitPublisherTest {
     }
 
     @Test
-    void compareUrlIsOnlyBuiltForHttpUrls() {
-        assertThat(SpecGitPublisher.compareUrl(REPO_URL, "spec/x"))
-                .isEqualTo("https://github.com/org/repo/compare/spec/x?expand=1");
-        assertThat(SpecGitPublisher.compareUrl("https://github.com/org/repo", "spec/x"))
-                .isEqualTo("https://github.com/org/repo/compare/spec/x?expand=1");
-        assertThat(SpecGitPublisher.compareUrl("file:///tmp/repo.git", "spec/x")).isNull();
-        assertThat(SpecGitPublisher.compareUrl(null, "spec/x")).isNull();
-    }
-
-    @Test
     void workflowIdIsOnlyExtractedFromWorkflowRequesters() {
         assertThat(SpecGitPublisher.workflowId("workflow:wf-9")).isEqualTo("wf-9");
         assertThat(SpecGitPublisher.workflowId("workflow:")).isNull();

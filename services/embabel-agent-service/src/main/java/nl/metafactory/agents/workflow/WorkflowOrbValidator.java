@@ -15,7 +15,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import nl.metafactory.agents.config.WorkflowTriggerProperties;
 import nl.metafactory.agents.workflow.model.WorkflowDefinition;
-import nl.metafactory.agents.workflow.model.WorkflowGroup;
 import nl.metafactory.agents.workflow.model.WorkflowOrb;
 
 /**
@@ -127,10 +126,10 @@ public class WorkflowOrbValidator {
                 continue;
             }
             if (parentProject == null) {
-                parentProject = effectiveProject(d);
+                parentProject = WorkflowProjects.effectiveProject(d, workflowGroupRepository);
             }
             WorkflowDefinition target = targetOpt.get();
-            String targetProject = effectiveProject(target);
+            String targetProject = WorkflowProjects.effectiveProject(target, workflowGroupRepository);
             if (parentProject.isBlank() && !targetProject.isBlank()) {
                 violations.add("Global workflow '" + d.id() + "' may only reference other global workflows, but orb targets project-scoped workflow '" + target.id() + "' (project '" + targetProject + "')");
             } else if (!parentProject.isBlank() && !targetProject.isBlank() && !targetProject.equals(parentProject)) {
@@ -166,19 +165,6 @@ public class WorkflowOrbValidator {
             }
         }
         return result;
-    }
-
-    private String effectiveProject(WorkflowDefinition d) {
-        if (d.projectName() != null && !d.projectName().isBlank()) {
-            return d.projectName();
-        }
-        if (d.groupId() != null && !d.groupId().isBlank()) {
-            WorkflowGroup group = workflowGroupRepository.findById(d.groupId()).orElse(null);
-            if (group != null && group.projectName() != null && !group.projectName().isBlank()) {
-                return group.projectName();
-            }
-        }
-        return "";
     }
 
     private String detectCycle(WorkflowDefinition d) {

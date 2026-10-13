@@ -4,7 +4,6 @@ import java.util.List;
 
 import nl.metafactory.agents.config.WorkflowTriggerProperties;
 import nl.metafactory.agents.workflow.model.WorkflowDefinition;
-import nl.metafactory.agents.workflow.model.WorkflowGroup;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -42,8 +41,8 @@ public class WorkflowChainResolver {
         }
 
         WorkflowDefinition target = targetOpt.get();
-        String parentProject = effectiveProject(parent);
-        String targetProject = effectiveProject(target);
+        String parentProject = WorkflowProjects.effectiveProject(parent, workflowGroupRepository);
+        String targetProject = WorkflowProjects.effectiveProject(target, workflowGroupRepository);
 
         if (parentProject.isEmpty() && !targetProject.isEmpty()) {
             return new ChildStartDecision.Refused("SCOPE_VIOLATION",
@@ -57,18 +56,5 @@ public class WorkflowChainResolver {
         }
 
         return new ChildStartDecision.Permitted(target);
-    }
-
-    private String effectiveProject(WorkflowDefinition d) {
-        if (d.projectName() != null && !d.projectName().isBlank()) {
-            return d.projectName();
-        }
-        if (d.groupId() != null && !d.groupId().isBlank()) {
-            WorkflowGroup group = workflowGroupRepository.findById(d.groupId()).orElse(null);
-            if (group != null && group.projectName() != null && !group.projectName().isBlank()) {
-                return group.projectName();
-            }
-        }
-        return "";
     }
 }
