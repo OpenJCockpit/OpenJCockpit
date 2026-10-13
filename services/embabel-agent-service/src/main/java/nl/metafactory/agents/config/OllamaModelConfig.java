@@ -4,8 +4,6 @@ import com.embabel.agent.api.models.OllamaModels;
 import com.embabel.agent.spi.support.springai.SpringAiLlmService;
 import com.embabel.common.ai.model.LlmOptions;
 import com.embabel.common.ai.model.OptionsConverter;
-import com.embabel.common.ai.model.PricingModel;
-import com.embabel.common.ai.prompt.PromptContributor;
 import io.micrometer.observation.ObservationRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +30,6 @@ import org.springframework.ai.retry.TransientAiException;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.time.Duration;
-import java.time.LocalDate;
-import java.util.List;
 
 /**
  * Registers the locally hosted Ollama Qwen model as an additional {@link com.embabel.agent.spi.support.springai.SpringAiLlmService}, alongside the
@@ -106,14 +102,7 @@ public class OllamaModelConfig {
 
         log.info("Ollama coding LLM configured: model={} baseUrl={}", model, baseUrl);
 
-        return new SpringAiLlmService(
-                model,
-                OllamaModels.PROVIDER,
-                chatModel,
-                OLLAMA_OPTIONS_CONVERTER,
-                LocalDate.of(2025, 4, 1), // informational placeholder, not verified against a model card
-                List.of(NO_THINK_PROMPT_CONTRIBUTOR),
-                PricingModel.usdPer1MTokens(0.0, 0.0));
+        return CodingLlmServices.create(model, OllamaModels.PROVIDER, chatModel, OLLAMA_OPTIONS_CONVERTER);
     }
 
     /**
@@ -133,21 +122,15 @@ public class OllamaModelConfig {
     }
 
     /**
-     * {@code org.springframework.ai.ollama.api.OllamaChatOptions} in Spring AI 2.0.1 DOES have a
-     * native thinkOption()/thinkLow()/thinkMedium()/thinkHigh() API (verified present). The
-     * "/no_think" prompt-based workaround below is RETAINED DELIBERATELY as an explicit, deferred
-     * scope decision for this delivery (not because it is still technically necessary) — adopting
-     * the native think option is separate, deferred future work, not done as part of this port.
-     * Embabel's {@link com.embabel.agent.spi.support.springai.SpringAiLlmService} joins its prompt
-     * contributors into a single SystemMessage prepended to every call (see
-     * com.embabel.agent.spi.support.springai.ChatClientLlmOperations#doTransform), so this is
-     * injected there rather than requiring every calling agent to append it to its own prompt.
-     * Caveat: Qwen's own documentation frames this control as most reliable in the user turn, not
-     * the system message -- effectiveness here should be verified against a real response (does the
-     * model still emit a reasoning trace?), not assumed from the directive's mere presence.
+     * Spring AI 2.0.1's {@code OllamaChatOptions} DOES have a native thinkOption()/thinkLow()/thinkMedium()/
+     * thinkHigh() API (verified present). The "/no_think" prompt-based workaround
+     * ({@link CodingLlmServices#NO_THINK_PROMPT_CONTRIBUTOR}) is RETAINED DELIBERATELY as an explicit, deferred
+     * scope decision for this delivery (not because it is still technically necessary) — adopting the native
+     * think option is separate, deferred future work, not done as part of this port.
+     * Caveat: Qwen's own documentation frames this control as most reliable in the user turn, not the system
+     * message -- effectiveness here should be verified against a real response (does the model still emit a
+     * reasoning trace?), not assumed from the directive's mere presence.
      */
-    static final PromptContributor NO_THINK_PROMPT_CONTRIBUTOR = PromptContributor.fixed("/no_think");
-
     static final OptionsConverter OLLAMA_OPTIONS_CONVERTER = OllamaModelConfig::convertToOllamaOptions;
 
     static org.springframework.ai.chat.prompt.ChatOptions convertToOllamaOptions(LlmOptions options, String model) {
