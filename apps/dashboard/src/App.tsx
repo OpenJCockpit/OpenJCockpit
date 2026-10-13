@@ -1,11 +1,9 @@
 import './app.scss';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  checkWorkflowPreflight,
   clearStoredProjectId,
   getSpecInitStatus,
   getStoredProjectId,
-  initSpecFolder,
   loadProjects,
   loadProjectSpecs,
   loadWorkspace,
@@ -13,25 +11,28 @@ import {
   setStoredProjectId,
 } from './api';
 import { getKeycloak } from './auth/keycloak';
-import type { PreflightError, Project } from './types';
-import type { SpecFile, SpecInitResult, SpecInitStatus, Workspace } from './types';
+import type { Project, SpecFile, SpecInitStatus, Workspace } from './types';
 import { mockWorkspace } from './mockWorkspace';
-import { IconBox } from './components/IconBox/IconBox';
-import { PreflightAlert } from './components/PreflightAlert/PreflightAlert';
-import { StatusChip } from './components/StatusChip/StatusChip';
 import { ProjectSelection } from './components/ProjectSelection/ProjectSelection';
 import { ProjectSettings } from './components/ProjectSettings/ProjectSettings';
 import { SkillsHubDashboard } from './components/SkillsHubDashboard/SkillsHubDashboard';
 import { SkillsHubSettings } from './components/SkillsHubSettings/SkillsHubSettings';
 import { SpecFilesDashboard } from './spec/SpecFilesDashboard/SpecFilesDashboard';
 import { WorkflowDashboard } from './workflow/WorkflowDashboard/WorkflowDashboard';
-import { WorkflowExecution } from './workflow/WorkflowExecution/WorkflowExecution';
 import { WorkflowPromptDialog } from './workflow/WorkflowPromptDialog/WorkflowPromptDialog';
-import { listWorkflowGroups, listWorkflows, startWorkflow } from './workflow/workflowApi';
+import { listWorkflowGroups, listWorkflows } from './workflow/workflowApi';
 import type { WorkflowDefinition, WorkflowGroup } from './workflow/workflowTypes';
 import { workflowsForProject } from './workflow/workflowVisibility';
 import { AppShell } from './components/AppShell/AppShell';
-import { StackServiceIcon } from './components/StackServiceIcon/StackServiceIcon';
+import { CustomerHero } from './components/CustomerHero/CustomerHero';
+import { SiteHeader } from './components/SiteHeader/SiteHeader';
+import { SpecPanel } from './components/SpecPanel/SpecPanel';
+import { StatusBar } from './components/StatusBar/StatusBar';
+import { EvidencePanel } from './components/WorkspacePanels/EvidencePanel';
+import { PullRequestPanel } from './components/WorkspacePanels/PullRequestPanel';
+import { QualityPanel } from './components/WorkspacePanels/QualityPanel';
+import { FlowPanel } from './components/FlowPanel/FlowPanel';
+import { useRunLauncher } from './useRunLauncher';
 
 type AppView =
   | 'project-selection'
@@ -128,31 +129,6 @@ function App() {
     setSpecsLoading(false);
   }
 
-  useEffect(() => {
-    if (!authReady || !selectedProject) return;
-    const customerId = selectedProject.customerId ?? selectedProject.id;
-    void loadWorkspace(customerId)
-      .then(setWorkspace)
-      .catch(() => {
-        // Error handled by API layer
-      });
-    setActiveRun(null);
-    setRunEnded(false);
-    setInitResult(null);
-    setInitError(null);
-    void reloadSpecs(selectedProject.id);
-    void listWorkflows()
-      .then(setWorkflows)
-      .catch(() => {
-        // Error handled by API layer
-      });
-    void listWorkflowGroups()
-      .then(setWorkflowGroups)
-      .catch(() => {
-        // Error handled by API layer
-      });
-  }, [authReady, selectedProject]);
-
   function handleSelectProject(project: Project) {
     setSelectedProject(project);
     setStoredProjectId(project.id);
@@ -167,22 +143,9 @@ function App() {
     }
   }
 
-  const [buttonState, setButtonState] = useState<'idle' | 'preflight' | 'starting' | 'error'>(
-    'idle',
-  );
-  const [preflightErrors, setPreflightErrors] = useState<PreflightError[] | null>(null);
-  const [activeRun, setActiveRun] = useState<{
-    workflow: WorkflowDefinition;
-    runId: string;
-  } | null>(null);
-  const [runEnded, setRunEnded] = useState(false);
-  const [initResult, setInitResult] = useState<SpecInitResult | null>(null);
-  const [initError, setInitError] = useState<string | null>(null);
   const [specInitStatus, setSpecInitStatus] = useState<SpecInitStatus | null>(null);
-  const [promptWorkflow, setPromptWorkflow] = useState<WorkflowDefinition | null>(null);
 
   const selected = specs.find((s) => s.id === selectedSpecId) ?? specs[0];
-  const visibleSpecs = useMemo(() => specs.slice(0, 4), [specs]);
   const hasSpecs = !specsLoading && specs.length > 0;
 
   const projectWorkflows = useMemo(
@@ -196,103 +159,36 @@ function App() {
     }
   }, [projectWorkflows, selectedWorkflowId]);
 
-  async function runPreflight(): Promise<boolean> {
-    if (!selectedProject) return false;
-    setButtonState('preflight');
-    setPreflightErrors(null);
-    try {
-      const preflight = await checkWorkflowPreflight(selectedProject.id);
-      if (!preflight.passed) {
-        setPreflightErrors(preflight.errors);
-        setButtonState('idle');
-        return false;
-      }
-      return true;
-    } catch {
-      setPreflightErrors([
-        { code: 'UNKNOWN_ERROR', message: 'Pre-flight check could not be completed.' },
-      ]);
-      setButtonState('idle');
-      return false;
-    }
-  }
+  const launcher = useRunLauncher({
+    selectedProject,
+    projectWorkflows,
+    selectedWorkflowId,
+    selectedSpec: selected,
+  });
+  const { buttonState, promptWorkflow } = launcher;
 
-  async function handleStartWorkflow() {
-    const workflow = projectWorkflows.find((w) => w.id === selectedWorkflowId);
-    if (!workflow) return;
-    if (workflow.promptRequired) {
-      setPromptWorkflow(workflow);
-      return;
-    }
-    await launchWorkflow(workflow, {});
-  }
-
-  async function handlePromptSubmit(prompt: string) {
-    if (!promptWorkflow) return;
-    const workflow = promptWorkflow;
-    await launchWorkflow(workflow, { prompt });
-  }
-
-  async function launchWorkflow(workflow: WorkflowDefinition, input: { prompt?: string }) {
-    if (!(await runPreflight())) {
-      setPromptWorkflow(null);
-      return;
-    }
-    setButtonState('starting');
-    try {
-      const result = await startWorkflow(workflow.id, {
-        ...input,
-        specFile: selected?.fileName,
-        repositoryUrl: selectedProject?.gitUrl,
-        projectId: selectedProject?.id,
+  useEffect(() => {
+    if (!authReady || !selectedProject) return;
+    const customerId = selectedProject.customerId ?? selectedProject.id;
+    void loadWorkspace(customerId)
+      .then(setWorkspace)
+      .catch(() => {
+        // Error handled by API layer
       });
-      setPromptWorkflow(null);
-      setActiveRun({ workflow, runId: result.executionId });
-      setRunEnded(false);
-      setButtonState('idle');
-    } catch {
-      setButtonState('error');
-    }
-  }
-
-  // The default spec-creation workflow (global group) — used when the
-  // repository already has a .specify folder but no specs yet.
-  const specCreateWorkflow =
-    projectWorkflows.find((w) => w.id === 'wf-spec-create') ??
-    projectWorkflows.find((w) => w.promptRequired);
-
-  function handleCreateSpecWithPrompt() {
-    if (specCreateWorkflow) setPromptWorkflow(specCreateWorkflow);
-  }
-
-  async function handleInitSpecFolder() {
-    if (!selectedProject || !(await runPreflight())) return;
-
-    setButtonState('starting');
-    setInitError(null);
-    try {
-      const result = await initSpecFolder(selectedProject.id);
-      setInitResult(result);
-      setButtonState('idle');
-    } catch (error) {
-      setInitError(error instanceof Error ? error.message : 'Spec folder initialization failed');
-      setButtonState('error');
-    }
-  }
-
-  function handleNewRun() {
-    setActiveRun(null);
-    setRunEnded(false);
-  }
-
-  const visiblePullRequests = useMemo(
-    () => workspace.pullRequests.slice(0, 2),
-    [workspace.pullRequests],
-  );
-  const visibleEvidence = useMemo(
-    () => [...workspace.evidenceEvents].reverse().slice(0, 3),
-    [workspace.evidenceEvents],
-  );
+    launcher.reset();
+    void reloadSpecs(selectedProject.id);
+    void listWorkflows()
+      .then(setWorkflows)
+      .catch(() => {
+        // Error handled by API layer
+      });
+    void listWorkflowGroups()
+      .then(setWorkflowGroups)
+      .catch(() => {
+        // Error handled by API layer
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- launcher.reset only needs to run when the project changes
+  }, [authReady, selectedProject]);
 
   if (!authReady) {
     return (
@@ -353,144 +249,29 @@ function App() {
 
   return (
     <AppShell>
-
       {promptWorkflow && (
         <WorkflowPromptDialog
           workflowName={promptWorkflow.name}
           busy={buttonState === 'preflight' || buttonState === 'starting'}
           onSubmit={(prompt) => {
-            void handlePromptSubmit(prompt);
+            void launcher.handlePromptSubmit(prompt);
           }}
-          onCancel={() => {
-            setPromptWorkflow(null);
-            setButtonState('idle');
-          }}
+          onCancel={launcher.cancelPrompt}
         />
       )}
 
-      <header className="site-header">
-        <div className="brand">
-          <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
-        </div>
-
-        <nav className="main-nav" aria-label="Primary navigation">
-          <a href="#approach">Approach</a>
-          <a href="#platform" className="active">
-            Platform
-          </a>
-          <a href="#solutions">Solutions</a>
-        </nav>
-
-        <div className="header-actions">
-          <button
-            className="button button--workflow"
-            onClick={() => setView('workflow')}
-            title="Workflow Design & Execution"
-            data-testid="nav-workflow"
-          >
-            ⚡ Workflow Design &amp; Execution
-          </button>
-          <button
-            className="button button--workflow"
-            onClick={() => setView('spec-files')}
-            title="Spec Files"
-            data-testid="nav-spec-files"
-          >
-            📄 Spec Files
-          </button>
-          <button
-            className="button button--workflow"
-            onClick={() => setView('skills-hub')}
-            title="Skills Hub"
-            data-testid="nav-skills-hub"
-          >
-            🧩 Skills Hub
-          </button>
-          {projects.length > 0 && (
-            <select
-              className="project-dropdown"
-              value={selectedProject?.id ?? ''}
-              onChange={(e) => handleProjectDropdownChange(e.target.value)}
-              title="Active project"
-            >
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          )}
-          <button className="back-button" onClick={() => setView('settings')} title="Project management">
-            ⚙
-          </button>
-          <button
-            className="back-button"
-            onClick={() => {
-              window.location.href = 'http://localhost:3000';
-            }}
-            title="Back to portal"
-            data-testid="nav-portal"
-          >
-            ← Portal
-          </button>
-          <span className="notification">3</span>
-          <span className="avatar">D</span>
-        </div>
-      </header>
+      <SiteHeader
+        projects={projects}
+        selectedProject={selectedProject}
+        onProjectChange={handleProjectDropdownChange}
+        onWorkflow={() => setView('workflow')}
+        onSpecFiles={() => setView('spec-files')}
+        onSkillsHub={() => setView('skills-hub')}
+        onSettings={() => setView('settings')}
+      />
 
       <main className="workspace">
-        <section className="workspace-hero">
-          <div className="customer-block">
-            <div className="customer-title">
-              <IconBox label="◇" variant="hero" />
-              <div>
-                <h1>
-                  Customer: {selectedProject?.name ?? workspace.customer.name}
-                  {selectedProject && selectedProject.gitStatus === 'ACCESSIBLE' && (
-                    <span
-                      className="git-status-ok"
-                      aria-label="Git reachable"
-                      style={{ marginLeft: 10, fontSize: 14 }}
-                    >
-                      {' '}
-                      ✓
-                    </span>
-                  )}
-                  {selectedProject &&
-                    (selectedProject.gitStatus === 'NOT_ACCESSIBLE' ||
-                      selectedProject.gitStatus === 'CHECK_FAILED') && (
-                      <span
-                        className="git-status-error"
-                        aria-label="Git not reachable"
-                        style={{ marginLeft: 10, fontSize: 14 }}
-                      >
-                        {' '}
-                        ✗
-                      </span>
-                    )}
-                </h1>
-                <div className="customer-meta">
-                  <span>Sector: {workspace.customer.sector}</span>
-                  <span>Environment: {workspace.customer.environment}</span>
-                  <span>Last active: {workspace.customer.lastActive}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="stack-status">
-            {workspace.stack.map((service, index) => (
-              <article className="stack-card" key={service.name}>
-                <StackServiceIcon variant={index === 0 ? 'hub' : 'spring'} />
-                <div>
-                  <strong>{service.name}</strong>
-                  <span>{service.description}</span>
-                </div>
-                <i aria-label={service.status} />
-              </article>
-            ))}
-          </div>
-        </section>
+        <CustomerHero selectedProject={selectedProject} workspace={workspace} />
 
         <section className="top-tools">
           <div className="search">
@@ -503,374 +284,38 @@ function App() {
         </section>
 
         <section className="dashboard-grid">
-          <aside className="panel spec-panel">
-            <header className="panel-header panel-header--simple">
-              <div className="panel-title">
-                <IconBox label="📄" compact /> <h2>Spec</h2>
-              </div>
-            </header>
+          <SpecPanel
+            specs={specs}
+            loading={specsLoading}
+            selectedSpecId={selectedSpecId}
+            selected={selected}
+            onSelect={setSelectedSpecId}
+            onGoToWorkflow={() => setView('workflow')}
+            onViewAll={() => setView('spec-files')}
+          />
 
-            <div className="spec-list">
-              {specsLoading && <p className="spec-list-loading">Loading specs…</p>}
-              {!specsLoading && specs.length === 0 && (
-                <>
-                  <article className="spec-card spec-card--empty">
-                    <IconBox label="📄" compact />
-                    <div>
-                      <strong>No Specs Found</strong>
-                      <span>No specs/ folder with specifications in the repository</span>
-                    </div>
-                  </article>
-                  <button className="button" onClick={() => setView('workflow')}>
-                    ⚡ Go to Workflow Design &amp; Execution
-                  </button>
-                  <p className="spec-empty-hint">
-                    Design or select a workflow there to create spec files.
-                  </p>
-                </>
-              )}
-              {visibleSpecs.map((spec) => (
-                <button
-                  className={`spec-card ${spec.id === selectedSpecId ? 'is-selected' : ''}`}
-                  key={spec.id}
-                  onClick={() => setSelectedSpecId(spec.id)}
-                  aria-pressed={spec.id === selectedSpecId}
-                >
-                  <IconBox label="📄" compact />
-                  <div>
-                    <strong>{spec.fileName}</strong>
-                    <span>Last modified: {spec.lastChanged}</span>
-                  </div>
-                  {spec.id === selectedSpecId && (
-                    <span className="active-rail" aria-hidden="true" />
-                  )}
-                </button>
-              ))}
-            </div>
+          <FlowPanel
+            launcher={launcher}
+            specsLoading={specsLoading}
+            hasSpecs={hasSpecs}
+            selectedFileName={selected?.fileName}
+            projectWorkflows={projectWorkflows}
+            selectedWorkflowId={selectedWorkflowId}
+            onWorkflowChange={setSelectedWorkflowId}
+            specInitStatus={specInitStatus}
+            onReloadSpecs={() => {
+              if (selectedProject) void reloadSpecs(selectedProject.id);
+            }}
+            onOpenProjectSettings={() => setView('settings')}
+          />
 
-            {selected?.content && (
-              <div className="spec-content">
-                <pre>{selected.content}</pre>
-              </div>
-            )}
-
-            {hasSpecs && (
-              <button className="link-button" onClick={() => setView('spec-files')}>
-                View all specs <span>→</span>
-              </button>
-            )}
-          </aside>
-
-          <section className="panel flow-panel">
-            <header className="panel-header flow-header">
-              <div>
-                <span className="eyebrow">{hasSpecs ? 'Current spec' : 'Spec folder'}</span>
-                <h2>
-                  {specsLoading
-                    ? 'Loading specs…'
-                    : hasSpecs
-                      ? selected?.fileName
-                      : 'No specs found'}
-                </h2>
-              </div>
-              <div className="flow-header-actions">
-                {activeRun && !runEnded && <StatusChip label="Active" kind="active" />}
-              </div>
-            </header>
-
-            {preflightErrors && (
-              <PreflightAlert
-                errors={preflightErrors}
-                onDismiss={() => setPreflightErrors(null)}
-                onOpenProjectSettings={() => setView('settings')}
-              />
-            )}
-
-            {activeRun && (
-              <>
-                <WorkflowExecution
-                  workflow={activeRun.workflow}
-                  runId={activeRun.runId}
-                  onRunEnded={() => setRunEnded(true)}
-                  showHistory={false}
-                />
-                {runEnded && (
-                  <button className="button workflow-launcher-reset" onClick={handleNewRun}>
-                    ↺ Start new workflow
-                  </button>
-                )}
-              </>
-            )}
-
-            {!activeRun && !specsLoading && hasSpecs && (
-              <div className="workflow-launcher">
-                <label htmlFor="workflow-select">Workflow</label>
-                <select
-                  id="workflow-select"
-                  className="project-dropdown workflow-select"
-                  value={selectedWorkflowId}
-                  onChange={(e) => setSelectedWorkflowId(e.target.value)}
-                  disabled={projectWorkflows.length === 0}
-                >
-                  {projectWorkflows.length === 0 && (
-                    <option value="">No workflows available</option>
-                  )}
-                  {projectWorkflows.map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.name}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  className="button button--start"
-                  onClick={() => {
-                    void handleStartWorkflow();
-                  }}
-                  disabled={
-                    buttonState === 'preflight' ||
-                    buttonState === 'starting' ||
-                    projectWorkflows.length === 0
-                  }
-                >
-                  {buttonState === 'preflight'
-                    ? '⟳ Running pre-flight checks…'
-                    : buttonState === 'starting'
-                      ? '⟳ Starting…'
-                      : buttonState === 'error'
-                        ? '✕ Error'
-                        : '▶ Start'}
-                </button>
-                {projectWorkflows.length === 0 && (
-                  <p className="workflow-launcher-hint">
-                    No workflows for this project. Create one via Workflow Design &amp;
-                    Execution.
-                  </p>
-                )}
-              </div>
-            )}
-
-            {!activeRun &&
-              !specsLoading &&
-              !hasSpecs &&
-              !initResult &&
-              specInitStatus?.templateExists && (
-                <div className="spec-init-result">
-                  <StatusChip label="Spec structure present" kind="ok" />
-                  <p>
-                    The repository already has a .specify folder, but no specs in the specs/
-                    folder yet. Create the first spec with a prompt — the workflow combines your
-                    prompt with the repository contents (RAG) into a small, executable spec file.
-                  </p>
-                  <button
-                    className="button button--start"
-                    onClick={handleCreateSpecWithPrompt}
-                    disabled={!specCreateWorkflow}
-                  >
-                    ✨ Create spec with prompt
-                  </button>
-                  {!specCreateWorkflow && (
-                    <p className="workflow-launcher-hint">
-                      De workflow &quot;Create spec from prompt (RAG)&quot; is not available
-                      for this project.
-                    </p>
-                  )}
-                </div>
-              )}
-
-            {!activeRun &&
-              !specsLoading &&
-              !hasSpecs &&
-              !initResult &&
-              !specInitStatus?.templateExists &&
-              specInitStatus?.pending && (
-                <div className="spec-init-result">
-                  <StatusChip label="Pull request open" kind="open" />
-                  <p>
-                    A branch with the spec template is already prepared
-                    {specInitStatus.branch ? `: ${specInitStatus.branch}` : ''}. Merge the
-                    corresponding pull request to add the .specify folder.
-                  </p>
-                  {specInitStatus.branchUrl && (
-                    <a
-                      className="button"
-                      href={specInitStatus.branchUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      ⎇ View branch on the repository
-                    </a>
-                  )}
-                  {specInitStatus.pullRequestUrl && (
-                    <a
-                      className="link-button"
-                      href={specInitStatus.pullRequestUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Open pull request <span>→</span>
-                    </a>
-                  )}
-                  <button
-                    className="button button--small"
-                    onClick={() => {
-                      if (selectedProject) void reloadSpecs(selectedProject.id);
-                    }}
-                  >
-                    ⟳ Reload specs
-                  </button>
-                </div>
-              )}
-
-            {!activeRun &&
-              !specsLoading &&
-              !hasSpecs &&
-              !initResult &&
-              !specInitStatus?.templateExists &&
-              !specInitStatus?.pending && (
-                <div className="workflow-launcher">
-                  <label htmlFor="workflow-select">Workflow</label>
-                  <select
-                    id="workflow-select"
-                    className="project-dropdown workflow-select"
-                    value="spec-init"
-                    disabled
-                  >
-                    <option value="spec-init">
-                      Spec folder initialization — spec template via pull request
-                    </option>
-                  </select>
-                  <button
-                    className="button button--start"
-                    onClick={() => {
-                      void handleInitSpecFolder();
-                    }}
-                    disabled={buttonState === 'preflight' || buttonState === 'starting'}
-                  >
-                    {buttonState === 'preflight'
-                      ? '⟳ Running pre-flight checks…'
-                      : buttonState === 'starting'
-                        ? '⟳ Starting…'
-                        : buttonState === 'error'
-                          ? '✕ Error'
-                          : '▶ Start'}
-                  </button>
-                  <p className="workflow-launcher-hint">
-                    This workflow creates a .specify folder with the spec template and offers it
-                    as a pull request on the repository.
-                  </p>
-                  {initError && <p className="workflow-launcher-error">{initError}</p>}
-                </div>
-              )}
-
-            {!activeRun && !specsLoading && !hasSpecs && initResult && (
-              <div className="spec-init-result">
-                <StatusChip label="Pull request offered" kind="ok" />
-                <p>{initResult.message}</p>
-                {initResult.pullRequestUrl && (
-                  <a
-                    className="link-button"
-                    href={initResult.pullRequestUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Open pull request <span>→</span>
-                  </a>
-                )}
-                <button
-                  className="button button--small"
-                  onClick={() => {
-                    if (selectedProject) void reloadSpecs(selectedProject.id);
-                  }}
-                >
-                  ⟳ Reload specs
-                </button>
-              </div>
-            )}
-          </section>
-
-          <aside className="panel quality-panel">
-            <header className="panel-header panel-header--quality">
-              <div className="panel-title">
-                <IconBox label="✓" compact /> <h2>Quality status</h2>
-              </div>
-              <button className="small-link">Open quality dashboard ↗</button>
-            </header>
-
-            <div className="quality-list">
-              {workspace.qualityControls.map((control) => (
-                <article className="quality-row" key={control.name}>
-                  <IconBox label="⌬" compact />
-                  <strong>{control.name}</strong>
-                  <span className="check">✓</span>
-                </article>
-              ))}
-            </div>
-
-            <button className="link-button">
-              View all quality rules <span>→</span>
-            </button>
-          </aside>
-
-          <section className="panel pr-panel">
-            <header className="panel-header panel-header--simple">
-              <div className="panel-title">
-                <IconBox label="⌯" compact /> <h2>Open pull requests</h2>
-              </div>
-              <button className="small-link">
-                View all pull requests <span>→</span>
-              </button>
-            </header>
-
-            <div className="pr-list">
-              {visiblePullRequests.map((pr) => (
-                <article className="pr-card" key={pr.id}>
-                  <span className="pr-badge">PR #{pr.id}</span>
-                  <div>
-                    <strong>{pr.title}</strong>
-                    <span>
-                      {pr.ownerName} · {pr.createdAt.replace(' today', '')}
-                    </span>
-                  </div>
-                  <StatusChip label={pr.status} kind={pr.statusKind} />
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section className="panel evidence-panel">
-            <header className="panel-header panel-header--simple">
-              <div className="panel-title">
-                <IconBox label="⌁" compact /> <h2>Execution evidence</h2>
-              </div>
-              <button className="small-link">
-                View evidence <span>→</span>
-              </button>
-            </header>
-
-            <div className="evidence-timeline">
-              {visibleEvidence.map((event) => (
-                <article className="evidence-event" key={`${event.time}-${event.title}`}>
-                  <time>{event.time}</time>
-                  <div>
-                    <strong>{event.title}</strong>
-                    <span>By: {event.actor}</span>
-                  </div>
-                  <span className="check">✓</span>
-                </article>
-              ))}
-            </div>
-          </section>
+          <QualityPanel controls={workspace.qualityControls} />
+          <PullRequestPanel pullRequests={workspace.pullRequests} />
+          <EvidencePanel events={workspace.evidenceEvents} />
         </section>
       </main>
 
-      <footer className="status-bar">
-        <span>● Environment: {workspace.footer.environment}</span>
-        <span>☁ Region: {workspace.footer.region}</span>
-        <span>⬡ Classification: {workspace.footer.dataClassification}</span>
-        <span>Embabel version: {workspace.footer.embabelVersion}</span>
-        <span>Spring AI Control Service: {workspace.footer.springAiControlVersion}</span>
-        <span>© 2026 Metafactory B.V.</span>
-      </footer>
+      <StatusBar footer={workspace.footer} />
     </AppShell>
   );
 }

@@ -1,6 +1,6 @@
 import './ProjectSettings.scss';
 import { useEffect, useRef, useState } from 'react';
-import type { GitStatus, Project, ProjectGitCredentialRequest, ProjectRequest } from '../../types';
+import type { Project, ProjectGitCredentialRequest, ProjectRequest } from '../../types';
 import {
   activateProject,
   createProject,
@@ -13,6 +13,7 @@ import {
   updateProject,
 } from '../../api';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
+import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
 import { SelectField } from '../FormFields/SelectField/SelectField';
 import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';
@@ -38,35 +39,6 @@ const EMPTY_CRED_FORM: ProjectGitCredentialRequest = {
   secret: '',
   githubApiUrl: '',
 };
-
-function GitStatusBadge({ status }: { status: GitStatus }) {
-  if (status === 'ACCESSIBLE') {
-    return (
-      <span className="git-status-ok" aria-label="Reachable">
-        ✓ Reachable
-      </span>
-    );
-  }
-  if (status === 'NOT_ACCESSIBLE') {
-    return (
-      <span className="git-status-error" aria-label="Not reachable">
-        ✗ Not reachable
-      </span>
-    );
-  }
-  if (status === 'CHECK_FAILED') {
-    return (
-      <span className="git-status-error" aria-label="Check failed">
-        ✗ Check failed
-      </span>
-    );
-  }
-  return (
-    <span className="git-status-unknown" aria-label="Unknown">
-      … Unknown
-    </span>
-  );
-}
 
 export function ProjectSettings({ onBack }: Props) {
   const [projects, setProjects] = useState<Project[]>([]);
