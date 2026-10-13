@@ -1,6 +1,7 @@
 package nl.metafactory.agents.api;
 
 import nl.metafactory.agents.policy.PolicyDecisionLogExportService;
+import nl.metafactory.agents.policy.model.DecisionLogFilter;
 import nl.metafactory.agents.policy.model.PolicyDecisionAuditEntry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -44,5 +46,24 @@ class WorkflowExecutionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("d-1"))
                 .andExpect(jsonPath("$[0].opaDecisionResult").value("DENIED"));
+    }
+
+    @Test
+    void decisionLogsBindsQueryParametersIntoFilter() throws Exception {
+        when(decisionLogExportService.exportDecisionLogsForWorkflowExecution(any(), any())).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/workflow-executions/run-1/decision-logs")
+                        .param("from", "2026-01-01T00:00:00Z")
+                        .param("to", "2026-02-01T00:00:00Z")
+                        .param("agentId", "a-1")
+                        .param("subagentId", "s-1")
+                        .param("skillId", "k-1")
+                        .param("mcpToolName", "git_push")
+                        .param("result", "DENIED"))
+                .andExpect(status().isOk());
+
+        verify(decisionLogExportService).exportDecisionLogsForWorkflowExecution("run-1",
+                new DecisionLogFilter(Instant.parse("2026-01-01T00:00:00Z"), Instant.parse("2026-02-01T00:00:00Z"),
+                        "a-1", "s-1", "k-1", "git_push", "DENIED"));
     }
 }

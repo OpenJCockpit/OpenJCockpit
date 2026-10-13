@@ -2,7 +2,6 @@ package nl.metafactory.agents.api;
 
 import nl.metafactory.agents.model.RunInitiator;
 import nl.metafactory.agents.policy.PolicyDecisionLogExportService;
-import nl.metafactory.agents.policy.model.DecisionLogFilter;
 import nl.metafactory.agents.policy.model.PolicyDecisionAuditEntry;
 import nl.metafactory.agents.workflow.WorkflowDefinitionValidator;
 import nl.metafactory.agents.workflow.WorkflowDefinitionRepository;
@@ -23,7 +22,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -144,17 +142,8 @@ public class WorkflowController {
     }
 
     @GetMapping("/{id}/decision-logs")
-    public List<PolicyDecisionAuditEntry> decisionLogs(
-            @PathVariable String id,
-            @RequestParam(required = false) Instant from,
-            @RequestParam(required = false) Instant to,
-            @RequestParam(required = false) String agentId,
-            @RequestParam(required = false) String subagentId,
-            @RequestParam(required = false) String skillId,
-            @RequestParam(required = false) String mcpToolName,
-            @RequestParam(required = false) String result) {
-        var filter = new DecisionLogFilter(from, to, agentId, subagentId, skillId, mcpToolName, result);
-        return decisionLogExportService.exportDecisionLogsForWorkflow(id, filter);
+    public List<PolicyDecisionAuditEntry> decisionLogs(@PathVariable String id, DecisionLogQuery query) {
+        return decisionLogExportService.exportDecisionLogsForWorkflow(id, query.toFilter());
     }
 
     private String currentUsername() {
