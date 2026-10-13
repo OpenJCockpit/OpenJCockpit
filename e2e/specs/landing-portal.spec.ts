@@ -38,23 +38,8 @@
 
 import { test, expect } from '../support/fixtures.js';
 import { env } from '../support/env.js';
+import { tabUntilFocused } from '../support/keyboard.js';
 import { testIds, PORTAL_ORB_IDS, portalOrbTestId } from '../support/testIds.js';
-import type { Locator, Page } from '@playwright/test';
-
-const MAX_TAB_PRESSES = 40;
-
-async function tabUntilFocused(page: Page, locator: Locator, description: string): Promise<void> {
-  for (let i = 0; i < MAX_TAB_PRESSES; i++) {
-    await page.keyboard.press('Tab');
-    const focused = await locator
-      .evaluate((el) => el === document.activeElement)
-      .catch(() => false);
-    if (focused) return;
-  }
-  throw new Error(
-    `AC-21: could not reach ${description} via keyboard Tab within ${MAX_TAB_PRESSES} presses`,
-  );
-}
 
 test.describe('landing portal orbs (authenticated, keyboard-only)', () => {
   test('AC-21 / AC-22: both portal orbs are reachable via Tab with real DOM focus, located by data-testid', async ({
