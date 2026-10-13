@@ -4,23 +4,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Entity
 @Table(name = "projects")
-public class Project {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+public class Project extends AuditedEntity {
 
     @Column(nullable = false)
     private String name;
@@ -41,9 +31,6 @@ public class Project {
 
     private String owner;
 
-    @Column(nullable = false)
-    private short active = 1;
-
     @Column(name = "new_project", nullable = false)
     private short newProject = 0;
 
@@ -56,26 +43,6 @@ public class Project {
 
     @Column(name = "git_status_message", length = 500)
     private String gitStatusMessage;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
-    @PrePersist
-    void prePersist() {
-        createdAt = Instant.now();
-        updatedAt = createdAt;
-    }
-
-    @PreUpdate
-    void preUpdate() {
-        updatedAt = Instant.now();
-    }
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -98,9 +65,6 @@ public class Project {
     public String getOwner() { return owner; }
     public void setOwner(String owner) { this.owner = owner; }
 
-    public short getActive() { return active; }
-    public void setActive(short active) { this.active = active; }
-
     public short getNewProject() { return newProject; }
     public void setNewProject(short newProject) { this.newProject = newProject; }
 
@@ -112,10 +76,4 @@ public class Project {
 
     public String getGitStatusMessage() { return gitStatusMessage; }
     public void setGitStatusMessage(String gitStatusMessage) { this.gitStatusMessage = gitStatusMessage; }
-
-    public Instant getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-
-    public Instant getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }
