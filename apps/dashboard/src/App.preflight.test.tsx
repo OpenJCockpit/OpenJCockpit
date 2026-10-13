@@ -46,7 +46,10 @@ async function renderDashboard() {
   mockDashboardApis();
 
   render(<App />);
-  await screen.findByText('▶ Start');
+  await waitFor(() => {
+    expect(screen.getByLabelText('Workflow')).toHaveValue(WORKFLOW.id);
+    expect(screen.getByText('▶ Start')).toBeEnabled();
+  });
 }
 
 describe('pre-flight checks before starting a workflow', () => {
