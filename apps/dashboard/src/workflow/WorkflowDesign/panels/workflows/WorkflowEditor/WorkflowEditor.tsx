@@ -4,6 +4,9 @@ import type { WorkflowDefinition, WorkflowGroup } from '../../../../workflowType
 import { candidateOrbTargets } from '../../../../workflowVisibility';
 import { selectedStagesInOrder } from '../../../utils';
 import { AgentPicker } from './AgentPicker';
+import { SelectField } from '../../../../../components/FormFields/SelectField/SelectField';
+import { TextAreaField } from '../../../../../components/FormFields/TextAreaField/TextAreaField';
+import { TextField } from '../../../../../components/FormFields/TextField/TextField';
 import { EditorForm } from '../../shared/EditorForm';
 import { OrbEditor } from './OrbEditor';
 
@@ -50,77 +53,56 @@ export function WorkflowEditor({
       onCancel={onCancel}
       saveDescribedBy={saveError ? 'workflow-save-error' : undefined}
     >
-      <label>
-        Workflow ID
-        <input
-          className="settings-input"
-          value={form.id}
-          disabled={!isNew}
-          onChange={(e) => setForm((f) => ({ ...f, id: e.target.value }))}
-          placeholder="Auto-generated if left blank"
-        />
-        {isNew && (
-          <span className="settings-desc">
-            Optional — a unique ID is generated automatically if you leave this blank.
-          </span>
-        )}
-      </label>
-      <label>
-        Workflow name
-        <input
-          className="settings-input"
-          value={form.name}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-          placeholder="Customer Onboarding"
-        />
-      </label>
-      <label>
-        Project name
-        <input
-          className="settings-input"
-          value={form.projectName}
-          onChange={(e) => setForm((f) => ({ ...f, projectName: e.target.value }))}
-        />
-        <span className="settings-desc">
-          Optional when the workflow is in a group; required without one.
-        </span>
-      </label>
-      <label>
-        Group
-        <select
-          className="settings-input"
-          value={form.groupId ?? ''}
-          onChange={(e) => setForm((f) => ({ ...f, groupId: e.target.value }))}
-        >
-          <option value="">No group</option>
-          {groups.map((g) => (
-            <option key={g.id} value={g.id}>
-              {g.name}
-            </option>
-          ))}
-        </select>
-        <span className="settings-desc">
-          Bundle workflows with a shared meaning. Manage groups in the Groups tab.
-        </span>
-      </label>
-      <label>
-        Status
-        <input
-          className="settings-input"
-          value={form.status}
-          onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
-          placeholder="ACTIVE"
-        />
-      </label>
-      <label className="workflow-design-field--full">
-        Description
-        <textarea
-          className="settings-input"
-          rows={2}
-          value={form.description}
-          onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-        />
-      </label>
+      <TextField
+        label="Workflow ID"
+        value={form.id}
+        disabled={!isNew}
+        onChange={(v) => setForm((f) => ({ ...f, id: v }))}
+        placeholder="Auto-generated if left blank"
+        hint={
+          isNew
+            ? 'Optional — a unique ID is generated automatically if you leave this blank.'
+            : undefined
+        }
+      />
+      <TextField
+        label="Workflow name"
+        value={form.name}
+        onChange={(v) => setForm((f) => ({ ...f, name: v }))}
+        placeholder="Customer Onboarding"
+      />
+      <TextField
+        label="Project name"
+        value={form.projectName}
+        onChange={(v) => setForm((f) => ({ ...f, projectName: v }))}
+        hint="Optional when the workflow is in a group; required without one."
+      />
+      <SelectField
+        label="Group"
+        value={form.groupId ?? ''}
+        onChange={(v) => setForm((f) => ({ ...f, groupId: v }))}
+        hint="Bundle workflows with a shared meaning. Manage groups in the Groups tab."
+      >
+        <option value="">No group</option>
+        {groups.map((g) => (
+          <option key={g.id} value={g.id}>
+            {g.name}
+          </option>
+        ))}
+      </SelectField>
+      <TextField
+        label="Status"
+        value={form.status}
+        onChange={(v) => setForm((f) => ({ ...f, status: v }))}
+        placeholder="ACTIVE"
+      />
+      <TextAreaField
+        label="Description"
+        wide
+        rows={2}
+        value={form.description}
+        onChange={(v) => setForm((f) => ({ ...f, description: v }))}
+      />
       <AgentPicker
         availableAgents={availableAgents}
         agentIds={form.agentIds}
@@ -151,27 +133,24 @@ export function WorkflowEditor({
       </label>
       {form.approvalGate?.enabled && (
         <div className="workflow-design-field--full">
-          <label htmlFor="approval-gate-placement">
-            Gate placement
-            <select
-              id="approval-gate-placement"
-              className="settings-input"
-              aria-describedby="approval-gate-note"
-              value={form.approvalGate.placementStage}
-              onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  approvalGate: { enabled: true, placementStage: e.target.value },
-                }))
-              }
-            >
-              {selectedStagesInOrder(availableAgents, form.agentIds).map((agent) => (
-                <option key={agent.id} value={agent.id}>
-                  {agent.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SelectField
+            id="approval-gate-placement"
+            label="Gate placement"
+            aria-describedby="approval-gate-note"
+            value={form.approvalGate.placementStage}
+            onChange={(v) =>
+              setForm((f) => ({
+                ...f,
+                approvalGate: { enabled: true, placementStage: v },
+              }))
+            }
+          >
+            {selectedStagesInOrder(availableAgents, form.agentIds).map((agent) => (
+              <option key={agent.id} value={agent.id}>
+                {agent.name}
+              </option>
+            ))}
+          </SelectField>
           <p id="approval-gate-note" className="settings-desc approval-gate-note">
             {form.approvalGate.placementStage === 'realisation'
               ? 'Up to 3 feedback iterations are available at this gate.'
@@ -198,19 +177,15 @@ export function WorkflowEditor({
           + RAG).
         </span>
       </label>
-      <label className="workflow-design-field--full">
-        Prompt instructions (prefix)
-        <textarea
-          className="settings-input"
-          rows={3}
-          value={form.promptInstructions ?? ''}
-          onChange={(e) => setForm((f) => ({ ...f, promptInstructions: e.target.value }))}
-          placeholder="Instructions prepended to the user's prompt, e.g. create a branch, create the spec from the template and push it for a pull request."
-        />
-        <span className="settings-desc">
-          Prepended to the user's prompt when the workflow starts.
-        </span>
-      </label>
+      <TextAreaField
+        label="Prompt instructions (prefix)"
+        wide
+        rows={3}
+        value={form.promptInstructions ?? ''}
+        onChange={(v) => setForm((f) => ({ ...f, promptInstructions: v }))}
+        placeholder="Instructions prepended to the user's prompt, e.g. create a branch, create the spec from the template and push it for a pull request."
+        hint="Prepended to the user's prompt when the workflow starts."
+      />
       <label>
         Dashboard button trigger
         <input
@@ -231,19 +206,16 @@ export function WorkflowEditor({
           }
         />
       </label>
-      <label>
-        Customer ID (execution)
-        <input
-          className="settings-input"
-          value={form.execution?.customerId ?? ''}
-          onChange={(e) =>
-            setForm((f) => ({
-              ...f,
-              execution: { ...(f.execution ?? {}), customerId: e.target.value },
-            }))
-          }
-        />
-      </label>
+      <TextField
+        label="Customer ID (execution)"
+        value={form.execution?.customerId ?? ''}
+        onChange={(v) =>
+          setForm((f) => ({
+            ...f,
+            execution: { ...(f.execution ?? {}), customerId: v },
+          }))
+        }
+      />
     </EditorForm>
   );
 }

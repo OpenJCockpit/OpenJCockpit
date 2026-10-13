@@ -13,7 +13,9 @@ import {
   updateProject,
 } from '../../api';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
-import { TextAreaField, TextField } from '../FormFields/FormFields';
+import { SelectField } from '../FormFields/SelectField/SelectField';
+import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
+import { TextField } from '../FormFields/TextField/TextField';
 
 interface Props {
   onBack: () => void;
@@ -385,46 +387,39 @@ export function ProjectSettings({ onBack }: Props) {
             ) : (
               <>
                 <div className="settings-form-grid">
-                  <label>
-                    Type
-                    <select
-                      className="settings-input"
-                      value={credForm.credentialType}
-                      onChange={(e) =>
-                        setCredForm((f) => ({
-                          ...f,
-                          credentialType: e.target
-                            .value as ProjectGitCredentialRequest['credentialType'],
-                        }))
-                      }
-                    >
-                      <option value="NONE">None</option>
-                      <option value="HTTPS_TOKEN">HTTPS Token</option>
-                      <option value="GITHUB_PAT">GitHub PAT</option>
-                      <option value="USERNAME_PASSWORD">Username + password</option>
-                      <option value="GITHUB_APP">GitHub App</option>
-                    </select>
-                  </label>
+                  <SelectField
+                    label="Type"
+                    value={credForm.credentialType}
+                    onChange={(v) =>
+                      setCredForm((f) => ({
+                        ...f,
+                        credentialType: v as ProjectGitCredentialRequest['credentialType'],
+                      }))
+                    }
+                  >
+                    <option value="NONE">None</option>
+                    <option value="HTTPS_TOKEN">HTTPS Token</option>
+                    <option value="GITHUB_PAT">GitHub PAT</option>
+                    <option value="USERNAME_PASSWORD">Username + password</option>
+                    <option value="GITHUB_APP">GitHub App</option>
+                  </SelectField>
                   <TextField
                     label="Username"
                     value={credForm.username ?? ''}
                     onChange={(v) => setCredForm((f) => ({ ...f, username: v }))}
                     placeholder="optional"
                   />
-                  <label>
-                    Secret / token / password
-                    <input
-                      className="settings-input"
-                      type="password"
-                      value={credForm.secret ?? ''}
-                      onChange={(e) => setCredForm((f) => ({ ...f, secret: e.target.value }))}
-                      placeholder={
-                        credHasSecret
-                          ? 'Leave empty to keep the current secret'
-                          : 'Required — no secret set yet'
-                      }
-                    />
-                  </label>
+                  <TextField
+                    label="Secret / token / password"
+                    type="password"
+                    value={credForm.secret ?? ''}
+                    onChange={(v) => setCredForm((f) => ({ ...f, secret: v }))}
+                    placeholder={
+                      credHasSecret
+                        ? 'Leave empty to keep the current secret'
+                        : 'Required — no secret set yet'
+                    }
+                  />
                   <TextField
                     label="GitHub API URL (GitHub Enterprise)"
                     value={credForm.githubApiUrl ?? ''}
@@ -433,8 +428,8 @@ export function ProjectSettings({ onBack }: Props) {
                   />
                 </div>
                 <p className="settings-desc">
-                  On save, a Git check is first run with these credentials; they are only
-                  stored if the check succeeds.
+                  On save, a Git check is first run with these credentials; they are only stored if
+                  the check succeeds.
                 </p>
               </>
             )}
@@ -487,9 +482,7 @@ export function ProjectSettings({ onBack }: Props) {
                 </td>
                 <td>
                   {project.hasCredentials ? (
-                    <span style={{ color: 'var(--teal)', fontSize: 12 }}>
-                      Credentials set
-                    </span>
+                    <span style={{ color: 'var(--teal)', fontSize: 12 }}>Credentials set</span>
                   ) : (
                     <span style={{ color: 'var(--faint)', fontSize: 12 }}>None</span>
                   )}

@@ -1,4 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
+import { TextAreaField } from '../../../../components/FormFields/TextAreaField/TextAreaField';
+import { TextField } from '../../../../components/FormFields/TextField/TextField';
 import type { SkillSpec } from '../../../workflowTypes';
 import { EditorForm } from '../shared/EditorForm';
 
@@ -19,56 +21,41 @@ export function SkillEditor({ isNew, form, setForm, saving, onSave, onCancel }: 
       onSave={onSave}
       onCancel={onCancel}
     >
-      <label>
-        Name
-        <input
-          className="settings-input"
-          value={form.name}
-          disabled={!isNew}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-        />
-      </label>
-      <label className="workflow-design-field--full">
-        Description
-        <input
-          className="settings-input"
-          value={form.description}
-          onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-        />
-      </label>
-      <label>
-        Input contract
-        <input
-          className="settings-input"
-          value={form.inputContract}
-          onChange={(e) => setForm((f) => ({ ...f, inputContract: e.target.value }))}
-        />
-      </label>
-      <label>
-        Output contract
-        <input
-          className="settings-input"
-          value={form.outputContract}
-          onChange={(e) => setForm((f) => ({ ...f, outputContract: e.target.value }))}
-        />
-      </label>
-      <label className="workflow-design-field--full">
-        Execution instructions
-        <textarea
-          className="settings-input"
-          rows={3}
-          value={form.executionInstructions}
-          onChange={(e) => setForm((f) => ({ ...f, executionInstructions: e.target.value }))}
-        />
-      </label>
-      <label className="workflow-design-field--full">
-        Policy / validation notes
-        <input
-          className="settings-input"
-          value={form.policyNotes ?? ''}
-          onChange={(e) => setForm((f) => ({ ...f, policyNotes: e.target.value }))}
-        />
-      </label>
+      <TextField
+        label="Name"
+        value={form.name}
+        disabled={!isNew}
+        onChange={(v) => setForm((f) => ({ ...f, name: v }))}
+      />
+      <TextField
+        label="Description"
+        wide
+        value={form.description}
+        onChange={(v) => setForm((f) => ({ ...f, description: v }))}
+      />
+      <TextField
+        label="Input contract"
+        value={form.inputContract}
+        onChange={(v) => setForm((f) => ({ ...f, inputContract: v }))}
+      />
+      <TextField
+        label="Output contract"
+        value={form.outputContract}
+        onChange={(v) => setForm((f) => ({ ...f, outputContract: v }))}
+      />
+      <TextAreaField
+        label="Execution instructions"
+        wide
+        rows={3}
+        value={form.executionInstructions}
+        onChange={(v) => setForm((f) => ({ ...f, executionInstructions: v }))}
+      />
+      <TextField
+        label="Policy / validation notes"
+        wide
+        value={form.policyNotes ?? ''}
+        onChange={(v) => setForm((f) => ({ ...f, policyNotes: v }))}
+      />
     </EditorForm>
   );
 }

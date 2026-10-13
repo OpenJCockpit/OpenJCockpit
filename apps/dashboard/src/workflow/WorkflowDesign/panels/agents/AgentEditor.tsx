@@ -1,4 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
+import { TextAreaField } from '../../../../components/FormFields/TextAreaField/TextAreaField';
+import { TextField } from '../../../../components/FormFields/TextField/TextField';
 import type { AgentSpec } from '../../../workflowTypes';
 import { toList } from '../../utils';
 import { EditorForm } from '../shared/EditorForm';
@@ -20,64 +22,45 @@ export function AgentEditor({ isNew, form, setForm, saving, onSave, onCancel }: 
       onSave={onSave}
       onCancel={onCancel}
     >
-      <label>
-        Name
-        <input
-          className="settings-input"
-          value={form.name}
-          disabled={!isNew}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-        />
-      </label>
-      <label>
-        Role
-        <input
-          className="settings-input"
-          value={form.role}
-          onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-        />
-      </label>
-      <label className="workflow-design-field--full">
-        Description
-        <input
-          className="settings-input"
-          value={form.description}
-          onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-        />
-      </label>
-      <label className="workflow-design-field--full">
-        Instructions
-        <textarea
-          className="settings-input"
-          rows={3}
-          value={form.instructions}
-          onChange={(e) => setForm((f) => ({ ...f, instructions: e.target.value }))}
-        />
-      </label>
-      <label>
-        Linked subagents
-        <input
-          className="settings-input"
-          value={form.subagentNames.join(', ')}
-          onChange={(e) => setForm((f) => ({ ...f, subagentNames: toList(e.target.value) }))}
-        />
-      </label>
-      <label>
-        Linked skills
-        <input
-          className="settings-input"
-          value={form.skillNames.join(', ')}
-          onChange={(e) => setForm((f) => ({ ...f, skillNames: toList(e.target.value) }))}
-        />
-      </label>
-      <label>
-        Workflow association
-        <input
-          className="settings-input"
-          value={form.workflowId ?? ''}
-          onChange={(e) => setForm((f) => ({ ...f, workflowId: e.target.value }))}
-        />
-      </label>
+      <TextField
+        label="Name"
+        value={form.name}
+        disabled={!isNew}
+        onChange={(v) => setForm((f) => ({ ...f, name: v }))}
+      />
+      <TextField
+        label="Role"
+        value={form.role}
+        onChange={(v) => setForm((f) => ({ ...f, role: v }))}
+      />
+      <TextField
+        label="Description"
+        wide
+        value={form.description}
+        onChange={(v) => setForm((f) => ({ ...f, description: v }))}
+      />
+      <TextAreaField
+        label="Instructions"
+        wide
+        rows={3}
+        value={form.instructions}
+        onChange={(v) => setForm((f) => ({ ...f, instructions: v }))}
+      />
+      <TextField
+        label="Linked subagents"
+        value={form.subagentNames.join(', ')}
+        onChange={(v) => setForm((f) => ({ ...f, subagentNames: toList(v) }))}
+      />
+      <TextField
+        label="Linked skills"
+        value={form.skillNames.join(', ')}
+        onChange={(v) => setForm((f) => ({ ...f, skillNames: toList(v) }))}
+      />
+      <TextField
+        label="Workflow association"
+        value={form.workflowId ?? ''}
+        onChange={(v) => setForm((f) => ({ ...f, workflowId: v }))}
+      />
     </EditorForm>
   );
 }
