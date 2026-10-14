@@ -13,10 +13,9 @@ import {
   updateProject,
 } from '../../api';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
-import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
-import { SelectField } from '../FormFields/SelectField/SelectField';
-import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
-import { TextField } from '../FormFields/TextField/TextField';
+import { CredentialsForm } from './CredentialsForm';
+import { ProjectForm } from './ProjectForm';
+import { ProjectList } from './ProjectList';
 
 interface Props {
   onBack: () => void;
@@ -272,237 +271,39 @@ export function ProjectSettings({ onBack }: Props) {
         )}
 
         {editingId && (
-          <div className="settings-form">
-            <h2 className="settings-form-title">
-              {editingId === 'new' ? 'New project' : 'Edit project'}
-            </h2>
-            <div className="settings-form-grid">
-              <TextField
-                label="Name *"
-                ref={nameInputRef}
-                value={form.name}
-                onChange={(v) => setForm((f) => ({ ...f, name: v }))}
-                placeholder="Project name"
-                aria-invalid={nameInvalid ? true : undefined}
-                aria-describedby={nameInvalid ? 'project-name-error' : undefined}
-              />
-              <TextField
-                label="Customer ID (stub)"
-                value={form.customerId ?? ''}
-                onChange={(v) => setForm((f) => ({ ...f, customerId: v }))}
-                placeholder="e.g. noordzee-logistics"
-              />
-              <TextField
-                label="Git URL"
-                value={form.gitUrl ?? ''}
-                onChange={(v) => setForm((f) => ({ ...f, gitUrl: v }))}
-                placeholder="https://github.com/org/repo"
-              />
-              <TextField
-                label="Branch"
-                value={form.defaultBranch ?? ''}
-                onChange={(v) => setForm((f) => ({ ...f, defaultBranch: v }))}
-                placeholder="main"
-              />
-              <TextField
-                label="Environment"
-                value={form.environment ?? ''}
-                onChange={(v) => setForm((f) => ({ ...f, environment: v }))}
-                placeholder="prod / staging / dev"
-              />
-              <TextField
-                label="Owner"
-                value={form.owner ?? ''}
-                onChange={(v) => setForm((f) => ({ ...f, owner: v }))}
-                placeholder="Name or team"
-              />
-              <TextAreaField
-                label="Description"
-                wide
-                rows={3}
-                value={form.description ?? ''}
-                onChange={(v) => setForm((f) => ({ ...f, description: v }))}
-                placeholder="Short description"
-              />
-              <label
-                className="new-project-checkbox"
-                style={{ gridColumn: '1 / -1', fontSize: 13 }}
-              >
-                <input
-                  type="checkbox"
-                  checked={form.newProject === 1}
-                  onChange={(e) => setForm((f) => ({ ...f, newProject: e.target.checked ? 1 : 0 }))}
-                />
-                New project (repository does not exist yet — skip Git check)
-              </label>
-            </div>
-            <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-              <button
-                className="button button--start"
-                onClick={() => void handleSave()}
-                disabled={saving}
-              >
-                {saving ? '⟳ Saving…' : 'Save'}
-              </button>
-              <button className="back-button" onClick={cancelEdit}>
-                Cancel
-              </button>
-            </div>
-          </div>
+          <ProjectForm
+            isNew={editingId === 'new'}
+            form={form}
+            onChange={(updater) => setForm(updater)}
+            saving={saving}
+            nameInvalid={nameInvalid}
+            nameInputRef={nameInputRef}
+            onSave={() => void handleSave()}
+            onCancel={cancelEdit}
+          />
         )}
 
         {credEditingId && (
-          <div className="settings-form">
-            <h2 className="settings-form-title">Git credentials</h2>
-            {credLoading ? (
-              <p className="settings-desc">Loading current credentials...</p>
-            ) : (
-              <>
-                <div className="settings-form-grid">
-                  <SelectField
-                    label="Type"
-                    value={credForm.credentialType}
-                    onChange={(v) =>
-                      setCredForm((f) => ({
-                        ...f,
-                        credentialType: v as ProjectGitCredentialRequest['credentialType'],
-                      }))
-                    }
-                  >
-                    <option value="NONE">None</option>
-                    <option value="HTTPS_TOKEN">HTTPS Token</option>
-                    <option value="GITHUB_PAT">GitHub PAT</option>
-                    <option value="USERNAME_PASSWORD">Username + password</option>
-                    <option value="GITHUB_APP">GitHub App</option>
-                  </SelectField>
-                  <TextField
-                    label="Username"
-                    value={credForm.username ?? ''}
-                    onChange={(v) => setCredForm((f) => ({ ...f, username: v }))}
-                    placeholder="optional"
-                  />
-                  <TextField
-                    label="Secret / token / password"
-                    type="password"
-                    value={credForm.secret ?? ''}
-                    onChange={(v) => setCredForm((f) => ({ ...f, secret: v }))}
-                    placeholder={
-                      credHasSecret
-                        ? 'Leave empty to keep the current secret'
-                        : 'Required — no secret set yet'
-                    }
-                  />
-                  <TextField
-                    label="GitHub API URL (GitHub Enterprise)"
-                    value={credForm.githubApiUrl ?? ''}
-                    onChange={(v) => setCredForm((f) => ({ ...f, githubApiUrl: v }))}
-                    placeholder="https://github.example.com/api/v3"
-                  />
-                </div>
-                <p className="settings-desc">
-                  On save, a Git check is first run with these credentials; they are only stored if
-                  the check succeeds.
-                </p>
-              </>
-            )}
-            <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-              <button
-                className="button button--start"
-                onClick={() => void handleSaveCred()}
-                disabled={saving || credLoading}
-              >
-                {saving ? '⟳ Verifying and saving…' : 'Save'}
-              </button>
-              <button className="back-button" onClick={cancelCredEdit}>
-                Cancel
-              </button>
-            </div>
-          </div>
+          <CredentialsForm
+            form={credForm}
+            onChange={(updater) => setCredForm(updater)}
+            hasSecret={credHasSecret}
+            loading={credLoading}
+            saving={saving}
+            onSave={() => void handleSaveCred()}
+            onCancel={cancelCredEdit}
+          />
         )}
 
-        <table className="settings-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Git status</th>
-              <th>Credentials</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {projects.map((project) => (
-              <tr key={project.id} className={project.active === 0 ? 'settings-row--inactive' : ''}>
-                <td>
-                  <strong>{project.name}</strong>
-                  {project.description && (
-                    <span className="settings-desc">{project.description}</span>
-                  )}
-                  {project.gitUrl && (
-                    <span className="settings-desc" style={{ color: 'var(--faint)', fontSize: 11 }}>
-                      {project.gitUrl}
-                    </span>
-                  )}
-                </td>
-                <td>
-                  <GitStatusBadge status={project.gitStatus} />
-                  {project.gitStatusMessage && (
-                    <span className="settings-desc" style={{ fontSize: 11 }}>
-                      {project.gitStatusMessage}
-                    </span>
-                  )}
-                </td>
-                <td>
-                  {project.hasCredentials ? (
-                    <span style={{ color: 'var(--teal)', fontSize: 12 }}>Credentials set</span>
-                  ) : (
-                    <span style={{ color: 'var(--faint)', fontSize: 12 }}>None</span>
-                  )}
-                </td>
-                <td>
-                  <span
-                    className={`status-badge ${project.active === 1 ? 'status-badge--active' : 'status-badge--inactive'}`}
-                  >
-                    {project.active === 1 ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
-                <td className="settings-actions">
-                  <button className="back-button" onClick={() => startEdit(project)}>
-                    Edit
-                  </button>
-                  <button
-                    className="back-button"
-                    onClick={() => void handleGitCheck(project.id)}
-                    disabled={checkingId === project.id}
-                  >
-                    {checkingId === project.id ? '⟳' : 'Git check'}
-                  </button>
-                  <button className="back-button" onClick={() => void startCredEdit(project.id)}>
-                    {project.hasCredentials ? 'Update credentials' : 'Add credentials'}
-                  </button>
-                  {project.hasCredentials && (
-                    <button
-                      className="back-button"
-                      style={{ color: 'var(--danger, #ff4444)' }}
-                      onClick={() => void handleDeleteCred(project.id)}
-                    >
-                      Delete credentials
-                    </button>
-                  )}
-                  <button
-                    className="back-button"
-                    onClick={() => void handleToggleActive(project)}
-                    style={{
-                      color: project.active === 1 ? 'var(--danger, #ff4444)' : 'var(--cyan)',
-                    }}
-                  >
-                    {project.active === 1 ? 'Deactivate' : 'Activate'}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ProjectList
+          projects={projects}
+          checkingId={checkingId}
+          onEdit={startEdit}
+          onGitCheck={(id) => void handleGitCheck(id)}
+          onEditCredentials={(id) => void startCredEdit(id)}
+          onDeleteCredentials={(id) => void handleDeleteCred(id)}
+          onToggleActive={(p) => void handleToggleActive(p)}
+        />
       </main>
     </AppShell>
   );
