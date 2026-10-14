@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatRunDuration, isTerminalRunStatus, runStatusKind, runStatusLabel } from './runStatus';
+import type { AgentEvent } from '../types';
+import {
+  buildAgentCards,
+  buildSequencerNodes,
+  formatRunDuration,
+  isTerminalRunStatus,
+  runStatusKind,
+  runStatusLabel,
+} from './runStatus';
+import type { WorkflowDefinition } from './workflowTypes';
 
 describe('runStatusKind', () => {
   it('returns ok for COMPLETED', () => {
@@ -99,5 +108,34 @@ describe('formatRunDuration', () => {
 
   it('formats an hour-scale duration', () => {
     expect(formatRunDuration('2024-01-01T00:00:00.000Z', '2024-01-01T01:03:00.000Z')).toBe('1h 3m');
+  });
+});
+
+describe('buildAgentCards / buildSequencerNodes', () => {
+  const workflow = { id: 'wf', name: 'WF', agentIds: ['a', 'b'] } as WorkflowDefinition;
+  const event = (agentId: string, status: string) => ({ agentId, status }) as AgentEvent;
+
+  it('derives agent card status from the latest events', () => {
+    const cards = buildAgentCards(workflow, [], {
+      a: event('a', 'DONE'),
+      b: event('b', 'RUNNING'),
+    });
+    expect(cards.map((c) => c.statusKind)).toEqual(['done', 'active']);
+    expect(buildAgentCards(null, [], {})).toEqual([]);
+  });
+
+  it('places orbs: unanchored first, anchored after their stage, orphaned last', () => {
+    const wf = {
+      ...workflow,
+      workflowOrbs: [
+        { workflowId: 'x', mode: 'PARALLEL', placementStage: 'a' },
+        { workflowId: 'y', mode: 'PARALLEL' },
+        { workflowId: 'z', mode: 'PARALLEL', placementStage: 'gone' },
+      ],
+    } as WorkflowDefinition;
+    const cards = buildAgentCards(wf, [], {});
+    const nodes = buildSequencerNodes(wf, cards, [], null, new Map());
+    expect(nodes.map((n) => n.id)).toEqual(['orb:1', 'a', 'orb:0', 'b', 'orb:2']);
+    expect(nodes[4].status).toBe('Waiting (anchor stage removed)');
   });
 });
