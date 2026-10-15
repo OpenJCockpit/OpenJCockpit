@@ -68,13 +68,13 @@
   width: 110px;
   min-width: 110px;
   height: 110px;
-  border: 1px solid rgba(39, 231, 255, 0.35);
+  border: 1px solid var(--cyan-a35);
   border-radius: 50%;
   background: rgba(6, 21, 34, 0.65);
   box-shadow:
-    0 0 12px rgba(39, 231, 255, 0.3),
+    0 0 12px var(--cyan-a30),
     0 0 28px rgba(39, 231, 255, 0.15),
-    inset 0 0 18px rgba(39, 231, 255, 0.06);
+    inset 0 0 18px var(--cyan-a06);
   cursor: grab;
   transition:
     border-color 0.2s,
@@ -99,8 +99,8 @@
     pointer-events: none;
     border: 1px solid rgba(39, 231, 255, 0.9);
     box-shadow:
-      0 0 24px rgba(39, 231, 255, 0.6),
-      0 0 48px rgba(39, 231, 255, 0.3);
+      0 0 24px var(--cyan-a60),
+      0 0 48px var(--cyan-a30);
     transform-origin: center;
     will-change: transform, opacity;
     animation: sequencer-pulse 2.4s linear infinite;
@@ -111,9 +111,9 @@
     border-color: rgba(39, 231, 255, 0.75);
     background: rgba(6, 21, 34, 0.8);
     box-shadow:
-      0 0 20px rgba(39, 231, 255, 0.55),
-      0 0 48px rgba(39, 231, 255, 0.3),
-      inset 0 0 24px rgba(39, 231, 255, 0.1);
+      0 0 20px var(--cyan-a55),
+      0 0 48px var(--cyan-a30),
+      inset 0 0 24px var(--surface-glow);
   }
   &:focus-visible {
     outline: 2px solid rgba(39, 231, 255, 0.9);
@@ -126,8 +126,8 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  border: 1px solid rgba(39, 231, 255, 0.6);
-  color: #dfffff;
+  border: 1px solid var(--cyan-a60);
+  color: var(--text-bright);
   background: rgba(39, 231, 255, 0.07);
   font-size: 14px;
 }

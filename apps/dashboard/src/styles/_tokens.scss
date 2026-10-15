@@ -29,6 +29,22 @@
   --warn: #f6a525;
   --danger: #ff4444;
 
+  // Brand color at fixed alphas (only the steps that repeat across components)
+  --cyan-a05: rgba(39, 231, 255, 0.05);
+  --cyan-a06: rgba(39, 231, 255, 0.06);
+  --cyan-a12: rgba(39, 231, 255, 0.12);
+  --cyan-a20: rgba(39, 231, 255, 0.2);
+  --cyan-a30: rgba(39, 231, 255, 0.3);
+  --cyan-a35: rgba(39, 231, 255, 0.35);
+  --cyan-a45: rgba(39, 231, 255, 0.45);
+  --cyan-a55: rgba(39, 231, 255, 0.55);
+  --cyan-a60: rgba(39, 231, 255, 0.6);
+  --violet-a45: rgba(177, 138, 255, 0.45);
+  --red-a40: rgba(255, 80, 80, 0.4);
+  --red-text: #ffd0d0;
+  --text-bright: #dfffff;
+  --line-soft: rgba(124, 222, 255, 0.1);
+
   // Semantic aliases
   --surface-border: var(--line);
   --surface-glow: rgba(39, 231, 255, 0.1);

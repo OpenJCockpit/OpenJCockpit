@@ -8,12 +8,8 @@
     position: absolute;
     inset: 60px 40px 20px;
     background:
-      radial-gradient(circle at 50% 70%, rgba(39, 231, 255, 0.12), transparent 30%),
-      repeating-radial-gradient(
-        circle at 50% 84%,
-        rgba(39, 231, 255, 0.1) 0 1px,
-        transparent 1px 52px
-      );
+      radial-gradient(circle at 50% 70%, var(--cyan-a12), transparent 30%),
+      repeating-radial-gradient(circle at 50% 84%, var(--surface-glow) 0 1px, transparent 1px 52px);
     opacity: 0.78;
     pointer-events: none;
   }

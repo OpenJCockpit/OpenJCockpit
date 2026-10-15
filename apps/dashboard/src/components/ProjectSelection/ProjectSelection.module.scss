@@ -65,9 +65,9 @@
 
   &:hover,
   &:focus-visible {
-    border-color: rgba(39, 231, 255, 0.45);
-    box-shadow: 0 0 24px rgba(39, 231, 255, 0.12);
-    background: rgba(39, 231, 255, 0.05);
+    border-color: var(--cyan-a45);
+    box-shadow: 0 0 24px var(--cyan-a12);
+    background: var(--cyan-a05);
     outline: none;
   }
 }
@@ -106,7 +106,7 @@
   & span {
     font-size: 11px;
     color: var(--faint);
-    background: rgba(39, 231, 255, 0.06);
+    background: var(--cyan-a06);
     border: 1px solid rgba(39, 231, 255, 0.15);
     border-radius: 4px;
     padding: 2px 8px;

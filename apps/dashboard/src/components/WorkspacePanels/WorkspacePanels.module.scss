@@ -74,7 +74,7 @@
   gap: 14px;
   min-height: 64px;
   padding: 10px 14px;
-  border: 1px solid rgba(124, 222, 255, 0.1);
+  border: 1px solid var(--line-soft);
   border-radius: 10px;
   background: rgba(6, 21, 34, 0.46);
 }
@@ -110,7 +110,7 @@
     top: -9px;
     bottom: -9px;
     width: 1px;
-    background: linear-gradient(180deg, transparent, rgba(39, 231, 255, 0.45), transparent);
+    background: linear-gradient(180deg, transparent, var(--cyan-a45), transparent);
   }
   & time {
     position: relative;

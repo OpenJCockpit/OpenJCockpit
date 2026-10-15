@@ -36,14 +36,14 @@
   background: rgba(7, 22, 34, 0.8);
   border: 1px solid rgba(39, 231, 255, 0.22);
   border-radius: 6px;
-  color: #edfaff;
+  color: var(--text);
   font: inherit;
   font-size: 13px;
   transition: border-color 0.15s;
 
   &:focus {
     outline: none;
-    border-color: rgba(39, 231, 255, 0.55);
+    border-color: var(--cyan-a55);
   }
 }
 

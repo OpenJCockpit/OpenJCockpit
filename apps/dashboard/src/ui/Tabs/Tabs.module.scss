@@ -25,12 +25,12 @@
     background 0.15s,
     border-color 0.15s;
   &:hover {
-    color: #edfaff;
+    color: var(--text);
   }
 }
 .tabActive {
   color: #ede4ff;
   background: var(--violet-soft);
-  border-color: rgba(177, 138, 255, 0.45);
+  border-color: var(--violet-a45);
   box-shadow: 0 0 12px rgba(177, 138, 255, 0.25);
 }

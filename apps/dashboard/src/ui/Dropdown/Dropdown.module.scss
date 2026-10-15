@@ -15,13 +15,13 @@
 
   &:hover,
   &:focus {
-    border-color: rgba(39, 231, 255, 0.55);
-    box-shadow: 0 0 12px rgba(39, 231, 255, 0.2);
+    border-color: var(--cyan-a55);
+    box-shadow: 0 0 12px var(--cyan-a20);
     outline: none;
   }
 
   & option {
     background: #0a1825;
-    color: #edfaff;
+    color: var(--text);
   }
 }

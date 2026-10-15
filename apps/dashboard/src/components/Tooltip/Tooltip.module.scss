@@ -7,9 +7,9 @@
   flex-direction: column;
   gap: 4px;
   border-radius: 8px;
-  border: 1px solid rgba(39, 231, 255, 0.35);
+  border: 1px solid var(--cyan-a35);
   background: rgba(4, 16, 28, 0.95);
-  box-shadow: 0 0 16px rgba(39, 231, 255, 0.2);
+  box-shadow: 0 0 16px var(--cyan-a20);
   pointer-events: none;
   z-index: 30;
 }

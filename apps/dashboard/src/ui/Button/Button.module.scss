@@ -15,12 +15,12 @@
     background 0.15s,
     box-shadow 0.15s,
     border-color 0.15s;
-  box-shadow: 0 0 8px rgba(39, 231, 255, 0.1);
+  box-shadow: 0 0 8px var(--surface-glow);
   white-space: nowrap;
   &:hover {
-    background: rgba(39, 231, 255, 0.1);
-    border-color: rgba(39, 231, 255, 0.55);
-    box-shadow: 0 0 16px rgba(39, 231, 255, 0.3);
+    background: var(--surface-glow);
+    border-color: var(--cyan-a55);
+    box-shadow: 0 0 16px var(--cyan-a30);
   }
 }
 
@@ -42,19 +42,19 @@
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: #dfffff;
-  background: rgba(39, 231, 255, 0.1);
-  border: 1px solid rgba(39, 231, 255, 0.45);
+  color: var(--text-bright);
+  background: var(--surface-glow);
+  border: 1px solid var(--cyan-a45);
   border-radius: 6px;
   cursor: pointer;
   transition:
     background 0.15s,
     box-shadow 0.15s,
     border-color 0.15s;
-  box-shadow: 0 0 8px rgba(39, 231, 255, 0.2);
+  box-shadow: 0 0 8px var(--cyan-a20);
   white-space: nowrap;
   &:hover:not(:disabled) {
-    background: rgba(39, 231, 255, 0.2);
+    background: var(--cyan-a20);
     border-color: rgba(39, 231, 255, 0.75);
     box-shadow: 0 0 16px rgba(39, 231, 255, 0.4);
   }
@@ -69,7 +69,7 @@
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: #ffd0d0;
+  color: var(--red-text);
   background: rgba(255, 80, 80, 0.1);
   border: 1px solid rgba(255, 80, 80, 0.45);
   border-radius: 6px;
@@ -83,7 +83,7 @@
   &:hover:not(:disabled) {
     background: rgba(255, 80, 80, 0.2);
     border-color: rgba(255, 80, 80, 0.75);
-    box-shadow: 0 0 16px rgba(255, 80, 80, 0.4);
+    box-shadow: 0 0 16px var(--red-a40);
   }
   &:disabled {
     opacity: 0.45;
@@ -98,7 +98,7 @@
   letter-spacing: 0.04em;
   color: #ede4ff;
   background: var(--violet-soft);
-  border: 1px solid rgba(177, 138, 255, 0.45);
+  border: 1px solid var(--violet-a45);
   border-radius: 6px;
   cursor: pointer;
   transition:
@@ -110,7 +110,7 @@
   &:hover:not(:disabled) {
     background: rgba(177, 138, 255, 0.22);
     border-color: rgba(177, 138, 255, 0.8);
-    box-shadow: 0 0 18px rgba(177, 138, 255, 0.45);
+    box-shadow: 0 0 18px var(--violet-a45);
   }
   &:disabled {
     opacity: 0.45;

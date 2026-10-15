@@ -5,7 +5,7 @@
   margin: 0 28px 16px;
   padding: 16px 18px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 80, 80, 0.4);
+  border: 1px solid var(--red-a40);
   border-left: 3px solid #ff6b6b;
   background: linear-gradient(180deg, rgba(255, 60, 60, 0.1), rgba(10, 27, 41, 0.72));
   backdrop-filter: blur(20px);
@@ -18,9 +18,9 @@
     height: 28px;
     display: grid;
     place-items: center;
-    color: #ffd0d0;
+    color: var(--red-text);
     background: rgba(255, 80, 80, 0.14);
-    border: 1px solid rgba(255, 80, 80, 0.4);
+    border: 1px solid var(--red-a40);
     border-radius: 8px;
     font-size: 15px;
   }
@@ -30,7 +30,7 @@
   }
   &__title {
     margin: 0 0 8px;
-    color: #ffd0d0;
+    color: var(--red-text);
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 0.01em;
