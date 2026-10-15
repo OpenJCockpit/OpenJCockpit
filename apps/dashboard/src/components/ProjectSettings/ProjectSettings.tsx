@@ -18,6 +18,7 @@ import { CredentialsForm } from './CredentialsForm';
 import { ProjectForm } from './ProjectForm';
 import { ProjectList } from './ProjectList';
 import { fieldErrorClass } from '../../ui/Form/Form';
+import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
 
 interface Props {
   onBack: () => void;
@@ -76,7 +77,7 @@ export function ProjectSettings({ onBack }: Props) {
   }, [loaded]);
 
   if (!loaded) {
-    return <div className="auth-loading">Loading projects...</div>;
+    return <StatusMessage variant="loading">Loading projects...</StatusMessage>;
   }
 
   function startCreate() {

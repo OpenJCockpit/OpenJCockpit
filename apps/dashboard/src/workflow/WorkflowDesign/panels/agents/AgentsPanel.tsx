@@ -40,7 +40,7 @@ export function AgentsPanel() {
       setItems(a);
       setLoaded(true);
     });
-    return <div className="auth-loading">Loading agents...</div>;
+    return <StatusMessage variant="loading">Loading agents...</StatusMessage>;
   }
 
   function startCreate() {

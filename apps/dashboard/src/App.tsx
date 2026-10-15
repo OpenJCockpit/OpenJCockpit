@@ -35,6 +35,7 @@ import { QualityPanel } from './components/WorkspacePanels/QualityPanel';
 import { FlowPanel } from './components/FlowPanel/FlowPanel';
 import { useRunLauncher } from './useRunLauncher';
 import styles from './App.module.scss';
+import { StatusMessage } from './components/StatusMessage/StatusMessage';
 
 type AppView =
   | 'project-selection'
@@ -194,9 +195,9 @@ function App() {
 
   if (!authReady) {
     return (
-      <div className="auth-loading" data-testid="auth-loading">
+      <StatusMessage variant="loading" data-testid="auth-loading">
         Authenticating...
-      </div>
+      </StatusMessage>
     );
   }
 

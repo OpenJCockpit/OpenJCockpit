@@ -27,7 +27,7 @@ export function GroupsPanel() {
       setItems(g);
       setLoaded(true);
     });
-    return <div className="auth-loading">Loading groups...</div>;
+    return <StatusMessage variant="loading">Loading groups...</StatusMessage>;
   }
 
   function startCreate() {

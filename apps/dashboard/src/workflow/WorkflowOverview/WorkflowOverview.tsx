@@ -16,6 +16,7 @@ import { runStatusKind } from '../runStatus';
 import { WorkflowPromptDialog } from '../WorkflowPromptDialog/WorkflowPromptDialog';
 import { Eyebrow, Panel } from '../../ui/Panel/Panel';
 import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
+import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
 
 interface Props {
   project: Project | null;
@@ -132,7 +133,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
         setAgentCatalogue([]);
         setCatalogueError('Agent names could not be loaded — showing agent ids.');
       });
-    return <div className="auth-loading">Loading workflows...</div>;
+    return <StatusMessage variant="loading">Loading workflows...</StatusMessage>;
   }
 
   async function handleExportDecisionLogs(workflow: WorkflowDefinition) {

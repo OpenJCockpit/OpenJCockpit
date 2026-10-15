@@ -18,6 +18,7 @@ import {
   formGridClass,
   formTitleClass,
 } from '../../ui/Form/Form';
+import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
 
 interface Props {
   onBack: () => void;
@@ -138,7 +139,7 @@ export function SkillsHubSettings({ onBack }: Props) {
   }
 
   if (!loaded) {
-    return <div className="auth-loading">Loading marketplaces...</div>;
+    return <StatusMessage variant="loading">Loading marketplaces...</StatusMessage>;
   }
 
   return (

@@ -78,7 +78,7 @@ export function WorkflowsPanel() {
   }, []);
 
   if (!loaded) {
-    return <div className="auth-loading">Loading workflows...</div>;
+    return <StatusMessage variant="loading">Loading workflows...</StatusMessage>;
   }
 
   function groupName(groupId?: string): string {

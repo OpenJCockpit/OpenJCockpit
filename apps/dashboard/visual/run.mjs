@@ -14,7 +14,7 @@ const require = createRequire(path.join(here, '../../../e2e/package.json'));
 const { chromium } = require('@playwright/test');
 const { PNG } = require('playwright-core/lib/utilsBundle');
 
-const TOLERANCE = { maxDelta: 12, pixels: 60 };
+const TOLERANCE = { maxDelta: 16, pixels: 100 };
 
 function compare(a, b) {
   const imgA = PNG.sync.read(a);

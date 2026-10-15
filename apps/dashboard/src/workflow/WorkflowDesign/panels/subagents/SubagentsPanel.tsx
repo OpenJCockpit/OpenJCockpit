@@ -36,7 +36,7 @@ export function SubagentsPanel() {
       setItems(s);
       setLoaded(true);
     });
-    return <div className="auth-loading">Loading subagents...</div>;
+    return <StatusMessage variant="loading">Loading subagents...</StatusMessage>;
   }
 
   function startCreate() {

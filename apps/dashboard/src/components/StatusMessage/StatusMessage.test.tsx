@@ -18,4 +18,15 @@ describe('StatusMessage', () => {
     const el = screen.getByRole('alert');
     expect(el.className).toBe(`${fieldErrorClass} extra`);
   });
+
+  it('renders loading as a block element and forwards attributes', () => {
+    render(
+      <StatusMessage variant="loading" data-testid="loading">
+        Loading things...
+      </StatusMessage>,
+    );
+    const el = screen.getByTestId('loading');
+    expect(el.tagName).toBe('DIV');
+    expect(el).toHaveTextContent('Loading things...');
+  });
 });
