@@ -252,7 +252,7 @@ describe('workflow selection in the center pane', () => {
 
     expect(workflowApi.startWorkflow).not.toHaveBeenCalled();
     const dialog = screen.getByRole('dialog');
-    expect(dialog).toHaveClass('workflow-prompt-dialog');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(screen.getByText('▶ Start with prompt')).toBeDisabled();
 
     fireEvent.change(screen.getByLabelText('Prompt'), {
@@ -442,7 +442,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
     });
 
     const dialog = screen.getByRole('dialog');
-    expect(dialog).toHaveClass('workflow-prompt-dialog');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
 
     fireEvent.change(screen.getByLabelText('Prompt'), {
       target: { value: 'Create a spec for the login page' },

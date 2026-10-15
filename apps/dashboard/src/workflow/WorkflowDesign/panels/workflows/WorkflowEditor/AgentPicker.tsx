@@ -1,5 +1,6 @@
 import type { AgentDefinition } from '../../../../../types';
 import { fieldHintClass } from '../../../../../ui/Form/Form';
+import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 interface AgentPickerProps {
   availableAgents: AgentDefinition[];
@@ -29,17 +30,17 @@ export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPicker
   );
 
   return (
-    <div className="workflow-design-field--full">
+    <div className={WorkflowDesignStyles.workflowDesignFieldFull}>
       <span>Pipeline agents</span>
-      <div className="workflow-agent-picker">
+      <div className={WorkflowDesignStyles.workflowAgentPicker}>
         {availableAgents.map((agent) => (
-          <label key={agent.id} className="workflow-agent-picker__option">
+          <label key={agent.id} className={WorkflowDesignStyles.workflowAgentPickerOption}>
             <input
               type="checkbox"
               checked={agentIds.includes(agent.id)}
               onChange={(e) => toggle(agent.id, e.target.checked)}
             />
-            <span className="workflow-agent-picker__name">{agent.name}</span>
+            <span className={WorkflowDesignStyles.workflowAgentPickerName}>{agent.name}</span>
             <span className={fieldHintClass}>{agent.description}</span>
           </label>
         ))}

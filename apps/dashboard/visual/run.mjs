@@ -86,6 +86,22 @@ const VIEWS = [
       await p.getByRole('button', { name: sub, exact: true }).click();
     },
   })),
+  ...['workflow', 'agent', 'subagent', 'group', 'skill'].map((kind) => ({
+    name: `editor-${kind}-new`,
+    go: async (p) => {
+      const tab = {
+        workflow: 'Workflows',
+        agent: 'Agents',
+        subagent: 'Subagents',
+        group: 'Groups',
+        skill: 'Skills',
+      }[kind];
+      await p.getByTestId('nav-workflow').click();
+      await p.getByRole('button', { name: 'Design', exact: true }).click();
+      await p.getByRole('button', { name: tab, exact: true }).click();
+      await p.getByRole('button', { name: `+ New ${kind}` }).click();
+    },
+  })),
   { name: 'spec-files', go: (p) => p.getByTestId('nav-spec-files').click() },
   { name: 'skills-hub', go: (p) => p.getByTestId('nav-skills-hub').click() },
   {

@@ -1,4 +1,3 @@
-import './WorkflowDesign.scss';
 import { useState } from 'react';
 import { AgentsPanel } from './panels/agents/AgentsPanel';
 import { GroupsPanel } from './panels/groups/GroupsPanel';

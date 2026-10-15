@@ -84,8 +84,7 @@
   font-size: 14px;
   font-weight: 550;
 }
-// StatusChip still ships a global class until its stylesheet becomes a module.
-.prCard span:not(:global(.status-chip)):not(.prBadge),
+.prCard div span,
 .evidenceEvent span:not(.check) {
   display: block;
   margin-top: 4px;

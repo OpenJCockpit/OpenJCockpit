@@ -31,11 +31,3 @@
     color: var(--muted);
   }
 }
-// .approval-modal-actions is a deliberate verbatim duplicate of the rule in
-// ApprovalCommentModal.scss (requirement A3) — keep both copies in sync.
-.approval-modal-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 18px;
-  flex-wrap: wrap;
-}

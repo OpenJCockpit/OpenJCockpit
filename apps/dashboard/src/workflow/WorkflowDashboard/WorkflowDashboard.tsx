@@ -1,4 +1,3 @@
-import './WorkflowDashboard.scss';
 import { useState } from 'react';
 import type { Project } from '../../types';
 import { WorkflowOverview } from '../WorkflowOverview/WorkflowOverview';
@@ -9,6 +8,7 @@ import type { WorkflowDefinition } from '../workflowTypes';
 import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
 import { Eyebrow } from '../../ui/Panel/Panel';
 import { Tab, TabNav } from '../../ui/Tabs/Tabs';
+import styles from './WorkflowDashboard.module.scss';
 
 type WorkflowTab = 'overview' | 'configuration' | 'design' | 'execution';
 
@@ -37,8 +37,8 @@ export function WorkflowDashboard({ project, onBack }: Props) {
     <AppShell>
       <AppHeader onBack={onBack} backTitle="Back to dashboard" />
 
-      <main className="workflow-dashboard">
-        <div className="workflow-dashboard-header">
+      <main className={styles.workflowDashboard}>
+        <div className={styles.workflowDashboardHeader}>
           <div>
             <Eyebrow>Workflow Design &amp; Execution</Eyebrow>
             <h1>{project ? project.name : 'All projects'}</h1>

@@ -24,3 +24,10 @@
     outline: none;
   }
 }
+/* Button row at the bottom of the approval modals. */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}

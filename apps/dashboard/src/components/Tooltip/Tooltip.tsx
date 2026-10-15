@@ -1,4 +1,3 @@
-import './Tooltip.scss';
 import { Children, cloneElement, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import type {
   DragEventHandler,
@@ -9,6 +8,7 @@ import type {
   Ref,
 } from 'react';
 import { createPortal } from 'react-dom';
+import styles from './Tooltip.module.scss';
 
 const GAP = 10; // px between trigger edge and tooltip
 const MARGIN = 8; // min px from every viewport edge
@@ -180,7 +180,7 @@ export function Tooltip({ content, placement = 'top', children }: TooltipProps) 
             ref={tooltipRef}
             id={id}
             role="tooltip"
-            className="tooltip"
+            className={styles.tooltip}
             // eslint-disable-next-line no-restricted-syntax -- position comes from the measured trigger rect at runtime
             style={{
               top: pos?.top ?? 0,

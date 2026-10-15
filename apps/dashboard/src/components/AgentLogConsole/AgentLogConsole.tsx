@@ -1,6 +1,6 @@
-import './AgentLogConsole.scss';
 import { useEffect, useRef } from 'react';
 import type { AgentEvent } from '../../types';
+import styles from './AgentLogConsole.module.scss';
 
 interface Props {
   events: AgentEvent[];
@@ -30,11 +30,11 @@ export function AgentLogConsole({ events, agentName, isActive }: Props) {
   }, [content]);
 
   return (
-    <div className={`agent-log-console${isActive ? ' agent-log-console--active' : ''}`}>
-      <span className="agent-log-console__label">AGENT LOG // {agentName ?? 'IDLE'}</span>
+    <div className={styles.agentLogConsole} data-active={isActive ? '' : undefined}>
+      <span className={styles.agentLogConsoleLabel}>AGENT LOG // {agentName ?? 'IDLE'}</span>
       <textarea
         ref={textareaRef}
-        className="agent-log-console__output"
+        className={styles.agentLogConsoleOutput}
         readOnly
         value={content}
         aria-label="Agent execution log"

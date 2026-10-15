@@ -1,4 +1,3 @@
-import './WorkflowOverview.scss';
 import { useState } from 'react';
 import type { Project, AgentDefinition } from '../../types';
 import { fetchAgentDefinitions } from '../../api';
@@ -18,6 +17,7 @@ import { Eyebrow, Panel } from '../../ui/Panel/Panel';
 import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
 import { Button } from '../../ui/Button/Button';
+import styles from './WorkflowOverview.module.scss';
 
 interface Props {
   project: Project | null;
@@ -218,10 +218,10 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
         </p>
       )}
 
-      <div className="workflow-card-grid">
+      <div className={styles.workflowCardGrid}>
         {visibleWorkflows.map((workflow) => (
-          <Panel as="article" className="workflow-card" key={workflow.id}>
-            <header className="workflow-card-header">
+          <Panel as="article" className={styles.workflowCard} key={workflow.id}>
+            <header className={styles.workflowCardHeader}>
               <div>
                 <Eyebrow>{workflow.id}</Eyebrow>
                 <h2>{workflow.name}</h2>
@@ -229,7 +229,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
               <StatusChip label={workflow.status} kind={runStatusKind(workflow.status ?? '')} />
             </header>
 
-            <dl className="workflow-card-meta">
+            <dl className={styles.workflowCardMeta}>
               <div>
                 <dt>Project</dt>
                 <dd>{workflow.projectName}</dd>
@@ -291,7 +291,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
               </div>
             </dl>
 
-            <div className="workflow-card-actions">
+            <div className={styles.workflowCardActions}>
               <Button
                 variant="primary"
                 onClick={() => void handleStart(workflow)}
@@ -311,7 +311,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
                 </Button>
               )}
               {feedback[workflow.id] && (
-                <span className="workflow-card-feedback">{feedback[workflow.id]}</span>
+                <span className={styles.workflowCardFeedback}>{feedback[workflow.id]}</span>
               )}
             </div>
           </Panel>

@@ -1,4 +1,3 @@
-import './WorkflowConfiguration.scss';
 import type { Project } from '../../types';
 import { DocumentFolderSettings } from './DocumentFolderSettings/DocumentFolderSettings';
 import { HermesSettings } from './HermesSettings/HermesSettings';

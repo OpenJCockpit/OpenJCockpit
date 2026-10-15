@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { formClass, formGridClass, formTitleClass } from '../../../../ui/Form/Form';
 import { Button } from '../../../../ui/Button/Button';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 interface EditorFormProps {
   title: string;
@@ -23,7 +24,7 @@ export function EditorForm({
     <div className={formClass}>
       <h2 className={formTitleClass}>{title}</h2>
       <div className={formGridClass}>{children}</div>
-      <div className="workflow-design-form-actions">
+      <div className={WorkflowDesignStyles.workflowDesignFormActions}>
         <Button
           variant="primary"
           onClick={onSave}

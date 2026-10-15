@@ -1,10 +1,10 @@
-import './ApprovalDecisionModal.scss';
 import { useId, useState } from 'react';
 import type { ApprovalGateContext } from '../workflowTypes';
-import { ModalShell } from '../ModalShell/ModalShell';
+import { ModalShell, modalActionsClass } from '../ModalShell/ModalShell';
 import { ApprovalCommentModal } from '../ApprovalCommentModal/ApprovalCommentModal';
 import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
 import { Button, buttonClass } from '../../ui/Button/Button';
+import styles from './ApprovalDecisionModal.module.scss';
 
 interface ApprovalDecisionModalProps {
   context: ApprovalGateContext;
@@ -60,7 +60,7 @@ export function ApprovalDecisionModal({
     <ModalShell
       labelledBy={titleId}
       onDismiss={onDismiss}
-      className="approval-decision-dialog"
+      className={styles.approvalDecisionDialog}
       overlayClassName="approval-decision-overlay"
     >
       <h2 id={titleId}>Review the change before it continues</h2>
@@ -72,12 +72,12 @@ export function ApprovalDecisionModal({
         </p>
       )}
 
-      <div className="approval-changed-files">
+      <div className={styles.approvalChangedFiles}>
         <p className={fieldHintClass}>
           {context.changedFileCount} file{context.changedFileCount === 1 ? '' : 's'} changed
         </p>
         {context.changedPaths.length > 0 && (
-          <ul className="approval-changed-files__list">
+          <ul className={styles.approvalChangedFilesList}>
             {context.changedPaths.map((path) => (
               <li key={path}>{path}</li>
             ))}
@@ -107,7 +107,7 @@ export function ApprovalDecisionModal({
       <p className={fieldHintClass}>{iterationText(context)}</p>
 
       {context.feedbackSupported && context.commentHistory.length > 0 && (
-        <div className="approval-comment-history">
+        <div className={styles.approvalCommentHistory}>
           <h3>Previous feedback on this run</h3>
           <ul>
             {context.commentHistory.map((entry) => (
@@ -128,7 +128,7 @@ export function ApprovalDecisionModal({
         </p>
       )}
 
-      <div className="approval-modal-actions">
+      <div className={modalActionsClass}>
         <Button
           variant="primary"
           onClick={onAccept}

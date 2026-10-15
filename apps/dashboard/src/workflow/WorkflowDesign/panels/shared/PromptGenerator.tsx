@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { fieldHintClass, formInputClass } from '../../../../ui/Form/Form';
 import { Button } from '../../../../ui/Button/Button';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 export type PromptGeneratorKind = 'agent' | 'subagent' | 'skill';
 
@@ -40,7 +41,7 @@ export function PromptGenerator({
   }
 
   return (
-    <div className="workflow-prompt-generator">
+    <div className={WorkflowDesignStyles.workflowPromptGenerator}>
       <label>
         Describe the {kind} you want in plain language
         <textarea

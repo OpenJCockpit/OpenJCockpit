@@ -1,5 +1,5 @@
 import type { ReactNode, TextareaHTMLAttributes } from 'react';
-import '../FormFields.scss';
+import styles from '../FormFields.module.scss';
 import { fieldHintClass, formInputClass } from '../../../ui/Form/Form';
 import { cx } from '../../../ui/cx';
 
@@ -23,7 +23,7 @@ export function TextAreaField({
   ...textAreaProps
 }: TextAreaFieldProps) {
   return (
-    <label className={wide ? 'form-field--wide' : undefined}>
+    <label className={wide ? styles.formFieldWide : undefined}>
       {label}
       <textarea
         {...textAreaProps}

@@ -11,6 +11,7 @@ import { EditorForm } from '../../shared/EditorForm';
 import { OrbEditor } from './OrbEditor';
 import { fieldHintClass } from '../../../../../ui/Form/Form';
 import { cx } from '../../../../../ui/cx';
+import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 interface WorkflowEditorProps {
   isNew: boolean;
@@ -134,7 +135,7 @@ export function WorkflowEditor({
         </span>
       </label>
       {form.approvalGate?.enabled && (
-        <div className="workflow-design-field--full">
+        <div className={WorkflowDesignStyles.workflowDesignFieldFull}>
           <SelectField
             id="approval-gate-placement"
             label="Gate placement"
@@ -153,7 +154,10 @@ export function WorkflowEditor({
               </option>
             ))}
           </SelectField>
-          <p id="approval-gate-note" className={cx(fieldHintClass, 'approval-gate-note')}>
+          <p
+            id="approval-gate-note"
+            className={cx(fieldHintClass, WorkflowDesignStyles.approvalGateNote)}
+          >
             {form.approvalGate.placementStage === 'realisation'
               ? 'Up to 3 feedback iterations are available at this gate.'
               : 'This gate offers Accept and Deny only. The feedback and re-run capability requires a realisation placement.'}

@@ -11,6 +11,7 @@ import type { WorkflowGroup } from '../../../workflowTypes';
 import { GroupEditor } from './GroupEditor';
 import { GroupsTable } from './GroupsTable';
 import { fieldHintClass } from '../../../../ui/Form/Form';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_GROUP: WorkflowGroup = { id: '', name: '', description: '', projectName: '' };
 
@@ -73,7 +74,7 @@ export function GroupsPanel() {
 
   return (
     <div>
-      <div className="workflow-design-toolbar">
+      <div className={WorkflowDesignStyles.workflowDesignToolbar}>
         <ToolbarButton onClick={startCreate}>+ New group</ToolbarButton>
       </div>
       <p className={fieldHintClass}>

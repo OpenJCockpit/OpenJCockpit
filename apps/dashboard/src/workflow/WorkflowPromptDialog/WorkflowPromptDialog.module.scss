@@ -9,7 +9,8 @@
   backdrop-filter: blur(6px);
 }
 .workflow-prompt-dialog {
-  width: min(560px, 100%);
+  // `width` is intentionally absent: ModalShell's own width (640px) always won over the old
+  // `min(560px, 100%)` declared here, so the rendered size is preserved.
   padding: 26px 28px;
   border-color: var(--line-strong);
   box-shadow:

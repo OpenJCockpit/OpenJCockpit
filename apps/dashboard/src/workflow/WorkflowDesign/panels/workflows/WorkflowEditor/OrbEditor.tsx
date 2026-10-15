@@ -3,6 +3,7 @@ import { SelectField } from '../../../../../components/FormFields/SelectField/Se
 import type { WorkflowDefinition, WorkflowOrb } from '../../../../workflowTypes';
 import { fieldErrorClass, fieldHintClass } from '../../../../../ui/Form/Form';
 import { Button } from '../../../../../ui/Button/Button';
+import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 const MAX_ORBS = 5;
 
@@ -29,7 +30,7 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
   }
 
   return (
-    <div className="workflow-design-field--full">
+    <div className={WorkflowDesignStyles.workflowDesignFieldFull}>
       <span>Workflow orbs</span>
       {error && (
         <p id="workflow-orb-error" role="alert" className={fieldErrorClass}>

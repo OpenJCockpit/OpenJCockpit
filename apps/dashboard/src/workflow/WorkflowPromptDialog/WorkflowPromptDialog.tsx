@@ -1,10 +1,10 @@
-import './WorkflowPromptDialog.scss';
 import { useId, useState } from 'react';
 import { ModalShell } from '../ModalShell/ModalShell';
 import { Eyebrow, panelClassName } from '../../ui/Panel/Panel';
 import { cx } from '../../ui/cx';
 import { fieldHintClass, formInputClass } from '../../ui/Form/Form';
 import { Button } from '../../ui/Button/Button';
+import styles from './WorkflowPromptDialog.module.scss';
 
 interface Props {
   workflowName: string;
@@ -27,13 +27,13 @@ export function WorkflowPromptDialog({ workflowName, busy, onSubmit, onCancel }:
     <ModalShell
       labelledBy={titleId}
       onDismiss={onCancel}
-      className={cx('workflow-prompt-dialog', panelClassName)}
-      overlayClassName="workflow-prompt-overlay"
+      className={cx(styles.workflowPromptDialog, panelClassName)}
+      overlayClassName={styles.workflowPromptOverlay}
     >
-      <span id={titleId} className="workflow-prompt-dialog__visually-hidden">
+      <span id={titleId} className={styles.workflowPromptDialogVisuallyHidden}>
         {`Prompt for ${workflowName}`}
       </span>
-      <header className="workflow-prompt-dialog__header">
+      <header className={styles.workflowPromptDialogHeader}>
         <Eyebrow>Workflow input</Eyebrow>
         <h2>{workflowName}</h2>
       </header>
@@ -41,7 +41,7 @@ export function WorkflowPromptDialog({ workflowName, busy, onSubmit, onCancel }:
         Describe what the workflow should deliver. The prompt is combined with the repository
         contents (RAG) to create small, executable spec files.
       </p>
-      <label className="workflow-prompt-dialog__field">
+      <label className={styles.workflowPromptDialogField}>
         Prompt
         <textarea
           className={formInputClass}
@@ -52,7 +52,7 @@ export function WorkflowPromptDialog({ workflowName, busy, onSubmit, onCancel }:
           placeholder="E.g.: Add an export button to the customer overview that downloads the table as CSV."
         />
       </label>
-      <div className="workflow-prompt-dialog__actions">
+      <div className={styles.workflowPromptDialogActions}>
         <Button
           variant="primary"
           onClick={() => onSubmit(prompt.trim())}

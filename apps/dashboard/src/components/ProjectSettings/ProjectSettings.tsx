@@ -1,4 +1,3 @@
-import './ProjectSettings.scss';
 import { useEffect, useRef, useState } from 'react';
 import type { Project, ProjectGitCredentialRequest, ProjectRequest } from '../../types';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';

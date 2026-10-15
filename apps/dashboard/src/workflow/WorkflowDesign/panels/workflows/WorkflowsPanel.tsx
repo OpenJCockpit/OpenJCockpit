@@ -23,6 +23,7 @@ import { WorkflowEditor } from './WorkflowEditor/WorkflowEditor';
 import { WorkflowsTable } from './WorkflowsTable';
 import { fieldErrorClass, fieldHintClass, formInputClass } from '../../../../ui/Form/Form';
 import { cx } from '../../../../ui/cx';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_WORKFLOW: WorkflowDefinition = {
   id: '',
@@ -194,12 +195,12 @@ export function WorkflowsPanel() {
 
   return (
     <div>
-      <div className="workflow-design-toolbar">
+      <div className={WorkflowDesignStyles.workflowDesignToolbar}>
         <ToolbarButton onClick={startCreate}>+ New workflow</ToolbarButton>
-        <label className="workflow-group-filter">
+        <label className={WorkflowDesignStyles.workflowGroupFilter}>
           Group
           <select
-            className={cx(formInputClass, 'workflow-group-filter__select')}
+            className={cx(formInputClass, WorkflowDesignStyles.workflowGroupFilterSelect)}
             value={groupFilter}
             onChange={(e) => setGroupFilter(e.target.value)}
           >
@@ -212,7 +213,7 @@ export function WorkflowsPanel() {
             ))}
           </select>
         </label>
-        <div className="workflow-design-toolbar__spacer" />
+        <div className={WorkflowDesignStyles.workflowDesignToolbarSpacer} />
         <ToolbarButton variant="small" onClick={() => void handleExport()}>
           ⬇ Export JSON
         </ToolbarButton>

@@ -5,6 +5,7 @@ import { TextField } from '../FormFields/TextField/TextField';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import { formActionsClass, formClass, formGridClass, formTitleClass } from '../../ui/Form/Form';
 import { Button } from '../../ui/Button/Button';
+import styles from './ProjectSettings.module.scss';
 
 interface Props {
   isNew: boolean;
@@ -78,7 +79,7 @@ export function ProjectForm({
           onChange={(v) => onChange((f) => ({ ...f, description: v }))}
           placeholder="Short description"
         />
-        <label className="new-project-checkbox">
+        <label className={styles.newProjectCheckbox}>
           <input
             type="checkbox"
             checked={form.newProject === 1}

@@ -1,8 +1,8 @@
-import './ApprovalCommentModal.scss';
 import { useEffect, useId, useRef, useState } from 'react';
-import { ModalShell } from '../ModalShell/ModalShell';
+import { ModalShell, modalActionsClass } from '../ModalShell/ModalShell';
 import { fieldErrorClass, fieldHintClass, formInputClass } from '../../ui/Form/Form';
 import { Button } from '../../ui/Button/Button';
+import styles from './ApprovalCommentModal.module.scss';
 
 // Not part of the wire contract (ApprovalGateContextDto carries no length field) —
 // this mirrors the backend's ApprovalDecisionRequestDto.comment maxLength / A14's
@@ -55,7 +55,7 @@ export function ApprovalCommentModal({
     <ModalShell
       labelledBy={titleId}
       onDismiss={onCancel}
-      className="approval-comment-dialog"
+      className={styles.approvalCommentDialog}
       overlayClassName="approval-comment-overlay"
     >
       <h2 id={titleId}>Accept with my comments</h2>
@@ -63,7 +63,7 @@ export function ApprovalCommentModal({
         Describe what should change in the next attempt. This re-runs the realisation stage with
         your feedback and re-opens this checkpoint on the new result.
       </p>
-      <label className="approval-comment-field" htmlFor={textareaId}>
+      <label className={styles.approvalCommentField} htmlFor={textareaId}>
         Feedback for the next attempt
         <textarea
           id={textareaId}
@@ -94,7 +94,7 @@ export function ApprovalCommentModal({
           {errorMessage}
         </p>
       )}
-      <div className="approval-modal-actions">
+      <div className={modalActionsClass}>
         <Button
           variant="primary"
           onClick={handleConfirm}

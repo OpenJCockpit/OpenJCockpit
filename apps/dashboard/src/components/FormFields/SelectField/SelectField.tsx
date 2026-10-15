@@ -1,5 +1,5 @@
 import type { ReactNode, SelectHTMLAttributes } from 'react';
-import '../FormFields.scss';
+import styles from '../FormFields.module.scss';
 import { fieldHintClass, formInputClass } from '../../../ui/Form/Form';
 import { cx } from '../../../ui/cx';
 
@@ -25,7 +25,7 @@ export function SelectField({
   ...selectProps
 }: SelectFieldProps) {
   return (
-    <label className={wide ? 'form-field--wide' : undefined}>
+    <label className={wide ? styles.formFieldWide : undefined}>
       {label}
       <select
         {...selectProps}

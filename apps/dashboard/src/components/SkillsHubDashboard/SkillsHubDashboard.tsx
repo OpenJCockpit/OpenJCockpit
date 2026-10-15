@@ -1,4 +1,3 @@
-import './SkillsHubDashboard.scss';
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { IconBox } from '../IconBox/IconBox';
@@ -11,6 +10,7 @@ import { fieldHintClass, formInputClass } from '../../ui/Form/Form';
 import { cx } from '../../ui/cx';
 import { Button } from '../../ui/Button/Button';
 import { pageClass, pageHeaderClass } from '../../ui/Page/Page';
+import styles from './SkillsHubDashboard.module.scss';
 
 interface Props {
   onBack: () => void;
@@ -88,9 +88,9 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
           </div>
         </div>
 
-        <form className="skills-hub-search" onSubmit={handleSearch} role="search">
+        <form className={styles.skillsHubSearch} onSubmit={handleSearch} role="search">
           <input
-            className={cx(formInputClass, 'skills-hub-search__input')}
+            className={cx(formInputClass, styles.skillsHubSearchInput)}
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -102,8 +102,8 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
           </Button>
         </form>
 
-        <Panel as="div" className="skills-hub-panel">
-          <DataTable className="skills-hub-table">
+        <Panel as="div" className={styles.skillsHubPanel}>
+          <DataTable className={styles.skillsHubTable}>
             <thead>
               <tr>
                 <th>Category</th>
@@ -114,7 +114,7 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
               {visibleSkills.map((skill) => (
                 <tr key={skill.id}>
                   <td>
-                    <div className="skill-category-tags">
+                    <div className={styles.skillCategoryTags}>
                       {skill.categories.map((category) => (
                         <StatusChip
                           key={category.label}
@@ -125,7 +125,7 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
                     </div>
                   </td>
                   <td>
-                    <div className="skill-row">
+                    <div className={styles.skillRow}>
                       <IconBox label={skill.icon} compact />
                       <div>
                         <strong>{skill.name}</strong>

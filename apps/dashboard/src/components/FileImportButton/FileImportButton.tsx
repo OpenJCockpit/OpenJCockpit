@@ -1,5 +1,6 @@
 import { useRef, type ReactNode } from 'react';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
+import WorkflowDesignStyles from '../../workflow/WorkflowDesign/WorkflowDesign.module.scss';
 
 interface FileImportButtonProps {
   children: ReactNode;
@@ -21,7 +22,7 @@ export function FileImportButton({ children, accept, onFile, inputLabel }: FileI
         ref={inputRef}
         type="file"
         accept={accept}
-        className="workflow-design-hidden-input"
+        className={WorkflowDesignStyles.workflowDesignHiddenInput}
         aria-label={inputLabel}
         onChange={(e) => {
           const file = e.target.files?.[0];

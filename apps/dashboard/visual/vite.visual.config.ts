@@ -9,7 +9,10 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 export default defineConfig({
   root,
   plugins: [react()],
-  css: { preprocessorOptions: { scss: { charset: false } } },
+  css: {
+    modules: { localsConvention: 'camelCaseOnly' },
+    preprocessorOptions: { scss: { charset: false } },
+  },
   resolve: {
     alias: [
       {

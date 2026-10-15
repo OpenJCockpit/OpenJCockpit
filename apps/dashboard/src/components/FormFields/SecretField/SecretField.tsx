@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import '../FormFields.scss';
 import { fieldHintClass, formInputClass } from '../../../ui/Form/Form';
+import FormFieldsStyles from '../FormFields.module.scss';
 
 interface SecretFieldProps {
   label: ReactNode;
@@ -13,7 +13,7 @@ interface SecretFieldProps {
 /** Password input for a write-only secret: blank means "keep the stored value". */
 export function SecretField({ label, hasValue, value, onChange }: SecretFieldProps) {
   return (
-    <label className="form-field--wide">
+    <label className={FormFieldsStyles.formFieldWide}>
       {label}{' '}
       {hasValue && (
         <span className={fieldHintClass}>(already configured — leave blank to keep)</span>

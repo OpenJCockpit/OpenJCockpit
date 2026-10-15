@@ -63,7 +63,10 @@ export function ProjectList({
             </td>
             <td>
               <span
-                className={`status-badge ${project.active === 1 ? 'status-badge--active' : 'status-badge--inactive'}`}
+                className={cx(
+                  styles.statusBadge,
+                  project.active === 1 ? styles.statusBadgeActive : styles.statusBadgeInactive,
+                )}
               >
                 {project.active === 1 ? 'Active' : 'Inactive'}
               </span>

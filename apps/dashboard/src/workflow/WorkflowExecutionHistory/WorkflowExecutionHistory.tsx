@@ -1,8 +1,9 @@
-import './WorkflowExecutionHistory.scss';
 import type { WorkflowExecutionPage } from '../workflowTypes';
 import { StatusChip } from '../../components/StatusChip/StatusChip';
 import { formatRunDuration, runStatusKind, runStatusLabel } from '../runStatus';
 import { Button } from '../../ui/Button/Button';
+import { cx } from '../../ui/cx';
+import styles from './WorkflowExecutionHistory.module.scss';
 
 interface Props {
   page: WorkflowExecutionPage | null;
@@ -12,6 +13,8 @@ interface Props {
   onRetry: () => void;
   onLoadMore: () => void;
   selectedRunId?: string | null;
+  /** Extra class for the root element, e.g. to position it inside a parent panel. */
+  className?: string;
 }
 
 export function WorkflowExecutionHistory({
@@ -22,13 +25,14 @@ export function WorkflowExecutionHistory({
   onRetry,
   onLoadMore,
   selectedRunId,
+  className,
 }: Props) {
   return (
-    <section className="workflow-execution-history">
+    <section className={cx(styles.workflowExecutionHistory, className)}>
       <h3>Execution history</h3>
 
       {error && (
-        <div className="workflow-execution-history-error" role="alert">
+        <div className={styles.workflowExecutionHistoryError} role="alert">
           <p>{error}</p>
           <Button type="button" onClick={onRetry}>
             Retry
@@ -37,16 +41,18 @@ export function WorkflowExecutionHistory({
       )}
 
       {!error && loading && page === null && (
-        <p className="workflow-execution-history-loading">Loading executions…</p>
+        <p className={styles.workflowExecutionHistoryLoading}>Loading executions…</p>
       )}
 
       {!error && !loading && page !== null && page.items.length === 0 && (
-        <p className="workflow-execution-history-empty">This workflow has not been executed yet.</p>
+        <p className={styles.workflowExecutionHistoryEmpty}>
+          This workflow has not been executed yet.
+        </p>
       )}
 
       {!error && page !== null && page.items.length > 0 && (
         <>
-          <table className="workflow-execution-history-table">
+          <table className={styles.workflowExecutionHistoryTable}>
             <caption>Executions for this workflow</caption>
             <thead>
               <tr>
@@ -63,7 +69,9 @@ export function WorkflowExecutionHistory({
                 <tr
                   key={item.runId}
                   className={
-                    item.runId === selectedRunId ? 'workflow-execution-history-row--selected' : ''
+                    item.runId === selectedRunId
+                      ? styles.workflowExecutionHistoryRowSelected
+                      : undefined
                   }
                   aria-current={item.runId === selectedRunId ? 'true' : undefined}
                 >
@@ -90,7 +98,7 @@ export function WorkflowExecutionHistory({
           {page.hasMore && (
             <Button
               type="button"
-              className="workflow-execution-history-load-more"
+              className={styles.workflowExecutionHistoryLoadMore}
               onClick={onLoadMore}
             >
               Load more

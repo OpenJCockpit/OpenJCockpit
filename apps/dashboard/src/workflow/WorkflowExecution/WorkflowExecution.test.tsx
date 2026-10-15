@@ -1089,20 +1089,17 @@ describe('WorkflowExecution', () => {
         }),
       );
 
-      let container: HTMLElement;
       await act(async () => {
-        container = render(
-          <WorkflowExecution workflow={workflowWithOrb} runId="run-1" />,
-        ).container;
+        render(<WorkflowExecution workflow={workflowWithOrb} runId="run-1" />);
       });
 
       await waitFor(
         () => {
           const orbEl = screen.getByLabelText('Workflow orb: Spec Creation Child, sequential');
           expect(orbEl.textContent).toContain('Running');
-          const names = Array.from(container.querySelectorAll('.sequencer-meta strong')).map(
-            (el) => el.textContent,
-          );
+          const names = Array.from(
+            screen.getByLabelText('Agent pipeline sequence').querySelectorAll('strong'),
+          ).map((el) => el.textContent);
           expect(names).toEqual(['Requirement Agent', 'Spec Creation Child', 'Evidence Agent']);
         },
         { timeout: 3000 },
@@ -1123,20 +1120,17 @@ describe('WorkflowExecution', () => {
 
       vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(runWithStatus('RUNNING'));
 
-      let container: HTMLElement;
       await act(async () => {
-        container = render(
-          <WorkflowExecution workflow={workflowWithOrphanedOrb} runId="run-1" />,
-        ).container;
+        render(<WorkflowExecution workflow={workflowWithOrphanedOrb} runId="run-1" />);
       });
 
       await waitFor(
         () => {
           const orbEl = screen.getByLabelText('Workflow orb: Spec Creation Child, sequential');
           expect(orbEl.textContent).toContain('anchor stage removed');
-          const names = Array.from(container.querySelectorAll('.sequencer-meta strong')).map(
-            (el) => el.textContent,
-          );
+          const names = Array.from(
+            screen.getByLabelText('Agent pipeline sequence').querySelectorAll('strong'),
+          ).map((el) => el.textContent);
           expect(names).toEqual(['Requirement Agent', 'Evidence Agent', 'Spec Creation Child']);
         },
         { timeout: 3000 },

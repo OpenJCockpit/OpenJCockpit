@@ -1,4 +1,3 @@
-import './WorkflowExecution.scss';
 import { useEffect, useMemo, useState } from 'react';
 import { loadAgentDefinitions, stopAgentRun } from '../../api';
 import type { AgentDefinition } from '../../types';
@@ -25,6 +24,7 @@ import { Eyebrow, Panel } from '../../ui/Panel/Panel';
 import { fieldHintClass } from '../../ui/Form/Form';
 import { cx } from '../../ui/cx';
 import { Button } from '../../ui/Button/Button';
+import styles from './WorkflowExecution.module.scss';
 
 // 'NOT_FOUND' is retained deliberately: it is what an OLDER backend (pre-dating this
 // feature) returns for an unknown run id, so a newer dashboard paired with it still
@@ -220,20 +220,20 @@ export function WorkflowExecution({
 
   if (!workflow) {
     return (
-      <p className={cx(fieldHintClass, 'workflow-execution-empty')}>
+      <p className={cx(fieldHintClass, styles.workflowExecutionEmpty)}>
         Start a workflow from the Overview tab to see it running here.
       </p>
     );
   }
 
   return (
-    <Panel className="workflow-execution-panel">
-      <header className="workflow-execution-header">
+    <Panel className={styles.workflowExecutionPanel}>
+      <header className={styles.workflowExecutionHeader}>
         <div>
           <Eyebrow>{workflow.id}</Eyebrow>
           <h2>{workflow.name}</h2>
         </div>
-        <div className="workflow-execution-actions">
+        <div className={styles.workflowExecutionActions}>
           {runStatus && (
             <StatusChip label={runStatusLabel(runStatus)} kind={runStatusKind(runStatus)} />
           )}
@@ -247,6 +247,7 @@ export function WorkflowExecution({
 
       {showHistory && (
         <WorkflowExecutionHistory
+          className={styles.workflowExecutionHistorySlot}
           page={historyPage}
           loading={historyLoading}
           error={historyError}
@@ -258,7 +259,7 @@ export function WorkflowExecution({
       )}
 
       {!selectedRunId && (
-        <p className={cx(fieldHintClass, 'workflow-execution-empty')}>
+        <p className={cx(fieldHintClass, styles.workflowExecutionEmpty)}>
           No active execution for this workflow. Start it from the Overview tab or select one from
           the history above to watch it here.
         </p>

@@ -1,4 +1,3 @@
-import './SpecFilesDashboard.scss';
 import { useEffect, useState } from 'react';
 import { loadProjectSpecs, saveSpecFile } from '../../api';
 import { IconBox } from '../../components/IconBox/IconBox';
@@ -11,6 +10,7 @@ import { specStyles } from '../../ui/SpecList/specListStyles';
 import { feedbackErrorClass, feedbackResultClass } from '../../ui/Feedback/Feedback';
 import { pageClass, pageHeaderClass } from '../../ui/Page/Page';
 import { cx } from '../../ui/cx';
+import styles from './SpecFilesDashboard.module.scss';
 
 interface Props {
   project: Project | null;
@@ -89,15 +89,15 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
         )}
 
         {project && (
-          <div className="spec-files-body">
-            <Panel as="aside" className={cx(specStyles.specPanel, 'spec-files-panel')}>
+          <div className={styles.specFilesBody}>
+            <Panel as="aside" className={cx(specStyles.specPanel, styles.specFilesPanel)}>
               <PanelHeader simple>
                 <PanelTitle>
                   <IconBox label="📄" compact /> <h2>Specs</h2>
                 </PanelTitle>
               </PanelHeader>
 
-              <div className={cx(specStyles.specList, 'spec-files-list')}>
+              <div className={cx(specStyles.specList, styles.specFilesList)}>
                 {loading && <p className={specStyles.specListLoading}>Loading specs…</p>}
                 {!loading && specs.length === 0 && (
                   <article className={cx(specStyles.specCard, specStyles.specCardEmpty)}>
@@ -131,10 +131,10 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
               </div>
             </Panel>
 
-            <Panel className="spec-editor">
+            <Panel className={styles.specEditor}>
               {selected ? (
                 <>
-                  <PanelHeader simple className="spec-editor__header">
+                  <PanelHeader simple className={styles.specEditorHeader}>
                     <PanelTitle>
                       <h2>{selected.fileName}</h2>
                     </PanelTitle>
@@ -147,7 +147,7 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
                     </Button>
                   </PanelHeader>
                   <textarea
-                    className="spec-editor__textarea"
+                    className={styles.specEditorTextarea}
                     value={draftContent}
                     onChange={(e) => setDraftContent(e.target.value)}
                     spellCheck={false}

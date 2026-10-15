@@ -57,10 +57,6 @@
     transform: scale(1);
   }
 }
-.sequencer-item.is-dragging .sequencer-node {
-  opacity: 0.45;
-  border-style: dashed;
-}
 .sequencer-node {
   position: relative;
   display: flex;
@@ -124,9 +120,6 @@
     outline-offset: 3px;
   }
 }
-.drag-handle {
-  display: none;
-}
 .sequencer-icon {
   width: 36px;
   height: 36px;
@@ -182,9 +175,6 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-top: 2px;
-}
-.sequencer-output {
-  display: none;
 }
 .sequencer-tooltip-status {
   font-size: 9px;
