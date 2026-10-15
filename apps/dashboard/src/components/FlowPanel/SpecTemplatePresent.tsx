@@ -1,5 +1,6 @@
 import type { WorkflowDefinition } from '../../workflow/workflowTypes';
 import { StatusChip } from '../StatusChip/StatusChip';
+import styles from './FlowPanel.module.scss';
 
 interface Props {
   specCreateWorkflow: WorkflowDefinition | undefined;
@@ -24,7 +25,7 @@ export function SpecTemplatePresent({ specCreateWorkflow, onCreateSpec }: Props)
         ✨ Create spec with prompt
       </button>
       {!specCreateWorkflow && (
-        <p className="workflow-launcher-hint">
+        <p className={styles.workflowLauncherHint}>
           De workflow &quot;Create spec from prompt (RAG)&quot; is not available for this project.
         </p>
       )}

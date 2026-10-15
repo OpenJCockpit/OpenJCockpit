@@ -34,6 +34,7 @@ import { PullRequestPanel } from './components/WorkspacePanels/PullRequestPanel'
 import { QualityPanel } from './components/WorkspacePanels/QualityPanel';
 import { FlowPanel } from './components/FlowPanel/FlowPanel';
 import { useRunLauncher } from './useRunLauncher';
+import styles from './App.module.scss';
 
 type AppView =
   | 'project-selection'
@@ -274,17 +275,17 @@ function App() {
       <main className="workspace">
         <CustomerHero selectedProject={selectedProject} workspace={workspace} />
 
-        <section className="top-tools">
+        <section className={styles.topTools}>
           <div className="search">
             Search workspace... <span>⌕</span>
           </div>
           <ToolbarButton variant="small">Filters</ToolbarButton>
-          <div className="top-tools__spacer" />
+          <div className={styles.topToolsSpacer} />
           <ToolbarButton variant="small">⟳ Refresh</ToolbarButton>
-          <span className="last-update">● Last update: 13:24:11</span>
+          <span className={styles.lastUpdate}>● Last update: 13:24:11</span>
         </section>
 
-        <section className="dashboard-grid">
+        <section className={styles.dashboardGrid}>
           <SpecPanel
             specs={specs}
             loading={specsLoading}

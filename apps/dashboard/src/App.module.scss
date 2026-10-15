@@ -1,0 +1,38 @@
+.topTools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+.topToolsSpacer {
+  flex: 1;
+}
+.lastUpdate {
+  color: var(--muted);
+  border: 1px solid rgba(124, 222, 255, 0.12);
+  border-radius: 9px;
+  padding: 10px 14px;
+  background: rgba(8, 25, 38, 0.34);
+  &::first-letter {
+    color: var(--teal);
+  }
+}
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: 286px 1fr 330px;
+  grid-template-rows: minmax(390px, auto) minmax(190px, auto);
+  gap: 16px;
+}
+
+@media (max-width: 1280px) {
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+}
+
+@media (max-width: 820px) {
+  .topTools {
+    flex-wrap: wrap;
+  }
+}

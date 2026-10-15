@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
+import styles from './AppShell.module.scss';
 
 /** Page chrome shared by every dashboard view: the animated background and the content wrapper. */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="app-shell">
+    <div className={styles.appShell}>
       <div className="neural-bg" aria-hidden="true" />
       <div className="orb orb--left" aria-hidden="true" />
       <div className="orb orb--right" aria-hidden="true" />

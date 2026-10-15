@@ -1,0 +1,8 @@
+// The former global `@media (max-width: 820px) { .project-grid { … } }` sat before the base
+// rule in the cascade and never took effect, so it is intentionally not carried over.
+.projectGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}

@@ -1,0 +1,148 @@
+.qualityPanel {
+  grid-column: 3;
+  grid-row: 1;
+  padding-bottom: 14px;
+}
+.prPanel {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+  padding-bottom: 14px;
+}
+.evidencePanel {
+  grid-column: 3;
+  grid-row: 2;
+  padding-bottom: 14px;
+}
+.smallLink {
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  color: var(--cyan);
+  cursor: default;
+  padding: 0;
+  font-size: 13px;
+}
+.panelHeaderQuality {
+  padding-bottom: 12px;
+}
+.qualityList {
+  display: grid;
+  gap: 3px;
+  padding: 4px 16px 12px;
+}
+.qualityRow {
+  display: grid;
+  grid-template-columns: 34px 1fr 24px;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(124, 222, 255, 0.075);
+  & strong {
+    font-size: 13px;
+    font-weight: 550;
+  }
+}
+.check {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--teal);
+  border: 1px solid rgba(55, 247, 194, 0.72);
+  box-shadow: 0 0 18px rgba(55, 247, 194, 0.12);
+  font-size: 12px;
+}
+
+.prList {
+  display: grid;
+  gap: 10px;
+  padding: 0 16px;
+}
+.prBadge {
+  color: var(--teal);
+  background: rgba(55, 247, 194, 0.09);
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 12px;
+}
+.prCard {
+  display: grid;
+  grid-template-columns: 80px 1fr 86px;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 10px 14px;
+  border: 1px solid rgba(124, 222, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(6, 21, 34, 0.46);
+}
+.prCard strong,
+.evidenceEvent strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 550;
+}
+// StatusChip still ships a global class until its stylesheet becomes a module.
+.prCard span:not(:global(.status-chip)):not(.prBadge),
+.evidenceEvent span:not(.check) {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.evidenceTimeline {
+  display: grid;
+  gap: 6px;
+  padding: 0 16px;
+}
+.evidenceEvent {
+  position: relative;
+  display: grid;
+  grid-template-columns: 60px 1fr 24px;
+  gap: 14px;
+  align-items: center;
+  min-height: 56px;
+  &::before {
+    content: '';
+    position: absolute;
+    left: 27px;
+    top: -9px;
+    bottom: -9px;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(39, 231, 255, 0.45), transparent);
+  }
+  & time {
+    position: relative;
+    color: #a7c5d1;
+    font-size: 13px;
+    &::before {
+      content: '';
+      position: absolute;
+      left: -18px;
+      top: 50%;
+      width: 7px;
+      height: 7px;
+      transform: translateY(-50%);
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 14px var(--cyan);
+    }
+  }
+}
+
+@media (max-width: 1280px) {
+  .qualityPanel,
+  .prPanel,
+  .evidencePanel {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 820px) {
+  .prCard {
+    grid-template-columns: 1fr;
+  }
+}

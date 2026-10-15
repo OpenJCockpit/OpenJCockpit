@@ -1,22 +1,24 @@
 import type { QualityControl } from '../../types';
 import { IconBox } from '../IconBox/IconBox';
+import styles from './WorkspacePanels.module.scss';
+import { cx } from '../../ui/cx';
 
 export function QualityPanel({ controls }: { controls: QualityControl[] }) {
   return (
-    <aside className="panel quality-panel">
-      <header className="panel-header panel-header--quality">
+    <aside className={cx('panel', styles.qualityPanel)}>
+      <header className={cx('panel-header', styles.panelHeaderQuality)}>
         <div className="panel-title">
           <IconBox label="✓" compact /> <h2>Quality status</h2>
         </div>
-        <button className="small-link">Open quality dashboard ↗</button>
+        <button className={styles.smallLink}>Open quality dashboard ↗</button>
       </header>
 
-      <div className="quality-list">
+      <div className={styles.qualityList}>
         {controls.map((control) => (
-          <article className="quality-row" key={control.name}>
+          <article className={styles.qualityRow} key={control.name}>
             <IconBox label="⌬" compact />
             <strong>{control.name}</strong>
-            <span className="check">✓</span>
+            <span className={styles.check}>✓</span>
           </article>
         ))}
       </div>

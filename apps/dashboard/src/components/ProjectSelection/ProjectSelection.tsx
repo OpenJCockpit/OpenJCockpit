@@ -1,5 +1,6 @@
 import './ProjectSelection.scss';
 import type { GitStatus, Project } from '../../types';
+import styles from './ProjectSelection.module.scss';
 
 interface Props {
   projects: Project[];
@@ -65,7 +66,7 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
             </button>
           </div>
         ) : (
-          <div className="project-grid">
+          <div className={styles.projectGrid}>
             {displayProjects.map((project) => {
               const selectable = canSelect(project);
               const showNotAccessible =

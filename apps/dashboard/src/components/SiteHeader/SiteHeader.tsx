@@ -1,4 +1,5 @@
 import type { Project } from '../../types';
+import styles from './SiteHeader.module.scss';
 
 interface Props {
   projects: Project[];
@@ -25,9 +26,9 @@ export function SiteHeader({
         <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
       </div>
 
-      <nav className="main-nav" aria-label="Primary navigation">
+      <nav className={styles.mainNav} aria-label="Primary navigation">
         <a href="#approach">Approach</a>
-        <a href="#platform" className="active">
+        <a href="#platform" className={styles.active}>
           Platform
         </a>
         <a href="#solutions">Solutions</a>
@@ -85,8 +86,8 @@ export function SiteHeader({
         >
           ← Portal
         </button>
-        <span className="notification">3</span>
-        <span className="avatar">D</span>
+        <span className={styles.notification}>3</span>
+        <span className={styles.avatar}>D</span>
       </div>
     </header>
   );

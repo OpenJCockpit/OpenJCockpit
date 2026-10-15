@@ -1,8 +1,9 @@
 import type { Workspace } from '../../types';
+import styles from './StatusBar.module.scss';
 
 export function StatusBar({ footer }: { footer: Workspace['footer'] }) {
   return (
-    <footer className="status-bar">
+    <footer className={styles.statusBar}>
       <span>● Environment: {footer.environment}</span>
       <span>☁ Region: {footer.region}</span>
       <span>⬡ Classification: {footer.dataClassification}</span>

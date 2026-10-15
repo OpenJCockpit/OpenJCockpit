@@ -1,5 +1,7 @@
 import type { LauncherButtonState } from '../../useRunLauncher';
 import { StartButton } from './StartButton';
+import styles from './FlowPanel.module.scss';
+import { cx } from '../../ui/cx';
 
 interface Props {
   buttonState: LauncherButtonState;
@@ -10,11 +12,11 @@ interface Props {
 /** Start the spec-folder initialization (spec template offered as a pull request). */
 export function SpecInitLauncher({ buttonState, error, onStart }: Props) {
   return (
-    <div className="workflow-launcher">
+    <div className={styles.workflowLauncher}>
       <label htmlFor="workflow-select">Workflow</label>
       <select
         id="workflow-select"
-        className="project-dropdown workflow-select"
+        className={cx('project-dropdown', styles.workflowSelect)}
         value="spec-init"
         disabled
       >
@@ -23,7 +25,7 @@ export function SpecInitLauncher({ buttonState, error, onStart }: Props) {
         </option>
       </select>
       <StartButton state={buttonState} onClick={onStart} />
-      <p className="workflow-launcher-hint">
+      <p className={styles.workflowLauncherHint}>
         This workflow creates a .specify folder with the spec template and offers it as a pull
         request on the repository.
       </p>

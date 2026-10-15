@@ -1,23 +1,25 @@
 import type { PullRequestSummary } from '../../types';
 import { IconBox } from '../IconBox/IconBox';
 import { StatusChip } from '../StatusChip/StatusChip';
+import styles from './WorkspacePanels.module.scss';
+import { cx } from '../../ui/cx';
 
 export function PullRequestPanel({ pullRequests }: { pullRequests: PullRequestSummary[] }) {
   return (
-    <section className="panel pr-panel">
+    <section className={cx('panel', styles.prPanel)}>
       <header className="panel-header panel-header--simple">
         <div className="panel-title">
           <IconBox label="⌯" compact /> <h2>Open pull requests</h2>
         </div>
-        <button className="small-link">
+        <button className={styles.smallLink}>
           View all pull requests <span>→</span>
         </button>
       </header>
 
-      <div className="pr-list">
+      <div className={styles.prList}>
         {pullRequests.slice(0, 2).map((pr) => (
-          <article className="pr-card" key={pr.id}>
-            <span className="pr-badge">PR #{pr.id}</span>
+          <article className={styles.prCard} key={pr.id}>
+            <span className={styles.prBadge}>PR #{pr.id}</span>
             <div>
               <strong>{pr.title}</strong>
               <span>

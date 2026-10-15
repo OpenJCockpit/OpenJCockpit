@@ -2,6 +2,7 @@ import type { SpecFile } from '../../types';
 import { IconBox } from '../IconBox/IconBox';
 import { NoSpecsFound } from './NoSpecsFound';
 import { SpecCardButton } from './SpecCardButton';
+import styles from './SpecPanel.module.scss';
 
 interface Props {
   specs: SpecFile[];
@@ -47,7 +48,7 @@ export function SpecPanel({
       </div>
 
       {selected?.content && (
-        <div className="spec-content">
+        <div className={styles.specContent}>
           <pre>{selected.content}</pre>
         </div>
       )}
