@@ -1,0 +1,131 @@
+// Specificity is held at (0,0,1) via :is(button, a):where(.x): equal to the global `button`
+// reset (which this sheet follows) but below any consumer class, so a consumer's own
+// className still overrides a variant exactly as the old global classes allowed.
+:is(button, a):where(.secondary) {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--cyan);
+  background: rgba(39, 231, 255, 0.04);
+  border: 1px solid rgba(39, 231, 255, 0.28);
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s,
+    border-color 0.15s;
+  box-shadow: 0 0 8px rgba(39, 231, 255, 0.1);
+  white-space: nowrap;
+  &:hover {
+    background: rgba(39, 231, 255, 0.1);
+    border-color: rgba(39, 231, 255, 0.55);
+    box-shadow: 0 0 16px rgba(39, 231, 255, 0.3);
+  }
+}
+
+:is(button, a):where(.base) {
+  border: 1px solid var(--line);
+  background: rgba(12, 35, 52, 0.36);
+  border-radius: 10px;
+  color: #dffaff;
+  cursor: default;
+}
+
+:is(button, a):where(.small) {
+  padding: 10px 16px;
+  color: #cceaf4;
+}
+
+:is(button, a):where(.primary) {
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #dfffff;
+  background: rgba(39, 231, 255, 0.1);
+  border: 1px solid rgba(39, 231, 255, 0.45);
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s,
+    border-color 0.15s;
+  box-shadow: 0 0 8px rgba(39, 231, 255, 0.2);
+  white-space: nowrap;
+  &:hover:not(:disabled) {
+    background: rgba(39, 231, 255, 0.2);
+    border-color: rgba(39, 231, 255, 0.75);
+    box-shadow: 0 0 16px rgba(39, 231, 255, 0.4);
+  }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+:is(button, a):where(.danger) {
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #ffd0d0;
+  background: rgba(255, 80, 80, 0.1);
+  border: 1px solid rgba(255, 80, 80, 0.45);
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s,
+    border-color 0.15s;
+  box-shadow: 0 0 8px rgba(255, 80, 80, 0.2);
+  white-space: nowrap;
+  &:hover:not(:disabled) {
+    background: rgba(255, 80, 80, 0.2);
+    border-color: rgba(255, 80, 80, 0.75);
+    box-shadow: 0 0 16px rgba(255, 80, 80, 0.4);
+  }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+:is(button, a):where(.workflow) {
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #ede4ff;
+  background: var(--violet-soft);
+  border: 1px solid rgba(177, 138, 255, 0.45);
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s,
+    border-color 0.15s;
+  box-shadow: 0 0 8px rgba(177, 138, 255, 0.2);
+  white-space: nowrap;
+  &:hover:not(:disabled) {
+    background: rgba(177, 138, 255, 0.22);
+    border-color: rgba(177, 138, 255, 0.8);
+    box-shadow: 0 0 18px rgba(177, 138, 255, 0.45);
+  }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+:is(button, a):where(.link) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: calc(100% - 32px);
+  margin: 12px 16px 0;
+  padding: 13px;
+  color: var(--cyan);
+  background: rgba(39, 231, 255, 0.03);
+}

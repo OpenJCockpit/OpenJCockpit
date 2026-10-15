@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import styles from './AppShell.module.scss';
+import { Button } from '../../ui/Button/Button';
 
 /** Page chrome shared by every dashboard view: the animated background and the content wrapper. */
 export function AppShell({ children }: { children: ReactNode }) {
@@ -31,9 +32,9 @@ export function AppHeader({ onBack, backLabel = '← Back', backTitle, children 
       <div className="header-actions">
         {children}
         {onBack && (
-          <button className="back-button" onClick={onBack} title={backTitle}>
+          <Button variant="secondary" onClick={onBack} title={backTitle}>
             {backLabel}
-          </button>
+          </Button>
         )}
       </div>
     </header>

@@ -4,6 +4,7 @@ import { ModalShell } from '../ModalShell/ModalShell';
 import { Eyebrow, panelClassName } from '../../ui/Panel/Panel';
 import { cx } from '../../ui/cx';
 import { fieldHintClass, formInputClass } from '../../ui/Form/Form';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   workflowName: string;
@@ -52,16 +53,16 @@ export function WorkflowPromptDialog({ workflowName, busy, onSubmit, onCancel }:
         />
       </label>
       <div className="workflow-prompt-dialog__actions">
-        <button
-          className="button button--start"
+        <Button
+          variant="primary"
           onClick={() => onSubmit(prompt.trim())}
           disabled={busy || prompt.trim().length === 0}
         >
           {busy ? '⟳ Starting…' : '▶ Start with prompt'}
-        </button>
-        <button className="back-button" onClick={onCancel} disabled={busy}>
+        </Button>
+        <Button variant="secondary" onClick={onCancel} disabled={busy}>
           Cancel
-        </button>
+        </Button>
       </div>
     </ModalShell>
   );

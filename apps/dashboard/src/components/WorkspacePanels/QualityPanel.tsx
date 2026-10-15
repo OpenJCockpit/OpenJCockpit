@@ -2,6 +2,7 @@ import type { QualityControl } from '../../types';
 import { IconBox } from '../IconBox/IconBox';
 import styles from './WorkspacePanels.module.scss';
 import { Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
+import { Button } from '../../ui/Button/Button';
 
 export function QualityPanel({ controls }: { controls: QualityControl[] }) {
   return (
@@ -23,9 +24,9 @@ export function QualityPanel({ controls }: { controls: QualityControl[] }) {
         ))}
       </div>
 
-      <button className="link-button">
+      <Button variant="link">
         View all quality rules <span>→</span>
-      </button>
+      </Button>
     </Panel>
   );
 }

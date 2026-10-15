@@ -4,6 +4,7 @@ import type { ApprovalGateContext } from '../workflowTypes';
 import { ModalShell } from '../ModalShell/ModalShell';
 import { ApprovalCommentModal } from '../ApprovalCommentModal/ApprovalCommentModal';
 import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
+import { Button, buttonClass } from '../../ui/Button/Button';
 
 interface ApprovalDecisionModalProps {
   context: ApprovalGateContext;
@@ -93,7 +94,7 @@ export function ApprovalDecisionModal({
       {actionUrl && (
         <p>
           <a
-            className="button button--workflow"
+            className={buttonClass({ variant: 'workflow' })}
             href={actionUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -128,31 +129,31 @@ export function ApprovalDecisionModal({
       )}
 
       <div className="approval-modal-actions">
-        <button
-          className="button button--start"
+        <Button
+          variant="primary"
           onClick={onAccept}
           disabled={submitting}
           aria-busy={submitting || undefined}
         >
           Accept
-        </button>
-        <button
-          className="button button--stop"
+        </Button>
+        <Button
+          variant="danger"
           onClick={onDeny}
           disabled={submitting}
           aria-busy={submitting || undefined}
         >
           Deny
-        </button>
+        </Button>
         {canOfferComments && (
-          <button
-            className="button button--workflow"
+          <Button
+            variant="workflow"
             onClick={() => setShowCommentModal(true)}
             disabled={submitting}
             aria-busy={submitting || undefined}
           >
             Accept with my comments
-          </button>
+          </Button>
         )}
       </div>
 

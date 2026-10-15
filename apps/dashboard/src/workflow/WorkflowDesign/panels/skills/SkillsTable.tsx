@@ -1,6 +1,7 @@
 import type { ExternalSkill, SkillSpec } from '../../../workflowTypes';
 import { DataTable } from '../../../../ui/DataTable/DataTable';
 import { fieldHintClass } from '../../../../ui/Form/Form';
+import { Button } from '../../../../ui/Button/Button';
 
 type LocalSkillRow = { key: string; readOnly: false; skill: SkillSpec };
 type ExternalSkillRow = { key: string; readOnly: true; skill: ExternalSkill };
@@ -45,12 +46,12 @@ export function SkillsTable({ rows, onEdit, onDelete }: SkillsTableProps) {
               <td>{row.skill.inputContract}</td>
               <td>{row.skill.outputContract}</td>
               <td>
-                <button className="back-button" onClick={() => onEdit(row.skill)}>
+                <Button variant="secondary" onClick={() => onEdit(row.skill)}>
                   Edit
-                </button>
-                <button className="back-button" onClick={() => onDelete(row.skill.name)}>
+                </Button>
+                <Button variant="secondary" onClick={() => onDelete(row.skill.name)}>
                   Delete
-                </button>
+                </Button>
               </td>
             </tr>
           ),

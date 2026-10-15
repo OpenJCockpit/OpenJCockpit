@@ -1,6 +1,7 @@
 import type { SpecInitResult } from '../../types';
 import { StatusChip } from '../StatusChip/StatusChip';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
+import { buttonClass } from '../../ui/Button/Button';
 
 interface Props {
   result: SpecInitResult;
@@ -14,7 +15,12 @@ export function SpecInitOffered({ result, onReload }: Props) {
       <StatusChip label="Pull request offered" kind="ok" />
       <p>{result.message}</p>
       {result.pullRequestUrl && (
-        <a className="link-button" href={result.pullRequestUrl} target="_blank" rel="noreferrer">
+        <a
+          className={buttonClass({ variant: 'link' })}
+          href={result.pullRequestUrl}
+          target="_blank"
+          rel="noreferrer"
+        >
           Open pull request <span>→</span>
         </a>
       )}

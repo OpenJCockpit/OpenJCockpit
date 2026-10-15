@@ -17,6 +17,7 @@ import { WorkflowPromptDialog } from '../WorkflowPromptDialog/WorkflowPromptDial
 import { Eyebrow, Panel } from '../../ui/Panel/Panel';
 import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   project: Project | null;
@@ -291,24 +292,23 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
             </dl>
 
             <div className="workflow-card-actions">
-              <button
-                className="button button--start"
+              <Button
+                variant="primary"
                 onClick={() => void handleStart(workflow)}
                 disabled={startingId === workflow.id}
               >
                 {startingId === workflow.id ? '⟳ Starting…' : '▶ Start'}
-              </button>
-              <button
-                className="button"
+              </Button>
+              <Button
                 onClick={() => void handleExportDecisionLogs(workflow)}
                 disabled={exportingId === workflow.id}
               >
                 {exportingId === workflow.id ? '⟳ Exporting…' : '⬇ Export decision logs'}
-              </button>
+              </Button>
               {onViewExecutionTab && (
-                <button className="link-button" onClick={() => onViewExecutionTab(workflow)}>
+                <Button variant="link" onClick={() => onViewExecutionTab(workflow)}>
                   Open Workflow Execution <span>→</span>
-                </button>
+                </Button>
               )}
               {feedback[workflow.id] && (
                 <span className="workflow-card-feedback">{feedback[workflow.id]}</span>

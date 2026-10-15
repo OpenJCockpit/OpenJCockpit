@@ -1,5 +1,6 @@
 import type { SubagentSpec } from '../../../workflowTypes';
 import { DataTable } from '../../../../ui/DataTable/DataTable';
+import { Button } from '../../../../ui/Button/Button';
 
 interface SubagentsTableProps {
   items: SubagentSpec[];
@@ -25,12 +26,12 @@ export function SubagentsTable({ items, onEdit, onDelete }: SubagentsTableProps)
             <td>{item.parentAgent}</td>
             <td>{item.skillNames.join(', ')}</td>
             <td>
-              <button className="back-button" onClick={() => onEdit(item)}>
+              <Button variant="secondary" onClick={() => onEdit(item)}>
                 Edit
-              </button>
-              <button className="back-button" onClick={() => onDelete(item.name)}>
+              </Button>
+              <Button variant="secondary" onClick={() => onDelete(item.name)}>
                 Delete
-              </button>
+              </Button>
             </td>
           </tr>
         ))}

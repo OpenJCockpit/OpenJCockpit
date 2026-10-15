@@ -2,6 +2,7 @@ import './ApprovalCommentModal.scss';
 import { useEffect, useId, useRef, useState } from 'react';
 import { ModalShell } from '../ModalShell/ModalShell';
 import { fieldErrorClass, fieldHintClass, formInputClass } from '../../ui/Form/Form';
+import { Button } from '../../ui/Button/Button';
 
 // Not part of the wire contract (ApprovalGateContextDto carries no length field) —
 // this mirrors the backend's ApprovalDecisionRequestDto.comment maxLength / A14's
@@ -94,17 +95,17 @@ export function ApprovalCommentModal({
         </p>
       )}
       <div className="approval-modal-actions">
-        <button
-          className="button button--start"
+        <Button
+          variant="primary"
           onClick={handleConfirm}
           disabled={submitting}
           aria-busy={submitting || undefined}
         >
           {submitting ? '⟳ Submitting…' : 'Confirm'}
-        </button>
-        <button className="back-button" onClick={onCancel} disabled={submitting}>
+        </Button>
+        <Button variant="secondary" onClick={onCancel} disabled={submitting}>
           Cancel
-        </button>
+        </Button>
       </div>
     </ModalShell>
   );

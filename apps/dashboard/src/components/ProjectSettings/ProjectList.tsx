@@ -2,6 +2,7 @@ import type { Project } from '../../types';
 import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
 import { Actions, DataTable, DataTableRow } from '../../ui/DataTable/DataTable';
 import { fieldHintClass } from '../../ui/Form/Form';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   projects: Project[];
@@ -68,37 +69,37 @@ export function ProjectList({
               </span>
             </td>
             <Actions as="td">
-              <button className="back-button" onClick={() => onEdit(project)}>
+              <Button variant="secondary" onClick={() => onEdit(project)}>
                 Edit
-              </button>
-              <button
-                className="back-button"
+              </Button>
+              <Button
+                variant="secondary"
                 onClick={() => onGitCheck(project.id)}
                 disabled={checkingId === project.id}
               >
                 {checkingId === project.id ? '⟳' : 'Git check'}
-              </button>
-              <button className="back-button" onClick={() => onEditCredentials(project.id)}>
+              </Button>
+              <Button variant="secondary" onClick={() => onEditCredentials(project.id)}>
                 {project.hasCredentials ? 'Update credentials' : 'Add credentials'}
-              </button>
+              </Button>
               {project.hasCredentials && (
-                <button
-                  className="back-button"
+                <Button
+                  variant="secondary"
                   style={{ color: 'var(--danger)' }}
                   onClick={() => onDeleteCredentials(project.id)}
                 >
                   Delete credentials
-                </button>
+                </Button>
               )}
-              <button
-                className="back-button"
+              <Button
+                variant="secondary"
                 onClick={() => onToggleActive(project)}
                 style={{
                   color: project.active === 1 ? 'var(--danger)' : 'var(--cyan)',
                 }}
               >
                 {project.active === 1 ? 'Deactivate' : 'Activate'}
-              </button>
+              </Button>
             </Actions>
           </DataTableRow>
         ))}

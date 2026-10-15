@@ -24,6 +24,7 @@ import { useRunEvents } from './useRunEvents';
 import { Eyebrow, Panel } from '../../ui/Panel/Panel';
 import { fieldHintClass } from '../../ui/Form/Form';
 import { cx } from '../../ui/cx';
+import { Button } from '../../ui/Button/Button';
 
 // 'NOT_FOUND' is retained deliberately: it is what an OLDER backend (pre-dating this
 // feature) returns for an unknown run id, so a newer dashboard paired with it still
@@ -237,13 +238,9 @@ export function WorkflowExecution({
             <StatusChip label={runStatusLabel(runStatus)} kind={runStatusKind(runStatus)} />
           )}
           {selectedRunId && !isTerminalRunStatus(runStatus ?? '') && (
-            <button
-              className="button button--stop"
-              onClick={() => void handleStop()}
-              disabled={stopping}
-            >
+            <Button variant="danger" onClick={() => void handleStop()} disabled={stopping}>
               {stopping ? '⟳ Stopping…' : '◼ Stop'}
-            </button>
+            </Button>
           )}
         </div>
       </header>
@@ -287,9 +284,9 @@ export function WorkflowExecution({
         runStatus === 'AWAITING_APPROVAL' &&
         approvalContext &&
         !approvalModalVisible && (
-          <button className="button button--workflow" onClick={() => setApprovalModalVisible(true)}>
+          <Button variant="workflow" onClick={() => setApprovalModalVisible(true)}>
             Review pending approval
-          </button>
+          </Button>
         )}
 
       {selectedRunId && !isRunLost && (

@@ -19,6 +19,7 @@ import {
   formTitleClass,
 } from '../../ui/Form/Form';
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   onBack: () => void;
@@ -210,16 +211,12 @@ export function SkillsHubSettings({ onBack }: Props) {
             </label>
           </div>
           <Actions style={{ marginTop: 16 }}>
-            <button
-              className="button button--start"
-              onClick={() => void handleSave()}
-              disabled={saving}
-            >
+            <Button variant="primary" onClick={() => void handleSave()} disabled={saving}>
               {saving ? '⟳ Saving…' : 'Save'}
-            </button>
-            <button className="back-button" onClick={cancelEdit}>
+            </Button>
+            <Button variant="secondary" onClick={cancelEdit}>
               Cancel
-            </button>
+            </Button>
           </Actions>
         </div>
 
@@ -248,12 +245,12 @@ export function SkillsHubSettings({ onBack }: Props) {
                 <td>{connection.enabled ? 'Enabled' : 'Disabled'}</td>
                 <td>{connection.createdAt.slice(0, 10)}</td>
                 <Actions as="td">
-                  <button className="back-button" onClick={() => startEdit(connection)}>
+                  <Button variant="secondary" onClick={() => startEdit(connection)}>
                     Edit
-                  </button>
-                  <button className="back-button" onClick={() => void handleDelete(connection)}>
+                  </Button>
+                  <Button variant="secondary" onClick={() => void handleDelete(connection)}>
                     Delete
-                  </button>
+                  </Button>
                 </Actions>
               </tr>
             ))}

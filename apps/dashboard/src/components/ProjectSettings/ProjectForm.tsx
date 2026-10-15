@@ -4,6 +4,7 @@ import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import { formClass, formGridClass, formTitleClass } from '../../ui/Form/Form';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   isNew: boolean;
@@ -90,9 +91,9 @@ export function ProjectForm({
         <ToolbarButton onClick={onSave} disabled={saving}>
           {saving ? '⟳ Saving…' : 'Save'}
         </ToolbarButton>
-        <button className="back-button" onClick={onCancel}>
+        <Button variant="secondary" onClick={onCancel}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );

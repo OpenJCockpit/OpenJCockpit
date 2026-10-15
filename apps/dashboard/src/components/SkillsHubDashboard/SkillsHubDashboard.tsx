@@ -9,6 +9,7 @@ import { Eyebrow, Panel } from '../../ui/Panel/Panel';
 import { DataTable } from '../../ui/DataTable/DataTable';
 import { fieldHintClass, formInputClass } from '../../ui/Form/Form';
 import { cx } from '../../ui/cx';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   onBack: () => void;
@@ -73,9 +74,9 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
   return (
     <AppShell>
       <AppHeader onBack={onBack} backTitle="Back to dashboard">
-        <button className="back-button" onClick={onSettings} title="Skills Hub settings">
+        <Button variant="secondary" onClick={onSettings} title="Skills Hub settings">
           ⚙ Settings
-        </button>
+        </Button>
       </AppHeader>
 
       <main className="spec-files-dashboard">
@@ -95,9 +96,9 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
             placeholder="Search for a skill..."
             aria-label="Search for a skill"
           />
-          <button type="submit" className="button button--small">
+          <Button type="submit" size="sm">
             ⌕ Search
-          </button>
+          </Button>
         </form>
 
         <Panel as="div" className="skills-hub-panel">

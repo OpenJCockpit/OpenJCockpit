@@ -1,6 +1,7 @@
 import type { SpecInitStatus } from '../../types';
 import { StatusChip } from '../StatusChip/StatusChip';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
+import { buttonClass } from '../../ui/Button/Button';
 
 interface Props {
   status: SpecInitStatus;
@@ -18,12 +19,17 @@ export function SpecInitPending({ status, onReload }: Props) {
         .specify folder.
       </p>
       {status.branchUrl && (
-        <a className="button" href={status.branchUrl} target="_blank" rel="noreferrer">
+        <a className={buttonClass()} href={status.branchUrl} target="_blank" rel="noreferrer">
           ⎇ View branch on the repository
         </a>
       )}
       {status.pullRequestUrl && (
-        <a className="link-button" href={status.pullRequestUrl} target="_blank" rel="noreferrer">
+        <a
+          className={buttonClass({ variant: 'link' })}
+          href={status.pullRequestUrl}
+          target="_blank"
+          rel="noreferrer"
+        >
           Open pull request <span>→</span>
         </a>
       )}

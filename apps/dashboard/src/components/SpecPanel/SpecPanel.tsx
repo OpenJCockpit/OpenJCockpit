@@ -4,6 +4,7 @@ import { NoSpecsFound } from './NoSpecsFound';
 import { SpecCardButton } from './SpecCardButton';
 import styles from './SpecPanel.module.scss';
 import { Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   specs: SpecFile[];
@@ -55,9 +56,9 @@ export function SpecPanel({
       )}
 
       {hasSpecs && (
-        <button className="link-button" onClick={onViewAll}>
+        <Button variant="link" onClick={onViewAll}>
           View all specs <span>→</span>
-        </button>
+        </Button>
       )}
     </Panel>
   );

@@ -6,6 +6,7 @@ import type { Project, SpecFile, SpecInitResult } from '../../types';
 import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
 import { Eyebrow, Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
 import { fieldHintClass } from '../../ui/Form/Form';
+import { Button, buttonClass } from '../../ui/Button/Button';
 
 interface Props {
   project: Project | null;
@@ -128,13 +129,13 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
                     <PanelTitle>
                       <h2>{selected.fileName}</h2>
                     </PanelTitle>
-                    <button
-                      className="button button--small"
+                    <Button
+                      size="sm"
                       onClick={() => void handleSave()}
                       disabled={!isDirty || saving}
                     >
                       {saving ? '⟳ Saving…' : '💾 Save'}
-                    </button>
+                    </Button>
                   </PanelHeader>
                   <textarea
                     className="spec-editor__textarea"
@@ -149,7 +150,7 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
                       <p>{saveResult.message}</p>
                       {saveResult.pullRequestUrl && (
                         <a
-                          className="link-button"
+                          className={buttonClass({ variant: 'link' })}
                           href={saveResult.pullRequestUrl}
                           target="_blank"
                           rel="noreferrer"

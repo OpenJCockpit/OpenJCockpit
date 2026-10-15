@@ -3,6 +3,7 @@ import { SelectField } from '../FormFields/SelectField/SelectField';
 import { TextField } from '../FormFields/TextField/TextField';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import { fieldHintClass, formClass, formGridClass, formTitleClass } from '../../ui/Form/Form';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   form: ProjectGitCredentialRequest;
@@ -81,9 +82,9 @@ export function CredentialsForm({
         <ToolbarButton onClick={onSave} disabled={saving || loading}>
           {saving ? '⟳ Verifying and saving…' : 'Save'}
         </ToolbarButton>
-        <button className="back-button" onClick={onCancel}>
+        <Button variant="secondary" onClick={onCancel}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );

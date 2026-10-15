@@ -11,7 +11,7 @@ import { SpecTemplatePresent } from './SpecTemplatePresent';
 import { WorkflowLauncher } from './WorkflowLauncher';
 import styles from './FlowPanel.module.scss';
 import { Eyebrow, Panel, PanelHeader } from '../../ui/Panel/Panel';
-import { cx } from '../../ui/cx';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   launcher: ReturnType<typeof useRunLauncher>;
@@ -64,12 +64,9 @@ export function FlowPanel({
           showHistory={false}
         />
         {runEnded && (
-          <button
-            className={cx('button', styles.workflowLauncherReset)}
-            onClick={launcher.handleNewRun}
-          >
+          <Button className={styles.workflowLauncherReset} onClick={launcher.handleNewRun}>
             ↺ Start new workflow
-          </button>
+          </Button>
         )}
       </>
     );

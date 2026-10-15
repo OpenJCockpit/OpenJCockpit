@@ -15,6 +15,7 @@ import { SkillEditor } from './SkillEditor';
 import { SkillsTable } from './SkillsTable';
 import type { SkillRow } from './SkillsTable';
 import { fieldErrorClass } from '../../../../ui/Form/Form';
+import { Button } from '../../../../ui/Button/Button';
 
 const EMPTY_SKILL: SkillSpec = {
   name: '',
@@ -157,9 +158,9 @@ export function SkillsPanel() {
       <PromptGenerator kind="skill" onGenerate={handleGenerate} />
       <div className="workflow-design-toolbar">
         <ToolbarButton onClick={startCreate}>+ New skill</ToolbarButton>
-        <button className="back-button" onClick={() => void loadCatalog()}>
+        <Button variant="secondary" onClick={() => void loadCatalog()}>
           ⟳ Refresh
-        </button>
+        </Button>
       </div>
       {error && <StatusMessage variant="error">{error}</StatusMessage>}
 

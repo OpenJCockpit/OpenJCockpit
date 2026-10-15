@@ -1,6 +1,7 @@
 import './ProjectSelection.scss';
 import type { GitStatus, Project } from '../../types';
 import styles from './ProjectSelection.module.scss';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   projects: Project[];
@@ -61,9 +62,9 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
         {displayProjects.length === 0 ? (
           <div className="project-empty">
             <p data-testid="project-selection-empty">No active projects available.</p>
-            <button className="back-button" onClick={onSettings}>
+            <Button variant="secondary" onClick={onSettings}>
               Manage projects →
-            </button>
+            </Button>
           </div>
         ) : (
           <div className={styles.projectGrid}>
@@ -110,9 +111,9 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
         )}
 
         <div className="project-selection-footer">
-          <button className="back-button" onClick={onSettings}>
+          <Button variant="secondary" onClick={onSettings}>
             ⚙ Manage projects
-          </button>
+          </Button>
         </div>
       </div>
     </div>

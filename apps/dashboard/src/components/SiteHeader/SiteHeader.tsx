@@ -1,5 +1,6 @@
 import type { Project } from '../../types';
 import styles from './SiteHeader.module.scss';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   projects: Project[];
@@ -35,30 +36,30 @@ export function SiteHeader({
       </nav>
 
       <div className="header-actions">
-        <button
-          className="button button--workflow"
+        <Button
+          variant="workflow"
           onClick={onWorkflow}
           title="Workflow Design & Execution"
           data-testid="nav-workflow"
         >
           ⚡ Workflow Design &amp; Execution
-        </button>
-        <button
-          className="button button--workflow"
+        </Button>
+        <Button
+          variant="workflow"
           onClick={onSpecFiles}
           title="Spec Files"
           data-testid="nav-spec-files"
         >
           📄 Spec Files
-        </button>
-        <button
-          className="button button--workflow"
+        </Button>
+        <Button
+          variant="workflow"
           onClick={onSkillsHub}
           title="Skills Hub"
           data-testid="nav-skills-hub"
         >
           🧩 Skills Hub
-        </button>
+        </Button>
         {projects.length > 0 && (
           <select
             className="project-dropdown"
@@ -73,11 +74,11 @@ export function SiteHeader({
             ))}
           </select>
         )}
-        <button className="back-button" onClick={onSettings} title="Project management">
+        <Button variant="secondary" onClick={onSettings} title="Project management">
           ⚙
-        </button>
-        <button
-          className="back-button"
+        </Button>
+        <Button
+          variant="secondary"
           onClick={() => {
             window.location.href = 'http://localhost:3000';
           }}
@@ -85,7 +86,7 @@ export function SiteHeader({
           data-testid="nav-portal"
         >
           ← Portal
-        </button>
+        </Button>
         <span className={styles.notification}>3</span>
         <span className={styles.avatar}>D</span>
       </div>

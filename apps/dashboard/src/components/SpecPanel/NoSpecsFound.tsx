@@ -1,5 +1,6 @@
 import { IconBox } from '../IconBox/IconBox';
 import styles from './SpecPanel.module.scss';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   onGoToWorkflow: () => void;
@@ -16,9 +17,7 @@ export function NoSpecsFound({ onGoToWorkflow }: Props) {
           <span>No specs/ folder with specifications in the repository</span>
         </div>
       </article>
-      <button className="button" onClick={onGoToWorkflow}>
-        ⚡ Go to Workflow Design &amp; Execution
-      </button>
+      <Button onClick={onGoToWorkflow}>⚡ Go to Workflow Design &amp; Execution</Button>
       <p className={styles.specEmptyHint}>
         Design or select a workflow there to create spec files.
       </p>

@@ -2,6 +2,7 @@ import './WorkflowExecutionHistory.scss';
 import type { WorkflowExecutionPage } from '../workflowTypes';
 import { StatusChip } from '../../components/StatusChip/StatusChip';
 import { formatRunDuration, runStatusKind, runStatusLabel } from '../runStatus';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   page: WorkflowExecutionPage | null;
@@ -29,9 +30,9 @@ export function WorkflowExecutionHistory({
       {error && (
         <div className="workflow-execution-history-error" role="alert">
           <p>{error}</p>
-          <button type="button" className="button" onClick={onRetry}>
+          <Button type="button" onClick={onRetry}>
             Retry
-          </button>
+          </Button>
         </div>
       )}
 
@@ -87,13 +88,13 @@ export function WorkflowExecutionHistory({
           </table>
 
           {page.hasMore && (
-            <button
+            <Button
               type="button"
-              className="button workflow-execution-history-load-more"
+              className="workflow-execution-history-load-more"
               onClick={onLoadMore}
             >
               Load more
-            </button>
+            </Button>
           )}
         </>
       )}

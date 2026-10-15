@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { fieldHintClass, formInputClass } from '../../../../ui/Form/Form';
+import { Button } from '../../../../ui/Button/Button';
 
 export type PromptGeneratorKind = 'agent' | 'subagent' | 'skill';
 
@@ -50,13 +51,9 @@ export function PromptGenerator({
           placeholder={PROMPT_EXAMPLES[kind]}
         />
       </label>
-      <button
-        className="button button--start"
-        onClick={() => void handleGenerate()}
-        disabled={generating}
-      >
+      <Button variant="primary" onClick={() => void handleGenerate()} disabled={generating}>
         {generating ? '⟳ Generating…' : '✨ Generate draft'}
-      </button>
+      </Button>
       <p className={fieldHintClass}>
         Draft generation uses the platform's LLM. The more specific you are about inputs, outputs,
         and delegation (see the example above), the higher-quality the draft. Leave the field empty

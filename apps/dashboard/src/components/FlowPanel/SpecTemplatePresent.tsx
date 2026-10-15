@@ -1,6 +1,7 @@
 import type { WorkflowDefinition } from '../../workflow/workflowTypes';
 import { StatusChip } from '../StatusChip/StatusChip';
 import styles from './FlowPanel.module.scss';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   specCreateWorkflow: WorkflowDefinition | undefined;
@@ -17,13 +18,9 @@ export function SpecTemplatePresent({ specCreateWorkflow, onCreateSpec }: Props)
         the first spec with a prompt — the workflow combines your prompt with the repository
         contents (RAG) into a small, executable spec file.
       </p>
-      <button
-        className="button button--start"
-        onClick={onCreateSpec}
-        disabled={!specCreateWorkflow}
-      >
+      <Button variant="primary" onClick={onCreateSpec} disabled={!specCreateWorkflow}>
         ✨ Create spec with prompt
-      </button>
+      </Button>
       {!specCreateWorkflow && (
         <p className={styles.workflowLauncherHint}>
           De workflow &quot;Create spec from prompt (RAG)&quot; is not available for this project.
