@@ -51,7 +51,7 @@ The following commands are available:
 - Shared building blocks live in `src/ui/` (`Button`, `Panel`, `DataTable`, `Tabs`, form classes, …). Prefer them over new one-off styles.
 - Static `style={{…}}` is not allowed (ESLint `no-restricted-syntax`). Use a module class, or set a custom property for a runtime value.
 - `npm run check:styles` reports module classes that are referenced but undefined (or defined but unused) and custom properties that are never declared.
-- `npm run visual:baseline` / `npm run visual:check` take Playwright screenshots of every main view (auth stubbed, API mocked, no backend needed) and compare them pixel for pixel. Take a baseline before a styling change and run the check after it. Screenshots are git-ignored and need the Playwright browsers installed in `../e2e` (`npx playwright install chromium`).
+- `npm run visual:baseline` / `npm run visual:check` take Playwright screenshots of every main view (auth stubbed, API mocked, no backend needed) and compare them pixel for pixel. Take a baseline before a styling change and run the check after it. Set `VISUAL_BUILD=1` to run the check against a production build instead of the dev server. Screenshots are git-ignored and need the Playwright browsers installed in `../e2e` (`npx playwright install chromium`).
 
 ### Editor settings (format-on-save)
 

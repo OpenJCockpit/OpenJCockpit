@@ -3,7 +3,7 @@
 //   node visual/run.mjs check      capture into visual/shots/current and require pixel-identical PNGs (within a tiny noise tolerance)
 // Screenshots are git-ignored; baselines are meant to be taken on the same machine before a change.
 import { createRequire } from 'node:module';
-import { createServer } from 'vite';
+import { build, createServer, preview } from 'vite';
 import { mkdirSync, readdirSync, readFileSync, rmSync, existsSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -116,11 +116,23 @@ const VIEWS = [
   },
 ];
 
-const server = await createServer({
-  configFile: path.join(here, 'vite.visual.config.ts'),
-  logLevel: 'error',
-});
-await server.listen();
+// VISUAL_BUILD=1 serves a production build instead of the dev server, to catch CSS order
+// differences between the two.
+const configFile = path.join(here, 'vite.visual.config.ts');
+const buildDir = path.join(here, 'shots', '.build');
+let server;
+if (process.env.VISUAL_BUILD) {
+  await build({ configFile, logLevel: 'error', build: { outDir: buildDir, emptyOutDir: true } });
+  server = await preview({
+    configFile,
+    logLevel: 'error',
+    build: { outDir: buildDir },
+    preview: { port: 4173, strictPort: true },
+  });
+} else {
+  server = await createServer({ configFile, logLevel: 'error' });
+  await server.listen();
+}
 const base = 'http://localhost:4173';
 const browser = await chromium.launch();
 let failures = 0;
@@ -164,7 +176,7 @@ try {
   }
 } finally {
   await browser.close();
-  await server.close();
+  await (server.close?.() ?? server.httpServer?.close());
 }
 
 const shots = readdirSync(outDir).length;
