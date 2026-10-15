@@ -63,3 +63,9 @@
   font-size: 13px;
   margin-bottom: 16px;
 }
+
+:where(.formActions) {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}

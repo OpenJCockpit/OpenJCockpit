@@ -19,6 +19,7 @@ import { ProjectForm } from './ProjectForm';
 import { ProjectList } from './ProjectList';
 import { fieldErrorClass } from '../../ui/Form/Form';
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
+import styles from './ProjectSettings.module.scss';
 
 interface Props {
   onBack: () => void;
@@ -243,25 +244,9 @@ export function ProjectSettings({ onBack }: Props) {
     <AppShell>
       <AppHeader onBack={onBack} backLabel="← Projects" />
 
-      <main style={{ padding: '32px 48px', maxWidth: 1100, margin: '0 auto' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 24,
-          }}
-        >
-          <h1
-            style={{
-              color: 'var(--cyan)',
-              fontFamily: 'var(--font-mono)',
-              fontSize: 20,
-              margin: 0,
-            }}
-          >
-            Project management
-          </h1>
+      <main className={styles.page}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Project management</h1>
           <ToolbarButton onClick={startCreate}>+ New project</ToolbarButton>
         </div>
 

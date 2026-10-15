@@ -3,7 +3,7 @@ import type { ProjectRequest } from '../../types';
 import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
-import { formClass, formGridClass, formTitleClass } from '../../ui/Form/Form';
+import { formActionsClass, formClass, formGridClass, formTitleClass } from '../../ui/Form/Form';
 import { Button } from '../../ui/Button/Button';
 
 interface Props {
@@ -78,7 +78,7 @@ export function ProjectForm({
           onChange={(v) => onChange((f) => ({ ...f, description: v }))}
           placeholder="Short description"
         />
-        <label className="new-project-checkbox" style={{ gridColumn: '1 / -1', fontSize: 13 }}>
+        <label className="new-project-checkbox">
           <input
             type="checkbox"
             checked={form.newProject === 1}
@@ -87,7 +87,7 @@ export function ProjectForm({
           New project (repository does not exist yet — skip Git check)
         </label>
       </div>
-      <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+      <div className={formActionsClass}>
         <ToolbarButton onClick={onSave} disabled={saving}>
           {saving ? '⟳ Saving…' : 'Save'}
         </ToolbarButton>

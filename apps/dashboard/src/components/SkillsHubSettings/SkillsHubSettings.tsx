@@ -21,6 +21,7 @@ import {
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
 import { Button } from '../../ui/Button/Button';
 import { pageClass, pageHeaderClass } from '../../ui/Page/Page';
+import styles from './SkillsHubSettings.module.scss';
 
 interface Props {
   onBack: () => void;
@@ -202,7 +203,7 @@ export function SkillsHubSettings({ onBack }: Props) {
               onChange={(v) => setForm((f) => ({ ...f, description: v }))}
               placeholder="Optional description"
             />
-            <label style={{ gridColumn: '1 / -1', fontSize: 13 }}>
+            <label className={styles.enabledField}>
               <input
                 type="checkbox"
                 checked={form.enabled}
@@ -211,7 +212,7 @@ export function SkillsHubSettings({ onBack }: Props) {
               Enabled for future skill import (has no effect yet)
             </label>
           </div>
-          <Actions style={{ marginTop: 16 }}>
+          <Actions className={styles.formActions}>
             <Button variant="primary" onClick={() => void handleSave()} disabled={saving}>
               {saving ? '⟳ Saving…' : 'Save'}
             </Button>

@@ -1,0 +1,17 @@
+.page {
+  padding: 32px 48px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.title {
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 20px;
+  margin: 0;
+}

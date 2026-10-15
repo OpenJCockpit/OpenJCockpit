@@ -181,6 +181,7 @@ export function Tooltip({ content, placement = 'top', children }: TooltipProps) 
             id={id}
             role="tooltip"
             className="tooltip"
+            // eslint-disable-next-line no-restricted-syntax -- position comes from the measured trigger rect at runtime
             style={{
               top: pos?.top ?? 0,
               left: pos?.left ?? 0,

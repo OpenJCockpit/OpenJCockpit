@@ -95,6 +95,23 @@ export default defineConfig(
     },
   },
 
+  // Static styling belongs in the component's CSS module. Only values computed at runtime
+  // may stay inline, and those opt out with a justified eslint-disable (see Tooltip.tsx).
+  {
+    files: ['src/**/*.tsx'],
+    ignores: ['src/**/*.test.tsx'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "JSXAttribute[name.name='style']",
+          message:
+            'Inline styles are not allowed: use a CSS module class, or a custom property for runtime values.',
+        },
+      ],
+    },
+  },
+
   // Vitest globals for test files (forward-looking; all current tests import explicitly)
   {
     files: ['src/**/*.test.{ts,tsx}', 'src/setupTests.ts'],

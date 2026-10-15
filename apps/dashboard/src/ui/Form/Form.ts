@@ -12,3 +12,5 @@ export const formInputClass = styles.input;
 export const fieldHintClass = styles.fieldHint;
 /** Red inline error line. */
 export const fieldErrorClass = styles.fieldError;
+/** Save / Cancel button row at the bottom of a form. */
+export const formActionsClass = styles.formActions;

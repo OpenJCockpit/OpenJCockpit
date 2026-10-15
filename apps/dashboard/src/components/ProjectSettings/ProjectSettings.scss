@@ -21,10 +21,11 @@
 
 /* ── New project checkbox ──────────────────────────────────────────────── */
 .new-project-checkbox {
+  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   margin-top: 8px;
   cursor: pointer;

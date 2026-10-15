@@ -1,5 +1,6 @@
 import type { GitStatus } from '../../types';
 import styles from './GitStatusBadge.module.scss';
+import { cx } from '../../ui/cx';
 
 interface Props {
   status: GitStatus;
@@ -47,11 +48,7 @@ export function GitStatusBadge({ status, compact = false }: Props) {
   if (compact) {
     if (!compactAriaLabel) return null;
     return (
-      <span
-        className={className}
-        aria-label={compactAriaLabel}
-        style={{ marginLeft: 10, fontSize: 14 }}
-      >
+      <span className={cx(className, styles.compact)} aria-label={compactAriaLabel}>
         {' '}
         {icon}
       </span>
