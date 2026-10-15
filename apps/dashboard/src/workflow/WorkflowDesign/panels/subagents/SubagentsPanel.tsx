@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
+import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
 import {
   createSubagentSpec,
   deleteSubagentSpec,
@@ -95,11 +97,9 @@ export function SubagentsPanel() {
     <div>
       <PromptGenerator kind="subagent" onGenerate={handleGenerate} />
       <div className="workflow-design-toolbar">
-        <button className="button button--start" onClick={startCreate}>
-          + New subagent
-        </button>
+        <ToolbarButton onClick={startCreate}>+ New subagent</ToolbarButton>
       </div>
-      {error && <p className="settings-error">{error}</p>}
+      {error && <StatusMessage variant="error">{error}</StatusMessage>}
 
       {editingName && (
         <SubagentEditor

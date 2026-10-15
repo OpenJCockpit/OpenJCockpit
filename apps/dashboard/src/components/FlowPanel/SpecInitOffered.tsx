@@ -1,5 +1,6 @@
 import type { SpecInitResult } from '../../types';
 import { StatusChip } from '../StatusChip/StatusChip';
+import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 
 interface Props {
   result: SpecInitResult;
@@ -17,9 +18,9 @@ export function SpecInitOffered({ result, onReload }: Props) {
           Open pull request <span>→</span>
         </a>
       )}
-      <button className="button button--small" onClick={onReload}>
+      <ToolbarButton variant="small" onClick={onReload}>
         ⟳ Reload specs
-      </button>
+      </ToolbarButton>
     </div>
   );
 }

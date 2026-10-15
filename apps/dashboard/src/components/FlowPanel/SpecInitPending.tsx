@@ -1,5 +1,6 @@
 import type { SpecInitStatus } from '../../types';
 import { StatusChip } from '../StatusChip/StatusChip';
+import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 
 interface Props {
   status: SpecInitStatus;
@@ -26,9 +27,9 @@ export function SpecInitPending({ status, onReload }: Props) {
           Open pull request <span>→</span>
         </a>
       )}
-      <button className="button button--small" onClick={onReload}>
+      <ToolbarButton variant="small" onClick={onReload}>
         ⟳ Reload specs
-      </button>
+      </ToolbarButton>
     </div>
   );
 }

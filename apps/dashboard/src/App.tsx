@@ -1,5 +1,6 @@
 import './app.scss';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ToolbarButton } from './components/ToolbarButton/ToolbarButton';
 import {
   clearStoredProjectId,
   getSpecInitStatus,
@@ -277,9 +278,9 @@ function App() {
           <div className="search">
             Search workspace... <span>⌕</span>
           </div>
-          <button className="button button--small">Filters</button>
+          <ToolbarButton variant="small">Filters</ToolbarButton>
           <div className="top-tools__spacer" />
-          <button className="button button--small">⟳ Refresh</button>
+          <ToolbarButton variant="small">⟳ Refresh</ToolbarButton>
           <span className="last-update">● Last update: 13:24:11</span>
         </section>
 

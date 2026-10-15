@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
+import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
 import {
   createWorkflowGroup,
   deleteWorkflowGroup,
@@ -71,15 +73,13 @@ export function GroupsPanel() {
   return (
     <div>
       <div className="workflow-design-toolbar">
-        <button className="button button--start" onClick={startCreate}>
-          + New group
-        </button>
+        <ToolbarButton onClick={startCreate}>+ New group</ToolbarButton>
       </div>
       <p className="settings-desc">
         Groups bundle workflows designed for a specific meaning (for example onboarding, compliance
         or reporting). Deleting a group unlinks its workflows; the workflows themselves are kept.
       </p>
-      {error && <p className="settings-error">{error}</p>}
+      {error && <StatusMessage variant="error">{error}</StatusMessage>}
 
       {editingId && (
         <GroupEditor
