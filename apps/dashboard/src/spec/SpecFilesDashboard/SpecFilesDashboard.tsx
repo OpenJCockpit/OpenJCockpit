@@ -4,6 +4,7 @@ import { loadProjectSpecs, saveSpecFile } from '../../api';
 import { IconBox } from '../../components/IconBox/IconBox';
 import type { Project, SpecFile, SpecInitResult } from '../../types';
 import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
+import { Eyebrow, Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
 
 interface Props {
   project: Project | null;
@@ -67,13 +68,12 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
 
   return (
     <AppShell>
-
       <AppHeader onBack={onBack} backTitle="Back to dashboard" />
 
       <main className="spec-files-dashboard">
         <div className="spec-files-dashboard-header">
           <div>
-            <span className="eyebrow">Spec Files</span>
+            <Eyebrow>Spec Files</Eyebrow>
             <h1>{project ? project.name : 'No project selected'}</h1>
           </div>
         </div>
@@ -84,12 +84,12 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
 
         {project && (
           <div className="spec-files-body">
-            <aside className="panel spec-panel">
-              <header className="panel-header panel-header--simple">
-                <div className="panel-title">
+            <Panel as="aside" className="spec-panel">
+              <PanelHeader simple>
+                <PanelTitle>
                   <IconBox label="📄" compact /> <h2>Specs</h2>
-                </div>
-              </header>
+                </PanelTitle>
+              </PanelHeader>
 
               <div className="spec-list">
                 {loading && <p className="spec-list-loading">Loading specs…</p>}
@@ -118,15 +118,15 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
                   </button>
                 ))}
               </div>
-            </aside>
+            </Panel>
 
-            <section className="panel spec-editor">
+            <Panel className="spec-editor">
               {selected ? (
                 <>
-                  <header className="panel-header panel-header--simple">
-                    <div className="panel-title">
+                  <PanelHeader simple className="spec-editor__header">
+                    <PanelTitle>
                       <h2>{selected.fileName}</h2>
-                    </div>
+                    </PanelTitle>
                     <button
                       className="button button--small"
                       onClick={() => void handleSave()}
@@ -134,7 +134,7 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
                     >
                       {saving ? '⟳ Saving…' : '💾 Save'}
                     </button>
-                  </header>
+                  </PanelHeader>
                   <textarea
                     className="spec-editor__textarea"
                     value={draftContent}
@@ -162,7 +162,7 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
               ) : (
                 !loading && <p className="settings-desc">No spec selected.</p>
               )}
-            </section>
+            </Panel>
           </div>
         )}
       </main>

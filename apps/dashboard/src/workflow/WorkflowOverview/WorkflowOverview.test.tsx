@@ -172,7 +172,7 @@ describe('WorkflowOverview', () => {
 
     expect(workflowApi.startWorkflow).not.toHaveBeenCalled();
     const dialog = screen.getByRole('dialog');
-    expect(dialog).toHaveClass('workflow-prompt-dialog', 'panel');
+    expect(dialog).toHaveClass('workflow-prompt-dialog');
 
     fireEvent.change(screen.getByLabelText('Prompt'), {
       target: { value: 'Create a small spec for login' },

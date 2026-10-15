@@ -7,6 +7,7 @@ import { WorkflowDesign } from '../WorkflowDesign/WorkflowDesign';
 import { WorkflowExecution } from '../WorkflowExecution/WorkflowExecution';
 import type { WorkflowDefinition } from '../workflowTypes';
 import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
+import { Eyebrow } from '../../ui/Panel/Panel';
 
 type WorkflowTab = 'overview' | 'configuration' | 'design' | 'execution';
 
@@ -33,13 +34,12 @@ export function WorkflowDashboard({ project, onBack }: Props) {
 
   return (
     <AppShell>
-
       <AppHeader onBack={onBack} backTitle="Back to dashboard" />
 
       <main className="workflow-dashboard">
         <div className="workflow-dashboard-header">
           <div>
-            <span className="eyebrow">Workflow Design &amp; Execution</span>
+            <Eyebrow>Workflow Design &amp; Execution</Eyebrow>
             <h1>{project ? project.name : 'All projects'}</h1>
           </div>
           <nav className="workflow-tab-nav" aria-label="Workflow secties">

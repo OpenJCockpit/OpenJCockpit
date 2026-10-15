@@ -14,6 +14,7 @@ import { workflowsForProject } from '../workflowVisibility';
 import { StatusChip } from '../../components/StatusChip/StatusChip';
 import { runStatusKind } from '../runStatus';
 import { WorkflowPromptDialog } from '../WorkflowPromptDialog/WorkflowPromptDialog';
+import { Eyebrow, Panel } from '../../ui/Panel/Panel';
 
 interface Props {
   project: Project | null;
@@ -216,10 +217,10 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
 
       <div className="workflow-card-grid">
         {visibleWorkflows.map((workflow) => (
-          <article className="panel workflow-card" key={workflow.id}>
+          <Panel as="article" className="workflow-card" key={workflow.id}>
             <header className="workflow-card-header">
               <div>
-                <span className="eyebrow">{workflow.id}</span>
+                <Eyebrow>{workflow.id}</Eyebrow>
                 <h2>{workflow.name}</h2>
               </div>
               <StatusChip label={workflow.status} kind={runStatusKind(workflow.status ?? '')} />
@@ -311,7 +312,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
                 <span className="workflow-card-feedback">{feedback[workflow.id]}</span>
               )}
             </div>
-          </article>
+          </Panel>
         ))}
       </div>
     </section>

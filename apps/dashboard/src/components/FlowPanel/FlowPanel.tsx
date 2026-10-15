@@ -10,6 +10,7 @@ import { SpecInitPending } from './SpecInitPending';
 import { SpecTemplatePresent } from './SpecTemplatePresent';
 import { WorkflowLauncher } from './WorkflowLauncher';
 import styles from './FlowPanel.module.scss';
+import { Eyebrow, Panel, PanelHeader } from '../../ui/Panel/Panel';
 import { cx } from '../../ui/cx';
 
 interface Props {
@@ -118,16 +119,16 @@ export function FlowPanel({
   }
 
   return (
-    <section className={cx('panel', styles.flowPanel)}>
-      <header className={cx('panel-header', styles.flowHeader)}>
+    <Panel className={styles.flowPanel}>
+      <PanelHeader className={styles.flowHeader}>
         <div>
-          <span className="eyebrow">{hasSpecs ? 'Current spec' : 'Spec folder'}</span>
+          <Eyebrow>{hasSpecs ? 'Current spec' : 'Spec folder'}</Eyebrow>
           <h2>{renderTitle()}</h2>
         </div>
         <div className={styles.flowHeaderActions}>
           {activeRun && !runEnded && <StatusChip label="Active" kind="active" />}
         </div>
-      </header>
+      </PanelHeader>
 
       {preflightErrors && (
         <PreflightAlert
@@ -138,6 +139,6 @@ export function FlowPanel({
       )}
 
       {renderBody()}
-    </section>
+    </Panel>
   );
 }

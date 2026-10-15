@@ -21,6 +21,7 @@ import { RunLostPanel } from './RunLostPanel';
 import { RunStatusAnnouncements } from './RunStatusAnnouncements';
 import { useRunHistory } from './useRunHistory';
 import { useRunEvents } from './useRunEvents';
+import { Eyebrow, Panel } from '../../ui/Panel/Panel';
 
 // 'NOT_FOUND' is retained deliberately: it is what an OLDER backend (pre-dating this
 // feature) returns for an unknown run id, so a newer dashboard paired with it still
@@ -223,10 +224,10 @@ export function WorkflowExecution({
   }
 
   return (
-    <section className="panel workflow-execution-panel">
+    <Panel className="workflow-execution-panel">
       <header className="workflow-execution-header">
         <div>
-          <span className="eyebrow">{workflow.id}</span>
+          <Eyebrow>{workflow.id}</Eyebrow>
           <h2>{workflow.name}</h2>
         </div>
         <div className="workflow-execution-actions">
@@ -319,6 +320,6 @@ export function WorkflowExecution({
             onDismiss={() => setApprovalModalVisible(false)}
           />
         )}
-    </section>
+    </Panel>
   );
 }

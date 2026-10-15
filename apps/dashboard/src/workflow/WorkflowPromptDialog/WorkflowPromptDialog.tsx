@@ -1,6 +1,8 @@
 import './WorkflowPromptDialog.scss';
 import { useId, useState } from 'react';
 import { ModalShell } from '../ModalShell/ModalShell';
+import { Eyebrow, panelClassName } from '../../ui/Panel/Panel';
+import { cx } from '../../ui/cx';
 
 interface Props {
   workflowName: string;
@@ -23,19 +25,19 @@ export function WorkflowPromptDialog({ workflowName, busy, onSubmit, onCancel }:
     <ModalShell
       labelledBy={titleId}
       onDismiss={onCancel}
-      className="workflow-prompt-dialog panel"
+      className={cx('workflow-prompt-dialog', panelClassName)}
       overlayClassName="workflow-prompt-overlay"
     >
       <span id={titleId} className="workflow-prompt-dialog__visually-hidden">
         {`Prompt for ${workflowName}`}
       </span>
       <header className="workflow-prompt-dialog__header">
-        <span className="eyebrow">Workflow input</span>
+        <Eyebrow>Workflow input</Eyebrow>
         <h2>{workflowName}</h2>
       </header>
       <p className="settings-desc">
-        Describe what the workflow should deliver. The prompt is combined with the
-        repository contents (RAG) to create small, executable spec files.
+        Describe what the workflow should deliver. The prompt is combined with the repository
+        contents (RAG) to create small, executable spec files.
       </p>
       <label className="workflow-prompt-dialog__field">
         Prompt

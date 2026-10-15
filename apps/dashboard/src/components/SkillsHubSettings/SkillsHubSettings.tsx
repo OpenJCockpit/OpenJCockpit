@@ -9,6 +9,7 @@ import type { SkillsMarketplaceConnection, SkillsMarketplaceConnectionRequest } 
 import { AppShell, AppHeader } from '../AppShell/AppShell';
 import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';
+import { Eyebrow } from '../../ui/Panel/Panel';
 
 interface Props {
   onBack: () => void;
@@ -139,7 +140,7 @@ export function SkillsHubSettings({ onBack }: Props) {
       <main className="spec-files-dashboard">
         <div className="spec-files-dashboard-header">
           <div>
-            <span className="eyebrow">Skills Hub</span>
+            <Eyebrow>Skills Hub</Eyebrow>
             <h1>Marketplace connections</h1>
           </div>
         </div>

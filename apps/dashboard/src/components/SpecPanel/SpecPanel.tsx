@@ -3,6 +3,7 @@ import { IconBox } from '../IconBox/IconBox';
 import { NoSpecsFound } from './NoSpecsFound';
 import { SpecCardButton } from './SpecCardButton';
 import styles from './SpecPanel.module.scss';
+import { Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
 
 interface Props {
   specs: SpecFile[];
@@ -27,12 +28,12 @@ export function SpecPanel({
   const hasSpecs = !loading && specs.length > 0;
 
   return (
-    <aside className="panel spec-panel">
-      <header className="panel-header panel-header--simple">
-        <div className="panel-title">
+    <Panel as="aside" className="spec-panel">
+      <PanelHeader simple>
+        <PanelTitle>
           <IconBox label="📄" compact /> <h2>Spec</h2>
-        </div>
-      </header>
+        </PanelTitle>
+      </PanelHeader>
 
       <div className="spec-list">
         {loading && <p className="spec-list-loading">Loading specs…</p>}
@@ -58,6 +59,6 @@ export function SpecPanel({
           View all specs <span>→</span>
         </button>
       )}
-    </aside>
+    </Panel>
   );
 }

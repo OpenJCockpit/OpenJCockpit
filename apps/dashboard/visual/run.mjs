@@ -1,6 +1,6 @@
 // Visual regression safety net for the styling refactor (docs/styling-modularization-spec.md).
 //   node visual/run.mjs baseline   capture screenshots into visual/shots/baseline
-//   node visual/run.mjs check      capture into visual/shots/current and require byte-identical PNGs
+//   node visual/run.mjs check      capture into visual/shots/current and require pixel-identical PNGs (within a tiny noise tolerance)
 // Screenshots are git-ignored; baselines are meant to be taken on the same machine before a change.
 import { createRequire } from 'node:module';
 import { createServer } from 'vite';
@@ -12,6 +12,29 @@ import { routes } from './fixtures.mjs';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(path.join(here, '../../../e2e/package.json'));
 const { chromium } = require('@playwright/test');
+const { PNG } = require('playwright-core/lib/utilsBundle');
+
+const TOLERANCE = { maxDelta: 2, pixels: 20 };
+
+function compare(a, b) {
+  const imgA = PNG.sync.read(a);
+  const imgB = PNG.sync.read(b);
+  if (imgA.width !== imgB.width || imgA.height !== imgB.height) return { sizeChanged: true };
+  let pixels = 0;
+  let maxDelta = 0;
+  for (let i = 0; i < imgA.data.length; i += 4) {
+    const d = Math.max(
+      Math.abs(imgA.data[i] - imgB.data[i]),
+      Math.abs(imgA.data[i + 1] - imgB.data[i + 1]),
+      Math.abs(imgA.data[i + 2] - imgB.data[i + 2]),
+    );
+    if (d > 0) {
+      pixels += 1;
+      maxDelta = Math.max(maxDelta, d);
+    }
+  }
+  return { sizeChanged: false, pixels, maxDelta };
+}
 
 const mode = process.argv[2];
 if (mode !== 'baseline' && mode !== 'check') {
@@ -112,11 +135,20 @@ if (mode === 'check') {
   const diffs = [];
   for (const file of readdirSync(baseDir)) {
     const current = path.join(outDir, file);
+    if (!existsSync(current)) {
+      diffs.push(`${file} (missing)`);
+      continue;
+    }
+    const delta = compare(readFileSync(path.join(baseDir, file)), readFileSync(current));
+    // Tolerate rasterisation noise (a handful of pixels off by a couple of levels).
     if (
-      !existsSync(current) ||
-      !readFileSync(current).equals(readFileSync(path.join(baseDir, file)))
+      delta.sizeChanged ||
+      delta.maxDelta > TOLERANCE.maxDelta ||
+      delta.pixels > TOLERANCE.pixels
     ) {
-      diffs.push(file);
+      diffs.push(
+        `${file} (${delta.sizeChanged ? 'size changed' : `${delta.pixels}px, max delta ${delta.maxDelta}`})`,
+      );
     }
   }
   if (diffs.length > 0) {

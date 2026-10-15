@@ -1,19 +1,19 @@
 import type { EvidenceEvent } from '../../types';
 import { IconBox } from '../IconBox/IconBox';
 import styles from './WorkspacePanels.module.scss';
-import { cx } from '../../ui/cx';
+import { Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
 
 export function EvidencePanel({ events }: { events: EvidenceEvent[] }) {
   return (
-    <section className={cx('panel', styles.evidencePanel)}>
-      <header className="panel-header panel-header--simple">
-        <div className="panel-title">
+    <Panel as="section" className={styles.evidencePanel}>
+      <PanelHeader simple>
+        <PanelTitle>
           <IconBox label="⌁" compact /> <h2>Execution evidence</h2>
-        </div>
+        </PanelTitle>
         <button className={styles.smallLink}>
           View evidence <span>→</span>
         </button>
-      </header>
+      </PanelHeader>
 
       <div className={styles.evidenceTimeline}>
         {[...events]
@@ -30,6 +30,6 @@ export function EvidencePanel({ events }: { events: EvidenceEvent[] }) {
             </article>
           ))}
       </div>
-    </section>
+    </Panel>
   );
 }

@@ -5,6 +5,7 @@ import { IconBox } from '../IconBox/IconBox';
 import { StatusChip } from '../StatusChip/StatusChip';
 import type { StatusKind } from '../../types';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
+import { Eyebrow, Panel } from '../../ui/Panel/Panel';
 
 interface Props {
   onBack: () => void;
@@ -68,7 +69,6 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
 
   return (
     <AppShell>
-
       <AppHeader onBack={onBack} backTitle="Back to dashboard">
         <button className="back-button" onClick={onSettings} title="Skills Hub settings">
           ⚙ Settings
@@ -78,7 +78,7 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
       <main className="spec-files-dashboard">
         <div className="spec-files-dashboard-header">
           <div>
-            <span className="eyebrow">Skills Hub</span>
+            <Eyebrow>Skills Hub</Eyebrow>
             <h1>Available skills</h1>
           </div>
         </div>
@@ -97,7 +97,7 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
           </button>
         </form>
 
-        <div className="panel skills-hub-panel">
+        <Panel as="div" className="skills-hub-panel">
           <table className="settings-table skills-hub-table">
             <thead>
               <tr>
@@ -139,7 +139,7 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
               )}
             </tbody>
           </table>
-        </div>
+        </Panel>
       </main>
     </AppShell>
   );
