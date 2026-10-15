@@ -1,6 +1,6 @@
 # Spec: Modularize dashboard styling
 
-Status: decisions made · Scope: `apps/dashboard` only (`apps/landing` is a separate app, kept out) · Out of scope: `docs-site/styles.css`, `infrastructure/themes/.../openjcockpit-login.css` (separate deploy targets, no shared build)
+Status: implemented on branch `refactor/css-overhaul` (see §9) · Scope: `apps/dashboard` only (`apps/landing` is a separate app, kept out) · Out of scope: `docs-site/styles.css`, `infrastructure/themes/.../openjcockpit-login.css` (separate deploy targets, no shared build)
 
 ## 1. Current state (measured)
 
@@ -138,3 +138,18 @@ Each phase is a separate PR, follows the repo's PR/branch rules (base on `origin
 1. **Scoping: CSS Modules.** Component styles use `*.module.scss`.
 2. **Button consolidation** happens after Phases 1 and 2 have landed (last of the Phase 3 primitives).
 3. **Landing is ignored for now.** `apps/landing` is out of scope.
+
+## 9. Implementation notes
+
+Delivered as one commit per phase on `refactor/css-overhaul`; every phase kept `tsc`, `vitest run` and `eslint` green and the screenshot check identical.
+
+Deviations from the plan above:
+
+- **Phase 0 harness** is `apps/dashboard/visual/` (stubbed Keycloak, mocked `/api`, separate Vite config) instead of an `e2e/` spec, so it runs without the Docker stack. It compares decoded pixels with a small noise tolerance. `npm run visual:baseline|check`.
+- **Form kit, Dropdown, Page, Feedback, SpecList** are exported as class names (`fieldHintClass`, `formInputClass`, `buttonClass`, …) rather than components where one look is applied to many element types. `Button`, `Panel`, `DataTable`, `Tabs` and `Backdrop` are components.
+- **`:where()` and `:is(button, a):where(.x)`** keep shared primitives at (near) zero specificity so consumer classes override them regardless of stylesheet order, as the old global classes did. This is the main guard against cascade changes.
+- **Preserved quirks** (documented in commits): `.workflow-select` max-width and the prompt dialog width were always overridden, `.project-grid`'s 820px rule never applied, `--font-mono` now takes effect on the Project management heading (the only intended visual change, Phase 1).
+- **`ui/Orb`** was folded into `ui/Backdrop` (the orbs only exist as part of the page backdrop). The `StatusMessage` `empty` variant was not added, as nothing needs it.
+- `_mixins.scss` was not created: no shared mixin turned out to be needed.
+- **Not covered by screenshots:** the agent sequencer and log console, approval modals, pre-flight alert and run-history rows need a live run. They were converted mechanically and checked with `npm run check:styles` and the unit tests.
+- `npm run check:styles` implements the "undeclared custom property" and "unreferenced / undefined class" checks from §7.
