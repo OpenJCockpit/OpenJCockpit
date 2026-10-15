@@ -1,4 +1,5 @@
 import type { WorkflowGroup } from '../../../workflowTypes';
+import { DataTable } from '../../../../ui/DataTable/DataTable';
 
 interface GroupsTableProps {
   items: WorkflowGroup[];
@@ -8,7 +9,7 @@ interface GroupsTableProps {
 
 export function GroupsTable({ items, onEdit, onDelete }: GroupsTableProps) {
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>ID</th>
@@ -36,6 +37,6 @@ export function GroupsTable({ items, onEdit, onDelete }: GroupsTableProps) {
           </tr>
         ))}
       </tbody>
-    </table>
+    </DataTable>
   );
 }

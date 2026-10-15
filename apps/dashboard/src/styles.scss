@@ -421,43 +421,11 @@
   }
 }
 
-.settings-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-
-  & th {
-    text-align: left;
-    padding: 10px 14px;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--line);
-  }
-
-  & td {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--line);
-    vertical-align: top;
-  }
-}
-
-.settings-row--inactive td {
-  opacity: 0.5;
-}
-
 .settings-desc {
   display: block;
   font-size: 12px;
   color: var(--muted);
   margin-top: 2px;
-}
-
-.settings-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 
 .settings-error {

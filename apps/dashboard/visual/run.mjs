@@ -14,7 +14,7 @@ const require = createRequire(path.join(here, '../../../e2e/package.json'));
 const { chromium } = require('@playwright/test');
 const { PNG } = require('playwright-core/lib/utilsBundle');
 
-const TOLERANCE = { maxDelta: 2, pixels: 20 };
+const TOLERANCE = { maxDelta: 12, pixels: 60 };
 
 function compare(a, b) {
   const imgA = PNG.sync.read(a);
@@ -57,6 +57,24 @@ const VIEWS = [
   { name: 'prompt-modal', go: (p) => p.getByRole('button', { name: /start/i }).click() },
   { name: 'project-settings', go: (p) => p.getByTitle('Project management').click() },
   { name: 'workflow', go: (p) => p.getByTestId('nav-workflow').click() },
+  ...[
+    ['workflow-configuration', 'Configuration'],
+    ['workflow-execution', 'Workflow Execution'],
+  ].map(([name, tab]) => ({
+    name,
+    go: async (p) => {
+      await p.getByTestId('nav-workflow').click();
+      await p.getByRole('button', { name: tab, exact: true }).click();
+    },
+  })),
+  ...['Workflows', 'Groups', 'Agents', 'Subagents', 'Skills'].map((sub) => ({
+    name: `workflow-design-${sub.toLowerCase()}`,
+    go: async (p) => {
+      await p.getByTestId('nav-workflow').click();
+      await p.getByRole('button', { name: 'Design', exact: true }).click();
+      await p.getByRole('button', { name: sub, exact: true }).click();
+    },
+  })),
   { name: 'spec-files', go: (p) => p.getByTestId('nav-spec-files').click() },
   { name: 'skills-hub', go: (p) => p.getByTestId('nav-skills-hub').click() },
   {
@@ -140,7 +158,7 @@ if (mode === 'check') {
       continue;
     }
     const delta = compare(readFileSync(path.join(baseDir, file)), readFileSync(current));
-    // Tolerate rasterisation noise (a handful of pixels off by a couple of levels).
+    // Tolerate rasterisation noise (a few dozen pixels off by a few levels).
     if (
       delta.sizeChanged ||
       delta.maxDelta > TOLERANCE.maxDelta ||

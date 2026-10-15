@@ -1,4 +1,5 @@
 import type { ExternalSkill, SkillSpec } from '../../../workflowTypes';
+import { DataTable } from '../../../../ui/DataTable/DataTable';
 
 type LocalSkillRow = { key: string; readOnly: false; skill: SkillSpec };
 type ExternalSkillRow = { key: string; readOnly: true; skill: ExternalSkill };
@@ -12,7 +13,7 @@ interface SkillsTableProps {
 
 export function SkillsTable({ rows, onEdit, onDelete }: SkillsTableProps) {
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>Name</th>
@@ -54,6 +55,6 @@ export function SkillsTable({ rows, onEdit, onDelete }: SkillsTableProps) {
           ),
         )}
       </tbody>
-    </table>
+    </DataTable>
   );
 }

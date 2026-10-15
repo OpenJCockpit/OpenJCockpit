@@ -1,4 +1,5 @@
 import type { SubagentSpec } from '../../../workflowTypes';
+import { DataTable } from '../../../../ui/DataTable/DataTable';
 
 interface SubagentsTableProps {
   items: SubagentSpec[];
@@ -8,7 +9,7 @@ interface SubagentsTableProps {
 
 export function SubagentsTable({ items, onEdit, onDelete }: SubagentsTableProps) {
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>Name</th>
@@ -34,6 +35,6 @@ export function SubagentsTable({ items, onEdit, onDelete }: SubagentsTableProps)
           </tr>
         ))}
       </tbody>
-    </table>
+    </DataTable>
   );
 }

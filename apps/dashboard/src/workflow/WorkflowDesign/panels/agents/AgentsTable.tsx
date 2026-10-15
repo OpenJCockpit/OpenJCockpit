@@ -1,4 +1,5 @@
 import type { AgentSpec } from '../../../workflowTypes';
+import { DataTable } from '../../../../ui/DataTable/DataTable';
 
 interface AgentsTableProps {
   items: AgentSpec[];
@@ -8,7 +9,7 @@ interface AgentsTableProps {
 
 export function AgentsTable({ items, onEdit, onDelete }: AgentsTableProps) {
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>Name</th>
@@ -42,6 +43,6 @@ export function AgentsTable({ items, onEdit, onDelete }: AgentsTableProps) {
           </tr>
         ))}
       </tbody>
-    </table>
+    </DataTable>
   );
 }

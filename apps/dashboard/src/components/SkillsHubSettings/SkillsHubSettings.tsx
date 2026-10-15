@@ -10,6 +10,7 @@ import { AppShell, AppHeader } from '../AppShell/AppShell';
 import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';
 import { Eyebrow } from '../../ui/Panel/Panel';
+import { Actions, DataTable } from '../../ui/DataTable/DataTable';
 
 interface Props {
   onBack: () => void;
@@ -200,7 +201,7 @@ export function SkillsHubSettings({ onBack }: Props) {
               Enabled for future skill import (has no effect yet)
             </label>
           </div>
-          <div className="settings-actions" style={{ marginTop: 16 }}>
+          <Actions style={{ marginTop: 16 }}>
             <button
               className="button button--start"
               onClick={() => void handleSave()}
@@ -211,10 +212,10 @@ export function SkillsHubSettings({ onBack }: Props) {
             <button className="back-button" onClick={cancelEdit}>
               Cancel
             </button>
-          </div>
+          </Actions>
         </div>
 
-        <table className="settings-table">
+        <DataTable>
           <thead>
             <tr>
               <th>Name</th>
@@ -238,14 +239,14 @@ export function SkillsHubSettings({ onBack }: Props) {
                 <td>{connection.hasApiKey ? 'API key set' : 'No API key'}</td>
                 <td>{connection.enabled ? 'Enabled' : 'Disabled'}</td>
                 <td>{connection.createdAt.slice(0, 10)}</td>
-                <td className="settings-actions">
+                <Actions as="td">
                   <button className="back-button" onClick={() => startEdit(connection)}>
                     Edit
                   </button>
                   <button className="back-button" onClick={() => void handleDelete(connection)}>
                     Delete
                   </button>
-                </td>
+                </Actions>
               </tr>
             ))}
             {!error && connections.length === 0 && (
@@ -256,7 +257,7 @@ export function SkillsHubSettings({ onBack }: Props) {
               </tr>
             )}
           </tbody>
-        </table>
+        </DataTable>
       </main>
     </AppShell>
   );

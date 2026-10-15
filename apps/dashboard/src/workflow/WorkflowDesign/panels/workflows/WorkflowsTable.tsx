@@ -1,4 +1,5 @@
 import type { WorkflowDefinition } from '../../../workflowTypes';
+import { DataTable } from '../../../../ui/DataTable/DataTable';
 
 interface WorkflowsTableProps {
   items: WorkflowDefinition[];
@@ -9,7 +10,7 @@ interface WorkflowsTableProps {
 
 export function WorkflowsTable({ items, groupName, onEdit, onDelete }: WorkflowsTableProps) {
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>ID</th>
@@ -39,6 +40,6 @@ export function WorkflowsTable({ items, groupName, onEdit, onDelete }: Workflows
           </tr>
         ))}
       </tbody>
-    </table>
+    </DataTable>
   );
 }

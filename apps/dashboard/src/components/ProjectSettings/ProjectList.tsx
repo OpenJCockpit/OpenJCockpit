@@ -1,5 +1,6 @@
 import type { Project } from '../../types';
 import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
+import { Actions, DataTable, DataTableRow } from '../../ui/DataTable/DataTable';
 
 interface Props {
   projects: Project[];
@@ -21,7 +22,7 @@ export function ProjectList({
   onToggleActive,
 }: Props) {
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>Name</th>
@@ -33,7 +34,7 @@ export function ProjectList({
       </thead>
       <tbody>
         {projects.map((project) => (
-          <tr key={project.id} className={project.active === 0 ? 'settings-row--inactive' : ''}>
+          <DataTableRow key={project.id} inactive={project.active === 0}>
             <td>
               <strong>{project.name}</strong>
               {project.description && <span className="settings-desc">{project.description}</span>}
@@ -65,7 +66,7 @@ export function ProjectList({
                 {project.active === 1 ? 'Active' : 'Inactive'}
               </span>
             </td>
-            <td className="settings-actions">
+            <Actions as="td">
               <button className="back-button" onClick={() => onEdit(project)}>
                 Edit
               </button>
@@ -97,10 +98,10 @@ export function ProjectList({
               >
                 {project.active === 1 ? 'Deactivate' : 'Activate'}
               </button>
-            </td>
-          </tr>
+            </Actions>
+          </DataTableRow>
         ))}
       </tbody>
-    </table>
+    </DataTable>
   );
 }

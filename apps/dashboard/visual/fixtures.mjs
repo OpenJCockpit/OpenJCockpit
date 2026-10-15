@@ -71,6 +71,42 @@ export const specs = [
   },
 ];
 
+export const groups = [
+  { id: 'g1', name: 'Core flows', description: 'Core workflows', projectName: '' },
+];
+export const agents = [
+  {
+    name: 'planner',
+    description: 'Plans the work',
+    role: 'planner',
+    instructions: 'Plan.',
+    subagentNames: ['helper'],
+    skillNames: ['summarize'],
+    mcpTools: [],
+  },
+];
+export const subagents = [
+  {
+    name: 'helper',
+    parentAgent: 'planner',
+    description: 'Helps the planner',
+    responsibilities: 'Assist',
+    instructions: 'Help.',
+    skillNames: ['summarize'],
+    mcpTools: [],
+  },
+];
+export const skills = [
+  {
+    name: 'summarize',
+    description: 'Summarizes text',
+    inputContract: 'text',
+    outputContract: 'summary',
+    executionInstructions: 'Summarize.',
+    mcpTools: [],
+  },
+];
+
 export const marketplaces = [
   {
     id: 'm1',
@@ -90,7 +126,9 @@ export const routes = [
   [/\/api\/projects$/, projects],
   [/\/api\/projects\/[^/]+\/spec-files$/, specs],
   [/\/api\/workflows$/, workflows],
-  [/\/api\/workflow-groups$/, []],
+  [/\/api\/workflow-groups$/, groups],
   [/\/api\/skills-marketplaces$/, marketplaces],
-  [/\/api\/agent-definitions$/, []],
+  [/\/api\/agent-definitions$/, agents],
+  [/\/api\/subagent-definitions$/, subagents],
+  [/\/api\/skill-definitions$/, skills],
 ];

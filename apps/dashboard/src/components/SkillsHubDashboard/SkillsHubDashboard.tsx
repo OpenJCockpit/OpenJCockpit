@@ -6,6 +6,7 @@ import { StatusChip } from '../StatusChip/StatusChip';
 import type { StatusKind } from '../../types';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
 import { Eyebrow, Panel } from '../../ui/Panel/Panel';
+import { DataTable } from '../../ui/DataTable/DataTable';
 
 interface Props {
   onBack: () => void;
@@ -98,7 +99,7 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
         </form>
 
         <Panel as="div" className="skills-hub-panel">
-          <table className="settings-table skills-hub-table">
+          <DataTable className="skills-hub-table">
             <thead>
               <tr>
                 <th>Category</th>
@@ -138,7 +139,7 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
                 </tr>
               )}
             </tbody>
-          </table>
+          </DataTable>
         </Panel>
       </main>
     </AppShell>
