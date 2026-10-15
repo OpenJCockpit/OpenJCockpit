@@ -56,6 +56,17 @@ const VIEWS = [
   { name: 'workspace', go: async () => {} },
   { name: 'prompt-modal', go: (p) => p.getByRole('button', { name: /start/i }).click() },
   { name: 'project-settings', go: (p) => p.getByTitle('Project management').click() },
+  ...[
+    ['project-form-new', '+ New project'],
+    ['project-form-edit', 'Edit'],
+    ['project-credentials', 'Update credentials'],
+  ].map(([name, label]) => ({
+    name,
+    go: async (p) => {
+      await p.getByTitle('Project management').click();
+      await p.getByRole('button', { name: label, exact: true }).first().click();
+    },
+  })),
   { name: 'workflow', go: (p) => p.getByTestId('nav-workflow').click() },
   ...[
     ['workflow-configuration', 'Configuration'],
