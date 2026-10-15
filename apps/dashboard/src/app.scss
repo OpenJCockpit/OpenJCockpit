@@ -132,41 +132,6 @@
   margin: 0 28px 8px;
 }
 
-.flow-subtitle {
-  position: relative;
-  z-index: 1;
-  margin: 18px 28px 26px;
-  color: var(--muted);
-}
-.agent-node {
-  position: relative;
-  display: grid;
-  justify-items: center;
-  gap: 10px;
-  text-align: center;
-  min-width: 0;
-  &__icon {
-    width: 54px;
-    height: 54px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    border: 1px solid rgba(39, 231, 255, 0.75);
-    color: #dfffff;
-    background: rgba(39, 231, 255, 0.07);
-    box-shadow:
-      0 0 26px rgba(39, 231, 255, 0.18),
-      inset 0 0 20px rgba(39, 231, 255, 0.06);
-    font-size: 17px;
-  }
-  & strong {
-    white-space: pre-line;
-    font-size: 13px;
-    font-weight: 550;
-    line-height: 1.35;
-  }
-}
-
 .panel-header--quality {
   padding-bottom: 12px;
 }

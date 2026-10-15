@@ -82,7 +82,7 @@ export function ProjectList({
               {project.hasCredentials && (
                 <button
                   className="back-button"
-                  style={{ color: 'var(--danger, #ff4444)' }}
+                  style={{ color: 'var(--danger)' }}
                   onClick={() => onDeleteCredentials(project.id)}
                 >
                   Delete credentials
@@ -92,7 +92,7 @@ export function ProjectList({
                 className="back-button"
                 onClick={() => onToggleActive(project)}
                 style={{
-                  color: project.active === 1 ? 'var(--danger, #ff4444)' : 'var(--cyan)',
+                  color: project.active === 1 ? 'var(--danger)' : 'var(--cyan)',
                 }}
               >
                 {project.active === 1 ? 'Deactivate' : 'Activate'}

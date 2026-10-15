@@ -39,7 +39,10 @@ const VIEWS = [
     name: 'skills-hub-settings',
     go: async (p) => {
       await p.getByTestId('nav-skills-hub').click();
-      await p.getByRole('button', { name: /settings|⚙/i }).first().click();
+      await p
+        .getByRole('button', { name: /settings|⚙/i })
+        .first()
+        .click();
     },
   },
 ];
@@ -108,7 +111,10 @@ if (mode === 'check') {
   const diffs = [];
   for (const file of readdirSync(baseDir)) {
     const current = path.join(outDir, file);
-    if (!existsSync(current) || !readFileSync(current).equals(readFileSync(path.join(baseDir, file)))) {
+    if (
+      !existsSync(current) ||
+      !readFileSync(current).equals(readFileSync(path.join(baseDir, file)))
+    ) {
       diffs.push(file);
     }
   }
