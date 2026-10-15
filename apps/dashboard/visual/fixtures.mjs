@@ -44,6 +44,7 @@ export const workflows = [
       fileDeliveryEnabled: false,
     },
     execution: { timeoutSeconds: 600 },
+    promptRequired: true,
     status: 'ACTIVE',
     lastExecutionStatus: 'COMPLETED',
     lastExecutionAt: ts,

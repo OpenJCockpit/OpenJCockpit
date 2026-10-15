@@ -31,6 +31,7 @@ const VIEWPORTS = [
 const VIEWS = [
   { name: 'project-selection', stored: false, go: async () => {} },
   { name: 'workspace', go: async () => {} },
+  { name: 'prompt-modal', go: (p) => p.getByRole('button', { name: /start/i }).click() },
   { name: 'project-settings', go: (p) => p.getByTitle('Project management').click() },
   { name: 'workflow', go: (p) => p.getByTestId('nav-workflow').click() },
   { name: 'spec-files', go: (p) => p.getByTestId('nav-spec-files').click() },
