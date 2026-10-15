@@ -2,6 +2,7 @@ import type { Ref } from 'react';
 import type { ProjectRequest } from '../../types';
 import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';
+import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 
 interface Props {
   isNew: boolean;
@@ -85,9 +86,9 @@ export function ProjectForm({
         </label>
       </div>
       <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-        <button className="button button--start" onClick={onSave} disabled={saving}>
+        <ToolbarButton onClick={onSave} disabled={saving}>
           {saving ? '⟳ Saving…' : 'Save'}
-        </button>
+        </ToolbarButton>
         <button className="back-button" onClick={onCancel}>
           Cancel
         </button>

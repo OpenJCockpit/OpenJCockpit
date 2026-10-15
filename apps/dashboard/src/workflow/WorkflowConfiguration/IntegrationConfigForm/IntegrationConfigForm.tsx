@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { ToolbarButton } from '../../../components/ToolbarButton/ToolbarButton';
+import { StatusMessage } from '../../../components/StatusMessage/StatusMessage';
 
 interface IntegrationConfigFormProps {
   title: ReactNode;
@@ -26,13 +28,13 @@ export function IntegrationConfigForm({
   return (
     <div className="settings-form">
       <h2 className="settings-form-title">{title}</h2>
-      {description && <p className="settings-desc">{description}</p>}
-      {error && <p className="settings-error">{error}</p>}
+      {description && <StatusMessage>{description}</StatusMessage>}
+      {error && <StatusMessage variant="error">{error}</StatusMessage>}
       {savedMessage && <p className="workflow-saved-message">{savedMessage}</p>}
       <div className="settings-form-grid">{children}</div>
-      <button className="button button--start" onClick={onSave} disabled={saving}>
+      <ToolbarButton onClick={onSave} disabled={saving}>
         {saving ? '⟳ Saving…' : saveLabel}
-      </button>
+      </ToolbarButton>
     </div>
   );
 }

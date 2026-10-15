@@ -1,3 +1,5 @@
+import { ToolbarButton } from '../../components/ToolbarButton/ToolbarButton';
+
 interface Props {
   /** Called when the operator asks to start the workflow again after its state was lost. */
   onRestartRequested?: () => void;
@@ -11,9 +13,7 @@ export function RunLostPanel({ onRestartRequested }: Props) {
         is possible for this run.
       </p>
       {onRestartRequested && (
-        <button className="button button--start" onClick={onRestartRequested}>
-          Start again
-        </button>
+        <ToolbarButton onClick={onRestartRequested}>Start again</ToolbarButton>
       )}
     </div>
   );

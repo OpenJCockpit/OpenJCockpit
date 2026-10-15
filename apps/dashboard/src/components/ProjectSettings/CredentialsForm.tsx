@@ -1,6 +1,7 @@
 import type { ProjectGitCredentialRequest } from '../../types';
 import { SelectField } from '../FormFields/SelectField/SelectField';
 import { TextField } from '../FormFields/TextField/TextField';
+import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 
 interface Props {
   form: ProjectGitCredentialRequest;
@@ -76,9 +77,9 @@ export function CredentialsForm({
         </>
       )}
       <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-        <button className="button button--start" onClick={onSave} disabled={saving || loading}>
+        <ToolbarButton onClick={onSave} disabled={saving || loading}>
           {saving ? '⟳ Verifying and saving…' : 'Save'}
-        </button>
+        </ToolbarButton>
         <button className="back-button" onClick={onCancel}>
           Cancel
         </button>

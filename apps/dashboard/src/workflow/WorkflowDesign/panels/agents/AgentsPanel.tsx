@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
+import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
 import {
   createAgentSpec,
   createSubagentSpec,
@@ -134,12 +136,10 @@ export function AgentsPanel() {
     <div>
       <PromptGenerator kind="agent" onGenerate={handleGenerate} />
       <div className="workflow-design-toolbar">
-        <button className="button button--start" onClick={startCreate}>
-          + New agent
-        </button>
+        <ToolbarButton onClick={startCreate}>+ New agent</ToolbarButton>
       </div>
-      {error && <p className="settings-error">{error}</p>}
-      {info && <p className="settings-desc">{info}</p>}
+      {error && <StatusMessage variant="error">{error}</StatusMessage>}
+      {info && <StatusMessage>{info}</StatusMessage>}
 
       {editingName && (
         <AgentEditor

@@ -1,4 +1,5 @@
 import type { LauncherButtonState } from '../../useRunLauncher';
+import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 
 interface Props {
   state: LauncherButtonState;
@@ -23,8 +24,8 @@ function getLabel(state: LauncherButtonState): string {
 export function StartButton({ state, onClick, disabled = false }: Props) {
   const busy = state === 'preflight' || state === 'starting';
   return (
-    <button className="button button--start" onClick={onClick} disabled={busy || disabled}>
+    <ToolbarButton onClick={onClick} disabled={busy || disabled}>
       {getLabel(state)}
-    </button>
+    </ToolbarButton>
   );
 }

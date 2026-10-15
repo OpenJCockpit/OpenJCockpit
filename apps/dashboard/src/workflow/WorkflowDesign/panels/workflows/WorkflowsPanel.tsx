@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fetchAgentDefinitions } from '../../../../api';
 import type { AgentDefinition } from '../../../../types';
+import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
+import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
+import { FileImportButton } from '../../../../components/FileImportButton/FileImportButton';
 import {
   createWorkflow,
   deleteWorkflow,
@@ -49,7 +52,6 @@ export function WorkflowsPanel() {
   const [catalogueError, setCatalogueError] = useState<string | null>(null);
   const [orbError, setOrbError] = useState<string | null>(null);
   const [importViolations, setImportViolations] = useState<string[]>([]);
-  const importInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -191,9 +193,7 @@ export function WorkflowsPanel() {
   return (
     <div>
       <div className="workflow-design-toolbar">
-        <button className="button button--start" onClick={startCreate}>
-          + New workflow
-        </button>
+        <ToolbarButton onClick={startCreate}>+ New workflow</ToolbarButton>
         <label className="workflow-group-filter">
           Group
           <select
@@ -211,31 +211,23 @@ export function WorkflowsPanel() {
           </select>
         </label>
         <div className="workflow-design-toolbar__spacer" />
-        <button className="button button--small" onClick={() => void handleExport()}>
+        <ToolbarButton variant="small" onClick={() => void handleExport()}>
           ⬇ Export JSON
-        </button>
-        <button className="button button--small" onClick={() => importInputRef.current?.click()}>
-          ⬆ Import JSON
-        </button>
-        <input
-          ref={importInputRef}
-          type="file"
+        </ToolbarButton>
+        <FileImportButton
           accept="application/json,.json"
-          className="workflow-design-hidden-input"
-          aria-label="Import workflows JSON"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) void handleImportFile(file);
-            e.target.value = '';
-          }}
-        />
+          inputLabel="Import workflows JSON"
+          onFile={(file) => void handleImportFile(file)}
+        >
+          ⬆ Import JSON
+        </FileImportButton>
       </div>
       {error && (
         <p id="workflow-save-error" className="settings-error" role="alert">
           {error}
         </p>
       )}
-      {info && <p className="settings-desc">{info}</p>}
+      {info && <StatusMessage>{info}</StatusMessage>}
       {importViolations.length > 0 && (
         <div className="settings-desc workflow-import-violations" role="status">
           <p>{importViolations.length} reference(s) could not be resolved:</p>

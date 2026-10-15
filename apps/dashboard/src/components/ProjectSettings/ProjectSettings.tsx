@@ -1,6 +1,7 @@
 import './ProjectSettings.scss';
 import { useEffect, useRef, useState } from 'react';
 import type { Project, ProjectGitCredentialRequest, ProjectRequest } from '../../types';
+import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import {
   activateProject,
   createProject,
@@ -259,9 +260,7 @@ export function ProjectSettings({ onBack }: Props) {
           >
             Project management
           </h1>
-          <button className="button button--start" onClick={startCreate}>
-            + New project
-          </button>
+          <ToolbarButton onClick={startCreate}>+ New project</ToolbarButton>
         </div>
 
         {error && (

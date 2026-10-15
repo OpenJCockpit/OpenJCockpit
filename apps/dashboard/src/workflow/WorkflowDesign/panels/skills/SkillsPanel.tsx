@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
+import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
 import {
   createSkillSpec,
   deleteSkillSpec,
@@ -153,14 +155,12 @@ export function SkillsPanel() {
     <div>
       <PromptGenerator kind="skill" onGenerate={handleGenerate} />
       <div className="workflow-design-toolbar">
-        <button className="button button--start" onClick={startCreate}>
-          + New skill
-        </button>
+        <ToolbarButton onClick={startCreate}>+ New skill</ToolbarButton>
         <button className="back-button" onClick={() => void loadCatalog()}>
           ⟳ Refresh
         </button>
       </div>
-      {error && <p className="settings-error">{error}</p>}
+      {error && <StatusMessage variant="error">{error}</StatusMessage>}
 
       {editingName && (
         <SkillEditor

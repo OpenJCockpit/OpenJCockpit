@@ -1,5 +1,6 @@
 import './PreflightAlert.scss';
 import type { PreflightError } from '../../types';
+import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 
 const PREFLIGHT_ERROR_MESSAGES: Record<string, string> = {
   DOCKER_UNAVAILABLE:
@@ -53,9 +54,7 @@ export function PreflightAlert({
         </ul>
         <div className="preflight-alert__actions">
           {hasGitIssue && (
-            <button className="button button--start" onClick={onOpenProjectSettings}>
-              Check Git settings
-            </button>
+            <ToolbarButton onClick={onOpenProjectSettings}>Check Git settings</ToolbarButton>
           )}
           <button className="link-button" onClick={onDismiss}>
             Dismiss
