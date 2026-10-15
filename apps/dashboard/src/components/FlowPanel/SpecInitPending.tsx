@@ -2,6 +2,7 @@ import type { SpecInitStatus } from '../../types';
 import { StatusChip } from '../StatusChip/StatusChip';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import { buttonClass } from '../../ui/Button/Button';
+import { feedbackResultClass } from '../../ui/Feedback/Feedback';
 
 interface Props {
   status: SpecInitStatus;
@@ -11,7 +12,7 @@ interface Props {
 /** A spec-init branch / pull request is already open on the repository. */
 export function SpecInitPending({ status, onReload }: Props) {
   return (
-    <div className="spec-init-result">
+    <div className={feedbackResultClass}>
       <StatusChip label="Pull request open" kind="open" />
       <p>
         A branch with the spec template is already prepared

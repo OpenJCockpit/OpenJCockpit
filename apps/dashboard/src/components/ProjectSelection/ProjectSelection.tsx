@@ -2,6 +2,9 @@ import './ProjectSelection.scss';
 import type { GitStatus, Project } from '../../types';
 import styles from './ProjectSelection.module.scss';
 import { Button } from '../../ui/Button/Button';
+import gitStyles from '../GitStatusBadge/GitStatusBadge.module.scss';
+import { Backdrop } from '../../ui/Backdrop/Backdrop';
+import { BrandLogo } from '../../ui/BrandLogo/BrandLogo';
 
 interface Props {
   projects: Project[];
@@ -12,7 +15,7 @@ interface Props {
 function GitStatusIndicator({ status }: { status: GitStatus }) {
   if (status === 'ACCESSIBLE') {
     return (
-      <span className="git-status-ok" aria-label="Git repository reachable">
+      <span className={gitStyles.ok} aria-label="Git repository reachable">
         {' '}
         ✓
       </span>
@@ -20,14 +23,14 @@ function GitStatusIndicator({ status }: { status: GitStatus }) {
   }
   if (status === 'NOT_ACCESSIBLE' || status === 'CHECK_FAILED') {
     return (
-      <span className="git-status-error" aria-label="Git repository not reachable">
+      <span className={gitStyles.error} aria-label="Git repository not reachable">
         {' '}
         ✗
       </span>
     );
   }
   return (
-    <span className="git-status-unknown" aria-label="Git status unknown">
+    <span className={gitStyles.unknown} aria-label="Git status unknown">
       {' '}
       …
     </span>
@@ -48,13 +51,11 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
 
   return (
     <div className="project-selection-shell">
-      <div className="neural-bg" aria-hidden="true" />
-      <div className="orb orb--left" aria-hidden="true" />
-      <div className="orb orb--right" aria-hidden="true" />
+      <Backdrop />
 
       <div className="project-selection-content">
         <div className="project-selection-header">
-          <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
+          <BrandLogo className="project-selection-logo" />
           <h1 className="project-selection-title">Select a project</h1>
           <p className="project-selection-subtitle">Choose the project you want to work on</p>
         </div>

@@ -29,7 +29,7 @@ export function CustomerHero({ selectedProject, workspace }: Props) {
         </div>
       </div>
 
-      <div className="stack-status">
+      <div className={styles.stackStatus}>
         {workspace.stack.map((service, index) => (
           <StackServiceCard
             key={service.name}

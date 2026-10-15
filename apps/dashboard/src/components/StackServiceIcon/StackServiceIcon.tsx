@@ -1,3 +1,5 @@
+import { iconBoxClass } from '../IconBox/IconBox';
+
 const HUB_COLOR = '#27e7ff';
 const SPRING_COLOR = '#6DB33F';
 
@@ -64,7 +66,7 @@ function SpringGraphic() {
 /** The 38×38 icon shown on a stack-status card: the hub graphic or the Spring leaf. */
 export function StackServiceIcon({ variant }: { variant: 'hub' | 'spring' }) {
   return (
-    <span className="icon-box" aria-hidden="true">
+    <span className={iconBoxClass} aria-hidden="true">
       <svg
         width="38"
         height="38"

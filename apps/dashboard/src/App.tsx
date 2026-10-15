@@ -1,4 +1,3 @@
-import './app.scss';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ToolbarButton } from './components/ToolbarButton/ToolbarButton';
 import {
@@ -273,11 +272,11 @@ function App() {
         onSettings={() => setView('settings')}
       />
 
-      <main className="workspace">
+      <main className={styles.workspace}>
         <CustomerHero selectedProject={selectedProject} workspace={workspace} />
 
         <section className={styles.topTools}>
-          <div className="search">
+          <div className={styles.search}>
             Search workspace... <span>⌕</span>
           </div>
           <ToolbarButton variant="small">Filters</ToolbarButton>

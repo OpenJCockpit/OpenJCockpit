@@ -2,12 +2,12 @@
   display: flex;
   align-items: flex-start;
   gap: 24px;
-  & > .spec-panel {
+  & > .spec-files-panel {
     flex: 0 0 320px;
     grid-column: auto;
     grid-row: auto;
   }
-  & .spec-list {
+  & .spec-files-list {
     max-height: 560px;
     overflow-y: auto;
   }
@@ -45,7 +45,7 @@
   .spec-files-body {
     flex-direction: column;
   }
-  .spec-files-body > .spec-panel {
+  .spec-files-body > .spec-files-panel {
     flex: 1 1 auto;
     width: 100%;
   }

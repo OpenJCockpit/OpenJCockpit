@@ -7,6 +7,7 @@ import { mockWorkspace } from './mockWorkspace';
 import { mockDashboardApis, PROJECT, WORKFLOW } from './testUtils/dashboardFixtures';
 import type { SpecFile } from './types';
 import type { WorkflowDefinition } from './workflow/workflowTypes';
+import { specStyles } from './ui/SpecList/specListStyles';
 
 vi.mock('./auth/keycloak', () => ({
   getKeycloak: () => ({
@@ -114,7 +115,7 @@ describe('spec files in the left pane', () => {
 
     const record = screen.getByText('No Specs Found').closest('article')!;
     expect(record).not.toHaveAttribute('role');
-    expect(record.className).toContain('spec-card--empty');
+    expect(record.className).toContain(specStyles.specCardEmpty);
   });
 
   it('offers a button to the workflow design screen when there are no specs', async () => {

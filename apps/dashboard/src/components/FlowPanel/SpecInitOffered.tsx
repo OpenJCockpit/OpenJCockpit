@@ -2,6 +2,7 @@ import type { SpecInitResult } from '../../types';
 import { StatusChip } from '../StatusChip/StatusChip';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import { buttonClass } from '../../ui/Button/Button';
+import { feedbackResultClass } from '../../ui/Feedback/Feedback';
 
 interface Props {
   result: SpecInitResult;
@@ -11,7 +12,7 @@ interface Props {
 /** The spec-init pull request was just created. */
 export function SpecInitOffered({ result, onReload }: Props) {
   return (
-    <div className="spec-init-result">
+    <div className={feedbackResultClass}>
       <StatusChip label="Pull request offered" kind="ok" />
       <p>{result.message}</p>
       {result.pullRequestUrl && (

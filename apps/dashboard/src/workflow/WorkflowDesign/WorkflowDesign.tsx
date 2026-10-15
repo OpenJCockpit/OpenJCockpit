@@ -5,6 +5,7 @@ import { GroupsPanel } from './panels/groups/GroupsPanel';
 import { SkillsPanel } from './panels/skills/SkillsPanel';
 import { SubagentsPanel } from './panels/subagents/SubagentsPanel';
 import { WorkflowsPanel } from './panels/workflows/WorkflowsPanel';
+import { Tab, TabNav } from '../../ui/Tabs/Tabs';
 
 type DesignTab = 'workflows' | 'groups' | 'agents' | 'subagents' | 'skills';
 
@@ -13,38 +14,23 @@ export function WorkflowDesign() {
 
   return (
     <section className="workflow-design">
-      <nav className="workflow-tab-nav workflow-tab-nav--secondary" aria-label="Design secties">
-        <button
-          className={`workflow-tab ${tab === 'workflows' ? 'workflow-tab--active' : ''}`}
-          onClick={() => setTab('workflows')}
-        >
+      <TabNav secondary aria-label="Design secties">
+        <Tab active={tab === 'workflows'} onClick={() => setTab('workflows')}>
           Workflows
-        </button>
-        <button
-          className={`workflow-tab ${tab === 'groups' ? 'workflow-tab--active' : ''}`}
-          onClick={() => setTab('groups')}
-        >
+        </Tab>
+        <Tab active={tab === 'groups'} onClick={() => setTab('groups')}>
           Groups
-        </button>
-        <button
-          className={`workflow-tab ${tab === 'agents' ? 'workflow-tab--active' : ''}`}
-          onClick={() => setTab('agents')}
-        >
+        </Tab>
+        <Tab active={tab === 'agents'} onClick={() => setTab('agents')}>
           Agents
-        </button>
-        <button
-          className={`workflow-tab ${tab === 'subagents' ? 'workflow-tab--active' : ''}`}
-          onClick={() => setTab('subagents')}
-        >
+        </Tab>
+        <Tab active={tab === 'subagents'} onClick={() => setTab('subagents')}>
           Subagents
-        </button>
-        <button
-          className={`workflow-tab ${tab === 'skills' ? 'workflow-tab--active' : ''}`}
-          onClick={() => setTab('skills')}
-        >
+        </Tab>
+        <Tab active={tab === 'skills'} onClick={() => setTab('skills')}>
           Skills
-        </button>
-      </nav>
+        </Tab>
+      </TabNav>
 
       {tab === 'workflows' && <WorkflowsPanel />}
       {tab === 'groups' && <GroupsPanel />}

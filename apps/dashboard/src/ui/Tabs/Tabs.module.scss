@@ -1,0 +1,36 @@
+.nav {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+.navSecondary {
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background 0.15s,
+    border-color 0.15s;
+  &:hover {
+    color: #edfaff;
+  }
+}
+.tabActive {
+  color: #ede4ff;
+  background: var(--violet-soft);
+  border-color: rgba(177, 138, 255, 0.45);
+  box-shadow: 0 0 12px rgba(177, 138, 255, 0.25);
+}

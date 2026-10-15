@@ -36,3 +36,31 @@
     flex-wrap: wrap;
   }
 }
+
+.workspace {
+  position: relative;
+  z-index: 1;
+  padding: 28px 30px 20px;
+}
+
+.search {
+  width: 235px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 13px;
+  color: #7d98a8;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: rgba(3, 13, 23, 0.44);
+}
+
+@media (max-width: 820px) {
+  .workspace {
+    padding: 18px;
+  }
+  .search {
+    width: 100%;
+  }
+}

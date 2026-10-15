@@ -1,6 +1,9 @@
 import type { Project } from '../../types';
 import styles from './SiteHeader.module.scss';
 import { Button } from '../../ui/Button/Button';
+import shell from '../AppShell/AppShell.module.scss';
+import { BrandLogo } from '../../ui/BrandLogo/BrandLogo';
+import { dropdownClass } from '../../ui/Dropdown/Dropdown';
 
 interface Props {
   projects: Project[];
@@ -22,9 +25,9 @@ export function SiteHeader({
   onSettings,
 }: Props) {
   return (
-    <header className="site-header">
-      <div className="brand">
-        <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
+    <header className={shell.siteHeader}>
+      <div className={shell.brand}>
+        <BrandLogo />
       </div>
 
       <nav className={styles.mainNav} aria-label="Primary navigation">
@@ -35,7 +38,7 @@ export function SiteHeader({
         <a href="#solutions">Solutions</a>
       </nav>
 
-      <div className="header-actions">
+      <div className={shell.headerActions}>
         <Button
           variant="workflow"
           onClick={onWorkflow}
@@ -62,7 +65,7 @@ export function SiteHeader({
         </Button>
         {projects.length > 0 && (
           <select
-            className="project-dropdown"
+            className={dropdownClass}
             value={selectedProject?.id ?? ''}
             onChange={(e) => onProjectChange(e.target.value)}
             title="Active project"

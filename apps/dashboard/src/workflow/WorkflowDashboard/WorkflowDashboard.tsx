@@ -8,6 +8,7 @@ import { WorkflowExecution } from '../WorkflowExecution/WorkflowExecution';
 import type { WorkflowDefinition } from '../workflowTypes';
 import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
 import { Eyebrow } from '../../ui/Panel/Panel';
+import { Tab, TabNav } from '../../ui/Tabs/Tabs';
 
 type WorkflowTab = 'overview' | 'configuration' | 'design' | 'execution';
 
@@ -42,32 +43,20 @@ export function WorkflowDashboard({ project, onBack }: Props) {
             <Eyebrow>Workflow Design &amp; Execution</Eyebrow>
             <h1>{project ? project.name : 'All projects'}</h1>
           </div>
-          <nav className="workflow-tab-nav" aria-label="Workflow secties">
-            <button
-              className={`workflow-tab ${tab === 'overview' ? 'workflow-tab--active' : ''}`}
-              onClick={() => setTab('overview')}
-            >
+          <TabNav aria-label="Workflow secties">
+            <Tab active={tab === 'overview'} onClick={() => setTab('overview')}>
               Overview
-            </button>
-            <button
-              className={`workflow-tab ${tab === 'configuration' ? 'workflow-tab--active' : ''}`}
-              onClick={() => setTab('configuration')}
-            >
+            </Tab>
+            <Tab active={tab === 'configuration'} onClick={() => setTab('configuration')}>
               Configuration
-            </button>
-            <button
-              className={`workflow-tab ${tab === 'design' ? 'workflow-tab--active' : ''}`}
-              onClick={() => setTab('design')}
-            >
+            </Tab>
+            <Tab active={tab === 'design'} onClick={() => setTab('design')}>
               Design
-            </button>
-            <button
-              className={`workflow-tab ${tab === 'execution' ? 'workflow-tab--active' : ''}`}
-              onClick={() => setTab('execution')}
-            >
+            </Tab>
+            <Tab active={tab === 'execution'} onClick={() => setTab('execution')}>
               Workflow Execution
-            </button>
-          </nav>
+            </Tab>
+          </TabNav>
         </div>
 
         {tab === 'overview' && (

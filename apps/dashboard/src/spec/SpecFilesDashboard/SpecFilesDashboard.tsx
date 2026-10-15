@@ -7,6 +7,10 @@ import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
 import { Eyebrow, Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
 import { fieldHintClass } from '../../ui/Form/Form';
 import { Button, buttonClass } from '../../ui/Button/Button';
+import { specStyles } from '../../ui/SpecList/specListStyles';
+import { feedbackErrorClass, feedbackResultClass } from '../../ui/Feedback/Feedback';
+import { pageClass, pageHeaderClass } from '../../ui/Page/Page';
+import { cx } from '../../ui/cx';
 
 interface Props {
   project: Project | null;
@@ -72,8 +76,8 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
     <AppShell>
       <AppHeader onBack={onBack} backTitle="Back to dashboard" />
 
-      <main className="spec-files-dashboard">
-        <div className="spec-files-dashboard-header">
+      <main className={pageClass}>
+        <div className={pageHeaderClass}>
           <div>
             <Eyebrow>Spec Files</Eyebrow>
             <h1>{project ? project.name : 'No project selected'}</h1>
@@ -86,18 +90,18 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
 
         {project && (
           <div className="spec-files-body">
-            <Panel as="aside" className="spec-panel">
+            <Panel as="aside" className={cx(specStyles.specPanel, 'spec-files-panel')}>
               <PanelHeader simple>
                 <PanelTitle>
                   <IconBox label="📄" compact /> <h2>Specs</h2>
                 </PanelTitle>
               </PanelHeader>
 
-              <div className="spec-list">
-                {loading && <p className="spec-list-loading">Loading specs…</p>}
+              <div className={cx(specStyles.specList, 'spec-files-list')}>
+                {loading && <p className={specStyles.specListLoading}>Loading specs…</p>}
                 {!loading && specs.length === 0 && (
-                  <article className="spec-card spec-card--empty">
-                    <IconBox label="📄" compact />
+                  <article className={cx(specStyles.specCard, specStyles.specCardEmpty)}>
+                    <IconBox label="📄" compact className={specStyles.icon} />
                     <div>
                       <strong>No Specs Found</strong>
                       <span>No specs/ folder with specifications in the repository</span>
@@ -107,16 +111,21 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
                 {specs.map((spec) => (
                   <button
                     type="button"
-                    className={`spec-card ${spec.id === selectedId ? 'is-selected' : ''}`}
+                    className={cx(
+                      specStyles.specCard,
+                      spec.id === selectedId && specStyles.selected,
+                    )}
                     key={spec.id}
                     onClick={() => handleSelect(spec)}
                   >
-                    <IconBox label="📄" compact />
+                    <IconBox label="📄" compact className={specStyles.icon} />
                     <div>
                       <strong>{spec.fileName}</strong>
                       <span>Last modified: {spec.lastChanged}</span>
                     </div>
-                    {spec.id === selectedId && <span className="active-rail" aria-hidden="true" />}
+                    {spec.id === selectedId && (
+                      <span className={specStyles.activeRail} aria-hidden="true" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -144,9 +153,9 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
                     spellCheck={false}
                     aria-label={`Contents of ${selected.fileName}`}
                   />
-                  {saveError && <p className="workflow-launcher-error">{saveError}</p>}
+                  {saveError && <p className={feedbackErrorClass}>{saveError}</p>}
                   {saveResult && (
-                    <div className="spec-init-result">
+                    <div className={feedbackResultClass}>
                       <p>{saveResult.message}</p>
                       {saveResult.pullRequestUrl && (
                         <a

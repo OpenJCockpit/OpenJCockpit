@@ -10,6 +10,7 @@ import { DataTable } from '../../ui/DataTable/DataTable';
 import { fieldHintClass, formInputClass } from '../../ui/Form/Form';
 import { cx } from '../../ui/cx';
 import { Button } from '../../ui/Button/Button';
+import { pageClass, pageHeaderClass } from '../../ui/Page/Page';
 
 interface Props {
   onBack: () => void;
@@ -79,8 +80,8 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
         </Button>
       </AppHeader>
 
-      <main className="spec-files-dashboard">
-        <div className="spec-files-dashboard-header">
+      <main className={pageClass}>
+        <div className={pageHeaderClass}>
           <div>
             <Eyebrow>Skills Hub</Eyebrow>
             <h1>Available skills</h1>

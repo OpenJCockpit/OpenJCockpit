@@ -1,0 +1,23 @@
+.iconBox {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: #dffbff;
+  border: 1px solid rgba(39, 231, 255, 0.36);
+  border-radius: 12px;
+  background: rgba(39, 231, 255, 0.05);
+  box-shadow: 0 0 20px rgba(39, 231, 255, 0.08);
+}
+.compact {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  font-size: 14px;
+}
+.hero {
+  width: 68px;
+  height: 68px;
+  border-radius: 16px;
+  font-size: 34px;
+}

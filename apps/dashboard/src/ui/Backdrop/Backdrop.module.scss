@@ -1,0 +1,49 @@
+.neuralBg {
+  position: absolute;
+  inset: 70px 0 0;
+  opacity: 0.45;
+  background-image:
+    radial-gradient(circle, rgba(60, 224, 255, 0.5) 0 1px, transparent 2px),
+    linear-gradient(
+      115deg,
+      transparent 0 18%,
+      rgba(33, 205, 255, 0.08) 18.2%,
+      transparent 18.6% 38%,
+      rgba(33, 205, 255, 0.07) 38.3%,
+      transparent 38.8%
+    ),
+    linear-gradient(
+      25deg,
+      transparent 0 22%,
+      rgba(55, 247, 194, 0.06) 22.2%,
+      transparent 22.7% 70%,
+      rgba(39, 231, 255, 0.06) 70.4%,
+      transparent 70.9%
+    );
+  background-size:
+    140px 140px,
+    720px 520px,
+    780px 600px;
+  mask-image: linear-gradient(90deg, transparent 0, #000 36%, #000 100%);
+  z-index: -3;
+}
+
+.orb {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  filter: blur(86px);
+  opacity: 0.16;
+  z-index: -2;
+}
+.orbLeft {
+  left: -160px;
+  top: 38%;
+  background: var(--cyan);
+}
+.orbRight {
+  right: -120px;
+  top: 14%;
+  background: #4e6cff;
+}

@@ -1,6 +1,8 @@
 import { IconBox } from '../IconBox/IconBox';
 import styles from './SpecPanel.module.scss';
 import { Button } from '../../ui/Button/Button';
+import { specStyles } from '../../ui/SpecList/specListStyles';
+import { cx } from '../../ui/cx';
 
 interface Props {
   onGoToWorkflow: () => void;
@@ -10,8 +12,8 @@ interface Props {
 export function NoSpecsFound({ onGoToWorkflow }: Props) {
   return (
     <>
-      <article className="spec-card spec-card--empty">
-        <IconBox label="📄" compact />
+      <article className={cx(specStyles.specCard, specStyles.specCardEmpty)}>
+        <IconBox label="📄" compact className={specStyles.icon} />
         <div>
           <strong>No Specs Found</strong>
           <span>No specs/ folder with specifications in the repository</span>

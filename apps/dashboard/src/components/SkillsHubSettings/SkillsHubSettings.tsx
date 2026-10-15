@@ -20,6 +20,7 @@ import {
 } from '../../ui/Form/Form';
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
 import { Button } from '../../ui/Button/Button';
+import { pageClass, pageHeaderClass } from '../../ui/Page/Page';
 
 interface Props {
   onBack: () => void;
@@ -147,8 +148,8 @@ export function SkillsHubSettings({ onBack }: Props) {
     <AppShell>
       <AppHeader onBack={onBack} backTitle="Back to Skills Hub" />
 
-      <main className="spec-files-dashboard">
-        <div className="spec-files-dashboard-header">
+      <main className={pageClass}>
+        <div className={pageHeaderClass}>
           <div>
             <Eyebrow>Skills Hub</Eyebrow>
             <h1>Marketplace connections</h1>
