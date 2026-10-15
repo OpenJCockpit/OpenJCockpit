@@ -1,6 +1,7 @@
 import './ApprovalCommentModal.scss';
 import { useEffect, useId, useRef, useState } from 'react';
 import { ModalShell } from '../ModalShell/ModalShell';
+import { fieldErrorClass, fieldHintClass, formInputClass } from '../../ui/Form/Form';
 
 // Not part of the wire contract (ApprovalGateContextDto carries no length field) —
 // this mirrors the backend's ApprovalDecisionRequestDto.comment maxLength / A14's
@@ -57,7 +58,7 @@ export function ApprovalCommentModal({
       overlayClassName="approval-comment-overlay"
     >
       <h2 id={titleId}>Accept with my comments</h2>
-      <p className="settings-desc">
+      <p className={fieldHintClass}>
         Describe what should change in the next attempt. This re-runs the realisation stage with
         your feedback and re-opens this checkpoint on the new result.
       </p>
@@ -66,7 +67,7 @@ export function ApprovalCommentModal({
         <textarea
           id={textareaId}
           ref={textareaRef}
-          className="settings-input"
+          className={formInputClass}
           rows={5}
           maxLength={COMMENT_MAX_LENGTH}
           value={comment}
@@ -82,13 +83,13 @@ export function ApprovalCommentModal({
       <p
         id={hintId}
         aria-live="polite"
-        className={validationError ? 'settings-error' : 'settings-desc'}
+        className={validationError ? fieldErrorClass : fieldHintClass}
         role={validationError ? 'alert' : undefined}
       >
         {validationError ?? `Up to ${COMMENT_MAX_LENGTH} characters.`}
       </p>
       {errorMessage && (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           {errorMessage}
         </p>
       )}

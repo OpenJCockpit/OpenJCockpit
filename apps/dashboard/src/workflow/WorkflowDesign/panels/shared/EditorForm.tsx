@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { formClass, formGridClass, formTitleClass } from '../../../../ui/Form/Form';
 
 interface EditorFormProps {
   title: string;
@@ -18,9 +19,9 @@ export function EditorForm({
   children,
 }: EditorFormProps) {
   return (
-    <div className="settings-form">
-      <h2 className="settings-form-title">{title}</h2>
-      <div className="settings-form-grid">{children}</div>
+    <div className={formClass}>
+      <h2 className={formTitleClass}>{title}</h2>
+      <div className={formGridClass}>{children}</div>
       <div className="workflow-design-form-actions">
         <button
           className="button button--start"

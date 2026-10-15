@@ -1,6 +1,7 @@
 import type { Project } from '../../types';
 import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
 import { Actions, DataTable, DataTableRow } from '../../ui/DataTable/DataTable';
+import { fieldHintClass } from '../../ui/Form/Form';
 
 interface Props {
   projects: Project[];
@@ -37,9 +38,9 @@ export function ProjectList({
           <DataTableRow key={project.id} inactive={project.active === 0}>
             <td>
               <strong>{project.name}</strong>
-              {project.description && <span className="settings-desc">{project.description}</span>}
+              {project.description && <span className={fieldHintClass}>{project.description}</span>}
               {project.gitUrl && (
-                <span className="settings-desc" style={{ color: 'var(--faint)', fontSize: 11 }}>
+                <span className={fieldHintClass} style={{ color: 'var(--faint)', fontSize: 11 }}>
                   {project.gitUrl}
                 </span>
               )}
@@ -47,7 +48,7 @@ export function ProjectList({
             <td>
               <GitStatusBadge status={project.gitStatus} />
               {project.gitStatusMessage && (
-                <span className="settings-desc" style={{ fontSize: 11 }}>
+                <span className={fieldHintClass} style={{ fontSize: 11 }}>
                   {project.gitStatusMessage}
                 </span>
               )}

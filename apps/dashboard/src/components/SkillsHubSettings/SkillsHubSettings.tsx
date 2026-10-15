@@ -11,6 +11,13 @@ import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';
 import { Eyebrow } from '../../ui/Panel/Panel';
 import { Actions, DataTable } from '../../ui/DataTable/DataTable';
+import {
+  fieldErrorClass,
+  fieldHintClass,
+  formClass,
+  formGridClass,
+  formTitleClass,
+} from '../../ui/Form/Form';
 
 interface Props {
   onBack: () => void;
@@ -147,19 +154,19 @@ export function SkillsHubSettings({ onBack }: Props) {
         </div>
 
         {error && (
-          <p className="settings-error" role="alert">
+          <p className={fieldErrorClass} role="alert">
             {error}
           </p>
         )}
-        <p className="settings-desc" role="status" aria-live="polite">
+        <p className={fieldHintClass} role="status" aria-live="polite">
           {status}
         </p>
 
-        <div className="settings-form">
-          <h2 className="settings-form-title">
+        <div className={formClass}>
+          <h2 className={formTitleClass}>
             {editingId === null ? 'New marketplace' : 'Edit marketplace'}
           </h2>
-          <div className="settings-form-grid">
+          <div className={formGridClass}>
             <TextField
               label="Name *"
               ref={nameInputRef}
@@ -232,7 +239,7 @@ export function SkillsHubSettings({ onBack }: Props) {
                 <td>
                   <strong>{connection.name}</strong>
                   {connection.description && (
-                    <span className="settings-desc">{connection.description}</span>
+                    <span className={fieldHintClass}>{connection.description}</span>
                   )}
                 </td>
                 <td>{connection.marketplaceUrl}</td>
@@ -251,7 +258,7 @@ export function SkillsHubSettings({ onBack }: Props) {
             ))}
             {!error && connections.length === 0 && (
               <tr>
-                <td colSpan={6} className="settings-desc">
+                <td colSpan={6} className={fieldHintClass}>
                   No marketplaces connected yet.
                 </td>
               </tr>

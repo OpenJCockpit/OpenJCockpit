@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import '../FormFields.scss';
+import { fieldHintClass, formInputClass } from '../../../ui/Form/Form';
 
 interface SecretFieldProps {
   label: ReactNode;
@@ -15,10 +16,10 @@ export function SecretField({ label, hasValue, value, onChange }: SecretFieldPro
     <label className="form-field--wide">
       {label}{' '}
       {hasValue && (
-        <span className="settings-desc">(already configured — leave blank to keep)</span>
+        <span className={fieldHintClass}>(already configured — leave blank to keep)</span>
       )}
       <input
-        className="settings-input"
+        className={formInputClass}
         type="password"
         value={value}
         onChange={(e) => onChange(e.target.value)}

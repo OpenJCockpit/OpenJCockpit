@@ -1,7 +1,9 @@
 import type { HTMLAttributes } from 'react';
+import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
+import { cx } from '../../ui/cx';
 
 interface StatusMessageProps extends HTMLAttributes<HTMLParagraphElement> {
-  /** `error` renders the red settings-error line; `info` the muted settings-desc line. */
+  /** `error` renders the red error line; `info` the muted hint line. */
   variant?: 'error' | 'info';
 }
 
@@ -12,9 +14,9 @@ export function StatusMessage({
   children,
   ...rest
 }: StatusMessageProps) {
-  const base = variant === 'error' ? 'settings-error' : 'settings-desc';
+  const base = variant === 'error' ? fieldErrorClass : fieldHintClass;
   return (
-    <p className={className ? `${base} ${className}` : base} {...rest}>
+    <p className={cx(base, className)} {...rest}>
       {children}
     </p>
   );

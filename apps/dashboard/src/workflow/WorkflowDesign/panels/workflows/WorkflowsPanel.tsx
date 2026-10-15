@@ -21,6 +21,8 @@ import type {
 import { readFileText, downloadWorkflowBundle } from '../../utils';
 import { WorkflowEditor } from './WorkflowEditor/WorkflowEditor';
 import { WorkflowsTable } from './WorkflowsTable';
+import { fieldErrorClass, fieldHintClass, formInputClass } from '../../../../ui/Form/Form';
+import { cx } from '../../../../ui/cx';
 
 const EMPTY_WORKFLOW: WorkflowDefinition = {
   id: '',
@@ -197,7 +199,7 @@ export function WorkflowsPanel() {
         <label className="workflow-group-filter">
           Group
           <select
-            className="settings-input"
+            className={cx(formInputClass, 'workflow-group-filter__select')}
             value={groupFilter}
             onChange={(e) => setGroupFilter(e.target.value)}
           >
@@ -223,13 +225,13 @@ export function WorkflowsPanel() {
         </FileImportButton>
       </div>
       {error && (
-        <p id="workflow-save-error" className="settings-error" role="alert">
+        <p id="workflow-save-error" className={fieldErrorClass} role="alert">
           {error}
         </p>
       )}
       {info && <StatusMessage>{info}</StatusMessage>}
       {importViolations.length > 0 && (
-        <div className="settings-desc workflow-import-violations" role="status">
+        <div className={cx(fieldHintClass, 'workflow-import-violations')} role="status">
           <p>{importViolations.length} reference(s) could not be resolved:</p>
           <ul>
             {importViolations.map((violation) => (
@@ -240,7 +242,7 @@ export function WorkflowsPanel() {
       )}
 
       {catalogueError && (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           {catalogueError}
         </p>
       )}

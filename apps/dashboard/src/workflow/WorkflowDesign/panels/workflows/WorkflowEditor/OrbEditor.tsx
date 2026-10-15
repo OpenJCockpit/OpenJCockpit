@@ -1,6 +1,7 @@
 import type { AgentDefinition } from '../../../../../types';
 import { SelectField } from '../../../../../components/FormFields/SelectField/SelectField';
 import type { WorkflowDefinition, WorkflowOrb } from '../../../../workflowTypes';
+import { fieldErrorClass, fieldHintClass } from '../../../../../ui/Form/Form';
 
 const MAX_ORBS = 5;
 
@@ -30,7 +31,7 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
     <div className="workflow-design-field--full">
       <span>Workflow orbs</span>
       {error && (
-        <p id="workflow-orb-error" role="alert" className="settings-error">
+        <p id="workflow-orb-error" role="alert" className={fieldErrorClass}>
           {error}
         </p>
       )}
@@ -98,7 +99,7 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
       >
         + Add orb
       </button>
-      <span className="settings-desc">
+      <span className={fieldHintClass}>
         A workflow orb triggers another workflow as part of this one. Up to 5 orbs are allowed (the
         server enforces the actual configured limit).
       </span>

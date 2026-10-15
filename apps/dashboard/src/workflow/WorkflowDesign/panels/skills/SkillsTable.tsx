@@ -1,5 +1,6 @@
 import type { ExternalSkill, SkillSpec } from '../../../workflowTypes';
 import { DataTable } from '../../../../ui/DataTable/DataTable';
+import { fieldHintClass } from '../../../../ui/Form/Form';
 
 type LocalSkillRow = { key: string; readOnly: false; skill: SkillSpec };
 type ExternalSkillRow = { key: string; readOnly: true; skill: ExternalSkill };
@@ -30,10 +31,10 @@ export function SkillsTable({ rows, onEdit, onDelete }: SkillsTableProps) {
               <td>{row.skill.name}</td>
               <td>{row.skill.marketplaceName}</td>
               <td>
-                <span className="settings-desc">Not provided</span>
+                <span className={fieldHintClass}>Not provided</span>
               </td>
               <td>
-                <span className="settings-desc">Not provided</span>
+                <span className={fieldHintClass}>Not provided</span>
               </td>
               <td>Read-only</td>
             </tr>

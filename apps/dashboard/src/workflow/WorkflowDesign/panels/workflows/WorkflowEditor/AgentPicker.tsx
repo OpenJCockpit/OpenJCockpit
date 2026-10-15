@@ -1,4 +1,5 @@
 import type { AgentDefinition } from '../../../../../types';
+import { fieldHintClass } from '../../../../../ui/Form/Form';
 
 interface AgentPickerProps {
   availableAgents: AgentDefinition[];
@@ -39,17 +40,17 @@ export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPicker
               onChange={(e) => toggle(agent.id, e.target.checked)}
             />
             <span className="workflow-agent-picker__name">{agent.name}</span>
-            <span className="settings-desc">{agent.description}</span>
+            <span className={fieldHintClass}>{agent.description}</span>
           </label>
         ))}
       </div>
-      <span className="settings-desc">
+      <span className={fieldHintClass}>
         Select the pipeline stages this workflow runs, in order. Include "Realisation Agent" to have
         the workflow write real code from the implementation plan and push it to a branch — without
         it, the workflow stops after writing the plan document.
       </span>
       {unknownAgentIds.length > 0 && (
-        <p className="settings-desc" role="status">
+        <p className={fieldHintClass} role="status">
           Unrecognised pipeline agent id(s) ignored in the picker: {unknownAgentIds.join(', ')}.
           They remain stored and will round-trip on save.
         </p>

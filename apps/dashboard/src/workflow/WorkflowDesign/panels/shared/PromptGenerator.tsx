@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { fieldHintClass, formInputClass } from '../../../../ui/Form/Form';
 
 export type PromptGeneratorKind = 'agent' | 'subagent' | 'skill';
 
@@ -42,7 +43,7 @@ export function PromptGenerator({
       <label>
         Describe the {kind} you want in plain language
         <textarea
-          className="settings-input"
+          className={formInputClass}
           rows={3}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -56,7 +57,7 @@ export function PromptGenerator({
       >
         {generating ? '⟳ Generating…' : '✨ Generate draft'}
       </button>
-      <p className="settings-desc">
+      <p className={fieldHintClass}>
         Draft generation uses the platform's LLM. The more specific you are about inputs, outputs,
         and delegation (see the example above), the higher-quality the draft. Leave the field empty
         to generate an example {kind} instead. Review and edit the generated draft before saving.

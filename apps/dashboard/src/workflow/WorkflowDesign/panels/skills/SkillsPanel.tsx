@@ -14,6 +14,7 @@ import { PromptGenerator } from '../shared/PromptGenerator';
 import { SkillEditor } from './SkillEditor';
 import { SkillsTable } from './SkillsTable';
 import type { SkillRow } from './SkillsTable';
+import { fieldErrorClass } from '../../../../ui/Form/Form';
 
 const EMPTY_SKILL: SkillSpec = {
   name: '',
@@ -180,7 +181,7 @@ export function SkillsPanel() {
       </div>
 
       {loadError ? (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           {loadError}
         </p>
       ) : (

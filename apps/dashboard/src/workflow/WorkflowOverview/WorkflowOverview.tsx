@@ -15,6 +15,7 @@ import { StatusChip } from '../../components/StatusChip/StatusChip';
 import { runStatusKind } from '../runStatus';
 import { WorkflowPromptDialog } from '../WorkflowPromptDialog/WorkflowPromptDialog';
 import { Eyebrow, Panel } from '../../ui/Panel/Panel';
+import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
 
 interface Props {
   project: Project | null;
@@ -200,17 +201,17 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
       )}
 
       {listError && (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           Workflows could not be loaded — {listError}
         </p>
       )}
 
       {!listError && visibleWorkflows.length === 0 && (
-        <p className="settings-desc">No workflows defined yet. Create one in the Design tab.</p>
+        <p className={fieldHintClass}>No workflows defined yet. Create one in the Design tab.</p>
       )}
 
       {catalogueError && (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           {catalogueError}
         </p>
       )}

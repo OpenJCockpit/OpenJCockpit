@@ -17,6 +17,7 @@ import { AppShell, AppHeader } from '../AppShell/AppShell';
 import { CredentialsForm } from './CredentialsForm';
 import { ProjectForm } from './ProjectForm';
 import { ProjectList } from './ProjectList';
+import { fieldErrorClass } from '../../ui/Form/Form';
 
 interface Props {
   onBack: () => void;
@@ -264,7 +265,7 @@ export function ProjectSettings({ onBack }: Props) {
         </div>
 
         {error && (
-          <p id="project-name-error" role="alert" className="settings-error">
+          <p id="project-name-error" role="alert" className={fieldErrorClass}>
             {error}
           </p>
         )}

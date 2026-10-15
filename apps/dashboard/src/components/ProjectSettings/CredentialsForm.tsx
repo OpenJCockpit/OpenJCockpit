@@ -2,6 +2,7 @@ import type { ProjectGitCredentialRequest } from '../../types';
 import { SelectField } from '../FormFields/SelectField/SelectField';
 import { TextField } from '../FormFields/TextField/TextField';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
+import { fieldHintClass, formClass, formGridClass, formTitleClass } from '../../ui/Form/Form';
 
 interface Props {
   form: ProjectGitCredentialRequest;
@@ -23,13 +24,13 @@ export function CredentialsForm({
   onCancel,
 }: Props) {
   return (
-    <div className="settings-form">
-      <h2 className="settings-form-title">Git credentials</h2>
+    <div className={formClass}>
+      <h2 className={formTitleClass}>Git credentials</h2>
       {loading ? (
-        <p className="settings-desc">Loading current credentials...</p>
+        <p className={fieldHintClass}>Loading current credentials...</p>
       ) : (
         <>
-          <div className="settings-form-grid">
+          <div className={formGridClass}>
             <SelectField
               label="Type"
               value={form.credentialType}
@@ -70,7 +71,7 @@ export function CredentialsForm({
               placeholder="https://github.example.com/api/v3"
             />
           </div>
-          <p className="settings-desc">
+          <p className={fieldHintClass}>
             On save, a Git check is first run with these credentials; they are only stored if the
             check succeeds.
           </p>

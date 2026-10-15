@@ -1,5 +1,7 @@
 import type { ReactNode, SelectHTMLAttributes } from 'react';
 import '../FormFields.scss';
+import { fieldHintClass, formInputClass } from '../../../ui/Form/Form';
+import { cx } from '../../../ui/cx';
 
 type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'value'>;
 
@@ -27,13 +29,13 @@ export function SelectField({
       {label}
       <select
         {...selectProps}
-        className={['settings-input', className].filter(Boolean).join(' ')}
+        className={cx(formInputClass, className)}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >
         {children}
       </select>
-      {hint && <span className="settings-desc">{hint}</span>}
+      {hint && <span className={fieldHintClass}>{hint}</span>}
     </label>
   );
 }

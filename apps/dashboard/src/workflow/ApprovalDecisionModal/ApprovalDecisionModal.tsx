@@ -3,6 +3,7 @@ import { useId, useState } from 'react';
 import type { ApprovalGateContext } from '../workflowTypes';
 import { ModalShell } from '../ModalShell/ModalShell';
 import { ApprovalCommentModal } from '../ApprovalCommentModal/ApprovalCommentModal';
+import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
 
 interface ApprovalDecisionModalProps {
   context: ApprovalGateContext;
@@ -65,13 +66,13 @@ export function ApprovalDecisionModal({
       <p>{context.changeSummary}</p>
 
       {context.stageOutcome !== 'PUBLISHED' && context.outcomeReason && (
-        <p className="settings-desc" role="status">
+        <p className={fieldHintClass} role="status">
           {context.outcomeReason}
         </p>
       )}
 
       <div className="approval-changed-files">
-        <p className="settings-desc">
+        <p className={fieldHintClass}>
           {context.changedFileCount} file{context.changedFileCount === 1 ? '' : 's'} changed
         </p>
         {context.changedPaths.length > 0 && (
@@ -82,13 +83,13 @@ export function ApprovalDecisionModal({
           </ul>
         )}
         {context.omittedFileCount > 0 && (
-          <p className="settings-desc">
+          <p className={fieldHintClass}>
             {context.omittedFileCount} more file{context.omittedFileCount === 1 ? '' : 's'}
           </p>
         )}
       </div>
 
-      {context.branchName && <p className="settings-desc">Branch: {context.branchName}</p>}
+      {context.branchName && <p className={fieldHintClass}>Branch: {context.branchName}</p>}
       {actionUrl && (
         <p>
           <a
@@ -102,7 +103,7 @@ export function ApprovalDecisionModal({
         </p>
       )}
 
-      <p className="settings-desc">{iterationText(context)}</p>
+      <p className={fieldHintClass}>{iterationText(context)}</p>
 
       {context.feedbackSupported && context.commentHistory.length > 0 && (
         <div className="approval-comment-history">
@@ -121,7 +122,7 @@ export function ApprovalDecisionModal({
       )}
 
       {errorMessage && !showCommentModal && (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           {errorMessage}
         </p>
       )}

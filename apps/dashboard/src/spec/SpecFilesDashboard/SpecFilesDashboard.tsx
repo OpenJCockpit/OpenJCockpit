@@ -5,6 +5,7 @@ import { IconBox } from '../../components/IconBox/IconBox';
 import type { Project, SpecFile, SpecInitResult } from '../../types';
 import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
 import { Eyebrow, Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
+import { fieldHintClass } from '../../ui/Form/Form';
 
 interface Props {
   project: Project | null;
@@ -79,7 +80,7 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
         </div>
 
         {!project && (
-          <p className="settings-desc">Select a project first to manage the spec files.</p>
+          <p className={fieldHintClass}>Select a project first to manage the spec files.</p>
         )}
 
         {project && (
@@ -160,7 +161,7 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
                   )}
                 </>
               ) : (
-                !loading && <p className="settings-desc">No spec selected.</p>
+                !loading && <p className={fieldHintClass}>No spec selected.</p>
               )}
             </Panel>
           </div>

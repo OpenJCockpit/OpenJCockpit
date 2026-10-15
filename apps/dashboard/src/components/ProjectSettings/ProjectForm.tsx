@@ -3,6 +3,7 @@ import type { ProjectRequest } from '../../types';
 import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
+import { formClass, formGridClass, formTitleClass } from '../../ui/Form/Form';
 
 interface Props {
   isNew: boolean;
@@ -26,9 +27,9 @@ export function ProjectForm({
   onCancel,
 }: Props) {
   return (
-    <div className="settings-form">
-      <h2 className="settings-form-title">{isNew ? 'New project' : 'Edit project'}</h2>
-      <div className="settings-form-grid">
+    <div className={formClass}>
+      <h2 className={formTitleClass}>{isNew ? 'New project' : 'Edit project'}</h2>
+      <div className={formGridClass}>
         <TextField
           label="Name *"
           ref={nameInputRef}

@@ -7,6 +7,8 @@ import type { StatusKind } from '../../types';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
 import { Eyebrow, Panel } from '../../ui/Panel/Panel';
 import { DataTable } from '../../ui/DataTable/DataTable';
+import { fieldHintClass, formInputClass } from '../../ui/Form/Form';
+import { cx } from '../../ui/cx';
 
 interface Props {
   onBack: () => void;
@@ -86,7 +88,7 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
 
         <form className="skills-hub-search" onSubmit={handleSearch} role="search">
           <input
-            className="settings-input skills-hub-search__input"
+            className={cx(formInputClass, 'skills-hub-search__input')}
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -133,7 +135,7 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
               ))}
               {visibleSkills.length === 0 && (
                 <tr>
-                  <td colSpan={2} className="settings-desc">
+                  <td colSpan={2} className={fieldHintClass}>
                     No skills found for &quot;{term}&quot;.
                   </td>
                 </tr>

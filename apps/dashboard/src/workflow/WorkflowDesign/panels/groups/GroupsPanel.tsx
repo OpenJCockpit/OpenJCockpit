@@ -10,6 +10,7 @@ import {
 import type { WorkflowGroup } from '../../../workflowTypes';
 import { GroupEditor } from './GroupEditor';
 import { GroupsTable } from './GroupsTable';
+import { fieldHintClass } from '../../../../ui/Form/Form';
 
 const EMPTY_GROUP: WorkflowGroup = { id: '', name: '', description: '', projectName: '' };
 
@@ -75,7 +76,7 @@ export function GroupsPanel() {
       <div className="workflow-design-toolbar">
         <ToolbarButton onClick={startCreate}>+ New group</ToolbarButton>
       </div>
-      <p className="settings-desc">
+      <p className={fieldHintClass}>
         Groups bundle workflows designed for a specific meaning (for example onboarding, compliance
         or reporting). Deleting a group unlinks its workflows; the workflows themselves are kept.
       </p>

@@ -22,6 +22,8 @@ import { RunStatusAnnouncements } from './RunStatusAnnouncements';
 import { useRunHistory } from './useRunHistory';
 import { useRunEvents } from './useRunEvents';
 import { Eyebrow, Panel } from '../../ui/Panel/Panel';
+import { fieldHintClass } from '../../ui/Form/Form';
+import { cx } from '../../ui/cx';
 
 // 'NOT_FOUND' is retained deliberately: it is what an OLDER backend (pre-dating this
 // feature) returns for an unknown run id, so a newer dashboard paired with it still
@@ -217,7 +219,7 @@ export function WorkflowExecution({
 
   if (!workflow) {
     return (
-      <p className="settings-desc workflow-execution-empty">
+      <p className={cx(fieldHintClass, 'workflow-execution-empty')}>
         Start a workflow from the Overview tab to see it running here.
       </p>
     );
@@ -259,7 +261,7 @@ export function WorkflowExecution({
       )}
 
       {!selectedRunId && (
-        <p className="settings-desc workflow-execution-empty">
+        <p className={cx(fieldHintClass, 'workflow-execution-empty')}>
           No active execution for this workflow. Start it from the Overview tab or select one from
           the history above to watch it here.
         </p>

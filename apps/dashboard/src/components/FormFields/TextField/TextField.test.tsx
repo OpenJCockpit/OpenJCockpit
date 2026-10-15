@@ -3,6 +3,7 @@ import { createRef } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { TextField } from './TextField';
 import { TextAreaField } from '../TextAreaField/TextAreaField';
+import { formInputClass } from '../../../ui/Form/Form';
 
 describe('TextField', () => {
   it('TextField reports the typed value and forwards the ref', () => {
@@ -16,7 +17,7 @@ describe('TextField', () => {
     expect(ref.current).toBe(screen.getByPlaceholderText('p'));
   });
 
-  it('TextField and TextAreaField extend settings-input with a custom className', () => {
+  it('TextField and TextAreaField extend the shared input style with a custom className', () => {
     render(
       <>
         <TextField label="Name" value="" onChange={vi.fn()} className="mono" />
@@ -25,8 +26,8 @@ describe('TextField', () => {
       </>,
     );
 
-    expect(screen.getByLabelText('Name')).toHaveClass('settings-input', 'mono');
-    expect(screen.getByLabelText('Notes')).toHaveClass('settings-input', 'tall');
-    expect(screen.getByLabelText('Plain').className).toBe('settings-input');
+    expect(screen.getByLabelText('Name')).toHaveClass(formInputClass, 'mono');
+    expect(screen.getByLabelText('Notes')).toHaveClass(formInputClass, 'tall');
+    expect(screen.getByLabelText('Plain').className).toBe(formInputClass);
   });
 });
