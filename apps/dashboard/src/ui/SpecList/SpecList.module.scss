@@ -1,0 +1,76 @@
+.specPanel {
+  grid-column: 1;
+  grid-row: 1;
+  padding-bottom: 14px;
+}
+.specList {
+  display: grid;
+  gap: 10px;
+  padding: 0 16px;
+  & .icon {
+    font-size: 22px;
+  }
+}
+.specCard {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 13px;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: rgba(6, 21, 34, 0.58);
+  color: #eefbff;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+  &:hover {
+    border-color: rgba(124, 222, 255, 0.28);
+  }
+  &.selected {
+    border-color: rgba(39, 231, 255, 0.7);
+    background: linear-gradient(90deg, var(--cyan-a12), rgba(6, 21, 34, 0.62));
+    box-shadow: 0 0 26px var(--surface-glow);
+  }
+  & strong {
+    display: block;
+    font-size: 13px;
+  }
+  & span {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 11px;
+  }
+}
+.activeRail {
+  position: absolute;
+  left: -1px;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--cyan);
+  box-shadow: 0 0 18px var(--cyan);
+}
+
+.specCardEmpty {
+  cursor: default;
+  opacity: 0.55;
+  border-style: dashed;
+  &:hover {
+    border-color: var(--line-soft);
+  }
+}
+.specListLoading {
+  padding: 4px 2px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 1280px) {
+  .specPanel {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}

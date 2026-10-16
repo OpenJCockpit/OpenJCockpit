@@ -1,4 +1,6 @@
 import type { AgentSpec } from '../../../workflowTypes';
+import { DataTable } from '../../../../ui/DataTable/DataTable';
+import { Button } from '../../../../ui/Button/Button';
 
 interface AgentsTableProps {
   items: AgentSpec[];
@@ -8,7 +10,7 @@ interface AgentsTableProps {
 
 export function AgentsTable({ items, onEdit, onDelete }: AgentsTableProps) {
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>Name</th>
@@ -30,18 +32,18 @@ export function AgentsTable({ items, onEdit, onDelete }: AgentsTableProps) {
             <td>
               {!item.builtIn && (
                 <>
-                  <button className="back-button" onClick={() => onEdit(item)}>
+                  <Button variant="secondary" onClick={() => onEdit(item)}>
                     Edit
-                  </button>
-                  <button className="back-button" onClick={() => onDelete(item.name)}>
+                  </Button>
+                  <Button variant="secondary" onClick={() => onDelete(item.name)}>
                     Delete
-                  </button>
+                  </Button>
                 </>
               )}
             </td>
           </tr>
         ))}
       </tbody>
-    </table>
+    </DataTable>
   );
 }

@@ -1,8 +1,10 @@
-import './ApprovalDecisionModal.scss';
 import { useId, useState } from 'react';
 import type { ApprovalGateContext } from '../workflowTypes';
-import { ModalShell } from '../ModalShell/ModalShell';
+import { ModalShell, modalActionsClass } from '../ModalShell/ModalShell';
 import { ApprovalCommentModal } from '../ApprovalCommentModal/ApprovalCommentModal';
+import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
+import { Button, buttonClass } from '../../ui/Button/Button';
+import styles from './ApprovalDecisionModal.module.scss';
 
 interface ApprovalDecisionModalProps {
   context: ApprovalGateContext;
@@ -58,41 +60,41 @@ export function ApprovalDecisionModal({
     <ModalShell
       labelledBy={titleId}
       onDismiss={onDismiss}
-      className="approval-decision-dialog"
+      className={styles.approvalDecisionDialog}
       overlayClassName="approval-decision-overlay"
     >
       <h2 id={titleId}>Review the change before it continues</h2>
       <p>{context.changeSummary}</p>
 
       {context.stageOutcome !== 'PUBLISHED' && context.outcomeReason && (
-        <p className="settings-desc" role="status">
+        <p className={fieldHintClass} role="status">
           {context.outcomeReason}
         </p>
       )}
 
-      <div className="approval-changed-files">
-        <p className="settings-desc">
+      <div className={styles.approvalChangedFiles}>
+        <p className={fieldHintClass}>
           {context.changedFileCount} file{context.changedFileCount === 1 ? '' : 's'} changed
         </p>
         {context.changedPaths.length > 0 && (
-          <ul className="approval-changed-files__list">
+          <ul className={styles.approvalChangedFilesList}>
             {context.changedPaths.map((path) => (
               <li key={path}>{path}</li>
             ))}
           </ul>
         )}
         {context.omittedFileCount > 0 && (
-          <p className="settings-desc">
+          <p className={fieldHintClass}>
             {context.omittedFileCount} more file{context.omittedFileCount === 1 ? '' : 's'}
           </p>
         )}
       </div>
 
-      {context.branchName && <p className="settings-desc">Branch: {context.branchName}</p>}
+      {context.branchName && <p className={fieldHintClass}>Branch: {context.branchName}</p>}
       {actionUrl && (
         <p>
           <a
-            className="button button--workflow"
+            className={buttonClass({ variant: 'workflow' })}
             href={actionUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -102,10 +104,10 @@ export function ApprovalDecisionModal({
         </p>
       )}
 
-      <p className="settings-desc">{iterationText(context)}</p>
+      <p className={fieldHintClass}>{iterationText(context)}</p>
 
       {context.feedbackSupported && context.commentHistory.length > 0 && (
-        <div className="approval-comment-history">
+        <div className={styles.approvalCommentHistory}>
           <h3>Previous feedback on this run</h3>
           <ul>
             {context.commentHistory.map((entry) => (
@@ -121,37 +123,37 @@ export function ApprovalDecisionModal({
       )}
 
       {errorMessage && !showCommentModal && (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           {errorMessage}
         </p>
       )}
 
-      <div className="approval-modal-actions">
-        <button
-          className="button button--start"
+      <div className={modalActionsClass}>
+        <Button
+          variant="primary"
           onClick={onAccept}
           disabled={submitting}
           aria-busy={submitting || undefined}
         >
           Accept
-        </button>
-        <button
-          className="button button--stop"
+        </Button>
+        <Button
+          variant="danger"
           onClick={onDeny}
           disabled={submitting}
           aria-busy={submitting || undefined}
         >
           Deny
-        </button>
+        </Button>
         {canOfferComments && (
-          <button
-            className="button button--workflow"
+          <Button
+            variant="workflow"
             onClick={() => setShowCommentModal(true)}
             disabled={submitting}
             aria-busy={submitting || undefined}
           >
             Accept with my comments
-          </button>
+          </Button>
         )}
       </div>
 

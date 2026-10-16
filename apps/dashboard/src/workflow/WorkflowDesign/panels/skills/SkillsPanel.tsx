@@ -14,6 +14,9 @@ import { PromptGenerator } from '../shared/PromptGenerator';
 import { SkillEditor } from './SkillEditor';
 import { SkillsTable } from './SkillsTable';
 import type { SkillRow } from './SkillsTable';
+import { fieldErrorClass } from '../../../../ui/Form/Form';
+import { Button } from '../../../../ui/Button/Button';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_SKILL: SkillSpec = {
   name: '',
@@ -154,11 +157,11 @@ export function SkillsPanel() {
   return (
     <div>
       <PromptGenerator kind="skill" onGenerate={handleGenerate} />
-      <div className="workflow-design-toolbar">
+      <div className={WorkflowDesignStyles.workflowDesignToolbar}>
         <ToolbarButton onClick={startCreate}>+ New skill</ToolbarButton>
-        <button className="back-button" onClick={() => void loadCatalog()}>
+        <Button variant="secondary" onClick={() => void loadCatalog()}>
           ⟳ Refresh
-        </button>
+        </Button>
       </div>
       {error && <StatusMessage variant="error">{error}</StatusMessage>}
 
@@ -180,7 +183,7 @@ export function SkillsPanel() {
       </div>
 
       {loadError ? (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           {loadError}
         </p>
       ) : (

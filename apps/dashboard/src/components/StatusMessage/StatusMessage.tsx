@@ -1,20 +1,33 @@
 import type { HTMLAttributes } from 'react';
+import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
+import { cx } from '../../ui/cx';
+import styles from './StatusMessage.module.scss';
 
-interface StatusMessageProps extends HTMLAttributes<HTMLParagraphElement> {
-  /** `error` renders the red settings-error line; `info` the muted settings-desc line. */
-  variant?: 'error' | 'info';
+interface StatusMessageProps extends HTMLAttributes<HTMLElement> {
+  /**
+   * `error` renders the red error line, `info` the muted hint line and `loading` a
+   * full-height centred message (rendered as a div) for screens that are still loading.
+   */
+  variant?: 'error' | 'info' | 'loading';
 }
 
-/** Inline feedback paragraph shared by the settings and workflow panels. */
+/** Inline feedback shared by the settings and workflow panels. */
 export function StatusMessage({
   variant = 'info',
   className,
   children,
   ...rest
 }: StatusMessageProps) {
-  const base = variant === 'error' ? 'settings-error' : 'settings-desc';
+  if (variant === 'loading') {
+    return (
+      <div className={cx(styles.loading, className)} {...rest}>
+        {children}
+      </div>
+    );
+  }
+  const base = variant === 'error' ? fieldErrorClass : fieldHintClass;
   return (
-    <p className={className ? `${base} ${className}` : base} {...rest}>
+    <p className={cx(base, className)} {...rest}>
       {children}
     </p>
   );

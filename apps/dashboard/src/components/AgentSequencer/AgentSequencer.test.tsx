@@ -44,8 +44,8 @@ const definitions: AgentDefinition[] = [
 ];
 
 function nodeFor(name: string): HTMLElement {
-  const node = screen.getByText(name).closest('.sequencer-node');
-  if (!node) throw new Error(`no .sequencer-node ancestor for "${name}"`);
+  const node = screen.getByText(name).closest('[role="button"], [role="status"]');
+  if (!node) throw new Error(`no sequencer node ancestor for "${name}"`);
   return node as HTMLElement;
 }
 
@@ -55,16 +55,16 @@ describe('AgentSequencer', () => {
     expect(screen.queryByRole('tooltip')).toBeNull();
   });
 
-  it('mouseEnter on a node shows its status label and description, portaled outside .agent-sequencer', () => {
-    const { container } = render(<AgentSequencer nodes={agents} definitions={definitions} />);
+  it('mouseEnter on a node shows its status label and description, portaled outside the sequencer', () => {
+    render(<AgentSequencer nodes={agents} definitions={definitions} />);
     fireEvent.mouseEnter(nodeFor('Requirement'));
 
     const tooltip = screen.getByRole('tooltip');
     expect(tooltip).toHaveTextContent('Waiting');
     expect(tooltip).toHaveTextContent('Gathers requirements');
     expect(tooltip.parentElement).toBe(document.body);
-    const sequencer = container.querySelector('.agent-sequencer');
-    expect(sequencer?.contains(tooltip)).toBe(false);
+    const sequencer = screen.getByLabelText('Agent pipeline sequence');
+    expect(sequencer.contains(tooltip)).toBe(false);
   });
 
   it('shows the latest event title instead of the description when one exists', () => {
@@ -109,7 +109,7 @@ describe('AgentSequencer', () => {
   });
 
   it('drag reorder still works through the Tooltip wrapper, and starting a drag closes an open tooltip', () => {
-    const { container } = render(<AgentSequencer nodes={agents} definitions={definitions} />);
+    render(<AgentSequencer nodes={agents} definitions={definitions} />);
     const requirementNode = nodeFor('Requirement');
     fireEvent.mouseEnter(requirementNode);
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
@@ -120,9 +120,9 @@ describe('AgentSequencer', () => {
     fireEvent.dragOver(nodeFor('Impact'));
     fireEvent.dragEnd(requirementNode);
 
-    const names = Array.from(container.querySelectorAll('.sequencer-meta strong')).map(
-      (el) => el.textContent,
-    );
+    const names = Array.from(
+      screen.getByLabelText('Agent pipeline sequence').querySelectorAll('strong'),
+    ).map((el) => el.textContent);
     expect(names).toEqual(['Impact', 'Requirement']);
   });
 
@@ -189,12 +189,10 @@ describe('AgentSequencer', () => {
         outputType: 'x',
       },
     ];
-    const { container } = render(
-      <AgentSequencer nodes={[agent1, orbNode, agent2]} definitions={defs} />,
-    );
-    const names = Array.from(container.querySelectorAll('.sequencer-meta strong')).map(
-      (el) => el.textContent,
-    );
+    render(<AgentSequencer nodes={[agent1, orbNode, agent2]} definitions={defs} />);
+    const names = Array.from(
+      screen.getByLabelText('Agent pipeline sequence').querySelectorAll('strong'),
+    ).map((el) => el.textContent);
     expect(names).toEqual(['Agent A', 'Child Workflow', 'Agent B']);
   });
 });

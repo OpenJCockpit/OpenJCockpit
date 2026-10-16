@@ -1,0 +1,55 @@
+.appShell {
+  min-height: 100vh;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 80% 18%, var(--cyan-a12), transparent 30%),
+    radial-gradient(circle at 25% 85%, rgba(55, 247, 194, 0.08), transparent 32%),
+    linear-gradient(180deg, #07111f 0%, #030914 52%, #020711 100%);
+}
+
+.siteHeader {
+  position: relative;
+  z-index: 1;
+  height: 82px;
+  display: grid;
+  grid-template-columns: 280px 1fr auto;
+  align-items: center;
+  padding: 0 32px;
+  border-bottom: 1px solid rgba(124, 222, 255, 0.11);
+  background: rgba(4, 11, 21, 0.72);
+  backdrop-filter: blur(24px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.headerActions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+}
+
+@media (max-width: 1280px) {
+  .siteHeader {
+    grid-template-columns: 220px 1fr auto;
+  }
+}
+
+@media (max-width: 820px) {
+  .siteHeader {
+    grid-template-columns: 1fr;
+    height: auto;
+    gap: 14px;
+    padding: 18px;
+  }
+  .headerActions {
+    justify-content: flex-start;
+  }
+}

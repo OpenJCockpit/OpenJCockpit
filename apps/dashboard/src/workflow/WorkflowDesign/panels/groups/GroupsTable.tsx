@@ -1,4 +1,6 @@
 import type { WorkflowGroup } from '../../../workflowTypes';
+import { DataTable } from '../../../../ui/DataTable/DataTable';
+import { Button } from '../../../../ui/Button/Button';
 
 interface GroupsTableProps {
   items: WorkflowGroup[];
@@ -8,7 +10,7 @@ interface GroupsTableProps {
 
 export function GroupsTable({ items, onEdit, onDelete }: GroupsTableProps) {
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>ID</th>
@@ -26,16 +28,16 @@ export function GroupsTable({ items, onEdit, onDelete }: GroupsTableProps) {
             <td>{item.projectName || 'Global (all projects)'}</td>
             <td>{item.description}</td>
             <td>
-              <button className="back-button" onClick={() => onEdit(item)}>
+              <Button variant="secondary" onClick={() => onEdit(item)}>
                 Edit
-              </button>
-              <button className="back-button" onClick={() => onDelete(item.id)}>
+              </Button>
+              <Button variant="secondary" onClick={() => onDelete(item.id)}>
                 Delete
-              </button>
+              </Button>
             </td>
           </tr>
         ))}
       </tbody>
-    </table>
+    </DataTable>
   );
 }

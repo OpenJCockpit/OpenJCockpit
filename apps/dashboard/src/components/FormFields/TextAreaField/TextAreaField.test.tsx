@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TextAreaField } from './TextAreaField';
+import styles from '../FormFields.module.scss';
 
 describe('TextAreaField', () => {
   it('TextAreaField spans the full width when wide', () => {
@@ -10,6 +11,6 @@ describe('TextAreaField', () => {
     fireEvent.change(screen.getByLabelText('Notes'), { target: { value: 'y' } });
 
     expect(onChange).toHaveBeenCalledWith('y');
-    expect(screen.getByLabelText('Notes').closest('label')).toHaveClass('form-field--wide');
+    expect(screen.getByLabelText('Notes').closest('label')).toHaveClass(styles.formFieldWide);
   });
 });

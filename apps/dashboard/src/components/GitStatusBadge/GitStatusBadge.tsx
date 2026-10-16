@@ -1,4 +1,6 @@
 import type { GitStatus } from '../../types';
+import styles from './GitStatusBadge.module.scss';
+import { cx } from '../../ui/cx';
 
 interface Props {
   status: GitStatus;
@@ -16,25 +18,25 @@ interface BadgeConfig {
 
 const BADGES: Record<GitStatus, BadgeConfig> = {
   ACCESSIBLE: {
-    className: 'git-status-ok',
+    className: styles.ok,
     icon: '✓',
     label: 'Reachable',
     compactAriaLabel: 'Git reachable',
   },
   NOT_ACCESSIBLE: {
-    className: 'git-status-error',
+    className: styles.error,
     icon: '✗',
     label: 'Not reachable',
     compactAriaLabel: 'Git not reachable',
   },
   CHECK_FAILED: {
-    className: 'git-status-error',
+    className: styles.error,
     icon: '✗',
     label: 'Check failed',
     compactAriaLabel: 'Git not reachable',
   },
   UNKNOWN: {
-    className: 'git-status-unknown',
+    className: styles.unknown,
     icon: '…',
     label: 'Unknown',
   },
@@ -46,11 +48,7 @@ export function GitStatusBadge({ status, compact = false }: Props) {
   if (compact) {
     if (!compactAriaLabel) return null;
     return (
-      <span
-        className={className}
-        aria-label={compactAriaLabel}
-        style={{ marginLeft: 10, fontSize: 14 }}
-      >
+      <span className={cx(className, styles.compact)} aria-label={compactAriaLabel}>
         {' '}
         {icon}
       </span>

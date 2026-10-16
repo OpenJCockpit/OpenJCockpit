@@ -1,6 +1,8 @@
 import { forwardRef } from 'react';
 import type { InputHTMLAttributes, ReactNode } from 'react';
-import '../FormFields.scss';
+import styles from '../FormFields.module.scss';
+import { fieldHintClass, formInputClass } from '../../../ui/Form/Form';
+import { cx } from '../../../ui/cx';
 
 type TextInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'>;
 
@@ -19,16 +21,16 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
   ref,
 ) {
   return (
-    <label className={wide ? 'form-field--wide' : undefined}>
+    <label className={wide ? styles.formFieldWide : undefined}>
       {label}
       <input
         ref={ref}
         {...inputProps}
-        className={['settings-input', className].filter(Boolean).join(' ')}
+        className={cx(formInputClass, className)}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
-      {hint && <span className="settings-desc">{hint}</span>}
+      {hint && <span className={fieldHintClass}>{hint}</span>}
     </label>
   );
 });

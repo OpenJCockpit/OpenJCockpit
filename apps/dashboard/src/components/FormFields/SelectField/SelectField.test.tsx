@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { SelectField } from './SelectField';
+import { fieldHintClass } from '../../../ui/Form/Form';
 
 describe('SelectField', () => {
   it('SelectField reports the selected value and renders a hint', () => {
@@ -15,6 +16,6 @@ describe('SelectField', () => {
     fireEvent.change(screen.getByLabelText(/Group/), { target: { value: 'g1' } });
 
     expect(onChange).toHaveBeenCalledWith('g1');
-    expect(screen.getByText('Pick one')).toHaveClass('settings-desc');
+    expect(screen.getByText('Pick one')).toHaveClass(fieldHintClass);
   });
 });

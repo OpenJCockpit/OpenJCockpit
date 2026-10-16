@@ -1,7 +1,11 @@
-import './ModalShell.scss';
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { cx } from '../../ui/cx';
+import styles from './ModalShell.module.scss';
+
+/** Button row at the bottom of the approval modals. */
+export const modalActionsClass = styles.modalActions;
 
 interface ModalShellProps {
   /** id of the element (usually a heading) that names this dialog for assistive technology. */
@@ -142,14 +146,14 @@ export function ModalShell({
   // siblings, never ancestor/descendant — marking an outer shell inert/aria-hidden
   // must never also hide the nested shell stacked on top of it (see AC-50).
   return createPortal(
-    <div className={overlayClassName ? `modal-overlay ${overlayClassName}` : 'modal-overlay'}>
+    <div className={cx(styles.modalOverlay, overlayClassName)}>
       <div
         ref={containerRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelledBy}
         tabIndex={-1}
-        className={className ? `modal-shell ${className}` : 'modal-shell'}
+        className={cx(styles.modalShell, className)}
       >
         {children}
       </div>

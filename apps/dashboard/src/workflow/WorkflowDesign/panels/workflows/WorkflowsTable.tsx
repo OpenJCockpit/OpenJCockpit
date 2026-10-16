@@ -1,4 +1,6 @@
 import type { WorkflowDefinition } from '../../../workflowTypes';
+import { DataTable } from '../../../../ui/DataTable/DataTable';
+import { Button } from '../../../../ui/Button/Button';
 
 interface WorkflowsTableProps {
   items: WorkflowDefinition[];
@@ -9,7 +11,7 @@ interface WorkflowsTableProps {
 
 export function WorkflowsTable({ items, groupName, onEdit, onDelete }: WorkflowsTableProps) {
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>ID</th>
@@ -29,16 +31,16 @@ export function WorkflowsTable({ items, groupName, onEdit, onDelete }: Workflows
             <td>{groupName(item.groupId)}</td>
             <td>{item.status}</td>
             <td>
-              <button className="back-button" onClick={() => onEdit(item)}>
+              <Button variant="secondary" onClick={() => onEdit(item)}>
                 Edit
-              </button>
-              <button className="back-button" onClick={() => onDelete(item.id)}>
+              </Button>
+              <Button variant="secondary" onClick={() => onDelete(item.id)}>
                 Delete
-              </button>
+              </Button>
             </td>
           </tr>
         ))}
       </tbody>
-    </table>
+    </DataTable>
   );
 }

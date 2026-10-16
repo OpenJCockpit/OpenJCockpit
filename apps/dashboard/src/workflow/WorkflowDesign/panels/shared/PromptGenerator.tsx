@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { fieldHintClass, formInputClass } from '../../../../ui/Form/Form';
+import { Button } from '../../../../ui/Button/Button';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 export type PromptGeneratorKind = 'agent' | 'subagent' | 'skill';
 
@@ -38,25 +41,21 @@ export function PromptGenerator({
   }
 
   return (
-    <div className="workflow-prompt-generator">
+    <div className={WorkflowDesignStyles.workflowPromptGenerator}>
       <label>
         Describe the {kind} you want in plain language
         <textarea
-          className="settings-input"
+          className={formInputClass}
           rows={3}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder={PROMPT_EXAMPLES[kind]}
         />
       </label>
-      <button
-        className="button button--start"
-        onClick={() => void handleGenerate()}
-        disabled={generating}
-      >
+      <Button variant="primary" onClick={() => void handleGenerate()} disabled={generating}>
         {generating ? '⟳ Generating…' : '✨ Generate draft'}
-      </button>
-      <p className="settings-desc">
+      </Button>
+      <p className={fieldHintClass}>
         Draft generation uses the platform's LLM. The more specific you are about inputs, outputs,
         and delegation (see the example above), the higher-quality the draft. Leave the field empty
         to generate an example {kind} instead. Review and edit the generated draft before saving.

@@ -1,4 +1,9 @@
 import type { Project } from '../../types';
+import styles from './SiteHeader.module.scss';
+import { Button } from '../../ui/Button/Button';
+import shell from '../AppShell/AppShell.module.scss';
+import { BrandLogo } from '../../ui/BrandLogo/BrandLogo';
+import { dropdownClass } from '../../ui/Dropdown/Dropdown';
 
 interface Props {
   projects: Project[];
@@ -20,47 +25,47 @@ export function SiteHeader({
   onSettings,
 }: Props) {
   return (
-    <header className="site-header">
-      <div className="brand">
-        <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
+    <header className={shell.siteHeader}>
+      <div className={shell.brand}>
+        <BrandLogo />
       </div>
 
-      <nav className="main-nav" aria-label="Primary navigation">
+      <nav className={styles.mainNav} aria-label="Primary navigation">
         <a href="#approach">Approach</a>
-        <a href="#platform" className="active">
+        <a href="#platform" className={styles.active}>
           Platform
         </a>
         <a href="#solutions">Solutions</a>
       </nav>
 
-      <div className="header-actions">
-        <button
-          className="button button--workflow"
+      <div className={shell.headerActions}>
+        <Button
+          variant="workflow"
           onClick={onWorkflow}
           title="Workflow Design & Execution"
           data-testid="nav-workflow"
         >
           ⚡ Workflow Design &amp; Execution
-        </button>
-        <button
-          className="button button--workflow"
+        </Button>
+        <Button
+          variant="workflow"
           onClick={onSpecFiles}
           title="Spec Files"
           data-testid="nav-spec-files"
         >
           📄 Spec Files
-        </button>
-        <button
-          className="button button--workflow"
+        </Button>
+        <Button
+          variant="workflow"
           onClick={onSkillsHub}
           title="Skills Hub"
           data-testid="nav-skills-hub"
         >
           🧩 Skills Hub
-        </button>
+        </Button>
         {projects.length > 0 && (
           <select
-            className="project-dropdown"
+            className={dropdownClass}
             value={selectedProject?.id ?? ''}
             onChange={(e) => onProjectChange(e.target.value)}
             title="Active project"
@@ -72,11 +77,11 @@ export function SiteHeader({
             ))}
           </select>
         )}
-        <button className="back-button" onClick={onSettings} title="Project management">
+        <Button variant="secondary" onClick={onSettings} title="Project management">
           ⚙
-        </button>
-        <button
-          className="back-button"
+        </Button>
+        <Button
+          variant="secondary"
           onClick={() => {
             window.location.href = 'http://localhost:3000';
           }}
@@ -84,9 +89,9 @@ export function SiteHeader({
           data-testid="nav-portal"
         >
           ← Portal
-        </button>
-        <span className="notification">3</span>
-        <span className="avatar">D</span>
+        </Button>
+        <span className={styles.notification}>3</span>
+        <span className={styles.avatar}>D</span>
       </div>
     </header>
   );

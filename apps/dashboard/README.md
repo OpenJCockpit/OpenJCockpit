@@ -44,6 +44,15 @@ The following commands are available:
 - `npm run format` — reformats files with Prettier (writes changes to disk).
 - `npm run format:check` — checks formatting with Prettier without modifying files.
 
+## Styling
+
+- Global CSS is limited to `src/styles/` (tokens, reset, animations), loaded once from `main.tsx`. Declare colors, fonts, spacing and radii as custom properties in `styles/_tokens.scss` and use `var(--…)`.
+- Component styles live next to the component in `Name.module.scss` and are imported as `import styles from './Name.module.scss'`. Write class names in kebab-case or BEM; read them in TSX as camelCase (`styles.statusChipActive`).
+- Shared building blocks live in `src/ui/` (`Button`, `Panel`, `DataTable`, `Tabs`, form classes, …). Prefer them over new one-off styles.
+- Static `style={{…}}` is not allowed (ESLint `no-restricted-syntax`). Use a module class, or set a custom property for a runtime value.
+- `npm run check:styles` reports module classes that are referenced but undefined (or defined but unused) and custom properties that are never declared.
+- `npm run visual:baseline` / `npm run visual:check` take Playwright screenshots of every main view (auth stubbed, API mocked, no backend needed) and compare them pixel for pixel. Take a baseline before a styling change and run the check after it. Set `VISUAL_BUILD=1` to run the check against a production build instead of the dev server. Screenshots are git-ignored and need the Playwright browsers installed in `../e2e` (`npx playwright install chromium`).
+
 ### Editor settings (format-on-save)
 
 Install the Prettier extension in your editor, enable "format on save" and set Prettier as the default formatter for TypeScript/TSX/CSS files. Because `.editorconfig` and `.prettierrc.json` use the same values (indentation, line endings, charset, final newline), the editor and the command line produce identical formatting.

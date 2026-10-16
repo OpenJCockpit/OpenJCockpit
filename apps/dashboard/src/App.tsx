@@ -1,4 +1,3 @@
-import './app.scss';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ToolbarButton } from './components/ToolbarButton/ToolbarButton';
 import {
@@ -34,6 +33,8 @@ import { PullRequestPanel } from './components/WorkspacePanels/PullRequestPanel'
 import { QualityPanel } from './components/WorkspacePanels/QualityPanel';
 import { FlowPanel } from './components/FlowPanel/FlowPanel';
 import { useRunLauncher } from './useRunLauncher';
+import styles from './App.module.scss';
+import { StatusMessage } from './components/StatusMessage/StatusMessage';
 
 type AppView =
   | 'project-selection'
@@ -193,9 +194,9 @@ function App() {
 
   if (!authReady) {
     return (
-      <div className="auth-loading" data-testid="auth-loading">
+      <StatusMessage variant="loading" data-testid="auth-loading">
         Authenticating...
-      </div>
+      </StatusMessage>
     );
   }
 
@@ -271,20 +272,20 @@ function App() {
         onSettings={() => setView('settings')}
       />
 
-      <main className="workspace">
+      <main className={styles.workspace}>
         <CustomerHero selectedProject={selectedProject} workspace={workspace} />
 
-        <section className="top-tools">
-          <div className="search">
+        <section className={styles.topTools}>
+          <div className={styles.search}>
             Search workspace... <span>⌕</span>
           </div>
           <ToolbarButton variant="small">Filters</ToolbarButton>
-          <div className="top-tools__spacer" />
+          <div className={styles.topToolsSpacer} />
           <ToolbarButton variant="small">⟳ Refresh</ToolbarButton>
-          <span className="last-update">● Last update: 13:24:11</span>
+          <span className={styles.lastUpdate}>● Last update: 13:24:11</span>
         </section>
 
-        <section className="dashboard-grid">
+        <section className={styles.dashboardGrid}>
           <SpecPanel
             specs={specs}
             loading={specsLoading}

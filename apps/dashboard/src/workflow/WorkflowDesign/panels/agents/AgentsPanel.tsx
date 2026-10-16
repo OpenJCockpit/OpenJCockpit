@@ -15,6 +15,7 @@ import type { AgentSpec } from '../../../workflowTypes';
 import { PromptGenerator } from '../shared/PromptGenerator';
 import { AgentEditor } from './AgentEditor';
 import { AgentsTable } from './AgentsTable';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_AGENT: AgentSpec = {
   name: '',
@@ -40,7 +41,7 @@ export function AgentsPanel() {
       setItems(a);
       setLoaded(true);
     });
-    return <div className="auth-loading">Loading agents...</div>;
+    return <StatusMessage variant="loading">Loading agents...</StatusMessage>;
   }
 
   function startCreate() {
@@ -135,7 +136,7 @@ export function AgentsPanel() {
   return (
     <div>
       <PromptGenerator kind="agent" onGenerate={handleGenerate} />
-      <div className="workflow-design-toolbar">
+      <div className={WorkflowDesignStyles.workflowDesignToolbar}>
         <ToolbarButton onClick={startCreate}>+ New agent</ToolbarButton>
       </div>
       {error && <StatusMessage variant="error">{error}</StatusMessage>}

@@ -1,5 +1,10 @@
-import './ProjectSelection.scss';
 import type { GitStatus, Project } from '../../types';
+import styles from './ProjectSelection.module.scss';
+import { Button } from '../../ui/Button/Button';
+import { cx } from '../../ui/cx';
+import gitStyles from '../GitStatusBadge/GitStatusBadge.module.scss';
+import { Backdrop } from '../../ui/Backdrop/Backdrop';
+import { BrandLogo } from '../../ui/BrandLogo/BrandLogo';
 
 interface Props {
   projects: Project[];
@@ -10,7 +15,7 @@ interface Props {
 function GitStatusIndicator({ status }: { status: GitStatus }) {
   if (status === 'ACCESSIBLE') {
     return (
-      <span className="git-status-ok" aria-label="Git repository reachable">
+      <span className={gitStyles.ok} aria-label="Git repository reachable">
         {' '}
         ✓
       </span>
@@ -18,14 +23,14 @@ function GitStatusIndicator({ status }: { status: GitStatus }) {
   }
   if (status === 'NOT_ACCESSIBLE' || status === 'CHECK_FAILED') {
     return (
-      <span className="git-status-error" aria-label="Git repository not reachable">
+      <span className={gitStyles.error} aria-label="Git repository not reachable">
         {' '}
         ✗
       </span>
     );
   }
   return (
-    <span className="git-status-unknown" aria-label="Git status unknown">
+    <span className={gitStyles.unknown} aria-label="Git status unknown">
       {' '}
       …
     </span>
@@ -45,27 +50,25 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
   const displayProjects = projects;
 
   return (
-    <div className="project-selection-shell">
-      <div className="neural-bg" aria-hidden="true" />
-      <div className="orb orb--left" aria-hidden="true" />
-      <div className="orb orb--right" aria-hidden="true" />
+    <div className={styles.projectSelectionShell}>
+      <Backdrop />
 
-      <div className="project-selection-content">
-        <div className="project-selection-header">
-          <img src="/openjcockpit-logo.png" alt="OpenJCockpit" className="brand-logo" />
-          <h1 className="project-selection-title">Select a project</h1>
-          <p className="project-selection-subtitle">Choose the project you want to work on</p>
+      <div className={styles.projectSelectionContent}>
+        <div className={styles.projectSelectionHeader}>
+          <BrandLogo className={styles.projectSelectionLogo} />
+          <h1 className={styles.projectSelectionTitle}>Select a project</h1>
+          <p className={styles.projectSelectionSubtitle}>Choose the project you want to work on</p>
         </div>
 
         {displayProjects.length === 0 ? (
-          <div className="project-empty">
+          <div className={styles.projectEmpty}>
             <p data-testid="project-selection-empty">No active projects available.</p>
-            <button className="back-button" onClick={onSettings}>
+            <Button variant="secondary" onClick={onSettings}>
               Manage projects →
-            </button>
+            </Button>
           </div>
         ) : (
-          <div className="project-grid">
+          <div className={styles.projectGrid}>
             {displayProjects.map((project) => {
               const selectable = canSelect(project);
               const showNotAccessible =
@@ -73,33 +76,33 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
               return (
                 <button
                   key={project.id}
-                  className={`project-card${!selectable ? ' project-card--disabled' : ''}`}
+                  className={cx(styles.projectCard, !selectable && styles.projectCardDisabled)}
                   onClick={() => selectable && onSelect(project)}
                   disabled={!selectable}
                   onKeyDown={(e) => e.key === 'Enter' && selectable && onSelect(project)}
                   data-testid="project-card"
                 >
-                  <div className="project-card-icon">◇</div>
-                  <div className="project-card-body">
-                    <h2 className="project-card-name">
+                  <div className={styles.projectCardIcon}>◇</div>
+                  <div className={styles.projectCardBody}>
+                    <h2 className={styles.projectCardName}>
                       {project.name}
                       <GitStatusIndicator status={project.gitStatus} />
                     </h2>
                     {project.description && (
-                      <p className="project-card-desc">{project.description}</p>
+                      <p className={styles.projectCardDesc}>{project.description}</p>
                     )}
-                    <div className="project-card-meta">
+                    <div className={styles.projectCardMeta}>
                       {project.environment && <span>{project.environment}</span>}
                       {project.owner && <span>Owner: {project.owner}</span>}
                       {project.defaultBranch && <span>Branch: {project.defaultBranch}</span>}
                     </div>
                     {showNotAccessible && project.newProject === 0 && (
-                      <p className="project-card-notice">
+                      <p className={styles.projectCardNotice}>
                         Repository not reachable. Update the project via ⚙ Manage projects.
                       </p>
                     )}
                   </div>
-                  <span className="project-card-arrow" aria-hidden="true">
+                  <span className={styles.projectCardArrow} aria-hidden="true">
                     →
                   </span>
                 </button>
@@ -108,10 +111,10 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
           </div>
         )}
 
-        <div className="project-selection-footer">
-          <button className="back-button" onClick={onSettings}>
+        <div className={styles.projectSelectionFooter}>
+          <Button variant="secondary" onClick={onSettings}>
             ⚙ Manage projects
-          </button>
+          </Button>
         </div>
       </div>
     </div>

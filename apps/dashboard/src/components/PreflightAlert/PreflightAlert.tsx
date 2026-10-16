@@ -1,6 +1,7 @@
-import './PreflightAlert.scss';
 import type { PreflightError } from '../../types';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
+import { Button } from '../../ui/Button/Button';
+import styles from './PreflightAlert.module.scss';
 
 const PREFLIGHT_ERROR_MESSAGES: Record<string, string> = {
   DOCKER_UNAVAILABLE:
@@ -41,24 +42,24 @@ export function PreflightAlert({
   const hasGitIssue = errors.some((e) => GIT_RELATED_CODES.has(e.code));
 
   return (
-    <div className="preflight-alert" role="alert">
-      <span className="preflight-alert__icon" aria-hidden="true">
+    <div className={styles.preflightAlert} role="alert">
+      <span className={styles.preflightAlertIcon} aria-hidden="true">
         ⚠
       </span>
-      <div className="preflight-alert__body">
-        <h3 className="preflight-alert__title">Pre-flight check failed</h3>
-        <ul className="preflight-alert__list">
+      <div className={styles.preflightAlertBody}>
+        <h3 className={styles.preflightAlertTitle}>Pre-flight check failed</h3>
+        <ul className={styles.preflightAlertList}>
           {errors.map((error, index) => (
             <li key={`${error.code}-${index}`}>{describePreflightError(error)}</li>
           ))}
         </ul>
-        <div className="preflight-alert__actions">
+        <div className={styles.preflightAlertActions}>
           {hasGitIssue && (
             <ToolbarButton onClick={onOpenProjectSettings}>Check Git settings</ToolbarButton>
           )}
-          <button className="link-button" onClick={onDismiss}>
+          <Button variant="link" onClick={onDismiss}>
             Dismiss
-          </button>
+          </Button>
         </div>
       </div>
     </div>

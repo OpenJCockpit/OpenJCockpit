@@ -1,6 +1,9 @@
 import type { WorkflowDefinition } from '../../workflow/workflowTypes';
 import type { LauncherButtonState } from '../../useRunLauncher';
 import { StartButton } from './StartButton';
+import styles from './FlowPanel.module.scss';
+import { cx } from '../../ui/cx';
+import { dropdownClass } from '../../ui/Dropdown/Dropdown';
 
 interface Props {
   workflows: WorkflowDefinition[];
@@ -19,11 +22,11 @@ export function WorkflowLauncher({
   onStart,
 }: Props) {
   return (
-    <div className="workflow-launcher">
+    <div className={styles.workflowLauncher}>
       <label htmlFor="workflow-select">Workflow</label>
       <select
         id="workflow-select"
-        className="project-dropdown workflow-select"
+        className={cx(dropdownClass, styles.workflowSelect)}
         value={selectedWorkflowId}
         onChange={(e) => onWorkflowChange(e.target.value)}
         disabled={workflows.length === 0}
@@ -37,7 +40,7 @@ export function WorkflowLauncher({
       </select>
       <StartButton state={buttonState} onClick={onStart} disabled={workflows.length === 0} />
       {workflows.length === 0 && (
-        <p className="workflow-launcher-hint">
+        <p className={styles.workflowLauncherHint}>
           No workflows for this project. Create one via Workflow Design &amp; Execution.
         </p>
       )}

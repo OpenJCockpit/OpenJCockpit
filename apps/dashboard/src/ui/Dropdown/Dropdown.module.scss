@@ -1,0 +1,27 @@
+.dropdown {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--cyan);
+  background: rgba(39, 231, 255, 0.04);
+  border: 1px solid rgba(39, 231, 255, 0.28);
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+  max-width: 200px;
+
+  &:hover,
+  &:focus {
+    border-color: var(--cyan-a55);
+    box-shadow: 0 0 12px var(--cyan-a20);
+    outline: none;
+  }
+
+  & option {
+    background: #0a1825;
+    color: var(--text);
+  }
+}

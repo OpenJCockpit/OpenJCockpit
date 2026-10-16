@@ -1,23 +1,25 @@
 import type { PullRequestSummary } from '../../types';
 import { IconBox } from '../IconBox/IconBox';
 import { StatusChip } from '../StatusChip/StatusChip';
+import styles from './WorkspacePanels.module.scss';
+import { Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
 
 export function PullRequestPanel({ pullRequests }: { pullRequests: PullRequestSummary[] }) {
   return (
-    <section className="panel pr-panel">
-      <header className="panel-header panel-header--simple">
-        <div className="panel-title">
+    <Panel as="section" className={styles.prPanel}>
+      <PanelHeader simple>
+        <PanelTitle>
           <IconBox label="⌯" compact /> <h2>Open pull requests</h2>
-        </div>
-        <button className="small-link">
+        </PanelTitle>
+        <button className={styles.smallLink}>
           View all pull requests <span>→</span>
         </button>
-      </header>
+      </PanelHeader>
 
-      <div className="pr-list">
+      <div className={styles.prList}>
         {pullRequests.slice(0, 2).map((pr) => (
-          <article className="pr-card" key={pr.id}>
-            <span className="pr-badge">PR #{pr.id}</span>
+          <article className={styles.prCard} key={pr.id}>
+            <span className={styles.prBadge}>PR #{pr.id}</span>
             <div>
               <strong>{pr.title}</strong>
               <span>
@@ -28,6 +30,6 @@ export function PullRequestPanel({ pullRequests }: { pullRequests: PullRequestSu
           </article>
         ))}
       </div>
-    </section>
+    </Panel>
   );
 }

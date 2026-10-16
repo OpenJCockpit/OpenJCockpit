@@ -12,6 +12,7 @@ import type { SubagentSpec } from '../../../workflowTypes';
 import { PromptGenerator } from '../shared/PromptGenerator';
 import { SubagentEditor } from './SubagentEditor';
 import { SubagentsTable } from './SubagentsTable';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_SUBAGENT: SubagentSpec = {
   name: '',
@@ -36,7 +37,7 @@ export function SubagentsPanel() {
       setItems(s);
       setLoaded(true);
     });
-    return <div className="auth-loading">Loading subagents...</div>;
+    return <StatusMessage variant="loading">Loading subagents...</StatusMessage>;
   }
 
   function startCreate() {
@@ -96,7 +97,7 @@ export function SubagentsPanel() {
   return (
     <div>
       <PromptGenerator kind="subagent" onGenerate={handleGenerate} />
-      <div className="workflow-design-toolbar">
+      <div className={WorkflowDesignStyles.workflowDesignToolbar}>
         <ToolbarButton onClick={startCreate}>+ New subagent</ToolbarButton>
       </div>
       {error && <StatusMessage variant="error">{error}</StatusMessage>}

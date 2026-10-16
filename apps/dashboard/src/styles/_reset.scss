@@ -1,0 +1,29 @@
+:root {
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  min-height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  overflow-x: hidden;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+h1 {
+  margin: 0;
+  font-size: clamp(28px, 2.2vw, 36px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}

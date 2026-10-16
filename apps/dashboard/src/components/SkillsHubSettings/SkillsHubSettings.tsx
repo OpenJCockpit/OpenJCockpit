@@ -9,6 +9,19 @@ import type { SkillsMarketplaceConnection, SkillsMarketplaceConnectionRequest } 
 import { AppShell, AppHeader } from '../AppShell/AppShell';
 import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';
+import { Eyebrow } from '../../ui/Panel/Panel';
+import { Actions, DataTable } from '../../ui/DataTable/DataTable';
+import {
+  fieldErrorClass,
+  fieldHintClass,
+  formClass,
+  formGridClass,
+  formTitleClass,
+} from '../../ui/Form/Form';
+import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
+import { Button } from '../../ui/Button/Button';
+import { pageClass, pageHeaderClass } from '../../ui/Page/Page';
+import styles from './SkillsHubSettings.module.scss';
 
 interface Props {
   onBack: () => void;
@@ -129,35 +142,35 @@ export function SkillsHubSettings({ onBack }: Props) {
   }
 
   if (!loaded) {
-    return <div className="auth-loading">Loading marketplaces...</div>;
+    return <StatusMessage variant="loading">Loading marketplaces...</StatusMessage>;
   }
 
   return (
     <AppShell>
       <AppHeader onBack={onBack} backTitle="Back to Skills Hub" />
 
-      <main className="spec-files-dashboard">
-        <div className="spec-files-dashboard-header">
+      <main className={pageClass}>
+        <div className={pageHeaderClass}>
           <div>
-            <span className="eyebrow">Skills Hub</span>
+            <Eyebrow>Skills Hub</Eyebrow>
             <h1>Marketplace connections</h1>
           </div>
         </div>
 
         {error && (
-          <p className="settings-error" role="alert">
+          <p className={fieldErrorClass} role="alert">
             {error}
           </p>
         )}
-        <p className="settings-desc" role="status" aria-live="polite">
+        <p className={fieldHintClass} role="status" aria-live="polite">
           {status}
         </p>
 
-        <div className="settings-form">
-          <h2 className="settings-form-title">
+        <div className={formClass}>
+          <h2 className={formTitleClass}>
             {editingId === null ? 'New marketplace' : 'Edit marketplace'}
           </h2>
-          <div className="settings-form-grid">
+          <div className={formGridClass}>
             <TextField
               label="Name *"
               ref={nameInputRef}
@@ -190,7 +203,7 @@ export function SkillsHubSettings({ onBack }: Props) {
               onChange={(v) => setForm((f) => ({ ...f, description: v }))}
               placeholder="Optional description"
             />
-            <label style={{ gridColumn: '1 / -1', fontSize: 13 }}>
+            <label className={styles.enabledField}>
               <input
                 type="checkbox"
                 checked={form.enabled}
@@ -199,21 +212,17 @@ export function SkillsHubSettings({ onBack }: Props) {
               Enabled for future skill import (has no effect yet)
             </label>
           </div>
-          <div className="settings-actions" style={{ marginTop: 16 }}>
-            <button
-              className="button button--start"
-              onClick={() => void handleSave()}
-              disabled={saving}
-            >
+          <Actions className={styles.formActions}>
+            <Button variant="primary" onClick={() => void handleSave()} disabled={saving}>
               {saving ? '⟳ Saving…' : 'Save'}
-            </button>
-            <button className="back-button" onClick={cancelEdit}>
+            </Button>
+            <Button variant="secondary" onClick={cancelEdit}>
               Cancel
-            </button>
-          </div>
+            </Button>
+          </Actions>
         </div>
 
-        <table className="settings-table">
+        <DataTable>
           <thead>
             <tr>
               <th>Name</th>
@@ -230,32 +239,32 @@ export function SkillsHubSettings({ onBack }: Props) {
                 <td>
                   <strong>{connection.name}</strong>
                   {connection.description && (
-                    <span className="settings-desc">{connection.description}</span>
+                    <span className={fieldHintClass}>{connection.description}</span>
                   )}
                 </td>
                 <td>{connection.marketplaceUrl}</td>
                 <td>{connection.hasApiKey ? 'API key set' : 'No API key'}</td>
                 <td>{connection.enabled ? 'Enabled' : 'Disabled'}</td>
                 <td>{connection.createdAt.slice(0, 10)}</td>
-                <td className="settings-actions">
-                  <button className="back-button" onClick={() => startEdit(connection)}>
+                <Actions as="td">
+                  <Button variant="secondary" onClick={() => startEdit(connection)}>
                     Edit
-                  </button>
-                  <button className="back-button" onClick={() => void handleDelete(connection)}>
+                  </Button>
+                  <Button variant="secondary" onClick={() => void handleDelete(connection)}>
                     Delete
-                  </button>
-                </td>
+                  </Button>
+                </Actions>
               </tr>
             ))}
             {!error && connections.length === 0 && (
               <tr>
-                <td colSpan={6} className="settings-desc">
+                <td colSpan={6} className={fieldHintClass}>
                   No marketplaces connected yet.
                 </td>
               </tr>
             )}
           </tbody>
-        </table>
+        </DataTable>
       </main>
     </AppShell>
   );

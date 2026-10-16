@@ -1,6 +1,10 @@
-import './WorkflowPromptDialog.scss';
 import { useId, useState } from 'react';
 import { ModalShell } from '../ModalShell/ModalShell';
+import { Eyebrow, panelClassName } from '../../ui/Panel/Panel';
+import { cx } from '../../ui/cx';
+import { fieldHintClass, formInputClass } from '../../ui/Form/Form';
+import { Button } from '../../ui/Button/Button';
+import styles from './WorkflowPromptDialog.module.scss';
 
 interface Props {
   workflowName: string;
@@ -23,24 +27,24 @@ export function WorkflowPromptDialog({ workflowName, busy, onSubmit, onCancel }:
     <ModalShell
       labelledBy={titleId}
       onDismiss={onCancel}
-      className="workflow-prompt-dialog panel"
-      overlayClassName="workflow-prompt-overlay"
+      className={cx(styles.workflowPromptDialog, panelClassName)}
+      overlayClassName={styles.workflowPromptOverlay}
     >
-      <span id={titleId} className="workflow-prompt-dialog__visually-hidden">
+      <span id={titleId} className={styles.workflowPromptDialogVisuallyHidden}>
         {`Prompt for ${workflowName}`}
       </span>
-      <header className="workflow-prompt-dialog__header">
-        <span className="eyebrow">Workflow input</span>
+      <header className={styles.workflowPromptDialogHeader}>
+        <Eyebrow>Workflow input</Eyebrow>
         <h2>{workflowName}</h2>
       </header>
-      <p className="settings-desc">
-        Describe what the workflow should deliver. The prompt is combined with the
-        repository contents (RAG) to create small, executable spec files.
+      <p className={fieldHintClass}>
+        Describe what the workflow should deliver. The prompt is combined with the repository
+        contents (RAG) to create small, executable spec files.
       </p>
-      <label className="workflow-prompt-dialog__field">
+      <label className={styles.workflowPromptDialogField}>
         Prompt
         <textarea
-          className="settings-input"
+          className={formInputClass}
           rows={4}
           value={prompt}
           tabIndex={0}
@@ -48,17 +52,17 @@ export function WorkflowPromptDialog({ workflowName, busy, onSubmit, onCancel }:
           placeholder="E.g.: Add an export button to the customer overview that downloads the table as CSV."
         />
       </label>
-      <div className="workflow-prompt-dialog__actions">
-        <button
-          className="button button--start"
+      <div className={styles.workflowPromptDialogActions}>
+        <Button
+          variant="primary"
           onClick={() => onSubmit(prompt.trim())}
           disabled={busy || prompt.trim().length === 0}
         >
           {busy ? '⟳ Starting…' : '▶ Start with prompt'}
-        </button>
-        <button className="back-button" onClick={onCancel} disabled={busy}>
+        </Button>
+        <Button variant="secondary" onClick={onCancel} disabled={busy}>
           Cancel
-        </button>
+        </Button>
       </div>
     </ModalShell>
   );
