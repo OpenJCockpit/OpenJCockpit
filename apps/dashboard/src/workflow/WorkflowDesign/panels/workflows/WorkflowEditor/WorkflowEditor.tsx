@@ -39,7 +39,6 @@ export function WorkflowEditor({
 }: WorkflowEditorProps) {
   function defaultGatePlacement(agentIds: string[]): string {
     const ordered = selectedStagesInOrder(availableAgents, agentIds);
-    if (ordered.some((agent) => agent.id === 'realisation')) return 'realisation';
     return ordered.length > 0 ? ordered[ordered.length - 1].id : '';
   }
 
@@ -127,8 +126,8 @@ export function WorkflowEditor({
           }}
         />
         <span className="settings-desc">
-          Pauses the run after the chosen stage for a human Accept/Deny decision (and, only after
-          Realisation, Accept with comments to steer a re-run).
+          Pauses the run after the chosen agent for a human decision: Accept, Deny, or Accept with
+          comments to re-run that agent with the feedback.
         </span>
       </label>
       {form.approvalGate?.enabled && (
@@ -152,9 +151,8 @@ export function WorkflowEditor({
             ))}
           </SelectField>
           <p id="approval-gate-note" className="settings-desc approval-gate-note">
-            {form.approvalGate.placementStage === 'realisation'
-              ? 'Up to 3 feedback iterations are available at this gate.'
-              : 'This gate offers Accept and Deny only. The feedback and re-run capability requires a realisation placement.'}
+            Up to 3 feedback iterations are available at this gate: the chosen agent re-runs with
+            the reviewer's comments and its previous output.
           </p>
         </div>
       )}

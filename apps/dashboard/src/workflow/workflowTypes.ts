@@ -37,6 +37,109 @@ export interface AgentSpec {
   builtIn?: boolean;
 }
 
+/** Status of one catalog section: the local /agents folder or an A2A provider. */
+export type AgentCatalogStatus =
+  'OK' | 'NOT_CONFIGURED' | 'UNAVAILABLE' | 'UNAUTHORIZED' | 'INVALID';
+
+/** One agent Markdown file below the repository /agents folder. */
+export interface LocalCatalogAgent {
+  id: string;
+  name: string;
+  description?: string | null;
+  version?: string | null;
+  model?: string | null;
+  /** Path below /agents, e.g. "delivery/business-analyst.md". */
+  path: string;
+  /** Folder hierarchy below /agents, outermost first. */
+  folders: string[];
+  skills: string[];
+  tools: string[];
+  valid: boolean;
+  problem?: string | null;
+}
+
+/** One agent registered at an A2A provider such as LiteLLM. */
+export interface ProviderCatalogAgent {
+  id: string;
+  name: string;
+  description?: string | null;
+  /** Gateway endpoint as reachable by users, e.g. http://localhost:4100/a2a/qa-engineer. */
+  url?: string | null;
+  /** Agent card hosted by the provider (needs a provider key when opened directly). */
+  cardUrl?: string | null;
+  /** Where the provider routes calls to; may only resolve inside the provider's network. */
+  backendUrl?: string | null;
+  protocolVersion?: string | null;
+  version?: string | null;
+  streaming: boolean;
+  skills: string[];
+}
+
+/** A2A agent card as hosted by the provider (A2A 0.3 fields used by the dashboard). */
+export interface A2AAgentCard {
+  name: string;
+  description?: string;
+  url?: string;
+  version?: string;
+  protocolVersion?: string;
+  preferredTransport?: string;
+  capabilities?: { streaming?: boolean; pushNotifications?: boolean };
+  defaultInputModes?: string[];
+  defaultOutputModes?: string[];
+  skills?: { id: string; name?: string; description?: string; tags?: string[] }[];
+}
+
+/**
+ * An A2A service (LiteLLM-compatible A2A gateway) in Workflow designer -> Configuration.
+ * CONFIGURATION services come from the agent service's configuration and are read-only;
+ * DASHBOARD services were added here. Secrets are never returned, only whether they are set.
+ */
+export interface A2AService {
+  id: string;
+  name: string;
+  type: string;
+  source: 'CONFIGURATION' | 'DASHBOARD';
+  editable: boolean;
+  baseUrl?: string | null;
+  publicUrl?: string | null;
+  hasApiKey: boolean;
+  callerTokenUrl?: string | null;
+  callerClientId?: string | null;
+  hasCallerClientSecret: boolean;
+  status?: AgentCatalogStatus | null;
+  message?: string | null;
+  agentCount?: number | null;
+  updatedAt?: string | null;
+}
+
+/** Blank secrets on update keep the stored ones; blank caller fields remove the caller identity. */
+export interface A2AServiceRequest {
+  id?: string;
+  name: string;
+  baseUrl: string;
+  publicUrl?: string;
+  apiKey?: string;
+  callerTokenUrl?: string;
+  callerClientId?: string;
+  callerClientSecret?: string;
+}
+
+export interface AgentCatalog {
+  local: {
+    name: string;
+    status: AgentCatalogStatus;
+    message?: string | null;
+    agents: LocalCatalogAgent[];
+  };
+  providers: {
+    name: string;
+    type: string;
+    status: AgentCatalogStatus;
+    message?: string | null;
+    agents: ProviderCatalogAgent[];
+  }[];
+}
+
 export interface TriggerConfig {
   dashboardButtonEnabled: boolean;
   hermesSignalEnabled: boolean;

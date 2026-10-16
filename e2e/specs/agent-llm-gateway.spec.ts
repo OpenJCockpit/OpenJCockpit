@@ -3,9 +3,10 @@
  *
  * (a) What this scenario proves
  * -----------------------------
- * A real agent LLM call for the 'requirement' agent transits the LiteLLM
- * gateway to host Ollama and produces a structurally verifiable, attributed
- * result.  Concretely, after a successful agent run the request must appear
+ * Starting the seeded 'wf-spec-create' workflow (one catalog agent,
+ * a2a:litellm:business-analyst) makes a real agent LLM call that transits the
+ * LiteLLM gateway to host Ollama and produces a structurally verifiable,
+ * attributed result.  Concretely, after a successful run the request must appear
  * in LiteLLM's spend logs attributed to this stack's virtual key and the
  * configured model.  The unauthenticated variant proves that a 401 response
  * does NOT leak a gateway call.
@@ -14,7 +15,7 @@
  * -------------------------------------
  * - no MCP tool-calling path is exercised;
  * - no git write path is exercised;
- * - no multi-stage orchestration is exercised;
+ * - no multi-agent chain is exercised;
  * - no approval gate is exercised;
  * - no claim is made about model output quality.
  *
@@ -57,7 +58,9 @@ import {
 } from '../support/litellm.js';
 import { pollAgentRunToTerminal } from '../support/agentRun.js';
 
-const SPEC_FILE_TEXT = 'Add a health check endpoint that returns service status as JSON.';
+const WORKFLOW_ID = 'wf-spec-create';
+const AGENT_REF = 'a2a:litellm:business-analyst';
+const PROMPT_TEXT = 'Add a health check endpoint that returns service status as JSON.';
 const ATTRIBUTION_WINDOW_MARGIN_MS = 300_000; // ±5 min — absorbs Docker Desktop VM clock drift
 const TEST_OVERHEAD_MS = 120_000;
 const TOKEN_MAX_AGE_MS = 240_000;
@@ -77,7 +80,7 @@ async function requireProvisionedOrSkip(): Promise<void> {
   test.skip(true, msg);
 }
 
-test('AC-09: unauthenticated agent-run request returns 401 and produces no attributable gateway call', async ({
+test('AC-09: unauthenticated workflow start returns 401 and produces no attributable gateway call', async ({
   request,
 }) => {
   await requireProvisionedOrSkip();
@@ -86,8 +89,8 @@ test('AC-09: unauthenticated agent-run request returns 401 and produces no attri
   const t0 = new Date();
   const before = await fetchGatewaySample(t0, t0, ATTRIBUTION_WINDOW_MARGIN_MS);
 
-  const response = await request.post(`${env.apiBaseUrl}/api/agent-runs`, {
-    data: { agentIds: ['requirement'], specFile: SPEC_FILE_TEXT },
+  const response = await request.post(`${env.apiBaseUrl}/api/workflows/${WORKFLOW_ID}/start`, {
+    data: { prompt: PROMPT_TEXT },
   });
 
   expect(response.status()).toBe(401);
@@ -102,7 +105,7 @@ test('AC-09: unauthenticated agent-run request returns 401 and produces no attri
   ).toBe(false);
 });
 
-test('AC-01: authenticated agent run completes via LiteLLM gateway with attributed spend log entry', async ({
+test('AC-01: authenticated workflow run completes via LiteLLM gateway with attributed spend log entry', async ({
   request,
 }) => {
   test.setTimeout(env.agentRunTimeoutMs + TEST_OVERHEAD_MS);
@@ -117,17 +120,17 @@ test('AC-01: authenticated agent run completes via LiteLLM gateway with attribut
     (await fetchGatewaySample(t0, t0, ATTRIBUTION_WINDOW_MARGIN_MS)).map((r) => r.request_id),
   );
 
-  const requestBody = { agentIds: ['requirement'], specFile: SPEC_FILE_TEXT };
-  const start = await request.post(`${env.apiBaseUrl}/api/agent-runs`, {
+  const requestBody = { prompt: PROMPT_TEXT };
+  const start = await request.post(`${env.apiBaseUrl}/api/workflows/${WORKFLOW_ID}/start`, {
     headers: { Authorization: `Bearer ${await token()}` },
     data: requestBody,
   });
 
-  expect(start.status()).toBe(202);
+  expect(start.status()).toBe(200);
 
   const startBody = (await start.json()) as { runId?: string };
   const runId = startBody.runId;
-  expect(typeof runId, 'runId must be a string in the 202 response body').toBe('string');
+  expect(typeof runId, 'runId must be a string in the start response body').toBe('string');
   expect(runId!.length, 'runId must be a non-empty string').toBeGreaterThan(0);
 
   expect(
@@ -151,16 +154,11 @@ test('AC-01: authenticated agent run completes via LiteLLM gateway with attribut
   expect(
     events.some(
       (e) =>
-        e.agentId === 'requirement' &&
+        e.agentId === AGENT_REF &&
         e.status === 'OK' &&
-        e.evidenceRef === 'evidence://requirements',
+        e.evidenceRef === `agent-output://${AGENT_REF}`,
     ),
-    `Expected a requirement agent event with status=OK and evidenceRef=evidence://requirements, but events were: ${JSON.stringify(events)}`,
-  ).toBe(true);
-
-  expect(
-    events.some((e) => e.agentId === 'git' && e.status === 'SKIPPED'),
-    `Expected a git agent event with status=SKIPPED, but events were: ${JSON.stringify(events)}`,
+    `Expected a ${AGENT_REF} event with status=OK and evidenceRef=agent-output://${AGENT_REF}, but events were: ${JSON.stringify(events)}`,
   ).toBe(true);
 
   const artifacts = outcome.run?.generatedArtifacts ?? [];

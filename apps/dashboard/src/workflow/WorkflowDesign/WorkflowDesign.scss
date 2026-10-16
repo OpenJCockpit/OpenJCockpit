@@ -74,3 +74,82 @@
 .workflow-design-hidden-input {
   display: none;
 }
+
+.agent-catalog__section {
+  margin-bottom: 28px;
+}
+.agent-catalog__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-size: 15px;
+  color: #edfaff;
+}
+.agent-catalog__count {
+  font-size: 11px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+.agent-catalog__status {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: normal;
+}
+.agent-catalog__folder {
+  margin: 12px 0 0 16px;
+  padding-left: 12px;
+  border-left: 1px solid var(--line);
+}
+.agent-catalog__folder-name {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.agent-catalog__id,
+.agent-catalog__path {
+  font-size: 11px;
+  color: var(--muted);
+  word-break: break-all;
+}
+.agent-catalog__invalid td {
+  opacity: 0.8;
+}
+.agent-catalog__details {
+  padding: 8px 4px;
+  font-size: 12px;
+  & dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 4px 16px;
+    margin: 0 0 8px;
+  }
+  & dt {
+    color: var(--muted);
+  }
+  & dd {
+    margin: 0;
+    word-break: break-all;
+  }
+}
+.agent-catalog__skills {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.workflow-agent-picker__section {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 0 4px;
+}
+.workflow-agent-order {
+  margin: 10px 0 6px;
+  padding-left: 22px;
+  display: grid;
+  gap: 4px;
+  & li > span {
+    margin-right: 8px;
+  }
+}

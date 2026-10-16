@@ -34,6 +34,19 @@ public class StubSpecRepositoryClient implements SpecRepositoryClient {
 
     @Override
     public List<SpecFile> listSpecs(String customerId) {
+        if ("*".equals(customerId)) {
+            // every customer (SpecFileService resolves git-workspace job specs across customers)
+            File[] customers = new File(specRepositoryRoot, "customers").listFiles(File::isDirectory);
+            if (customers == null) {
+                return List.of();
+            }
+            Arrays.sort(customers, Comparator.comparing(File::getName));
+            List<SpecFile> all = new ArrayList<>();
+            for (File customer : customers) {
+                all.addAll(listSpecs(customer.getName()));
+            }
+            return all;
+        }
         File specsDir = new File(specRepositoryRoot, "customers/" + customerId + "/specs");
         File[] mdFiles = specsDir.listFiles((dir, name) -> name.endsWith(".md"));
         if (mdFiles == null || mdFiles.length == 0) {

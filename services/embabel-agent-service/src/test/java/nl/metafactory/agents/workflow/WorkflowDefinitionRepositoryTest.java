@@ -24,7 +24,7 @@ class WorkflowDefinitionRepositoryTest {
         properties.setPath(tempDir.toString());
         store = new YamlDefinitionStore();
         workflowsDir = tempDir.resolve("workflows");
-        repository = new WorkflowDefinitionRepository(properties, store);
+        repository = new WorkflowDefinitionRepository(properties, store, new nl.metafactory.agents.workflow.agents.InMemoryWorkflowAgentLinks());
     }
 
     @Test
@@ -35,7 +35,7 @@ class WorkflowDefinitionRepositoryTest {
     @Test
     void saveThenFindByIdRoundTrips() {
         var workflow = new WorkflowDefinition("wf-1", "Onboarding", "Noordzee Logistics", null, "desc",
-                java.util.List.of("requirement"), java.util.List.of(), java.util.List.of(), java.util.List.of(),
+                java.util.List.of("local:requirement"), java.util.List.of(), java.util.List.of(), java.util.List.of(),
                 null, null, false, null, "ACTIVE", null, null, null, null);
 
         repository.save(workflow);
@@ -62,7 +62,7 @@ class WorkflowDefinitionRepositoryTest {
     @Test
     void saveGeneratesIdWhenBlank() {
         var workflow = new WorkflowDefinition("", "No id yet", "Project", null, "desc",
-                java.util.List.of("requirement"), java.util.List.of(), java.util.List.of(), java.util.List.of(),
+                java.util.List.of("local:requirement"), java.util.List.of(), java.util.List.of(), java.util.List.of(),
                 null, null, false, null, "ACTIVE", null, null, null, null);
 
         var saved = repository.save(workflow);
@@ -120,16 +120,16 @@ class WorkflowDefinitionRepositoryTest {
     @Test
     void saveThenFindByIdRoundTripsAGateConfiguration() {
         var workflow = new WorkflowDefinition("wf-gate", "Onboarding", "Noordzee Logistics", null, "desc",
-                java.util.List.of("requirement", "realisation"), java.util.List.of(), java.util.List.of(),
+                java.util.List.of("local:requirement", "local:realisation"), java.util.List.of(), java.util.List.of(),
                 java.util.List.of(), null, null, false, null, "ACTIVE", null, null,
-                new ApprovalGateConfig(true, "realisation"), null);
+                new ApprovalGateConfig(true, "local:realisation"), null);
 
         repository.save(workflow);
 
         var found = repository.findById("wf-gate");
         assertThat(found).contains(workflow);
         assertThat(found.get().approvalGate().enabled()).isTrue();
-        assertThat(found.get().approvalGate().placementStage()).isEqualTo("realisation");
+        assertThat(found.get().approvalGate().placementStage()).isEqualTo("local:realisation");
     }
 
     @Test
@@ -151,10 +151,10 @@ class WorkflowDefinitionRepositoryTest {
     @Test
     void findAllSkipsAMalformedDefinitionFileAndReturnsTheRemainingValidOnes() throws java.io.IOException {
         var wf1 = new WorkflowDefinition("wf-1", "Onboarding", "Noordzee Logistics", null, "desc",
-                java.util.List.of("requirement"), java.util.List.of(), java.util.List.of(), java.util.List.of(),
+                java.util.List.of("local:requirement"), java.util.List.of(), java.util.List.of(), java.util.List.of(),
                 null, null, false, null, "ACTIVE", null, null, null, null);
         var wf2 = new WorkflowDefinition("wf-2", "Offboarding", "Noordzee Logistics", null, "desc",
-                java.util.List.of("requirement"), java.util.List.of(), java.util.List.of(), java.util.List.of(),
+                java.util.List.of("local:requirement"), java.util.List.of(), java.util.List.of(), java.util.List.of(),
                 null, null, false, null, "ACTIVE", null, null, null, null);
         repository.save(wf1);
         repository.save(wf2);
@@ -169,7 +169,7 @@ class WorkflowDefinitionRepositoryTest {
     @Test
     void saveStripsLastExecutionStatusAndLastExecutionAtFromTheOnDiskFile() throws Exception {
         var workflow = new WorkflowDefinition("wf-strip-1", "Onboarding", "Noordzee Logistics", null, "desc",
-                java.util.List.of("requirement"), java.util.List.of(), java.util.List.of(), java.util.List.of(),
+                java.util.List.of("local:requirement"), java.util.List.of(), java.util.List.of(), java.util.List.of(),
                 null, null, false, null, "ACTIVE", "RUNNING", java.time.Instant.now(), null, null);
 
         repository.save(workflow);

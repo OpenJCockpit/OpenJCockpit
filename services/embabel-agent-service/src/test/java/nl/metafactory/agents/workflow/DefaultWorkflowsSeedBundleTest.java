@@ -1,6 +1,5 @@
 package nl.metafactory.agents.workflow;
 
-import nl.metafactory.agents.config.AgentPipelineProperties;
 import nl.metafactory.agents.workflow.model.WorkflowDefinition;
 import org.junit.jupiter.api.Test;
 
@@ -33,51 +32,32 @@ class DefaultWorkflowsSeedBundleTest {
     }
 
     @Test
-    void everySeededAgentIdIsAKnownPipelineAgent() {
+    void everySeededAgentIdIsACatalogAgentRegisteredInLiteLlm() throws Exception {
         var bundle = reader.readBundle();
-        List<String> knownAgents = new AgentPipelineProperties().getSequence();
+        var registered = new java.util.HashSet<String>();
+        for (var agent : tools.jackson.dataformat.yaml.YAMLMapper.builder().build()
+                .readTree(java.nio.file.Path.of("../../infrastructure/litellm/config.yaml").toFile()).path("agents")) {
+            registered.add("a2a:litellm:" + agent.path("agent_name").asString());
+        }
 
         for (WorkflowDefinition workflow : bundle.workflows()) {
-            assertThat(knownAgents)
-                    .as("known pipeline agents for workflow %s", workflow.id())
-                    .containsAll(workflow.agentIds());
+            assertThat(workflow.agentIds()).as("agent references of workflow %s", workflow.id())
+                    .allMatch(nl.metafactory.agents.workflow.agents.AgentRef::isRef)
+                    .allMatch(registered::contains);
         }
     }
 
     @Test
-    void wfSpecInitAgentIdsIsExactlyRealisation() {
+    void seededWorkflowsLinkTheDeliveryAgentsInChainOrder() {
         var bundle = reader.readBundle();
+        java.util.function.Function<String, List<String>> agents = id -> bundle.workflows().stream()
+                .filter(workflow -> id.equals(workflow.id())).findFirst().orElseThrow().agentIds();
 
-        var wfSpecInit = bundle.workflows().stream()
-                .filter(workflow -> "wf-spec-init".equals(workflow.id()))
-                .findFirst()
-                .orElseThrow();
-
-        assertThat(wfSpecInit.agentIds()).containsExactly("realisation");
-    }
-
-    @Test
-    void otherSeededWorkflowsRetainTheirExactAgentSets() {
-        var bundle = reader.readBundle();
-
-        var wfSpecCreate = bundle.workflows().stream()
-                .filter(workflow -> "wf-spec-create".equals(workflow.id()))
-                .findFirst()
-                .orElseThrow();
-        assertThat(wfSpecCreate.agentIds()).containsExactly("requirement");
-
-        var wfSpecImplement = bundle.workflows().stream()
-                .filter(workflow -> "wf-spec-implement".equals(workflow.id()))
-                .findFirst()
-                .orElseThrow();
-        assertThat(wfSpecImplement.agentIds())
-                .containsExactly("impact", "test-design", "implementation", "review", "evidence");
-
-        var wfSpecRealise = bundle.workflows().stream()
-                .filter(workflow -> "wf-spec-realise".equals(workflow.id()))
-                .findFirst()
-                .orElseThrow();
-        assertThat(wfSpecRealise.agentIds())
-                .containsExactly("impact", "test-design", "implementation", "review", "realisation", "evidence");
+        assertThat(agents.apply("wf-spec-init")).containsExactly("a2a:litellm:solution-architect");
+        assertThat(agents.apply("wf-spec-create")).containsExactly("a2a:litellm:business-analyst");
+        assertThat(agents.apply("wf-spec-implement")).containsExactly("a2a:litellm:solution-architect",
+                "a2a:litellm:software-developer", "a2a:litellm:qa-engineer");
+        assertThat(agents.apply("wf-spec-realise")).containsExactly("a2a:litellm:business-analyst",
+                "a2a:litellm:solution-architect", "a2a:litellm:software-developer", "a2a:litellm:qa-engineer");
     }
 }

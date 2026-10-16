@@ -7,6 +7,7 @@ import nl.metafactory.aicontrol.model.StartWorkflowRequest;
 import nl.metafactory.aicontrol.model.StartWorkflowResponse;
 import nl.metafactory.aicontrol.model.WorkflowPreflightResult;
 import nl.metafactory.aicontrol.service.GitWorkspaceJobService;
+import nl.metafactory.aicontrol.service.JobWorkflowCheck;
 import nl.metafactory.aicontrol.service.WorkflowPreflightService;
 import nl.metafactory.common.security.CurrentUser;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,13 @@ public class AgenticWorkflowController implements AgenticWorkflowApi {
 
     private final GitWorkspaceJobService jobService;
     private final WorkflowPreflightService preflightService;
+    private final JobWorkflowCheck workflowCheck;
 
-    public AgenticWorkflowController(GitWorkspaceJobService jobService, WorkflowPreflightService preflightService) {
+    public AgenticWorkflowController(GitWorkspaceJobService jobService, WorkflowPreflightService preflightService,
+                                     JobWorkflowCheck workflowCheck) {
         this.jobService = jobService;
         this.preflightService = preflightService;
+        this.workflowCheck = workflowCheck;
     }
 
     @Override
@@ -36,8 +40,14 @@ public class AgenticWorkflowController implements AgenticWorkflowApi {
                     .body(StartWorkflowResponse.failed(preflight.errors()));
         }
 
+        var workflowProblem = workflowCheck.problem(request.workflowId());
+        if (workflowProblem.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(StartWorkflowResponse.failed(List.of(workflowProblem.get())));
+        }
+
         String username = CurrentUser.username();
-        GitWorkspaceJobDto job = jobService.createJob(projectId, request.specFileRef(), username);
+        GitWorkspaceJobDto job = jobService.createJob(projectId, request.specFileRef(), request.workflowId(), username);
         jobService.runWorkflowAsync(job.id());
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(StartWorkflowResponse.success(job.id()));

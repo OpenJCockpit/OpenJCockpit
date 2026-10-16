@@ -9,10 +9,18 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import reactor.core.publisher.Mono;
 
+/**
+ * Relays the current user's token to the agent service. A request that already carries its own
+ * {@code Authorization} (a call made explicitly as ai-control's service identity) is left as it is, so
+ * a service call made while serving a user request never carries the user's token as well.
+ */
 public class BearerTokenRelayFilter implements ExchangeFilterFunction {
 
     @Override
     public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
+        if (request.headers().containsHeader(HttpHeaders.AUTHORIZATION)) {
+            return next.exchange(request);
+        }
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth instanceof JwtAuthenticationToken jwtAuth) {
             return next.exchange(

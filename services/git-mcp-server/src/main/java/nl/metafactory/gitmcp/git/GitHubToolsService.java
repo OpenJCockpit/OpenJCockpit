@@ -19,23 +19,44 @@ public class GitHubToolsService {
     private static final Logger log = LoggerFactory.getLogger(GitHubToolsService.class);
 
     private final GitHubOperations gitHub;
+    private final GitCredentialResolver credentialResolver;
 
-    public GitHubToolsService(GitHubOperations gitHub) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public GitHubToolsService(GitHubOperations gitHub, GitCredentialResolver credentialResolver) {
         this.gitHub = gitHub;
+        this.credentialResolver = credentialResolver;
+    }
+
+    /** Anonymous only (no keyed-workspace credentials); used by tests. */
+    GitHubToolsService(GitHubOperations gitHub) {
+        this(gitHub, (workspaceKey, repositoryUrl) -> java.util.Optional.empty());
     }
 
     @Tool(name = "git_create_pull_request", description = "Create a pull request on GitHub for a branch that "
             + "was pushed to the project repository. Returns the URL of the created pull request.")
-    public GitHubToolResult createPullRequest(
+    public GitHubToolResult createPullRequestTool(
             @ToolParam(description = "HTTPS URL of the project git repository, e.g. https://github.com/org/repo.git") String repositoryUrl,
             @ToolParam(description = "Base branch the pull request should merge into, e.g. main") String baseBranch,
             @ToolParam(description = "Branch with the changes, e.g. impl/001-feature") String headBranch,
             @ToolParam(description = "Title of the pull request") String title,
             @ToolParam(description = "Description (markdown body) of the pull request", required = false) String body,
-            @ToolParam(description = "GitHub token with permission to create pull requests") String token) {
+            @ToolParam(description = "Workspace key whose git credentials are used (server-side)") String workspaceKey) {
+        String token;
+        try {
+            token = credentialResolver.resolve(workspaceKey, repositoryUrl)
+                    .map(GitCredentialResolver.GitCredentials::token).orElse(null);
+        } catch (RuntimeException e) {
+            log.warn("git_create_pull_request denied: workspace credentials unavailable ({})", e.getMessage());
+            return GitHubToolResult.failure("git_create_pull_request failed: workspace credentials unavailable");
+        }
+        return createPullRequest(repositoryUrl, baseBranch, headBranch, title, body, token);
+    }
+
+    GitHubToolResult createPullRequest(String repositoryUrl, String baseBranch, String headBranch, String title,
+                                       String body, String token) {
         try {
             if (token == null || token.isBlank()) {
-                return GitHubToolResult.failure("A GitHub token is required to create a pull request");
+                return GitHubToolResult.failure("Git credentials of the workspace are required to create a pull request");
             }
             String owner = ownerOf(repositoryUrl);
             String repo = repositoryOf(repositoryUrl);

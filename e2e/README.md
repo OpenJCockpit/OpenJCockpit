@@ -28,7 +28,7 @@ that qualifier.
 ### Additional prerequisites for the agent ⇄ LiteLLM check
 
 - Full mode (`E2E_MODE=full`).
-- `litellm`, `litellm-seed-key`, and `embabel-agent-service` running.
+- `litellm`, `local-seed`, and `embabel-agent-service` running.
 - Host Ollama running, with the `E2E_OLLAMA_MODEL`/`OLLAMA_MODEL` tag already pulled.
 - Host ports `4100` (LiteLLM), `8091` (`embabel-agent-service`), and `11434` (host Ollama) reachable.
 - `npm run e2e:llm` additionally requires `keycloak`, `ai-control-service`, `dashboard`, and `landing`
@@ -153,8 +153,8 @@ detail — these calls must never be converted to use the `request` fixture.
 ## The agent ⇄ LiteLLM ⇄ Ollama live check (`specs/agent-llm-gateway.spec.ts`)
 
 This suite contains one narrowly-scoped, precondition-gated exception to "never calls an LLM": a
-live scenario that proves a real agent LLM call for the `requirement` agent transits the LiteLLM
-gateway to host Ollama, and that the resulting spend-log entry is positively attributed to this
+live scenario that starts the seeded `wf-spec-create` workflow and proves the real agent LLM call of
+its catalog agent (`a2a:litellm:business-analyst`) transits the LiteLLM gateway to host Ollama, and that the resulting spend-log entry is positively attributed to this
 stack's virtual key and configured model.
 
 **Command:** `npm run e2e:llm` (from `e2e/`). It also runs as part of `npm run e2e:full`, since it

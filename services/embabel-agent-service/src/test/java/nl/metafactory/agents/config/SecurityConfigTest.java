@@ -5,9 +5,7 @@ import nl.metafactory.agents.approval.ApprovalDecisionAuditRepository;
 import nl.metafactory.agents.approval.ApprovalDecisionService;
 import nl.metafactory.agents.approval.ApprovalGateContextAssembler;
 import nl.metafactory.agents.approval.ApprovalGateRegistry;
-import nl.metafactory.agents.model.AgentDefinition;
 import nl.metafactory.agents.orchestration.AgentOrchestrator;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -38,23 +36,15 @@ class SecurityConfigTest {
     @MockitoBean ApprovalDecisionAuditRepository approvalDecisionAuditRepository;
     @MockitoBean nl.metafactory.agents.workflowtrigger.WorkflowTriggerCoordinator workflowTriggerCoordinator;
 
-    @BeforeEach
-    void setUp() {
-        when(orchestrator.availableAgents()).thenReturn(List.of(
-                new AgentDefinition("req", "Requirement Agent", "Extract requirements",
-                        "specification", List.of(), List.of(), 0, "SpecContent", "RequirementAnalysis")
-        ));
-    }
-
     @Test
     void unauthenticatedRequestIsRejectedWith401() throws Exception {
-        mockMvc.perform(get("/api/agents"))
+        mockMvc.perform(get("/api/agent-definitions"))
                .andExpect(status().isUnauthorized());
     }
 
     @Test
     void authenticatedRequestWithJwtIsAllowed() throws Exception {
-        mockMvc.perform(get("/api/agents").with(jwt()))
+        mockMvc.perform(get("/api/agent-definitions").with(jwt()))
                .andExpect(status().isOk());
     }
 

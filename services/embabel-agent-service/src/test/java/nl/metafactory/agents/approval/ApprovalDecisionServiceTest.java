@@ -197,7 +197,7 @@ class ApprovalDecisionServiceTest {
     void acceptWithCommentsOnARealisationGateResumesWithPendingFeedbackRecorded() {
         // The realisation stage's completedStages bookkeeping (package-private to
         // nl.metafactory.agents.orchestration) is proven end-to-end, including the actual
-        // re-execution of CodeRealisationService, by EmbabelOrchestratorPauseResumeTest — this
+        // re-execution of the anchored agent, by EmbabelOrchestratorPauseResumeTest — this
         // test asserts everything ApprovalDecisionService itself is responsible for.
         var state = parkedState("run-1", 1, "realisation");
 

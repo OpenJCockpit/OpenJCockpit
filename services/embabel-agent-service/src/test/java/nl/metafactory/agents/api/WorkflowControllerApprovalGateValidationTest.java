@@ -40,6 +40,8 @@ class WorkflowControllerApprovalGateValidationTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired JsonMapper objectMapper;
+    @MockitoBean nl.metafactory.agents.workflow.agents.AgentReferenceCheck agentReferenceCheck;
+
     @MockitoBean WorkflowDefinitionRepository repository;
     @MockitoBean WorkflowGroupRepository groupRepository;
     @MockitoBean WorkflowTriggerProperties workflowTriggerProperties;
@@ -66,7 +68,7 @@ class WorkflowControllerApprovalGateValidationTest {
 
     @Test
     void createRejectsAGatePlacedAfterAStageNotInAgentIds() throws Exception {
-        var invalid = workflow("wf-1", List.of("requirement"), new ApprovalGateConfig(true, "realisation"));
+        var invalid = workflow("wf-1", List.of("local:requirement"), new ApprovalGateConfig(true, "local:realisation"));
 
         mockMvc.perform(post("/api/workflows")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -78,9 +80,9 @@ class WorkflowControllerApprovalGateValidationTest {
 
     @Test
     void updateRejectsAGatePlacedAfterAStageNotInAgentIds() throws Exception {
-        var invalid = workflow("wf-1", List.of("requirement"), new ApprovalGateConfig(true, "review"));
+        var invalid = workflow("wf-1", List.of("local:requirement"), new ApprovalGateConfig(true, "local:review"));
         when(repository.findById("wf-1")).thenReturn(java.util.Optional.of(workflow("wf-1",
-                List.of("requirement"), null)));
+                List.of("local:requirement"), null)));
 
         mockMvc.perform(put("/api/workflows/wf-1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -92,7 +94,7 @@ class WorkflowControllerApprovalGateValidationTest {
 
     @Test
     void importRejectsABundleWhoseWorkflowGateReferencesAnUnselectedStage() throws Exception {
-        var invalid = workflow("wf-1", List.of("requirement"), new ApprovalGateConfig(true, "evidence"));
+        var invalid = workflow("wf-1", List.of("local:requirement"), new ApprovalGateConfig(true, "local:evidence"));
         var bundle = new WorkflowExportBundle(List.of(), List.of(invalid));
 
         mockMvc.perform(post("/api/workflows/import")
@@ -105,7 +107,7 @@ class WorkflowControllerApprovalGateValidationTest {
 
     @Test
     void createAcceptsADisabledGateEvenIfPlacementStageIsStale() throws Exception {
-        var disabledGate = workflow("wf-2", List.of("requirement"), new ApprovalGateConfig(false, "realisation"));
+        var disabledGate = workflow("wf-2", List.of("local:requirement"), new ApprovalGateConfig(false, "local:realisation"));
         when(repository.save(any())).thenReturn(disabledGate);
 
         mockMvc.perform(post("/api/workflows")
@@ -118,21 +120,21 @@ class WorkflowControllerApprovalGateValidationTest {
     void createAcceptsANonRealisationPlacementAsValidConfiguration() throws Exception {
         // AC-03b: BR-04's validation is about the stage being selected, independent of whether it
         // supports loop-back. A gate after `impact` is valid configuration, not an error.
-        var validNonRealisation = workflow("wf-3", List.of("impact"), new ApprovalGateConfig(true, "impact"));
+        var validNonRealisation = workflow("wf-3", List.of("local:impact"), new ApprovalGateConfig(true, "local:impact"));
         when(repository.save(any())).thenReturn(validNonRealisation);
 
         mockMvc.perform(post("/api/workflows")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validNonRealisation)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.approvalGate.placementStage").value("impact"));
+                .andExpect(jsonPath("$.approvalGate.placementStage").value("local:impact"));
 
         verify(repository).save(any());
     }
 
     @Test
     void createAcceptsAWorkflowWithNoGateAtAll() throws Exception {
-        var noGate = workflow("wf-4", List.of("requirement"), null);
+        var noGate = workflow("wf-4", List.of("local:requirement"), null);
         when(repository.save(any())).thenReturn(noGate);
 
         mockMvc.perform(post("/api/workflows")

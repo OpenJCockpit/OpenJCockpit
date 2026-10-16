@@ -17,11 +17,11 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 
 /**
- * The git integration as MCP tools. Each tool receives the project details for the
- * git integration (repository URL, base branch and credentials) and works in
- * one workspace clone per repository under the configured base path. All
- * agents use these tools via the central MCP client, so that changes to
- * the git implementation happen in one place.
+ * The git integration as MCP tools, reached through the LiteLLM gateway (mcp_servers.openjcockpit_git).
+ * Each tool receives the repository URL and an optional workspace key and works in one workspace clone
+ * per repository (and per key) under the configured base path. Credentials are never tool arguments:
+ * a keyed workspace (e.g. {@code job-<uuid>} of a git-workspace job) gets them server-side from
+ * {@link GitCredentialResolver}; the unkeyed shared workspace is anonymous.
  */
 @Service
 public class GitToolsService {
@@ -31,8 +31,6 @@ public class GitToolsService {
     static final int MAX_FILE_CHARS = 100_000;
 
     private static final String PARAM_REPOSITORY_URL = "HTTPS or file URL of the project git repository";
-    private static final String PARAM_USERNAME = "Git username, empty for anonymous access";
-    private static final String PARAM_TOKEN = "Git token or password, empty for anonymous access";
     private static final String PARAM_WORKSPACE_KEY = "Optional opaque key isolating this caller's workspace clone "
             + "from other concurrent runs against the same repository. Omit for the shared workspace.";
 
@@ -44,20 +42,27 @@ public class GitToolsService {
 
     private final GitWorkspaceOperations gitOps;
     private final GitToolsProperties properties;
+    private final GitCredentialResolver credentialResolver;
 
-    public GitToolsService(GitWorkspaceOperations gitOps, GitToolsProperties properties) {
-        this.gitOps = gitOps;
-        this.properties = properties;
+    /** Anonymous access only (no keyed-workspace credentials); used by tests. */
+    GitToolsService(GitWorkspaceOperations gitOps, GitToolsProperties properties) {
+        this(gitOps, properties, (workspaceKey, repositoryUrl) -> java.util.Optional.empty());
     }
 
-    @Tool(name = "git_checkout_branch", description = "Check out an existing branch of the project repository. "
-            + "Clones the repository into the server-managed workspace when needed.")
-    public GitToolResult checkoutBranch(
-            @ToolParam(description = PARAM_REPOSITORY_URL) String repositoryUrl,
-            @ToolParam(description = "Branch to check out") String branch,
-            @ToolParam(description = PARAM_USERNAME, required = false) String username,
-            @ToolParam(description = PARAM_TOKEN, required = false) String token,
-            @ToolParam(description = PARAM_WORKSPACE_KEY, required = false) String workspaceKey) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public GitToolsService(GitWorkspaceOperations gitOps, GitToolsProperties properties,
+                           GitCredentialResolver credentialResolver) {
+        this.gitOps = gitOps;
+        this.properties = properties;
+        this.credentialResolver = credentialResolver;
+    }
+
+    GitToolResult checkoutBranch(
+            String repositoryUrl,
+            String branch,
+            String username,
+            String token,
+            String workspaceKey) {
         return run("git_checkout_branch", workspaceKey, GitToolResult::failure, () -> {
             Path workspace = ensureWorkspace(repositoryUrl, branch, username, token, workspaceKey);
             checkoutIfNotCurrent(workspace, branch);
@@ -69,15 +74,13 @@ public class GitToolsService {
         return createBranch(repositoryUrl, baseBranch, newBranch, username, token, null);
     }
 
-    @Tool(name = "git_create_branch", description = "Create and check out a new branch from a base branch of the "
-            + "project repository, e.g. for a new spec or implementation change.")
-    public GitToolResult createBranch(
-            @ToolParam(description = PARAM_REPOSITORY_URL) String repositoryUrl,
-            @ToolParam(description = "Base branch to branch off from, e.g. main") String baseBranch,
-            @ToolParam(description = "Name of the new branch, e.g. spec/001-feature-slug") String newBranch,
-            @ToolParam(description = PARAM_USERNAME, required = false) String username,
-            @ToolParam(description = PARAM_TOKEN, required = false) String token,
-            @ToolParam(description = PARAM_WORKSPACE_KEY, required = false) String workspaceKey) {
+    GitToolResult createBranch(
+            String repositoryUrl,
+            String baseBranch,
+            String newBranch,
+            String username,
+            String token,
+            String workspaceKey) {
         return run("git_create_branch", workspaceKey, GitToolResult::failure, () -> {
             Path workspace = ensureWorkspace(repositoryUrl, baseBranch, username, token, workspaceKey);
             if (!gitOps.ensureLocalBranch(workspace, baseBranch, credentials(username, token),
@@ -97,14 +100,12 @@ public class GitToolsService {
         return pull(repositoryUrl, branch, username, token, null);
     }
 
-    @Tool(name = "git_pull", description = "Pull the latest changes for the currently checked out branch "
-            + "of the project repository.")
-    public GitToolResult pull(
-            @ToolParam(description = PARAM_REPOSITORY_URL) String repositoryUrl,
-            @ToolParam(description = "Branch that should be current before pulling") String branch,
-            @ToolParam(description = PARAM_USERNAME, required = false) String username,
-            @ToolParam(description = PARAM_TOKEN, required = false) String token,
-            @ToolParam(description = PARAM_WORKSPACE_KEY, required = false) String workspaceKey) {
+    GitToolResult pull(
+            String repositoryUrl,
+            String branch,
+            String username,
+            String token,
+            String workspaceKey) {
         return run("git_pull", workspaceKey, GitToolResult::failure, () -> {
             Path workspace = ensureWorkspace(repositoryUrl, branch, username, token, workspaceKey);
             checkoutIfNotCurrent(workspace, branch);
@@ -221,20 +222,81 @@ public class GitToolsService {
         return push(repositoryUrl, branch, username, token, null);
     }
 
-    @Tool(name = "git_push", description = "Push a branch of the repository workspace to origin so a "
-            + "pull request can be opened.")
-    public GitToolResult push(
-            @ToolParam(description = PARAM_REPOSITORY_URL) String repositoryUrl,
-            @ToolParam(description = "Branch to push to origin") String branch,
-            @ToolParam(description = PARAM_USERNAME, required = false) String username,
-            @ToolParam(description = PARAM_TOKEN, required = false) String token,
-            @ToolParam(description = PARAM_WORKSPACE_KEY, required = false) String workspaceKey) {
+    GitToolResult push(
+            String repositoryUrl,
+            String branch,
+            String username,
+            String token,
+            String workspaceKey) {
         return run("git_push", workspaceKey, GitToolResult::failure, () -> {
             Path workspace = existingWorkspace(repositoryUrl, workspaceKey);
             gitOps.pushBranch(workspace, "origin", branch, credentials(username, token),
                     properties.getTimeoutSeconds());
             return GitToolResult.ok("Pushed branch " + branch + " to origin", workspace.toString(), branch, null);
         });
+    }
+
+    // ── MCP tools: credentials are resolved server-side per workspace, never passed as arguments ──
+
+    @Tool(name = "git_checkout_branch", description = "Check out an existing branch of the project repository. "
+            + "Clones the repository into the server-managed workspace when needed.")
+    public GitToolResult checkoutBranchTool(
+            @ToolParam(description = PARAM_REPOSITORY_URL) String repositoryUrl,
+            @ToolParam(description = "Branch to check out") String branch,
+            @ToolParam(description = PARAM_WORKSPACE_KEY, required = false) String workspaceKey) {
+        return withCredentials("git_checkout_branch", workspaceKey, repositoryUrl,
+                c -> checkoutBranch(repositoryUrl, branch, c.username(), c.token(), workspaceKey));
+    }
+
+    @Tool(name = "git_create_branch", description = "Create and check out a new branch from a base branch of the "
+            + "project repository, e.g. for a new spec or implementation change.")
+    public GitToolResult createBranchTool(
+            @ToolParam(description = PARAM_REPOSITORY_URL) String repositoryUrl,
+            @ToolParam(description = "Base branch to branch off from, e.g. main") String baseBranch,
+            @ToolParam(description = "Name of the new branch, e.g. spec/001-feature-slug") String newBranch,
+            @ToolParam(description = PARAM_WORKSPACE_KEY, required = false) String workspaceKey) {
+        return withCredentials("git_create_branch", workspaceKey, repositoryUrl,
+                c -> createBranch(repositoryUrl, baseBranch, newBranch, c.username(), c.token(), workspaceKey));
+    }
+
+    @Tool(name = "git_pull", description = "Pull the latest changes for the currently checked out branch "
+            + "of the project repository.")
+    public GitToolResult pullTool(
+            @ToolParam(description = PARAM_REPOSITORY_URL) String repositoryUrl,
+            @ToolParam(description = "Branch that should be current before pulling") String branch,
+            @ToolParam(description = PARAM_WORKSPACE_KEY, required = false) String workspaceKey) {
+        return withCredentials("git_pull", workspaceKey, repositoryUrl,
+                c -> pull(repositoryUrl, branch, c.username(), c.token(), workspaceKey));
+    }
+
+    @Tool(name = "git_push", description = "Push a branch of the repository workspace to origin so a "
+            + "pull request can be opened.")
+    public GitToolResult pushTool(
+            @ToolParam(description = PARAM_REPOSITORY_URL) String repositoryUrl,
+            @ToolParam(description = "Branch to push to origin") String branch,
+            @ToolParam(description = PARAM_WORKSPACE_KEY, required = false) String workspaceKey) {
+        return withCredentials("git_push", workspaceKey, repositoryUrl,
+                c -> push(repositoryUrl, branch, c.username(), c.token(), workspaceKey));
+    }
+
+    /**
+     * Resolves the workspace's credentials server-side and runs the operation with them. A keyed
+     * workspace whose credentials cannot be resolved fails closed; an unkeyed one is anonymous.
+     */
+    private GitToolResult withCredentials(String tool, String workspaceKey, String repositoryUrl,
+                                          Function<GitCredentialResolver.GitCredentials, GitToolResult> operation) {
+        if (!isValidWorkspaceKey(workspaceKey)) {
+            return GitToolResult.failure("invalid workspaceKey");
+        }
+        GitCredentialResolver.GitCredentials credentials;
+        try {
+            credentials = credentialResolver.resolve(workspaceKey, repositoryUrl)
+                    .orElse(new GitCredentialResolver.GitCredentials(null, null));
+        } catch (RuntimeException e) {
+            log.warn("{} denied: workspace credentials unavailable ({})", tool, e.getMessage());
+            return GitToolResult.failure(tool + " failed: workspace credentials unavailable");
+        }
+        return operation.apply(credentials);
     }
 
     /** Validates the workspace key, runs the tool body and turns any exception into a failure result. */

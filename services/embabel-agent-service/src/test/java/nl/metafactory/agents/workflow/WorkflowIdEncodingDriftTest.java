@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Narrower parser-only sanity check (architecture §2, §3.3): verifies that
- * {@code SpecGitPublisher.workflowId(...)} correctly extracts an id from a hand-constructed
+ * {@code WorkflowOrbRunner.parseWorkflowId(...)} correctly extracts an id from a hand-constructed
  * {@code "workflow:" + id} string. This class never itself calls {@code WorkflowExecutionService}.
  *
  * The true end-to-end guarantee — that a real {@code AgentRunRequest} built by
@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WorkflowIdEncodingDriftTest {
 
     private static String parseWorkflowId(String requestedBy) throws Exception {
-        Method method = Class.forName("nl.metafactory.agents.spec.SpecGitPublisher")
-                .getDeclaredMethod("workflowId", String.class);
+        Method method = Class.forName("nl.metafactory.agents.workflowtrigger.WorkflowOrbRunner")
+                .getDeclaredMethod("parseWorkflowId", String.class);
         method.setAccessible(true);
         return (String) method.invoke(null, requestedBy);
     }
@@ -52,7 +52,7 @@ class WorkflowIdEncodingDriftTest {
 
     @Test
     void nonWorkflowRequestedByNeverProducesATypedWorkflowId() throws Exception {
-        // Signal/file-triggered starts and the legacy unscoped POST /api/agent-runs endpoint use
+        // Signal/file-triggered starts use
         // requestedBy values that are NOT "workflow:"-prefixed; the parser must return null for
         // these, matching the typed workflowId field being null/absent in those same requests.
         assertThat(parseWorkflowId("agentic-workflow-job-abc123")).isNull();

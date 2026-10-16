@@ -54,6 +54,8 @@ class WorkflowPrimitiveDefaultingIntegrationTest {
         registry.add("openjcockpit.workflow-definitions.path", () -> workflowDefinitionsDir.toString());
     }
 
+    @MockitoBean nl.metafactory.agents.workflow.agents.AgentReferenceCheck agentReferenceCheck;
+
     @MockitoBean
     ModelProvider modelProvider;
 
@@ -89,7 +91,7 @@ class WorkflowPrimitiveDefaultingIntegrationTest {
         body.put("name", "Onboarding");
         body.put("projectName", "Noordzee Logistics");
         body.put("description", "desc");
-        body.put("agentIds", List.of("requirement"));
+        body.put("agentIds", List.of("local:requirement"));
         return body;
     }
 
@@ -121,7 +123,7 @@ class WorkflowPrimitiveDefaultingIntegrationTest {
         assertThat(message).isInstanceOf(String.class);
         assertThat((String) message)
                 .as("a genuine validation failure must still carry real, specific validation detail")
-                .contains("At least one pipeline agent must be selected")
+                .contains("At least one agent must be linked")
                 .doesNotContain("FAIL_ON_NULL_FOR_PRIMITIVES")
                 .doesNotContain("JSON parse error");
     }

@@ -62,9 +62,7 @@ public class ApprovalGateContextAssembler {
         );
     }
 
-    // Deliberately re-implemented rather than widening SpecGitPublisher's package-private
-    // helpers of the same name: SpecGitPublisher.java is a forbidden file for this delivery
-    // (work plan §4) — its behaviour, git publication points, and visibility must stay untouched.
+    // Same "workflow:<id>" encoding as WorkflowOrbRunner and ApprovalDecisionService.
     private static final String WORKFLOW_PREFIX = "workflow:";
 
     private static String workflowId(String requestedBy) {

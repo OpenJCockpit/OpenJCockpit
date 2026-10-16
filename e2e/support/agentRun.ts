@@ -95,7 +95,7 @@ export async function pollAgentRunToTerminal(
       }
       if (NEVER_PROGRESSES.has(body.status ?? '')) {
         throw new Error(
-          'run parked on an approval gate, which `POST /api/agent-runs` cannot produce (`AgentRunRequestDto` has no `approvalGate` field) — the harness would otherwise hang to the budget.',
+          'run parked on an approval gate, which the gate-less workflows this harness starts cannot produce — the harness would otherwise hang to the budget.',
         );
       }
       return 'PENDING';

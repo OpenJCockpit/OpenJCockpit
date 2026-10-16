@@ -18,6 +18,9 @@ public class GitWorkspaceJob {
     @Column(name = "spec_file_ref", nullable = false, length = 500)
     private String specFileRef;
 
+    @Column(name = "workflow_id", length = 128)
+    private String workflowId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private GitWorkspaceJobStatus status = GitWorkspaceJobStatus.CREATED;
@@ -100,4 +103,12 @@ public class GitWorkspaceJob {
     public void setCompletedAt(Instant completedAt) { this.completedAt = completedAt; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
+
+    public String getWorkflowId() {
+        return workflowId;
+    }
+
+    public void setWorkflowId(String workflowId) {
+        this.workflowId = workflowId;
+    }
 }

@@ -1,5 +1,4 @@
 import {
-  AgentDefinition,
   AgentRun,
   PreflightResult,
   Project,
@@ -43,46 +42,6 @@ export async function loadWorkspace(customerId: string): Promise<Workspace> {
     console.warn('Falling back to mock workspace data', error);
     return mockWorkspace;
   }
-}
-
-export async function fetchAgentDefinitions(): Promise<AgentDefinition[]> {
-  const response = await fetch(`${API_BASE_URL}/api/agents`, {
-    headers: authHeaders(),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to load agent definitions: ${response.status}`);
-  }
-  return await response.json();
-}
-
-export async function loadAgentDefinitions(): Promise<AgentDefinition[]> {
-  try {
-    return await fetchAgentDefinitions();
-  } catch (error) {
-    console.warn('Could not load agent definitions', error);
-    return [];
-  }
-}
-
-export async function startAgentRun(
-  customerId: string,
-  specContent: string,
-  agentIds: string[],
-  repositoryUrl: string,
-): Promise<AgentRun> {
-  const response = await fetch(`${API_BASE_URL}/api/agent-runs`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({
-      customerId,
-      specFile: specContent,
-      agentIds,
-      requestedBy: 'user',
-      repositoryUrl,
-    }),
-  });
-  if (!response.ok) throw new Error(`Failed to start agent run: ${response.status}`);
-  return response.json();
 }
 
 export async function checkWorkflowPreflight(projectId: string): Promise<PreflightResult> {

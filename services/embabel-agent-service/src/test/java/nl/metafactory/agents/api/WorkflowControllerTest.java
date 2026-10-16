@@ -49,6 +49,8 @@ class WorkflowControllerTest {
     @Autowired
     private JsonMapper objectMapper;
 
+    @MockitoBean nl.metafactory.agents.workflow.agents.AgentReferenceCheck agentReferenceCheck;
+
     @MockitoBean
     private WorkflowDefinitionRepository repository;
 
@@ -84,7 +86,7 @@ class WorkflowControllerTest {
 
     private WorkflowDefinition workflow(String id) {
         return new WorkflowDefinition(id, "Onboarding", "Noordzee Logistics", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
     }
 
     @Test
@@ -163,7 +165,7 @@ class WorkflowControllerTest {
     @Test
     void createReturns400WithoutGroupAndProject() throws Exception {
         var invalid = new WorkflowDefinition("wf-x", "Loose workflow", "", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
 
         mockMvc.perform(post("/api/workflows")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -176,7 +178,7 @@ class WorkflowControllerTest {
     @Test
     void createAcceptsWorkflowWithoutProjectWhenGrouped() throws Exception {
         var grouped = new WorkflowDefinition("wf-g", "Grouped workflow", "", "wg-spec-workflow", "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(repository.save(any())).thenReturn(grouped);
 
         mockMvc.perform(post("/api/workflows")
@@ -189,7 +191,7 @@ class WorkflowControllerTest {
     @Test
     void updateReturns400WithoutGroupAndProject() throws Exception {
         var invalid = new WorkflowDefinition("wf-x", "Loose workflow", "  ", "", "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
 
         mockMvc.perform(put("/api/workflows/wf-x")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -218,7 +220,7 @@ class WorkflowControllerTest {
     @Test
     void deleteReturns409WhenWorkflowIsReferencedByAnotherWorkflowsOrb() throws Exception {
         var referencingWorkflow = new WorkflowDefinition("wf-parent", "Parent", "Noordzee Logistics", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null,
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null,
                 List.of(new nl.metafactory.agents.workflow.model.WorkflowOrb("wf-1",
                         nl.metafactory.agents.workflow.model.WorkflowOrbMode.SEQUENTIAL, null)));
         when(repository.findAll()).thenReturn(List.of(referencingWorkflow));
@@ -232,7 +234,7 @@ class WorkflowControllerTest {
     @Test
     void startReturnsExecutionResponse() throws Exception {
         when(executionService.startWorkflow(org.mockito.ArgumentMatchers.eq("wf-1"), any(), any())).thenReturn(
-                new WorkflowStartResponse("wf-1", "run-1", "RUNNING", Instant.now(), "Workflow started with agents: [requirement]"));
+                new WorkflowStartResponse("wf-1", "run-1", "RUNNING", Instant.now(), "Workflow started with agents: [local:requirement]"));
 
         mockMvc.perform(post("/api/workflows/wf-1/start"))
                 .andExpect(status().isOk())
@@ -337,7 +339,7 @@ class WorkflowControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.groups[0].id").value("wg-1"))
                 .andExpect(jsonPath("$.workflows[0].id").value("wf-1"))
-                .andExpect(jsonPath("$.workflows[0].agentIds[0]").value("requirement"));
+                .andExpect(jsonPath("$.workflows[0].agentIds[0]").value("local:requirement"));
     }
 
     @Test
@@ -377,13 +379,13 @@ class WorkflowControllerTest {
         org.mockito.Mockito.verify(groupRepository).save(any());
         var savedCaptor = org.mockito.ArgumentCaptor.forClass(WorkflowDefinition.class);
         org.mockito.Mockito.verify(repository, org.mockito.Mockito.times(2)).save(savedCaptor.capture());
-        savedCaptor.getAllValues().forEach(saved -> org.assertj.core.api.Assertions.assertThat(saved.agentIds()).containsExactly("requirement"));
+        savedCaptor.getAllValues().forEach(saved -> org.assertj.core.api.Assertions.assertThat(saved.agentIds()).containsExactly("local:requirement"));
     }
 
     @Test
     void importReportsUnresolvableOrbReferenceWithoutRejectingTheImport() throws Exception {
         var withDanglingOrb = new WorkflowDefinition("wf-orb-1", "Onboarding", "Noordzee Logistics", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null,
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null,
                 List.of(new nl.metafactory.agents.workflow.model.WorkflowOrb("wf-does-not-exist-anywhere",
                         nl.metafactory.agents.workflow.model.WorkflowOrbMode.SEQUENTIAL, null)));
         var bundle = new WorkflowExportBundle(List.of(), List.of(withDanglingOrb));
@@ -405,7 +407,7 @@ class WorkflowControllerTest {
     @Test
     void importReturns400WhenBundleContainsWorkflowWithoutGroupAndProject() throws Exception {
         var invalid = new WorkflowDefinition("wf-x", "Loose workflow", "", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         var bundle = new WorkflowExportBundle(List.of(), List.of(invalid));
 
         mockMvc.perform(post("/api/workflows/import")
@@ -429,7 +431,7 @@ class WorkflowControllerTest {
     @Test
     void decisionLogsReturnsExportedEntries() throws Exception {
         var entry = new PolicyDecisionAuditEntry("d-1", "wf-1", "run-1", null, "Noordzee Logistics", null, null,
-                "requirement", null, null, null, "dashboard-button", "agent.use", "opa-decision-1", "ALLOWED",
+                "local:requirement", null, null, null, "dashboard-button", "agent.use", "opa-decision-1", "ALLOWED",
                 "allowed by policy", "low", false, List.of("agent.use"), Instant.now(), "v1", false, null);
         when(decisionLogExportService.exportDecisionLogsForWorkflow(any(), any())).thenReturn(List.of(entry));
 

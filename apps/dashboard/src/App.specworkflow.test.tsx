@@ -23,7 +23,6 @@ vi.mock('./api', async () => {
     ...actual,
     loadProjects: vi.fn(),
     loadWorkspace: vi.fn(),
-    loadAgentDefinitions: vi.fn(),
     loadProjectSpecs: vi.fn(),
     initSpecFolder: vi.fn(),
     getSpecInitStatus: vi.fn(),
@@ -305,7 +304,6 @@ describe('when a spec-init pull request is already open', () => {
     localStorage.setItem('openjcockpit_project_id', PROJECT.id);
     vi.mocked(api.loadProjects).mockResolvedValue([PROJECT_WITH_GIT]);
     vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
-    vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);
     vi.mocked(api.loadProjectSpecs).mockResolvedValue([]);
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
     vi.mocked(api.getSpecInitStatus).mockResolvedValue({
@@ -377,7 +375,6 @@ describe('when the .specify folder already exists but there are no specs yet', (
     localStorage.setItem('openjcockpit_project_id', PROJECT.id);
     vi.mocked(api.loadProjects).mockResolvedValue([PROJECT_WITH_GIT]);
     vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
-    vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);
     vi.mocked(api.loadProjectSpecs).mockResolvedValue([]);
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue(workflows);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([

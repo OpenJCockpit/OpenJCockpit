@@ -82,56 +82,6 @@ class EmbabelAgentClientTest {
     }
 
     @Test
-    void getAgentDefinitionsReturnsOrderedList() throws Exception {
-        var definitions = List.of(
-                new AgentDefinitionDto("requirement", "Requirement Agent", "desc", "specification",
-                        0, "SpecContent", "RequirementAnalysis"),
-                new AgentDefinitionDto("impact", "Impact Analysis Agent", "desc", "analysis",
-                        1, "RequirementAnalysis", "ImpactReport")
-        );
-        server.enqueue(new MockResponse()
-                .setBody(mapper.writeValueAsString(definitions))
-                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
-
-        var result = client.getAgentDefinitions();
-
-        assertThat(result).hasSize(2);
-        assertThat(result.get(0).id()).isEqualTo("requirement");
-        assertThat(result.get(0).sequenceOrder()).isEqualTo(0);
-        assertThat(result.get(1).inputType()).isEqualTo("RequirementAnalysis");
-    }
-
-    @Test
-    void getAgentDefinitionsReturnsEmptyOnConnectionError() throws IOException {
-        server.shutdown();
-
-        var result = client.getAgentDefinitions();
-
-        assertThat(result).isEmpty();
-    }
-
-    @Test
-    void startAgentRunPostsRequestAndReturnsRun() throws Exception {
-        var run = new AgentRunDto("run-99", "cust", "spec content",
-                "https://github.com/org/repo", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null);
-        server.enqueue(new MockResponse()
-                .setBody(mapper.writeValueAsString(run))
-                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
-
-        var request = new AgentRunRequestDto("cust", "spec content",
-                List.of("requirement"), "user", "https://github.com/org/repo");
-        var result = client.startAgentRun(request);
-
-        assertThat(result.runId()).isEqualTo("run-99");
-        assertThat(result.repositoryUrl()).isEqualTo("https://github.com/org/repo");
-        assertThat(result.status()).isEqualTo("RUNNING");
-
-        var recorded = server.takeRequest();
-        assertThat(recorded.getMethod()).isEqualTo("POST");
-        assertThat(recorded.getPath()).isEqualTo("/api/agent-runs");
-    }
-
-    @Test
     void stopAgentRunSendsDeleteRequest() throws Exception {
         server.enqueue(new MockResponse().setResponseCode(204));
 
@@ -143,7 +93,7 @@ class EmbabelAgentClientTest {
     }
 
     @Test
-    void startAgentRunForwardsBearerToken() throws Exception {
+    void requestsForwardTheBearerToken() throws Exception {
         var jwt = Jwt.withTokenValue("test-bearer-token")
                 .header("alg", "RS256")
                 .claim("sub", "user1")
@@ -153,14 +103,9 @@ class EmbabelAgentClientTest {
         SecurityContextHolder.getContext().setAuthentication(
                 new JwtAuthenticationToken(jwt, List.of()));
 
-        var run = new AgentRunDto("run-1", "cust", "spec",
-                "https://github.com/org/repo", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null);
-        server.enqueue(new MockResponse()
-                .setBody(mapper.writeValueAsString(run))
-                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+        server.enqueue(new MockResponse().setResponseCode(204));
 
-        client.startAgentRun(new AgentRunRequestDto("cust", "spec",
-                List.of("requirement"), "user", "https://github.com/org/repo"));
+        client.stopAgentRun("run-1");
 
         var recorded = server.takeRequest();
         assertThat(recorded.getHeader(HttpHeaders.AUTHORIZATION))

@@ -1,0 +1,105 @@
+# Agent catalog shown in Workflow design -> Agents. Read-only. Section status is one of
+# OK, NOT_CONFIGURED, UNAVAILABLE, UNAUTHORIZED, INVALID.
+AgentCatalogDto:
+  type: object
+  properties:
+    local:
+      $ref: '#/AgentCatalogLocalSectionDto'
+    providers:
+      type: array
+      items:
+        $ref: '#/AgentCatalogProviderSectionDto'
+
+AgentCatalogLocalSectionDto:
+  type: object
+  properties:
+    name:
+      type: string
+    status:
+      type: string
+    message:
+      type: string
+    agents:
+      type: array
+      items:
+        $ref: '#/AgentCatalogLocalAgentDto'
+
+AgentCatalogLocalAgentDto:
+  type: object
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    description:
+      type: string
+    version:
+      type: string
+    model:
+      type: string
+    path:
+      type: string
+      description: Path below the repository /agents folder.
+    folders:
+      type: array
+      description: Folder hierarchy below /agents, outermost first.
+      items:
+        type: string
+    skills:
+      type: array
+      items:
+        type: string
+    tools:
+      type: array
+      items:
+        type: string
+    valid:
+      type: boolean
+    problem:
+      type: string
+
+AgentCatalogProviderSectionDto:
+  type: object
+  properties:
+    name:
+      type: string
+      description: Display name of the A2A provider, e.g. LiteLLM.
+    type:
+      type: string
+    status:
+      type: string
+    message:
+      type: string
+    agents:
+      type: array
+      items:
+        $ref: '#/AgentCatalogProviderAgentDto'
+
+AgentCatalogProviderAgentDto:
+  type: object
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    description:
+      type: string
+    url:
+      type: string
+      description: Gateway endpoint as reachable by users (e.g. http://localhost:4100/a2a/qa-engineer).
+    cardUrl:
+      type: string
+      description: Agent card hosted by the provider (requires a provider key).
+    backendUrl:
+      type: string
+      description: Where the provider routes calls to; may only resolve inside the provider's network.
+    protocolVersion:
+      type: string
+    version:
+      type: string
+    streaming:
+      type: boolean
+    skills:
+      type: array
+      items:
+        type: string

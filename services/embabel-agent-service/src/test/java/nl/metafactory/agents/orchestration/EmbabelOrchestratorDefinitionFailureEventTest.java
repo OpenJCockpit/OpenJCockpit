@@ -1,18 +1,9 @@
 package nl.metafactory.agents.orchestration;
 
-import nl.metafactory.agents.agent.EvidenceAgent;
-import nl.metafactory.agents.agent.ImpactAnalysisAgent;
-import nl.metafactory.agents.agent.ImplementationAgent;
-import nl.metafactory.agents.agent.RequirementAgent;
-import nl.metafactory.agents.agent.ReviewAgent;
-import nl.metafactory.agents.agent.TestDesignAgent;
 import nl.metafactory.agents.approval.ApprovalGateCoordinator;
 import nl.metafactory.agents.approval.ApprovalGateRegistry;
-import nl.metafactory.agents.config.AgentPipelineProperties;
 import nl.metafactory.agents.model.AgentRunRequest;
 import nl.metafactory.agents.persistence.InMemoryAgentRunPersistence;
-import nl.metafactory.agents.spec.CodeRealisationService;
-import nl.metafactory.agents.spec.SpecGitPublisher;
 import nl.metafactory.agents.workflow.DefinitionFileReadException;
 import nl.metafactory.agents.workflow.YamlDefinitionStore;
 import nl.metafactory.agents.workflow.model.SkillSpec;
@@ -38,35 +29,27 @@ import static org.mockito.Mockito.when;
 
 class EmbabelOrchestratorDefinitionFailureEventTest {
 
-    private RequirementAgent requirementAgent;
+    private nl.metafactory.agents.workflow.agents.WorkflowAgentInvoker invoker;
     private AsyncPipelineRunner asyncPipelineRunner;
 
     @BeforeEach
     void setUp() {
-        requirementAgent = mock(RequirementAgent.class);
+        invoker = mock(nl.metafactory.agents.workflow.agents.WorkflowAgentInvoker.class);
         asyncPipelineRunner = mock(AsyncPipelineRunner.class);
         doAnswer(inv -> { ((Runnable) inv.getArgument(0)).run(); return null; })
                 .when(asyncPipelineRunner).run(any());
     }
 
-    private static AgentPipelineProperties buildProps() {
-        var props = new AgentPipelineProperties();
-        props.setSequence(List.of("requirement", "impact", "test-design", "implementation", "review", "realisation", "evidence"));
-        return props;
-    }
-
     private EmbabelOrchestrator buildOrchestrator(AgentRunStore runStore) {
-        return new EmbabelOrchestrator(requirementAgent, mock(ImpactAnalysisAgent.class),
-                mock(TestDesignAgent.class), mock(ImplementationAgent.class), mock(ReviewAgent.class),
-                mock(EvidenceAgent.class), buildProps(), asyncPipelineRunner, mock(SpecGitPublisher.class),
-                mock(CodeRealisationService.class), runStore, mock(ApprovalGateCoordinator.class),
+        return new EmbabelOrchestrator(asyncPipelineRunner, runStore, mock(ApprovalGateCoordinator.class),
                 mock(ApprovalGateRegistry.class), mock(nl.metafactory.agents.workflowtrigger.WorkflowOrbRunner.class),
-                mock(nl.metafactory.agents.workflowtrigger.WorkflowTriggerCoordinator.class));
+                mock(nl.metafactory.agents.workflowtrigger.WorkflowTriggerCoordinator.class), invoker,
+                new nl.metafactory.agents.workflow.agents.AgentWorkflowProperties(), new InMemoryAgentRunOutputs());
     }
 
     private static AgentRunRequest requestFor(String workflowId) {
         return new AgentRunRequest("cust1", "file.md",
-                List.of("requirement", "impact", "test-design", "implementation", "review", "realisation", "evidence"),
+                List.of("local:analyst", "a2a:litellm:qa"),
                 "user", "", null, null, null, null, null, null,
                 nl.metafactory.agents.model.RunInitiator.trigger("test"), List.of(workflowId));
     }
@@ -92,7 +75,7 @@ class EmbabelOrchestratorDefinitionFailureEventTest {
         AgentRunStore runStore = new AgentRunStore(new InMemoryAgentRunPersistence(), event -> { });
         EmbabelOrchestrator orchestrator = buildOrchestrator(runStore);
         DefinitionFileReadException failure = realDefinitionFailure(tempDir);
-        when(requirementAgent.analyzeRequirements(any())).thenThrow(failure);
+        when(invoker.invoke(any(), anyString(), any())).thenThrow(failure);
 
         var started = orchestrator.start(requestFor("wf-x"));
         var result = orchestrator.get(started.runId());
@@ -114,7 +97,7 @@ class EmbabelOrchestratorDefinitionFailureEventTest {
         AgentRunStore spiedRunStore = spy(realRunStore);
         EmbabelOrchestrator orchestrator = buildOrchestrator(spiedRunStore);
         DefinitionFileReadException failure = realDefinitionFailure(tempDir);
-        when(requirementAgent.analyzeRequirements(any())).thenThrow(failure);
+        when(invoker.invoke(any(), anyString(), any())).thenThrow(failure);
 
         var started = orchestrator.start(requestFor("wf-x"));
 
@@ -129,7 +112,7 @@ class EmbabelOrchestratorDefinitionFailureEventTest {
         AgentRunStore runStore = new AgentRunStore(new InMemoryAgentRunPersistence(), event -> { });
         EmbabelOrchestrator orchestrator = buildOrchestrator(runStore);
         DefinitionFileReadException failure = realDefinitionFailure(tempDir);
-        when(requirementAgent.analyzeRequirements(any())).thenThrow(failure);
+        when(invoker.invoke(any(), anyString(), any())).thenThrow(failure);
 
         var started = orchestrator.start(requestFor("wf-x"));
         var result = orchestrator.get(started.runId());
@@ -146,7 +129,7 @@ class EmbabelOrchestratorDefinitionFailureEventTest {
     void genericRuntimeExceptionRecordsNoWorkflowDefinitionEvent() {
         AgentRunStore runStore = new AgentRunStore(new InMemoryAgentRunPersistence(), event -> { });
         EmbabelOrchestrator orchestrator = buildOrchestrator(runStore);
-        when(requirementAgent.analyzeRequirements(any())).thenThrow(new RuntimeException("ai failure"));
+        when(invoker.invoke(any(), anyString(), any())).thenThrow(new RuntimeException("ai failure"));
 
         var started = orchestrator.start(requestFor("wf-x"));
         var result = orchestrator.get(started.runId());

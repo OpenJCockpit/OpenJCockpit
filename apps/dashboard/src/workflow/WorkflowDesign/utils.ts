@@ -1,4 +1,5 @@
 import type { AgentDefinition } from '../../types';
+import { referenceLabel } from '../linkableAgents';
 import type { SkillCatalogSourceStatus, WorkflowExportBundle } from '../workflowTypes';
 
 export function toList(value: string): string[] {
@@ -46,13 +47,24 @@ export function describeSourceOutcome(source: SkillCatalogSourceStatus): string 
   }
 }
 
-// Stages currently selected in the "Pipeline agents" picker, in pipeline order —
-// the gate placement dropdown offers exactly these and nothing else (AC-02).
+// Agents currently linked to the workflow, in the workflow's execution order — the gate and orb
+// placement dropdowns offer exactly these and nothing else (AC-02). A linked reference that is not
+// (or no longer) in the catalog is still offered, labelled by its reference.
 export function selectedStagesInOrder(
   availableAgents: AgentDefinition[],
   agentIds: string[],
 ): AgentDefinition[] {
-  return availableAgents
-    .filter((agent) => agentIds.includes(agent.id))
-    .sort((a, b) => a.sequenceOrder - b.sequenceOrder);
+  const byId = new Map(availableAgents.map((agent) => [agent.id, agent]));
+  return agentIds.map(
+    (id, index) =>
+      byId.get(id) ?? {
+        id,
+        name: referenceLabel(id),
+        description: '',
+        role: '',
+        sequenceOrder: index,
+        inputType: '',
+        outputType: '',
+      },
+  );
 }

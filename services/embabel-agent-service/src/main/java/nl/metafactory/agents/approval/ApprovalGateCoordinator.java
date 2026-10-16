@@ -1,5 +1,7 @@
 package nl.metafactory.agents.approval;
 
+import nl.metafactory.agents.workflow.agents.AgentRef;
+
 import nl.metafactory.agents.approval.model.ApprovalGateState;
 import nl.metafactory.agents.approval.model.StageChangeReport;
 import nl.metafactory.agents.config.ApprovalGateProperties;
@@ -16,13 +18,13 @@ import org.springframework.stereotype.Component;
  * data on the parked {@link ApprovalGateState#lastReport()} for the context assembler to read.
  *
  * <p>{@code feedbackSupported} is computed in exactly ONE place — here, as
- * {@code "realisation".equals(placementStage)} — and nowhere else in the backend (BR-41, risk 8).
+ * "the gate is anchored to a catalog agent reference" (that agent re-runs with the reviewer's
+ * comments) — and nowhere else in the backend (BR-41, risk 8).
  */
 @Component
 public class ApprovalGateCoordinator {
 
     private static final Logger log = LoggerFactory.getLogger(ApprovalGateCoordinator.class);
-    private static final String REALISATION_STAGE = "realisation";
 
     private final ApprovalGateRegistry registry;
     private final AgentRunStore runStore;
@@ -50,7 +52,8 @@ public class ApprovalGateCoordinator {
 
         ApprovalGateState gate = state.gate();
         if (gate == null) {
-            gate = new ApprovalGateState(config.placementStage(), REALISATION_STAGE.equals(config.placementStage()),
+            boolean feedbackSupported = AgentRef.isRef(config.placementStage());
+            gate = new ApprovalGateState(config.placementStage(), feedbackSupported,
                     properties.getMaxFeedbackIterations());
             state.setGate(gate);
         }

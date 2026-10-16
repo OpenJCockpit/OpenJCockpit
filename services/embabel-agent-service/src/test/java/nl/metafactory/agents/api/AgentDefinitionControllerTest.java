@@ -2,8 +2,6 @@ package nl.metafactory.agents.api;
 
 import nl.metafactory.common.test.UnsecuredWebMvcTest;
 import tools.jackson.databind.json.JsonMapper;
-import nl.metafactory.agents.model.AgentDefinition;
-import nl.metafactory.agents.orchestration.AgentOrchestrator;
 import nl.metafactory.agents.workflow.AgentSpecRepository;
 import nl.metafactory.agents.workflow.PromptToDefinitionService;
 import nl.metafactory.agents.workflow.model.AgentSpec;
@@ -41,16 +39,8 @@ class AgentDefinitionControllerTest {
     @MockitoBean
     private PromptToDefinitionService generationService;
 
-    @MockitoBean
-    private AgentOrchestrator orchestrator;
-
     private AgentSpec agent(String name) {
         return new AgentSpec(name, "desc", "role", "instructions", List.of(), List.of(), List.of(), "wf-1", false);
-    }
-
-    private AgentDefinition builtInDefinition(String id) {
-        return new AgentDefinition(id, id + " Agent", "does things", "engineering",
-                List.of(), List.of("output.md"), 0, "In", "Out");
     }
 
     @Test
@@ -133,44 +123,13 @@ class AgentDefinitionControllerTest {
     }
 
     @Test
-    void listIncludesBuiltInPipelineAgentsAlongsideCustomOnes() throws Exception {
+    void listContainsOnlyStoredDefinitionsBecauseThereAreNoBuiltInAgents() throws Exception {
         when(repository.findAll()).thenReturn(List.of(agent("triage-agent")));
-        when(orchestrator.availableAgents()).thenReturn(List.of(builtInDefinition("realisation")));
 
         mockMvc.perform(get("/api/agent-definitions"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].name").value("triage-agent"))
-                .andExpect(jsonPath("$[0].builtIn").value(false))
-                .andExpect(jsonPath("$[1].name").value("realisation"))
-                .andExpect(jsonPath("$[1].builtIn").value(true));
-    }
-
-    @Test
-    void getReturnsBuiltInAgentWhenNotInRepository() throws Exception {
-        when(repository.findByName("realisation")).thenReturn(Optional.empty());
-        when(orchestrator.availableAgents()).thenReturn(List.of(builtInDefinition("realisation")));
-
-        mockMvc.perform(get("/api/agent-definitions/realisation"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.builtIn").value(true));
-    }
-
-    @Test
-    void updateBuiltInAgentReturns409() throws Exception {
-        when(orchestrator.availableAgents()).thenReturn(List.of(builtInDefinition("realisation")));
-        var spec = agent("realisation");
-
-        mockMvc.perform(put("/api/agent-definitions/realisation")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(spec)))
-                .andExpect(status().isConflict());
-    }
-
-    @Test
-    void deleteBuiltInAgentReturns409() throws Exception {
-        when(orchestrator.availableAgents()).thenReturn(List.of(builtInDefinition("realisation")));
-
-        mockMvc.perform(delete("/api/agent-definitions/realisation"))
-                .andExpect(status().isConflict());
+                .andExpect(jsonPath("$[0].builtIn").value(false));
     }
 }

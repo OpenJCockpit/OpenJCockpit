@@ -69,6 +69,17 @@ public class ProjectSpecService {
         }
     }
 
+    /**
+     * The content of one spec of the project's {@code specs/} folder, by the file name the dashboard
+     * shows (e.g. {@code spec-1.md} or {@code 001-login/spec.md}); empty when the project has no such spec.
+     */
+    public java.util.Optional<String> readSpecContent(UUID projectId, String fileName) {
+        return listSpecFiles(projectId).stream()
+                .filter(spec -> spec.fileName().equals(fileName) || spec.id().equals(fileName))
+                .map(SpecFile::content)
+                .findFirst();
+    }
+
     public SpecInitStatus specInitStatus(UUID projectId) {
         Project project = projectGit.validateProject(projectId);
         ProjectGitCredential credential = projectGit.loadCredential(projectId);

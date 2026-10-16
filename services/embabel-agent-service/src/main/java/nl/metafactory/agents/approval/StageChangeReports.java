@@ -2,7 +2,6 @@ package nl.metafactory.agents.approval;
 
 import nl.metafactory.agents.approval.model.StageChangeReport;
 import nl.metafactory.agents.approval.model.StageOutcome;
-import nl.metafactory.agents.spec.SpecPublication;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -52,19 +51,6 @@ public final class StageChangeReports {
                 scrubSecrets(message), message);
     }
 
-    /**
-     * Bridges a non-realisation git publication (today's {@code publishSpecToGit}/
-     * {@code publishImplementationToGit}, whose {@link SpecPublication} carries only
-     * OK/SKIPPED/FAILED) into a {@link StageChangeReport}, for stages other than realisation.
-     */
-    public static StageChangeReport fromPublication(SpecPublication publication, List<String> changedPaths) {
-        return switch (publication.status()) {
-            case "OK" -> published(publication.branch(), publication.pullRequestUrl(), null,
-                    changedPaths, publication.message());
-            case "SKIPPED" -> notApplicable(publication.message());
-            default -> publishFailed(publication.branch(), publication.message());
-        };
-    }
 
     /**
      * Fixed-vocabulary-plus-scrub scrubber for {@code outcomeReason} (AC-40): removes userinfo

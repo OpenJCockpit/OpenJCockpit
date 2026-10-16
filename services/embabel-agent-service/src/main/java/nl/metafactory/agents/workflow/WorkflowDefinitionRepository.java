@@ -4,6 +4,8 @@ import nl.metafactory.agents.config.WorkflowDefinitionProperties;
 import nl.metafactory.agents.workflow.model.WorkflowDefinition;
 import org.springframework.stereotype.Component;
 
+import nl.metafactory.agents.workflow.agents.WorkflowAgentLinks;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -14,21 +16,34 @@ public class WorkflowDefinitionRepository {
 
     private final Path dir;
     private final YamlDefinitionStore store;
+    private final WorkflowAgentLinks agentLinks;
 
-    public WorkflowDefinitionRepository(WorkflowDefinitionProperties properties, YamlDefinitionStore store) {
+    public WorkflowDefinitionRepository(WorkflowDefinitionProperties properties, YamlDefinitionStore store,
+                                        WorkflowAgentLinks agentLinks) {
         this.dir = Path.of(properties.getPath(), "workflows");
         this.store = store;
+        this.agentLinks = agentLinks;
     }
 
     public List<WorkflowDefinition> findAll() {
         return store.listWithKeys(dir, WorkflowDefinition.class).stream()
-                .map(entry -> ensureId(entry.getKey(), entry.getValue()))
+                .map(entry -> ensureId(entry.getKey(), withLinkedAgents(entry.getKey(), entry.getValue())))
                 .toList();
     }
 
     public Optional<WorkflowDefinition> findById(String id) {
         return store.find(dir, id, WorkflowDefinition.class)
-                .map(definition -> ensureId(id, definition));
+                .map(definition -> ensureId(id, withLinkedAgents(id, definition)));
+    }
+
+    /**
+     * A workflow's agents come from the linking table only (agent references, in order). Agent ids a
+     * pre-catalog YAML file still carries (built-in pipeline stages) are dropped: such workflows have
+     * to be re-linked to catalog agents in Workflow design.
+     */
+    private WorkflowDefinition withLinkedAgents(String storedKey, WorkflowDefinition definition) {
+        String id = definition.id() != null && !definition.id().isBlank() ? definition.id() : storedKey;
+        return definition.withAgentIds(agentLinks.find(id));
     }
 
     public WorkflowDefinition save(WorkflowDefinition definition) {
@@ -37,6 +52,7 @@ public class WorkflowDefinitionRepository {
     }
 
     public boolean deleteById(String id) {
+        agentLinks.delete(id);
         return store.delete(dir, id);
     }
 
@@ -54,6 +70,7 @@ public class WorkflowDefinitionRepository {
         WorkflowDefinition saved = persist(withId);
         if (!withId.id().equals(storedKey)) {
             store.delete(dir, storedKey);
+            agentLinks.delete(storedKey);
         }
         return saved;
     }
@@ -66,7 +83,11 @@ public class WorkflowDefinitionRepository {
      * the ADR-007 wither, so a future component cannot be dropped by this strip (BR-6).
      */
     private WorkflowDefinition persist(WorkflowDefinition definition) {
-        return store.save(dir, definition.id(), definition.withLastExecution(null, null));
+        List<String> agents = definition.agentIds() == null ? List.of() : definition.agentIds();
+        agentLinks.replace(definition.id(), agents);
+        WorkflowDefinition saved = store.save(dir, definition.id(),
+                definition.withLastExecution(null, null).withAgentIds(List.of()));
+        return saved.withAgentIds(List.copyOf(agents));
     }
 
     private boolean hasId(WorkflowDefinition definition) {

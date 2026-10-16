@@ -1,6 +1,5 @@
 package nl.metafactory.aicontrol.model;
 
-import nl.metafactory.aicontrol.client.AgentDefinitionDto;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -8,16 +7,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ModelRecordsTest {
-
-    @Test
-    void agentDefinitionDto() {
-        var r = new AgentDefinitionDto("requirement", "Requirement Agent", "desc", "specification",
-                0, "SpecContent", "RequirementAnalysis");
-        assertThat(r.id()).isEqualTo("requirement");
-        assertThat(r.sequenceOrder()).isEqualTo(0);
-        assertThat(r.inputType()).isEqualTo("SpecContent");
-        assertThat(r.outputType()).isEqualTo("RequirementAnalysis");
-    }
 
     @Test
     void agentCard() {

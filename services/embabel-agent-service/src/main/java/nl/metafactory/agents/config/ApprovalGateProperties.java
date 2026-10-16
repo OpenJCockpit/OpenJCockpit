@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
  * Frozen Contract #2 (workflow-approval-gate work plan §5): every default here is also a Java
  * field initialiser, so a truncated or absent {@code openjcockpit.approval-gate} YAML block cannot
  * produce a permissive value. Follows the same {@code @Component @ConfigurationProperties} pattern
- * as {@link AgentPipelineProperties}/{@link WorkflowDefinitionProperties} — no explicit
+ * as {@link WorkflowDefinitionProperties} — no explicit
  * {@code @EnableConfigurationProperties} registration is needed or added.
  */
 @Component

@@ -14,6 +14,147 @@ model_list:
     model_info:
       mode: chat
 
+  # SPEC-002: model alias used by configuration-driven agents (agent Markdown `model: customer-chat`).
+  # Same upstream model, but a separate model_name so the policy attachment below can select
+  # exactly this traffic. embabel-agent-service registers it as an Embabel LLM role of the same name.
+  - model_name: customer-chat
+    litellm_params:
+      model: os.environ/OLLAMA_MODEL
+      custom_llm_provider: ollama_chat
+      api_base: os.environ/OLLAMA_BASE_URL
+      keep_alive: "30m"
+      timeout: 600
+      stream_timeout: 600
+    model_info:
+      mode: chat
+
+  # Model alias of the seeded delivery agents (business-analyst, solution-architect,
+  # software-developer, qa-engineer). Same upstream model; separate name for policy selection.
+  - model_name: agent-chat
+    litellm_params:
+      model: os.environ/OLLAMA_MODEL
+      custom_llm_provider: ollama_chat
+      api_base: os.environ/OLLAMA_BASE_URL
+      keep_alive: "30m"
+      timeout: 600
+      stream_timeout: 600
+    model_info:
+      mode: chat
+
+# SPEC-002: on-device content filter (no external service). Prebuilt pattern names verified in the
+# pinned v1.101.2 source (guardrail_hooks/litellm_content_filter/patterns.json). default_on is false:
+# it only runs where the policy below attaches it.
+guardrails:
+  - guardrail_name: openjcockpit-pii
+    litellm_params:
+      guardrail: litellm_content_filter
+      mode: [pre_call, post_call]
+      default_on: false
+      patterns:
+        - pattern_type: prebuilt
+          pattern_name: nl_bsn_contextual
+          action: BLOCK
+        - pattern_type: prebuilt
+          pattern_name: iban
+          action: BLOCK
+        - pattern_type: prebuilt
+          pattern_name: credit_card
+          action: BLOCK
+
+policies:
+  openjcockpit-agent-pii:
+    description: "PII filter for configuration-driven agent model traffic (SPEC-002)"
+    guardrails:
+      add: [openjcockpit-pii]
+
+policy_attachments:
+  - policy: openjcockpit-agent-pii
+    models: [customer-chat, agent-chat]
+
+# Local git MCP server (services/git-mcp-server, compose service `git-mcp-server`), registered as a
+# separate MCP server so its git tools (checkout, create branch, pull, commit, push) are reached through
+# LiteLLM: /mcp (streamable HTTP) or /sse, tools prefixed `openjcockpit_git-`. Verified against the pinned
+# v1.101.2 source (proxy/_experimental/mcp_server/mcp_server_manager.py, MCPServerConfig):
+#  - the server speaks MCP over SSE only (spring.ai.mcp.server.protocol: sse), endpoint /sse;
+#  - the name must not contain the tool-prefix separator '-', hence the underscore;
+#  - server_id is pinned so key grants (object_permission.mcp_servers) survive edits of url/transport;
+#  - allow_all_keys: false -> only keys granted this server can use it (local-seed grants the
+#    embabel-agent-service key); available_on_public_internet: false -> private-network callers only.
+# The server has no own authentication; it is reachable only on the compose network (no LiteLLM auth
+# headers are forwarded to it).
+mcp_servers:
+  openjcockpit_git:
+    server_id: openjcockpit_git
+    url: http://git-mcp-server:8093/sse
+    transport: sse
+    description: "OpenJCockpit git tools: checkout, create branch, pull, commit, push (local git-mcp-server)"
+    allow_all_keys: false
+    available_on_public_internet: false
+
+# Seeded A2A agents, served by embabel-agent-service (definitions in
+# services/embabel-agent-service/agent-definitions/agents/). Listed in the dashboard under
+# Workflow design -> Agents -> LiteLLM. Pinned to A2A 0.3 (the protocol the service implements:
+# message/send only, no streaming). Config agents get agent_id = sha256(agent_name) and are
+# read-only in the LiteLLM UI. Callers pass their Keycloak JWT as
+# `x-a2a-<agent_name>-authorization: Bearer <jwt>`; LiteLLM forwards it as `authorization`.
+agents:
+  - agent_name: business-analyst
+    agent_card_params:
+      protocolVersion: "0.3.0"
+      name: business-analyst
+      description: "Turns a business request into clear, testable requirements and acceptance criteria"
+      url: "http://embabel-agent-service:8081/a2a/business-analyst"
+      preferredTransport: JSONRPC
+      version: "1.1.1"
+      capabilities: {streaming: false, pushNotifications: false, stateTransitionHistory: false}
+      defaultInputModes: ["text/plain"]
+      defaultOutputModes: ["text/plain"]
+      skills:
+        - {id: business-analyst, name: "Business Analyst", description: "Requirements and acceptance criteria", tags: [delivery]}
+    litellm_params: {guardrails: [openjcockpit-pii]}
+  - agent_name: solution-architect
+    agent_card_params:
+      protocolVersion: "0.3.0"
+      name: solution-architect
+      description: "Designs a solution for given requirements: components, boundaries, integrations and trade-offs"
+      url: "http://embabel-agent-service:8081/a2a/solution-architect"
+      preferredTransport: JSONRPC
+      version: "1.1.1"
+      capabilities: {streaming: false, pushNotifications: false, stateTransitionHistory: false}
+      defaultInputModes: ["text/plain"]
+      defaultOutputModes: ["text/plain"]
+      skills:
+        - {id: solution-architect, name: "Solution Architect", description: "Solution design and trade-offs", tags: [delivery]}
+    litellm_params: {guardrails: [openjcockpit-pii]}
+  - agent_name: software-developer
+    agent_card_params:
+      protocolVersion: "0.3.0"
+      name: software-developer
+      description: "Implements a designed change as small, reviewable code changes with tests"
+      url: "http://embabel-agent-service:8081/a2a/software-developer"
+      preferredTransport: JSONRPC
+      version: "1.1.1"
+      capabilities: {streaming: false, pushNotifications: false, stateTransitionHistory: false}
+      defaultInputModes: ["text/plain"]
+      defaultOutputModes: ["text/plain"]
+      skills:
+        - {id: software-developer, name: "Software Developer", description: "Implementation with tests", tags: [delivery]}
+    litellm_params: {guardrails: [openjcockpit-pii]}
+  - agent_name: qa-engineer
+    agent_card_params:
+      protocolVersion: "0.3.0"
+      name: qa-engineer
+      description: "Designs test strategy and test cases and assesses whether acceptance criteria are met"
+      url: "http://embabel-agent-service:8081/a2a/qa-engineer"
+      preferredTransport: JSONRPC
+      version: "1.1.1"
+      capabilities: {streaming: false, pushNotifications: false, stateTransitionHistory: false}
+      defaultInputModes: ["text/plain"]
+      defaultOutputModes: ["text/plain"]
+      skills:
+        - {id: qa-engineer, name: "QA Engineer", description: "Test strategy and verification", tags: [delivery]}
+    litellm_params: {guardrails: [openjcockpit-pii]}
+
 litellm_settings:
   request_timeout: 600        # BR-19 layer 9 (vendor default is 6000)
   num_retries: 0              # BR-19 layer 11

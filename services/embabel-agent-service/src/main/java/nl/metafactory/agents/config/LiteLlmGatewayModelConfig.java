@@ -85,6 +85,15 @@ public class LiteLlmGatewayModelConfig {
             @Value("${openjcockpit.llm.connect-timeout-seconds:45}") long connectTimeoutSeconds,
             @Value("${openjcockpit.llm.read-timeout-seconds:600}") long readTimeoutSeconds,
             ObservationRegistry observationRegistry) {
+        return gatewayLlm(baseUrl, apiKey, model, connectTimeoutSeconds, readTimeoutSeconds, observationRegistry);
+    }
+
+    /**
+     * Builds a gateway-routed {@link SpringAiLlmService} for {@code model}. Shared by the coding LLM
+     * above and by the per-alias models of configuration-driven agents ({@link AgentGatewayModelRegistrar}).
+     */
+    static SpringAiLlmService gatewayLlm(String baseUrl, String apiKey, String model, long connectTimeoutSeconds,
+                                         long readTimeoutSeconds, ObservationRegistry observationRegistry) {
         OpenAiChatOptions chatOptions = OpenAiChatOptions.builder()
                 .baseUrl(baseUrl)
                 .apiKey(apiKey)

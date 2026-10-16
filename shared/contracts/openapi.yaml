@@ -39,10 +39,6 @@ paths:
     $ref: 'paths/project-spec.yaml#/specInitStatus'
   /api/projects/{projectId}/spec-init:
     $ref: 'paths/project-spec.yaml#/specInit'
-  /api/agents:
-    $ref: 'paths/agents.yaml#/agentsCollection'
-  /api/agent-runs:
-    $ref: 'paths/agents.yaml#/agentRunsCollection'
   /api/agent-runs/{runId}:
     $ref: 'paths/agents.yaml#/agentRunById'
   /api/agent-runs/{runId}/approval-gate:
@@ -51,6 +47,10 @@ paths:
     $ref: 'paths/approval-gate.yaml#/approvalGateDecision'
   /api/agent-runs/{runId}/approval-decisions:
     $ref: 'paths/approval-gate.yaml#/approvalGateDecisions'
+  /api/agent-catalog:
+    $ref: 'paths/agent-catalog.yaml#/agentCatalog'
+  /api/agent-catalog/providers/{provider}/agents/{name}/card:
+    $ref: 'paths/agent-catalog.yaml#/agentCatalogProviderAgentCard'
   /api/agent-definitions:
     $ref: 'paths/agent-definitions.yaml#/agentDefinitionsCollection'
   /api/agent-definitions/{name}:
@@ -111,6 +111,10 @@ paths:
     $ref: 'paths/skills-marketplaces.yaml#/skillsMarketplaceById'
   /api/skill-catalog:
     $ref: 'paths/skill-catalog.yaml#/skillCatalog'
+  /api/a2a-services:
+    $ref: 'paths/a2a-services.yaml#/a2aServicesCollection'
+  /api/a2a-services/{id}:
+    $ref: 'paths/a2a-services.yaml#/a2aServiceById'
 components:
   securitySchemes:
     bearerAuth:
@@ -180,18 +184,24 @@ components:
       $ref: 'schemas/spec.yaml#/SpecFileSaveRequest'
     SpecErrorResponse:
       $ref: 'schemas/spec.yaml#/SpecErrorResponse'
-    AgentDefinitionDto:
-      $ref: 'schemas/agent.yaml#/AgentDefinitionDto'
     AgentEventDto:
       $ref: 'schemas/agent.yaml#/AgentEventDto'
     AgentRunDto:
       $ref: 'schemas/agent.yaml#/AgentRunDto'
-    AgentRunRequestDto:
-      $ref: 'schemas/agent.yaml#/AgentRunRequestDto'
     McpToolRefDto:
       $ref: 'schemas/agent.yaml#/McpToolRefDto'
     AgentSpecDto:
       $ref: 'schemas/agent.yaml#/AgentSpecDto'
+    AgentCatalogDto:
+      $ref: 'schemas/agent-catalog.yaml#/AgentCatalogDto'
+    AgentCatalogLocalSectionDto:
+      $ref: 'schemas/agent-catalog.yaml#/AgentCatalogLocalSectionDto'
+    AgentCatalogLocalAgentDto:
+      $ref: 'schemas/agent-catalog.yaml#/AgentCatalogLocalAgentDto'
+    AgentCatalogProviderSectionDto:
+      $ref: 'schemas/agent-catalog.yaml#/AgentCatalogProviderSectionDto'
+    AgentCatalogProviderAgentDto:
+      $ref: 'schemas/agent-catalog.yaml#/AgentCatalogProviderAgentDto'
     SkillSpecDto:
       $ref: 'schemas/agent.yaml#/SkillSpecDto'
     SubagentSpecDto:
@@ -262,6 +272,10 @@ components:
       $ref: 'schemas/opa.yaml#/OpaConfigRequestDto'
     SkillsMarketplaceConnectionDto:
       $ref: 'schemas/skills-marketplace.yaml#/SkillsMarketplaceConnectionDto'
+    A2AServiceDto:
+      $ref: 'schemas/a2a-service.yaml#/A2AServiceDto'
+    A2AServiceRequest:
+      $ref: 'schemas/a2a-service.yaml#/A2AServiceRequest'
     SkillsMarketplaceConnectionRequest:
       $ref: 'schemas/skills-marketplace.yaml#/SkillsMarketplaceConnectionRequest'
     ApiErrorResponse:

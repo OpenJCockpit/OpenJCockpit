@@ -1,0 +1,126 @@
+# A2A services shown in Workflow designer -> Configuration. Services from the agent service's
+# configuration are read-only; LiteLLM-compatible gateways can be added, changed and removed.
+# Secrets (apiKey, callerClientSecret) are write-only.
+a2aServicesCollection:
+  get:
+    tags:
+      - A2AServices
+    operationId: listA2AServices
+    summary: A2A services, configured ones first, each with its live status
+    responses:
+      '200':
+        description: A2A services
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/a2a-service.yaml#/A2AServiceDto'
+      '502':
+        description: The agent service could not be reached
+  post:
+    tags:
+      - A2AServices
+    operationId: createA2AService
+    summary: Add a LiteLLM-compatible A2A gateway
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/a2a-service.yaml#/A2AServiceRequest'
+    responses:
+      '201':
+        description: A2A service added
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/a2a-service.yaml#/A2AServiceDto'
+      '400':
+        description: Validation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: An A2A service with this id already exists
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '503':
+        description: Secrets cannot be stored (no encryption key configured)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+a2aServiceById:
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  put:
+    tags:
+      - A2AServices
+    operationId: updateA2AService
+    summary: Change an A2A service added in the dashboard (blank secrets keep the stored ones)
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/a2a-service.yaml#/A2AServiceRequest'
+    responses:
+      '200':
+        description: A2A service changed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/a2a-service.yaml#/A2AServiceDto'
+      '400':
+        description: Validation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '404':
+        description: No A2A service with this id
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: The service comes from configuration and is read-only
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '503':
+        description: Secrets cannot be stored (no encryption key configured)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+  delete:
+    tags:
+      - A2AServices
+    operationId: deleteA2AService
+    summary: Remove an A2A service added in the dashboard
+    responses:
+      '204':
+        description: A2A service removed
+      '404':
+        description: No A2A service with this id
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: The service is read-only or still used by a workflow
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'

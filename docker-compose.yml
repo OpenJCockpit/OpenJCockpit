@@ -5,6 +5,17 @@ x-ollama-base-url: &ollama-base-url ${OLLAMA_BASE_URL:-http://host.docker.intern
 x-ollama-model: &ollama-model ${OLLAMA_MODEL:-qwen3.6:27b}
 x-litellm-master-key: &litellm-master-key ${LITELLM_MASTER_KEY:-sk-openjcockpit-litellm-local}
 x-litellm-virtual-key: &litellm-virtual-key ${LITELLM_VIRTUAL_KEY:-sk-openjcockpit-embabel-local}
+# The one A2A client of the LiteLLM provider (seeded by local-seed): LiteLLM key + Keycloak client
+# secret (client openjcockpit-a2a issues the JWT, with tenant_id=local, that embabel requires).
+x-litellm-a2a-key: &litellm-a2a-key ${LITELLM_A2A_KEY:-sk-openjcockpit-a2a-local}
+x-a2a-client-secret: &a2a-client-secret ${A2A_CLIENT_SECRET:-openjcockpit-a2a-local-secret}
+# Local-only secrets of the git-workspace flow (git MCP server via LiteLLM, credentials pulled server-side).
+x-git-mcp-client-secret: &git-mcp-client-secret ${GIT_MCP_CLIENT_SECRET:-openjcockpit-git-mcp-local-secret}
+x-ai-control-client-secret: &ai-control-client-secret ${AI_CONTROL_CLIENT_SECRET:-openjcockpit-ai-control-local-secret}
+x-litellm-ai-control-key: &litellm-ai-control-key ${LITELLM_AI_CONTROL_KEY:-sk-openjcockpit-ai-control-local}
+# Local-only key that encrypts the secrets of A2A services added in the dashboard (salt: hex).
+x-a2a-service-encryption-secret: &a2a-service-encryption-secret ${A2A_SERVICE_ENCRYPTION_SECRET:-openjcockpit-a2a-services-local-secret}
+x-a2a-service-encryption-salt: &a2a-service-encryption-salt ${A2A_SERVICE_ENCRYPTION_SALT:-a2a5e7c1ce5a17ed}
 services:
   postgres:
     image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
@@ -49,7 +60,12 @@ services:
       KC_SPI_THEME_CACHE_THEMES: "false"
       KC_SPI_THEME_CACHE_TEMPLATES: "false"
       KC_SPI_THEME_STATIC_MAX_AGE: "-1"
-      KC_HOSTNAME_URL: "http://localhost:8080"
+      # Keycloak 26 uses hostname v2 (KC_HOSTNAME_URL is a removed v1 option and was ignored). A full URL
+      # pins the token issuer to http://localhost:8080 for every caller, including service clients that
+      # request tokens inside the compose network (http://keycloak:8080): the services validate exactly
+      # that issuer (openjcockpit.security.jwt-issuer). Backchannel requests keep using the request host.
+      KC_HOSTNAME: "http://localhost:8080"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
     healthcheck:
       # KC_HEALTH_ENABLED exposes /health/ready on the management port (9000).
       # The Keycloak image ships no curl/wget, so use bash's /dev/tcp.
@@ -151,6 +167,8 @@ services:
       retries: 30
       start_period: 40s
     depends_on:
+      git-mcp-server:
+        condition: service_started
       postgres:
         condition: service_healthy
       postgres-init:
@@ -158,10 +176,15 @@ services:
 
   # One-shot, idempotent seeding of the dedicated non-admin virtual key used by
   # embabel-agent-service (BR-15). Mirrors keycloak-e2e-user exactly.
-  litellm-seed-key:
+  # One-shot local development seed, runs on every `docker compose up` (idempotent):
+  # Keycloak A2A client + LiteLLM keys (agent service model key, the one LiteLLM A2A key).
+  # See infrastructure/local-seed/seed-local.sh.
+  local-seed:
     image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
     depends_on:
       litellm:
+        condition: service_healthy
+      keycloak:
         condition: service_healthy
     environment:
       LITELLM_URL: http://litellm:4000
@@ -169,9 +192,22 @@ services:
       LITELLM_VIRTUAL_KEY: *litellm-virtual-key
       LITELLM_KEY_ALIAS: embabel-agent-service
       LITELLM_KEY_MODEL: *ollama-model
+      LITELLM_A2A_KEY: *litellm-a2a-key
+      KC_URL: http://keycloak:8080
+      KC_REALM: openjcockpit
+      # Mirrors the bootstrap admin of the keycloak service (local dev only).
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      A2A_CLIENT_ID: openjcockpit-a2a
+      A2A_CLIENT_SECRET: *a2a-client-secret
+      A2A_TENANT_CLAIM: tenant_id
+      A2A_TENANT: local
+      GIT_MCP_CLIENT_SECRET: *git-mcp-client-secret
+      AI_CONTROL_CLIENT_SECRET: *ai-control-client-secret
+      LITELLM_AI_CONTROL_KEY: *litellm-ai-control-key
     volumes:
-      - ./infrastructure/litellm/seed-virtual-key.sh:/seed-virtual-key.sh:ro
-    entrypoint: ["/bin/sh", "/seed-virtual-key.sh"]
+      - ./infrastructure/local-seed:/local-seed:ro
+    entrypoint: ["/bin/sh", "/local-seed/seed-local.sh"]
     restart: "no"
 
   landing:
@@ -235,6 +271,16 @@ services:
       WORKFLOW_WORKSPACE_BASE: /workflow-workspaces
       AGENTIC_CONTAINER_ENABLED: ${AGENTIC_CONTAINER_ENABLED:-true}
       AGENTIC_CONTAINER_IMAGE: ${AGENTIC_CONTAINER_IMAGE:-eclipse-temurin:25-jre}
+      # A job waits for its whole workflow run; four agents on the local Ollama model with git tool calls
+      # take well over the 600 s service default.
+      WORKFLOW_AGENT_TIMEOUT: ${WORKFLOW_AGENT_TIMEOUT:-3600}
+      # Git-workspace jobs: clone/branch/write/commit/push in the job's git MCP workspace via LiteLLM,
+      # and start the workflow in embabel with ai-control's own service identity (seeded by local-seed).
+      LITELLM_MCP_BASE_URL: http://litellm:4000
+      LITELLM_AI_CONTROL_KEY: *litellm-ai-control-key
+      AI_CONTROL_SERVICE_TOKEN_URL: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
+      AI_CONTROL_SERVICE_CLIENT_ID: openjcockpit-ai-control
+      AI_CONTROL_SERVICE_CLIENT_SECRET: *ai-control-client-secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -242,6 +288,8 @@ services:
         condition: service_completed_successfully
       docker-socat:
         condition: service_started
+      local-seed:
+        condition: service_completed_successfully
     volumes:
       - ./infrastructure/spec-repository-stub:/spec-repository:ro
       - workflow-workspaces:/workflow-workspaces
@@ -276,12 +324,17 @@ services:
       # The default/coding LLM now transits the LiteLLM gateway (BR-13/BR-14).
       LITELLM_BASE_URL: http://litellm:4000/v1
       LITELLM_VIRTUAL_KEY: *litellm-virtual-key
-      # Spec publication to git: after the requirement phase the spec is committed
-      # on a branch spec/<workflow>-<run> and pushed via the git-mcp-server.
-      SPEC_GIT_ENABLED: ${SPEC_GIT_ENABLED:-true}
-      SPEC_GIT_BASE_BRANCH: ${SPEC_GIT_BASE_BRANCH:-main}
-      SPEC_GIT_USERNAME: ${SPEC_GIT_USERNAME:-}
-      SPEC_GIT_TOKEN: ${SPEC_GIT_TOKEN:-}
+      # Spring profile `local` (application-local.yml): agent catalog, the LiteLLM A2A provider client,
+      # configuration-driven agents served over A2A, agent model aliases and the tenant 'local' seed.
+      # Only container paths and secrets are set here.
+      SPRING_PROFILES_ACTIVE: local
+      LITELLM_A2A_KEY: *litellm-a2a-key
+      A2A_CLIENT_SECRET: *a2a-client-secret
+      A2A_SERVICE_ENCRYPTION_SECRET: *a2a-service-encryption-secret
+      A2A_SERVICE_ENCRYPTION_SALT: *a2a-service-encryption-salt
+      LITELLM_PUBLIC_URL: ${LITELLM_PUBLIC_URL:-http://localhost:4100}
+      AGENT_CATALOG_LOCAL_PATH: /agents
+      AGENT_DEFINITIONS_LOCAL_ROOT: /agent-definitions
       APPROVAL_GATE_MAX_FEEDBACK_ITERATIONS: ${APPROVAL_GATE_MAX_FEEDBACK_ITERATIONS:-3}
       APPROVAL_GATE_COMMENT_MAX_LENGTH: ${APPROVAL_GATE_COMMENT_MAX_LENGTH:-4000}
       APPROVAL_GATE_MAX_CHANGED_PATHS: ${APPROVAL_GATE_MAX_CHANGED_PATHS:-50}
@@ -311,29 +364,41 @@ services:
         condition: service_started
       litellm:
         condition: service_healthy                    # BR-16
-      litellm-seed-key:
+      local-seed:
         condition: service_completed_successfully     # D-2: the key must exist before the first call
     volumes:
       - workflow-workspaces:/workflow-workspaces
       - workflow-definitions:/workflow-definitions
+      - ./agents:/agents:ro
+      - ./services/embabel-agent-service/agent-definitions:/agent-definitions:ro
 
-  # MCP server that exposes the git integration as tools (checkout, create branch,
-  # pull, commit, push). Agents use it via the central MCP client in the
-  # embabel-agent-service, so the git implementation lives in one place.
+  # Separate MCP server that exposes the git integration as tools (checkout, create branch,
+  # pull, read/write files, commit, push). Registered with LiteLLM (infrastructure/litellm/config.yaml,
+  # mcp_servers.openjcockpit_git) and reached through the gateway; local-seed grants it to the
+  # embabel-agent-service key (agents' git tools) and the ai-control-service key (git-workspace jobs).
+  # Git-workspace jobs clone into a workspace here (job-<uuid>); credentials are resolved server-side.
   git-mcp-server:
     build:
       context: .
       dockerfile: services/git-mcp-server/Dockerfile
     container_name: openjcockpit-git-mcp
     restart: unless-stopped
-    ports:
-      - "8093:8093"
+    # Not published on the host: it has no authentication of its own and resolves job credentials
+    # server-side, so the only way in is LiteLLM (key + object_permission.mcp_servers).
+    expose:
+      - "8093"
     environment:
       GIT_MCP_WORKSPACE_BASE: /git-mcp-workspaces
       # Retention window and reap interval for the per-run git workspace isolation directories
       # under the existing git-mcp-workspaces named volume — no new volume is created.
       GIT_MCP_RUN_WORKSPACE_RETENTION: ${GIT_MCP_RUN_WORKSPACE_RETENTION:-PT24H}
       GIT_MCP_RUN_WORKSPACE_REAP_INTERVAL: ${GIT_MCP_RUN_WORKSPACE_REAP_INTERVAL:-PT1H}
+      # Job workspaces (job-<uuid>) get their git credentials from ai-control, never as tool arguments;
+      # git-mcp-server authenticates with its own Keycloak service client (seeded by local-seed).
+      GIT_MCP_AI_CONTROL_URL: http://ai-control-service:8080
+      GIT_MCP_TOKEN_URL: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
+      GIT_MCP_CLIENT_ID: openjcockpit-git-mcp
+      GIT_MCP_CLIENT_SECRET: *git-mcp-client-secret
     volumes:
       - git-mcp-workspaces:/git-mcp-workspaces
 

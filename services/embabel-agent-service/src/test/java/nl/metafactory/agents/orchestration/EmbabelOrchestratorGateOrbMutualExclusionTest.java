@@ -1,22 +1,12 @@
 package nl.metafactory.agents.orchestration;
 
-import nl.metafactory.agents.agent.EvidenceAgent;
-import nl.metafactory.agents.agent.ImpactAnalysisAgent;
-import nl.metafactory.agents.agent.ImplementationAgent;
-import nl.metafactory.agents.agent.RequirementAgent;
-import nl.metafactory.agents.agent.ReviewAgent;
-import nl.metafactory.agents.agent.TestDesignAgent;
 import nl.metafactory.agents.approval.ApprovalGateCoordinator;
 import nl.metafactory.agents.approval.ApprovalGateRegistry;
 import nl.metafactory.agents.approval.model.ApprovalGateConfig;
-import nl.metafactory.agents.config.AgentPipelineProperties;
 import nl.metafactory.agents.config.ApprovalGateProperties;
 import nl.metafactory.agents.config.WorkflowTriggerProperties;
-import nl.metafactory.agents.domain.ImpactReport;
 import nl.metafactory.agents.model.AgentRunRequest;
 import nl.metafactory.agents.model.RunInitiator;
-import nl.metafactory.agents.spec.CodeRealisationService;
-import nl.metafactory.agents.spec.SpecGitPublisher;
 import nl.metafactory.agents.workflow.ChildWorkflowStarter;
 import nl.metafactory.agents.workflow.WorkflowChainResolver;
 import nl.metafactory.agents.workflow.WorkflowDefinitionRepository;
@@ -46,7 +36,7 @@ import static org.mockito.Mockito.when;
  * {@link ChildWaitRegistry}. This wires the real {@link EmbabelOrchestrator},
  * {@link ApprovalGateCoordinator}, {@link ApprovalGateRegistry}, {@link WorkflowOrbRunner} and
  * {@link ChildWaitRegistry} together and constructs a workflow whose approval gate and whose
- * workflow orb are BOTH anchored to the same stage ("impact"), to prove only one registry ever
+ * workflow orb are BOTH anchored to the same stage ("local:impact"), to prove only one registry ever
  * ends up holding the parked state for a given run.
  */
 class EmbabelOrchestratorGateOrbMutualExclusionTest {
@@ -58,21 +48,8 @@ class EmbabelOrchestratorGateOrbMutualExclusionTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        var requirementAgent = mock(RequirementAgent.class);
-        var impactAnalysisAgent = mock(ImpactAnalysisAgent.class);
-        var testDesignAgent = mock(TestDesignAgent.class);
-        var implementationAgent = mock(ImplementationAgent.class);
-        var reviewAgent = mock(ReviewAgent.class);
-        var evidenceAgent = mock(EvidenceAgent.class);
-        var codeRealisationService = mock(CodeRealisationService.class);
-        var specGitPublisher = mock(SpecGitPublisher.class);
-
-        when(impactAnalysisAgent.analyzeImpact(any(), any()))
-                .thenReturn(new ImpactReport("id", List.of("m"), "LOW"));
-
-        var props = new AgentPipelineProperties();
-        props.setSequence(List.of(
-                "requirement", "impact", "test-design", "implementation", "review", "realisation", "evidence"));
+        var invoker = mock(nl.metafactory.agents.workflow.agents.WorkflowAgentInvoker.class);
+        when(invoker.invoke(any(), any(), any())).thenReturn("impact report");
 
         var runStore = new AgentRunStore(new nl.metafactory.agents.persistence.InMemoryAgentRunPersistence(), event -> { });
         gateRegistry = new ApprovalGateRegistry();
@@ -89,31 +66,30 @@ class EmbabelOrchestratorGateOrbMutualExclusionTest {
         ObjectProvider<ChildWorkflowStarter> childWorkflowStarterProvider = mock(ObjectProvider.class);
         when(childWorkflowStarterProvider.getObject()).thenReturn(childWorkflowStarter);
 
-        var orb = new WorkflowOrb("wf-child", WorkflowOrbMode.SEQUENTIAL, "impact");
+        var orb = new WorkflowOrb("wf-child", WorkflowOrbMode.SEQUENTIAL, "local:impact");
         var parentWorkflow = new WorkflowDefinition("wf-1", "Parent", "proj", null, "desc",
-                List.of("impact", "test-design", "implementation", "review", "evidence"),
+                List.of("local:impact", "local:test-design", "a2a:litellm:review"),
                 List.of(), List.of(), List.of(), null,
                 new ExecutionConfig("cust1", "https://github.com/org/repo", 300),
                 false, null, "ACTIVE", null, null,
-                new ApprovalGateConfig(true, "impact"), List.of(orb));
+                new ApprovalGateConfig(true, "local:impact"), List.of(orb));
         when(workflowDefinitionRepository.findById("wf-1")).thenReturn(Optional.of(parentWorkflow));
 
         var workflowOrbRunner = new WorkflowOrbRunner(workflowDefinitionRepository, workflowChainResolver,
                 workflowTriggerProperties, childWaitRegistry, deadlineScheduler, workflowTriggerCoordinator,
                 runStore, childWorkflowStarterProvider);
 
-        orchestrator = new EmbabelOrchestrator(requirementAgent, impactAnalysisAgent, testDesignAgent,
-                implementationAgent, reviewAgent, evidenceAgent, props, new AsyncPipelineRunner(),
-                specGitPublisher, codeRealisationService, runStore, gateCoordinator, gateRegistry,
-                workflowOrbRunner, workflowTriggerCoordinator);
+        orchestrator = new EmbabelOrchestrator(new AsyncPipelineRunner(), runStore, gateCoordinator, gateRegistry,
+                workflowOrbRunner, workflowTriggerCoordinator, invoker,
+                new nl.metafactory.agents.workflow.agents.AgentWorkflowProperties(), new InMemoryAgentRunOutputs());
     }
 
     @Test
     void aRunAnchoredToTheSameStageForBothAGateAndAnOrbIsNeverParkedInBothRegistriesAtOnce() {
         var request = new AgentRunRequest("cust1", "file.md",
-                List.of("impact", "test-design", "implementation", "review", "evidence"),
+                List.of("local:impact", "local:test-design", "a2a:litellm:review"),
                 "workflow:wf-1", "https://github.com/org/repo", null, null,
-                new ApprovalGateConfig(true, "impact"), null, null, null,
+                new ApprovalGateConfig(true, "local:impact"), null, null, null,
                 RunInitiator.trigger("test"), List.of("wf-1"));
 
         var run = orchestrator.start(request);

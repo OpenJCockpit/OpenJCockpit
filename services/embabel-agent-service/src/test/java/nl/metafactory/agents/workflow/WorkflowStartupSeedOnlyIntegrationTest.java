@@ -68,9 +68,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class WorkflowStartupSeedOnlyIntegrationTest {
 
-    private static final List<String> SEED_REALISE_STAGES = List.of(
-            "impact", "test-design", "implementation", "review", "realisation", "evidence");
-
     private static final List<String> EXISTING_WF_SPEC_INIT_AGENT_IDS = List.of(
             "requirement", "impact", "test-design", "implementation", "review", "realisation", "evidence");
 
@@ -125,10 +122,17 @@ class WorkflowStartupSeedOnlyIntegrationTest {
     @DynamicPropertySource
     static void workflowDefinitionsPath(DynamicPropertyRegistry registry) {
         registry.add("openjcockpit.workflow-definitions.path", () -> workflowDefinitionsDir.toString());
+        // own in-memory DB: workflow_agent_refs rows seeded by other test contexts must not leak in
+        registry.add("spring.datasource.url", () ->
+                "jdbc:h2:mem:startup-seed-only;MODE=PostgreSQL;DATABASE_TO_UPPER=false;DEFAULT_NULL_ORDERING=HIGH");
     }
 
     @MockitoBean
     ModelProvider modelProvider;
+
+    // no /agents agents or A2A provider in this test context; existence is covered elsewhere
+    @MockitoBean
+    nl.metafactory.agents.workflow.agents.AgentReferenceCheck agentReferenceCheck;
 
     @Autowired
     WorkflowDefinitionRepository repository;
@@ -162,8 +166,9 @@ class WorkflowStartupSeedOnlyIntegrationTest {
     void existingWfSpecInitRecordIsUntouchedByTheCorrectedSeed() throws IOException {
         Optional<WorkflowDefinition> existing = repository.findById("wf-spec-init");
         assertThat(existing).isPresent();
-        assertThat(existing.get().agentIds()).containsExactlyElementsOf(EXISTING_WF_SPEC_INIT_AGENT_IDS);
-        assertThat(existing.get().agentIds()).isNotEqualTo(List.of("realisation"));
+        // Built-in stage ids in a pre-catalog file are not agent references: the workflow loads with
+        // no linked agents (to be re-linked in Workflow design) and its file is not rewritten.
+        assertThat(existing.get().agentIds()).isEmpty();
 
         Path initFile = workflowDefinitionsDir.resolve("workflows").resolve("wf-spec-init.yaml");
         assertThat(Files.readAllBytes(initFile)).isEqualTo(preBootInitBytes);
@@ -177,11 +182,12 @@ class WorkflowStartupSeedOnlyIntegrationTest {
 
         Optional<WorkflowDefinition> create = repository.findById("wf-spec-create");
         assertThat(create).isPresent();
-        assertThat(create.get().agentIds()).containsExactly("requirement");
+        assertThat(create.get().agentIds()).containsExactly("a2a:litellm:business-analyst");
 
         Optional<WorkflowDefinition> implement = repository.findById("wf-spec-implement");
         assertThat(implement).isPresent();
-        assertThat(implement.get().agentIds()).containsExactly("impact", "test-design", "implementation", "review", "evidence");
+        assertThat(implement.get().agentIds()).containsExactly("a2a:litellm:solution-architect",
+                "a2a:litellm:software-developer", "a2a:litellm:qa-engineer");
     }
 
     @Test
@@ -212,7 +218,7 @@ class WorkflowStartupSeedOnlyIntegrationTest {
     @Order(6)
     void theDocumentedHumanRemedyRestoresAStartableWorkflow() throws Exception {
         WorkflowDefinition current = repository.findById("wf-spec-realise").orElseThrow();
-        WorkflowDefinition updated = current.withAgentIds(List.of("impact"));
+        WorkflowDefinition updated = current.withAgentIds(List.of("a2a:litellm:qa-engineer"));
 
         mockMvc.perform(put("/api/workflows/wf-spec-realise")
                         .with(jwt())
@@ -221,6 +227,6 @@ class WorkflowStartupSeedOnlyIntegrationTest {
                 .andExpect(status().isOk());
 
         assertThat(repository.findById("wf-spec-realise").orElseThrow().agentIds())
-                .containsExactly("impact");
+                .containsExactly("a2a:litellm:qa-engineer");
     }
 }

@@ -1,7 +1,6 @@
 package nl.metafactory.agents.workflow;
 
 import nl.metafactory.agents.approval.model.ApprovalGateConfig;
-import nl.metafactory.agents.model.AgentDefinition;
 import nl.metafactory.agents.model.AgentRun;
 import nl.metafactory.agents.model.AgentRunRequest;
 import nl.metafactory.agents.model.RunInitiator;
@@ -52,8 +51,8 @@ class WorkflowExecutionServiceTest {
     }
 
     private static String parseWorkflowIdFromRequestedBy(String requestedBy) throws Exception {
-        var method = Class.forName("nl.metafactory.agents.spec.SpecGitPublisher")
-                .getDeclaredMethod("workflowId", String.class);
+        var method = Class.forName("nl.metafactory.agents.workflowtrigger.WorkflowOrbRunner")
+                .getDeclaredMethod("parseWorkflowId", String.class);
         method.setAccessible(true);
         return (String) method.invoke(null, requestedBy);
     }
@@ -72,10 +71,6 @@ class WorkflowExecutionServiceTest {
                 subagentSpecRepository, skillSpecRepository, orchestrator, policyDecisionService,
                 currentUserProvider);
 
-        when(orchestrator.availableAgents()).thenReturn(List.of(
-                new AgentDefinition("requirement", "Requirement Agent", "d", "r", List.of(), List.of(), 0, "in", "out"),
-                new AgentDefinition("evidence", "Evidence Agent", "d", "r", List.of(), List.of(), 5, "in", "out")
-        ));
 
         // Default: everything allowed, matching "OPA disabled/not configured" behaviour.
         when(policyDecisionService.canStartWorkflow(any())).thenReturn(allow());
@@ -98,12 +93,12 @@ class WorkflowExecutionServiceTest {
     @Test
     void startsRunWithOnlyAgentIdsThatExistInTheCatalogue() throws Exception {
         var workflow = new WorkflowDefinition("wf-1", "Onboarding", "Noordzee Logistics", null, "desc",
-                List.of("requirement", "evidence", "not-a-real-agent"), List.of("log-collector"), List.of("summarize"),
+                List.of("local:requirement", "local:evidence", "not-a-real-agent"), List.of("log-collector"), List.of("summarize"),
                 List.of(), null, new ExecutionConfig("cust1", "https://github.com/org/repo", 300),
                 false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-1")).thenReturn(Optional.of(workflow));
         when(subagentSpecRepository.findByName("log-collector")).thenReturn(Optional.of(
-                new SubagentSpec("log-collector", "requirement", "d", "r", "i", List.of(), List.of(), "wf-1")));
+                new SubagentSpec("log-collector", "local:requirement", "d", "r", "i", List.of(), List.of(), "wf-1")));
         when(skillSpecRepository.findByName("summarize")).thenReturn(Optional.of(
                 new SkillSpec("summarize", "d", "in", "out", "i", List.of(), null)));
 
@@ -116,11 +111,11 @@ class WorkflowExecutionServiceTest {
         assertThat(response.workflowId()).isEqualTo("wf-1");
         assertThat(response.executionId()).isEqualTo("run-1");
         assertThat(response.status()).isEqualTo("RUNNING");
-        assertThat(response.message()).contains("requirement").contains("evidence").doesNotContain("not-a-real-agent");
+        assertThat(response.message()).contains("local:requirement").contains("local:evidence").doesNotContain("not-a-real-agent");
 
         var captor = ArgumentCaptor.forClass(AgentRunRequest.class);
         verify(orchestrator).start(captor.capture());
-        assertThat(captor.getValue().agentIds()).containsExactly("requirement", "evidence");
+        assertThat(captor.getValue().agentIds()).containsExactly("local:requirement", "local:evidence");
         assertThat(captor.getValue().customerId()).isEqualTo("cust1");
         assertThat(captor.getValue().repositoryUrl()).isEqualTo("https://github.com/org/repo");
         assertThat(captor.getValue().workflowId()).isEqualTo("wf-1");
@@ -142,7 +137,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void startWorkflowChainAncestryIsASingleElementListOfItsOwnWorkflowIdForATopLevelRun() {
         var workflow = new WorkflowDefinition("wf-ancestry", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-ancestry")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-ancestry", "Project", "desc", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -158,7 +153,7 @@ class WorkflowExecutionServiceTest {
     void identityIsCarriedExplicitlyThroughEvenWithAnEmptySecurityContext() {
         SecurityContextHolder.clearContext();
         var workflow = new WorkflowDefinition("wf-identity", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-identity")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-identity", "Project", "desc", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -175,7 +170,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void nullInitiatorFailsLoudlyInsteadOfSilentlyDefaulting() {
         var workflow = new WorkflowDefinition("wf-null-initiator", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-null-initiator")).thenReturn(Optional.of(workflow));
 
         assertThatThrownBy(() -> service.startWorkflow("wf-null-initiator",
@@ -189,10 +184,10 @@ class WorkflowExecutionServiceTest {
     void agentIdsFilteringExcludesAnyIdNotPresentInAvailableAgents() {
         // BR-2 regression guard: doStart's existing availableAgentIds::contains intersection
         // must keep excluding any id (whether a stray agent id or a smuggled workflow id) that
-        // is not present in orchestrator.availableAgents(), independent of this feature's new
+        // is not an agent reference, independent of this feature's new
         // orb-reference rules.
         var workflow = new WorkflowDefinition("wf-br2", "Name", "Project", null, "desc",
-                List.of("requirement", "smuggled-workflow-id-not-a-real-agent"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement", "smuggled-workflow-id-not-a-real-agent"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-br2")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-br2", "Project", "desc", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -201,13 +196,13 @@ class WorkflowExecutionServiceTest {
 
         var captor = ArgumentCaptor.forClass(AgentRunRequest.class);
         verify(orchestrator).start(captor.capture());
-        assertThat(captor.getValue().agentIds()).containsExactly("requirement");
+        assertThat(captor.getValue().agentIds()).containsExactly("local:requirement");
     }
 
     @Test
     void startWithPromptUsesPromptAsRunPayload() {
         var workflow = new WorkflowDefinition("wf-p", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, true, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, true, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-p")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-p", "Project", "prompt", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -223,7 +218,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void startWithPromptWinsOverAmbientSpecFileSelection() {
         var workflow = new WorkflowDefinition("wf-s", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, true, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, true, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-s")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-s", "Project", "spec", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -239,7 +234,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void startWithSpecFileUsesItWhenNoPromptGiven() {
         var workflow = new WorkflowDefinition("wf-f", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-f")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-f", "Project", "spec", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -255,7 +250,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void startWithPromptPrefixesTheWorkflowInstructions() {
         var workflow = new WorkflowDefinition("wf-i", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, true,
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, true,
                 "Create a branch, create the spec based on the template and push for a pull request.",
                 "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-i")).thenReturn(Optional.of(workflow));
@@ -275,7 +270,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void startWithBlankInputFallsBackToWorkflowDescription() {
         var workflow = new WorkflowDefinition("wf-b", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-b")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-b", "Project", "desc", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -290,7 +285,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void fallsBackToProjectNameAndEmptyRepositoryUrlWhenExecutionConfigMissing() {
         var workflow = new WorkflowDefinition("wf-2", "Name", "Fallback Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-2")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-2", "Fallback Project", "desc", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -306,7 +301,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void repositoryUrlFromStartInputWinsOverExecutionConfig() {
         var workflow = new WorkflowDefinition("wf-r", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, true, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, true, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-r")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-r", "Project", "prompt", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -324,7 +319,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void blankRepositoryUrlInStartInputFallsBackToExecutionConfig() {
         var workflow = new WorkflowDefinition("wf-rb", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, true, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, true, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-rb")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-rb", "Project", "prompt", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -342,7 +337,7 @@ class WorkflowExecutionServiceTest {
     private AgentRunRequest startAndCaptureRequest(String workflowId,
             nl.metafactory.agents.workflow.model.WorkflowStartInput input) {
         var workflow = new WorkflowDefinition(workflowId, "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, true, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, true, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById(workflowId)).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-x", "Project", "p", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -375,7 +370,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void hermesSignalStartCarriesNoBaseBranch() {
         var workflow = new WorkflowDefinition("wf-h", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-h")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-h", "Project", "desc", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -390,7 +385,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void projectFileStartCarriesNoBaseBranch() {
         var workflow = new WorkflowDefinition("wf-pf", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-pf")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-pf", "Project", "desc", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -405,7 +400,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void startWorkflowReturnsBlockedWhenPolicyDeniesWorkflowStart() {
         var workflow = new WorkflowDefinition("wf-3", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-3")).thenReturn(Optional.of(workflow));
         when(policyDecisionService.canStartWorkflow(any())).thenReturn(deny("blocked for government-sensitive project"));
 
@@ -421,9 +416,9 @@ class WorkflowExecutionServiceTest {
     @Test
     void startWorkflowExcludesAgentDeniedByPolicy() {
         var workflow = new WorkflowDefinition("wf-4", "Name", "Project", null, "desc",
-                List.of("requirement", "evidence"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement", "local:evidence"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-4")).thenReturn(Optional.of(workflow));
-        when(policyDecisionService.canUseAgent(argThat(c -> "evidence".equals(c.agentId()))))
+        when(policyDecisionService.canUseAgent(argThat(c -> "local:evidence".equals(c.agentId()))))
                 .thenReturn(deny("evidence publication requires approval"));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-4", "Project", "desc", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -436,17 +431,17 @@ class WorkflowExecutionServiceTest {
 
         var captor = ArgumentCaptor.forClass(AgentRunRequest.class);
         verify(orchestrator).start(captor.capture());
-        assertThat(captor.getValue().agentIds()).containsExactly("requirement");
+        assertThat(captor.getValue().agentIds()).containsExactly("local:requirement");
     }
 
     @Test
     void subagentDenialExcludesItsParentAgent() {
         var workflow = new WorkflowDefinition("wf-5", "Name", "Project", null, "desc",
-                List.of("requirement", "evidence"), List.of("log-collector"), List.of(), List.of(), null, null,
+                List.of("local:requirement", "local:evidence"), List.of("log-collector"), List.of(), List.of(), null, null,
                 false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-5")).thenReturn(Optional.of(workflow));
         when(subagentSpecRepository.findByName("log-collector")).thenReturn(Optional.of(
-                new SubagentSpec("log-collector", "requirement", "d", "r", "i", List.of(), List.of(), "wf-5")));
+                new SubagentSpec("log-collector", "local:requirement", "d", "r", "i", List.of(), List.of(), "wf-5")));
         when(policyDecisionService.canUseSubagent(any())).thenReturn(deny("subagent not permitted"));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-5", "Project", "desc", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -455,13 +450,13 @@ class WorkflowExecutionServiceTest {
 
         var captor = ArgumentCaptor.forClass(AgentRunRequest.class);
         verify(orchestrator).start(captor.capture());
-        assertThat(captor.getValue().agentIds()).containsExactly("evidence");
+        assertThat(captor.getValue().agentIds()).containsExactly("local:evidence");
     }
 
     @Test
     void startWorkflowFromHermesSignalChecksHermesPolicyThenStarts() {
         var workflow = new WorkflowDefinition("wf-7", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-7")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-7", "Project", "desc", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -476,7 +471,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void startWorkflowFromHermesSignalReturnsBlockedWhenDenied() {
         var workflow = new WorkflowDefinition("wf-8", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-8")).thenReturn(Optional.of(workflow));
         when(policyDecisionService.canAcceptHermesSignal(any())).thenReturn(deny("signal source not trusted"));
 
@@ -489,7 +484,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void startWorkflowFromProjectFileChecksFilePolicyThenStarts() {
         var workflow = new WorkflowDefinition("wf-9", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-9")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-9", "Project", "desc", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));
@@ -504,7 +499,7 @@ class WorkflowExecutionServiceTest {
     @Test
     void startWorkflowFromProjectFileReturnsBlockedWhenDenied() {
         var workflow = new WorkflowDefinition("wf-10", "Name", "Project", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-10")).thenReturn(Optional.of(workflow));
         when(policyDecisionService.canProcessProjectFile(any())).thenReturn(deny("file type not allowed"));
 
@@ -525,9 +520,9 @@ class WorkflowExecutionServiceTest {
 
     @Test
     void gateConfigurationIsNeverReSavedByDoStart() {
-        var gate = new ApprovalGateConfig(true, "realisation");
+        var gate = new ApprovalGateConfig(true, "local:realisation");
         var workflow = new WorkflowDefinition("wf-gate", "Name", "Project", null, "desc",
-                List.of("requirement", "realisation"), List.of(), List.of(), List.of(), null, null,
+                List.of("local:requirement", "local:realisation"), List.of(), List.of(), List.of(), null, null,
                 false, null, "ACTIVE", null, null, gate, null);
         when(workflowRepository.findById("wf-gate")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
@@ -540,13 +535,13 @@ class WorkflowExecutionServiceTest {
 
     @Test
     void skillDenialNowReturnsBlockedInsteadOfRunningWithEmptyAgentIds() {
-        var workflow = new WorkflowDefinition("wf-6b", "Name", "Project", null, "desc", List.of("requirement", "evidence"), List.of(), List.of("summarize"), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+        var workflow = new WorkflowDefinition("wf-6b", "Name", "Project", null, "desc", List.of("local:requirement", "local:evidence"), List.of(), List.of("summarize"), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-6b")).thenReturn(Optional.of(workflow));
         when(policyDecisionService.canExecuteSkill(any())).thenReturn(deny("skill requires human approval"));
         var response = service.startWorkflow("wf-6b", nl.metafactory.agents.workflow.model.WorkflowStartInput.empty(), RunInitiator.trigger("test"));
         assertThat(response.status()).isEqualTo("BLOCKED");
         assertThat(response.executionId()).isNull();
-        assertThat(response.message()).isEqualTo("All pipeline agents of workflow 'wf-6b' were denied by policy; nothing to run.");
+        assertThat(response.message()).isEqualTo("All agents of workflow 'wf-6b' were denied by policy; nothing to run.");
         verify(orchestrator, never()).start(any());
         verify(workflowRepository, never()).save(any());
     }
@@ -559,13 +554,13 @@ class WorkflowExecutionServiceTest {
         var response = service.startWorkflow("wf-noagents", nl.metafactory.agents.workflow.model.WorkflowStartInput.empty(), RunInitiator.trigger("test"));
         assertThat(response.status()).isEqualTo("BLOCKED");
         assertThat(response.executionId()).isNull();
-        assertThat(response.message()).isEqualTo("Workflow 'wf-noagents' has no pipeline agents configured; select at least one agent in Design → Workflows.");
+        assertThat(response.message()).isEqualTo("Workflow 'wf-noagents' has no agents linked; link agents from Workflow design → Agents in Design → Workflows.");
         verify(orchestrator, never()).start(any());
     }
 
     @Test
     void canUseAgentIsInvokedExactlyOncePerCandidateAgent() {
-        var workflow = new WorkflowDefinition("wf-ac19", "Name", "Project", null, "desc", List.of("requirement", "evidence"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
+        var workflow = new WorkflowDefinition("wf-ac19", "Name", "Project", null, "desc", List.of("local:requirement", "local:evidence"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-ac19")).thenReturn(Optional.of(workflow));
         when(orchestrator.start(any())).thenReturn(
                 new AgentRun("run-ac19", "Project", "desc", "", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null));

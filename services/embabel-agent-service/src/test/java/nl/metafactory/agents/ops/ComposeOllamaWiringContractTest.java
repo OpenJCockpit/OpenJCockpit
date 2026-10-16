@@ -224,7 +224,7 @@ class ComposeOllamaWiringContractTest {
         assertEquals("service_healthy", servicesNode.path("embabel-agent-service")
                 .path("depends_on").path("litellm").path("condition").asString());
         assertEquals("service_completed_successfully", servicesNode.path("embabel-agent-service")
-                .path("depends_on").path("litellm-seed-key").path("condition").asString());
+                .path("depends_on").path("local-seed").path("condition").asString());
         assertEquals("service_healthy", servicesNode.path("litellm")
                 .path("depends_on").path("postgres").path("condition").asString());
         assertEquals("service_completed_successfully", servicesNode.path("litellm")

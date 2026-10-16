@@ -4,7 +4,14 @@ import { clickAsync, renderAsync } from '../../testUtils/dom';
 import { WorkflowOverview } from './WorkflowOverview';
 import * as workflowApi from '../workflowApi';
 import type { WorkflowDefinition } from '../workflowTypes';
-import * as api from '../../api';
+import * as linkable from '../linkableAgents';
+
+// The designer and overview load linkable agents from the agent catalog; these tests stub that
+// catalog with agent-definition fixtures (ids act as agent references).
+vi.mock('../linkableAgents', async () => {
+  const actual = await vi.importActual<typeof import('../linkableAgents')>('../linkableAgents');
+  return { ...actual, fetchLinkableAgents: vi.fn(), loadLinkableAgents: vi.fn() };
+});
 
 vi.mock('../workflowApi');
 vi.mock('../../api');
@@ -91,7 +98,7 @@ describe('WorkflowOverview', () => {
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([
       { id: 'wg-spec-workflow', name: 'Spec-driven development', description: '', projectName: '' },
     ]);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(FULL_AGENT_CATALOGUE);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(FULL_AGENT_CATALOGUE);
   });
 
   it('renders the workflow list once loaded', async () => {
@@ -544,7 +551,7 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([
       { id: 'wg-spec-workflow', name: 'Spec-driven development', description: '', projectName: '' },
     ]);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(FULL_AGENT_CATALOGUE);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(FULL_AGENT_CATALOGUE);
   });
 
   it('renders the server BLOCKED message instead of the generic Started text (AC-20)', async () => {
@@ -597,14 +604,14 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
     expect(within(agentsRow).queryByText('None')).not.toBeInTheDocument();
   });
 
-  it('T-F2: renders resolved agent names sorted by sequenceOrder, not stored order', async () => {
+  it('T-F2: renders resolved agent names in the workflow execution order', async () => {
     const workflow: WorkflowDefinition = { ...WORKFLOW, agentIds: ['evidence', 'impact'] };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflow]);
 
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    expect(screen.getByText('Impact Agent, Evidence Agent')).toBeInTheDocument();
+    expect(screen.getByText('Evidence Agent, Impact Agent')).toBeInTheDocument();
   });
 
   it('T-F3: fetches the agent catalogue exactly once for the whole mount, not once per card', async () => {
@@ -633,11 +640,11 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
     await screen.findByText('Workflow B');
     await screen.findByText('Workflow C');
 
-    expect(api.fetchAgentDefinitions).toHaveBeenCalledTimes(1);
+    expect(linkable.fetchLinkableAgents).toHaveBeenCalledTimes(1);
   });
 
   it('T-F4: shows raw ids and a degraded notice when the agent catalogue fails to load, but still renders the workflow cards', async () => {
-    vi.mocked(api.fetchAgentDefinitions).mockRejectedValue(new Error('boom'));
+    vi.mocked(linkable.fetchLinkableAgents).mockRejectedValue(new Error('boom'));
     const workflow: WorkflowDefinition = { ...WORKFLOW, agentIds: ['requirement', 'evidence'] };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflow]);
 

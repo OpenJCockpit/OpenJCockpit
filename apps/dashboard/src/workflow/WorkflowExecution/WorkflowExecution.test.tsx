@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WorkflowExecution } from './WorkflowExecution';
 import * as api from '../../api';
+import * as linkable from '../linkableAgents';
 import * as workflowApi from '../workflowApi';
 import type {
   ApprovalGateContext,
@@ -9,6 +10,12 @@ import type {
   WorkflowExecutionPage,
 } from '../workflowTypes';
 import type { AgentRun } from '../../types';
+
+// The run view labels agents from the agent catalog; these tests stub that catalog.
+vi.mock('../linkableAgents', async () => {
+  const actual = await vi.importActual<typeof import('../linkableAgents')>('../linkableAgents');
+  return { ...actual, fetchLinkableAgents: vi.fn(), loadLinkableAgents: vi.fn() };
+});
 
 vi.mock('../../api');
 vi.mock('../workflowApi', async () => {
@@ -61,7 +68,7 @@ function runWithStatus(status: string, overrides: Partial<AgentRun> = {}): Agent
 describe('WorkflowExecution', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(api.loadAgentDefinitions).mockResolvedValue([
+    vi.mocked(linkable.loadLinkableAgents).mockResolvedValue([
       {
         id: 'requirement',
         name: 'Requirement Agent',

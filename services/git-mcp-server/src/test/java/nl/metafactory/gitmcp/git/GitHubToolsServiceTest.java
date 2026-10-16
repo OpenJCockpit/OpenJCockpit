@@ -51,7 +51,7 @@ class GitHubToolsServiceTest {
         var blankToken = service.createPullRequest(REPO_URL, "main", "impl/x", "Title", "", " ");
 
         assertThat(nullToken.success()).isFalse();
-        assertThat(nullToken.message()).contains("token is required");
+        assertThat(nullToken.message()).contains("credentials of the workspace are required");
         assertThat(blankToken.success()).isFalse();
         assertThat(calls).isEmpty();
     }

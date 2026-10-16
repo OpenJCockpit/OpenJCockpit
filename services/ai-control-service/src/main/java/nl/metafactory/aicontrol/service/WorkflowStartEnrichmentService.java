@@ -17,7 +17,8 @@ import java.util.UUID;
  * Enriches the workflow start input with project data before it is sent to the
  * embabel-agent-service: the project's repository URL (if the client did not
  * provide one) and the project's active git credentials (decrypted),
- * so that the SpecGitPublisher can clone and push. Secrets only leave the
+ * kept so the workflow can run where the repository is cloned (the built-in
+ * git publication of the agent service was removed). Secrets only leave the
  * ai-control-service towards the agent service — never towards the
  * browser.
  */
@@ -29,13 +30,36 @@ public class WorkflowStartEnrichmentService {
     private final ProjectRepository projectRepository;
     private final ProjectGitCredentialRepository credentialRepository;
     private final CredentialEncryptionService encryption;
+    private final SpecContentSource specContents;
 
+    /** Reads the content of a spec of a project's repository ({@code specs/} folder) by its file name. */
+    @FunctionalInterface
+    public interface SpecContentSource {
+        Optional<String> read(UUID projectId, String fileName);
+    }
+
+    WorkflowStartEnrichmentService(ProjectRepository projectRepository,
+                                   ProjectGitCredentialRepository credentialRepository,
+                                   CredentialEncryptionService encryption) {
+        this(projectRepository, credentialRepository, encryption, (projectId, fileName) -> Optional.empty());
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
     public WorkflowStartEnrichmentService(ProjectRepository projectRepository,
                                           ProjectGitCredentialRepository credentialRepository,
-                                          CredentialEncryptionService encryption) {
+                                          CredentialEncryptionService encryption,
+                                          ProjectSpecService projectSpecs) {
+        this(projectRepository, credentialRepository, encryption, projectSpecs::readSpecContent);
+    }
+
+    WorkflowStartEnrichmentService(ProjectRepository projectRepository,
+                                   ProjectGitCredentialRepository credentialRepository,
+                                   CredentialEncryptionService encryption,
+                                   SpecContentSource specContents) {
         this.projectRepository = projectRepository;
         this.credentialRepository = credentialRepository;
         this.encryption = encryption;
+        this.specContents = specContents;
     }
 
     public WorkflowStartInputDto enrich(WorkflowStartInputDto input) {
@@ -72,8 +96,32 @@ public class WorkflowStartEnrichmentService {
                     ? encryption.decrypt(credential.getEncryptedSecret()) : "";
         }
 
-        return new WorkflowStartInputDto(input.prompt(), input.specFile(), repositoryUrl,
+        return new WorkflowStartInputDto(input.prompt(), specPayload(projectId, input.specFile()), repositoryUrl,
                 input.projectId(), username, token, baseBranch);
+    }
+
+    /**
+     * The dashboard sends the selected spec's file name. The agents get the spec itself as their input,
+     * read here from the project repository's {@code specs/} folder, so they need neither a git clone nor
+     * git tools to know what to work on. A name that is not a spec of the project is passed on unchanged.
+     */
+    String specPayload(UUID projectId, String specFile) {
+        if (specFile == null || specFile.isBlank() || specFile.contains("\n")) {
+            return specFile;
+        }
+        String name = specFile.trim();
+        try {
+            return specContents.read(projectId, name)
+                    .map(content -> "# Spec: specs/" + name + "\n\n" + content)
+                    .orElseGet(() -> {
+                        log.warn("Selected spec {} not found in the specs folder of project {}; passing its name", name, projectId);
+                        return specFile;
+                    });
+        } catch (RuntimeException e) {
+            log.warn("Spec {} of project {} could not be read ({}); passing its name", name, projectId,
+                    e.getClass().getSimpleName());
+            return specFile;
+        }
     }
 
     private static String trimToNull(String value) {

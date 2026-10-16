@@ -48,6 +48,8 @@ GitWorkspaceJobErrorCode:
     - TIMEOUT
     - DOCKER_UNAVAILABLE
     - GIT_REPOSITORY_UNAVAILABLE
+    - WORKFLOW_NOT_FOUND
+    - WORKFLOW_HAS_NO_AGENTS
 
 PreflightError:
   type: object
@@ -71,9 +73,16 @@ StartWorkflowRequest:
   type: object
   required:
     - specFileRef
+    - workflowId
   properties:
     specFileRef:
       type: string
+    workflowId:
+      type: string
+      description: >-
+        The workflow whose linked catalog agents the job runs (in order, through the normal
+        workflow-run path). Each agent's full output is committed to the job branch under
+        agent-output/<job-id>/.
     projectId:
       type: string
       format: uuid
@@ -107,6 +116,8 @@ GitWorkspaceJobDto:
       type: string
       format: uuid
     specFileRef:
+      type: string
+    workflowId:
       type: string
     status:
       $ref: '#/GitWorkspaceJobStatus'
@@ -198,9 +209,13 @@ WorkflowDefinitionDto:
       type: array
       minItems: 1
       description: >-
-        The authoritative, effective set of pipeline agent stage ids selected for this
-        workflow. At least one pipeline agent is required — a workflow with no agents
-        cannot be started.
+        The agents this workflow runs, in execution order, as references to the central
+        agent catalog (Workflow design -> Agents): `local:<agent-id>` for the repository
+        /agents folder or `a2a:<provider>:<agent-name>` for an A2A provider agent (e.g.
+        `a2a:litellm:qa-engineer`). Stored in the workflow_agent_refs linking table. Each
+        agent receives the workflow input plus the previous agents' outputs. At least one
+        agent is required; each may appear only once. Built-in pipeline stage ids are no
+        longer accepted.
       items:
         type: string
     subagentNames:
@@ -266,8 +281,8 @@ WorkflowOrbDto:
     placementStage:
       type: string
       description: >-
-        Same shape and semantics as ApprovalGateConfigDto.placementStage: the id of one of
-        this workflow's own agentIds, after whose completion the orb runs. Absent or blank
+        Same shape and semantics as ApprovalGateConfigDto.placementStage: one of this
+        workflow's own agentIds (an agent reference), after whose completion the orb runs. Absent or blank
         means the orb runs first, before any of this workflow's agent stages (BR-4).
 
 WorkflowGroupDto:

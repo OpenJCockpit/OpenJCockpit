@@ -13,9 +13,9 @@
       "name": "Spec folder initialization",
       "projectName": "",
       "groupId": "wg-spec-workflow",
-      "description": "Initializes the repository's spec structure: pushes .specify/templates/spec-template.md as a pull request so that agentic workflows can run against the repository.",
+      "description": "Proposes the repository's spec structure (spec folder layout and a spec template) for agentic workflows. Runs the Solution Architect agent from the central agent catalog; the output is recorded on the run.",
       "agentIds": [
-        "realisation"
+        "a2a:litellm:solution-architect"
       ],
       "subagentNames": [],
       "skillNames": [],
@@ -34,9 +34,9 @@
       "name": "Create spec from prompt (RAG)",
       "projectName": "",
       "groupId": "wg-spec-workflow",
-      "description": "Creates small, executable spec files in specs/ based on a prompt and the repository contents (RAG) — small enough to be picked up by the implementation workflow in a single run.",
+      "description": "Turns a prompt into a small, executable spec (requirements and acceptance criteria) that the implementation workflow can pick up in a single run. Runs the Business Analyst agent from the central agent catalog.",
       "agentIds": [
-        "requirement"
+        "a2a:litellm:business-analyst"
       ],
       "subagentNames": [],
       "skillNames": [],
@@ -76,13 +76,11 @@
       "name": "Implement spec",
       "projectName": "",
       "groupId": "wg-spec-workflow",
-      "description": "Implements the selected spec file via the agent pipeline: impact analysis, test design, implementation, review and evidence.",
+      "description": "Implements a spec as a chain of catalog agents: Solution Architect designs the change, Software Developer proposes the code changes with tests, QA Engineer verifies them against the acceptance criteria. Each agent receives the spec and the previous agents' outputs.",
       "agentIds": [
-        "impact",
-        "test-design",
-        "implementation",
-        "review",
-        "evidence"
+        "a2a:litellm:solution-architect",
+        "a2a:litellm:software-developer",
+        "a2a:litellm:qa-engineer"
       ],
       "subagentNames": [],
       "skillNames": [],
@@ -122,14 +120,12 @@
       "name": "Realise spec (code)",
       "projectName": "",
       "groupId": "wg-spec-workflow",
-      "description": "Actually applies the implementation in the repository: uses an existing implementation plan from specs/ for the selected feature spec (or creates that plan first in the same run), generates code changes based on the repository contents and pushes them as a feature branch with a pull request.",
+      "description": "Full delivery chain of catalog agents from requirements to verification: Business Analyst, Solution Architect, Software Developer and QA Engineer, each building on the previous agents' outputs.",
       "agentIds": [
-        "impact",
-        "test-design",
-        "implementation",
-        "review",
-        "realisation",
-        "evidence"
+        "a2a:litellm:business-analyst",
+        "a2a:litellm:solution-architect",
+        "a2a:litellm:software-developer",
+        "a2a:litellm:qa-engineer"
       ],
       "subagentNames": [],
       "skillNames": [],

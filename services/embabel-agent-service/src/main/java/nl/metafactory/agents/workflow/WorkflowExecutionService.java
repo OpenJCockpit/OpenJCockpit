@@ -1,6 +1,7 @@
 package nl.metafactory.agents.workflow;
 
-import nl.metafactory.agents.model.AgentDefinition;
+import nl.metafactory.agents.workflow.agents.AgentRef;
+
 import nl.metafactory.agents.model.AgentRunRequest;
 import nl.metafactory.agents.model.RunInitiator;
 import nl.metafactory.agents.orchestration.AgentOrchestrator;
@@ -56,6 +57,7 @@ public class WorkflowExecutionService implements ChildWorkflowStarter {
     private final AgentOrchestrator orchestrator;
     private final PolicyDecisionService policyDecisionService;
     private final CurrentUserProvider currentUserProvider;
+    private final nl.metafactory.agents.gitworkspace.GitWorkspaceTickets gitWorkspaceTickets;
 
     public WorkflowExecutionService(WorkflowDefinitionRepository workflowRepository,
                                      AgentSpecRepository agentSpecRepository,
@@ -64,6 +66,21 @@ public class WorkflowExecutionService implements ChildWorkflowStarter {
                                      AgentOrchestrator orchestrator,
                                      PolicyDecisionService policyDecisionService,
                                      CurrentUserProvider currentUserProvider) {
+        this(workflowRepository, agentSpecRepository, subagentSpecRepository, skillSpecRepository, orchestrator,
+                policyDecisionService, currentUserProvider,
+                new nl.metafactory.agents.gitworkspace.GitWorkspaceTickets(new nl.metafactory.agents.gitworkspace.GitWorkspaceProperties()));
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public WorkflowExecutionService(WorkflowDefinitionRepository workflowRepository,
+                                     AgentSpecRepository agentSpecRepository,
+                                     SubagentSpecRepository subagentSpecRepository,
+                                     SkillSpecRepository skillSpecRepository,
+                                     AgentOrchestrator orchestrator,
+                                     PolicyDecisionService policyDecisionService,
+                                     CurrentUserProvider currentUserProvider,
+                                     nl.metafactory.agents.gitworkspace.GitWorkspaceTickets gitWorkspaceTickets) {
+        this.gitWorkspaceTickets = gitWorkspaceTickets;
         this.workflowRepository = workflowRepository;
         this.agentSpecRepository = agentSpecRepository;
         this.subagentSpecRepository = subagentSpecRepository;
@@ -120,29 +137,30 @@ public class WorkflowExecutionService implements ChildWorkflowStarter {
             }
         }
         String workflowId = workflow.id();
-        List<String> availableAgentIds = orchestrator.availableAgents().stream().map(AgentDefinition::id).toList();
+        // A workflow's agents are references to the central agent catalog (linking table
+        // workflow_agent_refs). Anything else — e.g. a built-in stage id from a pre-catalog workflow
+        // file — is not runnable and blocks the start until the workflow is re-linked.
         List<String> candidateAgentIds = workflow.agentIds() == null ? List.of()
-                : workflow.agentIds().stream().filter(availableAgentIds::contains).toList();
+                : workflow.agentIds().stream().filter(AgentRef::isRef).toList();
+
+        if (candidateAgentIds.isEmpty()) {
+            log.warn("Workflow {} has no catalog agents linked; blocking start", workflowId);
+            return new WorkflowStartResponse(workflowId, null, "BLOCKED", Instant.now(),
+                    "Workflow '" + workflowId + "' has no agents linked; link agents from Workflow design → Agents in Design → Workflows.");
+        }
 
         List<String> resolvedAgentIds = applyPolicyFilter(workflow, candidateAgentIds, triggerSource, initiator);
 
-        if (candidateAgentIds.isEmpty()) {
-            log.warn("Workflow {} has no pipeline agents configured; blocking start", workflowId);
-            return new WorkflowStartResponse(workflowId, null, "BLOCKED", Instant.now(),
-                    "Workflow '" + workflowId + "' has no pipeline agents configured; select at least one agent in Design → Workflows.");
-        }
-
         if (resolvedAgentIds.isEmpty()) {
-            log.warn("Workflow {} — all pipeline agents were denied by policy; blocking start", workflowId);
+            log.warn("Workflow {} — all agents were denied by policy; blocking start", workflowId);
             return new WorkflowStartResponse(workflowId, null, "BLOCKED", Instant.now(),
-                    "All pipeline agents of workflow '" + workflowId + "' were denied by policy; nothing to run.");
+                    "All agents of workflow '" + workflowId + "' were denied by policy; nothing to run.");
         }
 
-        long resolvedAgentSpecs = countResolved(workflow.agentIds(), agentSpecRepository::findByName);
         long resolvedSubagentSpecs = countResolved(workflow.subagentNames(), subagentSpecRepository::findByName);
         long resolvedSkillSpecs = countResolved(workflow.skillNames(), skillSpecRepository::findByName);
-        log.info("Starting workflow {} — {} pipeline agent(s) after policy filtering, {} agent spec(s), {} subagent spec(s), {} skill spec(s) resolved",
-                workflowId, resolvedAgentIds.size(), resolvedAgentSpecs, resolvedSubagentSpecs, resolvedSkillSpecs);
+        log.info("Starting workflow {} — {} catalog agent(s) after policy filtering, {} subagent spec(s), {} skill spec(s) resolved",
+                workflowId, resolvedAgentIds.size(), resolvedSubagentSpecs, resolvedSkillSpecs);
 
         String customerId = workflow.execution() != null && workflow.execution().customerId() != null
                 ? workflow.execution().customerId() : workflow.projectName();
@@ -154,6 +172,21 @@ public class WorkflowExecutionService implements ChildWorkflowStarter {
                 : workflow.execution() != null && workflow.execution().repositoryUrl() != null
                     ? workflow.execution().repositoryUrl() : "";
 
+        // A git-workspace ticket (issued by ai-control's service identity for this workflow and this caller)
+        // binds the run to the workspace ai-control prepared. A ticket that does not redeem blocks the start
+        // (fail closed); it is never ignored.
+        nl.metafactory.agents.gitworkspace.GitWorkspaceBinding gitWorkspace = null;
+        if (input.gitWorkspaceTicket() != null && !input.gitWorkspaceTicket().isBlank()) {
+            gitWorkspace = gitWorkspaceTickets.redeem(input.gitWorkspaceTicket(), workflowId, initiator.subject())
+                    .orElse(null);
+            if (gitWorkspace == null) {
+                log.warn("Workflow {} start refused: git workspace ticket not valid for this workflow and caller", workflowId);
+                return new WorkflowStartResponse(workflowId, null, "BLOCKED", Instant.now(),
+                        "The git workspace ticket is invalid, expired or not issued for this workflow and user");
+            }
+            repositoryUrl = gitWorkspace.repositoryUrl();
+        }
+
         String startedBy = currentUserProvider.currentUsername().orElse(null);
         // MADP-54: baseBranch has no ExecutionConfig counterpart (spec §4 non-goal) — the start
         // input is the only source. Blank → null, which the publishers fall back on
@@ -164,7 +197,7 @@ public class WorkflowExecutionService implements ChildWorkflowStarter {
         var runRequest = new AgentRunRequest(customerId, resolveSpecPayload(workflow, input), resolvedAgentIds,
                 "workflow:" + workflowId, repositoryUrl, input.gitUsername(), input.gitToken(),
                 workflow.approvalGate(), baseBranch, workflowId, startedBy, initiator, chainAncestry);
-        var run = orchestrator.start(runRequest);
+        var run = gitWorkspace == null ? orchestrator.start(runRequest) : orchestrator.start(runRequest, gitWorkspace);
 
         return new WorkflowStartResponse(workflowId, run.runId(), run.status(), run.startedAt(),
                 "Workflow started with agents: " + resolvedAgentIds);

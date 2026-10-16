@@ -1,6 +1,7 @@
 import './WorkflowExecution.scss';
 import { useEffect, useMemo, useState } from 'react';
-import { loadAgentDefinitions, stopAgentRun } from '../../api';
+import { stopAgentRun } from '../../api';
+import { loadLinkableAgents } from '../linkableAgents';
 import type { AgentDefinition } from '../../types';
 import type { ApprovalDecisionKind, WorkflowDefinition } from '../workflowTypes';
 import { listWorkflows, submitApprovalDecision } from '../workflowApi';
@@ -99,7 +100,7 @@ export function WorkflowExecution({
   });
 
   useEffect(() => {
-    void loadAgentDefinitions().then(setDefinitions);
+    void loadLinkableAgents().then(setDefinitions);
   }, []);
 
   const [allWorkflows, setAllWorkflows] = useState<WorkflowDefinition[]>([]);
