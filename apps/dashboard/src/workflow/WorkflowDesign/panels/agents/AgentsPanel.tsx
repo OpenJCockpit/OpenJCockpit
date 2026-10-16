@@ -1,25 +1,10 @@
 import { type ReactNode, useEffect, useState } from 'react';
+import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
+import { Button } from '../../../../ui/Button/Button';
 import { getAgentCatalog } from '../../../workflowApi';
 import type { AgentCatalog, AgentCatalogStatus } from '../../../workflowTypes';
 import { LocalAgentsTree } from './LocalAgentsTree';
 import { ProviderAgentsTable } from './ProviderAgentsTable';
-import { useState } from 'react';
-import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
-import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
-import {
-  createAgentSpec,
-  createSubagentSpec,
-  deleteAgentSpec,
-  generateAgentSpec,
-  generateSubagentSpec,
-  listAgentSpecs,
-  listSubagentSpecs,
-  updateAgentSpec,
-} from '../../../workflowApi';
-import type { AgentSpec } from '../../../workflowTypes';
-import { PromptGenerator } from '../shared/PromptGenerator';
-import { AgentEditor } from './AgentEditor';
-import { AgentsTable } from './AgentsTable';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const STATUS_TEXT: Record<Exclude<AgentCatalogStatus, 'OK'>, string> = {
@@ -37,15 +22,6 @@ export function AgentsPanel() {
   const [catalog, setCatalog] = useState<AgentCatalog | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
-  const [info, setInfo] = useState<string | null>(null);
-
-  if (!loaded) {
-    void listAgentSpecs().then((a) => {
-      setItems(a);
-      setLoaded(true);
-    });
-    return <StatusMessage variant="loading">Loading agents...</StatusMessage>;
-  }
 
   useEffect(() => {
     let cancelled = false;
@@ -68,30 +44,23 @@ export function AgentsPanel() {
   if (error) {
     return (
       <div>
-        <p className="settings-error">{error}</p>
-        <button className="back-button" onClick={() => setReload((n) => n + 1)}>
+        <StatusMessage variant="error">{error}</StatusMessage>
+        <Button variant="secondary" onClick={() => setReload((n) => n + 1)}>
           Retry
-        </button>
+        </Button>
       </div>
     );
   }
-  if (!catalog) return <div className="auth-loading">Loading agents...</div>;
+  if (!catalog) return <StatusMessage variant="loading">Loading agents...</StatusMessage>;
 
   return (
-    <div className="agent-catalog">
-      <div className="workflow-design-toolbar">
-        <span className="workflow-design-toolbar__spacer" />
-        <button className="back-button" onClick={() => setReload((n) => n + 1)}>
-          ↻ Refresh
-        </button>
-  return (
     <div>
-      <PromptGenerator kind="agent" onGenerate={handleGenerate} />
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>+ New agent</ToolbarButton>
+        <span className={WorkflowDesignStyles.workflowDesignToolbarSpacer} />
+        <Button variant="secondary" onClick={() => setReload((n) => n + 1)}>
+          ↻ Refresh
+        </Button>
       </div>
-      {error && <StatusMessage variant="error">{error}</StatusMessage>}
-      {info && <StatusMessage>{info}</StatusMessage>}
 
       <CatalogSection
         title={catalog.local.name}
@@ -131,14 +100,16 @@ interface CatalogSectionProps {
 function CatalogSection({ title, count, status, message, empty, children }: CatalogSectionProps) {
   const ok = status === 'OK';
   return (
-    <section className="agent-catalog__section" aria-label={title}>
-      <h3 className="agent-catalog__header">
+    <section className={WorkflowDesignStyles.agentCatalogSection} aria-label={title}>
+      <h3 className={WorkflowDesignStyles.agentCatalogHeader}>
         {title}
-        <span className="agent-catalog__count">{count}</span>
-        {!ok && <span className="agent-catalog__status">{STATUS_TEXT[status]}</span>}
+        <span className={WorkflowDesignStyles.agentCatalogCount}>{count}</span>
+        {!ok && (
+          <span className={WorkflowDesignStyles.agentCatalogStatus}>{STATUS_TEXT[status]}</span>
+        )}
       </h3>
-      {message && <p className={ok ? 'settings-desc' : 'settings-error'}>{message}</p>}
-      {ok && count === 0 && <p className="settings-desc">{empty}</p>}
+      {message && <StatusMessage variant={ok ? 'info' : 'error'}>{message}</StatusMessage>}
+      {ok && count === 0 && <StatusMessage>{empty}</StatusMessage>}
       {count > 0 && children}
     </section>
   );

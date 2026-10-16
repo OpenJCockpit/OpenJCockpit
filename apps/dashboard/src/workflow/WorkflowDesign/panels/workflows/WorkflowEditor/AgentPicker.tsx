@@ -1,5 +1,6 @@
 import type { AgentDefinition } from '../../../../../types';
 import { referenceLabel } from '../../../../linkableAgents';
+import { Button } from '../../../../../ui/Button/Button';
 import { fieldHintClass } from '../../../../../ui/Form/Form';
 import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
@@ -33,74 +34,78 @@ export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPicker
   const byId = new Map(availableAgents.map((agent) => [agent.id, agent]));
 
   return (
-    <div className="workflow-design-field--full">
+    <div className={WorkflowDesignStyles.workflowDesignFieldFull}>
       <span>Agents</span>
       {availableAgents.length === 0 && (
-        <p className="settings-desc">
+        <p className={fieldHintClass}>
           No agents available. Add agents to the /agents folder or register them at an A2A provider
           — see Workflow design → Agents.
         </p>
       )}
       {sections.map((section) => (
-        <fieldset key={section} className="workflow-agent-picker" aria-label={section}>
-          <legend className="workflow-agent-picker__section">{section}</legend>
+        <fieldset
+          key={section}
+          className={WorkflowDesignStyles.workflowAgentPicker}
+          aria-label={section}
+        >
+          <legend className={WorkflowDesignStyles.workflowAgentPickerSection}>{section}</legend>
           {availableAgents
             .filter((agent) => agent.role === section)
             .map((agent) => (
-              <label key={agent.id} className="workflow-agent-picker__option">
+              <label key={agent.id} className={WorkflowDesignStyles.workflowAgentPickerOption}>
                 <input
                   type="checkbox"
                   checked={agentIds.includes(agent.id)}
                   onChange={(e) => toggle(agent.id, e.target.checked)}
                 />
-                <span className="workflow-agent-picker__name">{agent.name}</span>
-                <span className="settings-desc">{agent.description}</span>
+                <span className={WorkflowDesignStyles.workflowAgentPickerName}>{agent.name}</span>
+                <span className={fieldHintClass}>{agent.description}</span>
               </label>
             ))}
         </fieldset>
       ))}
       {agentIds.length > 0 && (
-        <ol className="workflow-agent-order" aria-label="Execution order">
+        <ol className={WorkflowDesignStyles.workflowAgentOrder} aria-label="Execution order">
           {agentIds.map((id, index) => {
             const agent = byId.get(id);
             return (
               <li key={id}>
                 <span>
                   {agent ? `${agent.name} (${agent.role})` : referenceLabel(id)}
-                  {!agent && <span className="settings-desc"> — not in the catalog</span>}
+                  {!agent && <span className={fieldHintClass}> — not in the catalog</span>}
                 </span>
-                <button
+                <Button
                   type="button"
-                  className="back-button"
+                  variant="secondary"
                   aria-label={`Move ${agent?.name ?? id} up`}
                   disabled={index === 0}
                   onClick={() => move(index, -1)}
                 >
                   ↑
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className="back-button"
+                  variant="secondary"
                   aria-label={`Move ${agent?.name ?? id} down`}
                   disabled={index === agentIds.length - 1}
                   onClick={() => move(index, 1)}
                 >
                   ↓
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className="back-button"
+                  variant="secondary"
                   aria-label={`Remove ${agent?.name ?? id}`}
                   onClick={() => toggle(id, false)}
                 >
                   ✕
-                </button>
+                </Button>
               </li>
             );
           })}
         </ol>
       )}
-      <span className="settings-desc">
+      <span className={fieldHintClass}>
         The workflow runs the linked agents in this order; each agent receives the workflow input
         and the outputs of the agents before it.
       </span>

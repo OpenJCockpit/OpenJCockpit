@@ -1,6 +1,10 @@
 import { Fragment, useState } from 'react';
 import { getProviderAgentCard } from '../../../workflowApi';
 import type { A2AAgentCard, ProviderCatalogAgent } from '../../../workflowTypes';
+import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
+import { Button } from '../../../../ui/Button/Button';
+import { DataTable } from '../../../../ui/DataTable/DataTable';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 interface ProviderAgentsTableProps {
   provider: { name: string; type: string };
@@ -32,7 +36,7 @@ export function ProviderAgentsTable({ provider, agents }: ProviderAgentsTablePro
   }
 
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>Name</th>
@@ -54,22 +58,22 @@ export function ProviderAgentsTable({ provider, agents }: ProviderAgentsTablePro
                 {agent.protocolVersion}
                 {agent.streaming && ' · streaming'}
               </td>
-              <td className="agent-catalog__path">
+              <td className={WorkflowDesignStyles.agentCatalogPath}>
                 {agent.url}
                 {agent.backendUrl && <div>routes to {agent.backendUrl}</div>}
               </td>
               <td>
-                <button
-                  className="back-button"
+                <Button
+                  variant="secondary"
                   aria-expanded={open === agent.name}
                   onClick={() => toggle(agent)}
                 >
                   {open === agent.name ? 'Hide' : 'Details'}
-                </button>
+                </Button>
               </td>
             </tr>
             {open === agent.name && (
-              <tr className="agent-catalog__details-row">
+              <tr>
                 <td colSpan={6}>
                   <AgentCardDetails state={cards[agent.name]} cardUrl={agent.cardUrl} />
                 </td>
@@ -78,24 +82,28 @@ export function ProviderAgentsTable({ provider, agents }: ProviderAgentsTablePro
           </Fragment>
         ))}
       </tbody>
-    </table>
+    </DataTable>
   );
 }
 
 function AgentCardDetails({ state, cardUrl }: { state?: CardState; cardUrl?: string | null }) {
   if (!state || 'loading' in state) {
-    return <div className="auth-loading">Loading agent card...</div>;
+    return <StatusMessage role="status">Loading agent card...</StatusMessage>;
   }
-  if ('error' in state) return <p className="settings-error">{state.error}</p>;
+  if ('error' in state) return <StatusMessage variant="error">{state.error}</StatusMessage>;
   const { card } = state;
   return (
-    <div className="agent-catalog__details" aria-label={`Agent card ${card.name}`}>
+    <div
+      className={WorkflowDesignStyles.agentCatalogDetails}
+      aria-label={`Agent card ${card.name}`}
+    >
       <dl>
         <dt>Endpoint</dt>
         <dd>{card.url}</dd>
         <dt>Agent card</dt>
         <dd>
-          {cardUrl} <span className="agent-catalog__id">(provider key required)</span>
+          {cardUrl}{' '}
+          <span className={WorkflowDesignStyles.agentCatalogId}>(provider key required)</span>
         </dd>
         <dt>Protocol</dt>
         <dd>
@@ -113,7 +121,7 @@ function AgentCardDetails({ state, cardUrl }: { state?: CardState; cardUrl?: str
         </dd>
       </dl>
       {(card.skills ?? []).length > 0 && (
-        <ul className="agent-catalog__skills">
+        <ul className={WorkflowDesignStyles.agentCatalogSkills}>
           {card.skills!.map((skill) => (
             <li key={skill.id}>
               <strong>{skill.name ?? skill.id}</strong>

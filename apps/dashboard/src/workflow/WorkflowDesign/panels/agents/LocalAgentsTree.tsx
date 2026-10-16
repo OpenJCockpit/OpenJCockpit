@@ -1,4 +1,7 @@
 import type { LocalCatalogAgent } from '../../../workflowTypes';
+import { DataTable } from '../../../../ui/DataTable/DataTable';
+import { fieldErrorClass } from '../../../../ui/Form/Form';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 interface FolderNode {
   name: string;
@@ -31,9 +34,9 @@ export function LocalAgentsTree({ agents }: { agents: LocalCatalogAgent[] }) {
 function FolderView({ node, depth }: { node: FolderNode; depth: number }) {
   const children = [...node.children.values()].sort((a, b) => a.name.localeCompare(b.name));
   return (
-    <div className={depth > 0 ? 'agent-catalog__folder' : undefined}>
+    <div className={depth > 0 ? WorkflowDesignStyles.agentCatalogFolder : undefined}>
       {depth > 0 && (
-        <h4 className="agent-catalog__folder-name" aria-level={3 + depth}>
+        <h4 className={WorkflowDesignStyles.agentCatalogFolderName} aria-level={3 + depth}>
           📁 {node.name}
         </h4>
       )}
@@ -47,7 +50,7 @@ function FolderView({ node, depth }: { node: FolderNode; depth: number }) {
 
 function LocalAgentsTable({ agents }: { agents: LocalCatalogAgent[] }) {
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>Name</th>
@@ -60,25 +63,30 @@ function LocalAgentsTable({ agents }: { agents: LocalCatalogAgent[] }) {
       </thead>
       <tbody>
         {agents.map((agent) => (
-          <tr key={agent.path} className={agent.valid ? undefined : 'agent-catalog__invalid'}>
+          <tr
+            key={agent.path}
+            className={agent.valid ? undefined : WorkflowDesignStyles.agentCatalogInvalid}
+          >
             <td>
               {agent.name}
-              {agent.name !== agent.id && <div className="agent-catalog__id">{agent.id}</div>}
+              {agent.name !== agent.id && (
+                <div className={WorkflowDesignStyles.agentCatalogId}>{agent.id}</div>
+              )}
             </td>
             <td>
               {agent.valid ? (
                 agent.description
               ) : (
-                <span className="settings-error">{agent.problem}</span>
+                <span className={fieldErrorClass}>{agent.problem}</span>
               )}
             </td>
             <td>{agent.version}</td>
             <td>{agent.model}</td>
             <td>{agent.skills.join(', ')}</td>
-            <td className="agent-catalog__path">agents/{agent.path}</td>
+            <td className={WorkflowDesignStyles.agentCatalogPath}>agents/{agent.path}</td>
           </tr>
         ))}
       </tbody>
-    </table>
+    </DataTable>
   );
 }

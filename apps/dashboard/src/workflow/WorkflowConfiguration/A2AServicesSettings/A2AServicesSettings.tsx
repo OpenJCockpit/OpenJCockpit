@@ -9,7 +9,20 @@ import type { A2AService } from '../../workflowTypes';
 import { StatusChip } from '../../../components/StatusChip/StatusChip';
 import { SecretField } from '../../../components/FormFields/SecretField/SecretField';
 import { TextField } from '../../../components/FormFields/TextField/TextField';
+import { StatusMessage } from '../../../components/StatusMessage/StatusMessage';
+import { ToolbarButton } from '../../../components/ToolbarButton/ToolbarButton';
+import { Button } from '../../../ui/Button/Button';
+import { Actions, DataTable } from '../../../ui/DataTable/DataTable';
+import { cx } from '../../../ui/cx';
+import {
+  fieldHintClass,
+  formActionsClass,
+  formClass,
+  formGridClass,
+  formTitleClass,
+} from '../../../ui/Form/Form';
 import { a2aServiceStatus } from './a2aServiceStatus';
+import WorkflowConfigurationStyles from '../WorkflowConfiguration.module.scss';
 
 interface A2AServiceFormState {
   id: string;
@@ -152,25 +165,27 @@ export function A2AServicesSettings() {
   const editingService = editing?.mode === 'edit' ? editing.service : null;
 
   return (
-    <div className="settings-form a2a-services">
-      <h2 className="settings-form-title">A2A services</h2>
-      <p className="settings-desc">
+    <div className={formClass}>
+      <h2 className={formTitleClass}>A2A services</h2>
+      <StatusMessage>
         Gateways that host the A2A agents workflows can use. Their agents appear in Workflow design
         → Agents. Services from the agent service&apos;s configuration are read-only. This
         configuration is global — it applies to every project.
-      </p>
+      </StatusMessage>
       {error && (
-        <p className="settings-error" role="alert">
+        <StatusMessage variant="error" role="alert">
           {error}
-        </p>
+        </StatusMessage>
       )}
-      {savedMessage && <p className="workflow-saved-message">{savedMessage}</p>}
+      {savedMessage && (
+        <p className={WorkflowConfigurationStyles.workflowSavedMessage}>{savedMessage}</p>
+      )}
 
       {!loaded ? (
-        <div className="auth-loading">Loading A2A services...</div>
+        <StatusMessage role="status">Loading A2A services...</StatusMessage>
       ) : (
-        <div className="a2a-services__table-wrap">
-          <table className="settings-table">
+        <div className={WorkflowConfigurationStyles.servicesTableWrap}>
+          <DataTable>
             <thead>
               <tr>
                 <th>Service</th>
@@ -187,20 +202,20 @@ export function A2AServicesSettings() {
                   <tr key={service.id}>
                     <td>
                       <strong>{service.name}</strong>
-                      <span className="settings-desc">
+                      <span className={fieldHintClass}>
                         {service.id} ·{' '}
                         {service.source === 'CONFIGURATION' ? 'from configuration' : 'added here'}
                       </span>
                     </td>
-                    <td className="a2a-services__url">
+                    <td className={WorkflowConfigurationStyles.servicesUrl}>
                       {service.baseUrl}
                       {service.publicUrl && service.publicUrl !== service.baseUrl && (
-                        <span className="settings-desc">public: {service.publicUrl}</span>
+                        <span className={fieldHintClass}>public: {service.publicUrl}</span>
                       )}
                     </td>
                     <td>
                       {service.hasApiKey ? 'API key set' : 'No API key'}
-                      <span className="settings-desc">
+                      <span className={fieldHintClass}>
                         {service.callerClientId
                           ? `Caller identity: ${service.callerClientId}`
                           : 'No caller identity'}
@@ -208,42 +223,39 @@ export function A2AServicesSettings() {
                     </td>
                     <td>
                       <StatusChip label={status.label} kind={status.kind} />
-                      {service.message && <span className="settings-desc">{service.message}</span>}
+                      {service.message && <span className={fieldHintClass}>{service.message}</span>}
                     </td>
                     <td>
                       {service.editable ? (
-                        <div className="settings-actions">
+                        <Actions>
                           {confirmDelete === service.id ? (
                             <>
-                              <button
-                                className="back-button"
+                              <Button
+                                variant="secondary"
                                 onClick={() => void handleDelete(service)}
                               >
                                 Confirm remove
-                              </button>
-                              <button
-                                className="back-button"
-                                onClick={() => setConfirmDelete(null)}
-                              >
+                              </Button>
+                              <Button variant="secondary" onClick={() => setConfirmDelete(null)}>
                                 Keep
-                              </button>
+                              </Button>
                             </>
                           ) : (
                             <>
-                              <button className="back-button" onClick={() => startEdit(service)}>
+                              <Button variant="secondary" onClick={() => startEdit(service)}>
                                 Edit
-                              </button>
-                              <button
-                                className="back-button"
+                              </Button>
+                              <Button
+                                variant="secondary"
                                 onClick={() => setConfirmDelete(service.id)}
                               >
                                 Remove
-                              </button>
+                              </Button>
                             </>
                           )}
-                        </div>
+                        </Actions>
                       ) : (
-                        <span className="settings-desc">Read-only</span>
+                        <span className={fieldHintClass}>Read-only</span>
                       )}
                     </td>
                   </tr>
@@ -251,26 +263,26 @@ export function A2AServicesSettings() {
               })}
               {services.length === 0 && !error && (
                 <tr>
-                  <td colSpan={5} className="settings-desc">
+                  <td colSpan={5} className={fieldHintClass}>
                     No A2A services configured yet.
                   </td>
                 </tr>
               )}
             </tbody>
-          </table>
+          </DataTable>
         </div>
       )}
 
       {editing ? (
-        <div className="a2a-services__form">
-          <h3 className="a2a-services__form-title">
+        <div className={WorkflowConfigurationStyles.servicesForm}>
+          <h3 className={WorkflowConfigurationStyles.servicesFormTitle}>
             {editingService ? `Edit ${editingService.name}` : 'Add A2A service'}
           </h3>
-          <p className="settings-desc">
+          <p className={fieldHintClass}>
             A LiteLLM-compatible A2A gateway (agent registry at /v1/agents, agents at
             /a2a/&lt;name&gt;).
           </p>
-          <div className="settings-form-grid">
+          <div className={cx(formGridClass, WorkflowConfigurationStyles.servicesFormGrid)}>
             <TextField
               label="Id *"
               value={form.id}
@@ -329,25 +341,17 @@ export function A2AServicesSettings() {
               onChange={(v) => setForm((f) => ({ ...f, callerClientSecret: v }))}
             />
           </div>
-          <div className="settings-actions a2a-services__form-actions">
-            <button
-              className="button button--start"
-              onClick={() => void handleSave()}
-              disabled={saving}
-            >
+          <div className={formActionsClass}>
+            <ToolbarButton onClick={() => void handleSave()} disabled={saving}>
               {saving ? '⟳ Saving…' : editingService ? 'Save A2A service' : 'Add A2A service'}
-            </button>
-            <button className="back-button" onClick={closeForm} disabled={saving}>
+            </ToolbarButton>
+            <Button variant="secondary" onClick={closeForm} disabled={saving}>
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
-        loaded && (
-          <button className="button button--start a2a-services__add" onClick={startAdd}>
-            + Add A2A service
-          </button>
-        )
+        loaded && <ToolbarButton onClick={startAdd}>+ Add A2A service</ToolbarButton>
       )}
     </div>
   );
