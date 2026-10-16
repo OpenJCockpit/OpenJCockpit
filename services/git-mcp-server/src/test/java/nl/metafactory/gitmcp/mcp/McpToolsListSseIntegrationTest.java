@@ -60,7 +60,7 @@ class McpToolsListSseIntegrationTest {
         assertTool(byName.get("git_create_pull_request"),
             "Create a pull request on GitHub for a branch that was pushed to the project repository. Returns the URL of the created pull request.",
             List.of("repositoryUrl", "baseBranch", "headBranch", "title", "token"),
-            List.of("repositoryUrl", "baseBranch", "headBranch", "title", "body", "token"));
+            List.of("repositoryUrl", "baseBranch", "headBranch", "title", "body", "token", "workspaceKey"));
 
         assertTool(byName.get("git_list_files"),
             "List the file paths (relative to the repository root) in the repository workspace, optionally limited to a subdirectory. Check out or create a branch first.",

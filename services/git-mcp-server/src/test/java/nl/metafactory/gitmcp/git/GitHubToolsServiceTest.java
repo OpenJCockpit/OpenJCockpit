@@ -24,7 +24,7 @@ class GitHubToolsServiceTest {
         var service = new GitHubToolsService(recordingGitHub);
 
         var result = service.createPullRequest(REPO_URL, "main", "impl/001-feature",
-                "Implement feature", "Description", "secret");
+                "Implement feature", "Description", "secret", null);
 
         assertThat(result.success()).isTrue();
         assertThat(result.url()).isEqualTo("https://github.com/org/repo/pull/7");
@@ -34,10 +34,20 @@ class GitHubToolsServiceTest {
     }
 
     @Test
+    void createPullRequestAcceptsAndIgnoresWorkspaceKey() {
+        var service = new GitHubToolsService(recordingGitHub);
+
+        var result = service.createPullRequest(REPO_URL, "main", "impl/x", "Title", "Body", "secret", "run-42");
+
+        assertThat(result.success()).isTrue();
+        assertThat(calls).containsExactly("https://api.github.com|org|repo|impl/x|main|Title|Body|secret");
+    }
+
+    @Test
     void createPullRequestTreatsNullBodyAsEmpty() {
         var service = new GitHubToolsService(recordingGitHub);
 
-        var result = service.createPullRequest(REPO_URL, "main", "impl/x", "Title", null, "secret");
+        var result = service.createPullRequest(REPO_URL, "main", "impl/x", "Title", null, "secret", null);
 
         assertThat(result.success()).isTrue();
         assertThat(calls.get(0)).contains("|Title||secret");
@@ -47,8 +57,8 @@ class GitHubToolsServiceTest {
     void createPullRequestFailsWithoutToken() {
         var service = new GitHubToolsService(recordingGitHub);
 
-        var nullToken = service.createPullRequest(REPO_URL, "main", "impl/x", "Title", "", null);
-        var blankToken = service.createPullRequest(REPO_URL, "main", "impl/x", "Title", "", " ");
+        var nullToken = service.createPullRequest(REPO_URL, "main", "impl/x", "Title", "", null, null);
+        var blankToken = service.createPullRequest(REPO_URL, "main", "impl/x", "Title", "", " ", null);
 
         assertThat(nullToken.success()).isFalse();
         assertThat(nullToken.message()).contains("token is required");
@@ -63,7 +73,7 @@ class GitHubToolsServiceTest {
         };
         var service = new GitHubToolsService(failing);
 
-        var result = service.createPullRequest(REPO_URL, "main", "impl/x", "Title", "", "secret");
+        var result = service.createPullRequest(REPO_URL, "main", "impl/x", "Title", "", "secret", null);
 
         assertThat(result.success()).isFalse();
         assertThat(result.message()).contains("git_create_pull_request failed")
