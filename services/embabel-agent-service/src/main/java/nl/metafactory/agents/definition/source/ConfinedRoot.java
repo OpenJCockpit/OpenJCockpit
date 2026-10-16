@@ -46,7 +46,8 @@ public final class ConfinedRoot {
         Path current = root;
         for (String segment : segments) {
             if (segment.isEmpty() || segment.contains("/") || segment.contains("\\")
-                    || segment.equals(".") || segment.equals("..") || segment.indexOf('\0') >= 0) {
+                    || segment.equals(".") || segment.equals("..") || segment.indexOf('\0') >= 0
+                    || !current.resolve(segment).normalize().startsWith(root)) {
                 throw new InvalidDefinitionException("illegal path segment");
             }
             current = current.resolve(segment);
@@ -56,9 +57,6 @@ public final class ConfinedRoot {
             if (!Files.exists(current, LinkOption.NOFOLLOW_LINKS)) {
                 return Optional.empty();
             }
-        }
-        if (!current.normalize().startsWith(root)) {
-            throw new InvalidDefinitionException("path escapes the definition root");
         }
         return Optional.of(current);
     }

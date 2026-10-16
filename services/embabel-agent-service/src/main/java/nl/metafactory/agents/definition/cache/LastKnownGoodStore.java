@@ -153,7 +153,7 @@ public class LastKnownGoodStore implements AgentDefinitionProvider {
         return directory.resolve(agentId + ".json");
     }
 
-    private static java.nio.file.attribute.FileTime modified(Path p) {
+    static java.nio.file.attribute.FileTime modified(Path p) {
         try {
             return Files.getLastModifiedTime(p);
         } catch (IOException e) {

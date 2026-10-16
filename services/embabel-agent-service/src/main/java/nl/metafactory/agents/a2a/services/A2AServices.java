@@ -90,9 +90,6 @@ public class A2AServices {
         if (clients.isConfigured(id) || store.find(id).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "An A2A service with id '" + id + "' already exists");
         }
-        if (!notBlank(request.apiKey())) {
-            throw badRequest("API key is required");
-        }
         var validated = validate(request, null);
         Instant now = clock.instant();
         store.insert(new A2AServiceStore.StoredService(id, LiteLlmA2AProviderClient.TYPE, validated.name(),

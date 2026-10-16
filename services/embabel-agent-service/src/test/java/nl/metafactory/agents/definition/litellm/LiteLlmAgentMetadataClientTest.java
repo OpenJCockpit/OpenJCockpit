@@ -80,4 +80,33 @@ class LiteLlmAgentMetadataClientTest {
         server.enqueue(new MockResponse().setResponseCode(403));
         assertThat(client.findByName("x").status()).isEqualTo(SourceStatus.UNAUTHORIZED);
     }
+
+    @Test
+    void aListThatIsNoArrayIsInvalidAndMalformedAgentsAreSkipped() {
+        server.enqueue(new MockResponse().setBody("{\"agents\":[]}"));
+        assertThat(client.listAll().reason()).isEqualTo("agent list is not an array");
+
+        server.enqueue(new MockResponse().setBody("""
+                [{"agent_name":"no-id","agent_card_params":{}},
+                 {"agent_id":"a1","agent_name":"skills-object","agent_card_params":{"url":"u","protocolVersion":"0.3.0","skills":{}}},
+                 {"agent_id":"a2","agent_name":"skill-without-id","agent_card_params":{"url":"u","protocolVersion":"0.3.0","skills":[{"name":"x"}]}},
+                 {"agent_id":"a3","agent_name":"ok","agent_card_params":{"url":"u","protocolVersion":"0.3.0","skills":[{"id":"s"}]}}]"""));
+        var listed = client.listAll();
+
+        assertThat(listed.agents()).extracting(AgentCardMetadata::agentName).containsExactly("ok");
+        assertThat(listed.skippedInvalid()).isEqualTo(3);
+    }
+
+    @Test
+    void theReasonForEachMalformedAgentIsSpecific() {
+        var json = tools.jackson.databind.json.JsonMapper.builder().build();
+        String card = "\"agent_card_params\":{\"url\":\"u\",\"protocolVersion\":\"0.3.0\",";
+
+        assertThat(LiteLlmAgentMetadataClient.parse(json.readTree("{\"agent_name\":\"x\"}")).reason())
+                .isEqualTo("agent payload lacks agent_id, agent_name or agent_card_params");
+        assertThat(LiteLlmAgentMetadataClient.parse(json.readTree("{\"agent_id\":\"a\",\"agent_name\":\"x\"," + card
+                + "\"skills\":\"all\"}}")).reason()).isEqualTo("agent card skills is not an array");
+        assertThat(LiteLlmAgentMetadataClient.parse(json.readTree("{\"agent_id\":\"a\",\"agent_name\":\"x\"," + card
+                + "\"skills\":[{}]}}")).reason()).isEqualTo("agent card skill without id");
+    }
 }

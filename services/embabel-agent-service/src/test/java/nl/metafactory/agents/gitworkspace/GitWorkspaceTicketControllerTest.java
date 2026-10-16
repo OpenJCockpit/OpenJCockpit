@@ -53,4 +53,14 @@ class GitWorkspaceTicketControllerTest {
         assertThat(controller.issue(bad, token("openjcockpit-ai-control", "svc")).getStatusCode())
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
+
+    @Test
+    void tooManyOutstandingTicketsIsTooManyRequests() {
+        for (int i = 0; i < GitWorkspaceTickets.MAX_OUTSTANDING; i++) {
+            controller.issue(request("alice-sub"), token("openjcockpit-ai-control", "svc-sub"));
+        }
+
+        assertThat(controller.issue(request("alice-sub"), token("openjcockpit-ai-control", "svc-sub")).getStatusCode())
+                .isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
+    }
 }

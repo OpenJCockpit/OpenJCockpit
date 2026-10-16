@@ -141,4 +141,77 @@ class LiteLlmA2AProviderClientTest {
         assertThat(unconfigured.sendMessage("qa-engineer", "hi", null).status()).isEqualTo(Status.NOT_CONFIGURED);
         assertThat(unconfigured.http()).isEmpty();
     }
+
+    @Test
+    void aMissingOrMalformedCardIsClassified() {
+        server.enqueue(new MockResponse().setResponseCode(404));
+        assertThat(client.agentCard("qa-engineer").status()).isEqualTo(Status.NOT_FOUND);
+        server.enqueue(new MockResponse().setBody("[]"));
+        assertThat(client.agentCard("qa-engineer").status()).isEqualTo(Status.INVALID);
+    }
+
+    @Test
+    void messagesAreValidatedRejectedCallsClassifiedAndTextPartsJoined() {
+        assertThat(client.sendMessage("qa-engineer", " ", null).status()).isEqualTo(Status.INVALID);
+
+        server.enqueue(new MockResponse().setResponseCode(401));
+        assertThat(client.sendMessage("qa-engineer", "hi", null).status()).isEqualTo(Status.UNAUTHORIZED);
+        server.enqueue(new MockResponse().setResponseCode(400));
+        assertThat(client.sendMessage("qa-engineer", "hi", null).status()).isEqualTo(Status.INVALID);
+
+        server.enqueue(new MockResponse().setBody("""
+                {"jsonrpc":"2.0","id":"1","result":{"kind":"message","parts":[{"kind":"text","text":"one"},{"kind":"text","text":"two"}]}}"""));
+        assertThat(client.sendMessage("qa-engineer", "hi", null).text()).isEqualTo("one\ntwo");
+    }
+
+    @Test
+    void aProviderWithoutHeaderForwardingRefusesForwardedHeaders() {
+        var calls = new java.util.ArrayList<String>();
+        A2AProviderClient basic = new A2AProviderClient() {
+            public String id() {
+                return "basic";
+            }
+
+            public String name() {
+                return "Basic";
+            }
+
+            public boolean configured() {
+                return true;
+            }
+
+            public Listing listAgents() {
+                return null;
+            }
+
+            public CardResult agentCard(String agentName) {
+                return null;
+            }
+
+            public MessageResult sendMessage(String agentName, String text, String callerAuthorization) {
+                calls.add(agentName);
+                return new MessageResult(Status.OK, "ok", null);
+            }
+        };
+
+        assertThat(basic.callerAuthorization()).isEmpty();
+        assertThat(basic.sendMessage("qa", "hi", null, java.util.Map.of("x-run", "1")).status()).isEqualTo(Status.INVALID);
+        assertThat(basic.sendMessage("qa", "hi", null, java.util.Map.of()).text()).isEqualTo("ok");
+        assertThat(calls).containsExactly("qa");
+    }
+
+    @Test
+    void providerSettingsBind() {
+        var p = config("http://litellm:4000", "sk");
+        p.setId("acme");
+        p.setConnectTimeout(java.time.Duration.ofSeconds(1));
+        p.setReadTimeout(java.time.Duration.ofSeconds(2));
+        p.setMessageTimeout(java.time.Duration.ofSeconds(3));
+
+        assertThat(p.getId()).isEqualTo("acme");
+        assertThat(p.getPublicUrl()).isEqualTo("http://localhost:4100/");
+        assertThat(p.getConnectTimeout()).hasSeconds(1);
+        assertThat(p.getReadTimeout()).hasSeconds(2);
+        assertThat(p.getMessageTimeout()).hasSeconds(3);
+    }
 }

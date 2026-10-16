@@ -67,6 +67,11 @@ class StubSpecRepositoryClientTest {
     }
 
     @Test
+    void theWildcardIsEmptyWithoutACustomersFolder(@TempDir Path tempDir) {
+        assertThat(new StubSpecRepositoryClient(tempDir.toString()).listSpecs("*")).isEmpty();
+    }
+
+    @Test
     void listSpecsReturnsEmptyListForUnknownCustomer() {
         var client = new StubSpecRepositoryClient(SPEC_REPO_PATH);
         assertThat(client.listSpecs("unknown-customer")).isEmpty();

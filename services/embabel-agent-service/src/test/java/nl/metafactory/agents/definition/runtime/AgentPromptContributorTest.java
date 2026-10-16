@@ -53,4 +53,13 @@ class AgentPromptContributorTest {
         var text = new AgentPromptContributor(snapshot()).contribution();
         assertThat(text).doesNotContain("tenant-a").doesNotContain("customer.read");
     }
+
+    @Test
+    void contributesAtTheBeginningOfThePrompt() {
+        var contributor = new AgentPromptContributor(snapshot());
+
+        assertThat(contributor.getRole()).isNotBlank();
+        assertThat(contributor.getPromptContributionLocation())
+                .isEqualTo(com.embabel.common.ai.prompt.PromptContributionLocation.BEGINNING);
+    }
 }

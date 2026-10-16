@@ -209,4 +209,54 @@ class A2AServicesTest {
         new A2AServices(store, new A2AServiceSecrets(SECRET, SALT), restartedClients, configured).load();
         assertThat(restartedClients.find("acme")).get().satisfies(c -> assertThat(c.configured()).isTrue());
     }
+
+    @Test
+    void malformedUrlsClientIdsAndSecretsAreRejected() {
+        for (var bad : List.of(
+                new A2AServiceRequest("acme", "Acme", "http://gw example", null, "k", null, null, null),
+                new A2AServiceRequest("acme", "Acme", GATEWAY, null, "sk\u0001", null, null, null),
+                withCaller(request("acme", "k"), "https://idp.example/token", "bad client", "s"))) {
+            assertThatThrownBy(() -> services.create(bad, "u")).as(bad.toString())
+                    .satisfies(e -> assertThat(status(e)).isEqualTo(HttpStatus.BAD_REQUEST));
+        }
+        assertThat(store.list()).isEmpty();
+    }
+
+    @Test
+    void aStoredServiceThatIsNotLoadedYetIsReportedAsSuch() {
+        var now = java.time.Instant.now();
+        var stored = new A2AServiceStore.StoredService("acme", "litellm", "Acme", GATEWAY, null, "encrypted",
+                null, null, null, "u", now, "u", now);
+        store.insert(stored);
+
+        assertThat(services.list().getLast()).satisfies(s -> {
+            assertThat(s.status()).isEqualTo("NOT_CONFIGURED");
+            assertThat(s.message()).isEqualTo("Not loaded");
+        });
+        assertThat(stored.toString()).doesNotContain("encrypted");
+    }
+
+    @Test
+    void aReachableServiceReportsItsAgentCount() throws Exception {
+        try (var gateway = new okhttp3.mockwebserver.MockWebServer()) {
+            gateway.enqueue(new okhttp3.mockwebserver.MockResponse().setBody("[]"));
+            configured.getA2aProviders().getFirst().setBaseUrl(gateway.url("/").toString());
+            clients = new A2AProviderClients(configured);
+
+            var listed = services(new A2AServiceSecrets(SECRET, SALT)).list().getFirst();
+
+            assertThat(listed.status()).isEqualTo("OK");
+            assertThat(listed.agentCount()).isZero();
+        }
+    }
+
+    @Test
+    void aFailingLoadAtStartupIsLoggedAndLeavesTheConfiguredServicesInPlace() {
+        var failing = org.mockito.Mockito.mock(A2AServiceStore.class);
+        org.mockito.Mockito.when(failing.list()).thenThrow(new IllegalStateException("database down"));
+
+        new A2AServices(failing, new A2AServiceSecrets(SECRET, SALT), clients, configured).load();
+
+        assertThat(clients.find("litellm")).isPresent();
+    }
 }

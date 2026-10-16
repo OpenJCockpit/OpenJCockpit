@@ -358,6 +358,59 @@ class GitWorkspaceJobServiceTest {
     }
 
     @Test
+    void anUnexpectedErrorPreparingTheWorkspaceFailsTheJobWithoutItsDetail() {
+        UUID created = newJobsGetAnId();
+        when(branchNameGenerator.forWorkflowRun(any(), any())).thenReturn("agentic/wf/x");
+        when(gitMcp.createBranch(any(), any(), any(), any())).thenThrow(new IllegalStateException("secret detail"));
+
+        assertThatThrownBy(() -> service.prepareWorkflowRunWorkspace(projectId, "wf", "spec", "alice"))
+                .isInstanceOfSatisfying(GitWorkspaceException.class, e -> {
+                    assertThat(e.getErrorCode()).isEqualTo(GitWorkspaceJobErrorCode.GIT_CLONE_FAILED);
+                    assertThat(e.getMessage()).endsWith("The project repository could not be prepared");
+                });
+        var saved = jobRepo.findById(created).orElseThrow();
+        assertThat(saved.getStatus()).isEqualTo(GitWorkspaceJobStatus.FAILED);
+        assertThat(saved.getErrorMessage()).isEqualTo("Unexpected error: IllegalStateException");
+    }
+
+    @Test
+    void anUnexpectedErrorFinishingADashboardRunFailsTheJob() {
+        var ws = new GitWorkspaceJobService.PreparedWorkspace(jobId, workspaceKey(), "https://github.com/org/repo", "agentic/wf-1/x");
+        doThrow(new IllegalStateException("boom")).when(agentService).pollAgentRun("run-1", jobId);
+
+        service.finishWorkflowRunAsync(ws, "run-1");
+
+        assertThat(job.getStatus()).isEqualTo(GitWorkspaceJobStatus.FAILED);
+        assertThat(job.getErrorMessage()).isEqualTo("Unexpected error: IllegalStateException");
+        verify(gitMcp, never()).push(any(), any(), any());
+    }
+
+    @Test
+    void aFinalCommitThatFailsFailsTheJobWithoutAPush() {
+        var ws = new GitWorkspaceJobService.PreparedWorkspace(jobId, workspaceKey(), "https://github.com/org/repo", "agentic/wf-1/x");
+        when(gitMcp.commit(any(), any(), any(), any(), any())).thenReturn(new GitMcpGateway.Result(false, "index locked", null, null));
+
+        service.finishWorkflowRunAsync(ws, "run-1");
+
+        assertThat(job.getStatus()).isEqualTo(GitWorkspaceJobStatus.FAILED);
+        assertThat(job.getErrorCode()).isEqualTo(GitWorkspaceJobErrorCode.COMMIT_FAILED);
+        verify(gitMcp, never()).push(any(), any(), any());
+    }
+
+    @Test
+    void aBranchThatCannotBeCreatedFailsTheJob() throws Exception {
+        var spec = new SpecFile("spec-001", "build.md", "", "", "", false, "# Content", "");
+        when(specFileService.resolveSpecFile("spec-001")).thenReturn(spec);
+        when(gitMcp.createBranch(any(), any(), any(), any())).thenReturn(new GitMcpGateway.Result(false, "branch exists", null, null));
+
+        service.runWorkflowAsync(jobId);
+
+        assertThat(job.getStatus()).isEqualTo(GitWorkspaceJobStatus.FAILED);
+        assertThat(job.getErrorCode()).isEqualTo(GitWorkspaceJobErrorCode.BRANCH_CREATE_FAILED);
+        verifyNoInteractions(agentService);
+    }
+
+    @Test
     void aRunThatDidNotStartEndsTheJob() {
         service.workflowRunNotStarted(jobId, "All agents were denied by policy");
 

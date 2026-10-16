@@ -8,9 +8,11 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 class LocalMarkdownAgentDefinitionProviderTest {
 
@@ -90,5 +92,19 @@ class LocalMarkdownAgentDefinitionProviderTest {
     @Test
     void missingRootIsRejectedAtConstruction() {
         assertThatThrownBy(() -> new ConfinedRoot(tmp.resolve("nope"))).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void anUnreadableDefinitionIsUnavailable() throws Exception {
+        assumeFalse("root".equals(System.getProperty("user.name")), "root can read any file");
+        Files.createDirectories(tmp.resolve("agents"));
+        var file = Files.writeString(tmp.resolve("agents/locked.md"), "---\nid: locked\nversion: '1'\nmodel: m\n---\nx\n");
+        Files.setPosixFilePermissions(file, PosixFilePermissions.fromString("---------"));
+
+        var result = provider(tmp).lookup("locked");
+
+        assertThat(result.status()).isEqualTo(SourceStatus.UNAVAILABLE);
+        assertThat(result.reason()).isEqualTo("local definition unreadable");
+        assertThat(provider(tmp).source()).isEqualTo(nl.metafactory.agents.definition.model.DefinitionSource.LOCAL);
     }
 }

@@ -103,4 +103,28 @@ class GitWorkspaceToolsTest {
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> new GitWorkspaceBinding("job-1", " ", "b"))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void gatewayFailuresBecomeToolErrors() {
+        when(gateway.listFiles(any(), any(), any())).thenReturn(new GitMcpGateway.FileList(false, "no such folder", List.of()));
+        when(gateway.readFile(any(), any(), any())).thenReturn(new GitMcpGateway.FileContent(false, "not found", null, null));
+        when(gateway.writeFile(any(), any(), any(), any())).thenReturn(new GitMcpGateway.Result(false, "read-only", null, null));
+
+        var listed = ((RunScopedTool) config.gitListFilesTool(gateway).tool()).call("{\"subdirectory\":\"src\"}", run(WORKSPACE));
+        var read = ((RunScopedTool) config.gitReadFileTool(gateway).tool()).call("{\"path\":\"a.md\"}", run(WORKSPACE));
+        var written = ((RunScopedTool) config.gitWriteFileTool(gateway).tool()).call("{\"path\":\"a.md\",\"content\":\"x\"}", run(WORKSPACE));
+
+        assertThat(text(listed)).isEqualTo("no such folder");
+        assertThat(text(read)).isEqualTo("not found");
+        assertThat(text(written)).isEqualTo("read-only");
+    }
+
+    @Test
+    void theToolShapeRefusesOutsideARunAndKeepsItsMetadata() {
+        var tool = config.gitReadFileTool(gateway).tool();
+
+        assertThat(tool.getMetadata()).isNotNull();
+        assertThat(text(tool.call("{}"))).contains("only available inside an agent run");
+        verifyNoInteractions(gateway);
+    }
 }

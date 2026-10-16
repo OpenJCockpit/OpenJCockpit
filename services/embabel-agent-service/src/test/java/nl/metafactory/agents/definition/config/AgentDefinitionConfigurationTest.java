@@ -93,4 +93,36 @@ class AgentDefinitionConfigurationTest {
                 "openjcockpit.agent-definitions.litellm.gateway-model-aliases=customer-chat"
         ).run(ctx -> assertThat(ctx).hasFailed());
     }
+
+    @Test
+    void aCacheDirectoryAndAConfiguredLiteLlmProviderAddTheSnapshotStoreRemoteSourcesAndGatewayGuardrails(
+            @org.junit.jupiter.api.io.TempDir java.nio.file.Path cache) {
+        runner.withPropertyValues(
+                "openjcockpit.agent-definitions.enabled=true",
+                "openjcockpit.agent-definitions.local-root=src/test/resources/agent-definitions",
+                "openjcockpit.agent-definitions.cache.directory=" + cache,
+                "openjcockpit.agent-definitions.litellm.gateway-guardrails.gateway-pii-filter=openjcockpit-pii",
+                "openjcockpit.a2a-providers[0].type=litellm",
+                "openjcockpit.a2a-providers[0].base-url=http://litellm:4000",
+                "openjcockpit.a2a-providers[0].api-key=sk-test"
+        ).run(ctx -> {
+            assertThat(ctx).hasNotFailed();
+            assertThat(ctx).hasSingleBean(nl.metafactory.agents.definition.cache.LastKnownGoodStore.class);
+            // registered through LiteLLM (not "no executor"), but unproven without a model alias
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> ctx.getBean(GuardrailPolicyEnforcer.class)
+                            .enforce("x", java.util.List.of("gateway-pii-filter")))
+                    .hasMessageContaining("litellm-policy:openjcockpit-pii is not operational");
+        });
+    }
+
+    @Test
+    void aGatewayAliasThatIsNotKebabCaseFailsStartup() {
+        runner.withPropertyValues(
+                "openjcockpit.agent-definitions.enabled=true",
+                "openjcockpit.agent-definitions.local-root=src/test/resources/agent-definitions",
+                "openjcockpit.agent-definitions.litellm.gateway-model-aliases=Customer_Chat",
+                "openjcockpit.agent-definitions.litellm.model-gateway-url=http://litellm:4000/v1",
+                "openjcockpit.agent-definitions.litellm.model-gateway-key=sk-test"
+        ).run(ctx -> assertThat(ctx).hasFailed());
+    }
 }

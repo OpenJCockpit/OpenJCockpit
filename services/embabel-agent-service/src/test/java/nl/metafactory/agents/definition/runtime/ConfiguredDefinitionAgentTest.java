@@ -123,4 +123,27 @@ class ConfiguredDefinitionAgentTest {
         assertThatThrownBy(() -> agent.respond(new ConfiguredDefinitionAgent.Request(prepared(customerRead), otherTenant, "hi")))
                 .isInstanceOf(IllegalStateException.class);
     }
+
+    @Test
+    void aFailingRunIsPassedOnAfterItsSkillsAreCleanedUp() {
+        var ai = mock(Ai.class);
+        var runner = mock(PromptRunner.class, Answers.RETURNS_SELF);
+        when(ai.withLlmByRole("customer-chat")).thenReturn(runner);
+        when(runner.generateText(anyString())).thenThrow(new IllegalStateException("model gateway down"));
+        var agent = new ConfiguredDefinitionAgent(ai, (r, t) -> ToolCallAuthorizer.Decision.allow());
+
+        assertThatThrownBy(() -> agent.respond(new ConfiguredDefinitionAgent.Request(prepared(customerRead), run(), "Hi")))
+                .isInstanceOf(IllegalStateException.class).hasMessage("model gateway down");
+    }
+
+    @Test
+    void preparedSkillsAndToolsMustMatchTheSnapshot() {
+        var def = prepared(customerRead).definition();
+        var skills = prepared(customerRead).skills();
+
+        assertThatThrownBy(() -> new PreparedAgent(def, List.of(), List.of(customerRead), List.of(), null))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("skill packages do not match the snapshot");
+        assertThatThrownBy(() -> new PreparedAgent(def, skills, List.of(), List.of(), null))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("bound tools do not match the snapshot");
+    }
 }

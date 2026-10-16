@@ -46,13 +46,13 @@ public class LocalAgentCatalog {
         }
         var root = new ConfinedRoot(configured).path();
         var agents = new ArrayList<AgentCatalog.LocalAgent>();
+        // Without FOLLOW_LINKS, walk never descends into a symlinked folder; symlinked files are filtered below.
         try (Stream<Path> walk = Files.walk(root, MAX_DEPTH, new FileVisitOption[0])) {
             var files = walk
                     .filter(p -> !Files.isSymbolicLink(p))
                     .filter(p -> Files.isRegularFile(p, LinkOption.NOFOLLOW_LINKS))
                     .filter(p -> p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".md"))
                     .filter(p -> !p.getFileName().toString().equalsIgnoreCase("README.md"))
-                    .filter(p -> noSymlinkBetween(root, p))
                     .sorted(Comparator.comparing(p -> root.relativize(p).toString()))
                     .limit(MAX_FILES)
                     .toList();
@@ -90,14 +90,5 @@ public class LocalAgentCatalog {
                 ? new AgentCatalog.LocalAgent(a.id(), a.name(), a.description(), a.version(), a.model(), a.path(),
                 a.folders(), a.skills(), a.tools(), false, "duplicate agent id " + a.id())
                 : a).toList();
-    }
-
-    private static boolean noSymlinkBetween(Path root, Path file) {
-        for (Path p = file.getParent(); p != null && !p.equals(root); p = p.getParent()) {
-            if (Files.isSymbolicLink(p)) {
-                return false;
-            }
-        }
-        return true;
     }
 }

@@ -9,10 +9,13 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 class MaterializedSkillsTest {
 
@@ -56,5 +59,48 @@ class MaterializedSkillsTest {
             assertThat(MaterializedSkills.skillMarkdown(pkg)).doesNotContain("allowed-tools");
         }
         assertThat(dir).doesNotExist();
+    }
+
+    private static SkillPackage withResources(Map<String, String> resources) {
+        return new SkillPackage("s", "desc", "# body", resources, List.of(), List.of(), "0".repeat(64));
+    }
+
+    @Test
+    void aResourceOutsideItsSkillOrOneThatCannotBeWrittenFailsAndLeavesNothingBehind() throws Exception {
+        long before = tempSkillDirs();
+
+        assertThatThrownBy(() -> MaterializedSkills.of("agent", List.of(withResources(Map.of("../escape.md", "x")))))
+                .isInstanceOf(IllegalStateException.class).hasMessage("resource path escapes skill directory");
+        // a file and a folder with the same name cannot both be written
+        assertThatThrownBy(() -> MaterializedSkills.of("agent",
+                List.of(withResources(Map.of("a.md", "x", "a.md/b.md", "y")))))
+                .isInstanceOf(java.io.UncheckedIOException.class);
+        assertThat(tempSkillDirs()).isEqualTo(before);
+    }
+
+    @Test
+    void closingTwiceOrADirectoryThatCannotBeRemovedNeverFails() throws Exception {
+        assumeFalse("root".equals(System.getProperty("user.name")), "root can delete anything");
+        var materialized = MaterializedSkills.of("agent", List.of(withResources(Map.of("references/a.md", "v1"))));
+        Path dir = materialized.directory();
+        Path skill = dir.resolve("s");
+        Files.setPosixFilePermissions(skill, PosixFilePermissions.fromString("r-x------"));
+        materialized.close();
+        assertThat(skill.resolve("SKILL.md")).exists();
+
+        Files.setPosixFilePermissions(dir, PosixFilePermissions.fromString("---------"));
+        materialized.close();
+
+        Files.setPosixFilePermissions(dir, PosixFilePermissions.fromString("rwx------"));
+        Files.setPosixFilePermissions(skill, PosixFilePermissions.fromString("rwx------"));
+        materialized.close();
+        assertThat(dir).doesNotExist();
+        materialized.close();
+    }
+
+    private static long tempSkillDirs() throws Exception {
+        try (var dirs = Files.list(Path.of(System.getProperty("java.io.tmpdir")))) {
+            return dirs.filter(p -> p.getFileName().toString().startsWith("agent-skills-")).count();
+        }
     }
 }

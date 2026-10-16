@@ -81,4 +81,19 @@ class GitWorkspaceCheckpointsTest {
         assertThat(checkpoints.afterAgent(SCOPE, "qa", 0, 1, "x")).isEmpty();
         verifyNoInteractions(git);
     }
+
+    @Test
+    void anOutputThatCannotBeWrittenACommitThatFailsAndAnUnexpectedErrorAreReportedNotThrown() {
+        when(git.writeFile(anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(new GitMcpGateway.Result(false, "disk full", null, null))
+                .thenReturn(ok(null))
+                .thenThrow(new IllegalStateException("boom"));
+        when(git.commit(anyString(), anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(new GitMcpGateway.Result(false, "index locked", null, null));
+
+        assertThat(checkpoints.afterAgent(SCOPE, "qa", 0, 1, "x")).get().asString().contains("agent output not written: disk full");
+        assertThat(checkpoints.afterAgent(SCOPE, "qa", 0, 1, "x")).get().asString().contains("commit failed: index locked");
+        assertThat(checkpoints.afterAgent(SCOPE, "qa", 0, 1, "x")).get().asString().contains("IllegalStateException");
+        verify(git, never()).push(any(), any(), any());
+    }
 }

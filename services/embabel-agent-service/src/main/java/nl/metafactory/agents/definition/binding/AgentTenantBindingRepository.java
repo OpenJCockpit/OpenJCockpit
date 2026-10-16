@@ -23,7 +23,8 @@ public class AgentTenantBindingRepository {
         record Row(String tenantId, String agentId, boolean enabled, String modelAlias, String pinnedVersion,
                    boolean fallbackAllowed, boolean fallbackOnNotFound) {
         }
-        List<Row> rows = jdbc.sql("""
+        // (tenant_id, agent_id) is the primary key; optional() still fails on more than one row
+        Optional<Row> found = jdbc.sql("""
                         SELECT tenant_id, agent_id, enabled, model_alias, pinned_version,
                                fallback_allowed, fallback_on_not_found
                         FROM agent_tenant_bindings WHERE tenant_id = :tenant AND agent_id = :agent""")
@@ -31,14 +32,11 @@ public class AgentTenantBindingRepository {
                 .param("agent", agentId)
                 .query((rs, n) -> new Row(rs.getString(1), rs.getString(2), rs.getBoolean(3), rs.getString(4),
                         rs.getString(5), rs.getBoolean(6), rs.getBoolean(7)))
-                .list();
-        if (rows.isEmpty()) {
+                .optional();
+        if (found.isEmpty()) {
             return Optional.empty();
         }
-        if (rows.size() > 1) {
-            throw new IllegalStateException("more than one binding for one tenant/agent pair");
-        }
-        var row = rows.getFirst();
+        var row = found.get();
         var tools = jdbc.sql("SELECT tool_id FROM agent_tenant_binding_tools WHERE tenant_id = :tenant AND agent_id = :agent")
                 .param("tenant", tenantId).param("agent", agentId).query(String.class).list();
         var guardrails = jdbc.sql("SELECT guardrail_id FROM agent_tenant_binding_guardrails WHERE tenant_id = :tenant AND agent_id = :agent")

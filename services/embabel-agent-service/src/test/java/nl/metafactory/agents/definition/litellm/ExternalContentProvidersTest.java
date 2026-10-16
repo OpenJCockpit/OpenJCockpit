@@ -58,4 +58,10 @@ class ExternalContentProvidersTest {
                 "---\nid: a\nversion: '1'\nmodel: m\nskills: [customer-lookup]\n---\nbody\n");
         assertThat(resolver.resolve(doc).skills()).hasSize(1);
     }
+
+    @Test
+    void externalSkillsComeFromTheRemoteSource() {
+        assertThat(new ExternalSkillPackageProvider().source())
+                .isEqualTo(nl.metafactory.agents.definition.model.DefinitionSource.REMOTE_LITELLM);
+    }
 }

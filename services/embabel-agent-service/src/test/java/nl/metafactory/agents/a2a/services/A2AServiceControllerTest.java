@@ -54,4 +54,11 @@ class A2AServiceControllerTest {
         assertThat(r.toString()).doesNotContain("sk-secret").doesNotContain("client-secret\"").contains("***");
         assertThat(r.toString()).doesNotContain("=client-secret");
     }
+
+    @Test
+    void listsTheServices() {
+        controller.list();
+
+        verify(services).list();
+    }
 }

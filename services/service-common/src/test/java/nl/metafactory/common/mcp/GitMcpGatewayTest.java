@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
+import java.io.IOException;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,6 +17,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withException;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -88,6 +90,49 @@ class GitMcpGatewayTest {
         assertThatThrownBy(() -> gateway.push(REPO, "b", "job-1"))
                 .isInstanceOf(LiteLlmMcpToolClient.McpCallException.class)
                 .hasMessageNotContaining("secret repository content");
+    }
+
+    @Test
+    void writesAFileAndPushesTheBranch() {
+        server.expect(requestTo("http://litellm:4000/mcp-rest/tools/call"))
+                .andExpect(content().json("{\"name\":\"git_write_file\",\"arguments\":{\"repositoryUrl\":\"" + REPO
+                        + "\",\"path\":\"a.md\",\"content\":\"# A\",\"workspaceKey\":\"job-1\"}}"))
+                .andRespond(withSuccess(toolResult("{\"success\":true,\"message\":\"Written\"}", false),
+                        MediaType.APPLICATION_JSON));
+        server.expect(requestTo("http://litellm:4000/mcp-rest/tools/call"))
+                .andExpect(content().json("{\"name\":\"git_push\",\"arguments\":{\"repositoryUrl\":\"" + REPO
+                        + "\",\"branch\":\"agentic/x\",\"workspaceKey\":\"job-1\"}}"))
+                .andRespond(withSuccess(toolResult("{\"success\":true,\"message\":\"Pushed\",\"branch\":\"agentic/x\"}", false),
+                        MediaType.APPLICATION_JSON));
+
+        assertThat(gateway.writeFile(REPO, "a.md", "# A", "job-1").message()).isEqualTo("Written");
+        assertThat(gateway.push(REPO, "agentic/x", "job-1").branch()).isEqualTo("agentic/x");
+        server.verify();
+    }
+
+    @Test
+    void anUnreachableGatewayOrANonJsonToolResultBecomesAnMcpCallExceptionWithoutContent() {
+        server.expect(requestTo("http://litellm:4000/mcp-rest/tools/call"))
+                .andRespond(withException(new IOException("connection refused")));
+        server.expect(requestTo("http://litellm:4000/mcp-rest/tools/call"))
+                .andRespond(withSuccess(toolResult("secret repository content", false), MediaType.APPLICATION_JSON));
+
+        assertThatThrownBy(() -> gateway.push(REPO, "b", "job-1"))
+                .isInstanceOf(LiteLlmMcpToolClient.McpCallException.class).hasMessageContaining("is unreachable");
+        assertThatThrownBy(() -> gateway.push(REPO, "b", "job-1"))
+                .isInstanceOf(LiteLlmMcpToolClient.McpCallException.class).hasMessageContaining("no JSON result")
+                .hasMessageNotContaining("secret repository content");
+    }
+
+    @Test
+    void joinsTheTextPartsOfAToolResultAndSkipsOtherContent() {
+        var client = new LiteLlmMcpToolClient(new LiteLlmMcpToolClient.Config("u", "k", "s", null));
+
+        var result = client.parse(("{\"content\":[{\"type\":\"text\",\"text\":\"a\"},{\"type\":\"image\"},"
+                + "{\"type\":\"text\",\"text\":\"b\"}]}").getBytes());
+
+        assertThat(result.text()).isEqualTo("a\nb");
+        assertThat(result.error()).isFalse();
     }
 
     @Test

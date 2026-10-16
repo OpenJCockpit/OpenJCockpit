@@ -11,6 +11,7 @@ import tools.jackson.dataformat.yaml.YAMLMapper;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -35,12 +36,10 @@ public class SkillMarkdownParser {
         var split = MarkdownFrontmatter.split(raw);
         Map<?, ?> fm;
         try {
-            fm = yaml.readValue(split.yaml(), Map.class);
+            fm = Optional.ofNullable(yaml.readValue(split.yaml(), Map.class))
+                    .orElseThrow(() -> new InvalidDefinitionException("SKILL.md frontmatter is empty"));
         } catch (JacksonException e) {
             throw new InvalidDefinitionException("SKILL.md frontmatter is not valid YAML (" + e.getClass().getSimpleName() + ")");
-        }
-        if (fm == null) {
-            throw new InvalidDefinitionException("SKILL.md frontmatter is empty");
         }
         for (Object key : fm.keySet()) {
             if (!(key instanceof String k) || !ALLOWED_KEYS.contains(k)) {

@@ -30,6 +30,15 @@ class BranchNameGeneratorTest {
     }
 
     @Test
+    void forWorkflowRunGivesEveryRunOfAWorkflowItsOwnBranch() {
+        UUID jobId = UUID.fromString("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
+
+        assertThat(generator.forWorkflowRun("Spec to PR", jobId)).matches("agentic/spec-to-pr/\\d{8}-\\d{6}-a1b2c3d4");
+        assertThat(generator.forWorkflowRun("!!!", jobId)).matches("agentic/workflow/\\d{8}-\\d{6}-a1b2c3d4");
+        assertThat(generator.forWorkflowRun("x".repeat(300), jobId)).hasSize(200);
+    }
+
+    @Test
     void generateIncludesTimestampAndShortJobId() {
         UUID jobId = UUID.fromString("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
         var project = projectWithName("Test");

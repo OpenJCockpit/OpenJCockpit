@@ -98,4 +98,34 @@ class AgentDefinitionResolverTest {
         assertFailure(() -> localResolver(repo(other)).resolve("tenant-a", "billing"), ResolutionFailure.NOT_FOUND);
         assertFailure(() -> localResolver(repo()).resolve("tenant-a", "../customer-support"), ResolutionFailure.INVALID);
     }
+
+    @Test
+    void aDocumentForAnotherAgentIsInvalid() {
+        var other = new nl.metafactory.agents.definition.source.AgentDefinitionProvider() {
+            public DefinitionSource source() {
+                return DefinitionSource.LOCAL;
+            }
+
+            public nl.metafactory.agents.definition.model.ProviderResult lookup(String agentId) {
+                var doc = localProvider().lookup("customer-support").document();
+                return nl.metafactory.agents.definition.model.ProviderResult.found(new nl.metafactory.agents.definition.model
+                        .AgentDefinitionDocument("billing", doc.name(), doc.version(), doc.description(), doc.model(),
+                        doc.skills(), doc.optionalSkills(), doc.tools(), doc.guardrails(), doc.instructions(),
+                        doc.contentHash(), doc.rawMarkdown()));
+            }
+        };
+        var resolver = resolver(repo(binding("tenant-a", Set.of("customer.read"), Set.of())), List.of(other),
+                FallbackPolicy.NONE, Set.of(), Set.of("customer-chat"));
+
+        assertFailure(() -> resolver.resolve("tenant-a", "customer-support"), ResolutionFailure.INVALID);
+    }
+
+    @Test
+    void aChainOfOnlyUnsupportedSourcesIsUnsupported() {
+        var resolver = resolver(repo(binding("tenant-a", Set.of("customer.read"), Set.of())),
+                List.of(new nl.metafactory.agents.definition.litellm.ExternalAgentContentProvider()),
+                FallbackPolicy.NONE, Set.of(), Set.of("customer-chat"));
+
+        assertFailure(() -> resolver.resolve("tenant-a", "customer-support"), ResolutionFailure.UNSUPPORTED);
+    }
 }

@@ -93,4 +93,20 @@ class LiteLlmHttpClientTest {
         assertThatThrownBy(() -> new LiteLlmHttpClient("http://x", " ", Duration.ofSeconds(1), Duration.ofSeconds(1)))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void classifiesRejectedOversizedAndOtherFailedResponses() {
+        server.enqueue(new MockResponse().setResponseCode(400));
+        server.enqueue(new MockResponse().setResponseCode(422));
+        server.enqueue(new MockResponse().setBody("[" + "1,".repeat(LiteLlmHttpClient.MAX_BODY_BYTES / 2) + "1]"));
+
+        assertThat(client.get("/v1/agents").reason()).isEqualTo("HTTP 400");
+        assertThat(client.get("/v1/agents").reason()).isEqualTo("HTTP 422");
+        assertThat(client.get("/v1/agents").reason()).isEqualTo("response too large");
+        var other = client.exchange("/v1/agents", () -> {
+            throw new org.springframework.web.client.RestClientException("conversion failed");
+        });
+        assertThat(other.status()).isEqualTo(SourceStatus.UNAVAILABLE);
+        assertThat(other.reason()).isEqualTo("RestClientException");
+    }
 }

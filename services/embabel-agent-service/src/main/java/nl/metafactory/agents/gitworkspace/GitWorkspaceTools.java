@@ -107,8 +107,8 @@ public class GitWorkspaceTools {
 
         WorkspaceTool(String name, String description, Class<I> inputType,
                       BiFunction<I, GitWorkspaceBinding, Tool.Result> body) {
-            this.shape = Tool.create(name, description, Tool.InputSchema.of(inputType),
-                    input -> Tool.Result.error("this tool is only available inside an agent run"));
+            // called without a run, the tool refuses (RunScopedTool#call(String))
+            this.shape = Tool.create(name, description, Tool.InputSchema.of(inputType), this::call);
             this.inputType = inputType;
             this.body = body;
         }

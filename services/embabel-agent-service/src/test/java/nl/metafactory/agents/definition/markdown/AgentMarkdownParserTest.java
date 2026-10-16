@@ -32,6 +32,12 @@ class AgentMarkdownParserTest {
     }
 
     @Test
+    void rejectsANameOutsideOneTo128Characters() {
+        assertThatThrownBy(() -> parser.parse("---\nid: a\nname: \"" + "n".repeat(129) + "\"\nversion: 1\nmodel: m\n---\n# Body\n"))
+                .isInstanceOf(InvalidDefinitionException.class).hasMessage("name must be 1-128 characters");
+    }
+
+    @Test
     void crlfAndBomAreAccepted() throws Exception {
         var doc = parser.parse("﻿" + fixture().replace("\n", "\r\n"));
         assertThat(doc.id()).isEqualTo("customer-support");

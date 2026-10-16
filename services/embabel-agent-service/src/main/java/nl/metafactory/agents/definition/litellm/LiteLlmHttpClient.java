@@ -70,7 +70,7 @@ public class LiteLlmHttpClient {
                 .body(json.writeValueAsBytes(body)).retrieve().body(byte[].class));
     }
 
-    private Response exchange(String pathTemplate, java.util.function.Supplier<byte[]> call) {
+    Response exchange(String pathTemplate, java.util.function.Supplier<byte[]> call) {
         try {
             byte[] bytes = call.get();
             if (bytes == null || bytes.length == 0) {

@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.ExpectedCount.once;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -30,6 +31,19 @@ class ClientCredentialsTokensTest {
         assertThat(tokens.authorization()).contains("Bearer abc");
         assertThat(tokens.authorization()).contains("Bearer abc");
         server.verify();
+    }
+
+    @Test
+    void aResponseWithoutAnAccessTokenFailsInsteadOfSendingAnEmptyBearer() {
+        var builder = RestClient.builder();
+        var server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("http://kc/token"))
+                .andRespond(withSuccess("{\"token_type\":\"Bearer\"}", MediaType.APPLICATION_JSON));
+        var tokens = new ClientCredentialsTokens(new ClientCredentialsTokens.Config("http://kc/token", "svc", "s3cret"),
+                Clock.systemUTC(), builder.build());
+
+        assertThatThrownBy(tokens::authorization).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("no access_token");
     }
 
     @Test

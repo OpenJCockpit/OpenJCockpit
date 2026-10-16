@@ -77,4 +77,12 @@ class ClientCredentialsTokensTest {
     void secretNeverRendered() {
         assertThat(auth().toString()).doesNotContain("s3cret");
     }
+
+    @Test
+    void aTokenResponseWithoutAnAccessTokenFails() {
+        server.enqueue(new MockResponse().setBody("{\"token_type\":\"Bearer\"}"));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> new ClientCredentialsTokens(auth(), clock).authorization())
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("no access_token");
+    }
 }

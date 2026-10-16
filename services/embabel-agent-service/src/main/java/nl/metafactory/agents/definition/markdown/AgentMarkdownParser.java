@@ -9,6 +9,7 @@ import tools.jackson.dataformat.yaml.YAMLMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Parses the application's agent Markdown contract. Strict on purpose: unknown frontmatter keys,
@@ -30,14 +31,12 @@ public class AgentMarkdownParser {
         var split = MarkdownFrontmatter.split(raw);
         Frontmatter fm;
         try {
-            fm = yaml.readValue(split.yaml(), Frontmatter.class);
+            fm = Optional.ofNullable(yaml.readValue(split.yaml(), Frontmatter.class))
+                    .orElseThrow(() -> new InvalidDefinitionException("frontmatter is empty"));
         } catch (JacksonException e) {
             // Deliberately not chaining the parser message: it can echo document content.
             throw new InvalidDefinitionException("frontmatter is not valid for the agent contract ("
                     + e.getClass().getSimpleName() + ")");
-        }
-        if (fm == null) {
-            throw new InvalidDefinitionException("frontmatter is empty");
         }
         Identifiers.requireSlug(fm.id(), "id");
         requireText(fm.version(), "version");

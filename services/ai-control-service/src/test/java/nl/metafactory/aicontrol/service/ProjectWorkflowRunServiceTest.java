@@ -97,6 +97,34 @@ class ProjectWorkflowRunServiceTest {
     }
 
     @Test
+    void aStartThatFailsEndsTheJobAndPassesTheErrorOn() {
+        when(client.startWorkflow(eq("wf-1"), any())).thenThrow(new ResponseStatusException(HttpStatus.BAD_GATEWAY));
+
+        assertThatThrownBy(() -> service.startOnProjectWorkspace("wf-1", "spec-1.md", input()))
+                .isInstanceOf(ResponseStatusException.class);
+        verify(jobs).workflowRunNotStarted(jobId, "ResponseStatusException");
+        verify(jobs, never()).finishWorkflowRunAsync(any(), any());
+    }
+
+    @Test
+    void aProjectIdThatIsNoUuidHasNoWorkspace() {
+        var notAUuid = new WorkflowStartInputDto(null, "spec", REPO, "not-a-uuid", null, null, "main");
+
+        assertThat(service.startOnProjectWorkspace("wf-1", "spec-1.md", notAUuid)).isEmpty();
+        verifyNoInteractions(jobs);
+    }
+
+    @Test
+    void aServiceTokenThatCannotBeObtainedIsServiceUnavailableAndNothingIsPrepared() {
+        when(tokens.authorization()).thenThrow(new IllegalStateException("token endpoint down"));
+
+        assertThatThrownBy(() -> service.startOnProjectWorkspace("wf-1", "spec-1.md", input()))
+                .isInstanceOfSatisfying(ResponseStatusException.class,
+                        e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE));
+        verifyNoInteractions(jobs);
+    }
+
+    @Test
     void withoutAProjectRepositoryThereIsNoWorkspace() {
         assertThat(service.startOnProjectWorkspace("wf-1", null, WorkflowStartInputDto.empty())).isEmpty();
         var noRepo = new Project();

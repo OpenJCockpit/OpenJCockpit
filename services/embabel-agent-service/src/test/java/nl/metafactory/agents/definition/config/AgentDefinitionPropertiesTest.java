@@ -95,4 +95,21 @@ class AgentDefinitionPropertiesTest {
         assertThat(litellm.toString()).doesNotContain("sk-secret");
         assertThat(List.of(litellm.toString())).allMatch(s -> s.contains("***"));
     }
+
+    @Test
+    void bindsTheCacheMandatoryGuardrailsAndGatewayKeyWithoutPrintingTheKey() {
+        runner.withPropertyValues(
+                "openjcockpit.agent-definitions.cache.directory=/var/cache/agents",
+                "openjcockpit.agent-definitions.cache.max-entries=7",
+                "openjcockpit.agent-definitions.mandatory-guardrails=pii-protection",
+                "openjcockpit.agent-definitions.litellm.model-gateway-key=sk-secret"
+        ).run(ctx -> {
+            var p = ctx.getBean(AgentDefinitionProperties.class);
+            assertThat(p.getCache().getDirectory()).isEqualTo("/var/cache/agents");
+            assertThat(p.getCache().getMaxEntries()).isEqualTo(7);
+            assertThat(p.getMandatoryGuardrails()).containsExactly("pii-protection");
+            assertThat(p.getLitellm().getModelGatewayKey()).isEqualTo("sk-secret");
+            assertThat(p.getLitellm().toString()).doesNotContain("sk-secret");
+        });
+    }
 }

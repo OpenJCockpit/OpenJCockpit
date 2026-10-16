@@ -44,6 +44,14 @@ class GuardrailPolicyEnforcerTest {
     }
 
     @Test
+    void twoExecutorsForOneGuardrailFailConstruction() {
+        var executors = List.of(executor("pii", true, Set.of(GuardrailScope.LLM_INPUT)), executor("pii", true, Set.of(GuardrailScope.LLM_INPUT)));
+
+        assertThatThrownBy(() -> new GuardrailPolicyEnforcer(executors, Set.of()))
+                .isInstanceOf(IllegalStateException.class).hasMessage("duplicate guardrail executor for pii");
+    }
+
+    @Test
     void requiredGuardrailWithoutExecutorFailsClosed() {
         var enforcer = new GuardrailPolicyEnforcer(List.of(), Set.of());
         assertThatThrownBy(() -> enforcer.enforce("a", List.of("pii-protection")))

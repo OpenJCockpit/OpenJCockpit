@@ -1,5 +1,6 @@
 package nl.metafactory.agents.definition.skill;
 
+import nl.metafactory.agents.definition.model.DefinitionSource;
 import nl.metafactory.agents.definition.model.SourceStatus;
 import nl.metafactory.agents.definition.source.ConfinedRoot;
 import org.junit.jupiter.api.Test;
@@ -7,8 +8,11 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 class LocalSkillInventoryTest {
 
@@ -80,5 +84,61 @@ class LocalSkillInventoryTest {
     void missingSkillsDirectoryYieldsEmptyInventory() {
         assertThat(inventory(tmp).discover()).isEmpty();
         assertThat(inventory(tmp).lookup("anything").status()).isEqualTo(SourceStatus.NOT_FOUND);
+    }
+
+    @Test
+    void aFileWhereASkillFolderShouldBeIsInvalid() throws Exception {
+        Files.createDirectories(tmp.resolve("skills"));
+        Files.writeString(tmp.resolve("skills/stray"), "not a folder");
+
+        var lookup = inventory(tmp).lookup("stray");
+
+        assertThat(lookup.status()).isEqualTo(SourceStatus.INVALID);
+        assertThat(lookup.reason()).isEqualTo("skill stray is not a directory");
+        assertThat(inventory(tmp).source()).isEqualTo(DefinitionSource.LOCAL);
+    }
+
+    @Test
+    void onlyTextResourcesAreLoaded() throws Exception {
+        skill("with-assets", "name: with-assets\ndescription: x\n");
+        Files.writeString(tmp.resolve("skills/with-assets/logo.png"), "binary");
+        Files.writeString(tmp.resolve("skills/with-assets/notes.md"), "notes");
+
+        assertThat(inventory(tmp).lookup("with-assets").skill().resources()).containsOnlyKeys("notes.md");
+    }
+
+    @Test
+    void aPackageWithTooManyOrTooLargeResourcesIsInvalid() throws Exception {
+        skill("many", "name: many\ndescription: x\n");
+        for (int i = 0; i <= LocalSkillInventory.MAX_RESOURCES; i++) {
+            Files.writeString(tmp.resolve("skills/many/r" + i + ".md"), "x");
+        }
+        skill("large", "name: large\ndescription: x\n");
+        for (int i = 0; i < 5; i++) {
+            Files.writeString(tmp.resolve("skills/large/r" + i + ".md"), "x".repeat(250 * 1024));
+        }
+
+        assertThat(inventory(tmp).lookup("many").reason()).endsWith("skill package has too many resources");
+        assertThat(inventory(tmp).lookup("large").reason()).endsWith("skill package exceeds 1048576 bytes");
+    }
+
+    @Test
+    void unreadableSkillsAreUnavailableAndAnUnreadableSkillsFolderFailsDiscovery() throws Exception {
+        assumeFalse("root".equals(System.getProperty("user.name")), "root can read any file");
+        skill("locked-file", "name: locked-file\ndescription: x\n");
+        Files.setPosixFilePermissions(tmp.resolve("skills/locked-file/SKILL.md"), PosixFilePermissions.fromString("---------"));
+        skill("locked-dir", "name: locked-dir\ndescription: x\n");
+        // traversable but not listable: SKILL.md can be read, the package's resources cannot be walked
+        Files.setPosixFilePermissions(tmp.resolve("skills/locked-dir"), PosixFilePermissions.fromString("-wx------"));
+        try {
+            assertThat(inventory(tmp).lookup("locked-file").status()).isEqualTo(SourceStatus.UNAVAILABLE);
+            assertThat(inventory(tmp).lookup("locked-dir").status()).isEqualTo(SourceStatus.UNAVAILABLE);
+
+            Files.setPosixFilePermissions(tmp.resolve("skills"), PosixFilePermissions.fromString("-wx------"));
+            assertThatThrownBy(() -> inventory(tmp).discover()).isInstanceOf(java.io.UncheckedIOException.class);
+        } finally {
+            Files.setPosixFilePermissions(tmp.resolve("skills"), PosixFilePermissions.fromString("rwx------"));
+            Files.setPosixFilePermissions(tmp.resolve("skills/locked-dir"), PosixFilePermissions.fromString("rwx------"));
+        }
     }
 }

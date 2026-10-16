@@ -519,6 +519,20 @@ class GitToolsServiceTest {
     }
 
     @Test
+    void pullAndPushOfAKeyedWorkspaceUseItsServerSideCredentials() {
+        var withCredentials = new GitToolsService(gitOps, properties,
+                (key, url) -> java.util.Optional.of(new GitCredentialResolver.GitCredentials("bot", "s3cret")));
+        withCredentials.createBranchTool(REPO_URL, "main", "feature/x", "job-1");
+        gitOps.lastCredentials = null;
+
+        assertThat(withCredentials.pullTool(REPO_URL, "feature/x", "job-1").success()).isTrue();
+        assertThat(gitOps.lastCredentials).isInstanceOf(UsernamePasswordCredentialsProvider.class);
+        gitOps.lastCredentials = null;
+        assertThat(withCredentials.pushTool(REPO_URL, "feature/x", "job-1").success()).isTrue();
+        assertThat(gitOps.lastCredentials).isInstanceOf(UsernamePasswordCredentialsProvider.class);
+    }
+
+    @Test
     void keyedWorkspaceFailsClosedWhenItsCredentialsCannotBeResolved() {
         var denied = new GitToolsService(gitOps, properties, (key, url) -> {
             throw new IllegalStateException("no active workspace job-2 for this repository");
@@ -588,6 +602,7 @@ class GitToolsServiceTest {
         @Override
         public void pull(Path repoPath, CredentialsProvider credentials, int timeoutSeconds) {
             maybeFail();
+            lastCredentials = credentials;
             calls.add("pull:" + timeoutSeconds);
         }
 
@@ -621,6 +636,7 @@ class GitToolsServiceTest {
         public void pushBranch(Path repoPath, String remote, String branch,
                                CredentialsProvider credentials, int timeoutSeconds) {
             maybeFail();
+            lastCredentials = credentials;
             calls.add("push:" + remote + ":" + branch + ":" + timeoutSeconds);
         }
 

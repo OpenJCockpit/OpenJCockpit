@@ -263,4 +263,27 @@ class ContainerizedAgentExecutionServiceTest {
                         .isEqualTo(GitWorkspaceJobErrorCode.TIMEOUT));
         verify(agentClient).stopAgentRunAs(AUTH, "run-slow");
     }
+
+    @Test
+    void aTimedOutRunThatCannotBeStoppedStillTimesOut() {
+        var inProgressRun = new AgentRunDto("run-slow", "", "", "", "RUNNING", null, null, null, null, null, null, null);
+        when(agentClient.getLatestRunAs(AUTH, "run-slow")).thenReturn(Optional.of(inProgressRun));
+        doThrow(new IllegalStateException("agent service down")).when(agentClient).stopAgentRunAs(AUTH, "run-slow");
+
+        properties.setAgentTimeoutSeconds(0);
+        assertThatThrownBy(() -> service.pollAgentRun("run-slow", UUID.randomUUID()))
+                .isInstanceOfSatisfying(GitWorkspaceException.class,
+                        e -> assertThat(e.getErrorCode()).isEqualTo(GitWorkspaceJobErrorCode.TIMEOUT));
+    }
+
+    @Test
+    void aServiceTokenThatCannotBeObtainedFailsTheAgentExecution() {
+        when(serviceTokens.authorization()).thenThrow(new IllegalStateException("token endpoint down"));
+
+        assertThatThrownBy(() -> service.serviceAuthorization())
+                .isInstanceOfSatisfying(GitWorkspaceException.class, e -> {
+                    assertThat(e.getErrorCode()).isEqualTo(GitWorkspaceJobErrorCode.AGENT_EXECUTION_FAILED);
+                    assertThat(e.getMessage()).endsWith("ai-control service identity token could not be obtained");
+                });
+    }
 }

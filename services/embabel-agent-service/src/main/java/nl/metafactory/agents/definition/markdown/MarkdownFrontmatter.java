@@ -46,11 +46,15 @@ public final class MarkdownFrontmatter {
     }
 
     public static String sha256(String raw) {
+        return digest(raw, "SHA-256");
+    }
+
+    static String digest(String raw, String algorithm) {
         try {
-            byte[] digest = MessageDigest.getInstance("SHA-256").digest(raw.getBytes(StandardCharsets.UTF_8));
+            byte[] digest = MessageDigest.getInstance(algorithm).digest(raw.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(digest);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 unavailable", e);
+            throw new IllegalStateException(algorithm + " unavailable", e);
         }
     }
 }

@@ -90,4 +90,12 @@ class LiteLlmPolicyGuardrailExecutorTest {
         assertThat(executor.operationalFor("customer-chat")).isTrue();
         assertThat(server.getRequestCount()).isEqualTo(1);
     }
+
+    @Test
+    void withoutAModelOrWithoutEffectiveGuardrailsTheGatewayIsNotVerified() {
+        assertThat(executor.operationalFor(null)).isFalse();
+
+        server.enqueue(new MockResponse().setBody("{\"matched_policies\":[]}"));
+        assertThat(executor.operationalFor("customer-chat")).isFalse();
+    }
 }

@@ -6,8 +6,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 class LocalAgentCatalogTest {
 
@@ -79,5 +81,20 @@ class LocalAgentCatalogTest {
         var section = catalog(root.resolve("nope")).list();
         assertThat(section.status()).isEqualTo("NOT_CONFIGURED");
         assertThat(section.agents()).isEmpty();
+    }
+
+    @Test
+    void anUnreadableFolderMakesTheSectionUnavailable() throws Exception {
+        assumeFalse("root".equals(System.getProperty("user.name")), "root can read any folder");
+        agent("delivery/qa-engineer.md", "qa-engineer", null);
+        Files.setPosixFilePermissions(root.resolve("delivery"), PosixFilePermissions.fromString("---------"));
+        try {
+            var section = catalog(root).list();
+
+            assertThat(section.status()).isEqualTo("UNAVAILABLE");
+            assertThat(section.message()).isEqualTo("Local agents folder is not readable");
+        } finally {
+            Files.setPosixFilePermissions(root.resolve("delivery"), PosixFilePermissions.fromString("rwx------"));
+        }
     }
 }

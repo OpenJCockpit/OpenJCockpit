@@ -78,6 +78,35 @@ class AiControlGitCredentialResolverTest {
     }
 
     @Test
+    void aRefusedCredentialRequestFailsClosedWithItsStatusOnly() {
+        expectServiceToken();
+        server.expect(requestTo("http://ai-control:8080/internal/git-workspaces/job-1/credentials?repositoryUrl=https%3A%2F%2Fgithub.com%2Forg%2Frepo.git"))
+                .andRespond(withStatus(HttpStatus.FORBIDDEN));
+
+        assertThatThrownBy(() -> resolver.resolve("job-1", REPO))
+                .isInstanceOf(IllegalStateException.class).hasMessage("workspace credentials refused (HTTP 403)");
+    }
+
+    @Test
+    void aWorkspaceWithoutATokenIsAnonymous() {
+        expectServiceToken();
+        server.expect(requestTo("http://ai-control:8080/internal/git-workspaces/job-1/credentials?repositoryUrl=https%3A%2F%2Fgithub.com%2Forg%2Frepo.git"))
+                .andRespond(withSuccess("{\"username\":\"bot\",\"token\":\" \"}", MediaType.APPLICATION_JSON));
+
+        assertThat(resolver.resolve("job-1", REPO)).isEmpty();
+        server.verify();
+    }
+
+    @Test
+    void aTokenResponseWithoutAnAccessTokenFailsClosed() {
+        server.expect(requestTo("http://keycloak/token"))
+                .andRespond(withSuccess("{\"token_type\":\"Bearer\"}", MediaType.APPLICATION_JSON));
+
+        assertThatThrownBy(() -> resolver.resolve("job-1", REPO))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("no access_token");
+    }
+
+    @Test
     void keyedWorkspacesFailClosedWhenNotConfigured() {
         var unconfigured = new AiControlGitCredentialResolver(new GitToolsProperties.Credentials());
 

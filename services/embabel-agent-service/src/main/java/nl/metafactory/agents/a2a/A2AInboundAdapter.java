@@ -45,11 +45,6 @@ public class A2AInboundAdapter {
     private final GitWorkspaceProperties gitWorkspaceProperties;
     private final JsonMapper json = JsonMapper.builder().build();
 
-    public A2AInboundAdapter(AgentRunService runs, AgentDefinitionProperties properties) {
-        this(runs, properties, new WorkflowRunScopes(), new GitWorkspaceProperties());
-    }
-
-    @org.springframework.beans.factory.annotation.Autowired
     public A2AInboundAdapter(AgentRunService runs, AgentDefinitionProperties properties,
                              WorkflowRunScopes runScopes, GitWorkspaceProperties gitWorkspaceProperties) {
         this.runs = runs;

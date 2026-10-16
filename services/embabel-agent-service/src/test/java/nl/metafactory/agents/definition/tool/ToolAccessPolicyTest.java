@@ -60,4 +60,28 @@ class ToolAccessPolicyTest {
                 Tool.create("customer_delete", "x", in -> Tool.Result.text("ok"))))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void anInvalidToolIdIsRejectedAndTheRegistryListsItsIds() {
+        assertThatThrownBy(() -> tool("Not Valid")).isInstanceOf(IllegalArgumentException.class).hasMessage("invalid tool id");
+        assertThat(new ToolRegistry(List.of(tool("customer.read"))).ids()).containsExactly("customer.read");
+    }
+
+    @Test
+    void aRunScopedToolCalledOutsideARunRefuses() {
+        var shape = Tool.create("git_read_file", "read", in -> Tool.Result.text("unused"));
+        RunScopedTool scoped = new RunScopedTool() {
+            @Override
+            public Tool.Result call(String input, nl.metafactory.agents.definition.runtime.RunContext run) {
+                return Tool.Result.text("read");
+            }
+
+            @Override
+            public Definition getDefinition() {
+                return shape.getDefinition();
+            }
+        };
+
+        assertThat(scoped.call("{}")).isInstanceOf(Tool.Result.Error.class);
+    }
 }

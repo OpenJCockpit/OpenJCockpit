@@ -64,4 +64,26 @@ class AgentCatalogControllerTest {
         assertThatThrownBy(() -> controller.card("litellm", "y")).hasMessageContaining("502");
         assertThatThrownBy(() -> controller.card("other", "x")).hasMessageContaining("404");
     }
+
+    @Test
+    void anUnconfiguredOrUnavailableProviderHasNoCard() {
+        when(providers.find("litellm")).thenReturn(Optional.of(litellm));
+        when(litellm.agentCard("a")).thenReturn(new A2AProviderClient.CardResult(Status.NOT_CONFIGURED, null));
+        when(litellm.agentCard("b")).thenReturn(new A2AProviderClient.CardResult(Status.UNAVAILABLE, null));
+
+        assertThatThrownBy(() -> controller.card("litellm", "a")).hasMessageContaining("503");
+        assertThatThrownBy(() -> controller.card("litellm", "b")).hasMessageContaining("502");
+    }
+
+    @Test
+    void skippedRegistryEntriesAreCountedInTheSectionMessage() {
+        when(litellm.name()).thenReturn("LiteLLM");
+        when(litellm.id()).thenReturn("litellm");
+        when(litellm.listAgents())
+                .thenReturn(new A2AProviderClient.Listing(Status.OK, List.of(), 1, null))
+                .thenReturn(new A2AProviderClient.Listing(Status.OK, List.of(), 2, null));
+
+        assertThat(AgentCatalogController.section(litellm).message()).isEqualTo("1 registry entry skipped: incomplete agent card");
+        assertThat(AgentCatalogController.section(litellm).message()).isEqualTo("2 registry entries skipped: incomplete agent card");
+    }
 }

@@ -48,4 +48,19 @@ class SnapshotBoundToolTest {
         assertThat(unbound.gitWorkspace()).isNull();
         assertThat(RUN.logFields()).doesNotContain("github.com");
     }
+
+    @Test
+    void aToolOutsideTheSnapshotIsRefusedWithoutAskingThePolicy() {
+        var tool = Tool.create("customer_read", "read", input -> Tool.Result.text("secret"));
+        var asked = new java.util.concurrent.atomic.AtomicBoolean();
+        var bound = new SnapshotBoundTool(new RegisteredAgentTool("customer.read", tool), Set.of("other.tool"),
+                (r, t) -> {
+                    asked.set(true);
+                    return ToolCallAuthorizer.Decision.allow();
+                }, RUN);
+
+        assertThat(bound.call("{}")).isInstanceOf(Tool.Result.Error.class);
+        assertThat(asked).isFalse();
+        assertThat(bound.getMetadata()).isEqualTo(tool.getMetadata());
+    }
 }

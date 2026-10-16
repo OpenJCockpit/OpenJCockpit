@@ -59,6 +59,14 @@ class SkillResolverTest {
     }
 
     @Test
+    void anAvailableOptionalSkillIsLoaded() {
+        var resolved = new SkillResolver(List.of(local)).resolve(agent(List.of(), List.of("customer-lookup")));
+
+        assertThat(resolved.skills()).extracting(SkillPackage::id).containsExactly("customer-lookup");
+        assertThat(resolved.omittedOptional()).isEmpty();
+    }
+
+    @Test
     void invalidOptionalSkillStillBlocks() {
         var resolver = new SkillResolver(List.of(fixed(Map.of("broken", SourceStatus.INVALID)), local));
         assertThatThrownBy(() -> resolver.resolve(agent(List.of(), List.of("broken"))))
