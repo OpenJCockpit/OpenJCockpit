@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
+import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
 import {
   createSubagentSpec,
   deleteSubagentSpec,
@@ -10,6 +12,7 @@ import type { SubagentSpec } from '../../../workflowTypes';
 import { PromptGenerator } from '../shared/PromptGenerator';
 import { SubagentEditor } from './SubagentEditor';
 import { SubagentsTable } from './SubagentsTable';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_SUBAGENT: SubagentSpec = {
   name: '',
@@ -34,7 +37,7 @@ export function SubagentsPanel() {
       setItems(s);
       setLoaded(true);
     });
-    return <div className="auth-loading">Loading subagents...</div>;
+    return <StatusMessage variant="loading">Loading subagents...</StatusMessage>;
   }
 
   function startCreate() {
@@ -94,12 +97,10 @@ export function SubagentsPanel() {
   return (
     <div>
       <PromptGenerator kind="subagent" onGenerate={handleGenerate} />
-      <div className="workflow-design-toolbar">
-        <button className="button button--start" onClick={startCreate}>
-          + New subagent
-        </button>
+      <div className={WorkflowDesignStyles.workflowDesignToolbar}>
+        <ToolbarButton onClick={startCreate}>+ New subagent</ToolbarButton>
       </div>
-      {error && <p className="settings-error">{error}</p>}
+      {error && <StatusMessage variant="error">{error}</StatusMessage>}
 
       {editingName && (
         <SubagentEditor

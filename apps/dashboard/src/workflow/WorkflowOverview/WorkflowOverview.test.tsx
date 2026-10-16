@@ -12,6 +12,7 @@ vi.mock('../linkableAgents', async () => {
   const actual = await vi.importActual<typeof import('../linkableAgents')>('../linkableAgents');
   return { ...actual, fetchLinkableAgents: vi.fn(), loadLinkableAgents: vi.fn() };
 });
+import chipStyles from '../../components/StatusChip/StatusChip.module.scss';
 
 vi.mock('../workflowApi');
 vi.mock('../../api');
@@ -179,7 +180,7 @@ describe('WorkflowOverview', () => {
 
     expect(workflowApi.startWorkflow).not.toHaveBeenCalled();
     const dialog = screen.getByRole('dialog');
-    expect(dialog).toHaveClass('workflow-prompt-dialog', 'panel');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
 
     fireEvent.change(screen.getByLabelText('Prompt'), {
       target: { value: 'Create a small spec for login' },
@@ -280,7 +281,7 @@ describe('WorkflowOverview', () => {
     await screen.findByText('Customer Onboarding');
 
     const chip = screen.getByText('RUNNING');
-    expect(chip).toHaveClass('status-chip--active');
+    expect(chip).toHaveClass(chipStyles.statusChipActive);
   });
 
   it('filters workflows by the selected project name', async () => {

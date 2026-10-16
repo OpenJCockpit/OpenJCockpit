@@ -1,4 +1,3 @@
-import './AgentSequencer.scss';
 import React, { useEffect, useRef, useState } from 'react';
 import type {
   AgentCard,
@@ -9,6 +8,8 @@ import type {
 } from '../../types';
 import { StatusChip } from '../StatusChip/StatusChip';
 import { Tooltip } from '../Tooltip/Tooltip';
+import styles from './AgentSequencer.module.scss';
+import { cx } from '../../ui/cx';
 
 const AGENT_ICON: Record<string, string> = {
   requirement: '▣',
@@ -88,35 +89,40 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
   }
 
   return (
-    <div className="agent-sequencer" aria-label="Agent pipeline sequence">
+    <div className={styles.agentSequencer} aria-label="Agent pipeline sequence">
       {sequence.map((node, index) => {
         const isActive = node.statusKind === 'active';
-        const stateClass = `sequencer-node${dragIdx === index ? ' is-dragging' : ''}${isActive ? ' sequencer-node--active' : ''}`;
+        // `is-dragging` carries no styles: the old rule keyed off a `.sequencer-item` wrapper that never existed.
+        const stateClass = cx(
+          styles.sequencerNode,
+          dragIdx === index && 'is-dragging',
+          isActive && styles.sequencerNodeActive,
+        );
 
         if (node.kind === 'orb') {
           const orbLabel = `Workflow orb: ${node.referencedWorkflowName}, ${node.mode === 'SEQUENTIAL' ? 'sequential' : 'parallel'}`;
           return (
             <React.Fragment key={node.id}>
-              {index > 0 && <div className="sequencer-connector" aria-hidden="true" />}
+              {index > 0 && <div className={styles.sequencerConnector} aria-hidden="true" />}
               <Tooltip
                 content={
                   <>
-                    <span className="sequencer-tooltip-status">{node.status}</span>
-                    <span className="sequencer-tooltip-text">
+                    <span className={styles.sequencerTooltipStatus}>{node.status}</span>
+                    <span className={styles.sequencerTooltipText}>
                       {node.mode} · workflow: {node.referencedWorkflowName}
                     </span>
                   </>
                 }
               >
                 <div
-                  className={`${stateClass} sequencer-node--orb`}
+                  className={cx(stateClass, styles.sequencerNodeOrb)}
                   role="status"
                   aria-label={orbLabel}
                 >
-                  <div className="sequencer-icon">⬢</div>
-                  <div className="sequencer-meta">
+                  <div className={styles.sequencerIcon}>⬢</div>
+                  <div className={styles.sequencerMeta}>
                     <strong>{node.referencedWorkflowName}</strong>
-                    <span className="sequencer-orb-mode">
+                    <span className={styles.sequencerOrbMode}>
                       {node.mode === 'SEQUENTIAL' ? 'sequential' : 'parallel'}
                     </span>
                   </div>
@@ -132,12 +138,12 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
         const event = latestEvents[agent.id];
         return (
           <React.Fragment key={agent.id}>
-            {index > 0 && <div className="sequencer-connector" aria-hidden="true" />}
+            {index > 0 && <div className={styles.sequencerConnector} aria-hidden="true" />}
             <Tooltip
               content={
                 <>
-                  <span className="sequencer-tooltip-status">{label}</span>
-                  <span className="sequencer-tooltip-text">
+                  <span className={styles.sequencerTooltipStatus}>{label}</span>
+                  <span className={styles.sequencerTooltipText}>
                     {event ? event.title : agent.description}
                   </span>
                 </>
@@ -152,8 +158,8 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragEnd={handleDragEnd}
               >
-                <div className="sequencer-icon">{AGENT_ICON[agent.id] ?? '⬡'}</div>
-                <div className="sequencer-meta">
+                <div className={styles.sequencerIcon}>{AGENT_ICON[agent.id] ?? '⬡'}</div>
+                <div className={styles.sequencerMeta}>
                   <strong>{agent.name}</strong>
                 </div>
                 <StatusChip label={label} kind={kind} />

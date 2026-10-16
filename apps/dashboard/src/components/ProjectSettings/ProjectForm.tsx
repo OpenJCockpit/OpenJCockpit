@@ -2,6 +2,10 @@ import type { Ref } from 'react';
 import type { ProjectRequest } from '../../types';
 import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';
+import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
+import { formActionsClass, formClass, formGridClass, formTitleClass } from '../../ui/Form/Form';
+import { Button } from '../../ui/Button/Button';
+import styles from './ProjectSettings.module.scss';
 
 interface Props {
   isNew: boolean;
@@ -25,9 +29,9 @@ export function ProjectForm({
   onCancel,
 }: Props) {
   return (
-    <div className="settings-form">
-      <h2 className="settings-form-title">{isNew ? 'New project' : 'Edit project'}</h2>
-      <div className="settings-form-grid">
+    <div className={formClass}>
+      <h2 className={formTitleClass}>{isNew ? 'New project' : 'Edit project'}</h2>
+      <div className={formGridClass}>
         <TextField
           label="Name *"
           ref={nameInputRef}
@@ -75,7 +79,7 @@ export function ProjectForm({
           onChange={(v) => onChange((f) => ({ ...f, description: v }))}
           placeholder="Short description"
         />
-        <label className="new-project-checkbox" style={{ gridColumn: '1 / -1', fontSize: 13 }}>
+        <label className={styles.newProjectCheckbox}>
           <input
             type="checkbox"
             checked={form.newProject === 1}
@@ -84,13 +88,13 @@ export function ProjectForm({
           New project (repository does not exist yet — skip Git check)
         </label>
       </div>
-      <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-        <button className="button button--start" onClick={onSave} disabled={saving}>
+      <div className={formActionsClass}>
+        <ToolbarButton onClick={onSave} disabled={saving}>
           {saving ? '⟳ Saving…' : 'Save'}
-        </button>
-        <button className="back-button" onClick={onCancel}>
+        </ToolbarButton>
+        <Button variant="secondary" onClick={onCancel}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );

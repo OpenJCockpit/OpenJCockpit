@@ -9,6 +9,9 @@ import { SpecInitOffered } from './SpecInitOffered';
 import { SpecInitPending } from './SpecInitPending';
 import { SpecTemplatePresent } from './SpecTemplatePresent';
 import { WorkflowLauncher } from './WorkflowLauncher';
+import styles from './FlowPanel.module.scss';
+import { Eyebrow, Panel, PanelHeader } from '../../ui/Panel/Panel';
+import { Button } from '../../ui/Button/Button';
 
 interface Props {
   launcher: ReturnType<typeof useRunLauncher>;
@@ -61,9 +64,9 @@ export function FlowPanel({
           showHistory={false}
         />
         {runEnded && (
-          <button className="button workflow-launcher-reset" onClick={launcher.handleNewRun}>
+          <Button className={styles.workflowLauncherReset} onClick={launcher.handleNewRun}>
             ↺ Start new workflow
-          </button>
+          </Button>
         )}
       </>
     );
@@ -113,16 +116,16 @@ export function FlowPanel({
   }
 
   return (
-    <section className="panel flow-panel">
-      <header className="panel-header flow-header">
+    <Panel className={styles.flowPanel}>
+      <PanelHeader className={styles.flowHeader}>
         <div>
-          <span className="eyebrow">{hasSpecs ? 'Current spec' : 'Spec folder'}</span>
+          <Eyebrow>{hasSpecs ? 'Current spec' : 'Spec folder'}</Eyebrow>
           <h2>{renderTitle()}</h2>
         </div>
-        <div className="flow-header-actions">
+        <div className={styles.flowHeaderActions}>
           {activeRun && !runEnded && <StatusChip label="Active" kind="active" />}
         </div>
-      </header>
+      </PanelHeader>
 
       {preflightErrors && (
         <PreflightAlert
@@ -133,6 +136,6 @@ export function FlowPanel({
       )}
 
       {renderBody()}
-    </section>
+    </Panel>
   );
 }

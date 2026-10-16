@@ -1,4 +1,3 @@
-import './WorkflowOverview.scss';
 import { useState } from 'react';
 import type { Project, AgentDefinition } from '../../types';
 import { fetchLinkableAgents, referenceLabel } from '../linkableAgents';
@@ -14,6 +13,11 @@ import { workflowsForProject } from '../workflowVisibility';
 import { StatusChip } from '../../components/StatusChip/StatusChip';
 import { runStatusKind } from '../runStatus';
 import { WorkflowPromptDialog } from '../WorkflowPromptDialog/WorkflowPromptDialog';
+import { Eyebrow, Panel } from '../../ui/Panel/Panel';
+import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
+import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
+import { Button } from '../../ui/Button/Button';
+import styles from './WorkflowOverview.module.scss';
 
 interface Props {
   project: Project | null;
@@ -123,7 +127,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
         setAgentCatalogue([]);
         setCatalogueError('Agent names could not be loaded — showing agent ids.');
       });
-    return <div className="auth-loading">Loading workflows...</div>;
+    return <StatusMessage variant="loading">Loading workflows...</StatusMessage>;
   }
 
   async function handleExportDecisionLogs(workflow: WorkflowDefinition) {
@@ -192,33 +196,33 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
       )}
 
       {listError && (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           Workflows could not be loaded — {listError}
         </p>
       )}
 
       {!listError && visibleWorkflows.length === 0 && (
-        <p className="settings-desc">No workflows defined yet. Create one in the Design tab.</p>
+        <p className={fieldHintClass}>No workflows defined yet. Create one in the Design tab.</p>
       )}
 
       {catalogueError && (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           {catalogueError}
         </p>
       )}
 
-      <div className="workflow-card-grid">
+      <div className={styles.workflowCardGrid}>
         {visibleWorkflows.map((workflow) => (
-          <article className="panel workflow-card" key={workflow.id}>
-            <header className="workflow-card-header">
+          <Panel as="article" className={styles.workflowCard} key={workflow.id}>
+            <header className={styles.workflowCardHeader}>
               <div>
-                <span className="eyebrow">{workflow.id}</span>
+                <Eyebrow>{workflow.id}</Eyebrow>
                 <h2>{workflow.name}</h2>
               </div>
               <StatusChip label={workflow.status} kind={runStatusKind(workflow.status ?? '')} />
             </header>
 
-            <dl className="workflow-card-meta">
+            <dl className={styles.workflowCardMeta}>
               <div>
                 <dt>Project</dt>
                 <dd>{workflow.projectName}</dd>
@@ -280,31 +284,30 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
               </div>
             </dl>
 
-            <div className="workflow-card-actions">
-              <button
-                className="button button--start"
+            <div className={styles.workflowCardActions}>
+              <Button
+                variant="primary"
                 onClick={() => void handleStart(workflow)}
                 disabled={startingId === workflow.id}
               >
                 {startingId === workflow.id ? '⟳ Starting…' : '▶ Start'}
-              </button>
-              <button
-                className="button"
+              </Button>
+              <Button
                 onClick={() => void handleExportDecisionLogs(workflow)}
                 disabled={exportingId === workflow.id}
               >
                 {exportingId === workflow.id ? '⟳ Exporting…' : '⬇ Export decision logs'}
-              </button>
+              </Button>
               {onViewExecutionTab && (
-                <button className="link-button" onClick={() => onViewExecutionTab(workflow)}>
+                <Button variant="link" onClick={() => onViewExecutionTab(workflow)}>
                   Open Workflow Execution <span>→</span>
-                </button>
+                </Button>
               )}
               {feedback[workflow.id] && (
-                <span className="workflow-card-feedback">{feedback[workflow.id]}</span>
+                <span className={styles.workflowCardFeedback}>{feedback[workflow.id]}</span>
               )}
             </div>
-          </article>
+          </Panel>
         ))}
       </div>
     </section>

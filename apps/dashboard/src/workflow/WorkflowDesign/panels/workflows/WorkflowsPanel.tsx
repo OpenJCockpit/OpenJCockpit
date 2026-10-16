@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fetchLinkableAgents } from '../../../linkableAgents';
 import type { AgentDefinition } from '../../../../types';
+import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
+import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
+import { FileImportButton } from '../../../../components/FileImportButton/FileImportButton';
 import {
   createWorkflow,
   deleteWorkflow,
@@ -18,6 +21,9 @@ import type {
 import { readFileText, downloadWorkflowBundle } from '../../utils';
 import { WorkflowEditor } from './WorkflowEditor/WorkflowEditor';
 import { WorkflowsTable } from './WorkflowsTable';
+import { fieldErrorClass, fieldHintClass, formInputClass } from '../../../../ui/Form/Form';
+import { cx } from '../../../../ui/cx';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_WORKFLOW: WorkflowDefinition = {
   id: '',
@@ -49,7 +55,6 @@ export function WorkflowsPanel() {
   const [catalogueError, setCatalogueError] = useState<string | null>(null);
   const [orbError, setOrbError] = useState<string | null>(null);
   const [importViolations, setImportViolations] = useState<string[]>([]);
-  const importInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -72,7 +77,7 @@ export function WorkflowsPanel() {
   }, []);
 
   if (!loaded) {
-    return <div className="auth-loading">Loading workflows...</div>;
+    return <StatusMessage variant="loading">Loading workflows...</StatusMessage>;
   }
 
   function groupName(groupId?: string): string {
@@ -188,14 +193,12 @@ export function WorkflowsPanel() {
 
   return (
     <div>
-      <div className="workflow-design-toolbar">
-        <button className="button button--start" onClick={startCreate}>
-          + New workflow
-        </button>
-        <label className="workflow-group-filter">
+      <div className={WorkflowDesignStyles.workflowDesignToolbar}>
+        <ToolbarButton onClick={startCreate}>+ New workflow</ToolbarButton>
+        <label className={WorkflowDesignStyles.workflowGroupFilter}>
           Group
           <select
-            className="settings-input"
+            className={cx(formInputClass, WorkflowDesignStyles.workflowGroupFilterSelect)}
             value={groupFilter}
             onChange={(e) => setGroupFilter(e.target.value)}
           >
@@ -208,34 +211,26 @@ export function WorkflowsPanel() {
             ))}
           </select>
         </label>
-        <div className="workflow-design-toolbar__spacer" />
-        <button className="button button--small" onClick={() => void handleExport()}>
+        <div className={WorkflowDesignStyles.workflowDesignToolbarSpacer} />
+        <ToolbarButton variant="small" onClick={() => void handleExport()}>
           ⬇ Export JSON
-        </button>
-        <button className="button button--small" onClick={() => importInputRef.current?.click()}>
-          ⬆ Import JSON
-        </button>
-        <input
-          ref={importInputRef}
-          type="file"
+        </ToolbarButton>
+        <FileImportButton
           accept="application/json,.json"
-          className="workflow-design-hidden-input"
-          aria-label="Import workflows JSON"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) void handleImportFile(file);
-            e.target.value = '';
-          }}
-        />
+          inputLabel="Import workflows JSON"
+          onFile={(file) => void handleImportFile(file)}
+        >
+          ⬆ Import JSON
+        </FileImportButton>
       </div>
       {error && (
-        <p id="workflow-save-error" className="settings-error" role="alert">
+        <p id="workflow-save-error" className={fieldErrorClass} role="alert">
           {error}
         </p>
       )}
-      {info && <p className="settings-desc">{info}</p>}
+      {info && <StatusMessage>{info}</StatusMessage>}
       {importViolations.length > 0 && (
-        <div className="settings-desc workflow-import-violations" role="status">
+        <div className={cx(fieldHintClass, 'workflow-import-violations')} role="status">
           <p>{importViolations.length} reference(s) could not be resolved:</p>
           <ul>
             {importViolations.map((violation) => (
@@ -246,7 +241,7 @@ export function WorkflowsPanel() {
       )}
 
       {catalogueError && (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           {catalogueError}
         </p>
       )}

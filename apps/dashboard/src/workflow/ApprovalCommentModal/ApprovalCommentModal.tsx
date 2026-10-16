@@ -1,6 +1,8 @@
-import './ApprovalCommentModal.scss';
 import { useEffect, useId, useRef, useState } from 'react';
-import { ModalShell } from '../ModalShell/ModalShell';
+import { ModalShell, modalActionsClass } from '../ModalShell/ModalShell';
+import { fieldErrorClass, fieldHintClass, formInputClass } from '../../ui/Form/Form';
+import { Button } from '../../ui/Button/Button';
+import styles from './ApprovalCommentModal.module.scss';
 
 // Not part of the wire contract (ApprovalGateContextDto carries no length field) —
 // this mirrors the backend's ApprovalDecisionRequestDto.comment maxLength / A14's
@@ -53,20 +55,20 @@ export function ApprovalCommentModal({
     <ModalShell
       labelledBy={titleId}
       onDismiss={onCancel}
-      className="approval-comment-dialog"
+      className={styles.approvalCommentDialog}
       overlayClassName="approval-comment-overlay"
     >
       <h2 id={titleId}>Accept with my comments</h2>
-      <p className="settings-desc">
+      <p className={fieldHintClass}>
         Describe what should change in the next attempt. This re-runs the realisation stage with
         your feedback and re-opens this checkpoint on the new result.
       </p>
-      <label className="approval-comment-field" htmlFor={textareaId}>
+      <label className={styles.approvalCommentField} htmlFor={textareaId}>
         Feedback for the next attempt
         <textarea
           id={textareaId}
           ref={textareaRef}
-          className="settings-input"
+          className={formInputClass}
           rows={5}
           maxLength={COMMENT_MAX_LENGTH}
           value={comment}
@@ -82,28 +84,28 @@ export function ApprovalCommentModal({
       <p
         id={hintId}
         aria-live="polite"
-        className={validationError ? 'settings-error' : 'settings-desc'}
+        className={validationError ? fieldErrorClass : fieldHintClass}
         role={validationError ? 'alert' : undefined}
       >
         {validationError ?? `Up to ${COMMENT_MAX_LENGTH} characters.`}
       </p>
       {errorMessage && (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           {errorMessage}
         </p>
       )}
-      <div className="approval-modal-actions">
-        <button
-          className="button button--start"
+      <div className={modalActionsClass}>
+        <Button
+          variant="primary"
           onClick={handleConfirm}
           disabled={submitting}
           aria-busy={submitting || undefined}
         >
           {submitting ? '⟳ Submitting…' : 'Confirm'}
-        </button>
-        <button className="back-button" onClick={onCancel} disabled={submitting}>
+        </Button>
+        <Button variant="secondary" onClick={onCancel} disabled={submitting}>
           Cancel
-        </button>
+        </Button>
       </div>
     </ModalShell>
   );

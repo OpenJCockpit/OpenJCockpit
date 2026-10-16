@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
+import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
 import {
   createSkillSpec,
   deleteSkillSpec,
@@ -12,6 +14,9 @@ import { PromptGenerator } from '../shared/PromptGenerator';
 import { SkillEditor } from './SkillEditor';
 import { SkillsTable } from './SkillsTable';
 import type { SkillRow } from './SkillsTable';
+import { fieldErrorClass } from '../../../../ui/Form/Form';
+import { Button } from '../../../../ui/Button/Button';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_SKILL: SkillSpec = {
   name: '',
@@ -152,15 +157,13 @@ export function SkillsPanel() {
   return (
     <div>
       <PromptGenerator kind="skill" onGenerate={handleGenerate} />
-      <div className="workflow-design-toolbar">
-        <button className="button button--start" onClick={startCreate}>
-          + New skill
-        </button>
-        <button className="back-button" onClick={() => void loadCatalog()}>
+      <div className={WorkflowDesignStyles.workflowDesignToolbar}>
+        <ToolbarButton onClick={startCreate}>+ New skill</ToolbarButton>
+        <Button variant="secondary" onClick={() => void loadCatalog()}>
           ⟳ Refresh
-        </button>
+        </Button>
       </div>
-      {error && <p className="settings-error">{error}</p>}
+      {error && <StatusMessage variant="error">{error}</StatusMessage>}
 
       {editingName && (
         <SkillEditor
@@ -180,7 +183,7 @@ export function SkillsPanel() {
       </div>
 
       {loadError ? (
-        <p className="settings-error" role="alert">
+        <p className={fieldErrorClass} role="alert">
           {loadError}
         </p>
       ) : (

@@ -1,3 +1,4 @@
+import styles from './WorkflowExecution.module.scss';
 /**
  * A branch entry is always a bare branch name (never a URL) as stored by the backend, so
  * it is rendered as a plain text label. A pull-request entry is always a genuine URL and
@@ -29,7 +30,7 @@ interface Props {
 export function ArtifactList({ entries }: Props) {
   if (entries.length === 0) return null;
   return (
-    <div className="workflow-artifacts">
+    <div className={styles.workflowArtifacts}>
       {entries.map((entry) =>
         entry.url ? (
           <a key={entry.label} href={entry.url} target="_blank" rel="noopener noreferrer">

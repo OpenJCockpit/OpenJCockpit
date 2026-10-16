@@ -7,6 +7,7 @@ import { mockWorkspace } from './mockWorkspace';
 import { mockDashboardApis, PROJECT, WORKFLOW } from './testUtils/dashboardFixtures';
 import type { SpecFile } from './types';
 import type { WorkflowDefinition } from './workflow/workflowTypes';
+import { specStyles } from './ui/SpecList/specListStyles';
 
 vi.mock('./auth/keycloak', () => ({
   getKeycloak: () => ({
@@ -113,7 +114,7 @@ describe('spec files in the left pane', () => {
 
     const record = screen.getByText('No Specs Found').closest('article')!;
     expect(record).not.toHaveAttribute('role');
-    expect(record.className).toContain('spec-card--empty');
+    expect(record.className).toContain(specStyles.specCardEmpty);
   });
 
   it('offers a button to the workflow design screen when there are no specs', async () => {
@@ -250,7 +251,7 @@ describe('workflow selection in the center pane', () => {
 
     expect(workflowApi.startWorkflow).not.toHaveBeenCalled();
     const dialog = screen.getByRole('dialog');
-    expect(dialog).toHaveClass('workflow-prompt-dialog', 'panel');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(screen.getByText('▶ Start with prompt')).toBeDisabled();
 
     fireEvent.change(screen.getByLabelText('Prompt'), {
@@ -438,7 +439,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
     });
 
     const dialog = screen.getByRole('dialog');
-    expect(dialog).toHaveClass('workflow-prompt-dialog', 'panel');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
 
     fireEvent.change(screen.getByLabelText('Prompt'), {
       target: { value: 'Create a spec for the login page' },

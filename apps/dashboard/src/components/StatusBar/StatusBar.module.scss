@@ -1,0 +1,28 @@
+.statusBar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 42px;
+  min-height: 64px;
+  padding: 0 34px;
+  color: #839ba7;
+  font-size: 12px;
+  border-top: 1px solid rgba(124, 222, 255, 0.08);
+  background: rgba(2, 9, 17, 0.58);
+  backdrop-filter: blur(18px);
+  & span:first-child {
+    color: var(--teal);
+  }
+  & span:nth-last-child(1) {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 820px) {
+  .statusBar {
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 16px 18px;
+  }
+}

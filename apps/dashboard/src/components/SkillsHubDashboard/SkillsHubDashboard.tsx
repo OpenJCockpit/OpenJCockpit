@@ -1,10 +1,16 @@
-import './SkillsHubDashboard.scss';
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { IconBox } from '../IconBox/IconBox';
 import { StatusChip } from '../StatusChip/StatusChip';
 import type { StatusKind } from '../../types';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
+import { Eyebrow, Panel } from '../../ui/Panel/Panel';
+import { DataTable } from '../../ui/DataTable/DataTable';
+import { fieldHintClass, formInputClass } from '../../ui/Form/Form';
+import { cx } from '../../ui/cx';
+import { Button } from '../../ui/Button/Button';
+import { pageClass, pageHeaderClass } from '../../ui/Page/Page';
+import styles from './SkillsHubDashboard.module.scss';
 
 interface Props {
   onBack: () => void;
@@ -68,37 +74,36 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
 
   return (
     <AppShell>
-
       <AppHeader onBack={onBack} backTitle="Back to dashboard">
-        <button className="back-button" onClick={onSettings} title="Skills Hub settings">
+        <Button variant="secondary" onClick={onSettings} title="Skills Hub settings">
           ⚙ Settings
-        </button>
+        </Button>
       </AppHeader>
 
-      <main className="spec-files-dashboard">
-        <div className="spec-files-dashboard-header">
+      <main className={pageClass}>
+        <div className={pageHeaderClass}>
           <div>
-            <span className="eyebrow">Skills Hub</span>
+            <Eyebrow>Skills Hub</Eyebrow>
             <h1>Available skills</h1>
           </div>
         </div>
 
-        <form className="skills-hub-search" onSubmit={handleSearch} role="search">
+        <form className={styles.skillsHubSearch} onSubmit={handleSearch} role="search">
           <input
-            className="settings-input skills-hub-search__input"
+            className={cx(formInputClass, styles.skillsHubSearchInput)}
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search for a skill..."
             aria-label="Search for a skill"
           />
-          <button type="submit" className="button button--small">
+          <Button type="submit" size="sm">
             ⌕ Search
-          </button>
+          </Button>
         </form>
 
-        <div className="panel skills-hub-panel">
-          <table className="settings-table skills-hub-table">
+        <Panel as="div" className={styles.skillsHubPanel}>
+          <DataTable className={styles.skillsHubTable}>
             <thead>
               <tr>
                 <th>Category</th>
@@ -109,7 +114,7 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
               {visibleSkills.map((skill) => (
                 <tr key={skill.id}>
                   <td>
-                    <div className="skill-category-tags">
+                    <div className={styles.skillCategoryTags}>
                       {skill.categories.map((category) => (
                         <StatusChip
                           key={category.label}
@@ -120,7 +125,7 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
                     </div>
                   </td>
                   <td>
-                    <div className="skill-row">
+                    <div className={styles.skillRow}>
                       <IconBox label={skill.icon} compact />
                       <div>
                         <strong>{skill.name}</strong>
@@ -132,14 +137,14 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
               ))}
               {visibleSkills.length === 0 && (
                 <tr>
-                  <td colSpan={2} className="settings-desc">
+                  <td colSpan={2} className={fieldHintClass}>
                     No skills found for &quot;{term}&quot;.
                   </td>
                 </tr>
               )}
             </tbody>
-          </table>
-        </div>
+          </DataTable>
+        </Panel>
       </main>
     </AppShell>
   );

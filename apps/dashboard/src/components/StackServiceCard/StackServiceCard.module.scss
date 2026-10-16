@@ -1,0 +1,29 @@
+.stackCard {
+  min-height: 92px;
+  display: grid;
+  grid-template-columns: 48px 1fr 12px;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(14, 37, 55, 0.62), rgba(8, 21, 33, 0.56));
+  box-shadow: var(--shadow);
+  & strong {
+    display: block;
+    font-size: 14px;
+  }
+  & span {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  & i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 0 16px var(--teal);
+  }
+}

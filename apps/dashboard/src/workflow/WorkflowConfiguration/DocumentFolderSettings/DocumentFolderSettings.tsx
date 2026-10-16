@@ -11,6 +11,7 @@ import {
   joinFolderPath,
   toCamelCaseFolderName,
 } from './folderPath';
+import { StatusMessage } from '../../../components/StatusMessage/StatusMessage';
 
 interface FolderFormState {
   folderPath: string;
@@ -90,7 +91,7 @@ export function DocumentFolderSettings({ project }: Props) {
     }
   }
 
-  if (!loaded) return <div className="auth-loading">Loading configuration...</div>;
+  if (!loaded) return <StatusMessage variant="loading">Loading configuration...</StatusMessage>;
 
   return (
     <IntegrationConfigForm

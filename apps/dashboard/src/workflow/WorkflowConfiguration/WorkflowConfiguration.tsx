@@ -1,10 +1,10 @@
-import './WorkflowConfiguration.scss';
 import type { Project } from '../../types';
 import { A2AServicesSettings } from './A2AServicesSettings/A2AServicesSettings';
 import { DocumentFolderSettings } from './DocumentFolderSettings/DocumentFolderSettings';
 import { HermesSettings } from './HermesSettings/HermesSettings';
 import { JiraSettings } from './JiraSettings/JiraSettings';
 import { OpaSettings } from './OpaSettings/OpaSettings';
+import { fieldHintClass } from '../../ui/Form/Form';
 
 interface Props {
   project: Project | null;
@@ -22,7 +22,7 @@ export function WorkflowConfiguration({ project }: Props) {
           <DocumentFolderSettings key={`folder-${project.id}`} project={project} />
         </>
       ) : (
-        <p className="settings-desc">
+        <p className={fieldHintClass}>
           Select a project from the dashboard header to configure its workflow input sources.
         </p>
       )}

@@ -1,0 +1,77 @@
+// Single source of truth for design tokens. Existing names are kept as-is.
+:root {
+  // Typography
+  --font-sans:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, monospace;
+  --text: #edfaff;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-md: 13px;
+  --text-lg: 14px;
+
+  // Color
+  --bg: #030914;
+  --surface: rgba(7, 22, 34, 0.68);
+  --surface-strong: rgba(9, 30, 45, 0.84);
+  --surface-soft: rgba(8, 22, 34, 0.44);
+  --line: rgba(124, 222, 255, 0.16);
+  --line-strong: rgba(43, 232, 255, 0.42);
+  --cyan: #27e7ff;
+  --cyan-soft: rgba(39, 231, 255, 0.14);
+  --teal: #37f7c2;
+  --teal-soft: rgba(55, 247, 194, 0.12);
+  --blue: #5aa9ff;
+  --violet: #b18aff;
+  --violet-soft: rgba(177, 138, 255, 0.14);
+  --muted: #86a6b8;
+  --faint: #587280;
+  --warn: #f6a525;
+  --danger: #ff4444;
+
+  // Brand color at fixed alphas (only the steps that repeat across components)
+  --cyan-a05: rgba(39, 231, 255, 0.05);
+  --cyan-a06: rgba(39, 231, 255, 0.06);
+  --cyan-a12: rgba(39, 231, 255, 0.12);
+  --cyan-a20: rgba(39, 231, 255, 0.2);
+  --cyan-a30: rgba(39, 231, 255, 0.3);
+  --cyan-a35: rgba(39, 231, 255, 0.35);
+  --cyan-a45: rgba(39, 231, 255, 0.45);
+  --cyan-a55: rgba(39, 231, 255, 0.55);
+  --cyan-a60: rgba(39, 231, 255, 0.6);
+  --violet-a45: rgba(177, 138, 255, 0.45);
+  --red-a40: rgba(255, 80, 80, 0.4);
+  --red-text: #ffd0d0;
+  --text-bright: #dfffff;
+  --line-soft: rgba(124, 222, 255, 0.1);
+
+  // Semantic aliases
+  --surface-border: var(--line);
+  --surface-glow: rgba(39, 231, 255, 0.1);
+  --status-ok: var(--teal);
+  --status-ok-soft: var(--teal-soft);
+  --status-warn: var(--warn);
+  --status-warn-soft: rgba(246, 165, 37, 0.12);
+  --status-error: var(--danger);
+  --status-error-soft: rgba(255, 68, 68, 0.12);
+
+  // Spacing (4px base)
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+
+  // Radius
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  // Elevation
+  --shadow: 0 20px 80px rgba(0, 0, 0, 0.45);
+  --z-raised: 1;
+  --z-overlay: 40;
+}

@@ -5,6 +5,7 @@ import { CheckboxField } from '../../../components/FormFields/CheckboxField/Chec
 import { SecretField } from '../../../components/FormFields/SecretField/SecretField';
 import { TextField } from '../../../components/FormFields/TextField/TextField';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
+import { StatusMessage } from '../../../components/StatusMessage/StatusMessage';
 
 interface HermesFormState {
   enabled: boolean;
@@ -76,7 +77,7 @@ export function HermesSettings({ projectId }: Props) {
     }
   }
 
-  if (!loaded) return <div className="auth-loading">Loading configuration...</div>;
+  if (!loaded) return <StatusMessage variant="loading">Loading configuration...</StatusMessage>;
 
   return (
     <IntegrationConfigForm

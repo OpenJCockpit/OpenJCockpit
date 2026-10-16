@@ -1,5 +1,7 @@
 import type { SpecFile } from '../../types';
 import { IconBox } from '../IconBox/IconBox';
+import { specStyles } from '../../ui/SpecList/specListStyles';
+import { cx } from '../../ui/cx';
 
 interface Props {
   spec: SpecFile;
@@ -11,16 +13,16 @@ interface Props {
 export function SpecCardButton({ spec, selected, onSelect }: Props) {
   return (
     <button
-      className={`spec-card ${selected ? 'is-selected' : ''}`}
+      className={cx(specStyles.specCard, selected && specStyles.selected)}
       onClick={() => onSelect(spec.id)}
       aria-pressed={selected}
     >
-      <IconBox label="📄" compact />
+      <IconBox label="📄" compact className={specStyles.icon} />
       <div>
         <strong>{spec.fileName}</strong>
         <span>Last modified: {spec.lastChanged}</span>
       </div>
-      {selected && <span className="active-rail" aria-hidden="true" />}
+      {selected && <span className={specStyles.activeRail} aria-hidden="true" />}
     </button>
   );
 }

@@ -1,0 +1,19 @@
+.error {
+  margin: 0;
+  color: #ff8f8f;
+  font-size: 12px;
+}
+.result {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 18px 28px 8px;
+  & p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}

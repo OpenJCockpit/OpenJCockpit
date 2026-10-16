@@ -1,4 +1,8 @@
 import type { ReactNode } from 'react';
+import { ToolbarButton } from '../../../components/ToolbarButton/ToolbarButton';
+import { StatusMessage } from '../../../components/StatusMessage/StatusMessage';
+import { formClass, formGridClass, formTitleClass } from '../../../ui/Form/Form';
+import WorkflowConfigurationStyles from '../WorkflowConfiguration.module.scss';
 
 interface IntegrationConfigFormProps {
   title: ReactNode;
@@ -24,15 +28,17 @@ export function IntegrationConfigForm({
   children,
 }: IntegrationConfigFormProps) {
   return (
-    <div className="settings-form">
-      <h2 className="settings-form-title">{title}</h2>
-      {description && <p className="settings-desc">{description}</p>}
-      {error && <p className="settings-error">{error}</p>}
-      {savedMessage && <p className="workflow-saved-message">{savedMessage}</p>}
-      <div className="settings-form-grid">{children}</div>
-      <button className="button button--start" onClick={onSave} disabled={saving}>
+    <div className={formClass}>
+      <h2 className={formTitleClass}>{title}</h2>
+      {description && <StatusMessage>{description}</StatusMessage>}
+      {error && <StatusMessage variant="error">{error}</StatusMessage>}
+      {savedMessage && (
+        <p className={WorkflowConfigurationStyles.workflowSavedMessage}>{savedMessage}</p>
+      )}
+      <div className={formGridClass}>{children}</div>
+      <ToolbarButton onClick={onSave} disabled={saving}>
         {saving ? '⟳ Saving…' : saveLabel}
-      </button>
+      </ToolbarButton>
     </div>
   );
 }

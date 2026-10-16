@@ -1,0 +1,32 @@
+// :where() keeps these rules at zero specificity so consumer overrides always win.
+:where(.table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  & :where(th) {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line);
+  }
+
+  & :where(td) {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+}
+
+:where(.inactive) td {
+  opacity: 0.5;
+}
+
+:where(.actions) {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

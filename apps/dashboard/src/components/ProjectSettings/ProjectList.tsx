@@ -1,5 +1,10 @@
 import type { Project } from '../../types';
 import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
+import { Actions, DataTable, DataTableRow } from '../../ui/DataTable/DataTable';
+import { fieldHintClass } from '../../ui/Form/Form';
+import { Button } from '../../ui/Button/Button';
+import styles from './ProjectList.module.scss';
+import { cx } from '../../ui/cx';
 
 interface Props {
   projects: Project[];
@@ -21,7 +26,7 @@ export function ProjectList({
   onToggleActive,
 }: Props) {
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>Name</th>
@@ -33,74 +38,73 @@ export function ProjectList({
       </thead>
       <tbody>
         {projects.map((project) => (
-          <tr key={project.id} className={project.active === 0 ? 'settings-row--inactive' : ''}>
+          <DataTableRow key={project.id} inactive={project.active === 0}>
             <td>
               <strong>{project.name}</strong>
-              {project.description && <span className="settings-desc">{project.description}</span>}
+              {project.description && <span className={fieldHintClass}>{project.description}</span>}
               {project.gitUrl && (
-                <span className="settings-desc" style={{ color: 'var(--faint)', fontSize: 11 }}>
-                  {project.gitUrl}
-                </span>
+                <span className={cx(fieldHintClass, styles.gitUrl)}>{project.gitUrl}</span>
               )}
             </td>
             <td>
               <GitStatusBadge status={project.gitStatus} />
               {project.gitStatusMessage && (
-                <span className="settings-desc" style={{ fontSize: 11 }}>
+                <span className={cx(fieldHintClass, styles.gitMessage)}>
                   {project.gitStatusMessage}
                 </span>
               )}
             </td>
             <td>
               {project.hasCredentials ? (
-                <span style={{ color: 'var(--teal)', fontSize: 12 }}>Credentials set</span>
+                <span className={styles.credentialsSet}>Credentials set</span>
               ) : (
-                <span style={{ color: 'var(--faint)', fontSize: 12 }}>None</span>
+                <span className={styles.credentialsNone}>None</span>
               )}
             </td>
             <td>
               <span
-                className={`status-badge ${project.active === 1 ? 'status-badge--active' : 'status-badge--inactive'}`}
+                className={cx(
+                  styles.statusBadge,
+                  project.active === 1 ? styles.statusBadgeActive : styles.statusBadgeInactive,
+                )}
               >
                 {project.active === 1 ? 'Active' : 'Inactive'}
               </span>
             </td>
-            <td className="settings-actions">
-              <button className="back-button" onClick={() => onEdit(project)}>
+            <Actions as="td">
+              <Button variant="secondary" onClick={() => onEdit(project)}>
                 Edit
-              </button>
-              <button
-                className="back-button"
+              </Button>
+              <Button
+                variant="secondary"
                 onClick={() => onGitCheck(project.id)}
                 disabled={checkingId === project.id}
               >
                 {checkingId === project.id ? '⟳' : 'Git check'}
-              </button>
-              <button className="back-button" onClick={() => onEditCredentials(project.id)}>
+              </Button>
+              <Button variant="secondary" onClick={() => onEditCredentials(project.id)}>
                 {project.hasCredentials ? 'Update credentials' : 'Add credentials'}
-              </button>
+              </Button>
               {project.hasCredentials && (
-                <button
-                  className="back-button"
-                  style={{ color: 'var(--danger, #ff4444)' }}
+                <Button
+                  variant="secondary"
+                  className={styles.danger}
                   onClick={() => onDeleteCredentials(project.id)}
                 >
                   Delete credentials
-                </button>
+                </Button>
               )}
-              <button
-                className="back-button"
+              <Button
+                variant="secondary"
                 onClick={() => onToggleActive(project)}
-                style={{
-                  color: project.active === 1 ? 'var(--danger, #ff4444)' : 'var(--cyan)',
-                }}
+                className={project.active === 1 ? styles.danger : styles.activate}
               >
                 {project.active === 1 ? 'Deactivate' : 'Activate'}
-              </button>
-            </td>
-          </tr>
+              </Button>
+            </Actions>
+          </DataTableRow>
         ))}
       </tbody>
-    </table>
+    </DataTable>
   );
 }

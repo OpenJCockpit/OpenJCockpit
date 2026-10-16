@@ -1,5 +1,7 @@
 import type { AgentDefinition } from '../../../../../types';
 import { referenceLabel } from '../../../../linkableAgents';
+import { fieldHintClass } from '../../../../../ui/Form/Form';
+import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 interface AgentPickerProps {
   /** Linkable catalog agents (id = agent reference key, role = catalog section). */

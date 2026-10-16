@@ -1,29 +1,32 @@
 import type { QualityControl } from '../../types';
 import { IconBox } from '../IconBox/IconBox';
+import styles from './WorkspacePanels.module.scss';
+import { Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
+import { Button } from '../../ui/Button/Button';
 
 export function QualityPanel({ controls }: { controls: QualityControl[] }) {
   return (
-    <aside className="panel quality-panel">
-      <header className="panel-header panel-header--quality">
-        <div className="panel-title">
+    <Panel as="aside" className={styles.qualityPanel}>
+      <PanelHeader className={styles.panelHeaderQuality}>
+        <PanelTitle>
           <IconBox label="✓" compact /> <h2>Quality status</h2>
-        </div>
-        <button className="small-link">Open quality dashboard ↗</button>
-      </header>
+        </PanelTitle>
+        <button className={styles.smallLink}>Open quality dashboard ↗</button>
+      </PanelHeader>
 
-      <div className="quality-list">
+      <div className={styles.qualityList}>
         {controls.map((control) => (
-          <article className="quality-row" key={control.name}>
+          <article className={styles.qualityRow} key={control.name}>
             <IconBox label="⌬" compact />
             <strong>{control.name}</strong>
-            <span className="check">✓</span>
+            <span className={styles.check}>✓</span>
           </article>
         ))}
       </div>
 
-      <button className="link-button">
+      <Button variant="link">
         View all quality rules <span>→</span>
-      </button>
-    </aside>
+      </Button>
+    </Panel>
   );
 }

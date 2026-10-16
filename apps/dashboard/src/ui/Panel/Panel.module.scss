@@ -1,0 +1,38 @@
+// Selectors are wrapped in :where() so they carry no specificity: any consumer rule
+// (e.g. a panel-specific padding) wins regardless of stylesheet order.
+:where(.panel) {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(10, 27, 41, 0.72), rgba(4, 16, 27, 0.62));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02),
+    var(--shadow);
+  backdrop-filter: blur(20px);
+}
+:where(.header) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px 12px;
+}
+:where(.headerSimple) {
+  border-bottom: 1px solid rgba(124, 222, 255, 0.08);
+}
+:where(.title) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+:where(.panel) h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+:where(.eyebrow) {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}

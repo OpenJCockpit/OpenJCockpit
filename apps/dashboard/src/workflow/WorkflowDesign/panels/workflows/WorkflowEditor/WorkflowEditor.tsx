@@ -9,6 +9,9 @@ import { TextAreaField } from '../../../../../components/FormFields/TextAreaFiel
 import { TextField } from '../../../../../components/FormFields/TextField/TextField';
 import { EditorForm } from '../../shared/EditorForm';
 import { OrbEditor } from './OrbEditor';
+import { fieldHintClass } from '../../../../../ui/Form/Form';
+import { cx } from '../../../../../ui/cx';
+import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 interface WorkflowEditorProps {
   isNew: boolean;
@@ -125,13 +128,13 @@ export function WorkflowEditor({
             }));
           }}
         />
-        <span className="settings-desc">
+        <span className={fieldHintClass}>
           Pauses the run after the chosen agent for a human decision: Accept, Deny, or Accept with
           comments to re-run that agent with the feedback.
         </span>
       </label>
       {form.approvalGate?.enabled && (
-        <div className="workflow-design-field--full">
+        <div className={WorkflowDesignStyles.workflowDesignFieldFull}>
           <SelectField
             id="approval-gate-placement"
             label="Gate placement"
@@ -150,7 +153,10 @@ export function WorkflowEditor({
               </option>
             ))}
           </SelectField>
-          <p id="approval-gate-note" className="settings-desc approval-gate-note">
+          <p
+            id="approval-gate-note"
+            className={cx(fieldHintClass, WorkflowDesignStyles.approvalGateNote)}
+          >
             Up to 3 feedback iterations are available at this gate: the chosen agent re-runs with
             the reviewer's comments and its previous output.
           </p>
@@ -170,7 +176,7 @@ export function WorkflowEditor({
           checked={form.promptRequired ?? false}
           onChange={(e) => setForm((f) => ({ ...f, promptRequired: e.target.checked }))}
         />
-        <span className="settings-desc">
+        <span className={fieldHintClass}>
           Shows a themed prompt dialog when this workflow is started (e.g. spec creation from prompt
           + RAG).
         </span>

@@ -1,0 +1,71 @@
+// All selectors are wrapped in :where() so they carry no specificity: consumer rules
+// (e.g. a narrower input in a toolbar) win regardless of stylesheet order.
+:where(.form) {
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+:where(.formTitle) {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--cyan);
+  margin: 0 0 20px;
+  letter-spacing: 0.04em;
+}
+
+:where(.formGrid) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  & label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+}
+
+:where(.input) {
+  padding: 8px 12px;
+  background: rgba(7, 22, 34, 0.8);
+  border: 1px solid rgba(39, 231, 255, 0.22);
+  border-radius: 6px;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  transition: border-color 0.15s;
+
+  &:focus {
+    outline: none;
+    border-color: var(--cyan-a55);
+  }
+}
+
+:where(.fieldHint) {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+:where(.fieldError) {
+  color: #ff6b6b;
+  background: rgba(255, 60, 60, 0.08);
+  border: 1px solid rgba(255, 60, 60, 0.25);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+:where(.formActions) {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}

@@ -1,4 +1,7 @@
 import type { ExternalSkill, SkillSpec } from '../../../workflowTypes';
+import { DataTable } from '../../../../ui/DataTable/DataTable';
+import { fieldHintClass } from '../../../../ui/Form/Form';
+import { Button } from '../../../../ui/Button/Button';
 
 type LocalSkillRow = { key: string; readOnly: false; skill: SkillSpec };
 type ExternalSkillRow = { key: string; readOnly: true; skill: ExternalSkill };
@@ -12,7 +15,7 @@ interface SkillsTableProps {
 
 export function SkillsTable({ rows, onEdit, onDelete }: SkillsTableProps) {
   return (
-    <table className="settings-table">
+    <DataTable>
       <thead>
         <tr>
           <th>Name</th>
@@ -29,10 +32,10 @@ export function SkillsTable({ rows, onEdit, onDelete }: SkillsTableProps) {
               <td>{row.skill.name}</td>
               <td>{row.skill.marketplaceName}</td>
               <td>
-                <span className="settings-desc">Not provided</span>
+                <span className={fieldHintClass}>Not provided</span>
               </td>
               <td>
-                <span className="settings-desc">Not provided</span>
+                <span className={fieldHintClass}>Not provided</span>
               </td>
               <td>Read-only</td>
             </tr>
@@ -43,17 +46,17 @@ export function SkillsTable({ rows, onEdit, onDelete }: SkillsTableProps) {
               <td>{row.skill.inputContract}</td>
               <td>{row.skill.outputContract}</td>
               <td>
-                <button className="back-button" onClick={() => onEdit(row.skill)}>
+                <Button variant="secondary" onClick={() => onEdit(row.skill)}>
                   Edit
-                </button>
-                <button className="back-button" onClick={() => onDelete(row.skill.name)}>
+                </Button>
+                <Button variant="secondary" onClick={() => onDelete(row.skill.name)}>
                   Delete
-                </button>
+                </Button>
               </td>
             </tr>
           ),
         )}
       </tbody>
-    </table>
+    </DataTable>
   );
 }

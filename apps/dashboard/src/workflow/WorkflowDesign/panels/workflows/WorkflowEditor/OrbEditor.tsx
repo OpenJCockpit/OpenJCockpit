@@ -1,6 +1,9 @@
 import type { AgentDefinition } from '../../../../../types';
 import { SelectField } from '../../../../../components/FormFields/SelectField/SelectField';
 import type { WorkflowDefinition, WorkflowOrb } from '../../../../workflowTypes';
+import { fieldErrorClass, fieldHintClass } from '../../../../../ui/Form/Form';
+import { Button } from '../../../../../ui/Button/Button';
+import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 const MAX_ORBS = 5;
 
@@ -27,10 +30,10 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
   }
 
   return (
-    <div className="workflow-design-field--full">
+    <div className={WorkflowDesignStyles.workflowDesignFieldFull}>
       <span>Workflow orbs</span>
       {error && (
-        <p id="workflow-orb-error" role="alert" className="settings-error">
+        <p id="workflow-orb-error" role="alert" className={fieldErrorClass}>
           {error}
         </p>
       )}
@@ -85,20 +88,15 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
               </option>
             ))}
           </SelectField>
-          <button type="button" className="button button--small" onClick={() => removeOrb(index)}>
+          <Button type="button" size="sm" onClick={() => removeOrb(index)}>
             Remove orb
-          </button>
+          </Button>
         </div>
       ))}
-      <button
-        type="button"
-        className="button button--small"
-        onClick={addOrb}
-        disabled={orbs.length >= MAX_ORBS}
-      >
+      <Button type="button" size="sm" onClick={addOrb} disabled={orbs.length >= MAX_ORBS}>
         + Add orb
-      </button>
-      <span className="settings-desc">
+      </Button>
+      <span className={fieldHintClass}>
         A workflow orb triggers another workflow as part of this one. Up to 5 orbs are allowed (the
         server enforces the actual configured limit).
       </span>

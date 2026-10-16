@@ -3,6 +3,24 @@ import { getAgentCatalog } from '../../../workflowApi';
 import type { AgentCatalog, AgentCatalogStatus } from '../../../workflowTypes';
 import { LocalAgentsTree } from './LocalAgentsTree';
 import { ProviderAgentsTable } from './ProviderAgentsTable';
+import { useState } from 'react';
+import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
+import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
+import {
+  createAgentSpec,
+  createSubagentSpec,
+  deleteAgentSpec,
+  generateAgentSpec,
+  generateSubagentSpec,
+  listAgentSpecs,
+  listSubagentSpecs,
+  updateAgentSpec,
+} from '../../../workflowApi';
+import type { AgentSpec } from '../../../workflowTypes';
+import { PromptGenerator } from '../shared/PromptGenerator';
+import { AgentEditor } from './AgentEditor';
+import { AgentsTable } from './AgentsTable';
+import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const STATUS_TEXT: Record<Exclude<AgentCatalogStatus, 'OK'>, string> = {
   NOT_CONFIGURED: 'Not configured',
@@ -19,6 +37,15 @@ export function AgentsPanel() {
   const [catalog, setCatalog] = useState<AgentCatalog | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
+  const [info, setInfo] = useState<string | null>(null);
+
+  if (!loaded) {
+    void listAgentSpecs().then((a) => {
+      setItems(a);
+      setLoaded(true);
+    });
+    return <StatusMessage variant="loading">Loading agents...</StatusMessage>;
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -57,7 +84,14 @@ export function AgentsPanel() {
         <button className="back-button" onClick={() => setReload((n) => n + 1)}>
           ↻ Refresh
         </button>
+  return (
+    <div>
+      <PromptGenerator kind="agent" onGenerate={handleGenerate} />
+      <div className={WorkflowDesignStyles.workflowDesignToolbar}>
+        <ToolbarButton onClick={startCreate}>+ New agent</ToolbarButton>
       </div>
+      {error && <StatusMessage variant="error">{error}</StatusMessage>}
+      {info && <StatusMessage>{info}</StatusMessage>}
 
       <CatalogSection
         title={catalog.local.name}

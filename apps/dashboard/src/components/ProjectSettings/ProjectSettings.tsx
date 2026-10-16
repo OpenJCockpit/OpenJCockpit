@@ -1,6 +1,6 @@
-import './ProjectSettings.scss';
 import { useEffect, useRef, useState } from 'react';
 import type { Project, ProjectGitCredentialRequest, ProjectRequest } from '../../types';
+import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import {
   activateProject,
   createProject,
@@ -16,6 +16,9 @@ import { AppShell, AppHeader } from '../AppShell/AppShell';
 import { CredentialsForm } from './CredentialsForm';
 import { ProjectForm } from './ProjectForm';
 import { ProjectList } from './ProjectList';
+import { fieldErrorClass } from '../../ui/Form/Form';
+import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
+import styles from './ProjectSettings.module.scss';
 
 interface Props {
   onBack: () => void;
@@ -74,7 +77,7 @@ export function ProjectSettings({ onBack }: Props) {
   }, [loaded]);
 
   if (!loaded) {
-    return <div className="auth-loading">Loading projects...</div>;
+    return <StatusMessage variant="loading">Loading projects...</StatusMessage>;
   }
 
   function startCreate() {
@@ -240,32 +243,14 @@ export function ProjectSettings({ onBack }: Props) {
     <AppShell>
       <AppHeader onBack={onBack} backLabel="← Projects" />
 
-      <main style={{ padding: '32px 48px', maxWidth: 1100, margin: '0 auto' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 24,
-          }}
-        >
-          <h1
-            style={{
-              color: 'var(--cyan)',
-              fontFamily: 'var(--font-mono)',
-              fontSize: 20,
-              margin: 0,
-            }}
-          >
-            Project management
-          </h1>
-          <button className="button button--start" onClick={startCreate}>
-            + New project
-          </button>
+      <main className={styles.page}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Project management</h1>
+          <ToolbarButton onClick={startCreate}>+ New project</ToolbarButton>
         </div>
 
         {error && (
-          <p id="project-name-error" role="alert" className="settings-error">
+          <p id="project-name-error" role="alert" className={fieldErrorClass}>
             {error}
           </p>
         )}

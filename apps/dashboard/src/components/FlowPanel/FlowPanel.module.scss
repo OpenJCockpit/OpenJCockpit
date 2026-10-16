@@ -1,0 +1,67 @@
+.flowPanel {
+  grid-column: 2;
+  grid-row: 1;
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 30px;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 80px 60px 40px;
+    background:
+      radial-gradient(circle at 50% 70%, var(--cyan-a12), transparent 30%),
+      repeating-radial-gradient(circle at 50% 84%, var(--surface-glow) 0 1px, transparent 1px 52px);
+    opacity: 0.78;
+    pointer-events: none;
+  }
+}
+.flowHeader {
+  padding: 26px 28px 10px;
+  & h2 {
+    font-size: 26px;
+    letter-spacing: -0.03em;
+  }
+}
+.flowHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.workflowLauncher {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 18px 28px 8px;
+  & label {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+}
+// The global .project-dropdown (max-width: 200px) always overrode this rule's old
+// `max-width: 100%`, so only min-width is kept to preserve the rendered result.
+.workflowSelect {
+  min-width: 320px;
+}
+.workflowLauncherHint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.workflowLauncherReset {
+  position: relative;
+  z-index: 1;
+  margin: 0 28px 8px;
+}
+
+@media (max-width: 1280px) {
+  .flowPanel {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
