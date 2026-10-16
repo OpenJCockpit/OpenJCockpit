@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { clickAsync, renderAsync } from '../../testUtils/dom';
 import { WorkflowDashboard } from './WorkflowDashboard';
 import * as workflowApi from '../workflowApi';
-import * as api from '../../api';
 import type { Project } from '../../types';
 import type { WorkflowDefinition } from '../workflowTypes';
 import { tabActiveClass } from '../../ui/Tabs/Tabs';
@@ -46,6 +45,7 @@ describe('WorkflowDashboard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
+    vi.mocked(workflowApi.listA2AServices).mockResolvedValue([]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
     vi.mocked(workflowApi.listAgentSpecs).mockResolvedValue([]);
     vi.mocked(workflowApi.listSubagentSpecs).mockResolvedValue([]);
@@ -104,8 +104,6 @@ describe('WorkflowDashboard', () => {
       total: 0,
       hasMore: false,
     });
-    vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue([]);
   });
 
   it('defaults to the Overview tab when opened', async () => {

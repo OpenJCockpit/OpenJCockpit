@@ -1,15 +1,12 @@
 package nl.metafactory.agents.orchestration;
 
 import nl.metafactory.agents.approval.model.ApprovalGateState;
-import nl.metafactory.agents.domain.ImpactReport;
-import nl.metafactory.agents.domain.ImplementationPlan;
-import nl.metafactory.agents.domain.RequirementAnalysis;
-import nl.metafactory.agents.domain.ReviewReport;
 import nl.metafactory.agents.domain.SpecContent;
-import nl.metafactory.agents.domain.TestPlan;
 import nl.metafactory.agents.model.AgentRunRequest;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -33,17 +30,23 @@ public class PipelineState {
     private final Set<String> completedStages = new LinkedHashSet<>();
     private final Set<String> completedOrbs = new LinkedHashSet<>();
 
-    // Package-private: mutated directly by EmbabelOrchestrator (same package) as each stage's
-    // domain output becomes available, exactly like the local variables it replaces.
-    RequirementAnalysis ra;
-    ImpactReport ir;
-    TestPlan tp;
-    ImplementationPlan ip;
-    ReviewReport rr;
+
+    // Catalog-agent workflow runs: output text per agent reference key, in execution order.
+    final Map<String, String> agentOutputs = new LinkedHashMap<>();
 
     // Batch B6: null until the gate first opens (architecture §4.3). Public because
     // ApprovalGateCoordinator/ApprovalGateContextAssembler (a different package) both need it.
     private ApprovalGateState gate;
+    private nl.metafactory.agents.workflowrun.WorkflowRunScope workflowScope;
+
+    /** This run's workflow scope (workflow, run id and optional git workspace) handed to its agents. */
+    public nl.metafactory.agents.workflowrun.WorkflowRunScope workflowScope() {
+        return workflowScope;
+    }
+
+    void setWorkflowScope(nl.metafactory.agents.workflowrun.WorkflowRunScope workflowScope) {
+        this.workflowScope = workflowScope;
+    }
 
     public PipelineState(String runId, SpecContent spec, Set<String> selectedAgentIds, AgentRunRequest request) {
         this.runId = runId;

@@ -1,0 +1,40 @@
+# SPEC-002 — LiteLLM A2A Gateway registration for the configuration-driven `customer-support` agent.
+#
+# NOT loaded by default. To register via config, merge the `agents:` block below into
+# infrastructure/litellm/config.yaml (config-defined agents are read-only in the LiteLLM UI).
+# Alternatively POST customer-support.agent.json to /v1/agents with an admin key — that is a live
+# registry mutation and needs explicit approval.
+#
+# Contract verified against the pinned LiteLLM v1.101.2 source:
+#   - types/agents.py AgentConfig: agent_name, agent_card_params (A2A AgentCard), litellm_params,
+#     static_headers, extra_headers
+#   - proxy/a2a/version_convert.py: protocolVersion "0.3.0" pins the 0.3 wire format (LiteLLM
+#     converts 1.0 clients to this 0.3 backend)
+#   - proxy/agent_endpoints/a2a_endpoints.py: caller header `x-a2a-customer-support-authorization`
+#     is forwarded to the agent as `authorization` (carries the caller's Keycloak JWT, which must
+#     contain the tenant claim); `litellm_params.guardrails` are applied to the A2A traffic.
+#
+# The url must equal embabel-agent-service's A2A_PUBLIC_BASE_URL + /a2a/customer-support, i.e. the
+# `url` in the service's own Agent Card. No streaming: the server implements message/send only.
+agents:
+  - agent_name: customer-support
+    agent_card_params:
+      protocolVersion: "0.3.0"
+      name: customer-support
+      description: "Ondersteunt klantvragen"
+      url: "http://embabel-agent-service:8081/a2a/customer-support"
+      preferredTransport: JSONRPC
+      version: "1.0.0"
+      capabilities:
+        streaming: false
+        pushNotifications: false
+        stateTransitionHistory: false
+      defaultInputModes: ["text/plain"]
+      defaultOutputModes: ["text/plain"]
+      skills:
+        - id: customer-support
+          name: customer-support
+          description: "Ondersteunt klantvragen"
+          tags: ["configuration-driven"]
+    litellm_params:
+      guardrails: [openjcockpit-pii]

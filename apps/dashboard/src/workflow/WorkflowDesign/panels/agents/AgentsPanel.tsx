@@ -1,159 +1,116 @@
-import { useState } from 'react';
-import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
+import { type ReactNode, useEffect, useState } from 'react';
 import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
-import {
-  createAgentSpec,
-  createSubagentSpec,
-  deleteAgentSpec,
-  generateAgentSpec,
-  generateSubagentSpec,
-  listAgentSpecs,
-  listSubagentSpecs,
-  updateAgentSpec,
-} from '../../../workflowApi';
-import type { AgentSpec } from '../../../workflowTypes';
-import { PromptGenerator } from '../shared/PromptGenerator';
-import { AgentEditor } from './AgentEditor';
-import { AgentsTable } from './AgentsTable';
+import { Button } from '../../../../ui/Button/Button';
+import { getAgentCatalog } from '../../../workflowApi';
+import type { AgentCatalog, AgentCatalogStatus } from '../../../workflowTypes';
+import { LocalAgentsTree } from './LocalAgentsTree';
+import { ProviderAgentsTable } from './ProviderAgentsTable';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
-const EMPTY_AGENT: AgentSpec = {
-  name: '',
-  description: '',
-  role: '',
-  instructions: '',
-  subagentNames: [],
-  skillNames: [],
-  mcpTools: [],
+const STATUS_TEXT: Record<Exclude<AgentCatalogStatus, 'OK'>, string> = {
+  NOT_CONFIGURED: 'Not configured',
+  UNAVAILABLE: 'Unavailable',
+  UNAUTHORIZED: 'Access denied',
+  INVALID: 'Invalid response',
 };
 
+/**
+ * Read-only agent catalog: the repository's /agents folder ("Local", grouped by subfolder) and
+ * one section per A2A provider, headed by the provider's name (e.g. "LiteLLM").
+ */
 export function AgentsPanel() {
-  const [items, setItems] = useState<AgentSpec[]>([]);
-  const [loaded, setLoaded] = useState(false);
-  const [editingName, setEditingName] = useState<string | null>(null);
-  const [form, setForm] = useState<AgentSpec>(EMPTY_AGENT);
-  const [saving, setSaving] = useState(false);
+  const [catalog, setCatalog] = useState<AgentCatalog | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
+  const [reload, setReload] = useState(0);
 
-  if (!loaded) {
-    void listAgentSpecs().then((a) => {
-      setItems(a);
-      setLoaded(true);
-    });
-    return <StatusMessage variant="loading">Loading agents...</StatusMessage>;
-  }
-
-  function startCreate() {
-    setEditingName('new');
-    setForm(EMPTY_AGENT);
-    setError(null);
-    setInfo(null);
-  }
-  function startEdit(item: AgentSpec) {
-    setEditingName(item.name);
-    setForm(item);
-    setError(null);
-    setInfo(null);
-  }
-
-  async function handleGenerate(prompt: string) {
-    setInfo(null);
-    try {
-      const draft = await generateAgentSpec(prompt);
-      setEditingName('new');
-      setForm(draft);
-      await generateMissingSubagents(draft);
-    } catch (err) {
-      setError('Failed to generate agent draft.');
-      console.warn(err);
-    }
-  }
-
-  async function generateMissingSubagents(agent: AgentSpec) {
-    if (agent.subagentNames.length === 0) return;
-    try {
-      const existingNames = new Set((await listSubagentSpecs()).map((s) => s.name));
-      const missingNames = agent.subagentNames.filter((name) => !existingNames.has(name));
-      if (missingNames.length === 0) return;
-
-      const created: string[] = [];
-      for (const name of missingNames) {
-        try {
-          const concept =
-            `A subagent named "${name}" that supports the agent "${agent.name}" ` +
-            `(${agent.description || agent.role}). Its purpose within that agent: ${agent.instructions}`;
-          const subagentDraft = await generateSubagentSpec(concept);
-          await createSubagentSpec({ ...subagentDraft, name, parentAgent: agent.name });
-          created.push(name);
-        } catch (err) {
-          console.warn(`Failed to generate suggested subagent "${name}"`, err);
+  useEffect(() => {
+    let cancelled = false;
+    getAgentCatalog()
+      .then((c) => {
+        if (!cancelled) {
+          setCatalog(c);
+          setError(null);
         }
-      }
-      if (created.length > 0) {
-        setInfo(
-          `Also generated ${created.length} suggested subagent(s) that didn't exist yet: ` +
-            `${created.join(', ')}. Review them in the Subagents tab.`,
-        );
-      }
-    } catch (err) {
-      console.warn('Failed to check for existing subagents', err);
-    }
-  }
+      })
+      .catch((err: unknown) => {
+        console.warn(err);
+        if (!cancelled) setError('Failed to load the agent catalog.');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [reload]);
 
-  async function handleSave() {
-    setSaving(true);
-    setError(null);
-    try {
-      const saved =
-        editingName === 'new'
-          ? await createAgentSpec(form)
-          : await updateAgentSpec(editingName!, form);
-      setItems((prev) =>
-        editingName === 'new'
-          ? [...prev, saved]
-          : prev.map((i) => (i.name === saved.name ? saved : i)),
-      );
-      setEditingName(null);
-    } catch (err) {
-      setError('Failed to save agent definition.');
-      console.warn(err);
-    } finally {
-      setSaving(false);
-    }
+  if (error) {
+    return (
+      <div>
+        <StatusMessage variant="error">{error}</StatusMessage>
+        <Button variant="secondary" onClick={() => setReload((n) => n + 1)}>
+          Retry
+        </Button>
+      </div>
+    );
   }
-
-  async function handleDelete(name: string) {
-    try {
-      await deleteAgentSpec(name);
-      setItems((prev) => prev.filter((i) => i.name !== name));
-    } catch (err) {
-      setError('Failed to delete agent definition.');
-      console.warn(err);
-    }
-  }
+  if (!catalog) return <StatusMessage variant="loading">Loading agents...</StatusMessage>;
 
   return (
     <div>
-      <PromptGenerator kind="agent" onGenerate={handleGenerate} />
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>+ New agent</ToolbarButton>
+        <span className={WorkflowDesignStyles.workflowDesignToolbarSpacer} />
+        <Button variant="secondary" onClick={() => setReload((n) => n + 1)}>
+          ↻ Refresh
+        </Button>
       </div>
-      {error && <StatusMessage variant="error">{error}</StatusMessage>}
-      {info && <StatusMessage>{info}</StatusMessage>}
 
-      {editingName && (
-        <AgentEditor
-          isNew={editingName === 'new'}
-          form={form}
-          setForm={setForm}
-          saving={saving}
-          onSave={() => void handleSave()}
-          onCancel={() => setEditingName(null)}
-        />
-      )}
+      <CatalogSection
+        title={catalog.local.name}
+        count={catalog.local.agents.length}
+        status={catalog.local.status}
+        message={catalog.local.message}
+        empty="No agents in the /agents folder yet."
+      >
+        <LocalAgentsTree agents={catalog.local.agents} />
+      </CatalogSection>
 
-      <AgentsTable items={items} onEdit={startEdit} onDelete={(name) => void handleDelete(name)} />
+      {catalog.providers.map((provider) => (
+        <CatalogSection
+          key={`${provider.type}:${provider.name}`}
+          title={provider.name}
+          count={provider.agents.length}
+          status={provider.status}
+          message={provider.message}
+          empty={`No agents registered at ${provider.name}.`}
+        >
+          <ProviderAgentsTable provider={provider} agents={provider.agents} />
+        </CatalogSection>
+      ))}
     </div>
+  );
+}
+
+interface CatalogSectionProps {
+  title: string;
+  count: number;
+  status: AgentCatalogStatus;
+  message?: string | null;
+  empty: string;
+  children: ReactNode;
+}
+
+function CatalogSection({ title, count, status, message, empty, children }: CatalogSectionProps) {
+  const ok = status === 'OK';
+  return (
+    <section className={WorkflowDesignStyles.agentCatalogSection} aria-label={title}>
+      <h3 className={WorkflowDesignStyles.agentCatalogHeader}>
+        {title}
+        <span className={WorkflowDesignStyles.agentCatalogCount}>{count}</span>
+        {!ok && (
+          <span className={WorkflowDesignStyles.agentCatalogStatus}>{STATUS_TEXT[status]}</span>
+        )}
+      </h3>
+      {message && <StatusMessage variant={ok ? 'info' : 'error'}>{message}</StatusMessage>}
+      {ok && count === 0 && <StatusMessage>{empty}</StatusMessage>}
+      {count > 0 && children}
+    </section>
   );
 }

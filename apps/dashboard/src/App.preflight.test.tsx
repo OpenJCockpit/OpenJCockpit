@@ -21,7 +21,6 @@ vi.mock('./api', async () => {
     ...actual,
     loadProjects: vi.fn(),
     loadWorkspace: vi.fn(),
-    loadAgentDefinitions: vi.fn(),
     loadProjectSpecs: vi.fn(),
     initSpecFolder: vi.fn(),
     getSpecInitStatus: vi.fn(),

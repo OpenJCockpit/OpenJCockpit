@@ -2,9 +2,7 @@ package nl.metafactory.aicontrol.api;
 
 import nl.metafactory.common.test.UnsecuredWebMvcTest;
 import tools.jackson.databind.json.JsonMapper;
-import nl.metafactory.aicontrol.client.AgentDefinitionDto;
 import nl.metafactory.aicontrol.client.AgentRunDto;
-import nl.metafactory.aicontrol.client.AgentRunRequestDto;
 import nl.metafactory.aicontrol.client.EmbabelAgentClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,49 +28,14 @@ class AgentControllerTest {
     @Autowired JsonMapper objectMapper;
     @MockitoBean EmbabelAgentClient embabelAgentClient;
 
+    // Runs start only through a workflow; the direct agent-run start and the built-in agent
+    // listing were removed with the built-in pipeline.
     @Test
-    void getAgentsReturnsDefinitionsInSequenceOrder() throws Exception {
-        when(embabelAgentClient.getAgentDefinitions()).thenReturn(List.of(
-                new AgentDefinitionDto("requirement", "Requirement Agent", "Retrieve requirements", "specification",
-                        0, "SpecContent", "RequirementAnalysis"),
-                new AgentDefinitionDto("impact", "Impact Analysis Agent", "Impact analysis", "analysis",
-                        1, "RequirementAnalysis", "ImpactReport")
-        ));
-
+    void directAgentRunStartAndBuiltInAgentListingNoLongerExist() throws Exception {
+        mockMvc.perform(post("/api/agent-runs").contentType(MediaType.APPLICATION_JSON).content("{}"))
+               .andExpect(status().is4xxClientError());
         mockMvc.perform(get("/api/agents"))
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$[0].id").value("requirement"))
-               .andExpect(jsonPath("$[0].sequenceOrder").value(0))
-               .andExpect(jsonPath("$[0].outputType").value("RequirementAnalysis"))
-               .andExpect(jsonPath("$[1].id").value("impact"))
-               .andExpect(jsonPath("$[1].inputType").value("RequirementAnalysis"));
-    }
-
-    @Test
-    void getAgentsReturnsEmptyListWhenUnavailable() throws Exception {
-        when(embabelAgentClient.getAgentDefinitions()).thenReturn(List.of());
-
-        mockMvc.perform(get("/api/agents"))
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$").isArray())
-               .andExpect(jsonPath("$").isEmpty());
-    }
-
-    @Test
-    void postAgentRunForwardsToEmbabelAndReturns202() throws Exception {
-        var request = new AgentRunRequestDto("cust1", "spec content", List.of("requirement"),
-                "user", "https://github.com/org/repo");
-        var run = new AgentRunDto("run-1", "cust1", "spec content",
-                "https://github.com/org/repo", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null);
-        when(embabelAgentClient.startAgentRun(any())).thenReturn(run);
-
-        mockMvc.perform(post("/api/agent-runs")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-               .andExpect(status().isAccepted())
-               .andExpect(jsonPath("$.runId").value("run-1"))
-               .andExpect(jsonPath("$.repositoryUrl").value("https://github.com/org/repo"))
-               .andExpect(jsonPath("$.status").value("RUNNING"));
+               .andExpect(status().is4xxClientError());
     }
 
     @Test

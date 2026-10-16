@@ -1,7 +1,10 @@
 package nl.metafactory.gitmcp.config;
 
 import tools.jackson.databind.json.JsonMapper;
+import nl.metafactory.gitmcp.git.AiControlGitCredentialResolver;
+import nl.metafactory.gitmcp.git.GitCredentialResolver;
 import nl.metafactory.gitmcp.git.GitHubOperations;
+import nl.metafactory.gitmcp.git.GitToolsProperties;
 import nl.metafactory.gitmcp.git.GitWorkspaceOperations;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
@@ -28,6 +31,11 @@ import java.util.Map;
  */
 @Configuration
 public class GitAdapterConfig {
+
+    @Bean
+    public GitCredentialResolver gitCredentialResolver(GitToolsProperties properties) {
+        return new AiControlGitCredentialResolver(properties.getCredentials());
+    }
 
     @Bean
     public GitHubOperations gitHubOperations() {

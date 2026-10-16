@@ -2,7 +2,6 @@ package nl.metafactory.agents.workflow;
 
 import nl.metafactory.agents.config.WorkflowDefinitionProperties;
 import nl.metafactory.agents.config.WorkflowTriggerProperties;
-import nl.metafactory.agents.model.AgentDefinition;
 import nl.metafactory.agents.model.AgentRun;
 import nl.metafactory.agents.model.AgentRunRequest;
 import nl.metafactory.agents.model.RunInitiator;
@@ -51,7 +50,7 @@ class WorkflowExecutionServiceChainDepthTest {
 
     private WorkflowDefinition definitionAt(String id, WorkflowOrb orb) {
         return new WorkflowDefinition(id, "Level-" + id, "", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null,
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null,
                 new ExecutionConfig("cust1", "https://github.com/org/repo", 300),
                 false, null, "ACTIVE", null, null, null, orb == null ? null : List.of(orb));
     }
@@ -61,7 +60,7 @@ class WorkflowExecutionServiceChainDepthTest {
         var properties = new WorkflowDefinitionProperties();
         properties.setPath(tempDir.toString());
         var store = new YamlDefinitionStore();
-        workflowRepository = new WorkflowDefinitionRepository(properties, store);
+        workflowRepository = new WorkflowDefinitionRepository(properties, store, new nl.metafactory.agents.workflow.agents.InMemoryWorkflowAgentLinks());
         var groupRepository = mock(WorkflowGroupRepository.class);
         var triggerProperties = new WorkflowTriggerProperties();
         workflowChainResolver = new WorkflowChainResolver(workflowRepository, groupRepository, triggerProperties);
@@ -77,9 +76,6 @@ class WorkflowExecutionServiceChainDepthTest {
                 subagentSpecRepository, skillSpecRepository, orchestrator, policyDecisionService,
                 currentUserProvider);
 
-        when(orchestrator.availableAgents()).thenReturn(List.of(
-                new AgentDefinition("requirement", "Requirement Agent", "d", "r", List.of(), List.of(), 0, "in", "out")
-        ));
         when(policyDecisionService.canStartWorkflow(any())).thenReturn(allow());
         when(policyDecisionService.canUseAgent(any())).thenReturn(allow());
         when(policyDecisionService.canUseSubagent(any())).thenReturn(allow());
@@ -107,7 +103,7 @@ class WorkflowExecutionServiceChainDepthTest {
 
         var decision1 = workflowChainResolver.resolve("wf-level1", workflowRepository.findById("wf-root").orElseThrow(), ancestry);
         assertThat(decision1).isInstanceOf(ChildStartDecision.Permitted.class);
-        var parentRequestLevel0 = new AgentRunRequest("cust1", "root-spec", List.of("requirement"), "workflow:wf-root",
+        var parentRequestLevel0 = new AgentRunRequest("cust1", "root-spec", List.of("local:requirement"), "workflow:wf-root",
                 "https://github.com/org/repo", null, null, null, null, null, null, initiator, ancestry);
         var command1 = new ChildStartCommand("wf-level1", parentRequestLevel0, WorkflowOrbMode.SEQUENTIAL, initiator, ancestry);
         var response1 = service.startWorkflowFromOrb(command1);
@@ -118,7 +114,7 @@ class WorkflowExecutionServiceChainDepthTest {
         ancestryAt1.add("wf-level1");
         var decision2 = workflowChainResolver.resolve("wf-level2", workflowRepository.findById("wf-level1").orElseThrow(), ancestryAt1);
         assertThat(decision2).isInstanceOf(ChildStartDecision.Permitted.class);
-        var parentRequestLevel1 = new AgentRunRequest("cust1", "l1-spec", List.of("requirement"), "workflow:wf-level1",
+        var parentRequestLevel1 = new AgentRunRequest("cust1", "l1-spec", List.of("local:requirement"), "workflow:wf-level1",
                 "https://github.com/org/repo", null, null, null, null, null, null, initiator, ancestryAt1);
         var command2 = new ChildStartCommand("wf-level2", parentRequestLevel1, WorkflowOrbMode.SEQUENTIAL, initiator, ancestryAt1);
         var response2 = service.startWorkflowFromOrb(command2);
@@ -129,7 +125,7 @@ class WorkflowExecutionServiceChainDepthTest {
         ancestryAt2.add("wf-level2");
         var decision3 = workflowChainResolver.resolve("wf-level3", workflowRepository.findById("wf-level2").orElseThrow(), ancestryAt2);
         assertThat(decision3).isInstanceOf(ChildStartDecision.Permitted.class);
-        var parentRequestLevel2 = new AgentRunRequest("cust1", "l2-spec", List.of("requirement"), "workflow:wf-level2",
+        var parentRequestLevel2 = new AgentRunRequest("cust1", "l2-spec", List.of("local:requirement"), "workflow:wf-level2",
                 "https://github.com/org/repo", null, null, null, null, null, null, initiator, ancestryAt2);
         var command3 = new ChildStartCommand("wf-level3", parentRequestLevel2, WorkflowOrbMode.SEQUENTIAL, initiator, ancestryAt2);
         var response3 = service.startWorkflowFromOrb(command3);

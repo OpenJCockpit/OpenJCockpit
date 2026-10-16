@@ -39,6 +39,7 @@ class McpToolsListSseIntegrationTest {
     }
 
     @Test
+    // No tool takes a credential: keyed workspaces resolve theirs server-side (GitCredentialResolver).
     void toolsListMatchesFrozenNineToolBaseline() {
         McpSchema.ListToolsResult result = client.listTools();
         List<McpSchema.Tool> tools = result.tools();
@@ -59,8 +60,8 @@ class McpToolsListSseIntegrationTest {
 
         assertTool(byName.get("git_create_pull_request"),
             "Create a pull request on GitHub for a branch that was pushed to the project repository. Returns the URL of the created pull request.",
-            List.of("repositoryUrl", "baseBranch", "headBranch", "title", "token"),
-            List.of("repositoryUrl", "baseBranch", "headBranch", "title", "body", "token"));
+            List.of("repositoryUrl", "baseBranch", "headBranch", "title", "workspaceKey"),
+            List.of("repositoryUrl", "baseBranch", "headBranch", "title", "body", "workspaceKey"));
 
         assertTool(byName.get("git_list_files"),
             "List the file paths (relative to the repository root) in the repository workspace, optionally limited to a subdirectory. Check out or create a branch first.",
@@ -75,22 +76,22 @@ class McpToolsListSseIntegrationTest {
         assertTool(byName.get("git_pull"),
             "Pull the latest changes for the currently checked out branch of the project repository.",
             List.of("repositoryUrl", "branch"),
-            List.of("repositoryUrl", "branch", "username", "token", "workspaceKey"));
+            List.of("repositoryUrl", "branch", "workspaceKey"));
 
         assertTool(byName.get("git_create_branch"),
             "Create and check out a new branch from a base branch of the project repository, e.g. for a new spec or implementation change.",
             List.of("repositoryUrl", "baseBranch", "newBranch"),
-            List.of("repositoryUrl", "baseBranch", "newBranch", "username", "token", "workspaceKey"));
+            List.of("repositoryUrl", "baseBranch", "newBranch", "workspaceKey"));
 
         assertTool(byName.get("git_checkout_branch"),
             "Check out an existing branch of the project repository. Clones the repository into the server-managed workspace when needed.",
             List.of("repositoryUrl", "branch"),
-            List.of("repositoryUrl", "branch", "username", "token", "workspaceKey"));
+            List.of("repositoryUrl", "branch", "workspaceKey"));
 
         assertTool(byName.get("git_push"),
             "Push a branch of the repository workspace to origin so a pull request can be opened.",
             List.of("repositoryUrl", "branch"),
-            List.of("repositoryUrl", "branch", "username", "token", "workspaceKey"));
+            List.of("repositoryUrl", "branch", "workspaceKey"));
 
         assertTool(byName.get("git_write_file"),
             "Write text content to a file at a path relative to the repository root, e.g. specs/spec-001.md. Creates parent directories as needed. Check out or create a branch first; commit and push afterwards.",

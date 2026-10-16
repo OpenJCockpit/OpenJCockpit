@@ -1,6 +1,5 @@
 package nl.metafactory.agents.workflow;
 
-import nl.metafactory.agents.model.AgentDefinition;
 import nl.metafactory.agents.model.AgentRunRequest;
 import nl.metafactory.agents.model.RunInitiator;
 import nl.metafactory.agents.orchestration.AgentOrchestrator;
@@ -59,10 +58,6 @@ class WorkflowExecutionServiceOrbSkillDenialTest {
                 subagentSpecRepository, skillSpecRepository, orchestrator, policyDecisionService,
                 currentUserProvider);
 
-        when(orchestrator.availableAgents()).thenReturn(List.of(
-                new AgentDefinition("requirement", "Requirement Agent", "d", "r", List.of(), List.of(), 0, "in", "out"),
-                new AgentDefinition("evidence", "Evidence Agent", "d", "r", List.of(), List.of(), 1, "in", "out")
-        ));
         when(policyDecisionService.canStartWorkflow(any())).thenReturn(allow());
         when(policyDecisionService.canUseAgent(any())).thenReturn(allow());
         when(policyDecisionService.canUseSubagent(any())).thenReturn(allow());
@@ -71,13 +66,13 @@ class WorkflowExecutionServiceOrbSkillDenialTest {
     @Test
     void aChildStartedFromAnOrbWithADeniedSkillReturnsBlockedForAllAgents() {
         var child = new WorkflowDefinition("wf-child", "Child", "proj", null, "desc",
-                List.of("requirement", "evidence"), List.of(), List.of("summarize"), List.of(), null,
+                List.of("local:requirement", "local:evidence"), List.of(), List.of("summarize"), List.of(), null,
                 new ExecutionConfig("cust1", "https://github.com/org/repo", 300),
                 false, null, "ACTIVE", null, null, null, null);
         when(workflowRepository.findById("wf-child")).thenReturn(Optional.of(child));
         when(policyDecisionService.canExecuteSkill(any())).thenReturn(deny("skill requires human approval"));
 
-        var parentRequest = new AgentRunRequest("cust0", "parent-spec", List.of("requirement"), "workflow:wf-parent",
+        var parentRequest = new AgentRunRequest("cust0", "parent-spec", List.of("local:requirement"), "workflow:wf-parent",
                 "https://github.com/org/repo", null, null, null, null, null, null,
                 RunInitiator.trigger("test"), List.of("wf-parent"));
         var command = new ChildStartCommand("wf-child", parentRequest, WorkflowOrbMode.SEQUENTIAL,
@@ -87,7 +82,7 @@ class WorkflowExecutionServiceOrbSkillDenialTest {
 
         assertThat(response.status()).isEqualTo("BLOCKED");
         assertThat(response.executionId()).isNull();
-        assertThat(response.message()).isEqualTo("All pipeline agents of workflow 'wf-child' were denied by policy; nothing to run.");
+        assertThat(response.message()).isEqualTo("All agents of workflow 'wf-child' were denied by policy; nothing to run.");
         verify(orchestrator, never()).start(any());
         verify(workflowRepository, never()).save(any());
     }

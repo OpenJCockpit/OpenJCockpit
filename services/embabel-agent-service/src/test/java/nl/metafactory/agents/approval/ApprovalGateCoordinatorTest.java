@@ -72,12 +72,12 @@ class ApprovalGateCoordinatorTest {
     }
 
     @Test
-    void feedbackSupportedIsTrueOnlyForRealisationPlacement() {
-        var state = stateWithGate("run-realisation", "realisation");
-        coordinator.pauseAfter(state, "realisation", StageChangeReports.notApplicable("x"));
+    void feedbackSupportedIsTrueOnlyForAgentReferencePlacements() {
+        var state = stateWithGate("run-ref", "local:developer");
+        coordinator.pauseAfter(state, "local:developer", StageChangeReports.notApplicable("x"));
         assertThat(state.gate().feedbackSupported()).isTrue();
 
-        var otherState = stateWithGate("run-impact", "impact");
+        var otherState = stateWithGate("run-legacy", "impact");
         coordinator.pauseAfter(otherState, "impact", StageChangeReports.notApplicable("x"));
         assertThat(otherState.gate().feedbackSupported()).isFalse();
     }

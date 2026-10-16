@@ -3,6 +3,8 @@ package nl.metafactory.aicontrol.service;
 import nl.metafactory.aicontrol.config.AgenticWorkflowProperties;
 import nl.metafactory.aicontrol.model.*;
 import nl.metafactory.aicontrol.repository.*;
+import nl.metafactory.common.mcp.GitMcpGateway;
+import nl.metafactory.common.mcp.LiteLlmMcpToolClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,7 @@ public class GitWorkspaceJobService {
     private final WorkflowContainerService containerService;
     private final ContainerizedAgentExecutionService agentService;
     private final AgenticWorkflowProperties properties;
+    private final GitMcpGateway gitMcp;
 
     public GitWorkspaceJobService(GitWorkspaceJobRepository jobRepo,
                                    GitWorkspaceJobEventRepository eventRepo,
@@ -41,7 +44,8 @@ public class GitWorkspaceJobService {
                                    GitOperationService gitOps,
                                    WorkflowContainerService containerService,
                                    ContainerizedAgentExecutionService agentService,
-                                   AgenticWorkflowProperties properties) {
+                                   AgenticWorkflowProperties properties,
+                                   GitMcpGateway gitMcp) {
         this.jobRepo = jobRepo;
         this.eventRepo = eventRepo;
         this.projectGit = projectGit;
@@ -51,15 +55,17 @@ public class GitWorkspaceJobService {
         this.containerService = containerService;
         this.agentService = agentService;
         this.properties = properties;
+        this.gitMcp = gitMcp;
     }
 
     @Transactional
-    public GitWorkspaceJobDto createJob(UUID projectId, String specFileRef, String startedBy) {
+    public GitWorkspaceJobDto createJob(UUID projectId, String specFileRef, String workflowId, String startedBy) {
         Project project = projectGit.validateProject(projectId);
 
         var job = new GitWorkspaceJob();
         job.setProjectId(projectId);
         job.setSpecFileRef(specFileRef);
+        job.setWorkflowId(workflowId);
         job.setStatus(GitWorkspaceJobStatus.CREATED);
         job.setBaseBranch(projectGit.resolveBaseBranch(project));
         job.setStartedBy(startedBy);
@@ -78,7 +84,6 @@ public class GitWorkspaceJobService {
 
         try {
             Project project = projectGit.validateProject(job.getProjectId());
-            ProjectGitCredential credential = projectGit.loadCredential(job.getProjectId());
 
             // 1. Prepare workspace
             workspaceDir = prepareWorkspace(job);
@@ -91,7 +96,7 @@ public class GitWorkspaceJobService {
             updateStatus(jobId, GitWorkspaceJobStatus.SPEC_READY,
                     "Spec file available: " + spec.fileName());
 
-            // 3. Container lifecycle
+            // 3. Container lifecycle (the repository itself lives in the git MCP server's workspace)
             containerId = containerService.createWorkflowContainer(job.getId(), job.getProjectId());
             saveContainerId(jobId, containerId);
             updateStatus(jobId, GitWorkspaceJobStatus.CONTAINER_CREATED,
@@ -101,52 +106,28 @@ public class GitWorkspaceJobService {
             updateStatus(jobId, GitWorkspaceJobStatus.CONTAINER_STARTED,
                     "Workflow container started");
 
-            // 4. Clone
-            updateStatus(jobId, GitWorkspaceJobStatus.CLONING,
-                    "Cloning repository: " + gitOps.maskUrl(project.getGitUrl()));
-            Path repoDir = workspaceDir.resolve("repo");
-            gitOps.cloneDefaultBranch(project.getGitUrl(), job.getBaseBranch(), repoDir, credential);
-
-            // 5. Create branch
+            // 4. Clone + branch — in the job's workspace of the git MCP server, through LiteLLM. The
+            //    git MCP server pulls the job's credentials from ai-control itself (never an argument).
+            String workspaceKey = GitWorkspaceCredentialService.workspaceKey(jobId);
             String branch = branchNameGenerator.generate(project, jobId);
             saveBranch(jobId, branch);
-            gitOps.checkoutNewBranch(repoDir, branch);
+            updateStatus(jobId, GitWorkspaceJobStatus.CLONING,
+                    "Cloning repository in the git MCP workspace: " + gitOps.maskUrl(project.getGitUrl()));
+            GitMcpGateway.Result branched = git(GitWorkspaceJobErrorCode.GIT_CLONE_FAILED,
+                    () -> gitMcp.createBranch(project.getGitUrl(), job.getBaseBranch(), branch, workspaceKey));
+            if (!branched.success()) {
+                throw new GitWorkspaceException(GitWorkspaceJobErrorCode.BRANCH_CREATE_FAILED, branched.message());
+            }
             updateStatus(jobId, GitWorkspaceJobStatus.BRANCH_CREATED,
                     "Branch created: " + branch);
 
-            // 6. Run agents
+            // 5. Run agents — the workflow's agents work in the same workspace
             updateStatus(jobId, GitWorkspaceJobStatus.AGENTS_RUNNING,
-                    "Starting agents inside workflow container");
-            Path outputDir = workspaceDir.resolve("output");
-            Files.createDirectories(outputDir);
-            agentService.runAgentsInsideContainer(job, containerId, repoDir, specDir, outputDir, project);
+                    "Starting the workflow's agents on the job workspace");
+            agentService.runAgentsInsideContainer(job, containerId, specDir, project, workspaceKey, branch);
 
-            // 7. Detect changes
-            if (!gitOps.hasChanges(repoDir)) {
-                updateStatusNoChanges(jobId);
-                return;
-            }
-            updateStatus(jobId, GitWorkspaceJobStatus.CHANGES_DETECTED,
-                    "Changes detected in workspace");
-
-            // 8. Commit
-            updateStatus(jobId, GitWorkspaceJobStatus.COMMITTING, "Committing changes");
-            gitOps.stageAll(repoDir);
-            String commitMsg = buildCommitMessage(project, job, spec);
-            String commitHash = gitOps.commit(repoDir, commitMsg,
-                    "Agentic Workflow", "agentic@metafactory.nl");
-            saveCommitHash(jobId, commitHash);
-
-            // 9. Push
-            updateStatus(jobId, GitWorkspaceJobStatus.PUSHING,
-                    "Pushing branch to remote: " + branch);
-            gitOps.pushBranch(repoDir, "origin", branch, credential);
-            updateStatus(jobId, GitWorkspaceJobStatus.PUSHED,
-                    "Branch pushed successfully: " + branch);
-
-            // 10. Completed
-            markCompleted(jobId);
-            log.info("Workflow job {} completed. Branch: {}, commit: {}", jobId, branch, commitHash);
+            // 6–7. Final commit + push (the run already pushed a checkpoint after every agent)
+            publish(jobId, project.getGitUrl(), branch, workspaceKey, buildCommitMessage(project, job, spec.fileName()));
 
         } catch (GitWorkspaceException e) {
             log.error("Workflow job {} failed [{}]: {}", jobId, e.getErrorCode(), e.getMessage());
@@ -156,10 +137,114 @@ public class GitWorkspaceJobService {
             markFailed(jobId, GitWorkspaceJobErrorCode.CONTAINER_EXECUTION_FAILED,
                     "Unexpected error: " + e.getClass().getSimpleName());
         } finally {
-            updateStatus(jobId, GitWorkspaceJobStatus.CLEANING_UP, "Cleanup started");
+            // Recorded as an event only: the job's terminal status (COMPLETED / FAILED / NO_CHANGES) must
+            // survive cleanup — it also ends the job workspace's access to the project credentials.
+            addEvent(jobId, GitWorkspaceJobStatus.CLEANING_UP.name(), "Cleanup started");
             containerService.cleanupContainer(containerId);
             deleteWorkspace(workspaceDir, jobId);
         }
+    }
+
+    // ── Workflow runs started from the dashboard on a project ────────────────────
+
+    /** A git workspace prepared for one workflow run: clone of the project repository, run branch checked out. */
+    public record PreparedWorkspace(UUID jobId, String workspaceKey, String repositoryUrl, String branch) {
+    }
+
+    /**
+     * Prepares the git workspace of a workflow run started on a project (synchronously, before the run
+     * starts): a job record, a clone of the project repository in the git MCP server (through LiteLLM;
+     * the server pulls the credentials from ai-control while the job is active) and a fresh branch named
+     * after the workflow and the job. A failure marks the job FAILED and is thrown.
+     */
+    public PreparedWorkspace prepareWorkflowRunWorkspace(UUID projectId, String workflowId, String specRef,
+                                                        String startedBy) {
+        Project project = projectGit.validateProject(projectId);
+        GitWorkspaceJobDto created = createJob(projectId, specRef, workflowId, startedBy);
+        UUID jobId = created.id();
+        String workspaceKey = GitWorkspaceCredentialService.workspaceKey(jobId);
+        String branch = branchNameGenerator.forWorkflowRun(workflowId, jobId);
+        try {
+            saveBranch(jobId, branch);
+            updateStatus(jobId, GitWorkspaceJobStatus.CLONING,
+                    "Cloning repository in the git MCP workspace: " + gitOps.maskUrl(project.getGitUrl()));
+            GitMcpGateway.Result branched = git(GitWorkspaceJobErrorCode.GIT_CLONE_FAILED,
+                    () -> gitMcp.createBranch(project.getGitUrl(), created.baseBranch(), branch, workspaceKey));
+            if (!branched.success()) {
+                throw new GitWorkspaceException(GitWorkspaceJobErrorCode.BRANCH_CREATE_FAILED, branched.message());
+            }
+            updateStatus(jobId, GitWorkspaceJobStatus.BRANCH_CREATED, "Branch created: " + branch);
+            return new PreparedWorkspace(jobId, workspaceKey, project.getGitUrl(), branch);
+        } catch (GitWorkspaceException e) {
+            markFailed(jobId, e.getErrorCode(), e.getMessage());
+            throw e;
+        } catch (RuntimeException e) {
+            markFailed(jobId, GitWorkspaceJobErrorCode.GIT_CLONE_FAILED, "Unexpected error: " + e.getClass().getSimpleName());
+            throw new GitWorkspaceException(GitWorkspaceJobErrorCode.GIT_CLONE_FAILED,
+                    "The project repository could not be prepared");
+        }
+    }
+
+    /** The prepared workspace's run did not start (blocked, refused): the job ends, and so does its credential access. */
+    public void workflowRunNotStarted(UUID jobId, String reason) {
+        markFailed(jobId, GitWorkspaceJobErrorCode.AGENT_EXECUTION_FAILED,
+                "Workflow run not started" + (reason == null || reason.isBlank() ? "" : ": " + reason));
+    }
+
+    /**
+     * Follows a started run on its prepared workspace until it ends, then makes the final commit and
+     * push of the run branch (the run itself pushes a checkpoint after every agent). A run that does not
+     * complete fails the job; the checkpoints already pushed stay on the branch.
+     */
+    @Async("workflowExecutor")
+    public void finishWorkflowRunAsync(PreparedWorkspace workspace, String runId) {
+        UUID jobId = workspace.jobId();
+        try {
+            updateStatus(jobId, GitWorkspaceJobStatus.AGENTS_RUNNING, "Workflow run started: " + runId);
+            agentService.pollAgentRun(runId, jobId);
+            GitWorkspaceJob job = loadJob(jobId);
+            Project project = projectGit.validateProject(job.getProjectId());
+            publish(jobId, workspace.repositoryUrl(), workspace.branch(), workspace.workspaceKey(),
+                    buildCommitMessage(project, job, job.getSpecFileRef()));
+        } catch (GitWorkspaceException e) {
+            log.error("Workflow run {} of job {} failed [{}]: {}", runId, jobId, e.getErrorCode(), e.getMessage());
+            markFailed(jobId, e.getErrorCode(), e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error finishing workflow run {} of job {}", runId, jobId, e);
+            markFailed(jobId, GitWorkspaceJobErrorCode.AGENT_EXECUTION_FAILED,
+                    "Unexpected error: " + e.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * Final commit and push of the run branch. "Nothing to commit" is normal: every agent's work was
+     * already committed and pushed by its checkpoint; the branch is pushed again regardless, so a
+     * checkpoint push that failed is retried here.
+     */
+    private void publish(UUID jobId, String repositoryUrl, String branch, String workspaceKey, String commitMsg) {
+        updateStatus(jobId, GitWorkspaceJobStatus.COMMITTING, "Committing remaining changes");
+        GitMcpGateway.Result committed = git(GitWorkspaceJobErrorCode.COMMIT_FAILED,
+                () -> gitMcp.commit(repositoryUrl, commitMsg, "Agentic Workflow", "agentic@metafactory.nl", workspaceKey));
+        String commitHash = null;
+        if (committed.success()) {
+            commitHash = committed.commitHash();
+            saveCommitHash(jobId, commitHash);
+            updateStatus(jobId, GitWorkspaceJobStatus.CHANGES_DETECTED, "Changes committed: " + commitHash);
+        } else if (committed.message() != null && committed.message().startsWith("Nothing to commit")) {
+            addEvent(jobId, "NOTHING_LEFT_TO_COMMIT", "All changes were already committed by the run's checkpoints");
+        } else {
+            throw new GitWorkspaceException(GitWorkspaceJobErrorCode.COMMIT_FAILED, committed.message());
+        }
+
+        updateStatus(jobId, GitWorkspaceJobStatus.PUSHING, "Pushing branch to remote: " + branch);
+        GitMcpGateway.Result pushed = git(GitWorkspaceJobErrorCode.PUSH_FAILED,
+                () -> gitMcp.push(repositoryUrl, branch, workspaceKey));
+        if (!pushed.success()) {
+            throw new GitWorkspaceException(GitWorkspaceJobErrorCode.PUSH_FAILED, pushed.message());
+        }
+        updateStatus(jobId, GitWorkspaceJobStatus.PUSHED, "Branch pushed successfully: " + branch);
+        markCompleted(jobId);
+        log.info("Workflow job {} completed. Branch: {}, commit: {}", jobId, branch, commitHash);
     }
 
     @Transactional(readOnly = true)
@@ -179,6 +264,16 @@ public class GitWorkspaceJobService {
 
     // ── Private helpers ──────────────────────────────────────────────────────
 
+    /** Runs a git MCP call; an unreachable gateway or MCP server becomes a job failure with {@code code}. */
+    private static GitMcpGateway.Result git(GitWorkspaceJobErrorCode code,
+                                            java.util.function.Supplier<GitMcpGateway.Result> call) {
+        try {
+            return call.get();
+        } catch (LiteLlmMcpToolClient.McpCallException e) {
+            throw new GitWorkspaceException(code, e.getMessage());
+        }
+    }
+
     private Path prepareWorkspace(GitWorkspaceJob job) throws IOException {
         Path base = Path.of(properties.getWorkspaceBasePath());
         Files.createDirectories(base);
@@ -189,10 +284,10 @@ public class GitWorkspaceJobService {
         return dir;
     }
 
-    private String buildCommitMessage(Project project, GitWorkspaceJob job, SpecFile spec) {
-        return "Apply agentic workflow spec for " + project.getName() + "\n\n" +
+    private String buildCommitMessage(Project project, GitWorkspaceJob job, String spec) {
+        return "Apply agentic workflow " + job.getWorkflowId() + " for " + project.getName() + "\n\n" +
                "Job ID:     " + job.getId() + "\n" +
-               "Spec:       " + spec.fileName() + "\n" +
+               "Spec:       " + spec + "\n" +
                "Branch:     " + job.getWorkingBranch() + "\n" +
                "Timestamp:  " + Instant.now() + "\n";
     }
@@ -265,19 +360,6 @@ public class GitWorkspaceJobService {
     }
 
     @Transactional
-    void updateStatusNoChanges(UUID jobId) {
-        jobRepo.findById(jobId).ifPresent(job -> {
-            job.setStatus(GitWorkspaceJobStatus.NO_CHANGES);
-            job.setErrorCode(GitWorkspaceJobErrorCode.NO_CHANGES);
-            job.setCompletedAt(Instant.now());
-            jobRepo.save(job);
-        });
-        addEvent(jobId, GitWorkspaceJobStatus.NO_CHANGES.name(),
-                "No changes detected — no commit created");
-        log.info("Job {} has no changes", jobId);
-    }
-
-    @Transactional
     void markFailed(UUID jobId, GitWorkspaceJobErrorCode code, String message) {
         String safeMessage = sanitizeMessage(message);
         jobRepo.findById(jobId).ifPresent(job -> {
@@ -310,7 +392,7 @@ public class GitWorkspaceJobService {
                 job.getStatus(), job.getBaseBranch(), job.getWorkingBranch(),
                 job.getCommitHash(), job.getErrorCode(), job.getErrorMessage(),
                 job.getStartedBy(), job.getStartedAt(), job.getCompletedAt(),
-                job.getCreatedAt(), job.getUpdatedAt());
+                job.getCreatedAt(), job.getUpdatedAt(), job.getWorkflowId());
     }
 
     GitWorkspaceJobEventDto toEventDto(GitWorkspaceJobEvent event) {

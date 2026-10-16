@@ -27,6 +27,18 @@ final class WorkflowStartInputs {
     private WorkflowStartInputs() {
     }
 
+    /**
+     * Drops the fields a caller may never set: {@code gitWorkspaceTicket} binds a run to a git workspace
+     * and is only set by ai-control itself after preparing that workspace.
+     */
+    static WorkflowStartInputDto withoutServerOnlyFields(WorkflowStartInputDto input) {
+        if (input == null || input.gitWorkspaceTicket() == null) {
+            return input;
+        }
+        return new WorkflowStartInputDto(input.prompt(), input.specFile(), input.repositoryUrl(),
+                input.projectId(), input.gitUsername(), input.gitToken(), input.baseBranch());
+    }
+
     /** Returns the input with a trimmed {@code baseBranch}, or throws {@code 400}. */
     static WorkflowStartInputDto validateCallerBaseBranch(WorkflowStartInputDto input) {
         String raw = input.baseBranch();

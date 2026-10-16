@@ -14,10 +14,11 @@ class McpToolsConfigTest {
 
     @Test
     void registersAllNineGitToolsWithTheMcpServer() {
+        nl.metafactory.gitmcp.git.GitCredentialResolver anonymous = (key, url) -> java.util.Optional.empty();
         var service = new GitToolsService(mock(nl.metafactory.gitmcp.git.GitWorkspaceOperations.class),
-                new GitToolsProperties());
+                new GitToolsProperties(), anonymous);
         var gitHubService = new nl.metafactory.gitmcp.git.GitHubToolsService(
-                mock(nl.metafactory.gitmcp.git.GitHubOperations.class));
+                mock(nl.metafactory.gitmcp.git.GitHubOperations.class), anonymous);
 
         var provider = new McpToolsConfig().gitToolCallbacks(service, gitHubService);
         var toolNames = Arrays.stream(provider.getToolCallbacks())

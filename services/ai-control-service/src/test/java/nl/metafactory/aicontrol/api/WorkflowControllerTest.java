@@ -11,6 +11,7 @@ import nl.metafactory.aicontrol.client.WorkflowGroupDto;
 import nl.metafactory.aicontrol.client.WorkflowImportResultDto;
 import nl.metafactory.aicontrol.client.WorkflowStartInputDto;
 import nl.metafactory.aicontrol.client.WorkflowStartResponseDto;
+import nl.metafactory.aicontrol.service.ProjectWorkflowRunService;
 import nl.metafactory.aicontrol.service.WorkflowStartEnrichmentService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,6 +42,7 @@ class WorkflowControllerTest {
     @Autowired JsonMapper objectMapper;
     @MockitoBean EmbabelAgentClient client;
     @MockitoBean WorkflowStartEnrichmentService startEnrichment;
+    @MockitoBean ProjectWorkflowRunService projectRuns;
 
     @org.junit.jupiter.api.BeforeEach
     void passThroughEnrichment() {
@@ -155,6 +157,38 @@ class WorkflowControllerTest {
                 .andExpect(jsonPath("$.executionId").value("run-1"));
 
         verify(client).startWorkflow("wf-1", WorkflowStartInputDto.empty());
+    }
+
+    @Test
+    void aStartOnAProjectRunsInItsGitWorkspaceInsteadOfAPlainRun() throws Exception {
+        var input = new WorkflowStartInputDto(null, "spec-1.md", null, "11111111-2222-3333-4444-555555555555",
+                null, null, null);
+        when(projectRuns.startOnProjectWorkspace(org.mockito.ArgumentMatchers.eq("wf-1"),
+                org.mockito.ArgumentMatchers.eq("spec-1.md"), any())).thenReturn(java.util.Optional.of(
+                new WorkflowStartResponseDto("wf-1", "run-ws", "RUNNING", Instant.now(), "started — working on branch b")));
+
+        mockMvc.perform(post("/api/workflows/wf-1/start")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.executionId").value("run-ws"));
+
+        verify(client, org.mockito.Mockito.never()).startWorkflow(any(), any());
+    }
+
+    @Test
+    void aCallerSuppliedGitWorkspaceTicketIsDropped() throws Exception {
+        var input = new WorkflowStartInputDto(null, null, null, null, null, null, null, "stolen-ticket");
+        when(client.startWorkflow(org.mockito.ArgumentMatchers.eq("wf-1"), any())).thenReturn(
+                new WorkflowStartResponseDto("wf-1", "run-1", "RUNNING", Instant.now(), "started"));
+
+        mockMvc.perform(post("/api/workflows/wf-1/start")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isOk());
+
+        verify(client).startWorkflow(org.mockito.ArgumentMatchers.eq("wf-1"),
+                org.mockito.ArgumentMatchers.argThat(i -> i.gitWorkspaceTicket() == null));
     }
 
     @Test

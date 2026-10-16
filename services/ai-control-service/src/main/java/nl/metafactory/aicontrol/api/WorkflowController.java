@@ -8,6 +8,7 @@ import nl.metafactory.aicontrol.client.WorkflowImportResultDto;
 import nl.metafactory.aicontrol.client.WorkflowStartInputDto;
 import nl.metafactory.aicontrol.client.WorkflowStartResponseDto;
 import nl.metafactory.aicontrol.generated.api.WorkflowApi;
+import nl.metafactory.aicontrol.service.ProjectWorkflowRunService;
 import nl.metafactory.aicontrol.service.WorkflowStartEnrichmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +23,13 @@ public class WorkflowController implements WorkflowApi {
 
     private final EmbabelAgentClient client;
     private final WorkflowStartEnrichmentService startEnrichment;
+    private final ProjectWorkflowRunService projectRuns;
 
-    public WorkflowController(EmbabelAgentClient client, WorkflowStartEnrichmentService startEnrichment) {
+    public WorkflowController(EmbabelAgentClient client, WorkflowStartEnrichmentService startEnrichment,
+                              ProjectWorkflowRunService projectRuns) {
         this.client = client;
         this.startEnrichment = startEnrichment;
+        this.projectRuns = projectRuns;
     }
 
     // NOTE: operationId "list" is a reserved word for the spring generator template
@@ -74,8 +78,13 @@ public class WorkflowController implements WorkflowApi {
         if (requestedInput == null) {
             requestedInput = WorkflowStartInputDto.empty();
         }
-        WorkflowStartInputDto safe = WorkflowStartInputs.validateCallerBaseBranch(requestedInput);
-        return ResponseEntity.ok(client.startWorkflow(id, startEnrichment.enrich(safe)));
+        WorkflowStartInputDto safe = WorkflowStartInputs.validateCallerBaseBranch(
+                WorkflowStartInputs.withoutServerOnlyFields(requestedInput));
+        WorkflowStartInputDto enriched = startEnrichment.enrich(safe);
+        // A run on a project works in a git workspace shared by all its agents (branch per run, checkpoint
+        // commits); without a project repository it starts as a plain run.
+        return ResponseEntity.ok(projectRuns.startOnProjectWorkspace(id, safe.specFile(), enriched)
+                .orElseGet(() -> client.startWorkflow(id, enriched)));
     }
 
     @Override

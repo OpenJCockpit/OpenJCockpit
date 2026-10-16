@@ -7,7 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties({AgenticWorkflowProperties.class, SkillsMarketplaceProperties.class})
+@EnableConfigurationProperties({AgenticWorkflowProperties.class, SkillsMarketplaceProperties.class,
+        nl.metafactory.aicontrol.config.GitWorkspaceProperties.class})
 public class AiControlServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(AiControlServiceApplication.class, args);

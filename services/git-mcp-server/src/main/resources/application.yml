@@ -22,6 +22,13 @@ openjcockpit:
     timeout-seconds: ${GIT_MCP_TIMEOUT_SECONDS:120}
     run-workspace-retention: ${GIT_MCP_RUN_WORKSPACE_RETENTION:PT24H}
     run-workspace-reap-interval: ${GIT_MCP_RUN_WORKSPACE_REAP_INTERVAL:PT1H}
+    # Keyed workspaces (job-<uuid> of git-workspace jobs) get their git credentials server-side from
+    # ai-control-service, never as tool arguments. Unset -> keyed workspaces fail closed.
+    credentials:
+      ai-control-url: ${GIT_MCP_AI_CONTROL_URL:}
+      token-url: ${GIT_MCP_TOKEN_URL:}
+      client-id: ${GIT_MCP_CLIENT_ID:}
+      client-secret: ${GIT_MCP_CLIENT_SECRET:}
 
 management:
   endpoints:

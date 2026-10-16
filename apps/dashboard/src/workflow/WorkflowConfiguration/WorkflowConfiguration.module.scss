@@ -7,3 +7,39 @@
   font-size: 13px;
   margin-bottom: 16px;
 }
+
+.services-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 16px;
+
+  & table {
+    min-width: 760px;
+  }
+}
+
+.services-url {
+  white-space: nowrap;
+}
+
+.services-form {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+
+.services-form-grid {
+  margin-top: 16px;
+}
+
+.services-form-title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--cyan);
+  margin: 0 0 4px;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 640px) {
+  .services-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

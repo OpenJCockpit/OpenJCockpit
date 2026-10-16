@@ -6,5 +6,6 @@ import java.util.UUID;
 public record StartWorkflowRequest(
         @NotBlank String specFileRef,
         UUID projectId,
-        Boolean dryRun
+        Boolean dryRun,
+        @NotBlank String workflowId
 ) {}

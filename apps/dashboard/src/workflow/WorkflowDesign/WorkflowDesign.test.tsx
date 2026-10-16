@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WorkflowDesign } from './WorkflowDesign';
-import * as api from '../../api';
+import * as linkable from '../linkableAgents';
 import * as workflowApi from '../workflowApi';
 import { mockSkillSpecs } from '../mockWorkflows';
 import type {
@@ -12,13 +12,11 @@ import type {
   WorkflowGroup,
 } from '../workflowTypes';
 
-vi.mock('../../api', async () => {
-  const actual = await vi.importActual<typeof import('../../api')>('../../api');
-  return {
-    ...actual,
-    fetchAgentDefinitions: vi.fn(),
-    loadAgentDefinitions: vi.fn(),
-  };
+// The designer and overview load linkable agents from the agent catalog; these tests stub that
+// catalog with agent-definition fixtures (ids act as agent references).
+vi.mock('../linkableAgents', async () => {
+  const actual = await vi.importActual<typeof import('../linkableAgents')>('../linkableAgents');
+  return { ...actual, fetchLinkableAgents: vi.fn(), loadLinkableAgents: vi.fn() };
 });
 
 vi.mock('../workflowApi', async () => {
@@ -37,6 +35,8 @@ vi.mock('../workflowApi', async () => {
     importWorkflows: vi.fn(),
     listAgentSpecs: vi.fn(),
     deleteAgentSpec: vi.fn(),
+    getAgentCatalog: vi.fn(),
+    getProviderAgentCard: vi.fn(),
     getSkillCatalog: vi.fn(),
     createSkillSpec: vi.fn(),
     updateSkillSpec: vi.fn(),
@@ -119,8 +119,8 @@ const WORKFLOWS: WorkflowDefinition[] = [
 async function renderWorkflowsTab() {
   vi.mocked(workflowApi.listWorkflows).mockResolvedValue(WORKFLOWS);
   vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue(GROUPS);
-  vi.mocked(api.loadAgentDefinitions).mockResolvedValue(AVAILABLE_AGENTS);
-  vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(AVAILABLE_AGENTS);
+  vi.mocked(linkable.loadLinkableAgents).mockResolvedValue(AVAILABLE_AGENTS);
+  vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(AVAILABLE_AGENTS);
   await act(async () => {
     render(<WorkflowDesign />);
   });
@@ -350,8 +350,8 @@ describe('human approval gate (designer)', () => {
   async function openNewWorkflowWithAgents(agentIds: string[]) {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.loadAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.loadLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
       render(<WorkflowDesign />);
     });
@@ -366,8 +366,8 @@ describe('human approval gate (designer)', () => {
     }
   }
 
-  it('lists exactly the selected stages in pipeline order, defaulting to realisation when selected (AC-01/AC-02)', async () => {
-    // Selected out of pipeline order on purpose, to prove the dropdown sorts them.
+  it('lists exactly the linked agents in execution order, defaulting to the last one (AC-01/AC-02)', async () => {
+    // The link order is the execution order; the dropdown follows it.
     await openNewWorkflowWithAgents(['realisation', 'requirement', 'test-design']);
 
     await act(async () => {
@@ -376,11 +376,11 @@ describe('human approval gate (designer)', () => {
 
     const select = screen.getByLabelText<HTMLSelectElement>('Gate placement');
     const optionLabels = Array.from(select.options).map((o) => o.textContent);
-    expect(optionLabels).toEqual(['Requirement Agent', 'Test Design Agent', 'Realisation Agent']);
-    expect(select.value).toBe('realisation');
+    expect(optionLabels).toEqual(['Realisation Agent', 'Requirement Agent', 'Test Design Agent']);
+    expect(select.value).toBe('test-design');
   });
 
-  it('defaults to the last selected stage in pipeline order when realisation is not selected (AC-02)', async () => {
+  it('defaults to the last linked agent in execution order (AC-02)', async () => {
     await openNewWorkflowWithAgents(['impact', 'requirement']);
 
     await act(async () => {
@@ -388,10 +388,10 @@ describe('human approval gate (designer)', () => {
     });
 
     const select = screen.getByLabelText<HTMLSelectElement>('Gate placement');
-    expect(select.value).toBe('impact');
+    expect(select.value).toBe('requirement');
   });
 
-  it('swaps the capability note between a realisation and a non-realisation placement, as text only (AC-60)', async () => {
+  it('offers feedback re-runs at any linked agent, as text only (AC-60)', async () => {
     await openNewWorkflowWithAgents(['requirement', 'realisation']);
 
     await act(async () => {
@@ -399,13 +399,16 @@ describe('human approval gate (designer)', () => {
     });
 
     expect(
-      screen.getByText('Up to 3 feedback iterations are available at this gate.'),
+      screen.getByText(/Up to 3 feedback iterations are available at this gate/),
     ).toBeInTheDocument();
 
     const select = screen.getByLabelText('Gate placement');
     fireEvent.change(select, { target: { value: 'requirement' } });
 
-    expect(screen.getByText(/This gate offers Accept and Deny only/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Up to 3 feedback iterations are available at this gate/),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/This gate offers Accept and Deny only/)).not.toBeInTheDocument();
     expect(select).toHaveAttribute('aria-describedby', 'approval-gate-note');
   });
 
@@ -424,8 +427,8 @@ describe('human approval gate (designer)', () => {
     };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([gatedWorkflow]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.loadAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.loadLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
       render(<WorkflowDesign />);
     });
@@ -467,8 +470,8 @@ describe('human approval gate (designer)', () => {
   it('displays the server-provided message naming the referencing workflow when delete is refused (AC-08)', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOWS[0]]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.loadAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.loadLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     vi.mocked(workflowApi.deleteWorkflow).mockRejectedValue(
       new Error("Cannot delete workflow 'C': it is still referenced by workflow orb(s) in: [W]"),
     );
@@ -511,8 +514,8 @@ describe('workflow orb authoring', () => {
   async function openNewWorkflowForOrbAuthoring() {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([OTHER_WORKFLOW]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.loadAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.loadLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
       render(<WorkflowDesign />);
     });
@@ -626,8 +629,8 @@ describe('workflow orb authoring', () => {
     } as unknown as WorkflowDefinition;
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([legacyWorkflow]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.loadAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.loadLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     vi.mocked(workflowApi.updateWorkflow).mockResolvedValue({
       ...legacyWorkflow,
       description: 'updated',
@@ -667,47 +670,187 @@ describe('agents tab', () => {
     vi.clearAllMocks();
   });
 
-  it('shows built-in pipeline agents as read-only alongside editable custom agents', async () => {
-    vi.mocked(workflowApi.listAgentSpecs).mockResolvedValue([
-      {
-        name: 'triage-agent',
-        description: 'desc',
-        role: 'triage',
-        instructions: 'i',
-        subagentNames: [],
-        skillNames: [],
-        mcpTools: [],
-        builtIn: false,
-      },
-      {
-        name: 'realisation',
-        description: 'Apply implementation in the repository',
-        role: 'engineering',
-        instructions: 'i',
-        subagentNames: ['code-realisation-agent'],
-        skillNames: [],
-        mcpTools: [],
-        builtIn: true,
-      },
-    ]);
+  async function openAgentsTab() {
     await act(async () => {
       render(<WorkflowDesign />);
     });
-
     await act(async () => {
       screen.getByText('Agents').click();
     });
-    await screen.findByText('triage-agent');
+  }
 
-    const customRow = screen.getByText('triage-agent').closest('tr')!;
-    expect(within(customRow).getByText('Custom')).toBeInTheDocument();
-    expect(within(customRow).getByText('Edit')).toBeInTheDocument();
-    expect(within(customRow).getByText('Delete')).toBeInTheDocument();
+  it('lists local /agents folder agents by folder and the A2A provider agents under the provider name', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
+    vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
+    vi.mocked(workflowApi.getAgentCatalog).mockResolvedValue({
+      local: {
+        name: 'Local',
+        status: 'OK',
+        agents: [
+          {
+            id: 'triage',
+            name: 'Triage',
+            description: 'Routes requests',
+            version: '1.0.0',
+            model: 'agent-chat',
+            path: 'support/triage.md',
+            folders: ['support'],
+            skills: [],
+            tools: [],
+            valid: true,
+          },
+          {
+            id: 'broken',
+            name: 'broken',
+            path: 'support/escalation/broken.md',
+            folders: ['support', 'escalation'],
+            skills: [],
+            tools: [],
+            valid: false,
+            problem: 'missing YAML frontmatter',
+          },
+        ],
+      },
+      providers: [
+        {
+          name: 'LiteLLM',
+          type: 'litellm',
+          status: 'OK',
+          agents: [
+            'business-analyst',
+            'solution-architect',
+            'software-developer',
+            'qa-engineer',
+          ].map((id) => ({
+            id: `id-${id}`,
+            name: id,
+            description: `${id} description`,
+            url: `http://embabel-agent-service:8081/a2a/${id}`,
+            protocolVersion: '0.3.0',
+            version: '1.0.0',
+            streaming: false,
+            skills: [],
+          })),
+        },
+      ],
+    });
 
-    const builtInRow = screen.getByText('realisation').closest('tr')!;
-    expect(within(builtInRow).getByText('Built-in')).toBeInTheDocument();
-    expect(within(builtInRow).queryByText('Edit')).not.toBeInTheDocument();
-    expect(within(builtInRow).queryByText('Delete')).not.toBeInTheDocument();
+    await openAgentsTab();
+
+    const local = await screen.findByRole('region', { name: 'Local' });
+    const support = within(local).getByRole('heading', { name: '📁 support' });
+    const escalation = within(local).getByRole('heading', { name: '📁 escalation' });
+    // escalation is nested inside support: the hierarchy follows the subfolders.
+    expect(support.parentElement!.contains(escalation)).toBe(true);
+    expect(within(local).getByText('Triage')).toBeInTheDocument();
+    expect(within(local).getByText('agents/support/triage.md')).toBeInTheDocument();
+    expect(within(local).getByText('missing YAML frontmatter')).toBeInTheDocument();
+
+    const litellm = screen.getByRole('region', { name: 'LiteLLM' });
+    for (const id of [
+      'business-analyst',
+      'solution-architect',
+      'software-developer',
+      'qa-engineer',
+    ]) {
+      expect(within(litellm).getByText(id)).toBeInTheDocument();
+    }
+    expect(within(litellm).getAllByText('0.3.0')).toHaveLength(4);
+    expect(screen.queryByText('+ New agent')).not.toBeInTheDocument();
+  });
+
+  it('shows the resolvable gateway URL and the live agent card on Details', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
+    vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
+    vi.mocked(workflowApi.getAgentCatalog).mockResolvedValue({
+      local: { name: 'Local', status: 'OK', agents: [] },
+      providers: [
+        {
+          name: 'LiteLLM',
+          type: 'litellm',
+          status: 'OK',
+          agents: [
+            {
+              id: 'id-qa',
+              name: 'qa-engineer',
+              description: 'Tests',
+              url: 'http://localhost:4100/a2a/qa-engineer',
+              cardUrl: 'http://localhost:4100/a2a/qa-engineer/.well-known/agent-card.json',
+              backendUrl: 'http://embabel-agent-service:8081/a2a/qa-engineer',
+              protocolVersion: '0.3.0',
+              version: '1.0.0',
+              streaming: false,
+              skills: [],
+            },
+          ],
+        },
+      ],
+    });
+    vi.mocked(workflowApi.getProviderAgentCard).mockResolvedValue({
+      name: 'qa-engineer',
+      url: 'http://localhost:4100/a2a/qa-engineer',
+      protocolVersion: '0.3.0',
+      preferredTransport: 'JSONRPC',
+      capabilities: { streaming: false, pushNotifications: false },
+      defaultInputModes: ['text/plain'],
+      defaultOutputModes: ['text/plain'],
+      skills: [
+        { id: 'qa-engineer', name: 'QA Engineer', description: 'Test strategy and verification' },
+      ],
+    });
+
+    await openAgentsTab();
+
+    const litellm = await screen.findByRole('region', { name: 'LiteLLM' });
+    expect(within(litellm).getByText('http://localhost:4100/a2a/qa-engineer')).toBeInTheDocument();
+    expect(
+      within(litellm).getByText('routes to http://embabel-agent-service:8081/a2a/qa-engineer'),
+    ).toBeInTheDocument();
+
+    await act(async () => {
+      within(litellm).getByText('Details').click();
+    });
+
+    expect(workflowApi.getProviderAgentCard).toHaveBeenCalledWith('litellm', 'qa-engineer');
+    const card = await screen.findByLabelText('Agent card qa-engineer');
+    expect(within(card).getByText('QA Engineer')).toBeInTheDocument();
+    expect(within(card).getByText(/A2A 0.3.0/)).toBeInTheDocument();
+    expect(within(card).getByText(/qa-engineer\/.well-known\/agent-card.json/)).toBeInTheDocument();
+  });
+
+  it('keeps the provider header and explains when the provider is not reachable', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
+    vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
+    vi.mocked(workflowApi.getAgentCatalog).mockResolvedValue({
+      local: { name: 'Local', status: 'OK', agents: [] },
+      providers: [
+        {
+          name: 'LiteLLM',
+          type: 'litellm',
+          status: 'UNAVAILABLE',
+          message: 'LiteLLM agent registry: unreachable',
+          agents: [],
+        },
+      ],
+    });
+
+    await openAgentsTab();
+
+    const litellm = await screen.findByRole('region', { name: 'LiteLLM' });
+    expect(within(litellm).getByText('Unavailable')).toBeInTheDocument();
+    expect(within(litellm).getByText('LiteLLM agent registry: unreachable')).toBeInTheDocument();
+    expect(screen.getByText('No agents in the /agents folder yet.')).toBeInTheDocument();
+  });
+
+  it('shows an error with retry when the catalog cannot be loaded', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
+    vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
+    vi.mocked(workflowApi.getAgentCatalog).mockRejectedValueOnce(new Error('502'));
+
+    await openAgentsTab();
+
+    expect(await screen.findByText('Failed to load the agent catalog.')).toBeInTheDocument();
+    expect(screen.getByText('Retry')).toBeInTheDocument();
   });
 });
 
@@ -946,8 +1089,8 @@ describe('skills tab (local + marketplace catalog)', () => {
     vi.clearAllMocks();
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue([]);
+    vi.mocked(linkable.loadLinkableAgents).mockResolvedValue([]);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue([]);
   });
 
   it('renders local and external skills with the correct Marketplace column values (AC-01/AC-02)', async () => {
@@ -1378,7 +1521,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflow]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
       render(<WorkflowDesign />);
     });
@@ -1401,7 +1544,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
   it('rejects saving with an empty pipeline-agent selection without issuing a request, naming the constraint in an alert region (AC-04 client)', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
       render(<WorkflowDesign />);
     });
@@ -1418,7 +1561,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     });
 
     const alert = await screen.findByText(
-      'Select at least one pipeline agent — a workflow with no stages cannot run.',
+      'Link at least one agent — a workflow without agents cannot run.',
     );
     expect(alert).toHaveAttribute('role', 'alert');
     expect(workflowApi.createWorkflow).not.toHaveBeenCalled();
@@ -1430,7 +1573,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     );
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
       render(<WorkflowDesign />);
     });
@@ -1468,7 +1611,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflow]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
       render(<WorkflowDesign />);
     });
@@ -1486,7 +1629,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
   it('shows an explicit error and does not render the Edit/Create form when the agent catalogue fails to load (AC-06)', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.fetchAgentDefinitions).mockRejectedValue(
+    vi.mocked(linkable.fetchLinkableAgents).mockRejectedValue(
       new Error('Failed to load agent definitions: 500'),
     );
     await act(async () => {
@@ -1516,7 +1659,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     };
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([workflow]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue([]);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue([]);
     await act(async () => {
       render(<WorkflowDesign />);
     });
@@ -1529,10 +1672,10 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     expect(screen.getByText('Edit workflow')).toBeInTheDocument();
   });
 
-  it('keeps the save payload in pipeline sequence order regardless of the order stages were toggled (BR-02/F-3)', async () => {
+  it('saves the linked agents in execution order, which follows linking and the reorder buttons (BR-02/F-3)', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     vi.mocked(workflowApi.createWorkflow).mockResolvedValue({
       id: 'wf-ordered',
       name: 'Ordered workflow',
@@ -1562,6 +1705,18 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     await act(async () => {
       fireEvent.click(screen.getByRole('checkbox', { name: /Requirement Agent/ }));
     });
+    const order = screen.getByRole('list', { name: 'Execution order' });
+    expect(
+      within(order)
+        .getAllByRole('listitem')
+        .map((li) => li.textContent),
+    ).toEqual([
+      expect.stringContaining('Realisation Agent'),
+      expect.stringContaining('Requirement Agent'),
+    ]);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Move Requirement Agent up' }));
+    });
     await act(async () => {
       screen.getByText('Save').click();
     });
@@ -1576,7 +1731,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
   it('makes every checkbox in the Pipeline agents group reachable by keyboard, in sequence order, and togglable with Space (AC-21)', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
-    vi.mocked(api.fetchAgentDefinitions).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
       render(<WorkflowDesign />);
     });

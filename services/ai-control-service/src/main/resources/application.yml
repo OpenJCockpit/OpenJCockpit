@@ -99,6 +99,20 @@ openjcockpit:
     salt: ${ENCRYPTION_SALT:0123456789abcdef}
   git:
     check-timeout-seconds: ${GIT_CHECK_TIMEOUT_SECONDS:10}
+  # Git-workspace jobs: the repository is cloned, changed, committed and pushed in the job's workspace
+  # of the git MCP server, reached through the LiteLLM gateway (mcp_servers.openjcockpit_git). The git
+  # MCP server pulls the job's credentials from /internal/git-workspaces/** (caller azp must be
+  # credential-client-id). Jobs call embabel with ai-control's own service identity.
+  git-workspace:
+    credential-client-id: ${GIT_WORKSPACE_CREDENTIAL_CLIENT_ID:openjcockpit-git-mcp}
+    service-identity:
+      token-url: ${AI_CONTROL_SERVICE_TOKEN_URL:}
+      client-id: ${AI_CONTROL_SERVICE_CLIENT_ID:}
+      client-secret: ${AI_CONTROL_SERVICE_CLIENT_SECRET:}
+    gateway:
+      base-url: ${LITELLM_MCP_BASE_URL:}
+      api-key: ${LITELLM_AI_CONTROL_KEY:}
+      server-id: ${LITELLM_GIT_MCP_SERVER_ID:openjcockpit_git}
   skills-marketplace:
     request-timeout-seconds: ${SKILLS_MARKETPLACE_REQUEST_TIMEOUT_SECONDS:5}
     connect-timeout-seconds: ${SKILLS_MARKETPLACE_CONNECT_TIMEOUT_SECONDS:2}

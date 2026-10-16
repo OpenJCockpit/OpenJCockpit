@@ -1,5 +1,6 @@
 package nl.metafactory.aicontrol.service;
 
+import nl.metafactory.aicontrol.model.SpecFile;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -14,6 +15,17 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 class StubSpecRepositoryClientTest {
 
     private static final String SPEC_REPO_PATH = "../../infrastructure/spec-repository-stub";
+
+    @Test
+    void theWildcardListsTheSpecsOfEveryCustomer() {
+        var client = new StubSpecRepositoryClient(SPEC_REPO_PATH);
+
+        var all = client.listSpecs("*");
+
+        assertThat(all).extracting(SpecFile::fileName)
+                .contains("absence-registration.spec.md")
+                .containsAll(client.listSpecs("noordzee-logistics").stream().map(SpecFile::fileName).toList());
+    }
 
     @Test
     void listSpecsReadsFilesFromNoordzeeLogistics() {
@@ -52,6 +64,11 @@ class StubSpecRepositoryClientTest {
 
         assertThat(specs).hasSize(1);
         assertThat(specs.get(0).repositoryUrl()).isEmpty();
+    }
+
+    @Test
+    void theWildcardIsEmptyWithoutACustomersFolder(@TempDir Path tempDir) {
+        assertThat(new StubSpecRepositoryClient(tempDir.toString()).listSpecs("*")).isEmpty();
     }
 
     @Test

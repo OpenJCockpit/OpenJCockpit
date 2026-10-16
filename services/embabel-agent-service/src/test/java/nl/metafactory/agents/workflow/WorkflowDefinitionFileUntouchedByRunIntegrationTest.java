@@ -1,16 +1,13 @@
 package nl.metafactory.agents.workflow;
 
-import nl.metafactory.agents.agent.EvidenceAgent;
-import nl.metafactory.agents.agent.ImpactAnalysisAgent;
-import nl.metafactory.agents.agent.ImplementationAgent;
-import nl.metafactory.agents.agent.RequirementAgent;
-import nl.metafactory.agents.agent.ReviewAgent;
-import nl.metafactory.agents.agent.TestDesignAgent;
+import nl.metafactory.agents.workflow.agents.AgentInvocationException;
+import nl.metafactory.agents.workflow.agents.AgentWorkflowProperties;
+import nl.metafactory.agents.workflow.agents.InMemoryWorkflowAgentLinks;
+import nl.metafactory.agents.workflow.agents.WorkflowAgentInvoker;
+
 import nl.metafactory.agents.approval.ApprovalGateCoordinator;
 import nl.metafactory.agents.approval.ApprovalGateRegistry;
-import nl.metafactory.agents.config.AgentPipelineProperties;
 import nl.metafactory.agents.config.WorkflowDefinitionProperties;
-import nl.metafactory.agents.domain.RequirementAnalysis;
 import nl.metafactory.agents.model.RunInitiator;
 import nl.metafactory.agents.orchestration.AgentOrchestrator;
 import nl.metafactory.agents.orchestration.AgentRunStore;
@@ -21,9 +18,6 @@ import nl.metafactory.agents.policy.PolicyDecisionService;
 import nl.metafactory.agents.policy.model.PolicyDecisionContext;
 import nl.metafactory.agents.policy.model.PolicyDecision;
 import nl.metafactory.agents.security.CurrentUserProvider;
-import nl.metafactory.agents.spec.CodeRealisationService;
-import nl.metafactory.agents.spec.SpecGitPublisher;
-import nl.metafactory.agents.spec.SpecPublication;
 import nl.metafactory.agents.workflow.model.WorkflowStartInput;
 import nl.metafactory.agents.workflowtrigger.WorkflowOrbRunner;
 import nl.metafactory.agents.workflowtrigger.WorkflowTriggerCoordinator;
@@ -53,7 +47,7 @@ import static org.mockito.Mockito.when;
  * THE MANDATED PROOF (workflow-execution-state-to-database, T-01, AC-04/06/07): drives one run of
  * a real {@link WorkflowExecutionService} + real {@link WorkflowDefinitionRepository} + real
  * {@link YamlDefinitionStore} + real {@link EmbabelOrchestrator} + real {@link AgentRunStore}
- * (only the leaf domain agents are mocked, mirroring the established pattern in
+ * (only the agent invoker is mocked, mirroring the established pattern in
  * {@code EmbabelOrchestratorDefinitionFailureEventTest}) to each of COMPLETED, FAILED, CANCELLED
  * and BLOCKED, and asserts on the ACTUAL on-disk workflow-definition file's SHA-256 digest, byte
  * size and last-modified time — captured before any of this module's code runs, and re-captured
@@ -130,8 +124,7 @@ class WorkflowDefinitionFileUntouchedByRunIntegrationTest {
                 name: "%s"
                 projectName: "Test Project"
                 description: desc
-                agentIds:
-                  - requirement
+                agentIds: []
                 status: ACTIVE
                 """.formatted(id, name), StandardOpenOption.CREATE);
     }
@@ -154,31 +147,24 @@ class WorkflowDefinitionFileUntouchedByRunIntegrationTest {
     private WorkflowDefinitionRepository buildRepository() {
         WorkflowDefinitionProperties properties = new WorkflowDefinitionProperties();
         properties.setPath(definitionsRoot.toString());
-        return new WorkflowDefinitionRepository(properties, new YamlDefinitionStore());
+        // A workflow's agents live in the linking table (not in the YAML file this test guards).
+        var links = new InMemoryWorkflowAgentLinks();
+        for (String id : List.of("wf-completed", "wf-failed", "wf-cancelled", "wf-blocked")) {
+            links.replace(id, List.of("local:analyst", "local:reviewer"));
+        }
+        return new WorkflowDefinitionRepository(properties, new YamlDefinitionStore(), links);
     }
 
-    private static AgentPipelineProperties buildPipelineProperties() {
-        var props = new AgentPipelineProperties();
-        props.setSequence(List.of("requirement"));
-        return props;
-    }
-
-    private EmbabelOrchestrator buildOrchestrator(AgentRunStore runStore, RequirementAgent requirementAgent) {
+    private EmbabelOrchestrator buildOrchestrator(AgentRunStore runStore, WorkflowAgentInvoker invoker) {
         AsyncPipelineRunner asyncPipelineRunner = mock(AsyncPipelineRunner.class);
         doAnswer(inv -> {
             ((Runnable) inv.getArgument(0)).run();
             return null;
         }).when(asyncPipelineRunner).run(any());
 
-        SpecGitPublisher specGitPublisher = mock(SpecGitPublisher.class);
-        when(specGitPublisher.publish(any(), any(), any())).thenReturn(SpecPublication.skipped("skipped in test"));
-
-        return new EmbabelOrchestrator(requirementAgent, mock(ImpactAnalysisAgent.class),
-                mock(TestDesignAgent.class), mock(ImplementationAgent.class), mock(ReviewAgent.class),
-                mock(EvidenceAgent.class), buildPipelineProperties(), asyncPipelineRunner, specGitPublisher,
-                mock(CodeRealisationService.class), runStore, mock(ApprovalGateCoordinator.class),
-                mock(ApprovalGateRegistry.class), mock(WorkflowOrbRunner.class),
-                mock(WorkflowTriggerCoordinator.class));
+        return new EmbabelOrchestrator(asyncPipelineRunner, runStore, mock(ApprovalGateCoordinator.class),
+                mock(ApprovalGateRegistry.class), mock(WorkflowOrbRunner.class), mock(WorkflowTriggerCoordinator.class),
+                invoker, new AgentWorkflowProperties(), new nl.metafactory.agents.orchestration.InMemoryAgentRunOutputs());
     }
 
     private WorkflowExecutionService buildService(WorkflowDefinitionRepository repository,
@@ -205,12 +191,9 @@ class WorkflowDefinitionFileUntouchedByRunIntegrationTest {
     void definitionFileIsUntouchedAfterARunCompletesSuccessfully() throws Exception {
         WorkflowDefinitionRepository repository = buildRepository();
         AgentRunStore runStore = new AgentRunStore(new InMemoryAgentRunPersistence(), event -> { });
-        RequirementAgent requirementAgent = mock(RequirementAgent.class);
-        when(requirementAgent.analyzeRequirements(any())).thenAnswer(inv -> {
-            var spec = inv.getArgument(0, nl.metafactory.agents.domain.SpecContent.class);
-            return new RequirementAnalysis(spec.specId(), List.of(), "ok");
-        });
-        EmbabelOrchestrator orchestrator = buildOrchestrator(runStore, requirementAgent);
+        WorkflowAgentInvoker invoker = mock(WorkflowAgentInvoker.class);
+        when(invoker.invoke(any(), any(), any())).thenReturn("ok");
+        EmbabelOrchestrator orchestrator = buildOrchestrator(runStore, invoker);
         WorkflowExecutionService service = buildService(repository, orchestrator, allowAllPolicy());
 
         var response = service.startWorkflow("wf-completed", WorkflowStartInput.empty(), RunInitiator.trigger("test"));
@@ -224,9 +207,9 @@ class WorkflowDefinitionFileUntouchedByRunIntegrationTest {
     void definitionFileIsUntouchedAfterARunFailsThroughTheRealOrchestratorCatchPath() throws Exception {
         WorkflowDefinitionRepository repository = buildRepository();
         AgentRunStore runStore = new AgentRunStore(new InMemoryAgentRunPersistence(), event -> { });
-        RequirementAgent requirementAgent = mock(RequirementAgent.class);
-        when(requirementAgent.analyzeRequirements(any())).thenThrow(new IllegalStateException("simulated agent failure"));
-        EmbabelOrchestrator orchestrator = buildOrchestrator(runStore, requirementAgent);
+        WorkflowAgentInvoker invoker = mock(WorkflowAgentInvoker.class);
+        when(invoker.invoke(any(), any(), any())).thenThrow(new AgentInvocationException("simulated agent failure"));
+        EmbabelOrchestrator orchestrator = buildOrchestrator(runStore, invoker);
         WorkflowExecutionService service = buildService(repository, orchestrator, allowAllPolicy());
 
         var response = service.startWorkflow("wf-failed", WorkflowStartInput.empty(), RunInitiator.trigger("test"));
@@ -240,16 +223,15 @@ class WorkflowDefinitionFileUntouchedByRunIntegrationTest {
     void definitionFileIsUntouchedAfterARunIsCancelledMidPipeline() throws Exception {
         WorkflowDefinitionRepository repository = buildRepository();
         AgentRunStore runStore = new AgentRunStore(new InMemoryAgentRunPersistence(), event -> { });
-        RequirementAgent requirementAgent = mock(RequirementAgent.class);
-        // Marks the run cancelled as a side effect of the requirement stage, so the pipeline's
-        // next checkCancelled() call (at the start of the "impact" stage block) throws
-        // CancellationException — a genuine mid-pipeline cancellation, not a stubbed shortcut.
-        when(requirementAgent.analyzeRequirements(any())).thenAnswer(inv -> {
-            var spec = inv.getArgument(0, nl.metafactory.agents.domain.SpecContent.class);
-            runStore.markCancelled(spec.specId());
-            return new RequirementAnalysis(spec.specId(), List.of(), "ok");
+        WorkflowAgentInvoker invoker = mock(WorkflowAgentInvoker.class);
+        // Marks the run cancelled as a side effect of the first agent, so the pipeline's next
+        // checkCancelled() call (before the second agent) throws CancellationException — a genuine
+        // mid-pipeline cancellation, not a stubbed shortcut.
+        when(invoker.invoke(any(), any(), any())).thenAnswer(inv -> {
+            runStore.markCancelled(inv.getArgument(2, WorkflowAgentInvoker.Invocation.class).runId());
+            return "ok";
         });
-        EmbabelOrchestrator orchestrator = buildOrchestrator(runStore, requirementAgent);
+        EmbabelOrchestrator orchestrator = buildOrchestrator(runStore, invoker);
         WorkflowExecutionService service = buildService(repository, orchestrator, allowAllPolicy());
 
         var response = service.startWorkflow("wf-cancelled", WorkflowStartInput.empty(), RunInitiator.trigger("test"));
@@ -263,8 +245,7 @@ class WorkflowDefinitionFileUntouchedByRunIntegrationTest {
     void definitionFileIsUntouchedWhenARunIsBlockedByPolicyBeforeTheOrchestratorIsEverCalled() throws Exception {
         WorkflowDefinitionRepository repository = buildRepository();
         AgentRunStore runStore = new AgentRunStore(new InMemoryAgentRunPersistence(), event -> { });
-        RequirementAgent requirementAgent = mock(RequirementAgent.class);
-        EmbabelOrchestrator orchestrator = buildOrchestrator(runStore, requirementAgent);
+        EmbabelOrchestrator orchestrator = buildOrchestrator(runStore, mock(WorkflowAgentInvoker.class));
         PolicyDecisionService policy = mock(PolicyDecisionService.class);
         PolicyDecision deny = new PolicyDecision(false, "blocked for test", false, "high", List.of(), null, null, null, Instant.now(), false, null);
         when(policy.canStartWorkflow(any(PolicyDecisionContext.class))).thenReturn(deny);

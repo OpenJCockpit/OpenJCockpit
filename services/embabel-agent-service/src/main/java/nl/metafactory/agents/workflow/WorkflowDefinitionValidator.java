@@ -1,5 +1,8 @@
 package nl.metafactory.agents.workflow;
 
+import nl.metafactory.agents.workflow.agents.AgentRef;
+import nl.metafactory.agents.workflow.agents.AgentReferenceCheck;
+
 import nl.metafactory.agents.workflow.model.WorkflowDefinition;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -18,14 +21,17 @@ import java.util.Optional;
 public class WorkflowDefinitionValidator {
 
     private final WorkflowOrbValidator orbValidator;
+    private final AgentReferenceCheck agentReferenceCheck;
 
-    public WorkflowDefinitionValidator(WorkflowOrbValidator orbValidator) {
+    public WorkflowDefinitionValidator(WorkflowOrbValidator orbValidator, AgentReferenceCheck agentReferenceCheck) {
         this.orbValidator = orbValidator;
+        this.agentReferenceCheck = agentReferenceCheck;
     }
 
     public void validateForWrite(WorkflowDefinition definition) {
         requireGroupOrProject(definition);
         requireAtLeastOneAgent(definition);
+        requireCatalogAgentReferences(definition, true);
         validateApprovalGate(definition);
         orbValidator.validateForWrite(definition);
     }
@@ -46,7 +52,30 @@ public class WorkflowDefinitionValidator {
     public void validateStructuralRulesForImport(WorkflowDefinition definition) {
         requireGroupOrProject(definition);
         requireAtLeastOneAgent(definition);
+        requireCatalogAgentReferences(definition, false);
         validateApprovalGate(definition);
+    }
+
+    /**
+     * Every entry of {@code agentIds} must reference an agent of the central catalog
+     * ({@code local:<id>} or {@code a2a:<provider>:<id>}); built-in pipeline stage ids are no longer
+     * accepted for workflows. On a write the referenced agent must also exist (when verifiable).
+     */
+    private void requireCatalogAgentReferences(WorkflowDefinition definition, boolean checkExistence) {
+        for (String key : definition.agentIds()) {
+            var ref = AgentRef.parse(key).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "'" + key + "' is not an agent reference. Link agents from Workflow design → Agents "
+                            + "(local:<id> or a2a:<provider>:<id>) in workflow '" + definition.id() + "'."));
+            if (checkExistence) {
+                agentReferenceCheck.problem(ref).ifPresent(problem -> {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, problem);
+                });
+            }
+        }
+        if (definition.agentIds().stream().distinct().count() != definition.agentIds().size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "An agent can be linked only once per workflow ('" + definition.id() + "').");
+        }
     }
 
     private void requireGroupOrProject(WorkflowDefinition definition) {
@@ -62,7 +91,7 @@ public class WorkflowDefinitionValidator {
     private void requireAtLeastOneAgent(WorkflowDefinition definition) {
         if (definition.agentIds() == null || definition.agentIds().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "At least one pipeline agent must be selected for workflow '" + definition.id() + "'.");
+                    "At least one agent must be linked to workflow '" + definition.id() + "'.");
         }
     }
 

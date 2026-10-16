@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchAgentDefinitions } from '../../../../api';
+import { fetchLinkableAgents } from '../../../linkableAgents';
 import type { AgentDefinition } from '../../../../types';
 import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
 import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
@@ -58,7 +58,7 @@ export function WorkflowsPanel() {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([listWorkflows(), listWorkflowGroups(), fetchAgentDefinitions()])
+    Promise.all([listWorkflows(), listWorkflowGroups(), fetchLinkableAgents()])
       .then(([w, g, a]) => {
         if (cancelled) return;
         setItems(w);
@@ -68,9 +68,7 @@ export function WorkflowsPanel() {
       })
       .catch((err) => {
         if (cancelled) return;
-        setCatalogueError(
-          err instanceof Error ? err.message : 'Failed to load the pipeline agent catalogue.',
-        );
+        setCatalogueError(err instanceof Error ? err.message : 'Failed to load the agent catalog.');
         setLoaded(true);
       });
     return () => {
@@ -118,7 +116,7 @@ export function WorkflowsPanel() {
       return;
     }
     if (form.agentIds.length === 0) {
-      setError('Select at least one pipeline agent — a workflow with no stages cannot run.');
+      setError('Link at least one agent — a workflow without agents cannot run.');
       return;
     }
     setOrbError(null);

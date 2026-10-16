@@ -31,4 +31,12 @@ class PipelineStateOrbTest {
         assertThat(state.orbDone("orb:0")).isTrue();
         assertThat(state.orbDone("orb:1")).isFalse();
     }
+
+    @Test
+    void onlyTheSelectedAgentsAreSelected() {
+        var state = samplePipelineState();
+
+        assertThat(state.selected("realisation")).isTrue();
+        assertThat(state.selected("review")).isFalse();
+    }
 }

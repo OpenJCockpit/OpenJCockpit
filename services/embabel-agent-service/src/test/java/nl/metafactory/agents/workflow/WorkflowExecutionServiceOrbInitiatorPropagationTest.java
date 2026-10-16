@@ -1,6 +1,5 @@
 package nl.metafactory.agents.workflow;
 
-import nl.metafactory.agents.model.AgentDefinition;
 import nl.metafactory.agents.model.AgentRun;
 import nl.metafactory.agents.model.AgentRunRequest;
 import nl.metafactory.agents.model.RunInitiator;
@@ -46,7 +45,7 @@ class WorkflowExecutionServiceOrbInitiatorPropagationTest {
 
     private WorkflowDefinition child(String id) {
         return new WorkflowDefinition(id, "Name-" + id, "proj", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null,
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null,
                 new ExecutionConfig("cust1", "https://github.com/org/repo", 300),
                 false, null, "ACTIVE", null, null, null, null);
     }
@@ -65,9 +64,6 @@ class WorkflowExecutionServiceOrbInitiatorPropagationTest {
                 subagentSpecRepository, skillSpecRepository, orchestrator, policyDecisionService,
                 currentUserProvider);
 
-        when(orchestrator.availableAgents()).thenReturn(List.of(
-                new AgentDefinition("requirement", "Requirement Agent", "d", "r", List.of(), List.of(), 0, "in", "out")
-        ));
         when(policyDecisionService.canStartWorkflow(any())).thenReturn(allow());
         when(policyDecisionService.canUseAgent(any())).thenReturn(allow());
         when(policyDecisionService.canUseSubagent(any())).thenReturn(allow());
@@ -83,7 +79,7 @@ class WorkflowExecutionServiceOrbInitiatorPropagationTest {
                 "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null);
         when(orchestrator.start(any())).thenReturn(runB);
 
-        var parentRequestA = new AgentRunRequest("cust0", "a-spec", List.of("requirement"), "workflow:wf-a",
+        var parentRequestA = new AgentRunRequest("cust0", "a-spec", List.of("local:requirement"), "workflow:wf-a",
                 "https://github.com/org/repo", null, null, null, null, null, null, topLevelHuman, List.of("wf-a"));
         var commandAtoB = new ChildStartCommand("wf-b", parentRequestA, WorkflowOrbMode.SEQUENTIAL,
                 topLevelHuman, List.of("wf-a"));

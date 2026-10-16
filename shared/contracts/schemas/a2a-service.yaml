@@ -1,0 +1,60 @@
+# An A2A service (LiteLLM-compatible A2A gateway). source: CONFIGURATION (read-only) or DASHBOARD.
+# status: OK, NOT_CONFIGURED, UNAVAILABLE, UNAUTHORIZED, INVALID; agentCount is set when OK.
+A2AServiceDto:
+  type: object
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    type:
+      type: string
+    source:
+      type: string
+    editable:
+      type: boolean
+    baseUrl:
+      type: string
+    publicUrl:
+      type: string
+    hasApiKey:
+      type: boolean
+    callerTokenUrl:
+      type: string
+    callerClientId:
+      type: string
+    hasCallerClientSecret:
+      type: boolean
+    status:
+      type: string
+    message:
+      type: string
+    agentCount:
+      type: integer
+    updatedAt:
+      type: string
+      format: date-time
+
+# id is required on create and cannot change. Blank apiKey/callerClientSecret on update keep the
+# stored secret; blank callerTokenUrl and callerClientId remove the caller identity.
+A2AServiceRequest:
+  type: object
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    baseUrl:
+      type: string
+    publicUrl:
+      type: string
+    apiKey:
+      type: string
+      writeOnly: true
+    callerTokenUrl:
+      type: string
+    callerClientId:
+      type: string
+    callerClientSecret:
+      type: string
+      writeOnly: true

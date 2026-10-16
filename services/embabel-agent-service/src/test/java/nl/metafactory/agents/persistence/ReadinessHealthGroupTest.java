@@ -1,20 +1,16 @@
 package nl.metafactory.agents.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.embabel.common.ai.model.ModelProvider;
-import java.util.List;
 import nl.metafactory.agents.approval.ApprovalDecisionAuditRepository;
 import nl.metafactory.agents.approval.ApprovalDecisionService;
 import nl.metafactory.agents.approval.ApprovalGateContextAssembler;
 import nl.metafactory.agents.approval.ApprovalGateRegistry;
-import nl.metafactory.agents.model.AgentDefinition;
 import nl.metafactory.agents.orchestration.AgentOrchestrator;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -70,14 +66,6 @@ class ReadinessHealthGroupTest {
     @MockitoBean ApprovalGateContextAssembler approvalGateContextAssembler;
     @MockitoBean ApprovalDecisionService approvalDecisionService;
     @MockitoBean ApprovalDecisionAuditRepository approvalDecisionAuditRepository;
-
-    @BeforeEach
-    void setUp() {
-        when(orchestrator.availableAgents()).thenReturn(List.of(
-                new AgentDefinition("req", "Requirement Agent", "Extract requirements",
-                        "specification", List.of(), List.of(), 0, "SpecContent", "RequirementAnalysis")
-        ));
-    }
 
     @Test
     void readinessGroupIncludesDatabaseAvailabilityAndIsUp() throws Exception {

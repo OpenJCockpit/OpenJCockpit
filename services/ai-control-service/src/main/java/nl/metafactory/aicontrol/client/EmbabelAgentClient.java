@@ -37,13 +37,78 @@ public class EmbabelAgentClient {
         }
     }
 
-    public AgentRunDto startAgentRun(AgentRunRequestDto request) {
-        return webClient.post()
-                .uri("/api/agent-runs")
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(AgentRunDto.class)
-                .block();
+    /** Full output of each catalog agent of a workflow run, in execution order. */
+    public List<AgentRunOutputDto> getAgentRunOutputs(String runId) {
+        var outputs = webClient.get().uri("/api/agent-runs/{runId}/outputs", runId).retrieve()
+                .bodyToFlux(AgentRunOutputDto.class).collectList().block();
+        return outputs != null ? outputs : List.of();
+    }
+
+    // ── Calls made with an explicit service identity (git-workspace jobs run asynchronously,
+    //    without a user token to relay) ──────────────────────────────────────────
+
+    /** Starts a workflow as the given service identity ({@code Bearer <token>}). */
+    public WorkflowStartResponseDto startWorkflowAs(String authorization, String id, WorkflowStartInputDto input) {
+        try {
+            return webClient.post().uri("/api/workflows/{id}/start", id)
+                    .header(org.springframework.http.HttpHeaders.AUTHORIZATION, authorization)
+                    .bodyValue(input != null ? input : WorkflowStartInputDto.empty()).retrieve()
+                    .bodyToMono(WorkflowStartResponseDto.class).block();
+        } catch (WebClientResponseException.NotFound e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Workflow not found: " + id);
+        }
+    }
+
+    public Optional<AgentRunDto> getLatestRunAs(String authorization, String runId) {
+        try {
+            return Optional.ofNullable(webClient.get().uri("/api/agent-runs/{runId}", runId)
+                    .header(org.springframework.http.HttpHeaders.AUTHORIZATION, authorization)
+                    .retrieve().bodyToMono(AgentRunDto.class).block());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    public List<AgentRunOutputDto> getAgentRunOutputsAs(String authorization, String runId) {
+        var outputs = webClient.get().uri("/api/agent-runs/{runId}/outputs", runId)
+                .header(org.springframework.http.HttpHeaders.AUTHORIZATION, authorization)
+                .retrieve().bodyToFlux(AgentRunOutputDto.class).collectList().block();
+        return outputs != null ? outputs : List.of();
+    }
+
+    /** Request body of embabel's {@code POST /internal/git-workspace-tickets}. */
+    public record GitWorkspaceTicketRequest(String workspaceKey, String repositoryUrl, String branch, String workflowId,
+                                            String subject) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    record GitWorkspaceTicketResponse(String ticket, Instant expiresAt) {
+        @Override
+        public String toString() {
+            return "GitWorkspaceTicketResponse[ticket=***, expiresAt=" + expiresAt + "]";
+        }
+    }
+
+    /**
+     * Has embabel issue a single-use ticket (as ai-control's service identity) that binds one start of
+     * {@code workflowId} by {@code subject} (null: ai-control itself) to a prepared git workspace.
+     */
+    public String issueGitWorkspaceTicketAs(String authorization, GitWorkspaceTicketRequest request) {
+        var response = webClient.post().uri("/internal/git-workspace-tickets")
+                .header(org.springframework.http.HttpHeaders.AUTHORIZATION, authorization)
+                .bodyValue(request).retrieve()
+                .bodyToMono(GitWorkspaceTicketResponse.class).block();
+        if (response == null || response.ticket() == null || response.ticket().isBlank()) {
+            throw new IllegalStateException("embabel issued no git workspace ticket");
+        }
+        return response.ticket();
+    }
+
+    /** Stops a run as the given service identity (a timed-out git-workspace job). */
+    public void stopAgentRunAs(String authorization, String runId) {
+        webClient.delete().uri("/api/agent-runs/{runId}", runId)
+                .header(org.springframework.http.HttpHeaders.AUTHORIZATION, authorization)
+                .retrieve().toBodilessEntity().block();
     }
 
     public void stopAgentRun(String runId) {
@@ -52,20 +117,6 @@ public class EmbabelAgentClient {
                 .retrieve()
                 .toBodilessEntity()
                 .block();
-    }
-
-    public List<AgentDefinitionDto> getAgentDefinitions() {
-        try {
-            var definitions = webClient.get()
-                    .uri("/api/agents")
-                    .retrieve()
-                    .bodyToFlux(AgentDefinitionDto.class)
-                    .collectList()
-                    .block();
-            return definitions != null ? definitions : List.of();
-        } catch (Exception e) {
-            return List.of();
-        }
     }
 
     // ── Workflows ────────────────────────────────────────────────────────────
@@ -295,6 +346,85 @@ public class EmbabelAgentClient {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    // ── Agent catalog ────────────────────────────────────────────────────────
+
+    /** Empty when embabel-agent-service cannot be reached; provider failures arrive as section status. */
+    public Optional<AgentCatalogDto> getAgentCatalog() {
+        try {
+            return Optional.ofNullable(webClient.get().uri("/api/agent-catalog").retrieve()
+                    .bodyToMono(AgentCatalogDto.class).block());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    /** Status code to relay, plus the card when 200. Unreachable agent service → 502. */
+    public record AgentCardResult(int status, java.util.Map<String, Object> card) {
+    }
+
+    @SuppressWarnings("unchecked")
+    public AgentCardResult getProviderAgentCard(String provider, String name) {
+        try {
+            java.util.Map<String, Object> card = webClient.get()
+                    .uri("/api/agent-catalog/providers/{provider}/agents/{name}/card", provider, name)
+                    .retrieve().bodyToMono(java.util.Map.class).block();
+            return card == null ? new AgentCardResult(502, null) : new AgentCardResult(200, card);
+        } catch (WebClientResponseException e) {
+            int code = e.getStatusCode().value();
+            return new AgentCardResult(code == 404 ? 404 : 502, null);
+        } catch (Exception e) {
+            return new AgentCardResult(502, null);
+        }
+    }
+
+    // ── A2A services ─────────────────────────────────────────────────────────
+
+    public List<A2AServiceDto> listA2AServices() {
+        try {
+            var services = webClient.get().uri("/api/a2a-services").retrieve()
+                    .bodyToFlux(A2AServiceDto.class).collectList().block();
+            return services == null ? List.of() : services;
+        } catch (Exception e) {
+            throw upstreamUnavailable("A2A services could not be loaded from the agent service");
+        }
+    }
+
+    public A2AServiceDto createA2AService(A2AServiceRequest request) {
+        try {
+            return webClient.post().uri("/api/a2a-services").bodyValue(request).retrieve()
+                    .bodyToMono(A2AServiceDto.class).block();
+        } catch (WebClientResponseException e) {
+            throw a2aServiceError(e);
+        }
+    }
+
+    public A2AServiceDto updateA2AService(String id, A2AServiceRequest request) {
+        try {
+            return webClient.put().uri("/api/a2a-services/{id}", id).bodyValue(request).retrieve()
+                    .bodyToMono(A2AServiceDto.class).block();
+        } catch (WebClientResponseException e) {
+            throw a2aServiceError(e);
+        }
+    }
+
+    public void deleteA2AService(String id) {
+        try {
+            webClient.delete().uri("/api/a2a-services/{id}", id).retrieve().toBodilessEntity().block();
+        } catch (WebClientResponseException e) {
+            throw a2aServiceError(e);
+        }
+    }
+
+    // Validation, conflict and "no encryption key" answers reach the dashboard with embabel's message;
+    // anything else is an upstream failure.
+    private ResponseStatusException a2aServiceError(WebClientResponseException e) {
+        int code = e.getStatusCode().value();
+        if (code == 400 || code == 404 || code == 409 || code == 503) {
+            return new ResponseStatusException(HttpStatus.valueOf(code), extractMessage(e, HttpStatus.valueOf(code).getReasonPhrase()));
+        }
+        return upstreamUnavailable("The agent service could not change the A2A service");
     }
 
     // ── Agent definitions ────────────────────────────────────────────────────

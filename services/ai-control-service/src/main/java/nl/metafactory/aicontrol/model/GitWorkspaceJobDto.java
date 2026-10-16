@@ -17,5 +17,6 @@ public record GitWorkspaceJobDto(
         Instant startedAt,
         Instant completedAt,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        String workflowId
 ) {}

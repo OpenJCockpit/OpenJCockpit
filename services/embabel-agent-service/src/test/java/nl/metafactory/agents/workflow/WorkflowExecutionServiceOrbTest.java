@@ -1,6 +1,5 @@
 package nl.metafactory.agents.workflow;
 
-import nl.metafactory.agents.model.AgentDefinition;
 import nl.metafactory.agents.model.AgentRun;
 import nl.metafactory.agents.model.AgentRunRequest;
 import nl.metafactory.agents.model.RunInitiator;
@@ -59,10 +58,6 @@ class WorkflowExecutionServiceOrbTest {
                 subagentSpecRepository, skillSpecRepository, orchestrator, policyDecisionService,
                 currentUserProvider);
 
-        when(orchestrator.availableAgents()).thenReturn(List.of(
-                new AgentDefinition("requirement", "Requirement Agent", "d", "r", List.of(), List.of(), 0, "in", "out"),
-                new AgentDefinition("impact", "Impact Agent", "d", "r", List.of(), List.of(), 1, "in", "out")
-        ));
         when(policyDecisionService.canStartWorkflow(any())).thenReturn(allow());
         when(policyDecisionService.canUseAgent(any())).thenReturn(allow());
         when(policyDecisionService.canUseSubagent(any())).thenReturn(allow());
@@ -78,13 +73,13 @@ class WorkflowExecutionServiceOrbTest {
 
     @Test
     void startWorkflowFromOrbAppliesPolicyWithWorkflowTriggerSourceAndStartsTheChild() {
-        var child = workflowWithOrbs("wf-child", List.of("requirement"), null);
+        var child = workflowWithOrbs("wf-child", List.of("local:requirement"), null);
         when(workflowRepository.findById("wf-child")).thenReturn(Optional.of(child));
         var run = new AgentRun("run-child", "cust1", "desc", "https://github.com/org/repo",
                 "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null);
         when(orchestrator.start(any())).thenReturn(run);
 
-        var parentRequest = new AgentRunRequest("cust0", "parent-spec", List.of("requirement"), "workflow:wf-parent",
+        var parentRequest = new AgentRunRequest("cust0", "parent-spec", List.of("local:requirement"), "workflow:wf-parent",
                 "https://github.com/org/repo", "user", "token", null, "main", null, null,
                 RunInitiator.trigger("test"), List.of("wf-parent"));
         var command = new ChildStartCommand("wf-child", parentRequest, WorkflowOrbMode.SEQUENTIAL,
@@ -105,11 +100,11 @@ class WorkflowExecutionServiceOrbTest {
 
     @Test
     void startWorkflowFromOrbReturnsBlockedWhenPolicyDenies() {
-        var child = workflowWithOrbs("wf-child", List.of("requirement"), null);
+        var child = workflowWithOrbs("wf-child", List.of("local:requirement"), null);
         when(workflowRepository.findById("wf-child")).thenReturn(Optional.of(child));
         when(policyDecisionService.canStartWorkflow(any())).thenReturn(deny("denied by policy"));
 
-        var parentRequest = new AgentRunRequest("cust0", "parent-spec", List.of("requirement"), "workflow:wf-parent",
+        var parentRequest = new AgentRunRequest("cust0", "parent-spec", List.of("local:requirement"), "workflow:wf-parent",
                 "https://github.com/org/repo", null, null, null, null, null, null,
                 RunInitiator.trigger("test"), List.of("wf-parent"));
         var command = new ChildStartCommand("wf-child", parentRequest, WorkflowOrbMode.SEQUENTIAL,
@@ -123,7 +118,7 @@ class WorkflowExecutionServiceOrbTest {
 
     @Test
     void startWorkflowFromOrbThrowsWhenInitiatorIsNull() {
-        var parentRequest = new AgentRunRequest("cust0", "parent-spec", List.of("requirement"), "workflow:wf-parent",
+        var parentRequest = new AgentRunRequest("cust0", "parent-spec", List.of("local:requirement"), "workflow:wf-parent",
                 "https://github.com/org/repo", null, null, null, null, null, null,
                 RunInitiator.trigger("test"), List.of("wf-parent"));
         var command = new ChildStartCommand("wf-child", parentRequest, WorkflowOrbMode.SEQUENTIAL, null, List.of("wf-parent"));
@@ -136,7 +131,7 @@ class WorkflowExecutionServiceOrbTest {
     @Test
     void startWorkflowReturnsBlockedWhenAnOrbAnchorIsNoLongerAmongTheAgentIds() {
         var orb = new WorkflowOrb("wf-other", WorkflowOrbMode.SEQUENTIAL, "not-selected");
-        var workflow = workflowWithOrbs("wf-1", List.of("requirement"), List.of(orb));
+        var workflow = workflowWithOrbs("wf-1", List.of("local:requirement"), List.of(orb));
         when(workflowRepository.findById("wf-1")).thenReturn(Optional.of(workflow));
 
         var response = service.startWorkflow("wf-1", nl.metafactory.agents.workflow.model.WorkflowStartInput.empty(), RunInitiator.trigger("test"));
@@ -148,8 +143,8 @@ class WorkflowExecutionServiceOrbTest {
 
     @Test
     void startWorkflowSucceedsWhenAllOrbAnchorsAreStillAmongTheAgentIds() {
-        var orb = new WorkflowOrb("wf-other", WorkflowOrbMode.SEQUENTIAL, "requirement");
-        var workflow = workflowWithOrbs("wf-1", List.of("requirement"), List.of(orb));
+        var orb = new WorkflowOrb("wf-other", WorkflowOrbMode.SEQUENTIAL, "local:requirement");
+        var workflow = workflowWithOrbs("wf-1", List.of("local:requirement"), List.of(orb));
         when(workflowRepository.findById("wf-1")).thenReturn(Optional.of(workflow));
         var run = new AgentRun("run-1", "cust1", "desc", "https://github.com/org/repo",
                 "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null);

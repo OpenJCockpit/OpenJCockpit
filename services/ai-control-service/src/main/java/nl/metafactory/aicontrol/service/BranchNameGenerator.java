@@ -29,6 +29,18 @@ public class BranchNameGenerator {
         return branch.length() > MAX_BRANCH_LENGTH ? branch.substring(0, MAX_BRANCH_LENGTH) : branch;
     }
 
+    /**
+     * Branch of a workflow run on a project: {@code <prefix>/<workflow>/<yyyyMMdd-HHmmss>-<job>}, so every
+     * run of a workflow gets its own branch.
+     */
+    public String forWorkflowRun(String workflowId, UUID jobId) {
+        String timestamp = TIMESTAMP.format(LocalDateTime.now(ZoneOffset.UTC));
+        String shortId = jobId.toString().replace("-", "").substring(0, 8);
+        String slug = toSlug(workflowId);
+        String branch = properties.getBranchPrefix() + "/" + (slug.isEmpty() ? "workflow" : slug) + "/" + timestamp + "-" + shortId;
+        return branch.length() > MAX_BRANCH_LENGTH ? branch.substring(0, MAX_BRANCH_LENGTH) : branch;
+    }
+
     String toSlug(String name) {
         if (name == null || name.isBlank()) return "project";
         return name.toLowerCase()

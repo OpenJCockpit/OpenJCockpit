@@ -35,21 +35,6 @@ class ModelRecordsTest {
     }
 
     @Test
-    void agentDefinitionRecord() {
-        var def = new AgentDefinition("req", "Requirement Agent", "desc", "specification",
-                List.of("spec.read"), List.of("requirements.yaml"), 0, "SpecContent", "RequirementAnalysis");
-        assertThat(def.id()).isEqualTo("req");
-        assertThat(def.name()).isEqualTo("Requirement Agent");
-        assertThat(def.description()).isEqualTo("desc");
-        assertThat(def.role()).isEqualTo("specification");
-        assertThat(def.allowedTools()).containsExactly("spec.read");
-        assertThat(def.requiredOutputs()).containsExactly("requirements.yaml");
-        assertThat(def.sequenceOrder()).isEqualTo(0);
-        assertThat(def.inputType()).isEqualTo("SpecContent");
-        assertThat(def.outputType()).isEqualTo("RequirementAnalysis");
-    }
-
-    @Test
     void agentRunRequestRecord() {
         var req = new AgentRunRequest("cust", "spec.md", List.of("req", "impact"), "user1", "https://github.com/org/repo", "bot", "secret", null, "develop", "wf-1", "user1", nl.metafactory.agents.model.RunInitiator.trigger("test"), java.util.List.of("wf-test"));
         assertThat(req.customerId()).isEqualTo("cust");

@@ -26,7 +26,7 @@ class DefaultWorkflowImporterTest {
         properties = new WorkflowDefinitionProperties();
         properties.setPath(tempDir.toString());
         var store = new YamlDefinitionStore();
-        workflowRepository = new WorkflowDefinitionRepository(properties, store);
+        workflowRepository = new WorkflowDefinitionRepository(properties, store, new nl.metafactory.agents.workflow.agents.InMemoryWorkflowAgentLinks());
         groupRepository = new WorkflowGroupRepository(properties, store);
         importer = new DefaultWorkflowImporter(properties, workflowRepository, groupRepository, new DefaultWorkflowBundleReader());
     }
@@ -62,15 +62,15 @@ class DefaultWorkflowImporterTest {
 
         var implement = workflowRepository.findById("wf-spec-implement").orElseThrow();
         assertThat(implement.groupId()).isEqualTo("wg-spec-workflow");
-        assertThat(implement.agentIds())
-                .containsExactly("impact", "test-design", "implementation", "review", "evidence");
+        assertThat(implement.agentIds()).containsExactly("a2a:litellm:solution-architect",
+                "a2a:litellm:software-developer", "a2a:litellm:qa-engineer");
 
         var create = workflowRepository.findById("wf-spec-create").orElseThrow();
         assertThat(create.groupId()).isEqualTo("wg-spec-workflow");
-        assertThat(create.agentIds()).containsExactly("requirement");
+        assertThat(create.agentIds()).containsExactly("a2a:litellm:business-analyst");
 
         var init = workflowRepository.findById("wf-spec-init").orElseThrow();
-        assertThat(init.agentIds()).containsExactly("realisation");
+        assertThat(init.agentIds()).containsExactly("a2a:litellm:solution-architect");
     }
 
     @Test
@@ -146,7 +146,7 @@ class DefaultWorkflowImporterTest {
 
     @Test
     void importHandlesBundleWithAnUnknownWorkflowProperty() {
-        var newerFormatReader = new DefaultWorkflowBundleReader() { @Override InputStream openBundleResource() { String json = "{\n  \"groups\": [],\n  \"workflows\": [\n    {\n      \"id\": \"wf-newer-format\",\n      \"name\": \"Newer format workflow\",\n      \"projectName\": \"Project\",\n      \"agentIds\": [\"requirement\"],\n      \"approvalGate\": {\"enabled\": true, \"placementStage\": \"realisation\"}\n    }\n  ]\n}"; return new java.io.ByteArrayInputStream(json.getBytes(java.nio.charset.StandardCharsets.UTF_8)); } };
+        var newerFormatReader = new DefaultWorkflowBundleReader() { @Override InputStream openBundleResource() { String json = "{\n  \"groups\": [],\n  \"workflows\": [\n    {\n      \"id\": \"wf-newer-format\",\n      \"name\": \"Newer format workflow\",\n      \"projectName\": \"Project\",\n      \"agentIds\": [\"local:requirement\"],\n      \"approvalGate\": {\"enabled\": true, \"placementStage\": \"local:realisation\"}\n    }\n  ]\n}"; return new java.io.ByteArrayInputStream(json.getBytes(java.nio.charset.StandardCharsets.UTF_8)); } };
         var newerFormatBundle = new DefaultWorkflowImporter(properties, workflowRepository, groupRepository, newerFormatReader) {
         };
 

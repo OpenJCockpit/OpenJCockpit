@@ -28,6 +28,7 @@ function opaConfig(overrides: Partial<OpaConfig> = {}): OpaConfig {
 describe('WorkflowConfiguration — OPA section', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(workflowApi.listA2AServices).mockResolvedValue([]);
     vi.mocked(workflowApi.getOpaConfig).mockResolvedValue(opaConfig());
     vi.mocked(workflowApi.checkOpaHealth).mockResolvedValue(false);
     vi.mocked(workflowApi.saveOpaConfig).mockResolvedValue(opaConfig());
@@ -176,6 +177,7 @@ function folderConfig(overrides: Partial<DocumentFolderConfig> = {}): DocumentFo
 describe('WorkflowConfiguration — Project document folder section', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(workflowApi.listA2AServices).mockResolvedValue([]);
     vi.mocked(workflowApi.getOpaConfig).mockResolvedValue({
       enabled: false,
       baseUrl: '',

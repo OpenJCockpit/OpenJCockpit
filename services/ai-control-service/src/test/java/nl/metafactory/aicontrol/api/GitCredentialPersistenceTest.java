@@ -1,7 +1,6 @@
 package nl.metafactory.aicontrol.api;
 
 import tools.jackson.databind.json.JsonMapper;
-import nl.metafactory.aicontrol.client.AgentDefinitionDto;
 import nl.metafactory.aicontrol.client.EmbabelAgentClient;
 import nl.metafactory.aicontrol.model.GitCredentialType;
 import nl.metafactory.aicontrol.model.GitStatus;
@@ -61,10 +60,6 @@ class GitCredentialPersistenceTest {
 
     @BeforeEach
     void setUp() {
-        when(embabelAgentClient.getAgentDefinitions()).thenReturn(List.of(
-                new AgentDefinitionDto("req", "Requirement Agent", "Extract requirements",
-                        "specification", 0, "SpecContent", "RequirementAnalysis")
-        ));
         when(connectivityService.checkGitAccess(anyString(), any()))
                 .thenReturn(new GitConnectivityService.CheckResult(GitStatus.ACCESSIBLE, "Reachable with credentials"));
 

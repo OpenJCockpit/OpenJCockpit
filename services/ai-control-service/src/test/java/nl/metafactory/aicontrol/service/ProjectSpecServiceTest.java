@@ -132,6 +132,19 @@ class ProjectSpecServiceTest {
     }
 
     @Test
+    void readSpecContentFindsASpecByFileNameOrIdAndIsEmptyOtherwise() {
+        cloneCreates(repoDir -> {
+            Path specsDir = repoDir.resolve("specs");
+            Files.createDirectories(specsDir);
+            Files.writeString(specsDir.resolve("alpha.md"), "# alpha");
+        });
+
+        assertThat(service.readSpecContent(projectId, "alpha.md")).contains("# alpha");
+        assertThat(service.readSpecContent(projectId, "alpha")).contains("# alpha");
+        assertThat(service.readSpecContent(projectId, "missing.md")).isEmpty();
+    }
+
+    @Test
     void listSpecFilesReturnsSpecPerFeatureFolder() {
         cloneCreates(repoDir -> {
             Path specsDir = repoDir.resolve("specs");

@@ -1,3 +1,4 @@
+import { referenceLabel } from './linkableAgents';
 import type {
   AgentCard,
   AgentDefinition,
@@ -103,7 +104,7 @@ export function buildAgentCards(
     return {
       kind: 'agent',
       id,
-      name: definition?.name ?? id,
+      name: definition?.name ?? referenceLabel(id),
       description: definition?.description ?? '',
       status: isActive ? 'Active' : isDone ? 'Done' : 'Waiting',
       statusKind: isActive ? 'active' : isDone ? 'done' : 'waiting',

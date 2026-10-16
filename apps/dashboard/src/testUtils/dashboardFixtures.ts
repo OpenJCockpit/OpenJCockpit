@@ -44,7 +44,6 @@ export function mockDashboardApis({
   localStorage.setItem('openjcockpit_project_id', project.id);
   vi.mocked(api.loadProjects).mockResolvedValue([project]);
   vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
-  vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);
   vi.mocked(api.loadProjectSpecs).mockResolvedValue(specs);
   vi.mocked(workflowApi.listWorkflows).mockResolvedValue(workflows);
   vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue(groups);

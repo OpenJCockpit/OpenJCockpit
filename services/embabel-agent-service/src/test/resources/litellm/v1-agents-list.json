@@ -1,0 +1,31 @@
+[
+  {
+    "agent_id": "3f1c2d4e-0000-4000-8000-000000000001",
+    "agent_name": "customer-support",
+    "litellm_params": {"model": "a2a/customer-support"},
+    "agent_card_params": {
+      "protocolVersion": "0.3.0",
+      "name": "customer-support",
+      "description": "Ondersteunt klantvragen",
+      "url": "http://embabel-agent-service:8081/a2a/customer-support",
+      "version": "1.0.0",
+      "capabilities": {"streaming": false, "pushNotifications": false},
+      "defaultInputModes": ["text/plain"],
+      "defaultOutputModes": ["text/plain"],
+      "skills": [
+        {"id": "customer-support", "name": "Customer support", "description": "Answers account questions", "tags": ["support"]}
+      ]
+    },
+    "object_permission": null,
+    "spend": 0.0,
+    "created_at": "2026-10-01T09:00:00Z",
+    "updated_at": "2026-10-01T09:00:00Z"
+  },
+  {
+    "agent_id": "3f1c2d4e-0000-4000-8000-000000000002",
+    "agent_name": "billing",
+    "agent_card_params": {"protocolVersion": "0.3.0", "name": "billing", "description": "x",
+      "url": "http://example/a2a/billing", "version": "1", "capabilities": {}, "defaultInputModes": [],
+      "defaultOutputModes": [], "skills": []}
+  }
+]

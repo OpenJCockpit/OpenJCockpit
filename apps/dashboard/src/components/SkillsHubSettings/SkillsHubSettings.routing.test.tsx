@@ -45,7 +45,6 @@ vi.mock('../../api', async () => {
     ...actual,
     loadProjects: vi.fn(),
     loadWorkspace: vi.fn(),
-    loadAgentDefinitions: vi.fn(),
     loadProjectSpecs: vi.fn(),
     initSpecFolder: vi.fn(),
     getSpecInitStatus: vi.fn(),
@@ -88,7 +87,6 @@ describe('Skills Hub Settings — routing (AC-27)', () => {
     localStorage.setItem('openjcockpit_project_id', PROJECT.id);
     vi.mocked(api.loadProjects).mockResolvedValue([PROJECT]);
     vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
-    vi.mocked(api.loadAgentDefinitions).mockResolvedValue([]);
     vi.mocked(api.loadProjectSpecs).mockResolvedValue(mockWorkspace.specs);
     vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([]);
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([]);

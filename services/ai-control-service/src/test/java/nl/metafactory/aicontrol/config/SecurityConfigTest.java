@@ -1,7 +1,7 @@
 package nl.metafactory.aicontrol.config;
 
 import nl.metafactory.aicontrol.client.EmbabelAgentClient;
-import nl.metafactory.aicontrol.client.AgentDefinitionDto;
+import nl.metafactory.aicontrol.client.AgentRunDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,21 +33,19 @@ class SecurityConfigTest {
 
     @BeforeEach
     void setUp() {
-        when(embabelAgentClient.getAgentDefinitions()).thenReturn(List.of(
-                new AgentDefinitionDto("req", "Requirement Agent", "Extract requirements",
-                        "specification", 0, "SpecContent", "RequirementAnalysis")
-        ));
+        when(embabelAgentClient.getLatestRun("run-1")).thenReturn(java.util.Optional.of(new AgentRunDto("run-1", "cust",
+                "spec", "", "COMPLETED", java.time.Instant.now(), List.of(), List.of(), null, null, null, null)));
     }
 
     @Test
     void unauthenticatedRequestIsRejectedWith401() throws Exception {
-        mockMvc.perform(get("/api/agents"))
+        mockMvc.perform(get("/api/agent-runs/run-1"))
                .andExpect(status().isUnauthorized());
     }
 
     @Test
     void authenticatedRequestWithJwtIsAllowed() throws Exception {
-        mockMvc.perform(get("/api/agents").with(jwt()))
+        mockMvc.perform(get("/api/agent-runs/run-1").with(jwt()))
                .andExpect(status().isOk());
     }
 

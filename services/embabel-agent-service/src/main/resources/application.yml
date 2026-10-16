@@ -140,6 +140,17 @@ info:
     version: "@project.version@"
 
 openjcockpit:
+  # Runs on a project are bound (via a single-use ticket issued to ai-control) to a workspace of the git MCP
+  # server; the agents' git tools and the per-agent checkpoint commits use it through LiteLLM.
+  # Blank gateway -> git tools and checkpoints report "unavailable".
+  git-workspace:
+    trusted-client-id: ${GIT_WORKSPACE_TRUSTED_CLIENT_ID:openjcockpit-ai-control}
+    engine-a2a-client-id: ${GIT_WORKSPACE_ENGINE_A2A_CLIENT_ID:openjcockpit-a2a}
+    gateway-base-url: ${GIT_WORKSPACE_GATEWAY_BASE_URL:}
+    gateway-api-key: ${GIT_WORKSPACE_GATEWAY_API_KEY:}
+    server-id: ${GIT_WORKSPACE_GIT_MCP_SERVER_ID:openjcockpit_git}
+    ticket-ttl: ${GIT_WORKSPACE_TICKET_TTL:PT2M}
+    checkpoints: ${GIT_WORKSPACE_CHECKPOINTS:true}
   llm:
     # Matches the OpenAI SDK's own documented default timeout (10 minutes) — reasoning-heavy
     # calls (e.g. realisation's CodeChangeSet generation) can take a while.
@@ -164,30 +175,39 @@ openjcockpit:
         url: ${GIT_MCP_SERVER_URL:http://localhost:8093}
   security:
     jwt-issuer: http://localhost:8080/realms/openjcockpit
-  agent-pipeline:
-    sequence:
-      - requirement
-      - impact
-      - test-design
-      - implementation
-      - review
-      - realisation
-      - evidence
   workflow-definitions:
     path: ${WORKFLOW_DEFINITIONS_PATH:/tmp/embabel-workflow-definitions}
+  # Agent catalog for the dashboard (Workflow design -> Agents): repository /agents folder. The A2A
+  # provider sections come from openjcockpit.a2a-providers (none by default; see application-local.yml).
+  agent-catalog:
+    local-path: ${AGENT_CATALOG_LOCAL_PATH:../../agents}
+  # A2A services added in the dashboard (Workflow designer -> Configuration) are stored with encrypted
+  # secrets; without both values nothing can be stored or read (fail closed). The salt is hex-encoded.
+  a2a-services:
+    encryption-secret: ${A2A_SERVICE_ENCRYPTION_SECRET:}
+    encryption-salt: ${A2A_SERVICE_ENCRYPTION_SALT:}
+  # SPEC-002: configuration-driven agent definitions + inbound A2A. Disabled by default.
+  agent-definitions:
+    enabled: ${AGENT_DEFINITIONS_ENABLED:false}
+    local-root: ${AGENT_DEFINITIONS_LOCAL_ROOT:}
+    tenant-claim: ${AGENT_DEFINITIONS_TENANT_CLAIM:tenant_id}
+    fallback:
+      on-unavailable: ${AGENT_DEFINITIONS_FALLBACK_ON_UNAVAILABLE:true}
+      on-not-found: ${AGENT_DEFINITIONS_FALLBACK_ON_NOT_FOUND:false}
+    cache:
+      ttl: ${AGENT_DEFINITIONS_CACHE_TTL:1h}
+      directory: ${AGENT_DEFINITIONS_CACHE_DIR:}
+    litellm:
+      # model traffic for agent model aliases (e.g. customer-chat); separate from the registry key
+      model-gateway-url: ${LITELLM_BASE_URL:http://localhost:4000/v1}
+      model-gateway-key: ${LITELLM_VIRTUAL_KEY:sk-openjcockpit-embabel-local}
+    a2a:
+      enabled: ${A2A_ENABLED:false}
+      public-base-url: ${A2A_PUBLIC_BASE_URL:}
 
   spec-workflow:
     base-path: ${SPEC_WORKFLOW_BASE:.}
     init-enabled: ${SPEC_WORKFLOW_INIT_ENABLED:true}
-  spec-git:
-    enabled: ${SPEC_GIT_ENABLED:true}
-    base-branch: ${SPEC_GIT_BASE_BRANCH:main}
-    branch-prefix: ${SPEC_GIT_BRANCH_PREFIX:spec}
-    spec-directory: ${SPEC_GIT_SPEC_DIRECTORY:specs}
-    username: ${SPEC_GIT_USERNAME:}
-    token: ${SPEC_GIT_TOKEN:}
-    author-name: ${SPEC_GIT_AUTHOR_NAME:Agentic Workflow}
-    author-email: ${SPEC_GIT_AUTHOR_EMAIL:agentic@metafactory.nl}
   opa:
     enabled: ${OPA_ENABLED:false}
     base-url: ${OPA_BASE_URL:http://localhost:8181}

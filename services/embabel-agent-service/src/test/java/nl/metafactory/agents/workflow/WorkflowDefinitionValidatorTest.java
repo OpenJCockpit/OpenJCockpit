@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class WorkflowDefinitionValidatorTest {
 
-    private final WorkflowDefinitionValidator validator = new WorkflowDefinitionValidator(new WorkflowOrbValidator(null, null, new WorkflowTriggerProperties()));
+    private final WorkflowDefinitionValidator validator = new WorkflowDefinitionValidator(new WorkflowOrbValidator(null, null, new WorkflowTriggerProperties()), ref -> java.util.Optional.empty());
 
     private WorkflowDefinition workflow(String groupId, String projectName, List<String> agentIds,
                                          ApprovalGateConfig gate) {
@@ -24,7 +24,7 @@ class WorkflowDefinitionValidatorTest {
 
     @Test
     void validateForWriteThrowsWhenGroupAndProjectBothMissing() {
-        var invalid = workflow(null, null, List.of("requirement"), null);
+        var invalid = workflow(null, null, List.of("local:requirement"), null);
 
         assertThatThrownBy(() -> validator.validateForWrite(invalid))
                 .isInstanceOf(ResponseStatusException.class)
@@ -33,74 +33,74 @@ class WorkflowDefinitionValidatorTest {
 
     @Test
     void validateForWritePassesWhenGroupPresentAndProjectMissing() {
-        var valid = workflow("wg-1", null, List.of("requirement"), null);
+        var valid = workflow("wg-1", null, List.of("local:requirement"), null);
 
         validator.validateForWrite(valid);
     }
 
     @Test
     void validateForWriteThrowsWhenGatePlacementStageNotSelected() {
-        var invalid = workflow("wg-1", null, List.of("requirement"),
-                new ApprovalGateConfig(true, "realisation"));
+        var invalid = workflow("wg-1", null, List.of("local:requirement"),
+                new ApprovalGateConfig(true, "local:realisation"));
 
         assertThatThrownBy(() -> validator.validateForWrite(invalid))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Approval gate placement stage 'realisation' is not among this workflow's selected agents");
+                .hasMessageContaining("Approval gate placement stage 'local:realisation' is not among this workflow's selected agents");
     }
 
     @Test
     void validateForWritePassesWhenGateDisabledEvenIfPlacementStale() {
-        var valid = workflow("wg-1", null, List.of("requirement"),
-                new ApprovalGateConfig(false, "realisation"));
+        var valid = workflow("wg-1", null, List.of("local:requirement"),
+                new ApprovalGateConfig(false, "local:realisation"));
 
         validator.validateForWrite(valid);
     }
 
     @Test
     void validateForWritePassesWhenGatePlacementStageIsSelected() {
-        var valid = workflow("wg-1", null, List.of("requirement", "impact"),
-                new ApprovalGateConfig(true, "impact"));
+        var valid = workflow("wg-1", null, List.of("local:requirement", "local:impact"),
+                new ApprovalGateConfig(true, "local:impact"));
 
         validator.validateForWrite(valid);
     }
 
     @Test
     void gatePlacementViolationReturnsEmptyWhenGateIsNull() {
-        var definition = workflow("wg-1", null, List.of("requirement"), null);
+        var definition = workflow("wg-1", null, List.of("local:requirement"), null);
 
         assertThat(validator.gatePlacementViolation(definition)).isEmpty();
     }
 
     @Test
     void gatePlacementViolationReturnsEmptyWhenGateDisabled() {
-        var definition = workflow("wg-1", null, List.of("requirement"),
-                new ApprovalGateConfig(false, "realisation"));
+        var definition = workflow("wg-1", null, List.of("local:requirement"),
+                new ApprovalGateConfig(false, "local:realisation"));
 
         assertThat(validator.gatePlacementViolation(definition)).isEmpty();
     }
 
     @Test
     void gatePlacementViolationReturnsMessageWhenPlacementStageNotSelected() {
-        var definition = workflow("wg-1", null, List.of("requirement"),
-                new ApprovalGateConfig(true, "realisation"));
+        var definition = workflow("wg-1", null, List.of("local:requirement"),
+                new ApprovalGateConfig(true, "local:realisation"));
 
         Optional<String> violation = validator.gatePlacementViolation(definition);
 
         assertThat(violation).isPresent();
-        assertThat(violation.get()).contains("Approval gate placement stage 'realisation'");
+        assertThat(violation.get()).contains("Approval gate placement stage 'local:realisation'");
     }
 
     @Test
     void gatePlacementViolationReturnsEmptyWhenPlacementStageIsSelected() {
-        var definition = workflow("wg-1", null, List.of("requirement", "impact"),
-                new ApprovalGateConfig(true, "impact"));
+        var definition = workflow("wg-1", null, List.of("local:requirement", "local:impact"),
+                new ApprovalGateConfig(true, "local:impact"));
 
         assertThat(validator.gatePlacementViolation(definition)).isEmpty();
     }
 
     @Test
     void gatePlacementViolationTreatsNullAgentIdsAsEmptyList() {
-        var definition = workflow("wg-1", null, null, new ApprovalGateConfig(true, "realisation"));
+        var definition = workflow("wg-1", null, null, new ApprovalGateConfig(true, "local:realisation"));
 
         Optional<String> violation = validator.gatePlacementViolation(definition);
 
@@ -113,7 +113,7 @@ class WorkflowDefinitionValidatorTest {
 
         assertThatThrownBy(() -> validator.validateForWrite(invalid))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("At least one pipeline agent must be selected for workflow 'wf-1'.");
+                .hasMessageContaining("At least one agent must be linked to workflow 'wf-1'.");
     }
 
     @Test
@@ -122,12 +122,12 @@ class WorkflowDefinitionValidatorTest {
 
         assertThatThrownBy(() -> validator.validateForWrite(invalid))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("At least one pipeline agent must be selected for workflow 'wf-1'.");
+                .hasMessageContaining("At least one agent must be linked to workflow 'wf-1'.");
     }
 
     @Test
     void validateForWritePassesWhenAtLeastOneAgentIsSelected() {
-        var valid = workflow("wg-1", null, List.of("requirement"), null);
+        var valid = workflow("wg-1", null, List.of("local:requirement"), null);
 
         validator.validateForWrite(valid);
     }
@@ -141,7 +141,7 @@ class WorkflowDefinitionValidatorTest {
 
         assertThatThrownBy(() -> validator.validateForWrite(orbsOnlyNoAgents))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("At least one pipeline agent must be selected for workflow 'wf-1'.");
+                .hasMessageContaining("At least one agent must be linked to workflow 'wf-1'.");
     }
 
     @Test
@@ -150,10 +150,10 @@ class WorkflowDefinitionValidatorTest {
         var groupRepo = org.mockito.Mockito.mock(WorkflowGroupRepository.class);
         org.mockito.Mockito.when(repo.findAll()).thenReturn(List.of());
         var validatorWithOrbChecks = new WorkflowDefinitionValidator(
-                new WorkflowOrbValidator(repo, groupRepo, new WorkflowTriggerProperties()));
+                new WorkflowOrbValidator(repo, groupRepo, new WorkflowTriggerProperties()), ref -> java.util.Optional.empty());
 
         var selfReferencing = new WorkflowDefinition("wf-1", "Onboarding", null, "wg-1", "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null,
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null, "ACTIVE", null, null, null,
                 List.of(new nl.metafactory.agents.workflow.model.WorkflowOrb("wf-1",
                         nl.metafactory.agents.workflow.model.WorkflowOrbMode.SEQUENTIAL, null)));
 

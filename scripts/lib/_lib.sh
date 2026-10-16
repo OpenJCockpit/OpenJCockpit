@@ -96,7 +96,7 @@ mf::print_urls() {
   mf::log_info "Keycloak admin:         http://localhost:8080/admin"
   mf::log_info "ai-control-service:     http://localhost:9080"
   mf::log_info "embabel-agent-service:  http://localhost:8091"
-  mf::log_info "git-mcp-server:         http://localhost:8093"
+  mf::log_info "git-mcp-server:         via LiteLLM only (mcp_servers.openjcockpit_git)"
   mf::log_info "OPA:                    http://localhost:8181"
   mf::log_info "LiteLLM gateway:        http://localhost:4100"
 }

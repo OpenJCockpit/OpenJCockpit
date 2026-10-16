@@ -234,4 +234,45 @@ class WorkflowStartEnrichmentServiceTest {
 
         verify(projectRepository, times(1)).findById(PROJECT_ID);
     }
+
+    // ── the selected spec reaches the agents as content, not as a file name ──
+
+    private WorkflowStartEnrichmentService withSpecs(java.util.Map<String, String> specs) {
+        when(projectRepository.findById(PROJECT_ID)).thenReturn(Optional.of(projectWithBranch("main")));
+        return new WorkflowStartEnrichmentService(projectRepository, credentialRepository, encryption,
+                (projectId, fileName) -> PROJECT_ID.equals(projectId)
+                        ? Optional.ofNullable(specs.get(fileName)) : Optional.empty());
+    }
+
+    private static WorkflowStartInputDto selectedSpec(String specFile) {
+        return new WorkflowStartInputDto(null, specFile, null, PROJECT_ID.toString(), null, null, null);
+    }
+
+    @Test
+    void theSelectedSpecFileNameIsReplacedByItsContentFromTheProjectRepository() {
+        var service = withSpecs(java.util.Map.of("spec-384910d8.md", "# Login\n\nUsers can log in."));
+
+        var enriched = service.enrich(selectedSpec("spec-384910d8.md"));
+
+        assertThat(enriched.specFile()).isEqualTo("# Spec: specs/spec-384910d8.md\n\n# Login\n\nUsers can log in.");
+    }
+
+    @Test
+    void anUnknownSpecNameOrAnUnreadableRepositoryKeepsTheNameAndDoesNotFailTheStart() {
+        var unknown = withSpecs(java.util.Map.of());
+        assertThat(unknown.enrich(selectedSpec("missing.md")).specFile()).isEqualTo("missing.md");
+
+        var broken = new WorkflowStartEnrichmentService(projectRepository, credentialRepository, encryption,
+                (projectId, fileName) -> { throw new IllegalStateException("clone failed"); });
+        assertThat(broken.enrich(selectedSpec("spec-1.md")).specFile()).isEqualTo("spec-1.md");
+    }
+
+    @Test
+    void contentThatIsAlreadyTextIsNotLookedUp() {
+        var service = withSpecs(java.util.Map.of());
+        var asText = selectedSpec("# Spec\nAlready content");
+
+        assertThat(service.enrich(asText).specFile()).isEqualTo("# Spec\nAlready content");
+        assertThat(service.enrich(selectedSpec(null)).specFile()).isNull();
+    }
 }

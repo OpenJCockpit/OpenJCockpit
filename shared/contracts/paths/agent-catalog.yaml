@@ -1,0 +1,45 @@
+agentCatalog:
+  get:
+    tags:
+      - AgentCatalog
+    operationId: getAgentCatalog
+    summary: Agents from the local /agents folder and from each A2A provider (e.g. LiteLLM)
+    responses:
+      '200':
+        description: Agent catalog
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/agent-catalog.yaml#/AgentCatalogDto'
+      '502':
+        description: The agent service could not be reached
+
+agentCatalogProviderAgentCard:
+  get:
+    tags:
+      - AgentCatalog
+    operationId: getProviderAgentCard
+    summary: The A2A agent card hosted by the provider for one agent, fetched live
+    parameters:
+      - name: provider
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: A2A agent card (provider JSON, url rewritten to the public gateway)
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      '404':
+        description: Unknown provider or agent
+      '502':
+        description: Provider or agent service unavailable, or the catalog key may not read the card

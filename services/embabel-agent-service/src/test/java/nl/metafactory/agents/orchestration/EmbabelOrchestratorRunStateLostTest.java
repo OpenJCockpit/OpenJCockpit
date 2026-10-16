@@ -1,17 +1,8 @@
 package nl.metafactory.agents.orchestration;
 
-import nl.metafactory.agents.agent.EvidenceAgent;
-import nl.metafactory.agents.agent.ImpactAnalysisAgent;
-import nl.metafactory.agents.agent.ImplementationAgent;
-import nl.metafactory.agents.agent.RequirementAgent;
-import nl.metafactory.agents.agent.ReviewAgent;
-import nl.metafactory.agents.agent.TestDesignAgent;
 import nl.metafactory.agents.approval.ApprovalGateCoordinator;
 import nl.metafactory.agents.approval.ApprovalGateRegistry;
-import nl.metafactory.agents.config.AgentPipelineProperties;
 import nl.metafactory.agents.persistence.InMemoryAgentRunPersistence;
-import nl.metafactory.agents.spec.CodeRealisationService;
-import nl.metafactory.agents.spec.SpecGitPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,15 +25,13 @@ class EmbabelOrchestratorRunStateLostTest {
 
     @BeforeEach
     void setUp() {
-        var props = new AgentPipelineProperties();
-        orchestrator = new EmbabelOrchestrator(
-                mock(RequirementAgent.class), mock(ImpactAnalysisAgent.class), mock(TestDesignAgent.class),
-                mock(ImplementationAgent.class), mock(ReviewAgent.class), mock(EvidenceAgent.class),
-                props, mock(AsyncPipelineRunner.class), mock(SpecGitPublisher.class),
-                mock(CodeRealisationService.class), new AgentRunStore(new InMemoryAgentRunPersistence(), event -> { }),
+        orchestrator = new EmbabelOrchestrator(mock(AsyncPipelineRunner.class),
+                new AgentRunStore(new InMemoryAgentRunPersistence(), event -> { }),
                 mock(ApprovalGateCoordinator.class), mock(ApprovalGateRegistry.class),
                 mock(nl.metafactory.agents.workflowtrigger.WorkflowOrbRunner.class),
-                mock(nl.metafactory.agents.workflowtrigger.WorkflowTriggerCoordinator.class));
+                mock(nl.metafactory.agents.workflowtrigger.WorkflowTriggerCoordinator.class),
+                mock(nl.metafactory.agents.workflow.agents.WorkflowAgentInvoker.class),
+                new nl.metafactory.agents.workflow.agents.AgentWorkflowProperties(), new InMemoryAgentRunOutputs());
     }
 
     @Test

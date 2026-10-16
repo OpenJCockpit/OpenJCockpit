@@ -192,8 +192,7 @@ public class ApprovalDecisionService {
                 state.runId(), command.iteration(), command.decision(), command.actorUsername());
     }
 
-    // Deliberately re-derives the workflow id the same way SpecGitPublisher/ApprovalGateContextAssembler
-    // do, rather than widening a forbidden file's visibility (work plan §4).
+    // Re-derives the workflow id the same way WorkflowOrbRunner/ApprovalGateContextAssembler do.
     private static final String WORKFLOW_PREFIX = "workflow:";
 
     private static String workflowId(PipelineState state) {

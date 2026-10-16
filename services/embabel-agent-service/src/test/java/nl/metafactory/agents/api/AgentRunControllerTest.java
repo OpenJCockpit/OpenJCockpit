@@ -1,10 +1,7 @@
 package nl.metafactory.agents.api;
 
 import nl.metafactory.common.test.UnsecuredWebMvcTest;
-import tools.jackson.databind.json.JsonMapper;
-import nl.metafactory.agents.model.AgentDefinition;
 import nl.metafactory.agents.model.AgentRun;
-import nl.metafactory.agents.model.AgentRunRequest;
 import nl.metafactory.agents.orchestration.AgentOrchestrator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Instant;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -30,24 +26,10 @@ class AgentRunControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private JsonMapper objectMapper;
+    @MockitoBean nl.metafactory.agents.orchestration.AgentRunOutputs agentRunOutputs;
 
     @MockitoBean
     private AgentOrchestrator orchestrator;
-
-    @Test
-    void getAgentsReturnsAvailableAgents() throws Exception {
-        when(orchestrator.availableAgents()).thenReturn(List.of(
-                new AgentDefinition("req", "Requirement Agent", "Extract requirements", "specification",
-                        List.of("spec.read"), List.of("requirements.yaml"), 0, "SpecContent", "RequirementAnalysis")
-        ));
-
-        mockMvc.perform(get("/api/agents"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value("req"))
-                .andExpect(jsonPath("$[0].name").value("Requirement Agent"));
-    }
 
     @Test
     void getAgentRunReturnsRunById() throws Exception {
@@ -129,51 +111,23 @@ class AgentRunControllerTest {
                 .andExpect(jsonPath("$.failureSummary").doesNotExist());
     }
 
+    // Runs start only through a workflow (POST /api/workflows/{id}/start); there is no direct
+    // agent-run start and no built-in agent listing any more.
     @Test
-    void postAgentRunReturns400WhenAgentIdsIsEmpty() throws Exception {
-        var request = new AgentRunRequest("cust1", "spec.md", List.of(), "user", "https://github.com/org/repo", null, null, null, null, null, null, nl.metafactory.agents.model.RunInitiator.trigger("test"), java.util.List.of("wf-test"));
-        mockMvc.perform(post("/api/agent-runs")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+    void directAgentRunStartAndBuiltInAgentListingNoLongerExist() throws Exception {
+        mockMvc.perform(post("/api/agent-runs").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/agents"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void postAgentRunWithNonEmptyAgentIdsReturns202WithRun() throws Exception {
-        var request = new AgentRunRequest("cust1", "spec.md", List.of("requirement"), "user", "https://github.com/org/repo", null, null, null, null, null, null, nl.metafactory.agents.model.RunInitiator.trigger("test"), java.util.List.of("wf-test"));
-        var run = new AgentRun("run-1", "cust1", "spec.md", "https://github.com/org/repo", "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null);
-        when(orchestrator.start(any())).thenReturn(run);
-        mockMvc.perform(post("/api/agent-runs")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.runId").value("run-1"))
-                .andExpect(jsonPath("$.repositoryUrl").value("https://github.com/org/repo"))
-                .andExpect(jsonPath("$.status").value("RUNNING"));
-    }
-
-    // Security: POST /api/agent-runs is not workflow-scoped and must never let a caller forge
-    // history attribution (startedBy) or inject a run into another workflow's history
-    // (workflowId) by supplying those fields directly on the request body.
-    @Test
-    void postAgentRunStripsClientSuppliedWorkflowIdAndStartedBy() throws Exception {
-        var request = new AgentRunRequest("cust1", "spec.md", List.of("requirement"), "user",
-                "https://github.com/org/repo", null, null, null, null, "forged-workflow-id", "forged-user", null, null);
-        var run = new AgentRun("run-1", "cust1", "spec.md", "https://github.com/org/repo", "RUNNING",
-                Instant.now(), List.of(), List.of(), null, null, null, null);
-        var captor = org.mockito.ArgumentCaptor.forClass(AgentRunRequest.class);
-        when(orchestrator.start(captor.capture())).thenReturn(run);
-
-        mockMvc.perform(post("/api/agent-runs")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isAccepted());
-
-        org.assertj.core.api.Assertions.assertThat(captor.getValue().workflowId()).isNull();
-        org.assertj.core.api.Assertions.assertThat(captor.getValue().startedBy()).isNull();
-        org.assertj.core.api.Assertions.assertThat(captor.getValue().initiator()).isNull();
-        org.assertj.core.api.Assertions.assertThat(captor.getValue().chainAncestry()).isNull();
-        org.assertj.core.api.Assertions.assertThat(captor.getValue().customerId()).isEqualTo("cust1");
-        org.assertj.core.api.Assertions.assertThat(captor.getValue().requestedBy()).isEqualTo("user");
+    void returnsTheFullAgentOutputsOfARun() throws Exception {
+        org.mockito.Mockito.when(agentRunOutputs.find("run-9")).thenReturn(java.util.List.of(
+                new nl.metafactory.agents.orchestration.AgentRunOutputs.Output("a2a:litellm:qa-engineer", 0, "verified")));
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/agent-runs/run-9/outputs"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$[0].agentId").value("a2a:litellm:qa-engineer"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$[0].output").value("verified"));
     }
 }

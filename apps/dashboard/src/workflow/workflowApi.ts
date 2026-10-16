@@ -1,6 +1,10 @@
 import { API_BASE_URL, authHeaders } from '../api';
 import { errorMessageFrom } from '../httpErrors';
 import {
+  A2AAgentCard,
+  A2AService,
+  A2AServiceRequest,
+  AgentCatalog,
   AgentSpec,
   ApprovalDecisionAuditEntry,
   ApprovalDecisionRequest,
@@ -232,6 +236,23 @@ export async function checkOpaHealth(): Promise<boolean> {
 
 // ── Agent definitions ────────────────────────────────────────────────────
 
+/** Local /agents folder plus the agents of each A2A provider (e.g. LiteLLM). */
+export async function getAgentCatalog(): Promise<AgentCatalog> {
+  const response = await fetch(`${API_BASE_URL}/api/agent-catalog`, { headers: authHeaders() });
+  if (!response.ok) throw new Error(`Failed to load agent catalog: ${response.status}`);
+  return response.json();
+}
+
+/** The agent card the A2A provider hosts for one agent, fetched live through the backend. */
+export async function getProviderAgentCard(provider: string, name: string): Promise<A2AAgentCard> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/agent-catalog/providers/${encodeURIComponent(provider)}/agents/${encodeURIComponent(name)}/card`,
+    { headers: authHeaders() },
+  );
+  if (!response.ok) throw new Error(`Failed to load agent card: ${response.status}`);
+  return response.json();
+}
+
 export async function listAgentSpecs(): Promise<AgentSpec[]> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/agent-definitions`, {
@@ -393,6 +414,49 @@ export async function generateSkillSpec(prompt: string): Promise<SkillSpec> {
   });
   if (!response.ok) throw new Error(`Failed to generate skill definition: ${response.status}`);
   return response.json();
+}
+
+// ── A2A services ─────────────────────────────────────────────────────────
+
+export async function listA2AServices(): Promise<A2AService[]> {
+  const response = await fetch(`${API_BASE_URL}/api/a2a-services`, { headers: authHeaders() });
+  if (!response.ok) {
+    throw new Error(await errorMessageFrom(response, 'Failed to load A2A services'));
+  }
+  return response.json();
+}
+
+export async function createA2AService(request: A2AServiceRequest): Promise<A2AService> {
+  const response = await fetch(`${API_BASE_URL}/api/a2a-services`, {
+    method: 'POST',
+    headers: { ...JSON_HEADERS, ...authHeaders() },
+    body: JSON.stringify(request),
+  });
+  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to add A2A service'));
+  return response.json();
+}
+
+export async function updateA2AService(
+  id: string,
+  request: A2AServiceRequest,
+): Promise<A2AService> {
+  const response = await fetch(`${API_BASE_URL}/api/a2a-services/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    headers: { ...JSON_HEADERS, ...authHeaders() },
+    body: JSON.stringify(request),
+  });
+  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to save A2A service'));
+  return response.json();
+}
+
+export async function deleteA2AService(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/a2a-services/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error(await errorMessageFrom(response, 'Failed to remove A2A service'));
+  }
 }
 
 // ── Skill catalog (local + marketplace) ──────────────────────────────────

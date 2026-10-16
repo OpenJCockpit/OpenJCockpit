@@ -1,6 +1,5 @@
 package nl.metafactory.agents.workflow;
 
-import nl.metafactory.agents.model.AgentDefinition;
 import nl.metafactory.agents.model.AgentRun;
 import nl.metafactory.agents.model.AgentRunRequest;
 import nl.metafactory.agents.model.RunInitiator;
@@ -51,9 +50,6 @@ class WorkflowExecutionServiceOrbSecurityTest {
                 subagentSpecRepository, skillSpecRepository, orchestrator, policyDecisionService,
                 currentUserProvider);
 
-        when(orchestrator.availableAgents()).thenReturn(List.of(
-                new AgentDefinition("requirement", "Requirement Agent", "d", "r", List.of(), List.of(), 0, "in", "out")
-        ));
         when(policyDecisionService.canStartWorkflow(any())).thenReturn(allow());
         when(policyDecisionService.canUseAgent(any())).thenReturn(allow());
         when(policyDecisionService.canUseSubagent(any())).thenReturn(allow());
@@ -62,7 +58,7 @@ class WorkflowExecutionServiceOrbSecurityTest {
 
     private WorkflowDefinition child(String id) {
         return new WorkflowDefinition(id, "Name-" + id, "proj", null, "desc",
-                List.of("requirement"), List.of(), List.of(), List.of(), null,
+                List.of("local:requirement"), List.of(), List.of(), List.of(), null,
                 new ExecutionConfig("cust1", "https://github.com/org/repo", 300),
                 false, null, "ACTIVE", null, null, null, null);
     }
@@ -74,7 +70,7 @@ class WorkflowExecutionServiceOrbSecurityTest {
                 "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null);
         when(orchestrator.start(any())).thenReturn(run);
 
-        var parentRequest = new AgentRunRequest("cust0", "parent-spec", List.of("requirement"), "workflow:wf-parent",
+        var parentRequest = new AgentRunRequest("cust0", "parent-spec", List.of("local:requirement"), "workflow:wf-parent",
                 "https://github.com/org/repo", "secret-user", "secret-token-value", null, "main", null, null,
                 RunInitiator.trigger("test"), List.of("wf-parent"));
         var command = new ChildStartCommand("wf-child", parentRequest, WorkflowOrbMode.SEQUENTIAL,
@@ -94,7 +90,7 @@ class WorkflowExecutionServiceOrbSecurityTest {
                 "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null);
         when(orchestrator.start(any())).thenReturn(run);
 
-        var parentRequest = new AgentRunRequest("cust0", "parent-spec", List.of("requirement"), "workflow:wf-parent",
+        var parentRequest = new AgentRunRequest("cust0", "parent-spec", List.of("local:requirement"), "workflow:wf-parent",
                 "https://github.com/org/repo", "secret-user", "super-secret-token-xyz", null, "main", null, null,
                 RunInitiator.trigger("test"), List.of("wf-parent"));
         var command = new ChildStartCommand("wf-child", parentRequest, WorkflowOrbMode.SEQUENTIAL,

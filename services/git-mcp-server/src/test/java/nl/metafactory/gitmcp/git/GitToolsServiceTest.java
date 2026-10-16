@@ -500,10 +500,76 @@ class GitToolsServiceTest {
         assertThat(failure.workspace()).isNull();
     }
 
+    // ── server-side credentials (tools never take a credential argument) ────
+
+    @Test
+    void keyedWorkspaceToolUsesTheCredentialsResolvedServerSide() {
+        var asked = new ArrayList<String>();
+        var withCredentials = new GitToolsService(gitOps, properties, (key, url) -> {
+            asked.add(key + "|" + url);
+            return java.util.Optional.of(new GitCredentialResolver.GitCredentials("bot", "s3cret"));
+        });
+
+        var result = withCredentials.createBranchTool(REPO_URL, "main", "feature/x", "job-1");
+
+        assertThat(result.success()).isTrue();
+        assertThat(asked).containsExactly("job-1|" + REPO_URL);
+        assertThat(gitOps.lastCredentials).isInstanceOf(UsernamePasswordCredentialsProvider.class);
+        assertThat(result.toString()).doesNotContain("s3cret");
+    }
+
+    @Test
+    void pullAndPushOfAKeyedWorkspaceUseItsServerSideCredentials() {
+        var withCredentials = new GitToolsService(gitOps, properties,
+                (key, url) -> java.util.Optional.of(new GitCredentialResolver.GitCredentials("bot", "s3cret")));
+        withCredentials.createBranchTool(REPO_URL, "main", "feature/x", "job-1");
+        gitOps.lastCredentials = null;
+
+        assertThat(withCredentials.pullTool(REPO_URL, "feature/x", "job-1").success()).isTrue();
+        assertThat(gitOps.lastCredentials).isInstanceOf(UsernamePasswordCredentialsProvider.class);
+        gitOps.lastCredentials = null;
+        assertThat(withCredentials.pushTool(REPO_URL, "feature/x", "job-1").success()).isTrue();
+        assertThat(gitOps.lastCredentials).isInstanceOf(UsernamePasswordCredentialsProvider.class);
+    }
+
+    @Test
+    void keyedWorkspaceFailsClosedWhenItsCredentialsCannotBeResolved() {
+        var denied = new GitToolsService(gitOps, properties, (key, url) -> {
+            throw new IllegalStateException("no active workspace job-2 for this repository");
+        });
+
+        var result = denied.pushTool(REPO_URL, "feature/x", "job-2");
+
+        assertThat(result.success()).isFalse();
+        assertThat(result.message()).isEqualTo("git_push failed: workspace credentials unavailable");
+        assertThat(gitOps.calls).isEmpty();
+    }
+
+    @Test
+    void unkeyedWorkspaceIsAnonymous() {
+        var result = service.checkoutBranchTool(REPO_URL, "main", null);
+
+        assertThat(result.success()).isTrue();
+        assertThat(gitOps.lastCredentials).isNull();
+    }
+
+    @Test
+    void invalidWorkspaceKeyIsRejectedBeforeAnyCredentialLookup() {
+        var lookups = new ArrayList<String>();
+        var guarded = new GitToolsService(gitOps, properties, (key, url) -> {
+            lookups.add(key);
+            return java.util.Optional.empty();
+        });
+
+        assertThat(guarded.pullTool(REPO_URL, "main", "../other").success()).isFalse();
+        assertThat(lookups).isEmpty();
+    }
+
     /** Recording fake so that every tool is tested against the port without real git. */
     private static class RecordingGitOps implements GitWorkspaceOperations {
         final List<String> calls = new ArrayList<>();
         String currentBranch = "main";
+        CredentialsProvider lastCredentials;
         boolean hasChanges = false;
         boolean ensureLocalBranchResult = true;
         RuntimeException failWith;
@@ -516,6 +582,7 @@ class GitToolsServiceTest {
         public void cloneRepository(String url, String branch, Path target,
                                     CredentialsProvider credentials, int timeoutSeconds) {
             maybeFail();
+            lastCredentials = credentials;
             calls.add("clone:" + url + ":" + branch + ":" + timeoutSeconds);
             try {
                 Files.createDirectories(target.resolve(".git"));
@@ -535,6 +602,7 @@ class GitToolsServiceTest {
         @Override
         public void pull(Path repoPath, CredentialsProvider credentials, int timeoutSeconds) {
             maybeFail();
+            lastCredentials = credentials;
             calls.add("pull:" + timeoutSeconds);
         }
 
@@ -568,6 +636,7 @@ class GitToolsServiceTest {
         public void pushBranch(Path repoPath, String remote, String branch,
                                CredentialsProvider credentials, int timeoutSeconds) {
             maybeFail();
+            lastCredentials = credentials;
             calls.add("push:" + remote + ":" + branch + ":" + timeoutSeconds);
         }
 

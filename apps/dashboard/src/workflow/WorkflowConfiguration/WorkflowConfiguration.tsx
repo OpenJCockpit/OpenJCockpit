@@ -1,4 +1,5 @@
 import type { Project } from '../../types';
+import { A2AServicesSettings } from './A2AServicesSettings/A2AServicesSettings';
 import { DocumentFolderSettings } from './DocumentFolderSettings/DocumentFolderSettings';
 import { HermesSettings } from './HermesSettings/HermesSettings';
 import { JiraSettings } from './JiraSettings/JiraSettings';
@@ -13,6 +14,7 @@ export function WorkflowConfiguration({ project }: Props) {
   return (
     <section className="workflow-configuration">
       <OpaSettings />
+      <A2AServicesSettings />
       {project ? (
         <>
           <HermesSettings key={`hermes-${project.id}`} projectId={project.id} />

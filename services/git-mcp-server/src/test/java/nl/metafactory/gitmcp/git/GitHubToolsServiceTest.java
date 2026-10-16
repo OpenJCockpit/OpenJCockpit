@@ -34,6 +34,30 @@ class GitHubToolsServiceTest {
     }
 
     @Test
+    void thePullRequestToolUsesTheWorkspaceTokenResolvedServerSide() {
+        var service = new GitHubToolsService(recordingGitHub,
+                (key, url) -> java.util.Optional.of(new GitCredentialResolver.GitCredentials("bot", "ws-token")));
+
+        var result = service.createPullRequestTool(REPO_URL, "main", "impl/001", "Title", "Body", "job-1");
+
+        assertThat(result.success()).isTrue();
+        assertThat(calls).containsExactly("https://api.github.com|org|repo|impl/001|main|Title|Body|ws-token");
+    }
+
+    @Test
+    void thePullRequestToolFailsClosedWhenTheWorkspaceCredentialsCannotBeResolved() {
+        var service = new GitHubToolsService(recordingGitHub, (key, url) -> {
+            throw new IllegalStateException("no active workspace job-2 for this repository");
+        });
+
+        var result = service.createPullRequestTool(REPO_URL, "main", "impl/001", "Title", "Body", "job-2");
+
+        assertThat(result.success()).isFalse();
+        assertThat(result.message()).isEqualTo("git_create_pull_request failed: workspace credentials unavailable");
+        assertThat(calls).isEmpty();
+    }
+
+    @Test
     void createPullRequestTreatsNullBodyAsEmpty() {
         var service = new GitHubToolsService(recordingGitHub);
 
@@ -51,7 +75,7 @@ class GitHubToolsServiceTest {
         var blankToken = service.createPullRequest(REPO_URL, "main", "impl/x", "Title", "", " ");
 
         assertThat(nullToken.success()).isFalse();
-        assertThat(nullToken.message()).contains("token is required");
+        assertThat(nullToken.message()).contains("credentials of the workspace are required");
         assertThat(blankToken.success()).isFalse();
         assertThat(calls).isEmpty();
     }

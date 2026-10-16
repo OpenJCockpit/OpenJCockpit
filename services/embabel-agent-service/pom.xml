@@ -56,6 +56,12 @@
             <version>${embabel-agent.version}</version>
         </dependency>
         <dependency>
+            <!-- SPEC-002: native Agent Skills (Skills / LlmReference); scripts stay on NoOpExecutionEngine -->
+            <groupId>com.embabel.agent</groupId>
+            <artifactId>embabel-agent-skills</artifactId>
+            <version>${embabel-agent.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.modelcontextprotocol.sdk</groupId>
             <artifactId>mcp</artifactId>
         </dependency>

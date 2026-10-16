@@ -6,6 +6,8 @@ import nl.metafactory.aicontrol.repository.GitWorkspaceJobEventRepository;
 import nl.metafactory.aicontrol.repository.GitWorkspaceJobRepository;
 import nl.metafactory.aicontrol.repository.ProjectGitCredentialRepository;
 import nl.metafactory.aicontrol.repository.ProjectRepository;
+import nl.metafactory.common.mcp.GitMcpGateway;
+import nl.metafactory.common.mcp.LiteLlmMcpToolClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -21,6 +23,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class GitWorkspaceJobServiceTest {
@@ -35,6 +38,7 @@ class GitWorkspaceJobServiceTest {
     private WorkflowContainerService containerService;
     private ContainerizedAgentExecutionService agentService;
     private AgenticWorkflowProperties properties;
+    private GitMcpGateway gitMcp;
     private GitWorkspaceJobService service;
 
     private UUID projectId;
@@ -53,6 +57,7 @@ class GitWorkspaceJobServiceTest {
         gitOps = mock(GitOperationService.class);
         containerService = mock(WorkflowContainerService.class);
         agentService = mock(ContainerizedAgentExecutionService.class);
+        gitMcp = mock(GitMcpGateway.class);
 
         properties = new AgenticWorkflowProperties();
         properties.setWorkspaceBasePath(tempDir.toString());
@@ -60,7 +65,7 @@ class GitWorkspaceJobServiceTest {
 
         service = new GitWorkspaceJobService(jobRepo, eventRepo,
                 new ProjectGitResolver(projectRepo, credRepo, properties),
-                branchNameGenerator, specFileService, gitOps, containerService, agentService, properties);
+                branchNameGenerator, specFileService, gitOps, containerService, agentService, properties, gitMcp);
 
         projectId = UUID.randomUUID();
         jobId = UUID.randomUUID();
@@ -88,16 +93,25 @@ class GitWorkspaceJobServiceTest {
                 .thenReturn(Optional.empty());
         when(containerService.createWorkflowContainer(any(), any())).thenReturn("cid-test");
         when(branchNameGenerator.generate(any(), any())).thenReturn("agentic/test-project/20260703-123456-a1b2c3d4");
-        when(gitOps.hasChanges(any())).thenReturn(true);
-        when(gitOps.commit(any(), any(), any(), any())).thenReturn("abc123commit");
         when(gitOps.maskUrl(any())).thenReturn("https://github.com/org/repo");
+        when(gitMcp.createBranch(any(), any(), any(), any())).thenReturn(ok(null));
+        when(gitMcp.commit(any(), any(), any(), any(), any())).thenReturn(ok("abc123commit"));
+        when(gitMcp.push(any(), any(), any())).thenReturn(ok(null));
+    }
+
+    private static GitMcpGateway.Result ok(String commitHash) {
+        return new GitMcpGateway.Result(true, "ok", "branch", commitHash);
+    }
+
+    private String workspaceKey() {
+        return "job-" + jobId;
     }
 
     // ── createJob validation ────────────────────────────────────────────────
 
     @Test
     void createJobFailsWhenProjectIdNull() {
-        assertThatThrownBy(() -> service.createJob(null, "spec", "user"))
+        assertThatThrownBy(() -> service.createJob(null, "spec", "wf-1", "user"))
                 .isInstanceOf(GitWorkspaceException.class)
                 .satisfies(e -> assertThat(((GitWorkspaceException) e).getErrorCode())
                         .isEqualTo(GitWorkspaceJobErrorCode.NO_SELECTED_PROJECT));
@@ -108,7 +122,7 @@ class GitWorkspaceJobServiceTest {
         UUID unknownId = UUID.randomUUID();
         when(projectRepo.findById(unknownId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.createJob(unknownId, "spec", "user"))
+        assertThatThrownBy(() -> service.createJob(unknownId, "spec", "wf-1", "user"))
                 .isInstanceOf(GitWorkspaceException.class)
                 .satisfies(e -> assertThat(((GitWorkspaceException) e).getErrorCode())
                         .isEqualTo(GitWorkspaceJobErrorCode.PROJECT_NOT_FOUND));
@@ -118,7 +132,7 @@ class GitWorkspaceJobServiceTest {
     void createJobFailsWhenProjectInactive() {
         project.setActive((short) 0);
 
-        assertThatThrownBy(() -> service.createJob(projectId, "spec", "user"))
+        assertThatThrownBy(() -> service.createJob(projectId, "spec", "wf-1", "user"))
                 .isInstanceOf(GitWorkspaceException.class)
                 .satisfies(e -> assertThat(((GitWorkspaceException) e).getErrorCode())
                         .isEqualTo(GitWorkspaceJobErrorCode.PROJECT_INACTIVE));
@@ -128,7 +142,7 @@ class GitWorkspaceJobServiceTest {
     void createJobFailsWhenGitUrlMissing() {
         project.setGitUrl(null);
 
-        assertThatThrownBy(() -> service.createJob(projectId, "spec", "user"))
+        assertThatThrownBy(() -> service.createJob(projectId, "spec", "wf-1", "user"))
                 .isInstanceOf(GitWorkspaceException.class)
                 .satisfies(e -> assertThat(((GitWorkspaceException) e).getErrorCode())
                         .isEqualTo(GitWorkspaceJobErrorCode.GIT_URL_MISSING));
@@ -138,7 +152,7 @@ class GitWorkspaceJobServiceTest {
     void createJobFailsWhenGitUrlBlank() {
         project.setGitUrl("  ");
 
-        assertThatThrownBy(() -> service.createJob(projectId, "spec", "user"))
+        assertThatThrownBy(() -> service.createJob(projectId, "spec", "wf-1", "user"))
                 .isInstanceOf(GitWorkspaceException.class)
                 .satisfies(e -> assertThat(((GitWorkspaceException) e).getErrorCode())
                         .isEqualTo(GitWorkspaceJobErrorCode.GIT_URL_MISSING));
@@ -146,9 +160,10 @@ class GitWorkspaceJobServiceTest {
 
     @Test
     void createJobPersistsAndReturnsDto() {
-        var dto = service.createJob(projectId, "spec-001", "alice");
+        var dto = service.createJob(projectId, "spec-001", "wf-1", "alice");
 
-        verify(jobRepo).save(any(GitWorkspaceJob.class));
+        verify(jobRepo).save(argThat((GitWorkspaceJob job) -> "wf-1".equals(job.getWorkflowId())));
+        assertThat(dto.workflowId()).isEqualTo("wf-1");
         verify(eventRepo, atLeastOnce()).save(any());
     }
 
@@ -157,7 +172,7 @@ class GitWorkspaceJobServiceTest {
         project.setDefaultBranch(null);
         properties.setDefaultBaseBranch("develop");
 
-        var dto = service.createJob(projectId, "spec-001", "alice");
+        var dto = service.createJob(projectId, "spec-001", "wf-1", "alice");
 
         assertThat(dto.baseBranch()).isEqualTo("develop");
     }
@@ -167,7 +182,7 @@ class GitWorkspaceJobServiceTest {
         project.setDefaultBranch("   ");
         properties.setDefaultBaseBranch("develop");
 
-        var dto = service.createJob(projectId, "spec-001", "alice");
+        var dto = service.createJob(projectId, "spec-001", "wf-1", "alice");
 
         assertThat(dto.baseBranch()).isEqualTo("develop");
     }
@@ -182,8 +197,14 @@ class GitWorkspaceJobServiceTest {
         service.runWorkflowAsync(jobId);
 
         verify(containerService).cleanupContainer("cid-test");
-        verify(gitOps).pushBranch(any(), eq("origin"),
-                eq("agentic/test-project/20260703-123456-a1b2c3d4"), any());
+        // clone + branch, commit and push all happen in the job's git MCP workspace, via LiteLLM
+        verify(gitMcp).createBranch("https://github.com/org/repo", "main", "agentic/test-project/20260703-123456-a1b2c3d4", workspaceKey());
+        verify(gitMcp).commit(eq("https://github.com/org/repo"), any(), eq("Agentic Workflow"),
+                eq("agentic@metafactory.nl"), eq(workspaceKey()));
+        verify(gitMcp).push("https://github.com/org/repo", "agentic/test-project/20260703-123456-a1b2c3d4", workspaceKey());
+        assertThat(job.getStatus()).isEqualTo(GitWorkspaceJobStatus.COMPLETED);
+        assertThat(job.getCommitHash()).isEqualTo("abc123commit");
+        verifyNoInteractions(credRepo);
     }
 
     @Test
@@ -203,10 +224,13 @@ class GitWorkspaceJobServiceTest {
     void runWorkflowAsyncCleansUpOnCloneFailure() throws Exception {
         var spec = new SpecFile("spec-001", "build.md", "", "", "", false, "# Content", "");
         when(specFileService.resolveSpecFile("spec-001")).thenReturn(spec);
-        doThrow(new GitWorkspaceException(GitWorkspaceJobErrorCode.GIT_CLONE_FAILED, "clone error"))
-                .when(gitOps).cloneDefaultBranch(any(), any(), any(), any());
+        when(gitMcp.createBranch(any(), any(), any(), any()))
+                .thenThrow(new LiteLlmMcpToolClient.McpCallException("MCP tool git_create_branch via LiteLLM failed with HTTP 502"));
 
         service.runWorkflowAsync(jobId);
+
+        assertThat(job.getErrorCode()).isEqualTo(GitWorkspaceJobErrorCode.GIT_CLONE_FAILED);
+        verifyNoInteractions(agentService);
 
         verify(containerService).cleanupContainer("cid-test");
         Path expectedDir = Path.of(properties.getWorkspaceBasePath()).resolve("job-" + jobId);
@@ -235,10 +259,12 @@ class GitWorkspaceJobServiceTest {
     void runWorkflowAsyncCleansUpOnPushFailure() throws Exception {
         var spec = new SpecFile("spec-001", "build.md", "", "", "", false, "# Content", "");
         when(specFileService.resolveSpecFile("spec-001")).thenReturn(spec);
-        doThrow(new GitWorkspaceException(GitWorkspaceJobErrorCode.PUSH_FAILED, "push error"))
-                .when(gitOps).pushBranch(any(), any(), any(), any());
+        when(gitMcp.push(any(), any(), any())).thenReturn(new GitMcpGateway.Result(false,
+                "git_push failed: workspace credentials unavailable", null, null));
 
         service.runWorkflowAsync(jobId);
+
+        assertThat(job.getErrorCode()).isEqualTo(GitWorkspaceJobErrorCode.PUSH_FAILED);
 
         verify(containerService).cleanupContainer("cid-test");
         Path expectedDir = Path.of(properties.getWorkspaceBasePath()).resolve("job-" + jobId);
@@ -248,34 +274,164 @@ class GitWorkspaceJobServiceTest {
     // ── runWorkflowAsync: no changes ────────────────────────────────────────
 
     @Test
-    void runWorkflowAsyncSetsNoChangesStatusWhenNoDiff() throws Exception {
+    void nothingLeftToCommitAfterTheCheckpointsStillPushesAndCompletes() throws Exception {
         var spec = new SpecFile("spec-001", "build.md", "", "", "", false, "# Content", "");
         when(specFileService.resolveSpecFile("spec-001")).thenReturn(spec);
-        when(gitOps.hasChanges(any())).thenReturn(false);
+        when(gitMcp.commit(any(), any(), any(), any(), any())).thenReturn(new GitMcpGateway.Result(false,
+                "Nothing to commit: workspace has no uncommitted changes", null, null));
 
         service.runWorkflowAsync(jobId);
 
-        verify(gitOps, never()).stageAll(any());
-        verify(gitOps, never()).pushBranch(any(), any(), any(), any());
+        assertThat(job.getStatus()).isEqualTo(GitWorkspaceJobStatus.COMPLETED);
+        verify(gitMcp).push("https://github.com/org/repo", "agentic/test-project/20260703-123456-a1b2c3d4", workspaceKey());
         verify(containerService).cleanupContainer("cid-test");
+    }
+
+    // ── workflow runs started from the dashboard on a project ────────────────
+
+    private UUID newJobsGetAnId() {
+        UUID created = UUID.randomUUID();
+        when(jobRepo.save(any())).thenAnswer(inv -> {
+            GitWorkspaceJob saved = inv.getArgument(0);
+            if (saved.getId() == null) {
+                saved.setId(created);
+                when(jobRepo.findById(created)).thenReturn(Optional.of(saved));
+            }
+            return saved;
+        });
+        return created;
+    }
+
+    @Test
+    void aDashboardRunGetsAClonedWorkspaceOnABranchNamedAfterTheWorkflow() {
+        UUID created = newJobsGetAnId();
+        when(branchNameGenerator.forWorkflowRun(eq("wf-spec-realise"), any())).thenReturn("agentic/wf-spec-realise/x");
+
+        var ws = service.prepareWorkflowRunWorkspace(projectId, "wf-spec-realise", "spec-1.md", "alice");
+
+        assertThat(ws).isEqualTo(new GitWorkspaceJobService.PreparedWorkspace(created, "job-" + created,
+                "https://github.com/org/repo", "agentic/wf-spec-realise/x"));
+        verify(gitMcp).createBranch("https://github.com/org/repo", "main", "agentic/wf-spec-realise/x", "job-" + created);
+        var saved = jobRepo.findById(created).orElseThrow();
+        assertThat(saved.getStatus()).isEqualTo(GitWorkspaceJobStatus.BRANCH_CREATED);
+        assertThat(saved.getStartedBy()).isEqualTo("alice");
+        assertThat(saved.getWorkflowId()).isEqualTo("wf-spec-realise");
+        verifyNoInteractions(containerService, agentService);
+    }
+
+    @Test
+    void aWorkspaceThatCannotBeClonedFailsTheJobAndTheStart() {
+        UUID created = newJobsGetAnId();
+        when(branchNameGenerator.forWorkflowRun(any(), any())).thenReturn("agentic/wf/x");
+        when(gitMcp.createBranch(any(), any(), any(), any())).thenReturn(new GitMcpGateway.Result(false, "auth failed", null, null));
+
+        assertThatThrownBy(() -> service.prepareWorkflowRunWorkspace(projectId, "wf", "spec", "alice"))
+                .isInstanceOf(GitWorkspaceException.class).hasMessageContaining("auth failed");
+        assertThat(jobRepo.findById(created).orElseThrow().getStatus()).isEqualTo(GitWorkspaceJobStatus.FAILED);
+    }
+
+    @Test
+    void aFinishedDashboardRunGetsAFinalCommitAndPushOfItsBranch() {
+        job.setWorkflowId("wf-1");
+        var ws = new GitWorkspaceJobService.PreparedWorkspace(jobId, workspaceKey(), "https://github.com/org/repo", "agentic/wf-1/x");
+
+        service.finishWorkflowRunAsync(ws, "run-1");
+
+        var order = inOrder(agentService, gitMcp);
+        order.verify(agentService).pollAgentRun("run-1", jobId);
+        order.verify(gitMcp).commit(eq("https://github.com/org/repo"), any(), any(), any(), eq(workspaceKey()));
+        order.verify(gitMcp).push("https://github.com/org/repo", "agentic/wf-1/x", workspaceKey());
+        assertThat(job.getStatus()).isEqualTo(GitWorkspaceJobStatus.COMPLETED);
+        assertThat(job.getCommitHash()).isEqualTo("abc123commit");
+    }
+
+    @Test
+    void aDashboardRunThatDoesNotCompleteFailsTheJobWithoutAFinalPush() {
+        var ws = new GitWorkspaceJobService.PreparedWorkspace(jobId, workspaceKey(), "https://github.com/org/repo", "agentic/wf-1/x");
+        doThrow(new GitWorkspaceException(GitWorkspaceJobErrorCode.AGENT_EXECUTION_FAILED, "Agent run ended with status: FAILED"))
+                .when(agentService).pollAgentRun("run-1", jobId);
+
+        service.finishWorkflowRunAsync(ws, "run-1");
+
+        assertThat(job.getStatus()).isEqualTo(GitWorkspaceJobStatus.FAILED);
+        verify(gitMcp, never()).push(any(), any(), any());
+    }
+
+    @Test
+    void anUnexpectedErrorPreparingTheWorkspaceFailsTheJobWithoutItsDetail() {
+        UUID created = newJobsGetAnId();
+        when(branchNameGenerator.forWorkflowRun(any(), any())).thenReturn("agentic/wf/x");
+        when(gitMcp.createBranch(any(), any(), any(), any())).thenThrow(new IllegalStateException("secret detail"));
+
+        assertThatThrownBy(() -> service.prepareWorkflowRunWorkspace(projectId, "wf", "spec", "alice"))
+                .isInstanceOfSatisfying(GitWorkspaceException.class, e -> {
+                    assertThat(e.getErrorCode()).isEqualTo(GitWorkspaceJobErrorCode.GIT_CLONE_FAILED);
+                    assertThat(e.getMessage()).endsWith("The project repository could not be prepared");
+                });
+        var saved = jobRepo.findById(created).orElseThrow();
+        assertThat(saved.getStatus()).isEqualTo(GitWorkspaceJobStatus.FAILED);
+        assertThat(saved.getErrorMessage()).isEqualTo("Unexpected error: IllegalStateException");
+    }
+
+    @Test
+    void anUnexpectedErrorFinishingADashboardRunFailsTheJob() {
+        var ws = new GitWorkspaceJobService.PreparedWorkspace(jobId, workspaceKey(), "https://github.com/org/repo", "agentic/wf-1/x");
+        doThrow(new IllegalStateException("boom")).when(agentService).pollAgentRun("run-1", jobId);
+
+        service.finishWorkflowRunAsync(ws, "run-1");
+
+        assertThat(job.getStatus()).isEqualTo(GitWorkspaceJobStatus.FAILED);
+        assertThat(job.getErrorMessage()).isEqualTo("Unexpected error: IllegalStateException");
+        verify(gitMcp, never()).push(any(), any(), any());
+    }
+
+    @Test
+    void aFinalCommitThatFailsFailsTheJobWithoutAPush() {
+        var ws = new GitWorkspaceJobService.PreparedWorkspace(jobId, workspaceKey(), "https://github.com/org/repo", "agentic/wf-1/x");
+        when(gitMcp.commit(any(), any(), any(), any(), any())).thenReturn(new GitMcpGateway.Result(false, "index locked", null, null));
+
+        service.finishWorkflowRunAsync(ws, "run-1");
+
+        assertThat(job.getStatus()).isEqualTo(GitWorkspaceJobStatus.FAILED);
+        assertThat(job.getErrorCode()).isEqualTo(GitWorkspaceJobErrorCode.COMMIT_FAILED);
+        verify(gitMcp, never()).push(any(), any(), any());
+    }
+
+    @Test
+    void aBranchThatCannotBeCreatedFailsTheJob() throws Exception {
+        var spec = new SpecFile("spec-001", "build.md", "", "", "", false, "# Content", "");
+        when(specFileService.resolveSpecFile("spec-001")).thenReturn(spec);
+        when(gitMcp.createBranch(any(), any(), any(), any())).thenReturn(new GitMcpGateway.Result(false, "branch exists", null, null));
+
+        service.runWorkflowAsync(jobId);
+
+        assertThat(job.getStatus()).isEqualTo(GitWorkspaceJobStatus.FAILED);
+        assertThat(job.getErrorCode()).isEqualTo(GitWorkspaceJobErrorCode.BRANCH_CREATE_FAILED);
+        verifyNoInteractions(agentService);
+    }
+
+    @Test
+    void aRunThatDidNotStartEndsTheJob() {
+        service.workflowRunNotStarted(jobId, "All agents were denied by policy");
+
+        assertThat(job.getStatus()).isEqualTo(GitWorkspaceJobStatus.FAILED);
+        assertThat(job.getErrorMessage()).contains("denied by policy");
     }
 
     // ── runWorkflowAsync: agent in same container ────────────────────────────
 
     @Test
-    void runWorkflowAsyncRunsAgentInsideSameContainerAsClone() throws Exception {
+    void runWorkflowAsyncRunsTheAgentsOnTheSameWorkspaceAsTheClone() throws Exception {
         var spec = new SpecFile("spec-001", "build.md", "", "", "", false, "# Content", "");
         when(specFileService.resolveSpecFile("spec-001")).thenReturn(spec);
 
         service.runWorkflowAsync(jobId);
 
-        verify(agentService).runAgentsInsideContainer(
-                eq(job),
-                eq("cid-test"),
-                any(),
-                any(),
-                any(),
-                eq(project));
+        var order = inOrder(gitMcp, agentService);
+        order.verify(gitMcp).createBranch(any(), any(), any(), eq(workspaceKey()));
+        order.verify(agentService).runAgentsInsideContainer(eq(job), eq("cid-test"), any(), eq(project), eq(workspaceKey()),
+                eq("agentic/test-project/20260703-123456-a1b2c3d4"));
+        order.verify(gitMcp).commit(any(), any(), any(), any(), eq(workspaceKey()));
     }
 
     // ── runWorkflowAsync: unexpected errors ─────────────────────────────────

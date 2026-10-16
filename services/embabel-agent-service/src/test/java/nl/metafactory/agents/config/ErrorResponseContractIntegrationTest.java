@@ -82,6 +82,8 @@ class ErrorResponseContractIntegrationTest {
         registry.add("openjcockpit.workflow-definitions.path", () -> workflowDefinitionsDir.toString());
     }
 
+    @MockitoBean nl.metafactory.agents.workflow.agents.AgentReferenceCheck agentReferenceCheck;
+
     @MockitoBean
     ModelProvider modelProvider;
 
@@ -123,8 +125,8 @@ class ErrorResponseContractIntegrationTest {
     @Test
     void realHttpResponseForInvalidApprovalGatePlacementIncludesTheMessageField() {
         var invalidWorkflow = new WorkflowDefinition("wf-error-handling-it", "Onboarding", "Noordzee Logistics",
-                null, "desc", List.of("requirement"), List.of(), List.of(), List.of(), null, null, false, null,
-                "ACTIVE", null, null, new ApprovalGateConfig(true, "realisation"), null);
+                null, "desc", List.of("local:requirement"), List.of(), List.of(), List.of(), null, null, false, null,
+                "ACTIVE", null, null, new ApprovalGateConfig(true, "local:realisation"), null);
 
         ResponseEntity<Map> response = restTemplate.exchange("/api/workflows", HttpMethod.POST,
                 new HttpEntity<>(invalidWorkflow, authenticatedJsonHeaders()), Map.class);
@@ -134,7 +136,7 @@ class ErrorResponseContractIntegrationTest {
         assertThat(message).as("real HTTP error body must contain a non-blank 'message' field")
                 .isInstanceOf(String.class);
         assertThat((String) message)
-                .contains("realisation")
+                .contains("local:realisation")
                 .contains("not among this workflow's selected agents");
     }
 

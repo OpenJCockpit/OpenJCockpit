@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Project, AgentDefinition } from '../../types';
-import { fetchAgentDefinitions } from '../../api';
+import { fetchLinkableAgents, referenceLabel } from '../linkableAgents';
 import {
   getOpaConfig,
   getWorkflowDecisionLogs,
@@ -52,18 +52,11 @@ function agentSummary(
   if (degraded) {
     return agentIds.join(', ');
   }
-  const known: AgentDefinition[] = [];
-  const unknown: string[] = [];
-  for (const id of agentIds) {
+  // in the workflow's execution order; references missing from the catalog stay visible
+  const parts = agentIds.map((id) => {
     const agent = index.get(id);
-    if (agent) known.push(agent);
-    else unknown.push(id);
-  }
-  known.sort((a, b) => a.sequenceOrder - b.sequenceOrder);
-  const parts = [
-    ...known.map((agent) => agent.name),
-    ...unknown.map((id) => `${id} (unrecognised)`),
-  ];
+    return agent ? agent.name : `${referenceLabel(id)} (unrecognised)`;
+  });
   return parts.join(', ');
 }
 
@@ -128,7 +121,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
         setListError(error instanceof Error ? error.message : 'Failed to load workflows');
         setLoaded(true);
       });
-    fetchAgentDefinitions()
+    fetchLinkableAgents()
       .then(setAgentCatalogue)
       .catch(() => {
         setAgentCatalogue([]);
