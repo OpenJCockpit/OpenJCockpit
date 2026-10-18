@@ -90,7 +90,7 @@ services:
   # Keycloak databases, where --import-realm is skipped). See
   # infrastructure/keycloak/seed-realm-roles.sh.
   keycloak-realm-roles:
-    image: curlimages/curl:8.21.0
+    image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
     depends_on:
       keycloak:
         condition: service_healthy
