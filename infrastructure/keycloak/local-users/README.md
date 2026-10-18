@@ -91,9 +91,26 @@ Example:
 
 `realmRoles` entries must already exist as realm roles in the `openjcockpit`
 realm — the seed script fails loudly (naming the missing role) rather than
-silently skipping it. **`openjcockpit-realm.json` currently defines no realm
-roles at all**, so leave `realmRoles` as an empty array (`[]`) unless a role
-has been added to the realm first. There is deliberately no default role.
+silently skipping it. The realm defines exactly one custom realm role,
+`openjcockpit-admin`, which guards the admin-only spec-queue setting
+`autoMergeAllowed`. Do not give local users that role unless you are testing
+spec-queue settings; otherwise leave `realmRoles` as an empty array (`[]`).
+There is deliberately no default role.
+
+## Seeded admin role
+
+`openjcockpit-admin` is assigned to `tony` by two paths:
+
+1. The realm import (`openjcockpit-realm.json`), on a fresh Keycloak database.
+2. The one-shot `keycloak-realm-roles` service (`seed-realm-roles.sh`), which
+   covers existing databases where the import is skipped.
+
+The seeder is idempotent (existing role and mappings are left alone), only
+ever adds the role, and refuses to grant it to the `e2e` user. Re-run it with:
+
+```sh
+docker compose up --exit-code-from keycloak-realm-roles keycloak-realm-roles
+```
 
 ## Scope
 
@@ -129,3 +146,10 @@ Keycloak.
   script, use `docker compose up --exit-code-from keycloak-local-users
 keycloak-local-users`, or check `docker compose ps keycloak-local-users`
   / the logs above.
+- `keycloak-local-users` never starts: it waits for `keycloak-realm-roles` to
+  exit successfully, so the role seeder exited non-zero (typically a user in
+  `KC_ADMIN_ROLE_USERS` that does not exist). Diagnose with
+  `docker compose ps -a keycloak-realm-roles` and
+  `docker compose logs keycloak-realm-roles`. Fix the user or
+  `KC_ADMIN_ROLE_USERS`, re-run the seeder (above), then
+  `docker compose up keycloak-local-users`. No volume deletion needed.
