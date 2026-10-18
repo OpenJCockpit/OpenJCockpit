@@ -8,8 +8,13 @@ import nl.metafactory.aicontrol.client.WorkflowImportResultDto;
 import nl.metafactory.aicontrol.client.WorkflowStartInputDto;
 import nl.metafactory.aicontrol.client.WorkflowStartResponseDto;
 import nl.metafactory.aicontrol.generated.api.WorkflowApi;
+import nl.metafactory.aicontrol.model.ApiErrorResponse;
 import nl.metafactory.aicontrol.service.ProjectWorkflowRunService;
 import nl.metafactory.aicontrol.service.WorkflowStartEnrichmentService;
+import nl.metafactory.aicontrol.specqueue.app.SpecQueueActiveItemGuard;
+import nl.metafactory.aicontrol.specqueue.app.SpecQueueException;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class WorkflowController implements WorkflowApi {
@@ -24,12 +30,16 @@ public class WorkflowController implements WorkflowApi {
     private final EmbabelAgentClient client;
     private final WorkflowStartEnrichmentService startEnrichment;
     private final ProjectWorkflowRunService projectRuns;
+    // Lazy so @WebMvcTest slices without component scan still construct this controller.
+    private final ObjectProvider<SpecQueueActiveItemGuard> activeItemGuard;
 
     public WorkflowController(EmbabelAgentClient client, WorkflowStartEnrichmentService startEnrichment,
-                              ProjectWorkflowRunService projectRuns) {
+                              ProjectWorkflowRunService projectRuns,
+                              ObjectProvider<SpecQueueActiveItemGuard> activeItemGuard) {
         this.client = client;
         this.startEnrichment = startEnrichment;
         this.projectRuns = projectRuns;
+        this.activeItemGuard = activeItemGuard;
     }
 
     // NOTE: operationId "list" is a reserved word for the spring generator template
@@ -80,6 +90,8 @@ public class WorkflowController implements WorkflowApi {
         }
         WorkflowStartInputDto safe = WorkflowStartInputs.validateCallerBaseBranch(
                 WorkflowStartInputs.withoutServerOnlyFields(requestedInput));
+        UUID projectId = parseProjectId(safe.projectId());
+        activeItemGuard.ifAvailable(guard -> guard.assertNoActiveItem(projectId));
         WorkflowStartInputDto enriched = startEnrichment.enrich(safe);
         // A run on a project works in a git workspace shared by all its agents (branch per run, checkpoint
         // commits); without a project repository it starts as a plain run.
@@ -93,5 +105,23 @@ public class WorkflowController implements WorkflowApi {
             String skillId, String mcpToolName, String result) {
         return ResponseEntity.ok(
                 client.getDecisionLogsForWorkflow(id, from, to, agentId, subagentId, skillId, mcpToolName, result));
+    }
+
+    // Lenient on purpose: a missing or malformed projectId means "not guarded", behaviour unchanged.
+    private static UUID parseProjectId(String projectId) {
+        if (projectId == null || projectId.isBlank()) {
+            return null;
+        }
+        try {
+            return UUID.fromString(projectId.trim());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    @ExceptionHandler(SpecQueueException.class)
+    public ResponseEntity<ApiErrorResponse> handleSpecQueueException(SpecQueueException e) {
+        return ResponseEntity.status(e.getHttpStatus())
+                .body(new ApiErrorResponse(e.getCode().name(), e.getMessage()));
     }
 }
