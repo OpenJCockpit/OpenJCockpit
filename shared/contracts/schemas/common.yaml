@@ -13,6 +13,13 @@ parameters:
     schema:
       type: string
       format: uuid
+  SpecQueueItemIdPathParam:
+    name: itemId
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
   # Shared decision-logs query parameters (Batch 3), reused by both
   # GET /api/workflows/{id}/decision-logs and GET /api/workflow-executions/{id}/decision-logs.
   DecisionLogsFromParam:

@@ -1,0 +1,352 @@
+specQueue:
+  parameters:
+    - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+  get:
+    tags:
+      - SpecQueue
+    operationId: getSpecQueue
+    summary: Get the spec queue of a project
+    responses:
+      '200':
+        description: The queue, its items and recently finished items
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec-queue.yaml#/SpecQueueDto'
+      '404':
+        description: PROJECT_NOT_FOUND
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+specQueueItems:
+  parameters:
+    - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+  post:
+    tags:
+      - SpecQueue
+    operationId: enqueueSpecQueueItem
+    summary: Append a spec file and workflow to the queue
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/spec-queue.yaml#/SpecQueueEnqueueRequest'
+    responses:
+      '201':
+        description: Item queued
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec-queue.yaml#/SpecQueueItemDto'
+      '400':
+        description: VALIDATION_ERROR, AUTO_MERGE_NOT_ALLOWED, WORKFLOW_PROMPT_REQUIRED or WORKFLOW_NOT_ALLOWED_FOR_PROJECT
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '404':
+        description: PROJECT_NOT_FOUND, SPEC_FILE_NOT_FOUND or WORKFLOW_NOT_FOUND
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: DUPLICATE_SPEC_FILE, PROJECT_INACTIVE, GIT_URL_MISSING, GIT_AUTH_FAILED, QUEUE_FULL or QUEUE_BUSY
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '502':
+        description: SPEC_LISTING_FAILED or EMBABEL_UNAVAILABLE
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+specQueueItem:
+  parameters:
+    - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+    - $ref: '../schemas/common.yaml#/parameters/SpecQueueItemIdPathParam'
+  patch:
+    tags:
+      - SpecQueue
+    operationId: updateSpecQueueItem
+    summary: Change the workflow or auto-merge flag of a queued item
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/spec-queue.yaml#/SpecQueueItemUpdateRequest'
+    responses:
+      '200':
+        description: Item updated
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec-queue.yaml#/SpecQueueItemDto'
+      '400':
+        description: VALIDATION_ERROR, AUTO_MERGE_NOT_ALLOWED, WORKFLOW_PROMPT_REQUIRED or WORKFLOW_NOT_ALLOWED_FOR_PROJECT
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '404':
+        description: PROJECT_NOT_FOUND, ITEM_NOT_FOUND or WORKFLOW_NOT_FOUND
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: ITEM_NOT_EDITABLE or QUEUE_BUSY
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '502':
+        description: EMBABEL_UNAVAILABLE
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+  delete:
+    tags:
+      - SpecQueue
+    operationId: removeSpecQueueItem
+    summary: Remove a queued or failed item, or cancel an active one
+    responses:
+      '200':
+        description: Item removed (REMOVED) or cancelled (CANCELLED)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec-queue.yaml#/SpecQueueItemDto'
+      '404':
+        description: PROJECT_NOT_FOUND or ITEM_NOT_FOUND
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: ITEM_NOT_REMOVABLE, ITEM_BUSY or QUEUE_BUSY
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '502':
+        description: EMBABEL_UNAVAILABLE - the run could not be stopped; nothing was changed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+specQueueOrder:
+  parameters:
+    - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+  put:
+    tags:
+      - SpecQueue
+    operationId: reorderSpecQueue
+    summary: Reorder the queued items
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/spec-queue.yaml#/SpecQueueOrderRequest'
+    responses:
+      '200':
+        description: The reordered queue
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec-queue.yaml#/SpecQueueDto'
+      '400':
+        description: VALIDATION_ERROR
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '404':
+        description: PROJECT_NOT_FOUND
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: STALE_ORDER or QUEUE_BUSY
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+specQueuePause:
+  parameters:
+    - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+  post:
+    tags:
+      - SpecQueue
+    operationId: pauseSpecQueue
+    summary: Pause the queue
+    responses:
+      '200':
+        description: The queue
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec-queue.yaml#/SpecQueueDto'
+      '404':
+        description: PROJECT_NOT_FOUND
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: QUEUE_HALTED or QUEUE_BUSY
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+specQueueResume:
+  parameters:
+    - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+  post:
+    tags:
+      - SpecQueue
+    operationId: resumeSpecQueue
+    summary: Resume a paused or halted queue
+    responses:
+      '200':
+        description: The queue
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec-queue.yaml#/SpecQueueDto'
+      '404':
+        description: PROJECT_NOT_FOUND
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: UNRESOLVED_FAILED_ITEM or QUEUE_BUSY
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+specQueueItemRetry:
+  parameters:
+    - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+    - $ref: '../schemas/common.yaml#/parameters/SpecQueueItemIdPathParam'
+  post:
+    tags:
+      - SpecQueue
+    operationId: retrySpecQueueItem
+    summary: Put a failed item back at the front of the queue
+    responses:
+      '200':
+        description: Item queued again
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec-queue.yaml#/SpecQueueItemDto'
+      '404':
+        description: PROJECT_NOT_FOUND or ITEM_NOT_FOUND
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: ITEM_NOT_FAILED or QUEUE_BUSY
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+specQueueItemSkip:
+  parameters:
+    - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+    - $ref: '../schemas/common.yaml#/parameters/SpecQueueItemIdPathParam'
+  post:
+    tags:
+      - SpecQueue
+    operationId: skipSpecQueueItem
+    summary: Skip a failed item
+    responses:
+      '200':
+        description: Item skipped
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec-queue.yaml#/SpecQueueItemDto'
+      '404':
+        description: PROJECT_NOT_FOUND or ITEM_NOT_FOUND
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '409':
+        description: ITEM_NOT_FAILED or QUEUE_BUSY
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+
+specQueueSettings:
+  parameters:
+    - $ref: '../schemas/common.yaml#/parameters/ProjectSpecIdPathParam'
+  get:
+    tags:
+      - SpecQueue
+    operationId: getSpecQueueSettings
+    summary: Get the queue settings
+    responses:
+      '200':
+        description: Settings
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec-queue.yaml#/SpecQueueSettingsDto'
+      '404':
+        description: PROJECT_NOT_FOUND
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+  put:
+    tags:
+      - SpecQueue
+    operationId: updateSpecQueueSettings
+    summary: Change the queue settings (realm role openjcockpit-admin)
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/spec-queue.yaml#/SpecQueueSettingsRequest'
+    responses:
+      '200':
+        description: Settings updated
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/spec-queue.yaml#/SpecQueueSettingsDto'
+      '400':
+        description: VALIDATION_ERROR. Body validation runs before the role check, so a non-admin with an invalid body also gets 400
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
+      '403':
+        description: The caller lacks the openjcockpit-admin realm role. No response body is guaranteed
+      '404':
+        description: PROJECT_NOT_FOUND
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
