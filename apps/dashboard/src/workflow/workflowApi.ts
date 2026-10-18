@@ -93,7 +93,7 @@ export async function startWorkflow(
     headers: { ...JSON_HEADERS, ...authHeaders() },
     body: JSON.stringify(input),
   });
-  if (!response.ok) throw new Error(`Failed to start workflow: ${response.status}`);
+  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to start workflow'));
   return response.json();
 }
 

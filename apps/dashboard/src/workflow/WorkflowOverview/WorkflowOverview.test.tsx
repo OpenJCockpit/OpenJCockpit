@@ -214,6 +214,22 @@ describe('WorkflowOverview', () => {
     expect(workflowApi.startWorkflow).not.toHaveBeenCalled();
   });
 
+  it('shows the server message when a start is refused (409)', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
+    vi.mocked(workflowApi.startWorkflow).mockRejectedValue(
+      new Error('A spec queue item is active for this project'),
+    );
+
+    await renderAsync(<WorkflowOverview project={null} />);
+    await screen.findByText('Customer Onboarding');
+
+    await clickAsync(screen.getByText('▶ Start'));
+
+    expect(
+      await screen.findByText('A spec queue item is active for this project'),
+    ).toBeInTheDocument();
+  });
+
   it('shows feedback and re-enables the Start button after starting', async () => {
     vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
     mockStartResponse('wf-1', 'run-1', 'RUNNING', 'started');

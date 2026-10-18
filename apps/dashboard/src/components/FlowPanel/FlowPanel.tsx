@@ -12,6 +12,7 @@ import { WorkflowLauncher } from './WorkflowLauncher';
 import styles from './FlowPanel.module.scss';
 import { Eyebrow, Panel, PanelHeader } from '../../ui/Panel/Panel';
 import { Button } from '../../ui/Button/Button';
+import { feedbackErrorClass } from '../../ui/Feedback/Feedback';
 
 interface Props {
   launcher: ReturnType<typeof useRunLauncher>;
@@ -43,6 +44,7 @@ export function FlowPanel({
     preflightErrors,
     activeRun,
     runEnded,
+    startError,
     initResult,
     initError,
     specCreateWorkflow,
@@ -133,6 +135,12 @@ export function FlowPanel({
           onDismiss={launcher.dismissPreflightErrors}
           onOpenProjectSettings={onOpenProjectSettings}
         />
+      )}
+
+      {!activeRun && startError && (
+        <p className={feedbackErrorClass} role="alert" data-testid="start-error">
+          {startError}
+        </p>
       )}
 
       {renderBody()}

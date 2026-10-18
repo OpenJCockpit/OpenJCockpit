@@ -23,6 +23,10 @@
     padding-bottom: 0;
     border-bottom: none;
   }
+  &__actions {
+    display: flex;
+    gap: 8px;
+  }
   &__textarea {
     width: 100%;
     min-height: 480px;

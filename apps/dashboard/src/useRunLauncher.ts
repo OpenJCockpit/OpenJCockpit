@@ -27,6 +27,7 @@ export function useRunLauncher({
     runId: string;
   } | null>(null);
   const [runEnded, setRunEnded] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
   const [initResult, setInitResult] = useState<SpecInitResult | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
   const [promptWorkflow, setPromptWorkflow] = useState<WorkflowDefinition | null>(null);
@@ -41,6 +42,7 @@ export function useRunLauncher({
   function reset() {
     setActiveRun(null);
     setRunEnded(false);
+    setStartError(null);
     setInitResult(null);
     setInitError(null);
   }
@@ -77,6 +79,7 @@ export function useRunLauncher({
       return;
     }
     setButtonState('starting');
+    setStartError(null);
     try {
       const result = await startWorkflow(workflow.id, {
         ...input,
@@ -88,7 +91,8 @@ export function useRunLauncher({
       setActiveRun({ workflow, runId: result.executionId });
       setRunEnded(false);
       setButtonState('idle');
-    } catch {
+    } catch (error) {
+      setStartError(error instanceof Error ? error.message : 'Failed to start workflow');
       setButtonState('error');
     }
   }
@@ -138,6 +142,7 @@ export function useRunLauncher({
     dismissPreflightErrors: () => setPreflightErrors(null),
     activeRun,
     runEnded,
+    startError,
     markRunEnded: () => setRunEnded(true),
     initResult,
     initError,

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { loadProjectSpecs, saveSpecFile } from '../../api';
 import { IconBox } from '../../components/IconBox/IconBox';
+import { AddToQueueDialog } from '../../queue/AddToQueueDialog/AddToQueueDialog';
 import type { Project, SpecFile, SpecInitResult } from '../../types';
 import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
 import { Eyebrow, Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
@@ -25,6 +26,8 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
   const [saving, setSaving] = useState(false);
   const [saveResult, setSaveResult] = useState<SpecInitResult | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [queueDialogOpen, setQueueDialogOpen] = useState(false);
+  const [queuedNotice, setQueuedNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (!project) {
@@ -54,6 +57,7 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
     setDraftContent(spec.content ?? '');
     setSaveResult(null);
     setSaveError(null);
+    setQueuedNotice(null);
   }
 
   async function handleSave() {
@@ -138,14 +142,41 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
                     <PanelTitle>
                       <h2>{selected.fileName}</h2>
                     </PanelTitle>
-                    <Button
-                      size="sm"
-                      onClick={() => void handleSave()}
-                      disabled={!isDirty || saving}
-                    >
-                      {saving ? '⟳ Saving…' : '💾 Save'}
-                    </Button>
+                    <div className={styles.specEditorActions}>
+                      <Button
+                        size="sm"
+                        onClick={() => void handleSave()}
+                        disabled={!isDirty || saving}
+                      >
+                        {saving ? '⟳ Saving…' : '💾 Save'}
+                      </Button>
+                      <Button
+                        size="sm"
+                        data-testid="spec-add-to-queue"
+                        onClick={() => setQueueDialogOpen(true)}
+                        disabled={isDirty || saving}
+                        aria-describedby={isDirty ? 'add-to-queue-hint' : undefined}
+                      >
+                        ➕ Add to queue
+                      </Button>
+                    </div>
                   </PanelHeader>
+                  {isDirty && (
+                    <p
+                      id="add-to-queue-hint"
+                      className={fieldHintClass}
+                      data-testid={saveResult ? 'spec-add-to-queue-unmerged' : undefined}
+                    >
+                      {saveResult
+                        ? 'Your changes are saved on a branch and not merged yet. The queue runs the version on the default branch, so merge the pull request first.'
+                        : "Save the spec first. The queue only runs the version on the repository's default branch, so merge the pull request from saving before it runs."}
+                    </p>
+                  )}
+                  {queuedNotice && (
+                    <p className={fieldHintClass} role="status" data-testid="spec-queued-notice">
+                      {queuedNotice}
+                    </p>
+                  )}
                   <textarea
                     className={styles.specEditorTextarea}
                     value={draftContent}
@@ -177,6 +208,17 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
           </div>
         )}
       </main>
+      {queueDialogOpen && project && selected && (
+        <AddToQueueDialog
+          project={project}
+          fixedSpecFile={selected.fileName}
+          onCancel={() => setQueueDialogOpen(false)}
+          onAdded={(item) => {
+            setQueueDialogOpen(false);
+            setQueuedNotice(`${item.specFile} was added to the queue.`);
+          }}
+        />
+      )}
     </AppShell>
   );
 }

@@ -1,0 +1,74 @@
+.queue-item {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  list-style: none;
+  &__main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  &__position {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    font-size: 12px;
+    color: var(--cyan);
+  }
+  &__title {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+    & strong {
+      overflow-wrap: anywhere;
+    }
+  }
+  &__workflow,
+  &__note,
+  &__auto-merge-note {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  &__note,
+  &__failure {
+    margin: 0;
+  }
+  &__failure {
+    color: var(--warn);
+  }
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    align-items: center;
+    font-size: 13px;
+    & a {
+      color: var(--cyan);
+    }
+  }
+  &__auto-merge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    & input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--teal);
+    }
+  }
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    &:empty {
+      display: none;
+    }
+  }
+}

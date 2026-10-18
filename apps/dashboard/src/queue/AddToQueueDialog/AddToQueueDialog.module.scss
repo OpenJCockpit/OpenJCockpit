@@ -1,0 +1,37 @@
+.add-to-queue-dialog {
+  padding: 26px 28px;
+  border-color: var(--line-strong);
+  box-shadow:
+    0 0 40px rgba(39, 231, 255, 0.14),
+    var(--shadow);
+  & h2 {
+    margin: 4px 0 0;
+    font-size: 20px;
+  }
+  &__field {
+    display: grid;
+    gap: 6px;
+    margin: 16px 0 0;
+    font-size: 13px;
+    & select {
+      width: 100%;
+    }
+  }
+  &__label {
+    color: var(--muted);
+  }
+  &__check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    & input {
+      width: 18px;
+      height: 18px;
+    }
+  }
+  &__actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+  }
+}
