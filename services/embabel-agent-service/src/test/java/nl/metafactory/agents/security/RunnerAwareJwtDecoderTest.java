@@ -126,4 +126,27 @@ class RunnerAwareJwtDecoderTest {
         p.setSecret("é".repeat(15)); // 30 bytes
         assertThatThrownBy(p::validate).isInstanceOf(IllegalStateException.class);
     }
+
+    @Test
+    void tokenWithNonJsonPayloadIsLeftToPrimary() {
+        var b64 = java.util.Base64.getUrlEncoder().withoutPadding();
+        String header = b64.encodeToString("{\"alg\":\"HS256\"}".getBytes());
+        String token = header + "." + b64.encodeToString("not-json".getBytes()) + "." + b64.encodeToString("sig".getBytes());
+        assertThatThrownBy(() -> decoder.decode(token)).hasMessage("primary rejected");
+    }
+
+    @Test
+    void propertiesExposeConfiguredValues() {
+        var p = new SpecQueueRunnerTokenProperties();
+        p.setSecret("s");
+        p.setIssuer("iss");
+        p.setAudience("aud");
+        p.setMaxLifetimeSeconds(5);
+        p.setClockSkewSeconds(7);
+        assertThat(p.getSecret()).isEqualTo("s");
+        assertThat(p.getIssuer()).isEqualTo("iss");
+        assertThat(p.getAudience()).isEqualTo("aud");
+        assertThat(p.getMaxLifetimeSeconds()).isEqualTo(5);
+        assertThat(p.getClockSkewSeconds()).isEqualTo(7);
+    }
 }

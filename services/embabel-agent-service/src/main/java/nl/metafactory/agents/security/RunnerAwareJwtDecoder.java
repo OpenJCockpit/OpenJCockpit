@@ -2,6 +2,7 @@ package nl.metafactory.agents.security;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -54,32 +55,22 @@ public class RunnerAwareJwtDecoder implements JwtDecoder {
 
     @Override
     public Jwt decode(String token) throws JwtException {
-        JWT parsed;
+        JWTClaimsSet claims = null;
         try {
-            parsed = JWTParser.parse(token);
-        } catch (ParseException | RuntimeException e) {
-            return primary.decode(token);
-        }
-        if (!isRunnerShaped(parsed)) {
-            return primary.decode(token);
-        }
-        try {
-            if (parsed.getJWTClaimsSet().getIssueTime() == null) {
-                throw new BadJwtException("Runner token without iat");
+            JWT parsed = JWTParser.parse(token);
+            if (JWSAlgorithm.HS256.equals(parsed.getHeader().getAlgorithm())) {
+                claims = parsed.getJWTClaimsSet();
             }
-        } catch (ParseException e) {
-            throw new BadJwtException("Malformed runner token");
+        } catch (ParseException | RuntimeException e) {
+            claims = null;
+        }
+        if (claims == null || !issuer.equals(claims.getIssuer())) {
+            return primary.decode(token);
+        }
+        if (claims.getIssueTime() == null) {
+            throw new BadJwtException("Runner token without iat");
         }
         return runnerDecoder.decode(token);
-    }
-
-    private boolean isRunnerShaped(JWT parsed) {
-        try {
-            return JWSAlgorithm.HS256.equals(parsed.getHeader().getAlgorithm())
-                    && issuer.equals(parsed.getJWTClaimsSet().getIssuer());
-        } catch (ParseException e) {
-            return false;
-        }
     }
 
     private static OAuth2TokenValidator<Jwt> audienceValidator(String audience) {
