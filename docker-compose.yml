@@ -263,7 +263,7 @@ services:
   # Docker network (port 2375, not published to the host). Every container in this
   # network therefore gets full control over the host — local dev only.
   docker-socat:
-    image: alpine/socat@sha256:fb3862c949af7c79996d0e514ee96128644d840835ed5368eeecb14a869de361
+    image: alpine/socat@sha256:22d77becaeeea8ef56b8c4bb2312323acafe85354be6a85714ff5050e3537842
     container_name: openjcockpit-docker-socat
     restart: unless-stopped
     command: tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock
