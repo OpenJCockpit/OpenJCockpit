@@ -2,6 +2,7 @@ package nl.metafactory.aicontrol.client;
 
 import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -18,7 +19,7 @@ public class EmbabelAgentClient {
 
     private final WebClient webClient;
 
-    public EmbabelAgentClient(WebClient embabelWebClient) {
+    public EmbabelAgentClient(@Qualifier("embabelWebClient") WebClient embabelWebClient) {
         this.webClient = embabelWebClient;
     }
 
