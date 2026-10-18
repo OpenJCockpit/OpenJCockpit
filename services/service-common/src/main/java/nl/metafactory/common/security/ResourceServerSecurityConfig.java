@@ -7,7 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -58,12 +60,23 @@ public class ResourceServerSecurityConfig {
     /** As {@link #buildApiChain(HttpSecurity)}, with a service-specific JWT-to-authentication converter. */
     public static SecurityFilterChain buildApiChain(HttpSecurity http,
             Converter<Jwt, ? extends AbstractAuthenticationToken> jwtConverter) throws Exception {
+        return buildApiChain(http, jwtConverter, auth -> auth.anyRequest().authenticated());
+    }
+
+    /**
+     * As {@link #buildApiChain(HttpSecurity, Converter)}, with service-specific request rules applied after
+     * the public health/info matchers; {@code rules} must end with an {@code anyRequest()} rule.
+     */
+    public static SecurityFilterChain buildApiChain(HttpSecurity http,
+            Converter<Jwt, ? extends AbstractAuthenticationToken> jwtConverter,
+            Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> rules)
+            throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
-                        .anyRequest().authenticated()
-                )
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/actuator/health", "/actuator/info").permitAll();
+                    rules.customize(auth);
+                })
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter)))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
