@@ -255,8 +255,8 @@ You can run Keycloak and PostgreSQL via Docker, and the frontend locally with Vi
 
 ```bash
 docker compose up postgres keycloak
-npm install
-npm run dev
+npm install                  # at the repo root (installs the Nx workspace)
+npx nx dev dashboard
 ```
 
 Then open the Vite URL, usually http://localhost:5173. This URL is already listed in the Keycloak client redirect URIs.
@@ -594,14 +594,15 @@ mvn -pl services/embabel-agent-service test
 mvn -pl services/embabel-agent-service verify
 ```
 
-Frontend verification (dashboard, with package-lock.json → npm ci):
+Frontend verification (Nx workspace at the repo root: `apps/dashboard` and `e2e`, one root `package-lock.json`, Node 22 per `.nvmrc`):
 
 ```bash
-cd apps/dashboard
 npm ci
-npm test
-npm run build
+npx nx run-many -t lint check-styles typecheck test build
+npx nx affected -t lint test build   # only what changed vs. main
 ```
+
+`apps/landing` is outside the workspace for now and keeps its own lockfile (`cd apps/landing && npm ci`).
 
 Spec folder rules:
 
@@ -1239,7 +1240,7 @@ under `.github/workflows/`:
 | Workflow          | Triggers on changes to                                    | Runs                                                                                                               |
 | ----------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `backend-ci.yml`  | `services/**`, root `pom.xml`, `shared/contracts/**`      | `mvn -B verify` for the full Maven reactor — build, unit/integration tests, and the JaCoCo 100% line-coverage gate |
-| `frontend-ci.yml` | `apps/dashboard/**`, `apps/landing/**`                    | `npm ci`, `npm test` (dashboard only — `landing` has no test script yet) and `npm run build`, for both apps        |
+| `frontend-ci.yml` | `apps/dashboard/**`, `apps/landing/**`, workspace config  | Nx workspace job (`affected` on PRs, full run on pushes: lint, check-styles, typecheck, test, build) plus a separate `landing` job |
 | `infra-ci.yml`    | `docker-compose.yml`, `infrastructure/**`, `.env.example` | `docker compose config` against `.env.example`, to catch YAML/interpolation errors without starting any container  |
 
 These three run only when their own paths change, so a dashboard-only PR

@@ -14,6 +14,11 @@ on:
       - "e2e/**"
       - "apps/dashboard/**"
       - "apps/landing/**"
+      - "libs/**"
+      - "package.json"
+      - "package-lock.json"
+      - "nx.json"
+      - "tsconfig.base.json"
       - "services/ai-control-service/**"
       - "infrastructure/keycloak/**"
       - "docker-compose.yml"
@@ -25,6 +30,11 @@ on:
       - "e2e/**"
       - "apps/dashboard/**"
       - "apps/landing/**"
+      - "libs/**"
+      - "package.json"
+      - "package-lock.json"
+      - "nx.json"
+      - "tsconfig.base.json"
       - "services/ai-control-service/**"
       - "infrastructure/keycloak/**"
       - "docker-compose.yml"
@@ -52,16 +62,10 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: |
-            e2e/package-lock.json
-            apps/dashboard/package-lock.json
+            package-lock.json
             apps/landing/package-lock.json
 
-      - name: Install e2e dependencies
-        working-directory: e2e
-        run: npm ci
-
-      - name: Install dashboard dependencies
-        working-directory: apps/dashboard
+      - name: Install workspace dependencies (dashboard, e2e)
         run: npm ci
 
       - name: Install landing dependencies
