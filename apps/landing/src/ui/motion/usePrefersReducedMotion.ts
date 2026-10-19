@@ -2,21 +2,21 @@ import { useEffect, useState } from 'react';
 
 // Shared reduced-motion primitive for the two JS/canvas-driven components in
 // this tree (PuffsBackground, DecipherText). Entrance animations are
-// CSS-only (see Reveal.jsx / reveal.css) and are covered for free by the
+// CSS-only (see Reveal.tsx / reveal.scss) and are covered for free by the
 // existing global `@media (prefers-reduced-motion: reduce)` block in
 // styles.css — this hook exists specifically for the two components that
 // block can't reach (BR-9, AC-11).
 
 const QUERY = '(prefers-reduced-motion: reduce)';
 
-export function getPrefersReducedMotion() {
+export function getPrefersReducedMotion(): boolean {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
     return false;
   }
   return window.matchMedia(QUERY).matches;
 }
 
-export default function usePrefersReducedMotion() {
+export default function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(getPrefersReducedMotion);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function usePrefersReducedMotion() {
     }
 
     const mediaQueryList = window.matchMedia(QUERY);
-    const handleChange = (event) => setReduced(event.matches);
+    const handleChange = (event: MediaQueryListEvent) => setReduced(event.matches);
 
     if (typeof mediaQueryList.addEventListener === 'function') {
       mediaQueryList.addEventListener('change', handleChange);

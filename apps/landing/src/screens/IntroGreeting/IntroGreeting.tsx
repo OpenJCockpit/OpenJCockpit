@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
-import Reveal from '../../ui/motion/Reveal.jsx';
-import FrameOctagon from '../../ui/frames/FrameOctagon.jsx';
-import DecipherText from '../../ui/vendor/react-bits/DecipherText.jsx';
+import Reveal from '../../ui/motion/Reveal';
+import FrameOctagon from '../../ui/frames/FrameOctagon';
+import DecipherText from '../../ui/vendor/react-bits/DecipherText';
 import './IntroGreeting.scss';
 
-export default function IntroGreeting({ firstName, onDone }) {
+type IntroGreetingProps = { firstName: string; onDone: () => void };
+
+export default function IntroGreeting({ firstName, onDone }: IntroGreetingProps) {
   useEffect(() => {
     const timer = window.setTimeout(onDone, 2850);
     return () => window.clearTimeout(timer);
@@ -19,17 +21,13 @@ export default function IntroGreeting({ firstName, onDone }) {
         <FrameOctagon
           className="intro-octagon"
           duration={1.2}
+          // eslint-disable-next-line no-restricted-syntax -- static custom properties; move into the CSS module in the CSS Modules PR
           style={{
             '--frame-line-color': 'hsl(184 100% 58%)',
-            '--frame-bg-color': 'hsl(184 100% 58% / 8%)'
+            '--frame-bg-color': 'hsl(184 100% 58% / 8%)',
           }}
         />
-        <DecipherText
-          as="h1"
-          className="intro-title"
-          text={`Hi ${firstName}!`}
-          durationMs={1200}
-        />
+        <DecipherText as="h1" className="intro-title" text={`Hi ${firstName}!`} durationMs={1200} />
       </Reveal>
     </section>
   );

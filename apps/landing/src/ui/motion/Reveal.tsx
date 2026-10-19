@@ -1,3 +1,4 @@
+import type { CSSProperties, ElementType, ReactNode } from 'react';
 import './reveal.scss';
 
 // Entrance-animation primitive replacing the Arwes react-animated
@@ -11,7 +12,7 @@ import './reveal.scss';
 // and are never auto-incremented during render (ADR-4) — an auto-increment
 // counter would be a render-time side effect, which React's rendering model
 // disallows regardless of whether StrictMode is enabled. (StrictMode itself
-// is currently reverted in main.jsx for an unrelated, documented reason —
+// is currently reverted in main.tsx for an unrelated, documented reason —
 // the Keycloak singleton double-init issue, ADR-8 — so this rule is
 // followed on its own merits here, not because StrictMode is catching
 // violations at runtime.)
@@ -21,6 +22,18 @@ import './reveal.scss';
 // orbs keep working with no extra wrapper element — the DOM shape stays
 // identical to the pre-migration `<Animated as="button">` output, plus one
 // additional `reveal` class used purely as the CSS animation hook.
+type RevealProps = {
+  as?: ElementType;
+  duration?: number;
+  index?: number;
+  from?: { y?: number; scale?: number };
+  className?: string;
+  style?: CSSProperties;
+  children?: ReactNode;
+  // Remaining props (type, onClick, data-*, aria-*) pass through to the rendered element.
+  [prop: string]: unknown;
+};
+
 export default function Reveal({
   as: Component = 'div',
   duration = 1,
@@ -30,14 +43,14 @@ export default function Reveal({
   style,
   children,
   ...rest
-}) {
+}: RevealProps) {
   const { y, scale } = from;
 
   const revealStyle = {
     ...style,
     '--reveal-duration': `${duration}s`,
-    '--reveal-index': index
-  };
+    '--reveal-index': index,
+  } as CSSProperties & Record<`--${string}`, string | number>;
 
   if (y !== undefined) {
     revealStyle['--reveal-y-from'] = `${y}px`;
@@ -47,6 +60,7 @@ export default function Reveal({
   }
 
   return (
+    // eslint-disable-next-line no-restricted-syntax -- runtime-computed custom properties (duration, index, from)
     <Component className={`reveal ${className}`.trim()} style={revealStyle} {...rest}>
       {children}
     </Component>
