@@ -12,6 +12,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "check:styles": "node visual/check-classes.mjs",
     "visual:baseline": "node visual/run.mjs baseline",
     "visual:check": "node visual/run.mjs check"
   },

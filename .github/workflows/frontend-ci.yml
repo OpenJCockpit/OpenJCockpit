@@ -27,9 +27,16 @@ jobs:
         working-directory: apps/${{ matrix.app }}
         run: npm ci
 
+      - name: Lint
+        working-directory: apps/${{ matrix.app }}
+        run: npm run lint
+
+      - name: Check style references
+        working-directory: apps/${{ matrix.app }}
+        run: npm run check:styles
+
       - name: Run tests
-        if: matrix.app == 'dashboard'
-        working-directory: apps/dashboard
+        working-directory: apps/${{ matrix.app }}
         run: npm run test -- --reporter=default --reporter=junit --outputFile=${{ runner.temp }}/vitest-junit.xml
 
       - name: Build
@@ -37,9 +44,9 @@ jobs:
         run: npm run build
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: failure() && matrix.app == 'dashboard'
+        if: failure()
         with:
-          name: dashboard-vitest-report
+          name: ${{ matrix.app }}-vitest-report
           path: ${{ runner.temp }}/vitest-junit.xml
           if-no-files-found: ignore
           retention-days: 7
