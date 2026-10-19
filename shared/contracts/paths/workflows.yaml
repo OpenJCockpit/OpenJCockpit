@@ -179,6 +179,12 @@ workflowStart:
           application/json:
             schema:
               $ref: '../schemas/workflow.yaml#/WorkflowStartResponseDto'
+      '409':
+        description: A spec queue item is active for the project (code SPEC_QUEUE_ITEM_ACTIVE)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/common.yaml#/ApiErrorResponse'
 
 workflowDecisionLogs:
   get:

@@ -297,6 +297,9 @@ services:
       WORKFLOW_WORKSPACE_BASE: /workflow-workspaces
       AGENTIC_CONTAINER_ENABLED: ${AGENTIC_CONTAINER_ENABLED:-true}
       AGENTIC_CONTAINER_IMAGE: ${AGENTIC_CONTAINER_IMAGE:-eclipse-temurin:25-jre}
+      SPEC_QUEUE_RUNNER_ENABLED: ${SPEC_QUEUE_RUNNER_ENABLED:-true}
+      SPEC_QUEUE_POLL_INTERVAL: ${SPEC_QUEUE_POLL_INTERVAL:-PT20S}
+      SPEC_QUEUE_RUNNER_TOKEN_SECRET: *spec-queue-runner-secret
       # A job waits for its whole workflow run; four agents on the local Ollama model with git tool calls
       # take well over the 600 s service default.
       WORKFLOW_AGENT_TIMEOUT: ${WORKFLOW_AGENT_TIMEOUT:-3600}

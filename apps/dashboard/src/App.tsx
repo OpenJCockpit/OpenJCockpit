@@ -17,6 +17,7 @@ import { ProjectSelection } from './components/ProjectSelection/ProjectSelection
 import { ProjectSettings } from './components/ProjectSettings/ProjectSettings';
 import { SkillsHubDashboard } from './components/SkillsHubDashboard/SkillsHubDashboard';
 import { SkillsHubSettings } from './components/SkillsHubSettings/SkillsHubSettings';
+import { SpecQueueDashboard } from './queue/SpecQueueDashboard/SpecQueueDashboard';
 import { SpecFilesDashboard } from './spec/SpecFilesDashboard/SpecFilesDashboard';
 import { WorkflowDashboard } from './workflow/WorkflowDashboard/WorkflowDashboard';
 import { WorkflowPromptDialog } from './workflow/WorkflowPromptDialog/WorkflowPromptDialog';
@@ -42,6 +43,7 @@ type AppView =
   | 'settings'
   | 'workflow'
   | 'spec-files'
+  | 'spec-queue'
   | 'skills-hub'
   | 'skills-hub-settings';
 
@@ -56,6 +58,7 @@ function App() {
   });
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [runLink, setRunLink] = useState<{ workflowId: string; runId: string } | null>(null);
   const [workspace, setWorkspace] = useState<Workspace>(mockWorkspace);
   const [specs, setSpecs] = useState<SpecFile[]>([]);
   const [specsLoading, setSpecsLoading] = useState(true);
@@ -214,7 +217,24 @@ function App() {
     return (
       <WorkflowDashboard
         project={selectedProject}
+        initialExecution={runLink ?? undefined}
+        onBack={() => {
+          setRunLink(null);
+          setView(selectedProject ? 'dashboard' : 'project-selection');
+        }}
+      />
+    );
+  }
+
+  if (view === 'spec-queue') {
+    return (
+      <SpecQueueDashboard
+        project={selectedProject}
         onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
+        onOpenRun={(workflowId, runId) => {
+          setRunLink({ workflowId, runId });
+          setView('workflow');
+        }}
       />
     );
   }
@@ -268,6 +288,7 @@ function App() {
         onProjectChange={handleProjectDropdownChange}
         onWorkflow={() => setView('workflow')}
         onSpecFiles={() => setView('spec-files')}
+        onSpecQueue={() => setView('spec-queue')}
         onSkillsHub={() => setView('skills-hub')}
         onSettings={() => setView('settings')}
       />

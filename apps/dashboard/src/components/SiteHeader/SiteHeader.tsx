@@ -11,6 +11,7 @@ interface Props {
   onProjectChange: (projectId: string) => void;
   onWorkflow: () => void;
   onSpecFiles: () => void;
+  onSpecQueue: () => void;
   onSkillsHub: () => void;
   onSettings: () => void;
 }
@@ -21,6 +22,7 @@ export function SiteHeader({
   onProjectChange,
   onWorkflow,
   onSpecFiles,
+  onSpecQueue,
   onSkillsHub,
   onSettings,
 }: Props) {
@@ -54,6 +56,14 @@ export function SiteHeader({
           data-testid="nav-spec-files"
         >
           📄 Spec Files
+        </Button>
+        <Button
+          variant="workflow"
+          onClick={onSpecQueue}
+          title="Spec Queue"
+          data-testid="nav-spec-queue"
+        >
+          📋 Spec Queue
         </Button>
         <Button
           variant="workflow"

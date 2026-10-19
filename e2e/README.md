@@ -97,8 +97,8 @@ green with none of them set, given the documented environment.
 | `E2E_DASHBOARD_BASE_URL`       | `http://localhost:4000`                                                                                                                             | dashboard project base URL                                                               |
 | `E2E_LANDING_BASE_URL`         | `http://localhost:3000`                                                                                                                             | landing project base URL                                                                 |
 | `E2E_KEYCLOAK_URL`             | `http://localhost:8080`                                                                                                                             | setup project, readiness, Direct Access Grant                                            |
-| `E2E_KEYCLOAK_REALM`           | `openjcockpit`                                                                                                                                       | as above                                                                                 |
-| `E2E_KEYCLOAK_CLIENT_ID`       | `openjcockpit`                                                                                                                                       | as above (public client — no secret variable exists anywhere in this harness)            |
+| `E2E_KEYCLOAK_REALM`           | `openjcockpit`                                                                                                                                      | as above                                                                                 |
+| `E2E_KEYCLOAK_CLIENT_ID`       | `openjcockpit`                                                                                                                                      | as above (public client — no secret variable exists anywhere in this harness)            |
 | `E2E_API_BASE_URL`             | `http://localhost:9080`                                                                                                                             | direct-to-`ai-control-service` assertions (e.g. the unauthenticated 401/200 pair)        |
 | `E2E_USERNAME`                 | `e2e`                                                                                                                                               | the seeded test identity                                                                 |
 | `E2E_PASSWORD`                 | the seeded local-only password documented in the repository root `README.md`'s Keycloak-data table — never repeated here                            | as above                                                                                 |
@@ -215,16 +215,28 @@ execution model.
 
 ## What is deliberately excluded, and why
 
-### No role/permission (403) coverage (AC-14)
+### Role/permission (403) coverage (AC-14) — partially closed
 
-`infrastructure/keycloak/openjcockpit-realm.json` defines **no realm roles and no client roles** — it
-has no `roles` key populated with role definitions, and no user carries `realmRoles`/`clientRoles`.
-Both backend services authorize with `anyRequest().authenticated()` only, with no role or scope check
-(`services/ai-control-service/src/main/java/nl/metafactory/aicontrol/config/SecurityConfig.java` and
-the equivalent `SecurityConfig.java` in `services/embabel-agent-service`). There is therefore nothing
-to construct a 403/role-boundary scenario against today. This suite contains **no** fabricated role
-scenario. This is recorded here as a follow-up to be delivered together with the platform's first
-Keycloak role, not silently omitted from the QA traceability matrix.
+The realm defines one realm role, `openjcockpit-admin`, held only by `tony`.
+
+- **Covered:** the non-admin `e2e` user's `PUT /api/projects/{id}/spec-queue/settings` returns 403
+  and leaves the setting unchanged, and the dashboard shows the auto-merge toggle read-only.
+- **Still open:** the positive admin path. No scenario logs in as `tony`, so no admin identity
+  exists in e2e.
+
+### Spec queue — named gap
+
+Playwright covers only `specs/spec-queue.spec.ts` (read-only queue view, Add-dialog spec-listing
+failure, non-admin 403) and the eleven unauthenticated-401 tests in `specs/api-unauthenticated.spec.ts`.
+
+- It does **not** cover the full enqueue-to-merge chain, the BR-6 409 `SPEC_QUEUE_ITEM_ACTIVE`, or
+  reorder with real items: the e2e stack has no embabel workflow run and no git remote. Those are
+  proven by the backend suites in `mvn verify`.
+- PostgreSQL-specific behaviour is not exercised: the backend suites run against H2.
+- Keyboard Enter/Space on the reorder buttons, and focus retention after the 5 s poll, are covered
+  by neither Playwright nor jsdom.
+- Concurrency semantics, multi-process runners, migration on PostgreSQL and the lock-timeout value
+  are likewise only exercised by the backend suites.
 
 ### `WorkflowPromptDialog` dialog semantics — not executable as an E2E scenario today (AC-23)
 
@@ -287,7 +299,7 @@ dependencies needing separate sign-off.
   model output quality.
 - **Anything requiring a real git remote or credentials.** The seeded project's git URL is not a real,
   writable repository, and this suite never introduces one.
-- **Role/permission (403) scenarios** — see above.
+- **Positive admin-role scenarios** — see above.
 - **Visual regression / screenshot diffing.**
 - **Automated accessibility scanning** (e.g. axe or equivalent) as a gate. Targeted keyboard/ARIA
   assertions live inside individual scenarios; an automated scanner is a separate tool and a separate

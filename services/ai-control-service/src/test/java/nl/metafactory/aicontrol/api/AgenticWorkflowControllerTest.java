@@ -10,6 +10,8 @@ import nl.metafactory.aicontrol.model.StartWorkflowRequest;
 import nl.metafactory.aicontrol.model.WorkflowPreflightResult;
 import nl.metafactory.aicontrol.service.GitWorkspaceJobService;
 import nl.metafactory.aicontrol.service.WorkflowPreflightService;
+import nl.metafactory.aicontrol.specqueue.app.SpecQueueActiveItemGuard;
+import nl.metafactory.aicontrol.specqueue.app.SpecQueueException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +59,9 @@ class AgenticWorkflowControllerTest {
     private nl.metafactory.aicontrol.service.JobWorkflowCheck workflowCheck;
 
     @MockitoBean
+    private SpecQueueActiveItemGuard activeItemGuard;
+
+    @MockitoBean
     private JwtDecoder jwtDecoder;
 
     @AfterEach
@@ -87,6 +92,25 @@ class AgenticWorkflowControllerTest {
     }
 
     @Test
+    void startWorkflowReturns409WhenSpecQueueItemIsActive() throws Exception {
+        UUID projectId = UUID.randomUUID();
+        org.mockito.Mockito.doThrow(new SpecQueueException(
+                        SpecQueueException.Code.SPEC_QUEUE_ITEM_ACTIVE, "A spec queue item is active"))
+                .when(activeItemGuard).assertNoActiveItem(projectId);
+
+        var req = new StartWorkflowRequest("spec-001", projectId, null, "wf-1");
+        mockMvc.perform(post("/api/agentic-workflows/start")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.preflightPassed").value(false))
+                .andExpect(jsonPath("$.errors[0].code").value("SPEC_QUEUE_ITEM_ACTIVE"));
+
+        verify(preflightService, org.mockito.Mockito.never()).validateBeforeWorkflowStart(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
     void startWorkflowUsesUnknownUsernameWithoutAuthentication() {
         SecurityContextHolder.clearContext();
         GitWorkspaceJobService directJobService = org.mockito.Mockito.mock(GitWorkspaceJobService.class);
@@ -98,7 +122,7 @@ class AgenticWorkflowControllerTest {
                 .thenReturn(jobDto(jobId, projectId));
 
         var req = new StartWorkflowRequest("spec-001", projectId, null, "wf-1");
-        new AgenticWorkflowController(directJobService, directPreflightService, org.mockito.Mockito.mock(nl.metafactory.aicontrol.service.JobWorkflowCheck.class)).startWorkflow(req);
+        new AgenticWorkflowController(directJobService, directPreflightService, org.mockito.Mockito.mock(nl.metafactory.aicontrol.service.JobWorkflowCheck.class), activeItemGuard).startWorkflow(req);
 
         verify(directJobService).createJob(projectId, "spec-001", "wf-1", "unknown");
     }

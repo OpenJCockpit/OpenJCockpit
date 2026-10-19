@@ -50,6 +50,7 @@ GitWorkspaceJobErrorCode:
     - GIT_REPOSITORY_UNAVAILABLE
     - WORKFLOW_NOT_FOUND
     - WORKFLOW_HAS_NO_AGENTS
+    - SPEC_QUEUE_ITEM_ACTIVE
 
 PreflightError:
   type: object
