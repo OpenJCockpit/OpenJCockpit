@@ -1,17 +1,10 @@
 .portal-orb {
   position: relative;
-}
-
-.orb-core {
-  position: relative;
-}
-
-.portal-orb {
   width: clamp(230px, 25vw, 328px);
   aspect-ratio: 1;
   border: 0;
   border-radius: 999px;
-  color: var(--text);
+  color: var(--hub-text);
   background: transparent;
   cursor: pointer;
   transform-style: preserve-3d;
@@ -23,7 +16,7 @@
 }
 
 .portal-orb:focus-visible {
-  outline: 2px solid var(--cyan);
+  outline: 2px solid var(--hub-cyan);
   outline-offset: 12px;
 }
 
@@ -151,7 +144,7 @@
   z-index: 1;
   max-width: 210px;
   margin-top: 10px;
-  color: var(--muted);
+  color: var(--hub-muted);
   font-size: 0.9rem;
   line-height: 1.45;
 }
@@ -162,7 +155,7 @@
   bottom: -28px;
   transform: translateX(-50%);
   color: rgba(222, 244, 255, 0.58);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-hub-mono);
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   white-space: nowrap;

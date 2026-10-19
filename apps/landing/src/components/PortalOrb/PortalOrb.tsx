@@ -1,5 +1,6 @@
 import Reveal from '../../ui/motion/Reveal';
-import './PortalOrb.scss';
+import { cx } from '../../ui/cx';
+import styles from './PortalOrb.module.scss';
 
 export type Portal = {
   id: string;
@@ -10,12 +11,18 @@ export type Portal = {
 
 export default function PortalOrb({ portal }: { portal: Portal }) {
   const isBusiness = portal.id === 'business';
+  const variantClass =
+    portal.id === 'business'
+      ? styles.business
+      : portal.id === 'implementation'
+        ? styles.implementation
+        : undefined;
 
   return (
     <Reveal
       as="button"
       type="button"
-      className={`portal-orb ${portal.id}`}
+      className={cx(styles.portalOrb, variantClass)}
       data-testid={`portal-orb-${portal.id}`}
       duration={1.05}
       index={isBusiness ? 1 : 2}
@@ -31,14 +38,14 @@ export default function PortalOrb({ portal }: { portal: Portal }) {
         }
       }}
     >
-      <span className="portal-orb-inner">
-        <span className="orb-halo" />
-        <span className="orb-core">
-          <span className="orb-grid" />
-          <span className="orb-title">{portal.title}</span>
-          <span className="orb-subtitle">{portal.subtitle}</span>
+      <span className={styles.portalOrbInner}>
+        <span className={styles.orbHalo} />
+        <span className={styles.orbCore}>
+          <span className={styles.orbGrid} />
+          <span className={styles.orbTitle}>{portal.title}</span>
+          <span className={styles.orbSubtitle}>{portal.subtitle}</span>
         </span>
-        <span className="orb-status">{isBusiness ? '' : ''}</span>
+        <span className={styles.orbStatus}>{isBusiness ? '' : ''}</span>
       </span>
     </Reveal>
   );

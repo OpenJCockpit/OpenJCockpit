@@ -3,7 +3,8 @@ import type Keycloak from 'keycloak-js';
 import type { User } from '../../auth/keycloak';
 import Reveal from '../../ui/motion/Reveal';
 import FrameOctagon from '../../ui/frames/FrameOctagon';
-import './TopBar.scss';
+import NavButton from '../../ui/NavButton/NavButton';
+import styles from './TopBar.module.scss';
 
 const navActions = [
   { label: 'Profile', icon: '◉', type: 'profile' },
@@ -17,47 +18,36 @@ export default function TopBar({ user, keycloak }: TopBarProps) {
   const [activePanel, setActivePanel] = useState<string | null>(null);
 
   return (
-    <Reveal as="header" className="topbar" duration={0.8} from={{ y: -20 }}>
-      <FrameOctagon
-        duration={0.8}
-        // eslint-disable-next-line no-restricted-syntax -- static custom properties; move into the CSS module in the CSS Modules PR
-        style={{
-          '--frame-line-color': 'hsl(184 100% 58% / 78%)',
-          '--frame-bg-color': 'hsl(230 50% 12% / 46%)',
-        }}
-      />
-
-      <div className="brand">
-        <span className="brand-mark">A</span>
+    <Reveal as="header" className={styles.topbar} duration={0.8} from={{ y: -20 }}>
+      <FrameOctagon className={styles.frame} duration={0.8} />
+      <div className={styles.brand}>
+        <span className={styles.brandMark}>A</span>
         <div>
           <strong>NEXUS PORTAL</strong>
           <small>{user?.email || user?.username || 'Authenticated launch hub'}</small>
         </div>
       </div>
-
-      <nav className="topbar-actions" aria-label="User actions">
+      <nav className={styles.topbarActions} aria-label="User actions">
         {navActions.map((action) => (
-          <button
+          <NavButton
             key={action.label}
-            className="nav-button"
             type="button"
             onClick={() => setActivePanel(activePanel === action.type ? null : action.type)}
           >
             <span aria-hidden="true">{action.icon}</span>
             <span>{action.label}</span>
-          </button>
+          </NavButton>
         ))}
-        <button
-          className="nav-button logout-button"
+        <NavButton
+          className={styles.logoutButton}
           type="button"
           onClick={() => void keycloak.logout({ redirectUri: window.location.origin })}
         >
           Logout
-        </button>
+        </NavButton>
       </nav>
-
       {activePanel && (
-        <div className="topbar-popover">
+        <div className={styles.topbarPopover}>
           <strong>{activePanel}</strong>
           {activePanel === 'profile' && (
             <p>

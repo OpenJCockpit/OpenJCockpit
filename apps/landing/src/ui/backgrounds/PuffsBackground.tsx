@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import usePrefersReducedMotion from '../motion/usePrefersReducedMotion';
-import './puffsBackground.scss';
+import { cx } from '../cx';
+import styles from './PuffsBackground.module.scss';
 
 // Clean-room canvas 2D reimplementation of the ambient particle background
 // previously rendered by the Arwes react-bgs package's <Puffs />. This is a
@@ -95,7 +96,7 @@ export default function PuffsBackground({
   radiusOffset = [1, 9],
   cycleSeconds = 2,
   fadeInSeconds = 1.4,
-  className = '',
+  className,
 }: PuffsBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [visible, setVisible] = useState(false);
@@ -246,7 +247,7 @@ export default function PuffsBackground({
       aria-hidden="true"
       // eslint-disable-next-line jsx-a11y/no-interactive-element-to-noninteractive-role -- DOM kept identical to the pre-conversion output
       role="presentation"
-      className={`puffs-background ${visible ? 'is-visible' : ''} ${className}`.trim()}
+      className={cx(styles.puffsBackground, visible && styles.isVisible, className)}
       // eslint-disable-next-line no-restricted-syntax -- runtime-computed custom property (fade duration)
       style={{ '--puffs-fade-duration': `${fadeInSeconds}s` } as CSSProperties}
     />

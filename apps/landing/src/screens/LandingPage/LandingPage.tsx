@@ -7,8 +7,11 @@ import Reveal from '../../ui/motion/Reveal';
 import TopBar from '../../components/TopBar/TopBar';
 import PortalOrb from '../../components/PortalOrb/PortalOrb';
 import type { Portal } from '../../components/PortalOrb/PortalOrb';
+import AppShell from '../../ui/AppShell/AppShell';
+import AmbientBackdrop from '../../ui/AmbientBackdrop/AmbientBackdrop';
+import Eyebrow from '../../ui/Eyebrow/Eyebrow';
 import IntroGreeting from '../IntroGreeting/IntroGreeting';
-import './LandingPage.scss';
+import styles from './LandingPage.module.scss';
 
 const portals: Portal[] = [
   {
@@ -33,7 +36,7 @@ export default function LandingPage({ user, keycloak }: LandingPageProps) {
   const firstName = useMemo(() => user?.firstName || 'Tony', [user]);
 
   return (
-    <main className="app-shell">
+    <AppShell>
       <PuffsBackground
         color="hsl(184 100% 58% / 0.26)"
         quantity={85}
@@ -43,21 +46,19 @@ export default function LandingPage({ user, keycloak }: LandingPageProps) {
         radiusOffset={[1, 9]}
       />
 
-      <div className="ambient ambient-blue" />
-      <div className="ambient ambient-purple" />
-      <div className="scanlines" />
+      <AmbientBackdrop />
 
       <TopBar user={user} keycloak={keycloak} />
 
       <RevealGroup
         as="section"
-        className="hero"
+        className={styles.hero}
         aria-labelledby="landing-title"
         stagger={0.16}
         data-testid="landing-hero"
       >
-        <Reveal as="div" className="hero-copy" duration={0.55} index={0} from={{ y: 24 }}>
-          <span className="eyebrow">Authenticated destination</span>
+        <Reveal as="div" className={styles.heroCopy} duration={0.55} index={0} from={{ y: 24 }}>
+          <Eyebrow>Authenticated destination</Eyebrow>
           <h2 id="landing-title">Choose your workspace</h2>
           <p>
             Welcome back, {firstName}. Your token is valid and this hub is now unlocked. Navigate
@@ -65,7 +66,7 @@ export default function LandingPage({ user, keycloak }: LandingPageProps) {
           </p>
         </Reveal>
 
-        <div className="orb-stage">
+        <div className={styles.orbStage}>
           {portals.map((portal) => (
             <PortalOrb key={portal.id} portal={portal} />
           ))}
@@ -75,6 +76,6 @@ export default function LandingPage({ user, keycloak }: LandingPageProps) {
       {introVisible && (
         <IntroGreeting firstName={firstName} onDone={() => setIntroVisible(false)} />
       )}
-    </main>
+    </AppShell>
   );
 }

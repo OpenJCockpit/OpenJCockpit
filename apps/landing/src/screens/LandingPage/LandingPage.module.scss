@@ -19,16 +19,17 @@
     letter-spacing: -0.075em;
     text-shadow: 0 0 32px rgba(39, 247, 255, 0.2);
   }
+
   p {
     max-width: 560px;
     margin: 18px auto 0;
-    color: var(--muted);
+    color: var(--hub-muted);
     font-size: clamp(1rem, 1.5vw, 1.16rem);
     line-height: 1.7;
   }
 }
 
-.orb-stage {
+.orbStage {
   position: relative;
   display: grid;
   width: min(100%, 940px);
@@ -44,7 +45,7 @@
     padding: 46px 0 80px;
   }
 
-  .orb-stage {
+  .orbStage {
     grid-template-columns: 1fr;
     gap: 76px;
   }

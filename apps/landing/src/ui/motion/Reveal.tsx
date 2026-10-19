@@ -1,11 +1,12 @@
 import type { CSSProperties, ElementType, ReactNode } from 'react';
-import './reveal.scss';
+import { cx } from '../cx';
+import styles from './Reveal.module.scss';
 
 // Entrance-animation primitive replacing the Arwes react-animated
 // package's <Animated /> for this app's six entrance profiles (auth card, topbar, intro frame,
 // hero copy, two portal orbs). CSS-only by design (ADR-3): no WAAPI, no JS
 // timers. This makes the existing global
-// `@media (prefers-reduced-motion: reduce)` block in styles.css
+// `@media (prefers-reduced-motion: reduce)` block in styles/_reset.scss
 // automatically authoritative for every entrance animation in the app.
 //
 // Stagger indices are always passed explicitly by the caller via `index`
@@ -39,7 +40,7 @@ export default function Reveal({
   duration = 1,
   index = 0,
   from = {},
-  className = '',
+  className,
   style,
   children,
   ...rest
@@ -61,7 +62,7 @@ export default function Reveal({
 
   return (
     // eslint-disable-next-line no-restricted-syntax -- runtime-computed custom properties (duration, index, from)
-    <Component className={`reveal ${className}`.trim()} style={revealStyle} {...rest}>
+    <Component className={cx(styles.reveal, className)} style={revealStyle} {...rest}>
       {children}
     </Component>
   );
