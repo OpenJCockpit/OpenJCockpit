@@ -22,7 +22,7 @@ type RevealGroupProps = {
 export default function RevealGroup({
   as: Component = 'div',
   stagger = 0.16,
-  className = '',
+  className,
   style,
   children,
   ...rest

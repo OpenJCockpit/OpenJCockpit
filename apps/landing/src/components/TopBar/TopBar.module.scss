@@ -1,9 +1,6 @@
-.brand {
-  position: relative;
-}
-
-.topbar-actions {
-  position: relative;
+.frame {
+  --frame-line-color: hsl(184 100% 58% / 78%);
+  --frame-bg-color: hsl(230 50% 12% / 46%);
 }
 
 .topbar {
@@ -19,6 +16,7 @@
 }
 
 .brand {
+  position: relative;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -30,10 +28,10 @@
   width: 42px;
   height: 42px;
   place-items: center;
-  border: 1px solid var(--line);
+  border: 1px solid var(--hub-line);
   border-radius: 14px;
-  color: var(--cyan);
-  font-family: 'JetBrains Mono', monospace;
+  color: var(--hub-cyan);
+  font-family: var(--font-hub-mono);
   font-weight: 800;
   box-shadow:
     0 0 24px rgba(39, 247, 255, 0.22),
@@ -49,12 +47,13 @@
 .brand small {
   display: block;
   margin-top: 2px;
-  color: var(--muted);
-  font-family: 'JetBrains Mono', monospace;
+  color: var(--hub-muted);
+  font-family: var(--font-hub-mono);
   font-size: 0.68rem;
 }
 
 .topbar-actions {
+  position: relative;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -84,15 +83,15 @@
 
 .topbar-popover strong {
   display: block;
-  color: var(--cyan);
-  font-family: 'JetBrains Mono', monospace;
+  color: var(--hub-cyan);
+  font-family: var(--font-hub-mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .topbar-popover p {
   margin: 10px 0 0;
-  color: var(--muted);
+  color: var(--hub-muted);
   line-height: 1.55;
 }
 

@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import './frameOctagon.scss';
+import { cx } from '../cx';
+import styles from './FrameOctagon.module.scss';
 
 // Faithful reimplementation of the octagonal frame previously rendered by
 // the Arwes react-frames package's <FrameOctagon />. Geometry is
@@ -65,20 +66,19 @@ export function buildFrameOctagonPaths(
  * Renders an absolutely positioned SVG octagon frame over its parent
  * element (the parent must be `position: relative` and sized, exactly as
  * the pre-migration Arwes usage required). `className` must land on the
- * SVG root so `.intro-octagon`'s `drop-shadow` in styles.css keeps working
- * unchanged (R-12). `style` is passed through so callers set
- * `--frame-line-color` / `--frame-bg-color`.
+ * SVG root so the intro octagon's `drop-shadow` keeps working
+ * unchanged (R-12). Callers set `--frame-line-color` /
+ * `--frame-bg-color` from their own CSS module via `className`.
  *
  * `pointer-events: none` (in frameOctagon.scss) is an intentional,
  * documented deviation from Arwes, which did not set it — see R-13.
  */
 type FrameOctagonProps = {
   className?: string;
-  style?: CSSProperties & Record<`--${string}`, string>;
   duration?: number;
 };
 
-export default function FrameOctagon({ className = '', style, duration = 1 }: FrameOctagonProps) {
+export default function FrameOctagon({ className, duration = 1 }: FrameOctagonProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
 
@@ -117,22 +117,22 @@ export default function FrameOctagon({ className = '', style, duration = 1 }: Fr
   }, []);
 
   const { bg, lineA, lineB } = buildFrameOctagonPaths(size.width, size.height);
-  const combinedStyle = { ...style, '--frame-duration': `${duration}s` } as CSSProperties;
+  const style = { '--frame-duration': `${duration}s` } as CSSProperties;
 
   return (
     <svg
       ref={svgRef}
-      className={`frame-octagon ${className}`.trim()}
-      // eslint-disable-next-line no-restricted-syntax -- runtime-computed custom property (duration) plus caller-supplied colors
-      style={combinedStyle}
+      className={cx(styles.frameOctagon, className)}
+      // eslint-disable-next-line no-restricted-syntax -- runtime-computed custom property (duration)
+      style={style}
       aria-hidden="true"
       role="presentation"
       focusable="false"
     >
-      <path className="frame-octagon-bg" d={bg} />
-      <g className="frame-octagon-lines">
-        <path className="frame-octagon-line" d={lineA} pathLength="1" />
-        <path className="frame-octagon-line" d={lineB} pathLength="1" />
+      <path className={styles.frameOctagonBg} d={bg} />
+      <g className={styles.frameOctagonLines}>
+        <path className={styles.frameOctagonLine} d={lineA} pathLength="1" />
+        <path className={styles.frameOctagonLine} d={lineB} pathLength="1" />
       </g>
     </svg>
   );

@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import './styles.scss';
+import './styles/index.scss';
 import App from './App';
 
 // StrictMode is intentionally NOT enabled here (ADR-8 gate result).

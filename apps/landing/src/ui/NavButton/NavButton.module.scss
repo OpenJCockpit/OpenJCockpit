@@ -1,0 +1,32 @@
+.navButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(127, 236, 255, 0.28);
+  border-radius: 999px;
+  color: var(--hub-text);
+  background: rgba(9, 19, 42, 0.56);
+  box-shadow: inset 0 0 14px rgba(39, 247, 255, 0.05);
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: rgba(39, 247, 255, 0.82);
+    background: rgba(18, 36, 72, 0.72);
+    box-shadow: 0 0 28px rgba(39, 247, 255, 0.14);
+  }
+}
+
+@media (max-width: 760px) {
+  .navButton {
+    justify-content: center;
+  }
+}

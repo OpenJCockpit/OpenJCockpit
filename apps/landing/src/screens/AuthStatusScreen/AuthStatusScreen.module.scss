@@ -1,10 +1,10 @@
-.auth-shell {
+.authShell {
   display: grid;
   min-height: 100vh;
   place-items: center;
 }
 
-.auth-card {
+.authCard {
   position: relative;
   width: min(92vw, 680px);
   min-height: 300px;
@@ -24,6 +24,7 @@
   h1 {
     margin: 12px 0 0;
     font-size: clamp(2rem, 5vw, 4.3rem);
+    font-weight: 700;
     line-height: 0.95;
     letter-spacing: -0.065em;
   }
@@ -31,12 +32,21 @@
   p {
     max-width: 500px;
     margin: 18px auto 0;
-    color: var(--muted);
+    color: var(--hub-muted);
     line-height: 1.7;
   }
 }
 
-.auth-error {
+.authFrame {
+  --frame-line-color: hsl(184 100% 58%);
+  --frame-bg-color: hsl(230 50% 12% / 58%);
+}
+
+.authFrameError {
+  --frame-line-color: hsl(0 100% 70%);
+}
+
+.authError {
   max-width: 90%;
   margin: 5% auto 0;
   overflow: auto;
@@ -49,6 +59,6 @@
   white-space: pre-wrap;
 }
 
-.auth-retry {
+.authRetry {
   margin-top: 22px;
 }
