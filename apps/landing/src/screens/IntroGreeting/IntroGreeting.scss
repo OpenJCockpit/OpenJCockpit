@@ -8,11 +8,7 @@
     place-items: center;
     overflow: hidden;
     background:
-      radial-gradient(
-        circle at center,
-        rgba(39, 247, 255, 0.16),
-        transparent 35%
-      ),
+      radial-gradient(circle at center, rgba(39, 247, 255, 0.16), transparent 35%),
       rgba(2, 4, 12, 0.97);
     animation: introExit 0.85s ease forwards;
     animation-delay: 2.1s;
@@ -37,7 +33,7 @@
     z-index: 1;
     margin: 0;
     color: #f8feff;
-    font-family: "JetBrains Mono", monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: clamp(3.4rem, 10vw, 8rem);
     letter-spacing: -0.08em;
     text-shadow:

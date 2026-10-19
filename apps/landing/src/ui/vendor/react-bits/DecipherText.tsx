@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import usePrefersReducedMotion from '../../motion/usePrefersReducedMotion.js';
+import type { CSSProperties, ElementType } from 'react';
+import usePrefersReducedMotion from '../../motion/usePrefersReducedMotion';
 
 // Adapted from React Bits' `DecryptedText`
 // (https://github.com/DavidHDev/react-bits,
@@ -42,9 +43,9 @@ const CIPHERED_CHARACTERS =
 // metrics only — this holds regardless of whether the font is monospace and
 // regardless of whether the scrambling characters share the final text's
 // width (adaptation #5 below).
-const reservedTextStyle = {
+const reservedTextStyle: CSSProperties = {
   gridArea: '1 / 1',
-  opacity: 0
+  opacity: 0,
 };
 
 // Stacked in the same grid cell as the reserved text via `grid-area: 1 / 1`,
@@ -53,19 +54,19 @@ const reservedTextStyle = {
 // content-based sizing) and pinned to fill that cell with `inset: 0`. This
 // is what actually overlays the visible scrambling glyphs on top of the
 // space the final text reserved, with no dependency on glyph width parity.
-const scrambleOverlayStyle = {
+const scrambleOverlayStyle: CSSProperties = {
   gridArea: '1 / 1',
   position: 'absolute',
-  inset: 0
+  inset: 0,
 };
 
-const wrapperStyle = {
+const wrapperStyle: CSSProperties = {
   display: 'inline-grid',
   position: 'relative',
-  whiteSpace: 'pre-wrap'
+  whiteSpace: 'pre-wrap',
 };
 
-function randomOrder(length) {
+function randomOrder(length: number): number[] {
   const order = Array.from({ length }, (_, index) => index);
   for (let i = order.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -74,7 +75,7 @@ function randomOrder(length) {
   return order;
 }
 
-function scramble(text, revealedIndexes, characters) {
+function scramble(text: string, revealedIndexes: Set<number>, characters: string): string {
   return text
     .split('')
     .map((char, index) => {
@@ -96,17 +97,26 @@ function scramble(text, revealedIndexes, characters) {
  * 2.1s `introExit` CSS delay or the 2850ms `onDone` timer at the
  * `IntroGreeting` call site (R-6).
  */
+type DecipherTextProps = {
+  as?: ElementType;
+  text: string;
+  durationMs?: number;
+  intervalMs?: number;
+  characters?: string;
+  className?: string;
+};
+
 export default function DecipherText({
   as: Component = 'span',
   text,
   durationMs = 1200,
   intervalMs = 40,
   characters = CIPHERED_CHARACTERS,
-  className = ''
-}) {
+  className = '',
+}: DecipherTextProps) {
   const reducedMotion = usePrefersReducedMotion();
   const [displayText, setDisplayText] = useState(text);
-  const intervalRef = useRef(null);
+  const intervalRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     window.clearInterval(intervalRef.current);
@@ -117,7 +127,7 @@ export default function DecipherText({
     }
 
     const order = randomOrder(text.length);
-    const revealed = new Set();
+    const revealed = new Set<number>();
     const startedAt = performance.now();
 
     setDisplayText(scramble(text, revealed, characters));
@@ -143,13 +153,18 @@ export default function DecipherText({
   }, [text, durationMs, intervalMs, characters, reducedMotion]);
 
   return (
+    // eslint-disable-next-line no-restricted-syntax -- static layout styles; move into the CSS module in the CSS Modules PR
     <Component className={className} style={wrapperStyle}>
       {/* Screen readers always get the final string, never a partial
           scramble — this is the upstream defect fix (ATTRIBUTION.md #3).
           This node also reserves the layout box (ATTRIBUTION.md #5): it is
           the only in-flow, size-contributing item in the grid stack. */}
+      {/* eslint-disable-next-line no-restricted-syntax -- static layout styles; move into the CSS module in the CSS Modules PR */}
       <span style={reservedTextStyle}>{text}</span>
-      <span aria-hidden="true" style={scrambleOverlayStyle}>{displayText}</span>
+      {/* eslint-disable-next-line no-restricted-syntax -- static layout styles; move into the CSS module in the CSS Modules PR */}
+      <span aria-hidden="true" style={scrambleOverlayStyle}>
+        {displayText}
+      </span>
     </Component>
   );
 }

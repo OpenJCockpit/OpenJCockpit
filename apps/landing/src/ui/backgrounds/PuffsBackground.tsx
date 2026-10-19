@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import usePrefersReducedMotion from '../motion/usePrefersReducedMotion.js';
+import type { CSSProperties } from 'react';
+import usePrefersReducedMotion from '../motion/usePrefersReducedMotion';
 import './puffsBackground.scss';
 
 // Clean-room canvas 2D reimplementation of the ambient particle background
@@ -21,11 +22,43 @@ import './puffsBackground.scss';
 //      full teardown of every subscription on unmount so StrictMode's
 //      double-invocation of effects is clean.
 
-const outSine = (x) => Math.sin((x * Math.PI) / 2);
-const minmaxOverflow01 = (value) => Math.min(1, Math.max(0, value === 1 ? 1 : value % 1));
+type Range = [number, number];
+
+type Puff = { x: number; y: number; r: number; xo: number; yo: number; ro: number };
+
+type PuffSettings = {
+  padding: number;
+  xOffset: Range;
+  yOffset: Range;
+  radiusInitial: number;
+  radiusOffset: Range;
+};
+
+type PuffFieldSettings = PuffSettings & { quantity: number; sets: number };
+
+type PuffsBackgroundProps = {
+  color?: string;
+  quantity?: number;
+  sets?: number;
+  padding?: number;
+  xOffset?: Range;
+  yOffset?: Range;
+  radiusInitial?: number;
+  radiusOffset?: Range;
+  cycleSeconds?: number;
+  fadeInSeconds?: number;
+  className?: string;
+};
+
+const outSine = (x: number) => Math.sin((x * Math.PI) / 2);
+const minmaxOverflow01 = (value: number) => Math.min(1, Math.max(0, value === 1 ? 1 : value % 1));
 
 /** Pure function: create one puff's static parameters for a WxH field. */
-export function createPuff(width, height, { padding, xOffset, yOffset, radiusInitial, radiusOffset }) {
+export function createPuff(
+  width: number,
+  height: number,
+  { padding, xOffset, yOffset, radiusInitial, radiusOffset }: PuffSettings,
+): Puff {
   const x = padding + Math.random() * (width - padding * 2);
   const y = padding + Math.random() * (height - padding * 2);
   const xo = xOffset[0] + Math.random() * xOffset[1];
@@ -39,11 +72,15 @@ export function createPuff(width, height, { padding, xOffset, yOffset, radiusIni
  * rounded) for a WxH field. Exported standalone so it is unit-testable by
  * inspection the day a landing test harness is added (O-2).
  */
-export function seedPuffFields(width, height, settings) {
+export function seedPuffFields(
+  width: number,
+  height: number,
+  settings: PuffFieldSettings,
+): Puff[][] {
   const { quantity, sets } = settings;
   const perSet = Math.round(quantity / sets);
   return Array.from({ length: sets }, () =>
-    Array.from({ length: perSet }, () => createPuff(width, height, settings))
+    Array.from({ length: perSet }, () => createPuff(width, height, settings)),
   );
 }
 
@@ -58,9 +95,9 @@ export default function PuffsBackground({
   radiusOffset = [1, 9],
   cycleSeconds = 2,
   fadeInSeconds = 1.4,
-  className = ''
-}) {
-  const canvasRef = useRef(null);
+  className = '',
+}: PuffsBackgroundProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [visible, setVisible] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
 
@@ -68,8 +105,17 @@ export default function PuffsBackground({
   // identity churn on every parent re-render (e.g. inline array literals
   // at the call site) does not tear down and re-seed the puff field or
   // restart the animation loop — only a genuine reduced-motion change does.
-  const settingsRef = useRef(null);
-  settingsRef.current = { color, quantity, sets, padding, xOffset, yOffset, radiusInitial, radiusOffset };
+  const settingsRef = useRef<(PuffFieldSettings & { color: string }) | null>(null);
+  settingsRef.current = {
+    color,
+    quantity,
+    sets,
+    padding,
+    xOffset,
+    yOffset,
+    radiusInitial,
+    radiusOffset,
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -82,9 +128,9 @@ export default function PuffsBackground({
     }
 
     let disposed = false;
-    let puffSets = [];
-    let rafId = null;
-    let startTimestamp = null;
+    let puffSets: Puff[][] = [];
+    let rafId: number | null = null;
+    let startTimestamp: number | null = null;
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 2, 2);
@@ -95,11 +141,11 @@ export default function PuffsBackground({
       }
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
-      puffSets = seedPuffFields(width, height, settingsRef.current);
+      puffSets = seedPuffFields(width, height, settingsRef.current as PuffFieldSettings);
     };
 
-    const drawPuffs = (puffs, progress) => {
-      const { color: fillColor } = settingsRef.current;
+    const drawPuffs = (puffs: Puff[], progress: number) => {
+      const { color: fillColor } = settingsRef.current as { color: string };
       ctx.globalAlpha = progress <= 0.5 ? progress * 2 : -2 * progress + 2;
       puffs.forEach((puff) => {
         const x = puff.x + progress * puff.xo;
@@ -116,8 +162,8 @@ export default function PuffsBackground({
       });
     };
 
-    const draw = (progress) => {
-      const { sets: setCount } = settingsRef.current;
+    const draw = (progress: number) => {
+      const { sets: setCount } = settingsRef.current as { sets: number };
       const setOffset = 1 / setCount;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       puffSets.forEach((puffs, index) => {
@@ -134,7 +180,7 @@ export default function PuffsBackground({
       startTimestamp = null;
     };
 
-    const tick = (timestamp) => {
+    const tick = (timestamp: number) => {
       if (disposed) {
         return;
       }
@@ -198,9 +244,11 @@ export default function PuffsBackground({
     <canvas
       ref={canvasRef}
       aria-hidden="true"
+      // eslint-disable-next-line jsx-a11y/no-interactive-element-to-noninteractive-role -- DOM kept identical to the pre-conversion output
       role="presentation"
       className={`puffs-background ${visible ? 'is-visible' : ''} ${className}`.trim()}
-      style={{ '--puffs-fade-duration': `${fadeInSeconds}s` }}
+      // eslint-disable-next-line no-restricted-syntax -- runtime-computed custom property (fade duration)
+      style={{ '--puffs-fade-duration': `${fadeInSeconds}s` } as CSSProperties}
     />
   );
 }

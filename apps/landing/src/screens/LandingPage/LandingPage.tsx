@@ -1,28 +1,33 @@
 import { useMemo, useState } from 'react';
-import PuffsBackground from '../../ui/backgrounds/PuffsBackground.jsx';
-import RevealGroup from '../../ui/motion/RevealGroup.jsx';
-import Reveal from '../../ui/motion/Reveal.jsx';
-import TopBar from '../../components/TopBar/TopBar.jsx';
-import PortalOrb from '../../components/PortalOrb/PortalOrb.jsx';
-import IntroGreeting from '../IntroGreeting/IntroGreeting.jsx';
+import type Keycloak from 'keycloak-js';
+import type { User } from '../../auth/keycloak';
+import PuffsBackground from '../../ui/backgrounds/PuffsBackground';
+import RevealGroup from '../../ui/motion/RevealGroup';
+import Reveal from '../../ui/motion/Reveal';
+import TopBar from '../../components/TopBar/TopBar';
+import PortalOrb from '../../components/PortalOrb/PortalOrb';
+import type { Portal } from '../../components/PortalOrb/PortalOrb';
+import IntroGreeting from '../IntroGreeting/IntroGreeting';
 import './LandingPage.scss';
 
-const portals = [
+const portals: Portal[] = [
   {
     id: 'business',
     title: 'Business',
     subtitle: 'Strategy, dashboarding and decision-making',
-    side: 'left'
+    side: 'left',
   },
   {
     id: 'implementation',
     title: 'Implementation',
     subtitle: 'Rollout, configuration and operational actions',
-    side: 'right'
-  }
+    side: 'right',
+  },
 ];
 
-export default function LandingPage({ user, keycloak }) {
+type LandingPageProps = { user: User; keycloak: Keycloak };
+
+export default function LandingPage({ user, keycloak }: LandingPageProps) {
   const [introVisible, setIntroVisible] = useState(true);
 
   const firstName = useMemo(() => user?.firstName || 'Tony', [user]);
@@ -51,18 +56,12 @@ export default function LandingPage({ user, keycloak }) {
         stagger={0.16}
         data-testid="landing-hero"
       >
-        <Reveal
-          as="div"
-          className="hero-copy"
-          duration={0.55}
-          index={0}
-          from={{ y: 24 }}
-        >
+        <Reveal as="div" className="hero-copy" duration={0.55} index={0} from={{ y: 24 }}>
           <span className="eyebrow">Authenticated destination</span>
           <h2 id="landing-title">Choose your workspace</h2>
           <p>
-            Welcome back, {firstName}. Your token is valid and this hub is now unlocked.
-            Navigate directly to Business or Implementation.
+            Welcome back, {firstName}. Your token is valid and this hub is now unlocked. Navigate
+            directly to Business or Implementation.
           </p>
         </Reveal>
 
@@ -74,10 +73,7 @@ export default function LandingPage({ user, keycloak }) {
       </RevealGroup>
 
       {introVisible && (
-        <IntroGreeting
-          firstName={firstName}
-          onDone={() => setIntroVisible(false)}
-        />
+        <IntroGreeting firstName={firstName} onDone={() => setIntroVisible(false)} />
       )}
     </main>
   );

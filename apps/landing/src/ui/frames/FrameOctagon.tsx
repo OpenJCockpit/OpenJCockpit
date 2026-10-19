@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import './frameOctagon.scss';
 
 // Faithful reimplementation of the octagonal frame previously rendered by
@@ -20,7 +21,10 @@ const HALF_STROKE = STROKE_WIDTH / 2;
  * Exported standalone so it is trivially unit-testable without mounting a
  * component or a DOM (architecture §11.3).
  */
-export function buildFrameOctagonPaths(width, height) {
+export function buildFrameOctagonPaths(
+  width: number,
+  height: number,
+): { bg: string; lineA: string; lineB: string } {
   const w = Number.isFinite(width) ? Math.max(0, width) : 0;
   const h = Number.isFinite(height) ? Math.max(0, height) : 0;
   const so = HALF_STROKE;
@@ -35,7 +39,7 @@ export function buildFrameOctagonPaths(width, height) {
     `l ${-s} ${s}`,
     `H ${so + s}`,
     `l ${-s} ${-s}`,
-    'Z'
+    'Z',
   ].join(' ');
 
   const lineA = [
@@ -43,7 +47,7 @@ export function buildFrameOctagonPaths(width, height) {
     `l ${s} ${-s}`,
     `H ${w - so - s}`,
     `l ${s} ${s}`,
-    `V ${h - so - s}`
+    `V ${h - so - s}`,
   ].join(' ');
 
   const lineB = [
@@ -51,7 +55,7 @@ export function buildFrameOctagonPaths(width, height) {
     `l ${-s} ${s}`,
     `H ${so + s}`,
     `l ${-s} ${-s}`,
-    `V ${so + s}`
+    `V ${so + s}`,
   ].join(' ');
 
   return { bg, lineA, lineB };
@@ -65,11 +69,17 @@ export function buildFrameOctagonPaths(width, height) {
  * unchanged (R-12). `style` is passed through so callers set
  * `--frame-line-color` / `--frame-bg-color`.
  *
- * `pointer-events: none` (in frameOctagon.css) is an intentional,
+ * `pointer-events: none` (in frameOctagon.scss) is an intentional,
  * documented deviation from Arwes, which did not set it — see R-13.
  */
-export default function FrameOctagon({ className = '', style, duration = 1 }) {
-  const svgRef = useRef(null);
+type FrameOctagonProps = {
+  className?: string;
+  style?: CSSProperties & Record<`--${string}`, string>;
+  duration?: number;
+};
+
+export default function FrameOctagon({ className = '', style, duration = 1 }: FrameOctagonProps) {
+  const svgRef = useRef<SVGSVGElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
 
   useLayoutEffect(() => {
@@ -107,12 +117,13 @@ export default function FrameOctagon({ className = '', style, duration = 1 }) {
   }, []);
 
   const { bg, lineA, lineB } = buildFrameOctagonPaths(size.width, size.height);
-  const combinedStyle = { ...style, '--frame-duration': `${duration}s` };
+  const combinedStyle = { ...style, '--frame-duration': `${duration}s` } as CSSProperties;
 
   return (
     <svg
       ref={svgRef}
       className={`frame-octagon ${className}`.trim()}
+      // eslint-disable-next-line no-restricted-syntax -- runtime-computed custom property (duration) plus caller-supplied colors
       style={combinedStyle}
       aria-hidden="true"
       role="presentation"

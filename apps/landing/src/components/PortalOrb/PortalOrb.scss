@@ -102,10 +102,7 @@
 .orb-grid {
   opacity: 0.24;
   background:
-    repeating-conic-gradient(
-      rgba(255, 255, 255, 0.5) 0deg 1deg,
-      transparent 1deg 45deg
-    ),
+    repeating-conic-gradient(rgba(255, 255, 255, 0.5) 0deg 1deg, transparent 1deg 45deg),
     repeating-radial-gradient(
       circle,
       transparent 0px,
@@ -138,7 +135,7 @@
     from 0deg,
     transparent 0deg,
     rgba(157, 107, 255, 0.6) 0deg 14deg,
-    rgba(157, 107, 255, 0.10) 14deg 38deg,
+    rgba(157, 107, 255, 0.1) 14deg 38deg,
     transparent 38deg
   );
 }
@@ -185,8 +182,12 @@
 }
 
 @keyframes radarSweep {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 760px) {
