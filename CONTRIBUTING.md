@@ -34,11 +34,10 @@ Common commands:
 mvn -B verify
 mvn -B -pl :ai-control-service -am verify
 
-# Dashboard
-cd apps/dashboard
+# Frontend (Nx workspace; run from the repo root)
 npm ci
-npm run test
-npm run lint
+npx nx test dashboard
+npx nx lint dashboard
 
 # Full stack
 docker compose up --build

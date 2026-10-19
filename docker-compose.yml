@@ -249,8 +249,8 @@ services:
 
   dashboard:
     build:
-      context: apps/dashboard
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/dashboard/Dockerfile
     container_name: openjcockpit-dashboard
     restart: unless-stopped
     ports:

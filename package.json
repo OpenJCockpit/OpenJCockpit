@@ -1,0 +1,16 @@
+{
+  "name": "openjcockpit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "workspaces": [
+    "apps/dashboard",
+    "e2e"
+  ],
+  "devDependencies": {
+    "nx": "23.3.0"
+  }
+}
