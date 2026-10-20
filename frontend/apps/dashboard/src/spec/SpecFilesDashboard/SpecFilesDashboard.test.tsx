@@ -7,7 +7,7 @@ import type { Project, SpecFile } from '@openjcockpit/api';
 vi.mock('@openjcockpit/api', async (importOriginal) =>
   (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
 );
-vi.mock('../../queue/AddToQueueDialog/AddToQueueDialog', () => ({
+vi.mock('@openjcockpit/spec-queue', () => ({
   AddToQueueDialog: ({
     fixedSpecFile,
     onAdded,

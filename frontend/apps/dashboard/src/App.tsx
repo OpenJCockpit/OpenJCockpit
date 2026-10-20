@@ -31,7 +31,7 @@ import type { User } from '@openjcockpit/auth';
 import { LandingHub } from '@openjcockpit/landing-hub';
 import type { PortalId } from '@openjcockpit/landing-hub';
 import { SkillsHubDashboard, SkillsHubSettings } from '@openjcockpit/skills-hub';
-import { SpecQueueDashboard } from './queue/SpecQueueDashboard/SpecQueueDashboard';
+import { SpecQueueDashboard } from '@openjcockpit/spec-queue';
 import { SpecFilesDashboard } from './spec/SpecFilesDashboard/SpecFilesDashboard';
 import { WorkflowDashboard } from './workflow/WorkflowDashboard/WorkflowDashboard';
 import { WorkflowPromptDialog } from './workflow/WorkflowPromptDialog/WorkflowPromptDialog';

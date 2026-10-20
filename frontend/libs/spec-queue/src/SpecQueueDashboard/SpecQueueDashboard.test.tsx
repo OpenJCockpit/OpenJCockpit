@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
-  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+  (await import('../testUtils')).automockApiClients(await importOriginal()),
 );
 vi.mock('@openjcockpit/auth', () => ({ isOpenJCockpitAdmin: () => false }));
 vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
