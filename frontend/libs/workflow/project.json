@@ -1,0 +1,19 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "workflow",
+  "projectType": "library",
+  "sourceRoot": "libs/workflow/src",
+  "tags": ["type:feature"],
+  "targets": {
+    "test": { "executor": "nx:run-script", "options": { "script": "test" } },
+    "lint": { "executor": "nx:run-script", "options": { "script": "lint" } },
+    "typecheck": {
+      "executor": "nx:run-script",
+      "options": { "script": "typecheck" }
+    },
+    "format-check": {
+      "executor": "nx:run-script",
+      "options": { "script": "format:check" }
+    }
+  }
+}

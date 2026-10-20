@@ -5,7 +5,7 @@ import * as workflowApi from '@openjcockpit/api';
 import type { DocumentFolderConfig, OpaConfig, Project } from '@openjcockpit/api';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
-  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+  (await import('../testUtils/mockApi')).automockApiClients(await importOriginal()),
 );
 
 function opaConfig(overrides: Partial<OpaConfig> = {}): OpaConfig {
