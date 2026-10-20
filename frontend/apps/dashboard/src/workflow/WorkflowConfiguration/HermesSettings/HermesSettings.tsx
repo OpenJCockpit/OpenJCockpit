@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getHermesConfig, saveHermesConfig } from '../../workflowApi';
-import { mockHermesConfig } from '../../mockWorkflows';
+import { getHermesConfig, mockHermesConfig, saveHermesConfig } from '@openjcockpit/api';
 import { CheckboxField } from '../../../components/FormFields/CheckboxField/CheckboxField';
 import { SecretField } from '../../../components/FormFields/SecretField/SecretField';
 import { TextField } from '../../../components/FormFields/TextField/TextField';

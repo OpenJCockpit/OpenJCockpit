@@ -1,4 +1,4 @@
-import type { WorkflowDefinition } from '../../../workflowTypes';
+import type { WorkflowDefinition } from '@openjcockpit/api';
 import { DataTable, Button } from '@openjcockpit/ui';
 
 interface WorkflowsTableProps {

@@ -1,6 +1,5 @@
-import type { AgentDefinition } from '../../../../../types';
+import type { AgentDefinition, WorkflowDefinition, WorkflowOrb } from '@openjcockpit/api';
 import { SelectField } from '../../../../../components/FormFields/SelectField/SelectField';
-import type { WorkflowDefinition, WorkflowOrb } from '../../../../workflowTypes';
 import { fieldErrorClass, fieldHintClass, Button } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 

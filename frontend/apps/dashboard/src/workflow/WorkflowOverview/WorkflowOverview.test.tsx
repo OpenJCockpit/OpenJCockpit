@@ -2,8 +2,8 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { clickAsync, renderAsync } from '../../testUtils/dom';
 import { WorkflowOverview } from './WorkflowOverview';
-import * as workflowApi from '../workflowApi';
-import type { WorkflowDefinition } from '../workflowTypes';
+import * as workflowApi from '@openjcockpit/api';
+import type { WorkflowDefinition } from '@openjcockpit/api';
 import * as linkable from '../linkableAgents';
 
 // The designer and overview load linkable agents from the agent catalog; these tests stub that
@@ -14,8 +14,9 @@ vi.mock('../linkableAgents', async () => {
 });
 import chipStyles from '../../components/StatusChip/StatusChip.module.scss';
 
-vi.mock('../workflowApi');
-vi.mock('../../api');
+vi.mock('@openjcockpit/api', async (importOriginal) =>
+  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+);
 
 const WORKFLOW: WorkflowDefinition = {
   id: 'wf-1',

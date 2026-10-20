@@ -1,4 +1,4 @@
-import { Workspace } from './types';
+import { Workspace } from '../types/types';
 
 export const mockWorkspace: Workspace = {
   customer: {
@@ -79,7 +79,7 @@ export const mockWorkspace: Workspace = {
       kind: 'agent',
       id: 'test-design',
       name: 'Test Design Agent',
-      description: "Design test scenarios",
+      description: 'Design test scenarios',
       status: 'Active',
       statusKind: 'active',
     },
@@ -161,22 +161,42 @@ export const mockWorkspace: Workspace = {
     },
   ],
   evidenceEvents: [
-    { time: '13:04', title: 'Spec loaded', actor: 'Requirement Agent', status: 'ok' },
+    {
+      time: '13:04',
+      title: 'Spec loaded',
+      actor: 'Requirement Agent',
+      status: 'ok',
+    },
     {
       time: '13:07',
       title: 'Impact analysis recorded',
       actor: 'Impact Analysis Agent',
       status: 'ok',
     },
-    { time: '13:12', title: 'Test set generated', actor: 'Test Design Agent', status: 'ok' },
+    {
+      time: '13:12',
+      title: 'Test set generated',
+      actor: 'Test Design Agent',
+      status: 'ok',
+    },
     {
       time: '13:16',
       title: 'Implementation proposal saved',
       actor: 'Implementation Agent',
       status: 'ok',
     },
-    { time: '13:22', title: 'Human approval logged', actor: 'Review Agent', status: 'ok' },
-    { time: '13:24', title: 'Evidence data recorded', actor: 'Evidence Agent', status: 'ok' },
+    {
+      time: '13:22',
+      title: 'Human approval logged',
+      actor: 'Review Agent',
+      status: 'ok',
+    },
+    {
+      time: '13:24',
+      title: 'Evidence data recorded',
+      actor: 'Evidence Agent',
+      status: 'ok',
+    },
   ],
   evidenceDetails: {
     specVersion: 'v1.3.2',
@@ -187,14 +207,30 @@ export const mockWorkspace: Workspace = {
   qualityControls: [
     { name: 'Unit test coverage', status: 'Compliant', statusText: '92%' },
     { name: 'NIST 2', status: 'Compliant', statusText: '' },
-    { name: 'OWASP ZAP', status: 'Compliant', statusText: 'No critical issues' },
+    {
+      name: 'OWASP ZAP',
+      status: 'Compliant',
+      statusText: 'No critical issues',
+    },
     { name: 'ISO 25010', status: 'Compliant', statusText: '8/8 attributes' },
     { name: 'SAST', status: 'Compliant', statusText: 'No high issues' },
-    { name: 'Dependency scan', status: 'Compliant', statusText: 'No known vulnerabilities' },
-    { name: 'Architecture rules', status: 'Compliant', statusText: '0 deviations' },
+    {
+      name: 'Dependency scan',
+      status: 'Compliant',
+      statusText: 'No known vulnerabilities',
+    },
+    {
+      name: 'Architecture rules',
+      status: 'Compliant',
+      statusText: '0 deviations',
+    },
   ],
   stack: [
-    { name: 'Embabel Orchestrator', description: 'Orchestration of AI agents', status: 'live' },
+    {
+      name: 'Embabel Orchestrator',
+      description: 'Orchestration of AI agents',
+      status: 'live',
+    },
     {
       name: 'Spring AI Control Service',
       description: 'Observability & Governance',

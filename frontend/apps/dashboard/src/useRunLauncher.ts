@@ -1,8 +1,12 @@
 import { useState } from 'react';
-import { checkWorkflowPreflight, initSpecFolder } from './api';
-import type { PreflightError, Project, SpecFile, SpecInitResult } from './types';
-import { startWorkflow } from './workflow/workflowApi';
-import type { WorkflowDefinition } from './workflow/workflowTypes';
+import { checkWorkflowPreflight, initSpecFolder, startWorkflow } from '@openjcockpit/api';
+import type {
+  PreflightError,
+  Project,
+  SpecFile,
+  SpecInitResult,
+  WorkflowDefinition,
+} from '@openjcockpit/api';
 
 export type LauncherButtonState = 'idle' | 'preflight' | 'starting' | 'error';
 

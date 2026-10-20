@@ -1,4 +1,4 @@
-import type { Project } from '../../types';
+import type { Project } from '@openjcockpit/api';
 import styles from './SiteHeader.module.scss';
 import { Button, BrandLogo, dropdownClass } from '@openjcockpit/ui';
 import shell from '../AppShell/AppShell.module.scss';

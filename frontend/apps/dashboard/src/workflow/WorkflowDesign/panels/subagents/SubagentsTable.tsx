@@ -1,4 +1,4 @@
-import type { SubagentSpec } from '../../../workflowTypes';
+import type { SubagentSpec } from '@openjcockpit/api';
 import { DataTable, Button } from '@openjcockpit/ui';
 
 interface SubagentsTableProps {

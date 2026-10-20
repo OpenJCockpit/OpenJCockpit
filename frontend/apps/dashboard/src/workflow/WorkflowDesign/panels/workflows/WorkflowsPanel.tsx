@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react';
 import { fetchLinkableAgents } from '../../../linkableAgents';
-import type { AgentDefinition } from '../../../../types';
-import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
-import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
-import { FileImportButton } from '../../../../components/FileImportButton/FileImportButton';
 import {
   createWorkflow,
   deleteWorkflow,
@@ -12,12 +8,16 @@ import {
   listWorkflowGroups,
   listWorkflows,
   updateWorkflow,
-} from '../../../workflowApi';
+} from '@openjcockpit/api';
 import type {
+  AgentDefinition,
   WorkflowDefinition,
   WorkflowExportBundle,
   WorkflowGroup,
-} from '../../../workflowTypes';
+} from '@openjcockpit/api';
+import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
+import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
+import { FileImportButton } from '../../../../components/FileImportButton/FileImportButton';
 import { readFileText, downloadWorkflowBundle } from '../../utils';
 import { WorkflowEditor } from './WorkflowEditor/WorkflowEditor';
 import { WorkflowsTable } from './WorkflowsTable';

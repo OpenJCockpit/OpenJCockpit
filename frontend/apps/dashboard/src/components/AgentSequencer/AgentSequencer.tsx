@@ -5,7 +5,7 @@ import type {
   AgentEvent,
   SequencerNode,
   StatusKind,
-} from '../../types';
+} from '@openjcockpit/api';
 import { StatusChip } from '../StatusChip/StatusChip';
 import { Tooltip } from '../Tooltip/Tooltip';
 import styles from './AgentSequencer.module.scss';

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { checkOpaHealth, getOpaConfig, saveOpaConfig } from '../../workflowApi';
-import { mockOpaConfig } from '../../mockWorkflows';
+import { checkOpaHealth, getOpaConfig, mockOpaConfig, saveOpaConfig } from '@openjcockpit/api';
 import { StatusChip } from '../../../components/StatusChip/StatusChip';
 import { CheckboxField } from '../../../components/FormFields/CheckboxField/CheckboxField';
 import { SecretField } from '../../../components/FormFields/SecretField/SecretField';

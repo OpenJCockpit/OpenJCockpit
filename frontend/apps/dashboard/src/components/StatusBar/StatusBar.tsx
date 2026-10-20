@@ -1,4 +1,4 @@
-import type { Workspace } from '../../types';
+import type { Workspace } from '@openjcockpit/api';
 import styles from './StatusBar.module.scss';
 
 export function StatusBar({ footer }: { footer: Workspace['footer'] }) {

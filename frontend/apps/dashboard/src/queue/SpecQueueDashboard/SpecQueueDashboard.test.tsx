@@ -1,7 +1,9 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../specQueueApi');
+vi.mock('@openjcockpit/api', async (importOriginal) =>
+  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+);
 vi.mock('@openjcockpit/auth', () => ({ isOpenJCockpitAdmin: () => false }));
 vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
   AddToQueueDialog: ({
@@ -18,9 +20,8 @@ vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
   ),
 }));
 
-import type { Project } from '../../types';
-import * as api from '../specQueueApi';
-import type { SpecQueue, SpecQueueItem } from '../specQueueTypes';
+import type { Project, SpecQueue, SpecQueueItem } from '@openjcockpit/api';
+import * as api from '@openjcockpit/api';
 import { SpecQueueDashboard } from './SpecQueueDashboard';
 
 const PROJECT = { id: 'p1', name: 'Proj' } as Project;

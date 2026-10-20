@@ -6,7 +6,7 @@ import {
   getWorkflowExecution,
   startWorkflow,
 } from './workflowApi';
-import { errorMessageFrom } from '../httpErrors';
+import { errorMessageFrom } from '../core/httpErrors';
 
 const mockFetch = vi.fn();
 
@@ -126,7 +126,10 @@ describe('workflowApi', () => {
         json: () => Promise.resolve(mockPage),
       });
 
-      const result = await listWorkflowExecutions('wf-1', { limit: 20, offset: 0 });
+      const result = await listWorkflowExecutions('wf-1', {
+        limit: 20,
+        offset: 0,
+      });
 
       expect(result).toEqual(mockPage);
       const calledUrl = mockFetch.mock.calls[0][0] as string;
@@ -138,7 +141,14 @@ describe('workflowApi', () => {
     it('omits limit/offset from the query string when no params are given', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ items: [], limit: 20, offset: 0, total: 0, hasMore: false }),
+        json: () =>
+          Promise.resolve({
+            items: [],
+            limit: 20,
+            offset: 0,
+            total: 0,
+            hasMore: false,
+          }),
       });
 
       await listWorkflowExecutions('wf-1');
@@ -211,7 +221,10 @@ describe('startWorkflow / errorMessageFrom', () => {
       ok: false,
       status: 409,
       json: () =>
-        Promise.resolve({ code: 'SPEC_QUEUE_ITEM_ACTIVE', message: 'A queue item is active' }),
+        Promise.resolve({
+          code: 'SPEC_QUEUE_ITEM_ACTIVE',
+          message: 'A queue item is active',
+        }),
     });
     await expect(startWorkflow('wf-1')).rejects.toThrow('A queue item is active');
   });
@@ -231,7 +244,9 @@ describe('startWorkflow / errorMessageFrom', () => {
       status: 200,
       json: () => Promise.resolve({ runId: 'r1' }),
     });
-    await expect(startWorkflow('wf-1', { prompt: 'hi' })).resolves.toEqual({ runId: 'r1' });
+    await expect(startWorkflow('wf-1', { prompt: 'hi' })).resolves.toEqual({
+      runId: 'r1',
+    });
     const [url, init] = mockFetch.mock.calls[0];
     expect(url).toContain('/api/workflows/wf-1/start');
     expect(init.method).toBe('POST');
@@ -239,12 +254,18 @@ describe('startWorkflow / errorMessageFrom', () => {
   });
 
   it('errorMessageFrom returns the message', async () => {
-    const response = { status: 400, json: () => Promise.resolve({ message: 'nope' }) } as Response;
+    const response = {
+      status: 400,
+      json: () => Promise.resolve({ message: 'nope' }),
+    } as Response;
     await expect(errorMessageFrom(response, 'Fallback')).resolves.toBe('nope');
   });
 
   it('errorMessageFrom falls back to "<fallback>: <status>" on a blank message', async () => {
-    const response = { status: 400, json: () => Promise.resolve({ message: '  ' }) } as Response;
+    const response = {
+      status: 400,
+      json: () => Promise.resolve({ message: '  ' }),
+    } as Response;
     await expect(errorMessageFrom(response, 'Fallback')).resolves.toBe('Fallback: 400');
   });
 });

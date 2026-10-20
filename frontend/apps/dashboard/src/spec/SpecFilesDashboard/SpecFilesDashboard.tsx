@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { loadProjectSpecs, saveSpecFile } from '../../api';
+import { loadProjectSpecs, saveSpecFile } from '@openjcockpit/api';
+import type { Project, SpecFile, SpecInitResult } from '@openjcockpit/api';
 import { IconBox } from '../../components/IconBox/IconBox';
 import { AddToQueueDialog } from '../../queue/AddToQueueDialog/AddToQueueDialog';
-import type { Project, SpecFile, SpecInitResult } from '../../types';
 import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
 import {
   Eyebrow,

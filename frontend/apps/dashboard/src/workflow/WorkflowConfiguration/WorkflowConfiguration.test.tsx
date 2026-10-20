@@ -1,11 +1,12 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WorkflowConfiguration } from './WorkflowConfiguration';
-import * as workflowApi from '../workflowApi';
-import type { DocumentFolderConfig, OpaConfig } from '../workflowTypes';
-import type { Project } from '../../types';
+import * as workflowApi from '@openjcockpit/api';
+import type { DocumentFolderConfig, OpaConfig, Project } from '@openjcockpit/api';
 
-vi.mock('../workflowApi');
+vi.mock('@openjcockpit/api', async (importOriginal) =>
+  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+);
 
 function opaConfig(overrides: Partial<OpaConfig> = {}): OpaConfig {
   return {

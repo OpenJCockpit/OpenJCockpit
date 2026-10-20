@@ -1,9 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Project } from '../../types';
-import { AddToQueueDialog } from '../AddToQueueDialog/AddToQueueDialog';
-import { AutoMergeSettingToggle } from '../AutoMergeSettingToggle/AutoMergeSettingToggle';
-import { ConfirmActionDialog } from '../ConfirmActionDialog/ConfirmActionDialog';
-import { pollErrorText, queueStateText } from '../queueStatus';
 import {
   getSpecQueue,
   pauseSpecQueue,
@@ -13,8 +8,12 @@ import {
   retrySpecQueueItem,
   skipSpecQueueItem,
   updateSpecQueueItem,
-} from '../specQueueApi';
-import type { SpecQueue, SpecQueueItem } from '../specQueueTypes';
+} from '@openjcockpit/api';
+import type { Project, SpecQueue, SpecQueueItem } from '@openjcockpit/api';
+import { AddToQueueDialog } from '../AddToQueueDialog/AddToQueueDialog';
+import { AutoMergeSettingToggle } from '../AutoMergeSettingToggle/AutoMergeSettingToggle';
+import { ConfirmActionDialog } from '../ConfirmActionDialog/ConfirmActionDialog';
+import { pollErrorText, queueStateText } from '../queueStatus';
 import { SpecQueueItemRow } from '../SpecQueueItemRow/SpecQueueItemRow';
 import type { MoveDirection } from '../SpecQueueItemRow/SpecQueueItemRow';
 import { AppHeader, AppShell } from '../../components/AppShell/AppShell';

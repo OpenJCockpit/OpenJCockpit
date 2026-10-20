@@ -4,8 +4,8 @@ import {
   deleteA2AService,
   listA2AServices,
   updateA2AService,
-} from '../../workflowApi';
-import type { A2AService } from '../../workflowTypes';
+} from '@openjcockpit/api';
+import type { A2AService } from '@openjcockpit/api';
 import { StatusChip } from '../../../components/StatusChip/StatusChip';
 import { SecretField } from '../../../components/FormFields/SecretField/SecretField';
 import { TextField } from '../../../components/FormFields/TextField/TextField';

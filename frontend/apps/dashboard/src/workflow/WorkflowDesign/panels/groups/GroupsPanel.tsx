@@ -6,8 +6,8 @@ import {
   deleteWorkflowGroup,
   listWorkflowGroups,
   updateWorkflowGroup,
-} from '../../../workflowApi';
-import type { WorkflowGroup } from '../../../workflowTypes';
+} from '@openjcockpit/api';
+import type { WorkflowGroup } from '@openjcockpit/api';
 import { GroupEditor } from './GroupEditor';
 import { GroupsTable } from './GroupsTable';
 import { fieldHintClass } from '@openjcockpit/ui';

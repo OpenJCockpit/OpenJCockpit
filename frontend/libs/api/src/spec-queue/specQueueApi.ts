@@ -1,6 +1,6 @@
-import { API_BASE_URL, authHeaders } from '../api';
-import type { SpecFile } from '../types';
-import { errorMessageFrom } from '../httpErrors';
+import { API_BASE_URL, authHeaders } from '../core/http';
+import type { SpecFile } from '../types/types';
+import { errorMessageFrom } from '../core/httpErrors';
 import type {
   SpecQueue,
   SpecQueueEnqueueRequest,

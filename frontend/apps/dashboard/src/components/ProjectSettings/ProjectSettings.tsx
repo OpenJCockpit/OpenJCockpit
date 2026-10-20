@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Project, ProjectGitCredentialRequest, ProjectRequest } from '../../types';
-import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import {
   activateProject,
   createProject,
@@ -11,7 +9,9 @@ import {
   saveGitCredentials,
   triggerGitCheck,
   updateProject,
-} from '../../api';
+} from '@openjcockpit/api';
+import type { Project, ProjectGitCredentialRequest, ProjectRequest } from '@openjcockpit/api';
+import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
 import { CredentialsForm } from './CredentialsForm';
 import { ProjectForm } from './ProjectForm';

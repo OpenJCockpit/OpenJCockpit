@@ -1,4 +1,4 @@
-import type { ExternalSkill, SkillSpec } from '../../../workflowTypes';
+import type { ExternalSkill, SkillSpec } from '@openjcockpit/api';
 import { DataTable, fieldHintClass, Button } from '@openjcockpit/ui';
 
 type LocalSkillRow = { key: string; readOnly: false; skill: SkillSpec };

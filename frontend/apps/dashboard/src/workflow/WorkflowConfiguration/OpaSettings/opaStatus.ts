@@ -1,4 +1,4 @@
-import type { StatusKind } from '../../../types';
+import type { StatusKind } from '@openjcockpit/api';
 
 export type OpaStatus =
   'not_configured' | 'disabled' | 'unreachable' | 'reachable' | 'enforcing' | 'unavailable';

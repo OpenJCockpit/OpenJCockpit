@@ -2,8 +2,8 @@ import { useId, useState } from 'react';
 import { isOpenJCockpitAdmin } from '@openjcockpit/auth';
 import { feedbackErrorClass, fieldHintClass, cx } from '@openjcockpit/ui';
 import { ConfirmActionDialog } from '../ConfirmActionDialog/ConfirmActionDialog';
-import { updateSpecQueueSettings } from '../specQueueApi';
-import type { SpecQueueSettings } from '../specQueueTypes';
+import { updateSpecQueueSettings } from '@openjcockpit/api';
+import type { SpecQueueSettings } from '@openjcockpit/api';
 import styles from './AutoMergeSettingToggle.module.scss';
 
 interface Props {

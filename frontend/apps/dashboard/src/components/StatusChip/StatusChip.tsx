@@ -1,4 +1,4 @@
-import type { StatusKind } from '../../types';
+import type { StatusKind } from '@openjcockpit/api';
 import { cx } from '@openjcockpit/ui';
 import styles from './StatusChip.module.scss';
 

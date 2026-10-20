@@ -1,21 +1,29 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ToolbarButton } from './components/ToolbarButton/ToolbarButton';
+import { clearStoredProjectId, getStoredProjectId, setStoredProjectId } from './storedProject';
 import {
-  clearStoredProjectId,
   getSpecInitStatus,
-  getStoredProjectId,
-  loadProjects,
+  listWorkflowGroups,
+  listWorkflows,
   loadProjectSpecs,
+  loadProjects,
   loadWorkspace,
+  mockWorkspace,
   setAuthToken,
-  setStoredProjectId,
-} from './api';
+  workflowsForProject,
+} from '@openjcockpit/api';
+import type {
+  Project,
+  SpecFile,
+  SpecInitStatus,
+  WorkflowDefinition,
+  WorkflowGroup,
+  Workspace,
+} from '@openjcockpit/api';
 import { getKeycloak, getUserFromToken } from '@openjcockpit/auth';
 import type { User } from '@openjcockpit/auth';
 import { LandingHub } from '@openjcockpit/landing-hub';
 import type { PortalId } from '@openjcockpit/landing-hub';
-import type { Project, SpecFile, SpecInitStatus, Workspace } from './types';
-import { mockWorkspace } from './mockWorkspace';
 import { ProjectSelection } from './components/ProjectSelection/ProjectSelection';
 import { ProjectSettings } from './components/ProjectSettings/ProjectSettings';
 import { SkillsHubDashboard } from './components/SkillsHubDashboard/SkillsHubDashboard';
@@ -24,9 +32,6 @@ import { SpecQueueDashboard } from './queue/SpecQueueDashboard/SpecQueueDashboar
 import { SpecFilesDashboard } from './spec/SpecFilesDashboard/SpecFilesDashboard';
 import { WorkflowDashboard } from './workflow/WorkflowDashboard/WorkflowDashboard';
 import { WorkflowPromptDialog } from './workflow/WorkflowPromptDialog/WorkflowPromptDialog';
-import { listWorkflowGroups, listWorkflows } from './workflow/workflowApi';
-import type { WorkflowDefinition, WorkflowGroup } from './workflow/workflowTypes';
-import { workflowsForProject } from './workflow/workflowVisibility';
 import { AppShell } from './components/AppShell/AppShell';
 import { CustomerHero } from './components/CustomerHero/CustomerHero';
 import { SiteHeader } from './components/SiteHeader/SiteHeader';

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { describeSourceOutcome, downloadWorkflowBundle, readFileText, toList } from './utils';
-import type { SkillCatalogSourceStatus } from '../workflowTypes';
+import type { SkillCatalogSourceStatus } from '@openjcockpit/api';
 
 describe('toList', () => {
   it('splits on commas and trims whitespace', () => {

@@ -1,4 +1,4 @@
-import type { StackServiceStatus } from '../../types';
+import type { StackServiceStatus } from '@openjcockpit/api';
 import { StackServiceIcon } from '../StackServiceIcon/StackServiceIcon';
 import styles from './StackServiceCard.module.scss';
 

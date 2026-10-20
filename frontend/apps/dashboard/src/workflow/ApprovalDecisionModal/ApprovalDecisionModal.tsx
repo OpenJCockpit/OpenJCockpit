@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import type { ApprovalGateContext } from '../workflowTypes';
+import type { ApprovalGateContext } from '@openjcockpit/api';
 import { ModalShell, modalActionsClass } from '../ModalShell/ModalShell';
 import { ApprovalCommentModal } from '../ApprovalCommentModal/ApprovalCommentModal';
 import { fieldErrorClass, fieldHintClass, Button, buttonClass } from '@openjcockpit/ui';

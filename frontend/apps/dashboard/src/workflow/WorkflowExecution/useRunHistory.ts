@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import type { AgentRun } from '../../types';
-import type { WorkflowDefinition, WorkflowExecutionPage } from '../workflowTypes';
-import { listWorkflowExecutions } from '../workflowApi';
+import { listWorkflowExecutions } from '@openjcockpit/api';
+import type { AgentRun, WorkflowDefinition, WorkflowExecutionPage } from '@openjcockpit/api';
 
 const HISTORY_PAGE_SIZE = 20;
 const HISTORY_PAGE_MAX = 100;

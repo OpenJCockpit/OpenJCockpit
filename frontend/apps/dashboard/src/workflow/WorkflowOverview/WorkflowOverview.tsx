@@ -1,17 +1,23 @@
 import { useState } from 'react';
-import type { Project, AgentDefinition } from '../../types';
-import { fetchLinkableAgents, referenceLabel } from '../linkableAgents';
 import {
   getOpaConfig,
   getWorkflowDecisionLogs,
   listWorkflowGroups,
   listWorkflows,
+  referenceLabel,
+  runStatusKind,
   startWorkflow,
-} from '../workflowApi';
-import type { PolicyDecisionAuditEntry, WorkflowDefinition, WorkflowGroup } from '../workflowTypes';
-import { workflowsForProject } from '../workflowVisibility';
+  workflowsForProject,
+} from '@openjcockpit/api';
+import type {
+  AgentDefinition,
+  PolicyDecisionAuditEntry,
+  Project,
+  WorkflowDefinition,
+  WorkflowGroup,
+} from '@openjcockpit/api';
+import { fetchLinkableAgents } from '../linkableAgents';
 import { StatusChip } from '../../components/StatusChip/StatusChip';
-import { runStatusKind } from '../runStatus';
 import { WorkflowPromptDialog } from '../WorkflowPromptDialog/WorkflowPromptDialog';
 import { Eyebrow, Panel, fieldErrorClass, fieldHintClass, Button } from '@openjcockpit/ui';
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage';

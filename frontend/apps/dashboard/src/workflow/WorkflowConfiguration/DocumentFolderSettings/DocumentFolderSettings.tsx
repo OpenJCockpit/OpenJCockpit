@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
-import type { Project } from '../../../types';
-import { getDocumentFolderConfig, saveDocumentFolderConfig } from '../../workflowApi';
-import { mockDocumentFolderConfig } from '../../mockWorkflows';
+import {
+  getDocumentFolderConfig,
+  mockDocumentFolderConfig,
+  saveDocumentFolderConfig,
+} from '@openjcockpit/api';
+import type { Project } from '@openjcockpit/api';
 import { CheckboxField } from '../../../components/FormFields/CheckboxField/CheckboxField';
 import { TextField } from '../../../components/FormFields/TextField/TextField';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';

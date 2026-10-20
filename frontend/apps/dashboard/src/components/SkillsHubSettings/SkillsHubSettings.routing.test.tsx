@@ -1,11 +1,11 @@
 import { act, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../../App';
-import * as api from '../../api';
-import * as workflowApi from '../../workflow/workflowApi';
-import { mockWorkspace } from '../../mockWorkspace';
+import * as api from '@openjcockpit/api';
+import * as workflowApi from '@openjcockpit/api';
+import { mockWorkspace } from '@openjcockpit/api';
+import type { Project } from '@openjcockpit/api';
 import { enterDashboard } from '../../testUtils/dom';
-import type { Project } from '../../types';
 
 // This file renders the full <App>, which (via api.ts) touches `localStorage`.
 // It intentionally does NOT rely on any global localStorage shim from
@@ -46,33 +46,21 @@ vi.mock('@openjcockpit/auth', async () => ({
   }),
 }));
 
-vi.mock('../../api', async () => {
-  const actual = await vi.importActual<typeof import('../../api')>('../../api');
-  return {
-    ...actual,
-    loadProjects: vi.fn(),
-    loadWorkspace: vi.fn(),
-    loadProjectSpecs: vi.fn(),
-    initSpecFolder: vi.fn(),
-    getSpecInitStatus: vi.fn(),
-    checkWorkflowPreflight: vi.fn(),
-    getAgentRun: vi.fn(),
-    stopAgentRun: vi.fn(),
-    listSkillsMarketplaces: vi.fn(),
-  };
-});
-
-vi.mock('../../workflow/workflowApi', async () => {
-  const actual = await vi.importActual<typeof import('../../workflow/workflowApi')>(
-    '../../workflow/workflowApi',
-  );
-  return {
-    ...actual,
-    listWorkflows: vi.fn(),
-    listWorkflowGroups: vi.fn(),
-    startWorkflow: vi.fn(),
-  };
-});
+vi.mock('@openjcockpit/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@openjcockpit/api')>()),
+  loadProjects: vi.fn(),
+  loadWorkspace: vi.fn(),
+  loadProjectSpecs: vi.fn(),
+  initSpecFolder: vi.fn(),
+  getSpecInitStatus: vi.fn(),
+  checkWorkflowPreflight: vi.fn(),
+  getAgentRun: vi.fn(),
+  stopAgentRun: vi.fn(),
+  listSkillsMarketplaces: vi.fn(),
+  listWorkflows: vi.fn(),
+  listWorkflowGroups: vi.fn(),
+  startWorkflow: vi.fn(),
+}));
 
 const PROJECT: Project = {
   id: 'project-1',

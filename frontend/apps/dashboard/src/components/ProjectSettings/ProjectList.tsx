@@ -1,4 +1,4 @@
-import type { Project } from '../../types';
+import type { Project } from '@openjcockpit/api';
 import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
 import { Actions, DataTable, DataTableRow, fieldHintClass, Button, cx } from '@openjcockpit/ui';
 import styles from './ProjectList.module.scss';

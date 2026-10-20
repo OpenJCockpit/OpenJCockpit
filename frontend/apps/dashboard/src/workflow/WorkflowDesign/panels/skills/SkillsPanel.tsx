@@ -7,8 +7,8 @@ import {
   generateSkillSpec,
   getSkillCatalog,
   updateSkillSpec,
-} from '../../../workflowApi';
-import type { SkillCatalog, SkillSpec } from '../../../workflowTypes';
+} from '@openjcockpit/api';
+import type { SkillCatalog, SkillSpec } from '@openjcockpit/api';
 import { describeSourceOutcome } from '../../utils';
 import { PromptGenerator } from '../shared/PromptGenerator';
 import { SkillEditor } from './SkillEditor';

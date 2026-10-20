@@ -1,4 +1,4 @@
-import { referenceLabel } from './linkableAgents';
+import { referenceLabel } from './referenceLabel';
 import type {
   AgentCard,
   AgentDefinition,
@@ -6,7 +6,7 @@ import type {
   OrbCard,
   SequencerNode,
   StatusKind,
-} from '../types';
+} from '../types/types';
 import type { WorkflowDefinition } from './workflowTypes';
 
 // Single source of truth for run-status -> kind/label/terminal-classification,

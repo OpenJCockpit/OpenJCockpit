@@ -1,4 +1,4 @@
-import type { QualityControl } from '../../types';
+import type { QualityControl } from '@openjcockpit/api';
 import { IconBox } from '../IconBox/IconBox';
 import styles from './WorkspacePanels.module.scss';
 import { Panel, PanelHeader, PanelTitle, Button } from '@openjcockpit/ui';

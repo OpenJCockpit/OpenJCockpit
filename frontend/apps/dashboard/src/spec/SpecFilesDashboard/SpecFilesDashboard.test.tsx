@@ -1,10 +1,12 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SpecFilesDashboard } from './SpecFilesDashboard';
-import * as api from '../../api';
-import type { Project, SpecFile } from '../../types';
+import * as api from '@openjcockpit/api';
+import type { Project, SpecFile } from '@openjcockpit/api';
 
-vi.mock('../../api');
+vi.mock('@openjcockpit/api', async (importOriginal) =>
+  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+);
 vi.mock('../../queue/AddToQueueDialog/AddToQueueDialog', () => ({
   AddToQueueDialog: ({
     fixedSpecFile,

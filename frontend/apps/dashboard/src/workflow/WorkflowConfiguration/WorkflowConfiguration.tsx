@@ -1,4 +1,4 @@
-import type { Project } from '../../types';
+import type { Project } from '@openjcockpit/api';
 import { A2AServicesSettings } from './A2AServicesSettings/A2AServicesSettings';
 import { DocumentFolderSettings } from './DocumentFolderSettings/DocumentFolderSettings';
 import { HermesSettings } from './HermesSettings/HermesSettings';

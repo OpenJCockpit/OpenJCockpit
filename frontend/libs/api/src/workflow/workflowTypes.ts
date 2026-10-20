@@ -86,7 +86,12 @@ export interface A2AAgentCard {
   capabilities?: { streaming?: boolean; pushNotifications?: boolean };
   defaultInputModes?: string[];
   defaultOutputModes?: string[];
-  skills?: { id: string; name?: string; description?: string; tags?: string[] }[];
+  skills?: {
+    id: string;
+    name?: string;
+    description?: string;
+    tags?: string[];
+  }[];
 }
 
 /**

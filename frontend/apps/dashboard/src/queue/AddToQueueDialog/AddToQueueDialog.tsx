@@ -1,5 +1,13 @@
 import { useEffect, useId, useState } from 'react';
-import type { Project, SpecFile } from '../../types';
+import {
+  enqueueSpecQueueItem,
+  getSpecQueueSettings,
+  listSpecFilesStrict,
+  listWorkflowGroups,
+  listWorkflows,
+  workflowsForProject,
+} from '@openjcockpit/api';
+import type { Project, SpecFile, SpecQueueItem, WorkflowDefinition } from '@openjcockpit/api';
 import { ModalShell } from '../../workflow/ModalShell/ModalShell';
 import {
   Button,
@@ -10,11 +18,6 @@ import {
   panelClassName,
   cx,
 } from '@openjcockpit/ui';
-import { listWorkflowGroups, listWorkflows } from '../../workflow/workflowApi';
-import type { WorkflowDefinition } from '../../workflow/workflowTypes';
-import { workflowsForProject } from '../../workflow/workflowVisibility';
-import { enqueueSpecQueueItem, getSpecQueueSettings, listSpecFilesStrict } from '../specQueueApi';
-import type { SpecQueueItem } from '../specQueueTypes';
 import styles from './AddToQueueDialog.module.scss';
 
 interface Props {

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { SpecQueueItemRow } from './SpecQueueItemRow';
-import type { SpecQueueItem } from '../specQueueTypes';
+import type { SpecQueueItem } from '@openjcockpit/api';
 
 function makeItem(extra: Partial<SpecQueueItem> = {}): SpecQueueItem {
   return {

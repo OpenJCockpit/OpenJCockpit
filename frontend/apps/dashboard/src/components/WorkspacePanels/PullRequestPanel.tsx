@@ -1,4 +1,4 @@
-import type { PullRequestSummary } from '../../types';
+import type { PullRequestSummary } from '@openjcockpit/api';
 import { IconBox } from '../IconBox/IconBox';
 import { StatusChip } from '../StatusChip/StatusChip';
 import styles from './WorkspacePanels.module.scss';

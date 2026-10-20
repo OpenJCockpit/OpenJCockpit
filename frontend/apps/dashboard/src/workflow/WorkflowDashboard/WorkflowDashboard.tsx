@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import type { Project } from '../../types';
+import { getWorkflow } from '@openjcockpit/api';
+import type { Project, WorkflowDefinition } from '@openjcockpit/api';
 import { WorkflowOverview } from '../WorkflowOverview/WorkflowOverview';
 import { WorkflowConfiguration } from '../WorkflowConfiguration/WorkflowConfiguration';
 import { WorkflowDesign } from '../WorkflowDesign/WorkflowDesign';
 import { WorkflowExecution } from '../WorkflowExecution/WorkflowExecution';
-import { getWorkflow } from '../workflowApi';
-import type { WorkflowDefinition } from '../workflowTypes';
 import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
 import { Eyebrow, feedbackErrorClass, Tab, TabNav } from '@openjcockpit/ui';
 import styles from './WorkflowDashboard.module.scss';

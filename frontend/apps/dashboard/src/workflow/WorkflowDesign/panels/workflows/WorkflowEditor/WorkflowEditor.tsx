@@ -1,7 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
-import type { AgentDefinition } from '../../../../../types';
-import type { WorkflowDefinition, WorkflowGroup } from '../../../../workflowTypes';
-import { candidateOrbTargets } from '../../../../workflowVisibility';
+import { candidateOrbTargets } from '@openjcockpit/api';
+import type { AgentDefinition, WorkflowDefinition, WorkflowGroup } from '@openjcockpit/api';
 import { selectedStagesInOrder } from '../../../utils';
 import { AgentPicker } from './AgentPicker';
 import { SelectField } from '../../../../../components/FormFields/SelectField/SelectField';

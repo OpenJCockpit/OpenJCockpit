@@ -1,5 +1,5 @@
-import type { AgentDefinition } from '../../../../../types';
-import { referenceLabel } from '../../../../linkableAgents';
+import type { AgentDefinition } from '@openjcockpit/api';
+import { referenceLabel } from '@openjcockpit/api';
 import { Button, fieldHintClass } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 

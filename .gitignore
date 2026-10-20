@@ -36,3 +36,13 @@ frontend/e2e/blob-report/
 # Nx local cache and workspace data
 frontend/.nx/cache
 frontend/.nx/workspace-data
+
+# Nx cache and workspace data when run from the repo root
+.nx/cache
+.nx/workspace-data
+
+# Vite cache
+.vite/
+
+# PR description scratch files
+PR_*.md

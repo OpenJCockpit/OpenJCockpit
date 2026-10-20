@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { TextAreaField } from '../../../../components/FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../../../../components/FormFields/TextField/TextField';
-import type { WorkflowGroup } from '../../../workflowTypes';
+import type { WorkflowGroup } from '@openjcockpit/api';
 import { EditorForm } from '../shared/EditorForm';
 
 interface GroupEditorProps {

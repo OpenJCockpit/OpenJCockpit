@@ -1,5 +1,5 @@
-import { API_BASE_URL, authHeaders } from '../api';
-import { errorMessageFrom } from '../httpErrors';
+import { API_BASE_URL, authHeaders } from '../core/http';
+import { errorMessageFrom } from '../core/httpErrors';
 import {
   A2AAgentCard,
   A2AService,
@@ -31,7 +31,7 @@ import {
   WorkflowStartInput,
   WorkflowStartResponse,
 } from './workflowTypes';
-import type { AgentRun } from '../types';
+import type { AgentRun } from '../types/types';
 import { mockSkillSpecs, mockSubagentSpecs } from './mockWorkflows';
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
@@ -39,13 +39,17 @@ const JSON_HEADERS = { 'Content-Type': 'application/json' };
 // ── Workflows ────────────────────────────────────────────────────────────
 
 export async function listWorkflows(): Promise<WorkflowDefinition[]> {
-  const response = await fetch(`${API_BASE_URL}/api/workflows`, { headers: authHeaders() });
+  const response = await fetch(`${API_BASE_URL}/api/workflows`, {
+    headers: authHeaders(),
+  });
   if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to load workflows'));
   return response.json();
 }
 
 export async function getWorkflow(id: string): Promise<WorkflowDefinition> {
-  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}`, { headers: authHeaders() });
+  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}`, {
+    headers: authHeaders(),
+  });
   if (!response.ok) throw new Error(`Failed to load workflow: ${response.status}`);
   return response.json();
 }
@@ -101,7 +105,9 @@ export async function startWorkflow(
 
 export async function listWorkflowGroups(): Promise<WorkflowGroup[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/workflow-groups`, { headers: authHeaders() });
+    const response = await fetch(`${API_BASE_URL}/api/workflow-groups`, {
+      headers: authHeaders(),
+    });
     if (!response.ok) {
       console.warn('Falling back to empty workflow groups: status', response.status);
       return [];
@@ -145,7 +151,9 @@ export async function deleteWorkflowGroup(id: string): Promise<void> {
 }
 
 export async function exportWorkflows(): Promise<WorkflowExportBundle> {
-  const response = await fetch(`${API_BASE_URL}/api/workflows/export`, { headers: authHeaders() });
+  const response = await fetch(`${API_BASE_URL}/api/workflows/export`, {
+    headers: authHeaders(),
+  });
   if (!response.ok) throw new Error(`Failed to export workflows: ${response.status}`);
   return response.json();
 }
@@ -205,7 +213,9 @@ export async function getWorkflowExecutionDecisionLogs(
 // ── OPA configuration ────────────────────────────────────────────────────
 
 export async function getOpaConfig(): Promise<OpaConfig> {
-  const response = await fetch(`${API_BASE_URL}/api/opa-config`, { headers: authHeaders() });
+  const response = await fetch(`${API_BASE_URL}/api/opa-config`, {
+    headers: authHeaders(),
+  });
   if (!response.ok) throw new Error(`Failed to load OPA config: ${response.status}`);
   return response.json();
 }
@@ -238,7 +248,9 @@ export async function checkOpaHealth(): Promise<boolean> {
 
 /** Local /agents folder plus the agents of each A2A provider (e.g. LiteLLM). */
 export async function getAgentCatalog(): Promise<AgentCatalog> {
-  const response = await fetch(`${API_BASE_URL}/api/agent-catalog`, { headers: authHeaders() });
+  const response = await fetch(`${API_BASE_URL}/api/agent-catalog`, {
+    headers: authHeaders(),
+  });
   if (!response.ok) throw new Error(`Failed to load agent catalog: ${response.status}`);
   return response.json();
 }
@@ -419,7 +431,9 @@ export async function generateSkillSpec(prompt: string): Promise<SkillSpec> {
 // ── A2A services ─────────────────────────────────────────────────────────
 
 export async function listA2AServices(): Promise<A2AService[]> {
-  const response = await fetch(`${API_BASE_URL}/api/a2a-services`, { headers: authHeaders() });
+  const response = await fetch(`${API_BASE_URL}/api/a2a-services`, {
+    headers: authHeaders(),
+  });
   if (!response.ok) {
     throw new Error(await errorMessageFrom(response, 'Failed to load A2A services'));
   }
@@ -464,7 +478,9 @@ export async function deleteA2AService(id: string): Promise<void> {
 // (e.g. 401) must surface as a real error, never as silently-rendered mock data.
 
 export async function getSkillCatalog(): Promise<SkillCatalog> {
-  const response = await fetch(`${API_BASE_URL}/api/skill-catalog`, { headers: authHeaders() });
+  const response = await fetch(`${API_BASE_URL}/api/skill-catalog`, {
+    headers: authHeaders(),
+  });
   if (!response.ok) throw new Error(`Failed to load skill catalog: ${response.status}`);
   return response.json();
 }

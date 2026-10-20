@@ -17,6 +17,7 @@
     "visual:check": "node visual/run.mjs check"
   },
   "dependencies": {
+    "@openjcockpit/api": "*",
     "@openjcockpit/auth": "*",
     "@openjcockpit/landing-hub": "*",
     "@openjcockpit/ui": "*",

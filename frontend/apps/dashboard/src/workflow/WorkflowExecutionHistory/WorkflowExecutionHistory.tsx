@@ -1,6 +1,6 @@
-import type { WorkflowExecutionPage } from '../workflowTypes';
+import { formatRunDuration, runStatusKind, runStatusLabel } from '@openjcockpit/api';
+import type { WorkflowExecutionPage } from '@openjcockpit/api';
 import { StatusChip } from '../../components/StatusChip/StatusChip';
-import { formatRunDuration, runStatusKind, runStatusLabel } from '../runStatus';
 import { Button, cx } from '@openjcockpit/ui';
 import styles from './WorkflowExecutionHistory.module.scss';
 
