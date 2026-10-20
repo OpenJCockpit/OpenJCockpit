@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { loadProjectSpecs, saveSpecFile } from '@openjcockpit/api';
 import type { Project, SpecFile, SpecInitResult } from '@openjcockpit/api';
 import {
@@ -19,15 +19,23 @@ import {
   pageHeaderClass,
   cx,
 } from '@openjcockpit/ui';
-import { AddToQueueDialog } from '@openjcockpit/spec-queue';
 import styles from './SpecFilesDashboard.module.scss';
+
+export interface RenderAddToQueueArgs {
+  project: Project;
+  fixedSpecFile: string;
+  onAdded: () => void;
+  onCancel: () => void;
+}
 
 interface Props {
   project: Project | null;
   onBack: () => void;
+  /** Slot for the "add to queue" dialog; the action is hidden when not provided. */
+  renderAddToQueue?: (args: RenderAddToQueueArgs) => ReactNode;
 }
 
-export function SpecFilesDashboard({ project, onBack }: Props) {
+export function SpecFilesDashboard({ project, onBack, renderAddToQueue }: Props) {
   const [specs, setSpecs] = useState<SpecFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState('');
@@ -159,18 +167,20 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
                       >
                         {saving ? '⟳ Saving…' : '💾 Save'}
                       </Button>
-                      <Button
-                        size="sm"
-                        data-testid="spec-add-to-queue"
-                        onClick={() => setQueueDialogOpen(true)}
-                        disabled={isDirty || saving}
-                        aria-describedby={isDirty ? 'add-to-queue-hint' : undefined}
-                      >
-                        ➕ Add to queue
-                      </Button>
+                      {renderAddToQueue && (
+                        <Button
+                          size="sm"
+                          data-testid="spec-add-to-queue"
+                          onClick={() => setQueueDialogOpen(true)}
+                          disabled={isDirty || saving}
+                          aria-describedby={isDirty ? 'add-to-queue-hint' : undefined}
+                        >
+                          ➕ Add to queue
+                        </Button>
+                      )}
                     </div>
                   </PanelHeader>
-                  {isDirty && (
+                  {renderAddToQueue && isDirty && (
                     <p
                       id="add-to-queue-hint"
                       className={fieldHintClass}
@@ -217,17 +227,19 @@ export function SpecFilesDashboard({ project, onBack }: Props) {
           </div>
         )}
       </main>
-      {queueDialogOpen && project && selected && (
-        <AddToQueueDialog
-          project={project}
-          fixedSpecFile={selected.fileName}
-          onCancel={() => setQueueDialogOpen(false)}
-          onAdded={(item) => {
+      {renderAddToQueue &&
+        queueDialogOpen &&
+        project &&
+        selected &&
+        renderAddToQueue({
+          project,
+          fixedSpecFile: selected.fileName,
+          onCancel: () => setQueueDialogOpen(false),
+          onAdded: () => {
             setQueueDialogOpen(false);
-            setQueuedNotice(`${item.specFile} was added to the queue.`);
-          }}
-        />
-      )}
+            setQueuedNotice(`${selected.fileName} was added to the queue.`);
+          },
+        })}
     </AppShell>
   );
 }

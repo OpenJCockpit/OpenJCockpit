@@ -1,29 +1,19 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SpecFilesDashboard } from './SpecFilesDashboard';
+import { SpecFilesDashboard, type RenderAddToQueueArgs } from './SpecFilesDashboard';
 import * as api from '@openjcockpit/api';
 import type { Project, SpecFile } from '@openjcockpit/api';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
-  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+  (await import('../testUtils')).automockApiClients(await importOriginal()),
 );
-vi.mock('@openjcockpit/spec-queue', () => ({
-  AddToQueueDialog: ({
-    fixedSpecFile,
-    onAdded,
-    onCancel,
-  }: {
-    fixedSpecFile: string;
-    onAdded: (i: { specFile: string }) => void;
-    onCancel: () => void;
-  }) => (
-    <div role="dialog" aria-label="Add to queue">
-      <span>{fixedSpecFile}</span>
-      <button onClick={() => onAdded({ specFile: fixedSpecFile })}>stub-add</button>
-      <button onClick={onCancel}>stub-cancel</button>
-    </div>
-  ),
-}));
+const renderAddToQueue = ({ fixedSpecFile, onAdded, onCancel }: RenderAddToQueueArgs) => (
+  <div role="dialog" aria-label="Add to queue">
+    <span>{fixedSpecFile}</span>
+    <button onClick={onAdded}>stub-add</button>
+    <button onClick={onCancel}>stub-cancel</button>
+  </div>
+);
 
 const PROJECT: Project = {
   id: 'project-1',
@@ -63,7 +53,13 @@ describe('SpecFilesDashboard', () => {
     vi.mocked(api.loadProjectSpecs).mockResolvedValue([SPEC]);
 
     await act(async () => {
-      render(<SpecFilesDashboard project={PROJECT} onBack={vi.fn()} />);
+      render(
+        <SpecFilesDashboard
+          project={PROJECT}
+          onBack={vi.fn()}
+          renderAddToQueue={renderAddToQueue}
+        />,
+      );
     });
 
     expect(api.loadProjectSpecs).toHaveBeenCalledWith('project-1');
@@ -74,7 +70,13 @@ describe('SpecFilesDashboard', () => {
     vi.mocked(api.loadProjectSpecs).mockResolvedValue([SPEC]);
 
     await act(async () => {
-      render(<SpecFilesDashboard project={PROJECT} onBack={vi.fn()} />);
+      render(
+        <SpecFilesDashboard
+          project={PROJECT}
+          onBack={vi.fn()}
+          renderAddToQueue={renderAddToQueue}
+        />,
+      );
     });
 
     const saveButton = await screen.findByText('💾 Save');
@@ -100,7 +102,13 @@ describe('SpecFilesDashboard', () => {
     });
 
     await act(async () => {
-      render(<SpecFilesDashboard project={PROJECT} onBack={vi.fn()} />);
+      render(
+        <SpecFilesDashboard
+          project={PROJECT}
+          onBack={vi.fn()}
+          renderAddToQueue={renderAddToQueue}
+        />,
+      );
     });
 
     const textarea = await screen.findByLabelText('Contents of pricing-rules.md');
@@ -131,7 +139,13 @@ describe('SpecFilesDashboard', () => {
     vi.mocked(api.saveSpecFile).mockRejectedValue(new Error('Failed to save spec file: 502'));
 
     await act(async () => {
-      render(<SpecFilesDashboard project={PROJECT} onBack={vi.fn()} />);
+      render(
+        <SpecFilesDashboard
+          project={PROJECT}
+          onBack={vi.fn()}
+          renderAddToQueue={renderAddToQueue}
+        />,
+      );
     });
 
     const textarea = await screen.findByLabelText('Contents of pricing-rules.md');
@@ -168,7 +182,13 @@ describe('SpecFilesDashboard — Add to queue', () => {
 
   it('queues the selected spec through the dialog and shows a notice', async () => {
     await act(async () => {
-      render(<SpecFilesDashboard project={PROJECT} onBack={vi.fn()} />);
+      render(
+        <SpecFilesDashboard
+          project={PROJECT}
+          onBack={vi.fn()}
+          renderAddToQueue={renderAddToQueue}
+        />,
+      );
     });
     fireEvent.click(await screen.findByTestId('spec-add-to-queue'));
     expect(screen.getByRole('dialog', { name: 'Add to queue' })).toHaveTextContent(
@@ -183,7 +203,13 @@ describe('SpecFilesDashboard — Add to queue', () => {
 
   it('closes the dialog on cancel without queuing', async () => {
     await act(async () => {
-      render(<SpecFilesDashboard project={PROJECT} onBack={vi.fn()} />);
+      render(
+        <SpecFilesDashboard
+          project={PROJECT}
+          onBack={vi.fn()}
+          renderAddToQueue={renderAddToQueue}
+        />,
+      );
     });
     fireEvent.click(await screen.findByTestId('spec-add-to-queue'));
     fireEvent.click(screen.getByText('stub-cancel'));
@@ -193,7 +219,13 @@ describe('SpecFilesDashboard — Add to queue', () => {
 
   it('is disabled with a visible reason while the spec has unsaved edits', async () => {
     await act(async () => {
-      render(<SpecFilesDashboard project={PROJECT} onBack={vi.fn()} />);
+      render(
+        <SpecFilesDashboard
+          project={PROJECT}
+          onBack={vi.fn()}
+          renderAddToQueue={renderAddToQueue}
+        />,
+      );
     });
     const textarea = await screen.findByLabelText('Contents of pricing-rules.md');
     fireEvent.change(textarea, { target: { value: '# changed' } });
@@ -201,5 +233,17 @@ describe('SpecFilesDashboard — Add to queue', () => {
     expect(button).toBeDisabled();
     expect(button).toHaveAccessibleDescription(/Save the spec first/);
     expect(screen.getByText(/Save the spec first/)).toBeVisible();
+  });
+});
+
+describe('SpecFilesDashboard — without the queue slot', () => {
+  it('hides the add-to-queue action', async () => {
+    vi.clearAllMocks();
+    vi.mocked(api.loadProjectSpecs).mockResolvedValue([SPEC]);
+    await act(async () => {
+      render(<SpecFilesDashboard project={PROJECT} onBack={vi.fn()} />);
+    });
+    await screen.findByLabelText('Contents of pricing-rules.md');
+    expect(screen.queryByTestId('spec-add-to-queue')).not.toBeInTheDocument();
   });
 });

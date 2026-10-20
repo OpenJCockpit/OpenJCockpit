@@ -22,6 +22,7 @@
     "@openjcockpit/landing-hub": "*",
     "@openjcockpit/project": "*",
     "@openjcockpit/skills-hub": "*",
+    "@openjcockpit/spec-files": "*",
     "@openjcockpit/spec-queue": "*",
     "@openjcockpit/ui": "*",
     "react": "^18.3.1",
