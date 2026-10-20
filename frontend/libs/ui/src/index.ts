@@ -3,6 +3,7 @@ export * from './BrandLogo/BrandLogo';
 export * from './Button/Button';
 export * from './DataTable/DataTable';
 export * from './Dropdown/Dropdown';
+export * from './ErrorBoundary/ErrorBoundary';
 export * from './Feedback/Feedback';
 export * from './Form/Form';
 export * from './Page/Page';

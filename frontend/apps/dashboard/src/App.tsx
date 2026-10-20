@@ -1,5 +1,5 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ToolbarButton, AppShell, StatusMessage } from '@openjcockpit/ui';
+import { ToolbarButton, AppShell, ErrorBoundary, StatusMessage } from '@openjcockpit/ui';
 import {
   clearStoredProjectId,
   getStoredProjectId,
@@ -229,169 +229,189 @@ function App() {
 
   if (view === 'landing') {
     return (
-      <Suspense
-        fallback={
-          <StatusMessage variant="loading" data-testid="hub-loading">
-            Loading...
-          </StatusMessage>
-        }
-      >
-        <LandingHub
-          user={user ?? getUserFromToken(undefined)}
-          onSelectPortal={handleSelectPortal}
-          onLogout={handleLogout}
-        />
-      </Suspense>
+      <ErrorBoundary resetKeys={[view]}>
+        <Suspense
+          fallback={
+            <StatusMessage variant="loading" data-testid="hub-loading">
+              Loading...
+            </StatusMessage>
+          }
+        >
+          <LandingHub
+            user={user ?? getUserFromToken(undefined)}
+            onSelectPortal={handleSelectPortal}
+            onLogout={handleLogout}
+          />
+        </Suspense>
+      </ErrorBoundary>
     );
   }
 
   if (view === 'project-selection') {
     return (
-      <ProjectSelection
-        projects={projects}
-        onSelect={handleSelectProject}
-        onSettings={() => setView('settings')}
-      />
+      <ErrorBoundary resetKeys={[view]}>
+        <ProjectSelection
+          projects={projects}
+          onSelect={handleSelectProject}
+          onSettings={() => setView('settings')}
+        />
+      </ErrorBoundary>
     );
   }
 
   if (view === 'workflow') {
     return (
-      <WorkflowDashboard
-        project={selectedProject}
-        initialExecution={runLink ?? undefined}
-        onBack={() => {
-          setRunLink(null);
-          setView(selectedProject ? 'dashboard' : 'project-selection');
-        }}
-      />
+      <ErrorBoundary resetKeys={[view]}>
+        <WorkflowDashboard
+          project={selectedProject}
+          initialExecution={runLink ?? undefined}
+          onBack={() => {
+            setRunLink(null);
+            setView(selectedProject ? 'dashboard' : 'project-selection');
+          }}
+        />
+      </ErrorBoundary>
     );
   }
 
   if (view === 'spec-queue') {
     return (
-      <SpecQueueDashboard
-        project={selectedProject}
-        onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
-        onOpenRun={(workflowId, runId) => {
-          setRunLink({ workflowId, runId });
-          setView('workflow');
-        }}
-      />
+      <ErrorBoundary resetKeys={[view]}>
+        <SpecQueueDashboard
+          project={selectedProject}
+          onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
+          onOpenRun={(workflowId, runId) => {
+            setRunLink({ workflowId, runId });
+            setView('workflow');
+          }}
+        />
+      </ErrorBoundary>
     );
   }
 
   if (view === 'spec-files') {
     return (
-      <SpecFilesDashboard
-        project={selectedProject}
-        onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
-        renderAddToQueue={({ project, fixedSpecFile, onAdded, onCancel }) => (
-          <AddToQueueDialog
-            project={project}
-            fixedSpecFile={fixedSpecFile}
-            onAdded={onAdded}
-            onCancel={onCancel}
-          />
-        )}
-      />
+      <ErrorBoundary resetKeys={[view]}>
+        <SpecFilesDashboard
+          project={selectedProject}
+          onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
+          renderAddToQueue={({ project, fixedSpecFile, onAdded, onCancel }) => (
+            <AddToQueueDialog
+              project={project}
+              fixedSpecFile={fixedSpecFile}
+              onAdded={onAdded}
+              onCancel={onCancel}
+            />
+          )}
+        />
+      </ErrorBoundary>
     );
   }
 
   if (view === 'settings') {
     return (
-      <ProjectSettings
-        onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
-      />
+      <ErrorBoundary resetKeys={[view]}>
+        <ProjectSettings
+          onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
+        />
+      </ErrorBoundary>
     );
   }
 
   if (view === 'skills-hub') {
     return (
-      <SkillsHubDashboard
-        onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
-        onSettings={() => setView('skills-hub-settings')}
-      />
+      <ErrorBoundary resetKeys={[view]}>
+        <SkillsHubDashboard
+          onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
+          onSettings={() => setView('skills-hub-settings')}
+        />
+      </ErrorBoundary>
     );
   }
 
   if (view === 'skills-hub-settings') {
-    return <SkillsHubSettings onBack={() => setView('skills-hub')} />;
+    return (
+      <ErrorBoundary resetKeys={[view]}>
+        <SkillsHubSettings onBack={() => setView('skills-hub')} />
+      </ErrorBoundary>
+    );
   }
 
   return (
-    <AppShell>
-      {promptWorkflow && (
-        <WorkflowPromptDialog
-          workflowName={promptWorkflow.name}
-          busy={buttonState === 'preflight' || buttonState === 'starting'}
-          onSubmit={(prompt) => {
-            void launcher.handlePromptSubmit(prompt);
-          }}
-          onCancel={launcher.cancelPrompt}
-        />
-      )}
-
-      <SiteHeader
-        projects={projects}
-        selectedProject={selectedProject}
-        onProjectChange={handleProjectDropdownChange}
-        onWorkflow={() => setView('workflow')}
-        onSpecFiles={() => setView('spec-files')}
-        onSpecQueue={() => setView('spec-queue')}
-        onSkillsHub={() => setView('skills-hub')}
-        onSettings={() => setView('settings')}
-        onHub={() => setView('landing')}
-        onLogout={handleLogout}
-      />
-
-      <main className={styles.workspace}>
-        <CustomerHero selectedProject={selectedProject} workspace={workspace} />
-
-        <section className={styles.topTools}>
-          <div className={styles.search}>
-            Search workspace... <span>⌕</span>
-          </div>
-          <ToolbarButton variant="small">Filters</ToolbarButton>
-          <div className={styles.topToolsSpacer} />
-          <ToolbarButton variant="small">⟳ Refresh</ToolbarButton>
-          <span className={styles.lastUpdate}>● Last update: 13:24:11</span>
-        </section>
-
-        <section className={styles.dashboardGrid}>
-          <SpecPanel
-            specs={specs}
-            loading={specsLoading}
-            selectedSpecId={selectedSpecId}
-            selected={selected}
-            onSelect={setSelectedSpecId}
-            onGoToWorkflow={() => setView('workflow')}
-            onViewAll={() => setView('spec-files')}
-          />
-
-          <FlowPanel
-            launcher={launcher}
-            specsLoading={specsLoading}
-            hasSpecs={hasSpecs}
-            selectedFileName={selected?.fileName}
-            projectWorkflows={projectWorkflows}
-            selectedWorkflowId={selectedWorkflowId}
-            onWorkflowChange={setSelectedWorkflowId}
-            specInitStatus={specInitStatus}
-            onReloadSpecs={() => {
-              if (selectedProject) void reloadSpecs(selectedProject.id);
+    <ErrorBoundary resetKeys={[view]}>
+      <AppShell>
+        {promptWorkflow && (
+          <WorkflowPromptDialog
+            workflowName={promptWorkflow.name}
+            busy={buttonState === 'preflight' || buttonState === 'starting'}
+            onSubmit={(prompt) => {
+              void launcher.handlePromptSubmit(prompt);
             }}
-            onOpenProjectSettings={() => setView('settings')}
+            onCancel={launcher.cancelPrompt}
           />
+        )}
 
-          <QualityPanel controls={workspace.qualityControls} />
-          <PullRequestPanel pullRequests={workspace.pullRequests} />
-          <EvidencePanel events={workspace.evidenceEvents} />
-        </section>
-      </main>
+        <SiteHeader
+          projects={projects}
+          selectedProject={selectedProject}
+          onProjectChange={handleProjectDropdownChange}
+          onWorkflow={() => setView('workflow')}
+          onSpecFiles={() => setView('spec-files')}
+          onSpecQueue={() => setView('spec-queue')}
+          onSkillsHub={() => setView('skills-hub')}
+          onSettings={() => setView('settings')}
+          onHub={() => setView('landing')}
+          onLogout={handleLogout}
+        />
 
-      <StatusBar footer={workspace.footer} />
-    </AppShell>
+        <main className={styles.workspace}>
+          <CustomerHero selectedProject={selectedProject} workspace={workspace} />
+
+          <section className={styles.topTools}>
+            <div className={styles.search}>
+              Search workspace... <span>⌕</span>
+            </div>
+            <ToolbarButton variant="small">Filters</ToolbarButton>
+            <div className={styles.topToolsSpacer} />
+            <ToolbarButton variant="small">⟳ Refresh</ToolbarButton>
+            <span className={styles.lastUpdate}>● Last update: 13:24:11</span>
+          </section>
+
+          <section className={styles.dashboardGrid}>
+            <SpecPanel
+              specs={specs}
+              loading={specsLoading}
+              selectedSpecId={selectedSpecId}
+              selected={selected}
+              onSelect={setSelectedSpecId}
+              onGoToWorkflow={() => setView('workflow')}
+              onViewAll={() => setView('spec-files')}
+            />
+
+            <FlowPanel
+              launcher={launcher}
+              specsLoading={specsLoading}
+              hasSpecs={hasSpecs}
+              selectedFileName={selected?.fileName}
+              projectWorkflows={projectWorkflows}
+              selectedWorkflowId={selectedWorkflowId}
+              onWorkflowChange={setSelectedWorkflowId}
+              specInitStatus={specInitStatus}
+              onReloadSpecs={() => {
+                if (selectedProject) void reloadSpecs(selectedProject.id);
+              }}
+              onOpenProjectSettings={() => setView('settings')}
+            />
+
+            <QualityPanel controls={workspace.qualityControls} />
+            <PullRequestPanel pullRequests={workspace.pullRequests} />
+            <EvidencePanel events={workspace.evidenceEvents} />
+          </section>
+        </main>
+
+        <StatusBar footer={workspace.footer} />
+      </AppShell>
+    </ErrorBoundary>
   );
 }
 
