@@ -1,7 +1,7 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "skills-hub",
-  "skills-hubType": "library",
+  "projectType": "library",
   "sourceRoot": "libs/skills-hub/src",
   "tags": ["type:feature"],
   "targets": {

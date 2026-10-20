@@ -7,6 +7,7 @@
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "sharedGlobals": [
       "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/eslint.config.base.js",
       "{workspaceRoot}/package-lock.json"
     ],
     "production": [

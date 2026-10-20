@@ -15,9 +15,14 @@
     "format:check": "prettier --check ."
   },
   "peerDependencies": {
-    "react": "^18.3.1"
+    "react": "^19.1.0"
   },
   "nx": {
     "includedScripts": []
+  },
+  "dependencies": {
+    "@openjcockpit/api": "*",
+    "@openjcockpit/auth": "*",
+    "@openjcockpit/ui": "*"
   }
 }
