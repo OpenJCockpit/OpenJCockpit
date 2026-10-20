@@ -3,10 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProjectSettings } from './ProjectSettings';
 import * as api from '@openjcockpit/api';
 import type { Project } from '@openjcockpit/api';
-import { clickAsync, renderAsync } from '../../testUtils/dom';
+import { clickAsync, renderAsync } from '../testUtils';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
-  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+  (await import('../testUtils')).automockApiClients(await importOriginal()),
 );
 
 const PROJECT: Project = {
