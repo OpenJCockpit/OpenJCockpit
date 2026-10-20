@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
-  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+  (await import('../testUtils')).automockApiClients(await importOriginal()),
 );
 
 import {

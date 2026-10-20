@@ -7,6 +7,7 @@ COPY libs/api/package.json libs/api/
 COPY libs/auth/package.json libs/auth/
 COPY libs/landing-hub/package.json libs/landing-hub/
 COPY libs/project/package.json libs/project/
+COPY libs/spec-queue/package.json libs/spec-queue/
 COPY libs/skills-hub/package.json libs/skills-hub/
 COPY libs/ui/package.json libs/ui/
 COPY e2e/package.json e2e/

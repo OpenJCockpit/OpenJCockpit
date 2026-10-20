@@ -20,6 +20,7 @@
       "@openjcockpit/landing-hub": ["./libs/landing-hub/src/index.ts"],
       "@openjcockpit/project": ["./libs/project/src/index.ts"],
       "@openjcockpit/skills-hub": ["./libs/skills-hub/src/index.ts"],
+      "@openjcockpit/spec-queue": ["./libs/spec-queue/src/index.ts"],
       "@openjcockpit/ui": ["./libs/ui/src/index.ts"]
     }
   }

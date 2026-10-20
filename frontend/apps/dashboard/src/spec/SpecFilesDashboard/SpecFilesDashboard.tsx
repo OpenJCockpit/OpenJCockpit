@@ -19,7 +19,7 @@ import {
   pageHeaderClass,
   cx,
 } from '@openjcockpit/ui';
-import { AddToQueueDialog } from '../../queue/AddToQueueDialog/AddToQueueDialog';
+import { AddToQueueDialog } from '@openjcockpit/spec-queue';
 import styles from './SpecFilesDashboard.module.scss';
 
 interface Props {
