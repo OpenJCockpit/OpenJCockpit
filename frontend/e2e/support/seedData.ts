@@ -7,7 +7,7 @@
  *
  * IMPORTANT: the seeded project name is `"Noordzee Logistics"` — NOT
  * `"Noordzee Logistics B.V."`. The longer string is
- * `apps/dashboard/src/mockWorkspace.ts`'s *mock* customer name. Asserting on
+ * `libs/api/src/workspace/mockWorkspace.ts`'s *mock* customer name. Asserting on
  * the longer string would produce a false-green against mock data with
  * `ai-control-service` completely down (the exact BR-10/R3 trap AC-10 exists
  * to defeat). If this migration file is ever renamed or its seeded name

@@ -161,7 +161,7 @@ export function createConfig(tsconfigRootDir) {
       },
     },
 
-    // Workspace module boundaries (see docs/landing-dashboard-integration.md §4.0). A violation fails CI.
+    // Workspace module boundaries (see docs/dashboard-feature-libraries.md §4). A violation fails CI.
     {
       files: ["src/**/*.{ts,tsx}"],
       plugins: { "@nx": nx },

@@ -25,7 +25,7 @@ By default, the frontend tries to fetch the workspace via:
 /api/workspaces/noordzee-logistics
 ```
 
-If the backend is not reachable, the application falls back to `src/mockWorkspace.ts`.
+If the backend is not reachable, the application falls back to the mock workspace in `libs/api` (`libs/api/src/workspace/mockWorkspace.ts`).
 
 ## Build
 
