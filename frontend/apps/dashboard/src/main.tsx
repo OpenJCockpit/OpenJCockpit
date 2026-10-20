@@ -1,6 +1,6 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles/index.scss';
+import { ErrorBoundary } from '@openjcockpit/ui';
 import App from './App';
 
 // StrictMode is not enabled here. The original Arwes-related justification no longer
@@ -8,4 +8,8 @@ import App from './App';
 // never been verified under StrictMode double-invocation, and this pattern-only change
 // does not cover that verification. Enabling StrictMode is a deliberate, separate
 // follow-up, not implied by any remaining technical constraint.
-createRoot(document.getElementById('root') as HTMLElement).render(<App />);
+createRoot(document.getElementById('root') as HTMLElement).render(
+  <ErrorBoundary message="The application hit an unexpected error.">
+    <App />
+  </ErrorBoundary>,
+);
