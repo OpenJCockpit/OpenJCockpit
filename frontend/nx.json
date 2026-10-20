@@ -2,11 +2,28 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "defaultBase": "main",
   "analytics": false,
+  "plugins": [
+    { "plugin": "@nx/eslint/plugin", "options": { "targetName": "lint" } },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "dev",
+        "previewTargetName": "preview",
+        "typecheckTargetName": "typecheck"
+      }
+    },
+    { "plugin": "@nx/vitest", "options": { "testTargetName": "test" } }
+  ],
   "cacheDirectory": ".nx/cache",
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "sharedGlobals": [
       "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/eslint.config.base.js",
+      "{workspaceRoot}/vite.config.base.ts",
+      "{workspaceRoot}/.prettierrc.json",
+      "{workspaceRoot}/.prettierignore",
       "{workspaceRoot}/package-lock.json"
     ],
     "production": [
@@ -24,7 +41,10 @@
     "lint": { "cache": true, "inputs": ["default"] },
     "test": { "cache": true, "inputs": ["default"] },
     "format-check": { "cache": true, "inputs": ["default"] },
-    "check-styles": { "cache": true, "inputs": ["default"] },
+    "check-styles": {
+      "cache": true,
+      "inputs": ["default", "{workspaceRoot}/libs/**/*.{scss,ts,tsx,mjs}"]
+    },
     "typecheck": { "cache": true, "inputs": ["default"] }
   }
 }

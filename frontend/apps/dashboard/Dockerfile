@@ -1,7 +1,7 @@
 # Build context is the frontend/ folder (see docker-compose.yml): the dashboard is an Nx workspace project.
 FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS build
 WORKDIR /app
-COPY package.json package-lock.json nx.json tsconfig.base.json ./
+COPY package.json package-lock.json nx.json tsconfig.base.json vite.config.base.ts ./
 COPY apps/dashboard/package.json apps/dashboard/
 COPY libs/api/package.json libs/api/
 COPY libs/auth/package.json libs/auth/

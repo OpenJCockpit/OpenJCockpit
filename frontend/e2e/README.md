@@ -257,7 +257,7 @@ focus-restore. A live reachability spike found this **is not reachable through t
 
 No `dashboard-dialog.spec.ts` file exists in `e2e/specs/`. AC-23 is instead proven by a Vitest
 component test that already exists at
-`apps/dashboard/src/workflow/WorkflowPromptDialog/WorkflowPromptDialog.test.tsx`, which covers the
+`libs/workflow/src/WorkflowPromptDialog/WorkflowPromptDialog.test.tsx`, which covers the
 dialog's ARIA role and `aria-modal` attribute, focus moving into the dialog on mount, Escape closing
 it, and focus being restored to the previously-focused element — all in jsdom. This mirrors the
 treatment AC-14 already receives: named explicitly, with the two files responsible

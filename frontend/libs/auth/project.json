@@ -5,9 +5,11 @@
   "sourceRoot": "libs/auth/src",
   "tags": ["type:data"],
   "targets": {
-    "test": { "executor": "nx:run-script", "options": { "script": "test" } },
-    "lint": { "executor": "nx:run-script", "options": { "script": "lint" } },
-    "typecheck": { "executor": "nx:run-script", "options": { "script": "typecheck" } },
-    "format-check": { "executor": "nx:run-script", "options": { "script": "format:check" } }
+    "format-check": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "format:check"
+      }
+    }
   }
 }

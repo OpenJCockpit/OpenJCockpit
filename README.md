@@ -268,6 +268,8 @@ npx nx dev dashboard
 
 Then open the Vite URL, usually http://localhost:5173. This URL is already listed in the Keycloak client redirect URIs.
 
+The dashboard is one shell app (`frontend/apps/dashboard`) composing feature libraries under `frontend/libs/` (`api`, `project`, `skills-hub`, `spec-queue`, `spec-files`, `workflow`, plus `auth`, `ui`, `landing-hub`). Boundaries between them are enforced by `@nx/enforce-module-boundaries`; see `docs/dashboard-feature-libraries.md`.
+
 ## End-to-end tests (Playwright)
 
 A `frontend/e2e/` npm package holds the repository's one Playwright installation, covering

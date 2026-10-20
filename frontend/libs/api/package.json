@@ -10,10 +10,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "test": "vitest run",
-    "typecheck": "tsc",
-    "lint": "eslint .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore"
   },
   "nx": {
     "includedScripts": []
