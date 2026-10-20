@@ -1,26 +1,11 @@
-/// <reference types="vitest/config" />
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { mergeConfig } from 'vite';
+import base from '../../vite.config.base';
 
-export default defineConfig({
-  plugins: [react()],
-  css: {
-    // Class names in .module.scss files stay kebab/BEM; TSX reads them as camelCase.
-    modules: { localsConvention: 'camelCaseOnly' },
-    preprocessorOptions: {
-      scss: { charset: false },
-    },
-  },
+export default mergeConfig(base, {
   server: {
     port: 4000,
     proxy: {
       '/api': 'http://localhost:9080',
     },
-  },
-  test: {
-    environment: 'jsdom',
-    globals: true,
-    setupFiles: ['./src/setupTests.ts'],
-    include: ['src/**/*.test.{ts,tsx}'],
   },
 });

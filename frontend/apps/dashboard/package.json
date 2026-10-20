@@ -5,13 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "typecheck": "tsc",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "prettier --write . --ignore-path ../../.prettierignore",
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore",
     "check:styles": "node visual/check-classes.mjs",
     "visual:baseline": "node visual/run.mjs baseline",
     "visual:check": "node visual/run.mjs check"

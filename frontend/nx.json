@@ -8,6 +8,9 @@
     "sharedGlobals": [
       "{workspaceRoot}/tsconfig.base.json",
       "{workspaceRoot}/eslint.config.base.js",
+      "{workspaceRoot}/vite.config.base.ts",
+      "{workspaceRoot}/.prettierrc.json",
+      "{workspaceRoot}/.prettierignore",
       "{workspaceRoot}/package-lock.json"
     ],
     "production": [
@@ -25,7 +28,10 @@
     "lint": { "cache": true, "inputs": ["default"] },
     "test": { "cache": true, "inputs": ["default"] },
     "format-check": { "cache": true, "inputs": ["default"] },
-    "check-styles": { "cache": true, "inputs": ["default"] },
+    "check-styles": {
+      "cache": true,
+      "inputs": ["default", "{workspaceRoot}/libs/**/*.{scss,ts,tsx,mjs}"]
+    },
     "typecheck": { "cache": true, "inputs": ["default"] }
   }
 }

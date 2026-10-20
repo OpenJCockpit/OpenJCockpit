@@ -6,6 +6,7 @@
   "tags": ["type:app"],
   "targets": {
     "dev": { "executor": "nx:run-script", "options": { "script": "dev" } },
+    "typecheck": { "executor": "nx:run-script", "options": { "script": "typecheck" } },
     "build": { "executor": "nx:run-script", "options": { "script": "build" } },
     "test": { "executor": "nx:run-script", "options": { "script": "test" } },
     "lint": { "executor": "nx:run-script", "options": { "script": "lint" } },
