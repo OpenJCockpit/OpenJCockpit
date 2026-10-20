@@ -266,11 +266,11 @@ Every PR: `lint`, `test`, `build`, `format:check` green for the touched projects
   - [x] `src/auth` and `src/ui` moved, imports fixed, no behavior change
   - [x] `VITE_KEYCLOAK_*` env config with current values as defaults; typings added; `getUserFromToken` moved in
   - [x] Module-boundary lint rule and tags enforced in CI; library READMEs
-- [ ] **PR 6: create `libs/landing-hub`**
-  - [ ] Hub, intro, orb, top bar moved from `apps/landing`; shared primitives into `libs/ui` (reuse existing Backdrop/Panel/BrandLogo, no duplicates)
-  - [ ] Props only: `user`, `onSelectPortal`, `onLogout`; no Keycloak import
-  - [ ] Vendored react-bits file and `ATTRIBUTION.md` moved; `NOTICE` paths updated
-  - [ ] Exported lazily; not yet wired
+- [x] **PR 6: create `libs/landing-hub`**
+  - [x] Hub, intro, orb, top bar moved from `apps/landing`; shared primitives into `libs/ui` (reuse existing Backdrop/Panel/BrandLogo, no duplicates)
+  - [x] Props only: `user`, `onSelectPortal`, `onLogout`; no Keycloak import
+  - [x] Vendored react-bits file and `ATTRIBUTION.md` moved; `NOTICE` paths updated
+  - [x] Exported lazily; not yet wired
 - [ ] **PR 7: wire the hub into the dashboard**
   - [ ] `AppView = 'landing'` as post-login default; `?view=spec-files` deep link bypasses it
   - [ ] Implementation orb to project selection/dashboard; Business orb to `spec-files` via existing deep-link path

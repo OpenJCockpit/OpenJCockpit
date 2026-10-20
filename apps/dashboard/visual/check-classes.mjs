@@ -20,7 +20,9 @@ const sources = files.filter((f) => /\.(tsx?|mjs)$/.test(f));
 const defined = new Map(); // scss file -> Set(camel names)
 const owners = new Map(); // class -> files
 for (const f of scss) {
-  const css = sass.compile(f, { silenceDeprecations: ['import'] }).css;
+  const css = sass
+    .compile(f, { silenceDeprecations: ['import'] })
+    .css.replace(/\/\*[\s\S]*?\*\//g, '');
   const names = new Set();
   for (const m of css.matchAll(/\.([a-zA-Z_][\w-]*)/g)) {
     names.add(camel(m[1]));
@@ -72,7 +74,7 @@ const declared = new Set();
 const used = new Map();
 for (const f of files.filter((x) => /\.(scss|tsx?)$/.test(x))) {
   const text = readFileSync(f, 'utf8');
-  for (const m of text.matchAll(/(--[\w-]+)\s*:/g)) declared.add(m[1]);
+  for (const m of text.matchAll(/(--[\w-]+)['"\]]*\s*[:=]/g)) declared.add(m[1]);
   for (const m of text.matchAll(/var\((--[\w-]+)/g)) {
     if (!used.has(m[1])) used.set(m[1], f);
   }
