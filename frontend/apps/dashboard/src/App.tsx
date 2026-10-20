@@ -31,8 +31,8 @@ import type { User } from '@openjcockpit/auth';
 import { LandingHub } from '@openjcockpit/landing-hub';
 import type { PortalId } from '@openjcockpit/landing-hub';
 import { SkillsHubDashboard, SkillsHubSettings } from '@openjcockpit/skills-hub';
-import { SpecQueueDashboard } from '@openjcockpit/spec-queue';
-import { SpecFilesDashboard } from './spec/SpecFilesDashboard/SpecFilesDashboard';
+import { AddToQueueDialog, SpecQueueDashboard } from '@openjcockpit/spec-queue';
+import { SpecFilesDashboard } from '@openjcockpit/spec-files';
 import { WorkflowDashboard } from './workflow/WorkflowDashboard/WorkflowDashboard';
 import { WorkflowPromptDialog } from './workflow/WorkflowPromptDialog/WorkflowPromptDialog';
 import { CustomerHero } from './components/CustomerHero/CustomerHero';
@@ -287,6 +287,14 @@ function App() {
       <SpecFilesDashboard
         project={selectedProject}
         onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
+        renderAddToQueue={({ project, fixedSpecFile, onAdded, onCancel }) => (
+          <AddToQueueDialog
+            project={project}
+            fixedSpecFile={fixedSpecFile}
+            onAdded={onAdded}
+            onCancel={onCancel}
+          />
+        )}
       />
     );
   }
