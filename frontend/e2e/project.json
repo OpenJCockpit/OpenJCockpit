@@ -5,8 +5,22 @@
   "tags": ["type:e2e"],
   "implicitDependencies": ["dashboard"],
   "targets": {
-    "e2e": { "executor": "nx:run-script", "options": { "script": "test" }, "cache": false },
-    "typecheck": { "executor": "nx:run-script", "options": { "script": "typecheck" } },
-    "format-check": { "executor": "nx:run-script", "options": { "script": "format:check" } }
+    "e2e": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "test"
+      },
+      "cache": false
+    },
+    "typecheck": {
+      "executor": "nx:run-script",
+      "options": { "script": "typecheck" }
+    },
+    "format-check": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "format:check"
+      }
+    }
   }
 }

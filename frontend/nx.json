@@ -2,6 +2,19 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "defaultBase": "main",
   "analytics": false,
+  "plugins": [
+    { "plugin": "@nx/eslint/plugin", "options": { "targetName": "lint" } },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "dev",
+        "previewTargetName": "preview",
+        "typecheckTargetName": "typecheck"
+      }
+    },
+    { "plugin": "@nx/vitest", "options": { "testTargetName": "test" } }
+  ],
   "cacheDirectory": ".nx/cache",
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
