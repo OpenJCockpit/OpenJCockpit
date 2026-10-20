@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router';
 import './styles/index.scss';
 import { ErrorBoundary } from '@openjcockpit/ui';
 import App from './App';
@@ -10,6 +11,8 @@ import App from './App';
 // follow-up, not implied by any remaining technical constraint.
 createRoot(document.getElementById('root') as HTMLElement).render(
   <ErrorBoundary message="The application hit an unexpected error.">
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </ErrorBoundary>,
 );

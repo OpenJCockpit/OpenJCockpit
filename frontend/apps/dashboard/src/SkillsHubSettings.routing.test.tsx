@@ -1,6 +1,6 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import App from './App';
+import { renderRoutedApp } from './testUtils/renderRoutedApp';
 import * as api from '@openjcockpit/api';
 import * as workflowApi from '@openjcockpit/api';
 import { mockWorkspace } from '@openjcockpit/api/testing';
@@ -88,7 +88,7 @@ describe('Skills Hub Settings — routing (AC-27)', () => {
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
 
     await act(async () => {
-      render(<App />);
+      renderRoutedApp();
     });
     await enterDashboard();
     await screen.findByText('🧩 Skills Hub');

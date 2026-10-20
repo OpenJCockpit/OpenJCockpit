@@ -1,6 +1,6 @@
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import App from './App';
+import { renderRoutedApp } from './testUtils/renderRoutedApp';
 import * as api from '@openjcockpit/api';
 import * as workflowApi from '@openjcockpit/api';
 import { mockWorkspace } from '@openjcockpit/api/testing';
@@ -74,7 +74,7 @@ async function renderDashboard(specs: SpecFile[], workflows: WorkflowDefinition[
   });
   vi.mocked(api.getSpecInitStatus).mockResolvedValue({ pending: false });
 
-  render(<App />);
+  renderRoutedApp();
   await enterDashboard();
   await screen.findByText('▶ Start');
 }
@@ -130,7 +130,7 @@ describe('spec files in the left pane', () => {
       screen.getByText(/View all specs/).click();
     });
 
-    expect(screen.getByText('Spec Files')).toBeInTheDocument();
+    expect(await screen.findByText('Spec Files')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Test Project' })).toBeInTheDocument();
   });
 });
@@ -310,7 +310,7 @@ describe('when a spec-init pull request is already open', () => {
         'https://github.com/org/repo/compare/main...spec-init/test-project/20260705-abc?expand=1',
     });
 
-    render(<App />);
+    renderRoutedApp();
     await enterDashboard();
     await screen.findByText('Pull request open');
   }
@@ -389,7 +389,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
       templateExists: true,
     });
 
-    render(<App />);
+    renderRoutedApp();
     await enterDashboard();
     await screen.findByText('✨ Create spec with prompt');
   }

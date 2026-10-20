@@ -1,6 +1,6 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import App from './App';
+import { renderRoutedApp } from './testUtils/renderRoutedApp';
 import * as api from '@openjcockpit/api';
 import * as workflowApi from '@openjcockpit/api';
 import { mockWorkspace } from '@openjcockpit/api/testing';
@@ -39,7 +39,7 @@ vi.mock('@openjcockpit/api', async (importOriginal) => ({
 async function renderDashboard() {
   mockDashboardApis();
 
-  render(<App />);
+  renderRoutedApp();
   await enterDashboard();
   await waitFor(() => {
     expect(screen.getByLabelText('Workflow')).toHaveValue(WORKFLOW.id);

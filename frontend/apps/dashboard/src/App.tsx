@@ -1,10 +1,18 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router';
 import { ToolbarButton, AppShell, ErrorBoundary, StatusMessage } from '@openjcockpit/ui';
 import {
   clearStoredProjectId,
   getStoredProjectId,
-  ProjectSelection,
-  ProjectSettings,
   setStoredProjectId,
 } from '@openjcockpit/project';
 import {
@@ -30,10 +38,6 @@ import { getKeycloak, getUserFromToken } from '@openjcockpit/auth';
 import type { User } from '@openjcockpit/auth';
 import { LandingHub } from '@openjcockpit/landing-hub';
 import type { PortalId } from '@openjcockpit/landing-hub';
-import { SkillsHubDashboard, SkillsHubSettings } from '@openjcockpit/skills-hub';
-import { AddToQueueDialog, SpecQueueDashboard } from '@openjcockpit/spec-queue';
-import { SpecFilesDashboard } from '@openjcockpit/spec-files';
-import { WorkflowDashboard, WorkflowPromptDialog } from '@openjcockpit/workflow';
 import { CustomerHero } from './components/CustomerHero/CustomerHero';
 import { SiteHeader } from './components/SiteHeader/SiteHeader';
 import { SpecPanel } from './components/SpecPanel/SpecPanel';
@@ -42,39 +46,85 @@ import { EvidencePanel } from './components/WorkspacePanels/EvidencePanel';
 import { PullRequestPanel } from './components/WorkspacePanels/PullRequestPanel';
 import { QualityPanel } from './components/WorkspacePanels/QualityPanel';
 import { FlowPanel } from './components/FlowPanel/FlowPanel';
+import {
+  AddToQueueDialog,
+  ProjectSelection,
+  ProjectSettings,
+  SkillsHubDashboard,
+  SkillsHubSettings,
+  SpecFilesDashboard,
+  SpecQueueDashboard,
+  WorkflowDashboard,
+  WorkflowPromptDialog,
+} from './lazyViews';
+import { ROUTES, workflowRunPath } from './routes';
 import { useRunLauncher } from './useRunLauncher';
 import styles from './App.module.scss';
-
-type AppView =
-  | 'landing'
-  | 'project-selection'
-  | 'dashboard'
-  | 'settings'
-  | 'workflow'
-  | 'spec-files'
-  | 'spec-queue'
-  | 'skills-hub'
-  | 'skills-hub-settings';
 
 // Failed list loads leave the previous (or empty) list in place; aborts are expected on cleanup.
 function ignoreAbortedAndFailed() {}
 
-const DEEP_LINK_VIEWS: AppView[] = ['spec-files'];
+/** Views that need a project bounce to project selection and return here once one is chosen. */
+function RequireProject({ project, children }: { project: Project | null; children: ReactNode }) {
+  const location = useLocation();
+  if (project) return children;
+  return (
+    <Navigate
+      to={ROUTES.projects}
+      replace
+      state={{ from: `${location.pathname}${location.search}` }}
+    />
+  );
+}
+
+function LandingRoute({ children }: { children: ReactNode }) {
+  const [params] = useSearchParams();
+  // Legacy deep link, kept so existing bookmarks still bypass the hub.
+  if (params.get('view') === 'spec-files') return <Navigate to={ROUTES.specFiles} replace />;
+  return children;
+}
+
+function ProjectSelectionRoute({
+  projects,
+  onSelect,
+}: {
+  projects: Project[];
+  onSelect: (project: Project) => void;
+}) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from;
+  return (
+    <ProjectSelection
+      projects={projects}
+      onSelect={(project) => {
+        onSelect(project);
+        void navigate(from ?? ROUTES.dashboard, { replace: true });
+      }}
+      onSettings={() => void navigate(ROUTES.settings)}
+    />
+  );
+}
+
+function WorkflowRoute({ project, onBack }: { project: Project | null; onBack: () => void }) {
+  const { workflowId, runId } = useParams();
+  return (
+    <WorkflowDashboard
+      key={`${workflowId ?? ''}/${runId ?? ''}`}
+      project={project}
+      initialExecution={workflowId && runId ? { workflowId, runId } : undefined}
+      onBack={onBack}
+    />
+  );
+}
 
 function App() {
   const [authReady, setAuthReady] = useState(false);
-  const [view, setView] = useState<AppView>('landing');
+  const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<User | null>(null);
-  // A ref, not state: the auth effect reads it, and changing it must never re-run Keycloak init.
-  const pendingViewRef = useRef<AppView | null>(
-    (() => {
-      const requested = new URLSearchParams(window.location.search).get('view');
-      return DEEP_LINK_VIEWS.includes(requested as AppView) ? (requested as AppView) : null;
-    })(),
-  );
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [runLink, setRunLink] = useState<{ workflowId: string; runId: string } | null>(null);
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [workspaceError, setWorkspaceError] = useState(false);
   const [specs, setSpecs] = useState<SpecFile[]>([]);
@@ -83,15 +133,6 @@ function App() {
   const [workflows, setWorkflows] = useState<WorkflowDefinition[]>([]);
   const [workflowGroups, setWorkflowGroups] = useState<WorkflowGroup[]>([]);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string>('');
-
-  const consumeDeepLink = useCallback((fallback: AppView) => {
-    const pending = pendingViewRef.current;
-    setView(pending ?? fallback);
-    if (pending) {
-      pendingViewRef.current = null;
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-  }, []);
 
   useEffect(() => {
     const keycloak = getKeycloak();
@@ -116,13 +157,6 @@ function App() {
         const found = storedId ? active.find((p) => p.id === storedId) : undefined;
         if (storedId && !found) clearStoredProjectId();
         if (found) setSelectedProject(found);
-        if (!pendingViewRef.current) {
-          setView('landing');
-        } else if (found) {
-          consumeDeepLink('dashboard');
-        } else {
-          setView('project-selection');
-        }
         setAuthReady(true);
         refreshTimer = window.setInterval(async () => {
           try {
@@ -141,7 +175,7 @@ function App() {
       controller.abort();
       if (refreshTimer) window.clearInterval(refreshTimer);
     };
-  }, [consumeDeepLink]);
+  }, []);
 
   async function reloadSpecs(projectId: string, signal?: AbortSignal) {
     setSpecsLoading(true);
@@ -165,18 +199,14 @@ function App() {
   function handleSelectProject(project: Project) {
     setSelectedProject(project);
     setStoredProjectId(project.id);
-    consumeDeepLink('dashboard');
   }
 
   function handleSelectPortal(portal: PortalId) {
-    if (portal === 'business') {
-      pendingViewRef.current = 'spec-files';
-      if (selectedProject) consumeDeepLink('dashboard');
-      else setView('project-selection');
-    } else {
-      setView(selectedProject ? 'dashboard' : 'project-selection');
-    }
+    // RequireProject sends a project-less user to selection and then on to the chosen view.
+    void navigate(portal === 'business' ? ROUTES.specFiles : ROUTES.dashboard);
   }
+
+  const backTarget = selectedProject ? ROUTES.dashboard : ROUTES.projects;
 
   function handleLogout() {
     void getKeycloak().logout({ redirectUri: window.location.origin });
@@ -242,120 +272,10 @@ function App() {
     );
   }
 
-  if (view === 'landing') {
-    return (
-      <ErrorBoundary resetKeys={[view]}>
-        <Suspense
-          fallback={
-            <StatusMessage variant="loading" data-testid="hub-loading">
-              Loading...
-            </StatusMessage>
-          }
-        >
-          <LandingHub
-            user={user ?? getUserFromToken(undefined)}
-            onSelectPortal={handleSelectPortal}
-            onLogout={handleLogout}
-          />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-
-  if (view === 'project-selection') {
-    return (
-      <ErrorBoundary resetKeys={[view]}>
-        <ProjectSelection
-          projects={projects}
-          onSelect={handleSelectProject}
-          onSettings={() => setView('settings')}
-        />
-      </ErrorBoundary>
-    );
-  }
-
-  if (view === 'workflow') {
-    return (
-      <ErrorBoundary resetKeys={[view]}>
-        <WorkflowDashboard
-          project={selectedProject}
-          initialExecution={runLink ?? undefined}
-          onBack={() => {
-            setRunLink(null);
-            setView(selectedProject ? 'dashboard' : 'project-selection');
-          }}
-        />
-      </ErrorBoundary>
-    );
-  }
-
-  if (view === 'spec-queue') {
-    return (
-      <ErrorBoundary resetKeys={[view]}>
-        <SpecQueueDashboard
-          project={selectedProject}
-          onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
-          onOpenRun={(workflowId, runId) => {
-            setRunLink({ workflowId, runId });
-            setView('workflow');
-          }}
-        />
-      </ErrorBoundary>
-    );
-  }
-
-  if (view === 'spec-files') {
-    return (
-      <ErrorBoundary resetKeys={[view]}>
-        <SpecFilesDashboard
-          project={selectedProject}
-          onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
-          renderAddToQueue={({ project, fixedSpecFile, onAdded, onCancel }) => (
-            <AddToQueueDialog
-              project={project}
-              fixedSpecFile={fixedSpecFile}
-              onAdded={onAdded}
-              onCancel={onCancel}
-            />
-          )}
-        />
-      </ErrorBoundary>
-    );
-  }
-
-  if (view === 'settings') {
-    return (
-      <ErrorBoundary resetKeys={[view]}>
-        <ProjectSettings
-          onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
-        />
-      </ErrorBoundary>
-    );
-  }
-
-  if (view === 'skills-hub') {
-    return (
-      <ErrorBoundary resetKeys={[view]}>
-        <SkillsHubDashboard
-          onBack={() => setView(selectedProject ? 'dashboard' : 'project-selection')}
-          onSettings={() => setView('skills-hub-settings')}
-        />
-      </ErrorBoundary>
-    );
-  }
-
-  if (view === 'skills-hub-settings') {
-    return (
-      <ErrorBoundary resetKeys={[view]}>
-        <SkillsHubSettings onBack={() => setView('skills-hub')} />
-      </ErrorBoundary>
-    );
-  }
-
-  return (
-    <ErrorBoundary resetKeys={[view]}>
-      <AppShell>
-        {promptWorkflow && (
+  const dashboard = (
+    <AppShell>
+      {promptWorkflow && (
+        <Suspense fallback={null}>
           <WorkflowPromptDialog
             workflowName={promptWorkflow.name}
             busy={buttonState === 'preflight' || buttonState === 'starting'}
@@ -364,81 +284,183 @@ function App() {
             }}
             onCancel={launcher.cancelPrompt}
           />
+        </Suspense>
+      )}
+
+      <SiteHeader
+        projects={projects}
+        selectedProject={selectedProject}
+        onProjectChange={handleProjectDropdownChange}
+        onWorkflow={() => void navigate(ROUTES.workflow)}
+        onSpecFiles={() => void navigate(ROUTES.specFiles)}
+        onSpecQueue={() => void navigate(ROUTES.specQueue)}
+        onSkillsHub={() => void navigate(ROUTES.skillsHub)}
+        onSettings={() => void navigate(ROUTES.settings)}
+        onHub={() => void navigate(ROUTES.landing)}
+        onLogout={handleLogout}
+      />
+
+      <main className={styles.workspace}>
+        {workspace ? (
+          <CustomerHero selectedProject={selectedProject} workspace={workspace} />
+        ) : (
+          <StatusMessage
+            variant={workspaceError ? 'error' : 'loading'}
+            data-testid="workspace-status"
+          >
+            {workspaceError ? 'Failed to load the workspace.' : 'Loading workspace...'}
+          </StatusMessage>
         )}
 
-        <SiteHeader
-          projects={projects}
-          selectedProject={selectedProject}
-          onProjectChange={handleProjectDropdownChange}
-          onWorkflow={() => setView('workflow')}
-          onSpecFiles={() => setView('spec-files')}
-          onSpecQueue={() => setView('spec-queue')}
-          onSkillsHub={() => setView('skills-hub')}
-          onSettings={() => setView('settings')}
-          onHub={() => setView('landing')}
-          onLogout={handleLogout}
-        />
+        <section className={styles.topTools}>
+          <div className={styles.search}>
+            Search workspace... <span>⌕</span>
+          </div>
+          <ToolbarButton variant="small">Filters</ToolbarButton>
+          <div className={styles.topToolsSpacer} />
+          <ToolbarButton variant="small">⟳ Refresh</ToolbarButton>
+          <span className={styles.lastUpdate}>● Last update: 13:24:11</span>
+        </section>
 
-        <main className={styles.workspace}>
-          {workspace ? (
-            <CustomerHero selectedProject={selectedProject} workspace={workspace} />
-          ) : (
-            <StatusMessage
-              variant={workspaceError ? 'error' : 'loading'}
-              data-testid="workspace-status"
-            >
-              {workspaceError ? 'Failed to load the workspace.' : 'Loading workspace...'}
-            </StatusMessage>
+        <section className={styles.dashboardGrid}>
+          <SpecPanel
+            specs={specs}
+            loading={specsLoading}
+            selectedSpecId={selectedSpecId}
+            selected={selected}
+            onSelect={setSelectedSpecId}
+            onGoToWorkflow={() => void navigate(ROUTES.workflow)}
+            onViewAll={() => void navigate(ROUTES.specFiles)}
+          />
+
+          <FlowPanel
+            launcher={launcher}
+            specsLoading={specsLoading}
+            hasSpecs={hasSpecs}
+            selectedFileName={selected?.fileName}
+            projectWorkflows={projectWorkflows}
+            selectedWorkflowId={selectedWorkflowId}
+            onWorkflowChange={setSelectedWorkflowId}
+            specInitStatus={specInitStatus}
+            onReloadSpecs={() => {
+              if (selectedProject) void reloadSpecs(selectedProject.id);
+            }}
+            onOpenProjectSettings={() => void navigate(ROUTES.settings)}
+          />
+
+          {workspace && (
+            <>
+              <QualityPanel controls={workspace.qualityControls} />
+              <PullRequestPanel pullRequests={workspace.pullRequests} />
+              <EvidencePanel events={workspace.evidenceEvents} />
+            </>
           )}
+        </section>
+      </main>
 
-          <section className={styles.topTools}>
-            <div className={styles.search}>
-              Search workspace... <span>⌕</span>
-            </div>
-            <ToolbarButton variant="small">Filters</ToolbarButton>
-            <div className={styles.topToolsSpacer} />
-            <ToolbarButton variant="small">⟳ Refresh</ToolbarButton>
-            <span className={styles.lastUpdate}>● Last update: 13:24:11</span>
-          </section>
+      {workspace && <StatusBar footer={workspace.footer} />}
+    </AppShell>
+  );
 
-          <section className={styles.dashboardGrid}>
-            <SpecPanel
-              specs={specs}
-              loading={specsLoading}
-              selectedSpecId={selectedSpecId}
-              selected={selected}
-              onSelect={setSelectedSpecId}
-              onGoToWorkflow={() => setView('workflow')}
-              onViewAll={() => setView('spec-files')}
+  return (
+    <ErrorBoundary resetKeys={[location.pathname]}>
+      <Suspense
+        fallback={
+          <StatusMessage variant="loading" data-testid="view-loading">
+            Loading...
+          </StatusMessage>
+        }
+      >
+        <Routes>
+          <Route
+            path={ROUTES.landing}
+            element={
+              <LandingRoute>
+                <LandingHub
+                  user={user ?? getUserFromToken(undefined)}
+                  onSelectPortal={handleSelectPortal}
+                  onLogout={handleLogout}
+                />
+              </LandingRoute>
+            }
+          />
+          <Route
+            path={ROUTES.projects}
+            element={<ProjectSelectionRoute projects={projects} onSelect={handleSelectProject} />}
+          />
+          <Route
+            path={ROUTES.dashboard}
+            element={<RequireProject project={selectedProject}>{dashboard}</RequireProject>}
+          />
+          <Route
+            path={ROUTES.settings}
+            element={<ProjectSettings onBack={() => void navigate(backTarget)} />}
+          />
+          {[ROUTES.workflow, `${ROUTES.workflow}/:workflowId/runs/:runId`].map((path) => (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <RequireProject project={selectedProject}>
+                  <WorkflowRoute
+                    project={selectedProject}
+                    onBack={() => void navigate(backTarget)}
+                  />
+                </RequireProject>
+              }
             />
-
-            <FlowPanel
-              launcher={launcher}
-              specsLoading={specsLoading}
-              hasSpecs={hasSpecs}
-              selectedFileName={selected?.fileName}
-              projectWorkflows={projectWorkflows}
-              selectedWorkflowId={selectedWorkflowId}
-              onWorkflowChange={setSelectedWorkflowId}
-              specInitStatus={specInitStatus}
-              onReloadSpecs={() => {
-                if (selectedProject) void reloadSpecs(selectedProject.id);
-              }}
-              onOpenProjectSettings={() => setView('settings')}
-            />
-
-            {workspace && (
-              <>
-                <QualityPanel controls={workspace.qualityControls} />
-                <PullRequestPanel pullRequests={workspace.pullRequests} />
-                <EvidencePanel events={workspace.evidenceEvents} />
-              </>
-            )}
-          </section>
-        </main>
-
-        {workspace && <StatusBar footer={workspace.footer} />}
-      </AppShell>
+          ))}
+          <Route
+            path={ROUTES.specQueue}
+            element={
+              <RequireProject project={selectedProject}>
+                <SpecQueueDashboard
+                  project={selectedProject}
+                  onBack={() => void navigate(backTarget)}
+                  onOpenRun={(workflowId, runId) =>
+                    void navigate(workflowRunPath(workflowId, runId))
+                  }
+                />
+              </RequireProject>
+            }
+          />
+          <Route
+            path={ROUTES.specFiles}
+            element={
+              <RequireProject project={selectedProject}>
+                <SpecFilesDashboard
+                  project={selectedProject}
+                  onBack={() => void navigate(backTarget)}
+                  renderAddToQueue={({ project, fixedSpecFile, onAdded, onCancel }) => (
+                    <Suspense fallback={null}>
+                      <AddToQueueDialog
+                        project={project}
+                        fixedSpecFile={fixedSpecFile}
+                        onAdded={onAdded}
+                        onCancel={onCancel}
+                      />
+                    </Suspense>
+                  )}
+                />
+              </RequireProject>
+            }
+          />
+          <Route
+            path={ROUTES.skillsHub}
+            element={
+              <SkillsHubDashboard
+                onBack={() => void navigate(backTarget)}
+                onSettings={() => void navigate(ROUTES.skillsHubSettings)}
+              />
+            }
+          />
+          <Route
+            path={ROUTES.skillsHubSettings}
+            element={<SkillsHubSettings onBack={() => void navigate(ROUTES.skillsHub)} />}
+          />
+          <Route path="*" element={<Navigate to={ROUTES.landing} replace />} />
+        </Routes>
+      </Suspense>
     </ErrorBoundary>
   );
 }

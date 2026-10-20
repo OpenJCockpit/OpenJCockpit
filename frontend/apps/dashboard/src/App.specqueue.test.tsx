@@ -1,6 +1,6 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import App from './App';
+import { renderRoutedApp } from './testUtils/renderRoutedApp';
 import * as api from '@openjcockpit/api';
 import { mockWorkspace } from '@openjcockpit/api/testing';
 import type { Project, SpecFile, SpecQueue, WorkflowDefinition } from '@openjcockpit/api';
@@ -118,7 +118,7 @@ async function renderApp(queue: SpecQueue = queueWith()) {
   });
   vi.mocked(queueApi.getSpecQueue).mockResolvedValue(queue);
 
-  render(<App />);
+  renderRoutedApp();
   await enterDashboard();
   await screen.findByText('▶ Start');
 }
