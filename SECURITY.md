@@ -15,7 +15,7 @@ Include:
 - a description of the issue
 - affected version or commit
 - affected component (for example `ai-control-service`, `embabel-agent-service`,
-  `git-mcp-server`, the dashboard, the landing app or the Keycloak configuration)
+  `git-mcp-server`, the dashboard (including the landing hub) or the Keycloak configuration)
 - reproduction steps or proof of concept
 - impact assessment
 - any suggested mitigation

@@ -23,7 +23,7 @@ Requirements:
 
 - JDK 25
 - Maven 3.9+
-- Node.js 22 and npm (see `apps/dashboard/.nvmrc`)
+- Node.js 22 and npm (see `frontend/.nvmrc`)
 - Docker with Docker Compose, for running the full stack
 - A local Ollama installation, as described in the [README](README.md)
 
@@ -35,6 +35,7 @@ mvn -B verify
 mvn -B -pl :ai-control-service -am verify
 
 # Frontend (Nx workspace; run from the repo root)
+cd frontend
 npm ci
 npx nx test dashboard
 npx nx lint dashboard

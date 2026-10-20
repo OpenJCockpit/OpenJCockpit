@@ -8,11 +8,14 @@ permissions:
   contents: read
 
 jobs:
-  # Nx workspace (apps/dashboard, e2e). Pull requests run only the affected
+  # Nx workspace (apps/dashboard, libs, e2e). Pull requests run only the affected
   # projects; pushes run everything so a missed `affected` edge cannot hide
   # a regression on main. Local Nx cache only (no remote cache).
   workspace:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -20,9 +23,9 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version-file: .nvmrc
+          node-version-file: frontend/.nvmrc
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -41,47 +44,6 @@ jobs:
         if: failure()
         with:
           name: workspace-nx-logs
-          path: .nx/cache/terminalOutputs
-          if-no-files-found: ignore
-          retention-days: 7
-
-  # apps/landing is outside the Nx workspace until it is merged into the
-  # dashboard; it keeps its own lockfile and job.
-  landing:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: apps/landing/package-lock.json
-
-      - name: Install dependencies
-        working-directory: apps/landing
-        run: npm ci
-
-      - name: Lint
-        working-directory: apps/landing
-        run: npm run lint
-
-      - name: Check style references
-        working-directory: apps/landing
-        run: npm run check:styles
-
-      - name: Run tests
-        working-directory: apps/landing
-        run: npm run test -- --reporter=default --reporter=junit --outputFile=${{ runner.temp }}/vitest-junit.xml
-
-      - name: Build
-        working-directory: apps/landing
-        run: npm run build
-
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: failure()
-        with:
-          name: landing-vitest-report
-          path: ${{ runner.temp }}/vitest-junit.xml
+          path: frontend/.nx/cache/terminalOutputs
           if-no-files-found: ignore
           retention-days: 7

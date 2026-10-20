@@ -6,7 +6,7 @@ Futuristic dashboard, build with React, Vite, Docker Compose, Keycloak and Postg
 
 ## What is in this project?
 
-- React/Vite frontend with a self-authored animated/framed UI (see `apps/landing/src/ui/README.md`).
+- React/Vite frontend with a self-authored animated/framed UI (see `frontend/libs/ui/README.md`).
 - Keycloak-authentication with `keycloak-js`.
 - The landing page only shown with a valid auth token.
 - Intro-animation with `Hi <surname>!`, where the surname is retrieved from the Keycloak-token.
@@ -92,9 +92,9 @@ defined in `.env.example` (commented out by default) and overridable in
 **Verifying the gateway path end to end.** An automated, live Playwright
 check proves a real agent LLM call actually transits this gateway to host
 Ollama and is attributed to the expected virtual key and model: run
-`npm run e2e:llm` from `e2e/`. It requires the full stack running (LiteLLM,
+`npm run e2e:llm` from `frontend/e2e/`. It requires the full stack running (LiteLLM,
 `embabel-agent-service`, host Ollama with the configured model pulled, plus
-Keycloak/`ai-control-service`/`dashboard`/`landing`) — see `e2e/README.md`'s
+Keycloak/`ai-control-service`/`dashboard`) — see `frontend/e2e/README.md`'s
 "The agent ⇄ LiteLLM ⇄ Ollama live check" section for the exact
 preconditions, strict-mode flag, and what it does and does not prove.
 
@@ -171,10 +171,10 @@ docker compose up --build
 
 You can open the following URLs in your browser:
 
-- App: http://localhost:3000
+- App: http://localhost:4000
 - Keycloak admin: http://localhost:8080/admin
 
-The app will send you automatically to the custom OpenJCockpit login page of Keycloak. After a valid login, you will be redirected to the landing page.
+The app will send you automatically to the custom OpenJCockpit login page of Keycloak. After a valid login, you will be redirected to the landing hub.
 
 ## Keycloak data
 
@@ -249,13 +249,20 @@ docker compose down -v
 docker compose up --build
 ```
 
+**Note for existing developers (landing app removed).** The `openjcockpit` client now uses
+`http://localhost:4000` as `rootUrl`/`adminUrl`, and the `:3000` redirect URIs and web origins are gone.
+An existing database keeps the old realm, so either re-import it as above or edit the client manually
+in the Keycloak admin console (Clients, `openjcockpit`): set Root URL and Admin URL to
+`http://localhost:4000` and remove the `:3000` entries. Nothing listens on `:3000` any more.
+
 ## Local frontend development
 
 You can run Keycloak and PostgreSQL via Docker, and the frontend locally with Vite:
 
 ```bash
 docker compose up postgres keycloak
-npm install                  # at the repo root (installs the Nx workspace)
+cd frontend
+npm install                  # installs the Nx workspace
 npx nx dev dashboard
 ```
 
@@ -263,26 +270,26 @@ Then open the Vite URL, usually http://localhost:5173. This URL is already liste
 
 ## End-to-end tests (Playwright)
 
-A top-level `e2e/` npm package holds the repository's one Playwright installation, covering both
-`apps/dashboard` and `apps/landing` against a running local stack. Full prerequisites, every
+A `frontend/e2e/` npm package holds the repository's one Playwright installation, covering
+`frontend/apps/dashboard` (hub and dashboard) against a running local stack. Full prerequisites, every
 environment variable, the token-in-artefacts warning, and everything deliberately excluded (no
 positive admin-role coverage, no `WorkflowPromptDialog` dialog-semantics scenario, no wrong-password
-scenario, no ESLint) are documented in [`e2e/README.md`](e2e/README.md) — read it before running the
+scenario, no ESLint) are documented in [`frontend/e2e/README.md`](frontend/e2e/README.md) — read it before running the
 suite.
 
 Summary: two mutually exclusive modes, selected by `E2E_MODE` (default `full`), because the Vite dev
 server and the containerised dashboard both bind host port 4000:
 
 ```bash
-# reduced mode — Vite dev servers, lighter backend set
-cd e2e && npm run stack:reduced && npm run e2e:reduced && npm run stack:reduced:stop
+# reduced mode — Vite dev server, lighter backend set
+cd frontend/e2e && npm run stack:reduced && npm run e2e:reduced && npm run stack:reduced:stop
 
 # full mode — the existing docker compose up stack, operator-started
 docker compose up -d --build
-cd e2e && npm run e2e:full
+cd frontend/e2e && npm run e2e:full
 ```
 
-Ports used: 3000 (landing), 4000 (dashboard), 8080 (Keycloak), 9080 (`ai-control-service`). This
+Ports used: 4000 (dashboard), 8080 (Keycloak), 9080 (`ai-control-service`). This
 suite is a **local and QA-agent gate only** — see "Continuous Integration" below.
 
 ## Spec queue
@@ -594,15 +601,14 @@ mvn -pl services/embabel-agent-service test
 mvn -pl services/embabel-agent-service verify
 ```
 
-Frontend verification (Nx workspace at the repo root: `apps/dashboard` and `e2e`, one root `package-lock.json`, Node 22 per `.nvmrc`):
+Frontend verification (Nx workspace in `frontend/`: `apps/dashboard`, `libs/*` and `e2e`, one `package-lock.json`, Node 22 per `.nvmrc`):
 
 ```bash
+cd frontend
 npm ci
 npx nx run-many -t lint check-styles typecheck test build
 npx nx affected -t lint test build   # only what changed vs. main
 ```
-
-`apps/landing` is outside the workspace for now and keeps its own lockfile (`cd apps/landing && npm ci`).
 
 Spec folder rules:
 
@@ -849,7 +855,7 @@ disposable) before starting the older version of `embabel-agent-service`.
 **This hazard is narrower than it might sound — do not over-apply this
 warning:**
 
-- Rolling back **only the frontend** (`apps/dashboard`) is fine and needs no
+- Rolling back **only the frontend** (`frontend/apps/dashboard`) is fine and needs no
   special step.
 - Rolling back **only the backend**, to a version that already includes this
   feature's initial groundwork (i.e. a version that can already parse
@@ -1109,7 +1115,7 @@ resource_metadata="http://<host>/.well-known/oauth-protected-resource"` on
   since by default it would have introduced a new anonymous endpoint — this
   was found and fixed during this delivery's integration review, not left as
   a known limitation to defer.
-- **No CI enforcement for the Playwright E2E suite yet.** `e2e/` (see
+- **No CI enforcement for the Playwright E2E suite yet.** `frontend/e2e/` (see
   "End-to-end tests (Playwright)" above) is a local and QA-agent-run gate
   only; a PR that only touches `e2e/` triggers no CI leg today. This is a
   named, accepted gap, not an oversight — CI enforcement is a stated
@@ -1170,7 +1176,7 @@ CI process before it can land on `main`.
 **What it scans**
 
 Renovate auto-detects dependency files from its default managers — currently that means Maven
-(`pom.xml` in each reactor module), npm (`apps/dashboard/package.json`), and GitHub Actions
+(`pom.xml` in each reactor module), npm (`frontend/apps/dashboard/package.json`), and GitHub Actions
 (`.github/workflows/*.yml`). No manager list is restricted in `renovate-config.json`, so newly
 added supported files are picked up automatically.
 
@@ -1240,7 +1246,7 @@ under `.github/workflows/`:
 | Workflow          | Triggers on changes to                                    | Runs                                                                                                               |
 | ----------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `backend-ci.yml`  | `services/**`, root `pom.xml`, `shared/contracts/**`      | `mvn -B verify` for the full Maven reactor — build, unit/integration tests, and the JaCoCo 100% line-coverage gate |
-| `frontend-ci.yml` | `apps/dashboard/**`, `apps/landing/**`, workspace config  | Nx workspace job (`affected` on PRs, full run on pushes: lint, check-styles, typecheck, test, build) plus a separate `landing` job |
+| `frontend-ci.yml` | `frontend/**`                                             | Nx workspace job (`affected` on PRs, full run on pushes: lint, check-styles, typecheck, test, build) |
 | `infra-ci.yml`    | `docker-compose.yml`, `infrastructure/**`, `.env.example` | `docker compose config` against `.env.example`, to catch YAML/interpolation errors without starting any container  |
 
 These three run only when their own paths change, so a dashboard-only PR
@@ -1258,7 +1264,7 @@ This is CI only: no image publishing, no deployment. See
 including the manual branch-protection step and known open items.
 
 **Playwright is a local and QA-agent gate only — there is no GitHub Actions enforcement yet.** A
-change confined to `e2e/` triggers none of the three legs above, and no fourth workflow exists for it.
+change confined to `frontend/e2e/` triggers none of the three legs above, and no fourth workflow exists for it.
 This is a named, accepted gap, not a silent omission: the QA engineer agent runs the suite as part of
 its independent gate today, and CI enforcement is a stated follow-up for a later requirement (see
 `docs/delivery/playwright-e2e-testing/`).

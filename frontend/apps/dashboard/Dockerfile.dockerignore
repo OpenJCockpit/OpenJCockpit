@@ -1,0 +1,12 @@
+# Used instead of the frontend/ .dockerignore for the dashboard image (context: frontend/).
+**/node_modules
+**/dist
+.nx
+*.md
+.env
+.idea/
+.DS_Store
+*.log
+apps/dashboard/visual/shots
+e2e/*
+!e2e/package.json

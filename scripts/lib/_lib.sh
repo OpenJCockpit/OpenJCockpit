@@ -92,7 +92,6 @@ mf::wait_for_http() {
 
 mf::print_urls() {
   mf::log_info "dashboard:              http://localhost:4000"
-  mf::log_info "landing:                http://localhost:3000"
   mf::log_info "Keycloak admin:         http://localhost:8080/admin"
   mf::log_info "ai-control-service:     http://localhost:9080"
   mf::log_info "embabel-agent-service:  http://localhost:8091"

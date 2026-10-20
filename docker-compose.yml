@@ -236,20 +236,9 @@ services:
     entrypoint: ["/bin/sh", "/local-seed/seed-local.sh"]
     restart: "no"
 
-  landing:
-    build:
-      context: apps/landing
-      dockerfile: Dockerfile
-    container_name: openjcockpit-landing
-    restart: unless-stopped
-    ports:
-      - "3000:80"
-    depends_on:
-      - keycloak
-
   dashboard:
     build:
-      context: .
+      context: frontend
       dockerfile: apps/dashboard/Dockerfile
     container_name: openjcockpit-dashboard
     restart: unless-stopped
