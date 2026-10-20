@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { fieldErrorClass, fieldHintClass } from '@openjcockpit/ui';
+import { fieldErrorClass, fieldHintClass } from '../Form/Form';
 import { StatusMessage } from './StatusMessage';
 
 describe('StatusMessage', () => {

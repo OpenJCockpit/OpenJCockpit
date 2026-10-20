@@ -9,10 +9,11 @@ import type {
   SkillsMarketplaceConnection,
   SkillsMarketplaceConnectionRequest,
 } from '@openjcockpit/api';
-import { AppShell, AppHeader } from '../AppShell/AppShell';
-import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
-import { TextField } from '../FormFields/TextField/TextField';
 import {
+  AppShell,
+  AppHeader,
+  TextAreaField,
+  TextField,
   Eyebrow,
   Actions,
   DataTable,
@@ -24,8 +25,8 @@ import {
   Button,
   pageClass,
   pageHeaderClass,
+  StatusMessage,
 } from '@openjcockpit/ui';
-import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
 import styles from './SkillsHubSettings.module.scss';
 
 interface Props {

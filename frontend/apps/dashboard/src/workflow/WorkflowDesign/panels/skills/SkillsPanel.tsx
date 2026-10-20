@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
-import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
+import { ToolbarButton, StatusMessage, fieldErrorClass, Button } from '@openjcockpit/ui';
 import {
   createSkillSpec,
   deleteSkillSpec,
@@ -14,7 +13,6 @@ import { PromptGenerator } from '../shared/PromptGenerator';
 import { SkillEditor } from './SkillEditor';
 import { SkillsTable } from './SkillsTable';
 import type { SkillRow } from './SkillsTable';
-import { fieldErrorClass, Button } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_SKILL: SkillSpec = {

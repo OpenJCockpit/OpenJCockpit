@@ -16,8 +16,16 @@ import { ConfirmActionDialog } from '../ConfirmActionDialog/ConfirmActionDialog'
 import { pollErrorText, queueStateText } from '../queueStatus';
 import { SpecQueueItemRow } from '../SpecQueueItemRow/SpecQueueItemRow';
 import type { MoveDirection } from '../SpecQueueItemRow/SpecQueueItemRow';
-import { AppHeader, AppShell } from '../../components/AppShell/AppShell';
-import { Button, feedbackErrorClass, fieldHintClass, Eyebrow, Panel, cx } from '@openjcockpit/ui';
+import {
+  AppHeader,
+  AppShell,
+  Button,
+  feedbackErrorClass,
+  fieldHintClass,
+  Eyebrow,
+  Panel,
+  cx,
+} from '@openjcockpit/ui';
 import styles from './SpecQueueDashboard.module.scss';
 
 interface Props {

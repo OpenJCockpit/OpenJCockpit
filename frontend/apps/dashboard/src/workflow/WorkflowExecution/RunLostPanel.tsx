@@ -1,4 +1,4 @@
-import { ToolbarButton } from '../../components/ToolbarButton/ToolbarButton';
+import { ToolbarButton } from '@openjcockpit/ui';
 import styles from './WorkflowExecution.module.scss';
 
 interface Props {

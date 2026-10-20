@@ -12,7 +12,6 @@ vi.mock('../linkableAgents', async () => {
   const actual = await vi.importActual<typeof import('../linkableAgents')>('../linkableAgents');
   return { ...actual, fetchLinkableAgents: vi.fn(), loadLinkableAgents: vi.fn() };
 });
-import chipStyles from '../../components/StatusChip/StatusChip.module.scss';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
   (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
@@ -298,7 +297,7 @@ describe('WorkflowOverview', () => {
     await screen.findByText('Customer Onboarding');
 
     const chip = screen.getByText('RUNNING');
-    expect(chip).toHaveClass(chipStyles.statusChipActive);
+    expect(chip.className).toMatch(/statusChipActive/);
   });
 
   it('filters workflows by the selected project name', async () => {

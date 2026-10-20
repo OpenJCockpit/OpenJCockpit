@@ -6,12 +6,12 @@ import {
   updateA2AService,
 } from '@openjcockpit/api';
 import type { A2AService } from '@openjcockpit/api';
-import { StatusChip } from '../../../components/StatusChip/StatusChip';
-import { SecretField } from '../../../components/FormFields/SecretField/SecretField';
-import { TextField } from '../../../components/FormFields/TextField/TextField';
-import { StatusMessage } from '../../../components/StatusMessage/StatusMessage';
-import { ToolbarButton } from '../../../components/ToolbarButton/ToolbarButton';
 import {
+  StatusChip,
+  SecretField,
+  TextField,
+  StatusMessage,
+  ToolbarButton,
   Button,
   Actions,
   DataTable,

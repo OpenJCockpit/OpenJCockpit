@@ -17,10 +17,16 @@ import type {
   WorkflowGroup,
 } from '@openjcockpit/api';
 import { fetchLinkableAgents } from '../linkableAgents';
-import { StatusChip } from '../../components/StatusChip/StatusChip';
+import {
+  StatusChip,
+  Eyebrow,
+  Panel,
+  fieldErrorClass,
+  fieldHintClass,
+  Button,
+  StatusMessage,
+} from '@openjcockpit/ui';
 import { WorkflowPromptDialog } from '../WorkflowPromptDialog/WorkflowPromptDialog';
-import { Eyebrow, Panel, fieldErrorClass, fieldHintClass, Button } from '@openjcockpit/ui';
-import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
 import styles from './WorkflowOverview.module.scss';
 
 interface Props {

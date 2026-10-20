@@ -1,7 +1,5 @@
 import type { SpecInitResult } from '@openjcockpit/api';
-import { StatusChip } from '../StatusChip/StatusChip';
-import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
-import { buttonClass, feedbackResultClass } from '@openjcockpit/ui';
+import { StatusChip, ToolbarButton, buttonClass, feedbackResultClass } from '@openjcockpit/ui';
 
 interface Props {
   result: SpecInitResult;

@@ -2,14 +2,20 @@ import type { SpecInitStatus, WorkflowDefinition } from '@openjcockpit/api';
 import { WorkflowExecution } from '../../workflow/WorkflowExecution/WorkflowExecution';
 import type { useRunLauncher } from '../../useRunLauncher';
 import { PreflightAlert } from '../PreflightAlert/PreflightAlert';
-import { StatusChip } from '../StatusChip/StatusChip';
+import {
+  StatusChip,
+  Eyebrow,
+  Panel,
+  PanelHeader,
+  Button,
+  feedbackErrorClass,
+} from '@openjcockpit/ui';
 import { SpecInitLauncher } from './SpecInitLauncher';
 import { SpecInitOffered } from './SpecInitOffered';
 import { SpecInitPending } from './SpecInitPending';
 import { SpecTemplatePresent } from './SpecTemplatePresent';
 import { WorkflowLauncher } from './WorkflowLauncher';
 import styles from './FlowPanel.module.scss';
-import { Eyebrow, Panel, PanelHeader, Button, feedbackErrorClass } from '@openjcockpit/ui';
 
 interface Props {
   launcher: ReturnType<typeof useRunLauncher>;

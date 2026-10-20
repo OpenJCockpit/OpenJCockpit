@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
-import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
+import { ToolbarButton, StatusMessage } from '@openjcockpit/ui';
 import {
   createSubagentSpec,
   deleteSubagentSpec,

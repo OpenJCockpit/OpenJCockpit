@@ -5,8 +5,7 @@ import {
   saveDocumentFolderConfig,
 } from '@openjcockpit/api';
 import type { Project } from '@openjcockpit/api';
-import { CheckboxField } from '../../../components/FormFields/CheckboxField/CheckboxField';
-import { TextField } from '../../../components/FormFields/TextField/TextField';
+import { CheckboxField, TextField, StatusMessage } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
 import {
   DEFAULT_FOLDER_BASE_PATH,
@@ -14,7 +13,6 @@ import {
   joinFolderPath,
   toCamelCaseFolderName,
 } from './folderPath';
-import { StatusMessage } from '../../../components/StatusMessage/StatusMessage';
 
 interface FolderFormState {
   folderPath: string;

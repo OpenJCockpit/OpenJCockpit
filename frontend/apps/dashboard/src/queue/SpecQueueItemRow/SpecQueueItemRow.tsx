@@ -1,6 +1,5 @@
 import { useId } from 'react';
-import { StatusChip } from '../../components/StatusChip/StatusChip';
-import { Button } from '@openjcockpit/ui';
+import { StatusChip, Button } from '@openjcockpit/ui';
 import { failureReasonText, itemActions, itemPresentation, safeHttpUrl } from '../queueStatus';
 import type { SpecQueueItem } from '@openjcockpit/api';
 import styles from './SpecQueueItemRow.module.scss';

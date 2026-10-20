@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { ToolbarButton } from '../../../../components/ToolbarButton/ToolbarButton';
-import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
+import { ToolbarButton, StatusMessage, fieldHintClass } from '@openjcockpit/ui';
 import {
   createWorkflowGroup,
   deleteWorkflowGroup,
@@ -10,7 +9,6 @@ import {
 import type { WorkflowGroup } from '@openjcockpit/api';
 import { GroupEditor } from './GroupEditor';
 import { GroupsTable } from './GroupsTable';
-import { fieldHintClass } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_GROUP: WorkflowGroup = { id: '', name: '', description: '', projectName: '' };

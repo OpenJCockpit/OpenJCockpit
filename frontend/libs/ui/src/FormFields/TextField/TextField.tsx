@@ -1,7 +1,8 @@
 import { forwardRef } from 'react';
 import type { InputHTMLAttributes, ReactNode } from 'react';
 import styles from '../FormFields.module.scss';
-import { fieldHintClass, formInputClass, cx } from '@openjcockpit/ui';
+import { fieldHintClass, formInputClass } from '../../Form/Form';
+import { cx } from '../../cx';
 
 type TextInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'>;
 

@@ -3,12 +3,9 @@ import { candidateOrbTargets } from '@openjcockpit/api';
 import type { AgentDefinition, WorkflowDefinition, WorkflowGroup } from '@openjcockpit/api';
 import { selectedStagesInOrder } from '../../../utils';
 import { AgentPicker } from './AgentPicker';
-import { SelectField } from '../../../../../components/FormFields/SelectField/SelectField';
-import { TextAreaField } from '../../../../../components/FormFields/TextAreaField/TextAreaField';
-import { TextField } from '../../../../../components/FormFields/TextField/TextField';
+import { SelectField, TextAreaField, TextField, fieldHintClass, cx } from '@openjcockpit/ui';
 import { EditorForm } from '../../shared/EditorForm';
 import { OrbEditor } from './OrbEditor';
-import { fieldHintClass, cx } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 interface WorkflowEditorProps {

@@ -11,13 +11,16 @@ import {
   updateProject,
 } from '@openjcockpit/api';
 import type { Project, ProjectGitCredentialRequest, ProjectRequest } from '@openjcockpit/api';
-import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
-import { AppShell, AppHeader } from '../AppShell/AppShell';
+import {
+  ToolbarButton,
+  AppShell,
+  AppHeader,
+  fieldErrorClass,
+  StatusMessage,
+} from '@openjcockpit/ui';
 import { CredentialsForm } from './CredentialsForm';
 import { ProjectForm } from './ProjectForm';
 import { ProjectList } from './ProjectList';
-import { fieldErrorClass } from '@openjcockpit/ui';
-import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
 import styles from './ProjectSettings.module.scss';
 
 interface Props {

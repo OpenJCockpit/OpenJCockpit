@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react';
 import { checkOpaHealth, getOpaConfig, mockOpaConfig, saveOpaConfig } from '@openjcockpit/api';
-import { StatusChip } from '../../../components/StatusChip/StatusChip';
-import { CheckboxField } from '../../../components/FormFields/CheckboxField/CheckboxField';
-import { SecretField } from '../../../components/FormFields/SecretField/SecretField';
-import { SelectField } from '../../../components/FormFields/SelectField/SelectField';
-import { TextField } from '../../../components/FormFields/TextField/TextField';
+import { StatusChip, CheckboxField, SecretField, SelectField, TextField } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
 import { OPA_STATUS_KINDS, OPA_STATUS_LABELS, opaStatusFor } from './opaStatus';
 

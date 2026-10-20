@@ -1,4 +1,4 @@
-import { iconBoxClass } from '../IconBox/IconBox';
+import { iconBoxClass } from '@openjcockpit/ui';
 
 const HUB_COLOR = '#27e7ff';
 const SPRING_COLOR = '#6DB33F';

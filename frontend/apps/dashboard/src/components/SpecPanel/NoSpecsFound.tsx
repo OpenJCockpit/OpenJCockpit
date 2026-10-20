@@ -1,6 +1,5 @@
-import { IconBox } from '../IconBox/IconBox';
+import { IconBox, Button, specStyles, cx } from '@openjcockpit/ui';
 import styles from './SpecPanel.module.scss';
-import { Button, specStyles, cx } from '@openjcockpit/ui';
 
 interface Props {
   onGoToWorkflow: () => void;

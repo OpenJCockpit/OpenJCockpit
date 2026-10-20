@@ -1,9 +1,8 @@
 import type { SpecFile } from '@openjcockpit/api';
-import { IconBox } from '../IconBox/IconBox';
+import { IconBox, Panel, PanelHeader, PanelTitle, Button, specStyles } from '@openjcockpit/ui';
 import { NoSpecsFound } from './NoSpecsFound';
 import { SpecCardButton } from './SpecCardButton';
 import styles from './SpecPanel.module.scss';
-import { Panel, PanelHeader, PanelTitle, Button, specStyles } from '@openjcockpit/ui';
 
 interface Props {
   specs: SpecFile[];

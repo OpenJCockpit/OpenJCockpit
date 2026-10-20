@@ -1,35 +1,40 @@
-import type { ReactNode, TextareaHTMLAttributes } from 'react';
+import type { ReactNode, SelectHTMLAttributes } from 'react';
 import styles from '../FormFields.module.scss';
-import { fieldHintClass, formInputClass, cx } from '@openjcockpit/ui';
+import { fieldHintClass, formInputClass } from '../../Form/Form';
+import { cx } from '../../cx';
 
-type TextAreaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange' | 'value'>;
+type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'value'>;
 
-interface TextAreaFieldProps extends TextAreaProps {
+interface SelectFieldProps extends SelectProps {
   label: ReactNode;
   value: string;
   onChange: (value: string) => void;
   wide?: boolean;
   hint?: ReactNode;
+  children: ReactNode;
 }
 
-export function TextAreaField({
+export function SelectField({
   label,
   value,
   onChange,
   wide,
   hint,
   className,
-  ...textAreaProps
-}: TextAreaFieldProps) {
+  children,
+  ...selectProps
+}: SelectFieldProps) {
   return (
     <label className={wide ? styles.formFieldWide : undefined}>
       {label}
-      <textarea
-        {...textAreaProps}
+      <select
+        {...selectProps}
         className={cx(formInputClass, className)}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-      />
+      >
+        {children}
+      </select>
       {hint && <span className={fieldHintClass}>{hint}</span>}
     </label>
   );

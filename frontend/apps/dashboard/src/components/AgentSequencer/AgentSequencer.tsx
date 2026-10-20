@@ -6,10 +6,8 @@ import type {
   SequencerNode,
   StatusKind,
 } from '@openjcockpit/api';
-import { StatusChip } from '../StatusChip/StatusChip';
-import { Tooltip } from '../Tooltip/Tooltip';
+import { StatusChip, Tooltip, cx } from '@openjcockpit/ui';
 import styles from './AgentSequencer.module.scss';
-import { cx } from '@openjcockpit/ui';
 
 const AGENT_ICON: Record<string, string> = {
   requirement: '▣',

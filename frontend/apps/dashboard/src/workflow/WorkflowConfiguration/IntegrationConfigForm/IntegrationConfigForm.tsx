@@ -1,7 +1,11 @@
 import type { ReactNode } from 'react';
-import { ToolbarButton } from '../../../components/ToolbarButton/ToolbarButton';
-import { StatusMessage } from '../../../components/StatusMessage/StatusMessage';
-import { formClass, formGridClass, formTitleClass } from '@openjcockpit/ui';
+import {
+  ToolbarButton,
+  StatusMessage,
+  formClass,
+  formGridClass,
+  formTitleClass,
+} from '@openjcockpit/ui';
 import WorkflowConfigurationStyles from '../WorkflowConfiguration.module.scss';
 
 interface IntegrationConfigFormProps {

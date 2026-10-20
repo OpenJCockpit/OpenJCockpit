@@ -8,8 +8,8 @@ import {
   workflowsForProject,
 } from '@openjcockpit/api';
 import type { Project, SpecFile, SpecQueueItem, WorkflowDefinition } from '@openjcockpit/api';
-import { ModalShell } from '../../workflow/ModalShell/ModalShell';
 import {
+  ModalShell,
   Button,
   feedbackErrorClass,
   fieldHintClass,

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { SelectField } from './SelectField';
-import { fieldHintClass } from '@openjcockpit/ui';
+import { fieldHintClass } from '../../Form/Form';
 
 describe('SelectField', () => {
   it('SelectField reports the selected value and renders a hint', () => {

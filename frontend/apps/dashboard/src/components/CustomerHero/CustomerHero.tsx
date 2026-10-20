@@ -1,6 +1,6 @@
 import type { Project, Workspace } from '@openjcockpit/api';
 import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
-import { IconBox } from '../IconBox/IconBox';
+import { IconBox } from '@openjcockpit/ui';
 import { StackServiceCard } from '../StackServiceCard/StackServiceCard';
 import styles from './CustomerHero.module.scss';
 
