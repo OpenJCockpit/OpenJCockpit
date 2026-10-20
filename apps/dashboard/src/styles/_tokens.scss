@@ -75,3 +75,21 @@
   --z-raised: 1;
   --z-overlay: 40;
 }
+
+// Hub group: values the landing hub (libs/landing-hub) needs that have no dashboard equivalent,
+// or whose same-named dashboard token has a different value (the dashboard value wins for the
+// shared name; the hub keeps its original look through these).
+:root {
+  --font-hub-mono: 'JetBrains Mono', monospace;
+  --hub-text: #f5fbff;
+  --hub-muted: rgba(222, 244, 255, 0.68);
+  --hub-line: rgba(127, 236, 255, 0.42);
+  --hub-cyan: #27f7ff;
+  --hub-cyan-soft: rgba(39, 247, 255, 0.24);
+  --hub-purple-soft: rgba(157, 107, 255, 0.26);
+  --hub-green: #54ffc6;
+
+  // Fallbacks for FrameOctagon in @openjcockpit/ui; every call site overrides them from its own module.
+  --frame-line-color: hsl(184 100% 58%);
+  --frame-bg-color: transparent;
+}

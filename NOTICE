@@ -12,5 +12,5 @@ subject to their own license terms and notices.
 This project contains source code adapted from React Bits
 (https://github.com/DavidHDev/react-bits), Copyright (c) 2026 David Haz, licensed under
 the MIT License with the Commons Clause rider. The adapted code lives in
-`apps/landing/src/ui/vendor/react-bits/`; its origin, full license text and the changes
-made are recorded in `apps/landing/src/ui/vendor/react-bits/ATTRIBUTION.md`.
+`libs/ui/src/vendor/react-bits/`; its origin, full license text and the changes
+made are recorded in `libs/ui/src/vendor/react-bits/ATTRIBUTION.md`.
