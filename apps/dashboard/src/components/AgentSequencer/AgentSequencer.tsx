@@ -9,7 +9,7 @@ import type {
 import { StatusChip } from '../StatusChip/StatusChip';
 import { Tooltip } from '../Tooltip/Tooltip';
 import styles from './AgentSequencer.module.scss';
-import { cx } from '../../ui/cx';
+import { cx } from '@openjcockpit/ui';
 
 const AGENT_ICON: Record<string, string> = {
   requirement: '▣',

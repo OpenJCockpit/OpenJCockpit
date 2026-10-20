@@ -3,7 +3,7 @@ import { createRef } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { TextField } from './TextField';
 import { TextAreaField } from '../TextAreaField/TextAreaField';
-import { formInputClass } from '../../../ui/Form/Form';
+import { formInputClass } from '@openjcockpit/ui';
 
 describe('TextField', () => {
   it('TextField reports the typed value and forwards the ref', () => {

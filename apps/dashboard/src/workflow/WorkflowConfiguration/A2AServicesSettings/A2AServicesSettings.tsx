@@ -11,16 +11,17 @@ import { SecretField } from '../../../components/FormFields/SecretField/SecretFi
 import { TextField } from '../../../components/FormFields/TextField/TextField';
 import { StatusMessage } from '../../../components/StatusMessage/StatusMessage';
 import { ToolbarButton } from '../../../components/ToolbarButton/ToolbarButton';
-import { Button } from '../../../ui/Button/Button';
-import { Actions, DataTable } from '../../../ui/DataTable/DataTable';
-import { cx } from '../../../ui/cx';
 import {
+  Button,
+  Actions,
+  DataTable,
+  cx,
   fieldHintClass,
   formActionsClass,
   formClass,
   formGridClass,
   formTitleClass,
-} from '../../../ui/Form/Form';
+} from '@openjcockpit/ui';
 import { a2aServiceStatus } from './a2aServiceStatus';
 import WorkflowConfigurationStyles from '../WorkflowConfiguration.module.scss';
 

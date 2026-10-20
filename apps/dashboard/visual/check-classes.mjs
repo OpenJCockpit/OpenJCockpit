@@ -13,7 +13,7 @@ const walk = (dir) =>
     const p = path.join(dir, f);
     return statSync(p).isDirectory() ? walk(p) : [p];
   });
-const files = walk('src');
+const files = [...walk('src'), ...walk('../../libs')].filter((f) => !f.includes('node_modules'));
 const scss = files.filter((f) => f.endsWith('.scss') && !f.includes('src/styles/'));
 const sources = files.filter((f) => /\.(tsx?|mjs)$/.test(f));
 

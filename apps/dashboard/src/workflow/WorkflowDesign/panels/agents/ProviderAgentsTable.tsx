@@ -2,8 +2,7 @@ import { Fragment, useState } from 'react';
 import { getProviderAgentCard } from '../../../workflowApi';
 import type { A2AAgentCard, ProviderCatalogAgent } from '../../../workflowTypes';
 import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
-import { Button } from '../../../../ui/Button/Button';
-import { DataTable } from '../../../../ui/DataTable/DataTable';
+import { Button, DataTable } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 interface ProviderAgentsTableProps {

@@ -1,8 +1,7 @@
 import type { WorkflowDefinition } from '../../workflow/workflowTypes';
 import { StatusChip } from '../StatusChip/StatusChip';
 import styles from './FlowPanel.module.scss';
-import { Button } from '../../ui/Button/Button';
-import { feedbackResultClass } from '../../ui/Feedback/Feedback';
+import { Button, feedbackResultClass } from '@openjcockpit/ui';
 
 interface Props {
   specCreateWorkflow: WorkflowDefinition | undefined;

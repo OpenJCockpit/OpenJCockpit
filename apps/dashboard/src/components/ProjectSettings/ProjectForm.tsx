@@ -3,8 +3,13 @@ import type { ProjectRequest } from '../../types';
 import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
-import { formActionsClass, formClass, formGridClass, formTitleClass } from '../../ui/Form/Form';
-import { Button } from '../../ui/Button/Button';
+import {
+  formActionsClass,
+  formClass,
+  formGridClass,
+  formTitleClass,
+  Button,
+} from '@openjcockpit/ui';
 import styles from './ProjectSettings.module.scss';
 
 interface Props {

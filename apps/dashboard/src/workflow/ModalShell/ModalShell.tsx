@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { cx } from '../../ui/cx';
+import { cx } from '@openjcockpit/ui';
 import styles from './ModalShell.module.scss';
 
 /** Button row at the bottom of the approval modals. */

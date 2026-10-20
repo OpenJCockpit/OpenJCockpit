@@ -5,7 +5,7 @@ import { WorkflowDashboard } from './WorkflowDashboard';
 import * as workflowApi from '../workflowApi';
 import type { Project } from '../../types';
 import type { WorkflowDefinition } from '../workflowTypes';
-import { tabActiveClass } from '../../ui/Tabs/Tabs';
+import { tabActiveClass } from '@openjcockpit/ui';
 
 vi.mock('../workflowApi');
 vi.mock('../../api');

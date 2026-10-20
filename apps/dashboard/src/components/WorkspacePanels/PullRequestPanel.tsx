@@ -2,7 +2,7 @@ import type { PullRequestSummary } from '../../types';
 import { IconBox } from '../IconBox/IconBox';
 import { StatusChip } from '../StatusChip/StatusChip';
 import styles from './WorkspacePanels.module.scss';
-import { Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
+import { Panel, PanelHeader, PanelTitle } from '@openjcockpit/ui';
 
 export function PullRequestPanel({ pullRequests }: { pullRequests: PullRequestSummary[] }) {
   return (

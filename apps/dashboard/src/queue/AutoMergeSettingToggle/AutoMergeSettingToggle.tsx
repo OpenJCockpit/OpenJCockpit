@@ -1,8 +1,6 @@
 import { useId, useState } from 'react';
-import { isOpenJCockpitAdmin } from '../../auth/roles';
-import { feedbackErrorClass } from '../../ui/Feedback/Feedback';
-import { fieldHintClass } from '../../ui/Form/Form';
-import { cx } from '../../ui/cx';
+import { isOpenJCockpitAdmin } from '@openjcockpit/auth';
+import { feedbackErrorClass, fieldHintClass, cx } from '@openjcockpit/ui';
 import { ConfirmActionDialog } from '../ConfirmActionDialog/ConfirmActionDialog';
 import { updateSpecQueueSettings } from '../specQueueApi';
 import type { SpecQueueSettings } from '../specQueueTypes';

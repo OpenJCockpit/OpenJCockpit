@@ -6,7 +6,8 @@ import * as workflowApi from './workflow/workflowApi';
 import { mockWorkspace } from './mockWorkspace';
 import { mockDashboardApis, WORKFLOW } from './testUtils/dashboardFixtures';
 
-vi.mock('./auth/keycloak', () => ({
+vi.mock('@openjcockpit/auth', async () => ({
+  ...(await vi.importActual<typeof import('@openjcockpit/auth')>('@openjcockpit/auth')),
   getKeycloak: () => ({
     init: () => Promise.resolve(true),
     token: 'fake-token',

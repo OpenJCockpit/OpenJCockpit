@@ -7,9 +7,7 @@ import { WorkflowExecution } from '../WorkflowExecution/WorkflowExecution';
 import { getWorkflow } from '../workflowApi';
 import type { WorkflowDefinition } from '../workflowTypes';
 import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
-import { Eyebrow } from '../../ui/Panel/Panel';
-import { feedbackErrorClass } from '../../ui/Feedback/Feedback';
-import { Tab, TabNav } from '../../ui/Tabs/Tabs';
+import { Eyebrow, feedbackErrorClass, Tab, TabNav } from '@openjcockpit/ui';
 import styles from './WorkflowDashboard.module.scss';
 
 type WorkflowTab = 'overview' | 'configuration' | 'design' | 'execution';

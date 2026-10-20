@@ -7,9 +7,10 @@ import { mockWorkspace } from './mockWorkspace';
 import { mockDashboardApis, PROJECT, WORKFLOW } from './testUtils/dashboardFixtures';
 import type { SpecFile } from './types';
 import type { WorkflowDefinition } from './workflow/workflowTypes';
-import { specStyles } from './ui/SpecList/specListStyles';
+import { specStyles } from '@openjcockpit/ui';
 
-vi.mock('./auth/keycloak', () => ({
+vi.mock('@openjcockpit/auth', async () => ({
+  ...(await vi.importActual<typeof import('@openjcockpit/auth')>('@openjcockpit/auth')),
   getKeycloak: () => ({
     init: () => Promise.resolve(true),
     token: 'fake-token',

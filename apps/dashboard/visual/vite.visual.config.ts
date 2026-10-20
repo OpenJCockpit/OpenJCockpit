@@ -16,7 +16,7 @@ export default defineConfig({
   resolve: {
     alias: [
       {
-        find: /^(\.\.?\/)+auth\/keycloak$/,
+        find: /^\.\/keycloak$/,
         replacement: fileURLToPath(new URL('./keycloak.stub.ts', import.meta.url)),
       },
     ],

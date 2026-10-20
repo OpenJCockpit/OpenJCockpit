@@ -1,4 +1,4 @@
-import { cx } from '../../ui/cx';
+import { cx } from '@openjcockpit/ui';
 import styles from './IconBox.module.scss';
 
 /** Base icon-box class, for markup that draws its own icon (see StackServiceIcon). */

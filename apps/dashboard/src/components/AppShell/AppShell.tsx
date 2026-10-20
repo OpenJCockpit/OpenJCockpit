@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
 import styles from './AppShell.module.scss';
-import { Button } from '../../ui/Button/Button';
-import { Backdrop } from '../../ui/Backdrop/Backdrop';
-import { BrandLogo } from '../../ui/BrandLogo/BrandLogo';
+import { Button, Backdrop, BrandLogo } from '@openjcockpit/ui';
 
 /** Page chrome shared by every dashboard view: the animated background and the content wrapper. */
 export function AppShell({ children }: { children: ReactNode }) {

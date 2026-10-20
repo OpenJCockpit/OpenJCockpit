@@ -1,9 +1,13 @@
 import { useId, useState } from 'react';
 import { ModalShell } from '../ModalShell/ModalShell';
-import { Eyebrow, panelClassName } from '../../ui/Panel/Panel';
-import { cx } from '../../ui/cx';
-import { fieldHintClass, formInputClass } from '../../ui/Form/Form';
-import { Button } from '../../ui/Button/Button';
+import {
+  Eyebrow,
+  panelClassName,
+  cx,
+  fieldHintClass,
+  formInputClass,
+  Button,
+} from '@openjcockpit/ui';
 import styles from './WorkflowPromptDialog.module.scss';
 
 interface Props {

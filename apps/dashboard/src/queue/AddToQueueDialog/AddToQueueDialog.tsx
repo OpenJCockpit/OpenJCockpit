@@ -1,11 +1,15 @@
 import { useEffect, useId, useState } from 'react';
 import type { Project, SpecFile } from '../../types';
 import { ModalShell } from '../../workflow/ModalShell/ModalShell';
-import { Button } from '../../ui/Button/Button';
-import { feedbackErrorClass } from '../../ui/Feedback/Feedback';
-import { fieldHintClass, formInputClass } from '../../ui/Form/Form';
-import { Eyebrow, panelClassName } from '../../ui/Panel/Panel';
-import { cx } from '../../ui/cx';
+import {
+  Button,
+  feedbackErrorClass,
+  fieldHintClass,
+  formInputClass,
+  Eyebrow,
+  panelClassName,
+  cx,
+} from '@openjcockpit/ui';
 import { listWorkflowGroups, listWorkflows } from '../../workflow/workflowApi';
 import type { WorkflowDefinition } from '../../workflow/workflowTypes';
 import { workflowsForProject } from '../../workflow/workflowVisibility';

@@ -13,10 +13,8 @@ import { workflowsForProject } from '../workflowVisibility';
 import { StatusChip } from '../../components/StatusChip/StatusChip';
 import { runStatusKind } from '../runStatus';
 import { WorkflowPromptDialog } from '../WorkflowPromptDialog/WorkflowPromptDialog';
-import { Eyebrow, Panel } from '../../ui/Panel/Panel';
-import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
+import { Eyebrow, Panel, fieldErrorClass, fieldHintClass, Button } from '@openjcockpit/ui';
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
-import { Button } from '../../ui/Button/Button';
 import styles from './WorkflowOverview.module.scss';
 
 interface Props {

@@ -4,7 +4,7 @@ import { GroupsPanel } from './panels/groups/GroupsPanel';
 import { SkillsPanel } from './panels/skills/SkillsPanel';
 import { SubagentsPanel } from './panels/subagents/SubagentsPanel';
 import { WorkflowsPanel } from './panels/workflows/WorkflowsPanel';
-import { Tab, TabNav } from '../../ui/Tabs/Tabs';
+import { Tab, TabNav } from '@openjcockpit/ui';
 
 type DesignTab = 'workflows' | 'groups' | 'agents' | 'subagents' | 'skills';
 

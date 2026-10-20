@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { fieldHintClass, formInputClass } from '../../../../ui/Form/Form';
-import { Button } from '../../../../ui/Button/Button';
+import { fieldHintClass, formInputClass, Button } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 export type PromptGeneratorKind = 'agent' | 'subagent' | 'skill';

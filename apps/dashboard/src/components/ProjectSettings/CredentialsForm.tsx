@@ -8,8 +8,8 @@ import {
   formClass,
   formGridClass,
   formTitleClass,
-} from '../../ui/Form/Form';
-import { Button } from '../../ui/Button/Button';
+  Button,
+} from '@openjcockpit/ui';
 
 interface Props {
   form: ProjectGitCredentialRequest;

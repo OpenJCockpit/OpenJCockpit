@@ -18,11 +18,7 @@ import type { SpecQueue, SpecQueueItem } from '../specQueueTypes';
 import { SpecQueueItemRow } from '../SpecQueueItemRow/SpecQueueItemRow';
 import type { MoveDirection } from '../SpecQueueItemRow/SpecQueueItemRow';
 import { AppHeader, AppShell } from '../../components/AppShell/AppShell';
-import { Button } from '../../ui/Button/Button';
-import { feedbackErrorClass } from '../../ui/Feedback/Feedback';
-import { fieldHintClass } from '../../ui/Form/Form';
-import { Eyebrow, Panel } from '../../ui/Panel/Panel';
-import { cx } from '../../ui/cx';
+import { Button, feedbackErrorClass, fieldHintClass, Eyebrow, Panel, cx } from '@openjcockpit/ui';
 import styles from './SpecQueueDashboard.module.scss';
 
 interface Props {

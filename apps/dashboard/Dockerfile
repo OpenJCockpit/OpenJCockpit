@@ -3,8 +3,11 @@ FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18
 WORKDIR /app
 COPY package.json package-lock.json nx.json tsconfig.base.json ./
 COPY apps/dashboard/package.json apps/dashboard/
+COPY libs/auth/package.json libs/auth/
+COPY libs/ui/package.json libs/ui/
 COPY e2e/package.json e2e/
 RUN npm ci --workspace=openjcockpit-frontend --include-workspace-root
+COPY libs libs
 COPY apps/dashboard apps/dashboard
 RUN NX_DAEMON=false npx nx run dashboard:build
 

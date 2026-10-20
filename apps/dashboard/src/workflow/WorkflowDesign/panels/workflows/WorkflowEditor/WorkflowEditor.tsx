@@ -9,8 +9,7 @@ import { TextAreaField } from '../../../../../components/FormFields/TextAreaFiel
 import { TextField } from '../../../../../components/FormFields/TextField/TextField';
 import { EditorForm } from '../../shared/EditorForm';
 import { OrbEditor } from './OrbEditor';
-import { fieldHintClass } from '../../../../../ui/Form/Form';
-import { cx } from '../../../../../ui/cx';
+import { fieldHintClass, cx } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 interface WorkflowEditorProps {

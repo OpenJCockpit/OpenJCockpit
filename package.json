@@ -8,9 +8,11 @@
   },
   "workspaces": [
     "apps/dashboard",
+    "libs/*",
     "e2e"
   ],
   "devDependencies": {
+    "@nx/eslint-plugin": "23.3.0",
     "nx": "23.3.0"
   }
 }

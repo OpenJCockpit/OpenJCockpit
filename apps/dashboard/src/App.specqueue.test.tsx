@@ -7,10 +7,11 @@ import * as queueApi from './queue/specQueueApi';
 import type { SpecQueue } from './queue/specQueueTypes';
 import type { Project, SpecFile } from './types';
 import * as workflowApi from './workflow/workflowApi';
-import { tabActiveClass } from './ui/Tabs/Tabs';
+import { tabActiveClass } from '@openjcockpit/ui';
 import type { WorkflowDefinition } from './workflow/workflowTypes';
 
-vi.mock('./auth/keycloak', () => ({
+vi.mock('@openjcockpit/auth', async () => ({
+  ...(await vi.importActual<typeof import('@openjcockpit/auth')>('@openjcockpit/auth')),
   getKeycloak: () => ({
     init: () => Promise.resolve(true),
     token: 'fake-token',

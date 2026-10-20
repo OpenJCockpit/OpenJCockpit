@@ -1,7 +1,6 @@
 import type { AgentDefinition } from '../../../../../types';
 import { referenceLabel } from '../../../../linkableAgents';
-import { Button } from '../../../../../ui/Button/Button';
-import { fieldHintClass } from '../../../../../ui/Form/Form';
+import { Button, fieldHintClass } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 interface AgentPickerProps {

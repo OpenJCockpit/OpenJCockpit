@@ -21,8 +21,7 @@ import type {
 import { readFileText, downloadWorkflowBundle } from '../../utils';
 import { WorkflowEditor } from './WorkflowEditor/WorkflowEditor';
 import { WorkflowsTable } from './WorkflowsTable';
-import { fieldErrorClass, fieldHintClass, formInputClass } from '../../../../ui/Form/Form';
-import { cx } from '../../../../ui/cx';
+import { fieldErrorClass, fieldHintClass, formInputClass, cx } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_WORKFLOW: WorkflowDefinition = {

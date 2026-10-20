@@ -1,10 +1,7 @@
 import type { GitStatus, Project } from '../../types';
 import styles from './ProjectSelection.module.scss';
-import { Button } from '../../ui/Button/Button';
-import { cx } from '../../ui/cx';
+import { Button, cx, Backdrop, BrandLogo } from '@openjcockpit/ui';
 import gitStyles from '../GitStatusBadge/GitStatusBadge.module.scss';
-import { Backdrop } from '../../ui/Backdrop/Backdrop';
-import { BrandLogo } from '../../ui/BrandLogo/BrandLogo';
 
 interface Props {
   projects: Project[];

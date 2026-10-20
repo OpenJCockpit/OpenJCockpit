@@ -4,13 +4,21 @@ import { IconBox } from '../../components/IconBox/IconBox';
 import { AddToQueueDialog } from '../../queue/AddToQueueDialog/AddToQueueDialog';
 import type { Project, SpecFile, SpecInitResult } from '../../types';
 import { AppShell, AppHeader } from '../../components/AppShell/AppShell';
-import { Eyebrow, Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
-import { fieldHintClass } from '../../ui/Form/Form';
-import { Button, buttonClass } from '../../ui/Button/Button';
-import { specStyles } from '../../ui/SpecList/specListStyles';
-import { feedbackErrorClass, feedbackResultClass } from '../../ui/Feedback/Feedback';
-import { pageClass, pageHeaderClass } from '../../ui/Page/Page';
-import { cx } from '../../ui/cx';
+import {
+  Eyebrow,
+  Panel,
+  PanelHeader,
+  PanelTitle,
+  fieldHintClass,
+  Button,
+  buttonClass,
+  specStyles,
+  feedbackErrorClass,
+  feedbackResultClass,
+  pageClass,
+  pageHeaderClass,
+  cx,
+} from '@openjcockpit/ui';
 import styles from './SpecFilesDashboard.module.scss';
 
 interface Props {

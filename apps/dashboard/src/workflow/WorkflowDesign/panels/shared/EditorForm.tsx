@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
-import { formClass, formGridClass, formTitleClass } from '../../../../ui/Form/Form';
-import { Button } from '../../../../ui/Button/Button';
+import { formClass, formGridClass, formTitleClass, Button } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 interface EditorFormProps {

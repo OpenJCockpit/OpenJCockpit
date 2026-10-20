@@ -21,10 +21,7 @@ import { RunLostPanel } from './RunLostPanel';
 import { RunStatusAnnouncements } from './RunStatusAnnouncements';
 import { useRunHistory } from './useRunHistory';
 import { useRunEvents } from './useRunEvents';
-import { Eyebrow, Panel } from '../../ui/Panel/Panel';
-import { fieldHintClass } from '../../ui/Form/Form';
-import { cx } from '../../ui/cx';
-import { Button } from '../../ui/Button/Button';
+import { Eyebrow, Panel, fieldHintClass, cx, Button } from '@openjcockpit/ui';
 import styles from './WorkflowExecution.module.scss';
 
 // 'NOT_FOUND' is retained deliberately: it is what an OLDER backend (pre-dating this

@@ -16,7 +16,7 @@ import { AppShell, AppHeader } from '../AppShell/AppShell';
 import { CredentialsForm } from './CredentialsForm';
 import { ProjectForm } from './ProjectForm';
 import { ProjectList } from './ProjectList';
-import { fieldErrorClass } from '../../ui/Form/Form';
+import { fieldErrorClass } from '@openjcockpit/ui';
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
 import styles from './ProjectSettings.module.scss';
 

@@ -9,18 +9,20 @@ import type { SkillsMarketplaceConnection, SkillsMarketplaceConnectionRequest } 
 import { AppShell, AppHeader } from '../AppShell/AppShell';
 import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';
-import { Eyebrow } from '../../ui/Panel/Panel';
-import { Actions, DataTable } from '../../ui/DataTable/DataTable';
 import {
+  Eyebrow,
+  Actions,
+  DataTable,
   fieldErrorClass,
   fieldHintClass,
   formClass,
   formGridClass,
   formTitleClass,
-} from '../../ui/Form/Form';
+  Button,
+  pageClass,
+  pageHeaderClass,
+} from '@openjcockpit/ui';
 import { StatusMessage } from '../../components/StatusMessage/StatusMessage';
-import { Button } from '../../ui/Button/Button';
-import { pageClass, pageHeaderClass } from '../../ui/Page/Page';
 import styles from './SkillsHubSettings.module.scss';
 
 interface Props {
