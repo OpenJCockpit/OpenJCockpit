@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../specQueueApi');
-vi.mock('../../auth/roles', () => ({ isOpenJCockpitAdmin: () => false }));
+vi.mock('@openjcockpit/auth', () => ({ isOpenJCockpitAdmin: () => false }));
 vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
   AddToQueueDialog: ({
     onAdded,

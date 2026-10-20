@@ -1,9 +1,7 @@
 import type { LauncherButtonState } from '../../useRunLauncher';
 import { StartButton } from './StartButton';
 import styles from './FlowPanel.module.scss';
-import { cx } from '../../ui/cx';
-import { feedbackErrorClass } from '../../ui/Feedback/Feedback';
-import { dropdownClass } from '../../ui/Dropdown/Dropdown';
+import { cx, feedbackErrorClass, dropdownClass } from '@openjcockpit/ui';
 
 interface Props {
   buttonState: LauncherButtonState;

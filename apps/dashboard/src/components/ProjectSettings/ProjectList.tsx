@@ -1,10 +1,7 @@
 import type { Project } from '../../types';
 import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
-import { Actions, DataTable, DataTableRow } from '../../ui/DataTable/DataTable';
-import { fieldHintClass } from '../../ui/Form/Form';
-import { Button } from '../../ui/Button/Button';
+import { Actions, DataTable, DataTableRow, fieldHintClass, Button, cx } from '@openjcockpit/ui';
 import styles from './ProjectList.module.scss';
-import { cx } from '../../ui/cx';
 
 interface Props {
   projects: Project[];

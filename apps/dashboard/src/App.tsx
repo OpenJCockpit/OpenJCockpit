@@ -10,7 +10,7 @@ import {
   setAuthToken,
   setStoredProjectId,
 } from './api';
-import { getKeycloak } from './auth/keycloak';
+import { getKeycloak } from '@openjcockpit/auth';
 import type { Project, SpecFile, SpecInitStatus, Workspace } from './types';
 import { mockWorkspace } from './mockWorkspace';
 import { ProjectSelection } from './components/ProjectSelection/ProjectSelection';

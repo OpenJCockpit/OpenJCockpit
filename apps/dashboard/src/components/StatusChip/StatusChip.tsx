@@ -1,5 +1,5 @@
 import type { StatusKind } from '../../types';
-import { cx } from '../../ui/cx';
+import { cx } from '@openjcockpit/ui';
 import styles from './StatusChip.module.scss';
 
 // A Record keeps this exhaustive: adding a StatusKind without a style is a type error.

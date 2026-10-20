@@ -1,6 +1,6 @@
 import type { PreflightError } from '../../types';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
-import { Button } from '../../ui/Button/Button';
+import { Button } from '@openjcockpit/ui';
 import styles from './PreflightAlert.module.scss';
 
 const PREFLIGHT_ERROR_MESSAGES: Record<string, string> = {

@@ -1,10 +1,6 @@
 import { useId } from 'react';
 import { ModalShell } from '../../workflow/ModalShell/ModalShell';
-import { Button } from '../../ui/Button/Button';
-import { feedbackErrorClass } from '../../ui/Feedback/Feedback';
-import { fieldHintClass } from '../../ui/Form/Form';
-import { panelClassName } from '../../ui/Panel/Panel';
-import { cx } from '../../ui/cx';
+import { Button, feedbackErrorClass, fieldHintClass, panelClassName, cx } from '@openjcockpit/ui';
 import styles from './ConfirmActionDialog.module.scss';
 
 interface Props {

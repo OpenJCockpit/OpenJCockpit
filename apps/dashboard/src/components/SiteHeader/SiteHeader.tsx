@@ -1,9 +1,7 @@
 import type { Project } from '../../types';
 import styles from './SiteHeader.module.scss';
-import { Button } from '../../ui/Button/Button';
+import { Button, BrandLogo, dropdownClass } from '@openjcockpit/ui';
 import shell from '../AppShell/AppShell.module.scss';
-import { BrandLogo } from '../../ui/BrandLogo/BrandLogo';
-import { dropdownClass } from '../../ui/Dropdown/Dropdown';
 
 interface Props {
   projects: Project[];

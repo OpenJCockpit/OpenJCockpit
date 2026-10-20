@@ -1,6 +1,5 @@
 import type { SubagentSpec } from '../../../workflowTypes';
-import { DataTable } from '../../../../ui/DataTable/DataTable';
-import { Button } from '../../../../ui/Button/Button';
+import { DataTable, Button } from '@openjcockpit/ui';
 
 interface SubagentsTableProps {
   items: SubagentSpec[];

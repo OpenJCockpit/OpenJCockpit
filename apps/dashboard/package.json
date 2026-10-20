@@ -17,7 +17,8 @@
     "visual:check": "node visual/run.mjs check"
   },
   "dependencies": {
-    "keycloak-js": "^26.0.0",
+    "@openjcockpit/auth": "*",
+    "@openjcockpit/ui": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

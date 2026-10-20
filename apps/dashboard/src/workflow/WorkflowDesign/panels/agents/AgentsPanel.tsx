@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
-import { Button } from '../../../../ui/Button/Button';
+import { Button } from '@openjcockpit/ui';
 import { getAgentCatalog } from '../../../workflowApi';
 import type { AgentCatalog, AgentCatalogStatus } from '../../../workflowTypes';
 import { LocalAgentsTree } from './LocalAgentsTree';

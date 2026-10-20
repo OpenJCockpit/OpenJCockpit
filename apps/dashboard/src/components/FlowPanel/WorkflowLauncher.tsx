@@ -2,8 +2,7 @@ import type { WorkflowDefinition } from '../../workflow/workflowTypes';
 import type { LauncherButtonState } from '../../useRunLauncher';
 import { StartButton } from './StartButton';
 import styles from './FlowPanel.module.scss';
-import { cx } from '../../ui/cx';
-import { dropdownClass } from '../../ui/Dropdown/Dropdown';
+import { cx, dropdownClass } from '@openjcockpit/ui';
 
 interface Props {
   workflows: WorkflowDefinition[];

@@ -1,6 +1,5 @@
 import type { LocalCatalogAgent } from '../../../workflowTypes';
-import { DataTable } from '../../../../ui/DataTable/DataTable';
-import { fieldErrorClass } from '../../../../ui/Form/Form';
+import { DataTable, fieldErrorClass } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 interface FolderNode {

@@ -4,12 +4,17 @@ import { IconBox } from '../IconBox/IconBox';
 import { StatusChip } from '../StatusChip/StatusChip';
 import type { StatusKind } from '../../types';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
-import { Eyebrow, Panel } from '../../ui/Panel/Panel';
-import { DataTable } from '../../ui/DataTable/DataTable';
-import { fieldHintClass, formInputClass } from '../../ui/Form/Form';
-import { cx } from '../../ui/cx';
-import { Button } from '../../ui/Button/Button';
-import { pageClass, pageHeaderClass } from '../../ui/Page/Page';
+import {
+  Eyebrow,
+  Panel,
+  DataTable,
+  fieldHintClass,
+  formInputClass,
+  cx,
+  Button,
+  pageClass,
+  pageHeaderClass,
+} from '@openjcockpit/ui';
 import styles from './SkillsHubDashboard.module.scss';
 
 interface Props {

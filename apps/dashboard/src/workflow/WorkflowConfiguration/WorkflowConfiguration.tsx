@@ -4,7 +4,7 @@ import { DocumentFolderSettings } from './DocumentFolderSettings/DocumentFolderS
 import { HermesSettings } from './HermesSettings/HermesSettings';
 import { JiraSettings } from './JiraSettings/JiraSettings';
 import { OpaSettings } from './OpaSettings/OpaSettings';
-import { fieldHintClass } from '../../ui/Form/Form';
+import { fieldHintClass } from '@openjcockpit/ui';
 
 interface Props {
   project: Project | null;

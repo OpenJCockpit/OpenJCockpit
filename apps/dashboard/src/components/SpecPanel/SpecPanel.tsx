@@ -3,9 +3,7 @@ import { IconBox } from '../IconBox/IconBox';
 import { NoSpecsFound } from './NoSpecsFound';
 import { SpecCardButton } from './SpecCardButton';
 import styles from './SpecPanel.module.scss';
-import { Panel, PanelHeader, PanelTitle } from '../../ui/Panel/Panel';
-import { Button } from '../../ui/Button/Button';
-import { specStyles } from '../../ui/SpecList/specListStyles';
+import { Panel, PanelHeader, PanelTitle, Button, specStyles } from '@openjcockpit/ui';
 
 interface Props {
   specs: SpecFile[];

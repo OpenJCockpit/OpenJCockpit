@@ -2,8 +2,7 @@ import { useId, useState } from 'react';
 import type { ApprovalGateContext } from '../workflowTypes';
 import { ModalShell, modalActionsClass } from '../ModalShell/ModalShell';
 import { ApprovalCommentModal } from '../ApprovalCommentModal/ApprovalCommentModal';
-import { fieldErrorClass, fieldHintClass } from '../../ui/Form/Form';
-import { Button, buttonClass } from '../../ui/Button/Button';
+import { fieldErrorClass, fieldHintClass, Button, buttonClass } from '@openjcockpit/ui';
 import styles from './ApprovalDecisionModal.module.scss';
 
 interface ApprovalDecisionModalProps {

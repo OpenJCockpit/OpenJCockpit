@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes } from 'react';
-import { Button } from '../../ui/Button/Button';
+import { Button } from '@openjcockpit/ui';
 
 interface ToolbarButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** `primary` is the prominent start button; `small` the compact secondary one. */

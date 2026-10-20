@@ -1,8 +1,7 @@
 import type { AgentDefinition } from '../../../../../types';
 import { SelectField } from '../../../../../components/FormFields/SelectField/SelectField';
 import type { WorkflowDefinition, WorkflowOrb } from '../../../../workflowTypes';
-import { fieldErrorClass, fieldHintClass } from '../../../../../ui/Form/Form';
-import { Button } from '../../../../../ui/Button/Button';
+import { fieldErrorClass, fieldHintClass, Button } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 const MAX_ORBS = 5;

@@ -1,6 +1,6 @@
 import type { GitStatus } from '../../types';
 import styles from './GitStatusBadge.module.scss';
-import { cx } from '../../ui/cx';
+import { cx } from '@openjcockpit/ui';
 
 interface Props {
   status: GitStatus;

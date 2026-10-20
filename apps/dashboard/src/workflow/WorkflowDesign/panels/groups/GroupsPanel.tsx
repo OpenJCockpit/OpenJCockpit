@@ -10,7 +10,7 @@ import {
 import type { WorkflowGroup } from '../../../workflowTypes';
 import { GroupEditor } from './GroupEditor';
 import { GroupsTable } from './GroupsTable';
-import { fieldHintClass } from '../../../../ui/Form/Form';
+import { fieldHintClass } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_GROUP: WorkflowGroup = { id: '', name: '', description: '', projectName: '' };

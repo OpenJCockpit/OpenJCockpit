@@ -30,7 +30,8 @@ function createLocalStorageStub(): Storage {
   };
 }
 
-vi.mock('../../auth/keycloak', () => ({
+vi.mock('@openjcockpit/auth', async () => ({
+  ...(await vi.importActual<typeof import('@openjcockpit/auth')>('@openjcockpit/auth')),
   getKeycloak: () => ({
     init: () => Promise.resolve(true),
     token: 'fake-token',

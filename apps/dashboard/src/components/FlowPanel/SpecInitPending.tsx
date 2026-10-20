@@ -1,8 +1,7 @@
 import type { SpecInitStatus } from '../../types';
 import { StatusChip } from '../StatusChip/StatusChip';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
-import { buttonClass } from '../../ui/Button/Button';
-import { feedbackResultClass } from '../../ui/Feedback/Feedback';
+import { buttonClass, feedbackResultClass } from '@openjcockpit/ui';
 
 interface Props {
   status: SpecInitStatus;

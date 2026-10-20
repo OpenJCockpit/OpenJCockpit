@@ -10,9 +10,7 @@ import { SpecInitPending } from './SpecInitPending';
 import { SpecTemplatePresent } from './SpecTemplatePresent';
 import { WorkflowLauncher } from './WorkflowLauncher';
 import styles from './FlowPanel.module.scss';
-import { Eyebrow, Panel, PanelHeader } from '../../ui/Panel/Panel';
-import { Button } from '../../ui/Button/Button';
-import { feedbackErrorClass } from '../../ui/Feedback/Feedback';
+import { Eyebrow, Panel, PanelHeader, Button, feedbackErrorClass } from '@openjcockpit/ui';
 
 interface Props {
   launcher: ReturnType<typeof useRunLauncher>;
