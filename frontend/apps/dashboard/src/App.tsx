@@ -1,6 +1,12 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ToolbarButton, AppShell, StatusMessage } from '@openjcockpit/ui';
-import { clearStoredProjectId, getStoredProjectId, setStoredProjectId } from './storedProject';
+import {
+  clearStoredProjectId,
+  getStoredProjectId,
+  ProjectSelection,
+  ProjectSettings,
+  setStoredProjectId,
+} from '@openjcockpit/project';
 import {
   getSpecInitStatus,
   listWorkflowGroups,
@@ -24,8 +30,6 @@ import { getKeycloak, getUserFromToken } from '@openjcockpit/auth';
 import type { User } from '@openjcockpit/auth';
 import { LandingHub } from '@openjcockpit/landing-hub';
 import type { PortalId } from '@openjcockpit/landing-hub';
-import { ProjectSelection } from './components/ProjectSelection/ProjectSelection';
-import { ProjectSettings } from './components/ProjectSettings/ProjectSettings';
 import { SkillsHubDashboard } from './components/SkillsHubDashboard/SkillsHubDashboard';
 import { SkillsHubSettings } from './components/SkillsHubSettings/SkillsHubSettings';
 import { SpecQueueDashboard } from './queue/SpecQueueDashboard/SpecQueueDashboard';

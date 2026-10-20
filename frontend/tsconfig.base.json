@@ -18,6 +18,7 @@
       "@openjcockpit/api": ["./libs/api/src/index.ts"],
       "@openjcockpit/auth": ["./libs/auth/src/index.ts"],
       "@openjcockpit/landing-hub": ["./libs/landing-hub/src/index.ts"],
+      "@openjcockpit/project": ["./libs/project/src/index.ts"],
       "@openjcockpit/ui": ["./libs/ui/src/index.ts"]
     }
   }

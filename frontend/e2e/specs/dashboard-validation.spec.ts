@@ -2,7 +2,7 @@
  * AC-11: validation / error scenario, against `ProjectSettings`.
  *
  * The a11y fixes this spec depends on landed in Batch B
- * (`apps/dashboard/src/components/ProjectSettings/ProjectSettings.tsx`):
+ * (`libs/project/src/ProjectSettings/ProjectSettings.tsx`):
  * the required-name validation error renders as
  * `<p id="project-name-error" role="alert">`, the name `<input>` carries
  * `aria-invalid`/`aria-describedby="project-name-error"` while an error is
