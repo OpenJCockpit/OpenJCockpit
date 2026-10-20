@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { withQueryClient } from '../../testUtils/queryClient';
 import { A2AServicesSettings } from './A2AServicesSettings';
 import * as workflowApi from '@openjcockpit/api';
 import type { A2AService } from '@openjcockpit/api';
@@ -44,8 +45,10 @@ const acme = service({
 
 async function renderSettings() {
   await act(async () => {
-    render(<A2AServicesSettings />);
+    render(withQueryClient(<A2AServicesSettings />));
   });
+  // The query resolves on react-query's own scheduler, after act has returned.
+  await waitFor(() => expect(screen.queryByText(/Loading A2A services/)).not.toBeInTheDocument());
 }
 
 function input(label: RegExp) {

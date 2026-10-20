@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getWorkflow } from '@openjcockpit/api';
 import type { Project, WorkflowDefinition } from '@openjcockpit/api';
 import { WorkflowOverview } from '../WorkflowOverview/WorkflowOverview';
@@ -19,34 +20,33 @@ interface Props {
 
 export function WorkflowDashboard({ project, onBack, initialExecution }: Props) {
   const [tab, setTab] = useState<WorkflowTab>(initialExecution ? 'execution' : 'overview');
-  const [executionWorkflow, setExecutionWorkflow] = useState<WorkflowDefinition | null>(null);
+  const [pickedWorkflow, setPickedWorkflow] = useState<WorkflowDefinition | null>(null);
   const [executionRunId, setExecutionRunId] = useState<string | null>(
     initialExecution?.runId ?? null,
   );
-  const [initialError, setInitialError] = useState<string | null>(null);
 
   const initialWorkflowId = initialExecution?.workflowId;
-  useEffect(() => {
-    if (!initialWorkflowId) return;
-    let live = true;
-    setInitialError(null);
-    getWorkflow(initialWorkflowId).then(
-      (workflow) => live && setExecutionWorkflow(workflow),
-      (e) => live && setInitialError(e instanceof Error ? e.message : 'Failed to load workflow'),
-    );
-    return () => {
-      live = false;
-    };
-  }, [initialWorkflowId]);
+  const initialWorkflowQuery = useQuery({
+    queryKey: ['workflow', initialWorkflowId],
+    queryFn: () => getWorkflow(initialWorkflowId as string),
+    enabled: Boolean(initialWorkflowId),
+  });
+  // A workflow chosen in the UI wins; until then the run's own workflow (once loaded) is shown.
+  const executionWorkflow = pickedWorkflow ?? initialWorkflowQuery.data ?? null;
+  const initialError = initialWorkflowQuery.isError
+    ? initialWorkflowQuery.error instanceof Error
+      ? initialWorkflowQuery.error.message
+      : 'Failed to load workflow'
+    : null;
 
   function handleWorkflowStarted(workflow: WorkflowDefinition, runId: string) {
-    setExecutionWorkflow(workflow);
+    setPickedWorkflow(workflow);
     setExecutionRunId(runId);
     setTab('execution');
   }
 
   function handleViewExecutionTab(workflow: WorkflowDefinition) {
-    setExecutionWorkflow(workflow);
+    setPickedWorkflow(workflow);
     setTab('execution');
   }
 

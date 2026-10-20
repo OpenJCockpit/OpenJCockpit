@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { ToolbarButton, StatusMessage } from '@openjcockpit/ui';
 import {
   createSubagentSpec,
   deleteSubagentSpec,
   generateSubagentSpec,
-  isAbortError,
-  listSubagentSpecs,
   updateSubagentSpec,
 } from '@openjcockpit/api';
 import type { SubagentSpec } from '@openjcockpit/api';
 import { PromptGenerator } from '../shared/PromptGenerator';
 import { SubagentEditor } from './SubagentEditor';
 import { SubagentsTable } from './SubagentsTable';
+import { subagentSpecsQueryKey, useSubagentSpecs } from './useSubagentSpecs';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_SUBAGENT: SubagentSpec = {
@@ -24,28 +24,27 @@ const EMPTY_SUBAGENT: SubagentSpec = {
   mcpTools: [],
 };
 
+const NO_ITEMS: SubagentSpec[] = [];
+
 export function SubagentsPanel() {
-  const [items, setItems] = useState<SubagentSpec[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const queryClient = useQueryClient();
+  const query = useSubagentSpecs();
+  const items = query.data ?? NO_ITEMS;
+  const loaded = !query.isPending;
   const [editingName, setEditingName] = useState<string | null>(null);
   const [form, setForm] = useState<SubagentSpec>(EMPTY_SUBAGENT);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [actionError, setError] = useState<string | null>(null);
+  const loadError = query.isError
+    ? query.error instanceof Error
+      ? query.error.message
+      : 'Failed to load subagents'
+    : null;
+  const error = actionError ?? loadError;
 
-  useEffect(() => {
-    const controller = new AbortController();
-    listSubagentSpecs(controller.signal)
-      .then((s) => {
-        setItems(s);
-        setLoaded(true);
-      })
-      .catch((err) => {
-        if (isAbortError(err)) return;
-        setError(err instanceof Error ? err.message : 'Failed to load subagents');
-        setLoaded(true);
-      });
-    return () => controller.abort();
-  }, []);
+  function updateItems(update: (prev: SubagentSpec[]) => SubagentSpec[]) {
+    queryClient.setQueryData<SubagentSpec[]>(subagentSpecsQueryKey, (prev) => update(prev ?? []));
+  }
 
   if (!loaded) {
     return <StatusMessage variant="loading">Loading subagents...</StatusMessage>;
@@ -81,7 +80,7 @@ export function SubagentsPanel() {
         editingName === 'new'
           ? await createSubagentSpec(form)
           : await updateSubagentSpec(editingName!, form);
-      setItems((prev) =>
+      updateItems((prev) =>
         editingName === 'new'
           ? [...prev, saved]
           : prev.map((i) => (i.name === saved.name ? saved : i)),
@@ -98,7 +97,7 @@ export function SubagentsPanel() {
   async function handleDelete(name: string) {
     try {
       await deleteSubagentSpec(name);
-      setItems((prev) => prev.filter((i) => i.name !== name));
+      updateItems((prev) => prev.filter((i) => i.name !== name));
     } catch (err) {
       setError('Failed to delete subagent definition.');
       console.warn(err);

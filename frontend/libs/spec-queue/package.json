@@ -20,6 +20,7 @@
   "dependencies": {
     "@openjcockpit/api": "*",
     "@openjcockpit/auth": "*",
-    "@openjcockpit/ui": "*"
+    "@openjcockpit/ui": "*",
+    "@tanstack/react-query": "5.104.5"
   }
 }

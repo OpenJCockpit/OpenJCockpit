@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createA2AService,
   deleteA2AService,
   listA2AServices,
   updateA2AService,
 } from '@openjcockpit/api';
-import type { A2AService } from '@openjcockpit/api';
+import type { A2AService, A2AServiceRequest } from '@openjcockpit/api';
 import {
   StatusChip,
   SecretField,
@@ -47,6 +48,9 @@ const EMPTY_FORM: A2AServiceFormState = {
   callerClientSecret: '',
 };
 
+const A2A_SERVICES_KEY = ['a2a-services'];
+const NO_SERVICES: A2AService[] = [];
+
 type Editing = { mode: 'add' } | { mode: 'edit'; service: A2AService };
 
 /**
@@ -55,34 +59,37 @@ type Editing = { mode: 'add' } | { mode: 'edit'; service: A2AService };
  * it applies to every project.
  */
 export function A2AServicesSettings() {
-  const [services, setServices] = useState<A2AService[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const queryClient = useQueryClient();
+  const servicesQuery = useQuery({
+    queryKey: A2A_SERVICES_KEY,
+    queryFn: async () => (await listA2AServices()) ?? [],
+  });
+  const services = servicesQuery.data ?? NO_SERVICES;
+  const loaded = !servicesQuery.isPending;
+  const setServices = (update: (prev: A2AService[]) => A2AService[]) =>
+    queryClient.setQueryData<A2AService[]>(A2A_SERVICES_KEY, (prev) => update(prev ?? []));
   const [editing, setEditing] = useState<Editing | null>(null);
   const [form, setForm] = useState<A2AServiceFormState>(EMPTY_FORM);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // undefined until an action sets or clears it; then the load failure (if any) is shown instead.
+  const [actionError, setError] = useState<string | null | undefined>(undefined);
+  const loadError = servicesQuery.error
+    ? servicesQuery.error instanceof Error
+      ? servicesQuery.error.message
+      : 'Failed to load A2A services.'
+    : null;
+  const error = actionError === undefined ? loadError : actionError;
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    void Promise.resolve()
-      .then(() => listA2AServices())
-      .then((list) => {
-        if (!cancelled) setServices(list ?? []);
-      })
-      .catch((err: unknown) => {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to load A2A services.');
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoaded(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const createMutation = useMutation({
+    mutationFn: (request: Parameters<typeof createA2AService>[0]) => createA2AService(request),
+  });
+  const updateMutation = useMutation({
+    mutationFn: ({ id, request }: { id: string; request: A2AServiceRequest }) =>
+      updateA2AService(id, request),
+  });
+  const deleteMutation = useMutation({ mutationFn: (id: string) => deleteA2AService(id) });
 
   function startAdd() {
     setEditing({ mode: 'add' });
@@ -132,11 +139,11 @@ export function A2AServicesSettings() {
     };
     try {
       if (editing.mode === 'add') {
-        const created = await createA2AService({ id: form.id.trim(), ...request });
+        const created = await createMutation.mutateAsync({ id: form.id.trim(), ...request });
         setServices((prev) => [...prev, created]);
         setSavedMessage(`A2A service "${created.name}" added.`);
       } else {
-        const updated = await updateA2AService(editing.service.id, request);
+        const updated = await updateMutation.mutateAsync({ id: editing.service.id, request });
         setServices((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
         setSavedMessage(`A2A service "${updated.name}" saved.`);
       }
@@ -152,7 +159,7 @@ export function A2AServicesSettings() {
     setError(null);
     setSavedMessage(null);
     try {
-      await deleteA2AService(service.id);
+      await deleteMutation.mutateAsync(service.id);
       setServices((prev) => prev.filter((s) => s.id !== service.id));
       setSavedMessage(`A2A service "${service.name}" removed.`);
       if (editing?.mode === 'edit' && editing.service.id === service.id) closeForm();

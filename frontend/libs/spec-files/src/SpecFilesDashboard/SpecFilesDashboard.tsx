@@ -1,5 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
-import { isAbortError, loadProjectSpecs, saveSpecFile } from '@openjcockpit/api';
+import { useMemo, useState, type ReactNode } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { loadProjectSpecs, saveSpecFile } from '@openjcockpit/api';
 import type { Project, SpecFile, SpecInitResult } from '@openjcockpit/api';
 import {
   IconBox,
@@ -35,52 +36,55 @@ interface Props {
   renderAddToQueue?: (args: RenderAddToQueueArgs) => ReactNode;
 }
 
+interface Selection {
+  projectId: string;
+  id: string;
+  /** Edited text; `null` until the user edits or picks a spec, then the spec's content is shown. */
+  draft: string | null;
+}
+
 export function SpecFilesDashboard({ project, onBack, renderAddToQueue }: Props) {
-  const [specs, setSpecs] = useState<SpecFile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedId, setSelectedId] = useState('');
-  const [draftContent, setDraftContent] = useState('');
-  const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
+  const projectId = project?.id ?? null;
+  const specsQuery = useQuery({
+    queryKey: ['project-specs', projectId, 'files'],
+    queryFn: ({ signal }) => loadProjectSpecs(projectId as string, signal),
+    enabled: projectId !== null,
+  });
+  const specs = useMemo(
+    () => (projectId ? (specsQuery.data ?? []) : []),
+    [projectId, specsQuery.data],
+  );
+  const loading = projectId !== null && specsQuery.isPending;
+  const [selection, setSelection] = useState<Selection | null>(null);
   const [saveResult, setSaveResult] = useState<SpecInitResult | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [queueDialogOpen, setQueueDialogOpen] = useState(false);
   const [queuedNotice, setQueuedNotice] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!project) {
-      setSpecs([]);
-      setSelectedId('');
-      setDraftContent('');
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    const controller = new AbortController();
-    const loadSpecs = async () => {
-      try {
-        const loaded = await loadProjectSpecs(project.id, controller.signal);
-        setSpecs(loaded);
-        const initial = loaded.find((s) => s.selected) ?? loaded[0];
-        setSelectedId(initial?.id ?? '');
-        setDraftContent(initial?.content ?? '');
-      } catch (err) {
-        if (isAbortError(err)) return;
-        setSpecs([]);
-        setSelectedId('');
-        setDraftContent('');
-      }
-      setLoading(false);
-    };
-    void loadSpecs();
-    return () => controller.abort();
-  }, [project]);
+  const saveMutation = useMutation({
+    mutationFn: async (vars: { projectId: string; fileName: string; content: string }) => {
+      const result = await saveSpecFile(vars.projectId, vars.fileName, vars.content);
+      setSaveResult(result);
+      await queryClient.invalidateQueries({ queryKey: ['project-specs', vars.projectId] });
+    },
+  });
+  const saving = saveMutation.isPending;
 
+  // Server data only seeds the selection: until the user picks a spec, show the default one.
+  const current = selection && selection.projectId === projectId ? selection : null;
+  const initial = specs.find((s) => s.selected) ?? specs[0];
+  const selectedId = current?.id ?? initial?.id ?? '';
   const selected = specs.find((s) => s.id === selectedId) ?? null;
+  const draftContent = current?.draft ?? selected?.content ?? '';
   const isDirty = selected != null && draftContent !== (selected.content ?? '');
 
+  function setDraftContent(draft: string) {
+    if (projectId) setSelection({ projectId, id: selectedId, draft });
+  }
+
   function handleSelect(spec: SpecFile) {
-    setSelectedId(spec.id);
-    setDraftContent(spec.content ?? '');
+    if (projectId) setSelection({ projectId, id: spec.id, draft: spec.content ?? '' });
     setSaveResult(null);
     setSaveError(null);
     setQueuedNotice(null);
@@ -88,17 +92,16 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue }: Props)
 
   async function handleSave() {
     if (!project || !selected) return;
-    setSaving(true);
     setSaveError(null);
     setSaveResult(null);
     try {
-      const result = await saveSpecFile(project.id, selected.fileName, draftContent);
-      setSaveResult(result);
-      setSpecs(await loadProjectSpecs(project.id));
+      await saveMutation.mutateAsync({
+        projectId: project.id,
+        fileName: selected.fileName,
+        content: draftContent,
+      });
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'Saving the spec failed');
-    } finally {
-      setSaving(false);
     }
   }
 

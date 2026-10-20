@@ -1,4 +1,6 @@
-import { useEffect, useId, useState } from 'react';
+import { useId, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 import {
   enqueueSpecQueueItem,
   getSpecQueueSettings,
@@ -33,17 +35,38 @@ function messageOf(e: unknown): string {
   return e instanceof Error ? e.message : 'Unknown error';
 }
 
+function loadable<Q, T = Q>(
+  query: UseQueryResult<Q>,
+  fallback: T,
+  pick: (data: Q) => T = (data) => data as unknown as T,
+): Loadable<T> {
+  if (query.data !== undefined) return { loading: false, error: null, data: pick(query.data) };
+  if (query.isError) return { loading: false, error: messageOf(query.error), data: fallback };
+  return { loading: true };
+}
+
 const AUTO_MERGE_NOTE =
   'The pull request is merged without human review unless the workflow has an approval gate.';
 
 export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: Props) {
-  const [specs, setSpecs] = useState<Loadable<SpecFile[]>>(
-    fixedSpecFile ? { loading: false, error: null, data: [] } : { loading: true },
-  );
-  const [workflows, setWorkflows] = useState<Loadable<WorkflowDefinition[]>>({ loading: true });
-  const [settings, setSettings] = useState<Loadable<boolean>>({ loading: true });
-  const [specFile, setSpecFile] = useState(fixedSpecFile ?? '');
-  const [workflowId, setWorkflowId] = useState('');
+  const specsQuery = useQuery({
+    queryKey: ['spec-queue', project.id, 'spec-files'],
+    queryFn: () => listSpecFilesStrict(project.id),
+    enabled: !fixedSpecFile,
+  });
+  // Same keys as the dashboard app, so the lists are shared from cache.
+  const allWorkflowsQuery = useQuery({ queryKey: ['workflows'], queryFn: () => listWorkflows() });
+  const groupsQuery = useQuery({
+    queryKey: ['workflow-groups'],
+    queryFn: () => listWorkflowGroups(),
+  });
+  const settingsQuery = useQuery({
+    queryKey: ['spec-queue', project.id, 'settings'],
+    queryFn: () => getSpecQueueSettings(project.id),
+  });
+
+  const [specChoice, setSpecChoice] = useState<string | null>(null);
+  const [workflowChoice, setWorkflowChoice] = useState<string | null>(null);
   const [autoMerge, setAutoMerge] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -54,48 +77,30 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
   const reasonId = useId();
   const autoMergeNoteId = useId();
 
-  // Four independent loads: one failing must never hide the others.
-  useEffect(() => {
-    let live = true;
-    if (!fixedSpecFile) {
-      setSpecs({ loading: true });
-      listSpecFilesStrict(project.id).then(
-        (data) => {
-          if (!live) return;
-          setSpecs({ loading: false, error: null, data });
-          const initial = data.find((s) => s.selected) ?? data[0];
-          setSpecFile(initial?.fileName ?? '');
-        },
-        (e) => live && setSpecs({ loading: false, error: messageOf(e), data: [] }),
-      );
-    }
-
-    setWorkflows({ loading: true });
-    Promise.all([listWorkflows(), listWorkflowGroups()]).then(
-      ([all, groups]) => {
-        if (!live) return;
-        const usable = workflowsForProject(all, groups, project.name).filter(
-          (w) => !w.promptRequired,
-        );
-        setWorkflows({ loading: false, error: null, data: usable });
-        setWorkflowId(usable[0]?.id ?? '');
-      },
-      (e) => live && setWorkflows({ loading: false, error: messageOf(e), data: [] }),
-    );
-
-    setSettings({ loading: true });
-    getSpecQueueSettings(project.id).then(
-      (s) => live && setSettings({ loading: false, error: null, data: s.autoMergeAllowed }),
-      (e) => live && setSettings({ loading: false, error: messageOf(e), data: false }),
-    );
-
-    return () => {
-      live = false;
-    };
-  }, [project.id, project.name, fixedSpecFile]);
+  // Three independent loads: one failing must never hide the others.
+  const specs: Loadable<SpecFile[]> = fixedSpecFile
+    ? { loading: false, error: null, data: [] }
+    : loadable(specsQuery, []);
+  const workflowsFailure = allWorkflowsQuery.error ?? groupsQuery.error;
+  let workflows: Loadable<WorkflowDefinition[]>;
+  if (workflowsFailure) {
+    workflows = { loading: false, error: messageOf(workflowsFailure), data: [] };
+  } else if (allWorkflowsQuery.data && groupsQuery.data) {
+    const usable = workflowsForProject(allWorkflowsQuery.data, groupsQuery.data, project.name);
+    workflows = { loading: false, error: null, data: usable.filter((w) => !w.promptRequired) };
+  } else {
+    workflows = { loading: true };
+  }
+  const settings: Loadable<boolean> = loadable(settingsQuery, false, (s) => s.autoMergeAllowed);
 
   const specList = specs.loading ? [] : specs.data;
+  const specFile =
+    fixedSpecFile ??
+    specChoice ??
+    (specList.find((s) => s.selected) ?? specList[0])?.fileName ??
+    '';
   const workflowList = workflows.loading ? [] : workflows.data;
+  const workflowId = workflowChoice ?? workflowList[0]?.id ?? '';
   const allowAutoMerge = !settings.loading && settings.data;
 
   function submitBlocker(): string | null {
@@ -162,7 +167,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
             data-testid="add-to-queue-spec-select"
             value={specFile}
             disabled={specs.loading || specList.length === 0 || submitting}
-            onChange={(e) => setSpecFile(e.target.value)}
+            onChange={(e) => setSpecChoice(e.target.value)}
           >
             {specList.length === 0 && <option value="">No spec files available</option>}
             {specList.map((s) => (
@@ -189,7 +194,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
           data-testid="add-to-queue-workflow-select"
           value={workflowId}
           disabled={workflows.loading || workflowList.length === 0 || submitting}
-          onChange={(e) => setWorkflowId(e.target.value)}
+          onChange={(e) => setWorkflowChoice(e.target.value)}
         >
           {workflowList.length === 0 && <option value="">No workflows available</option>}
           {workflowList.map((w) => (

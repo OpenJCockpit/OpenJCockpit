@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   buildAgentCards,
   buildSequencerNodes,
@@ -27,6 +28,9 @@ import styles from './WorkflowExecution.module.scss';
 // feature) returns for an unknown run id, so a newer dashboard paired with it still
 // terminates instead of polling "waiting" forever (the exact bug this feature fixes
 // for 'RUN_STATE_LOST'). Both are non-additive-safe, forward/backward tolerant.
+const NO_DEFINITIONS: AgentDefinition[] = [];
+const NO_WORKFLOWS: WorkflowDefinition[] = [];
+
 const RUN_LOST_STATUSES = ['RUN_STATE_LOST', 'NOT_FOUND'];
 
 interface Props {
@@ -54,7 +58,6 @@ export function WorkflowExecution({
   onRestartRequested,
   showHistory = true,
 }: Props) {
-  const [definitions, setDefinitions] = useState<AgentDefinition[]>([]);
   const [stopping, setStopping] = useState(false);
   const [decisionSubmitting, setDecisionSubmitting] = useState(false);
 
@@ -99,16 +102,16 @@ export function WorkflowExecution({
     onRunEnded,
   });
 
-  useEffect(() => {
-    void loadLinkableAgents().then(setDefinitions);
-  }, []);
+  const { data: definitions = NO_DEFINITIONS } = useQuery({
+    queryKey: ['linkable-agents'],
+    queryFn: loadLinkableAgents, // never rejects: a failed catalog degrades to []
+  });
 
-  const [allWorkflows, setAllWorkflows] = useState<WorkflowDefinition[]>([]);
-  useEffect(() => {
-    void listWorkflows()
-      .then(setAllWorkflows)
-      .catch(() => setAllWorkflows([])); // display-name lookup only (workflowNameById); [] degrades an orb label to its raw id, no functional loss
-  }, []);
+  // display-name lookup only (workflowNameById); [] degrades an orb label to its raw id, no functional loss
+  const { data: allWorkflows = NO_WORKFLOWS } = useQuery({
+    queryKey: ['workflows'],
+    queryFn: ({ signal }) => listWorkflows(signal),
+  });
 
   // Keep selectedRunId in sync with a newly-provided runId prop (e.g. a fresh
   // "start workflow" flow), without clobbering a user's in-history selection when the

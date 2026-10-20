@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WorkflowDesign } from './WorkflowDesign';
+import { withQueryClient } from '../testUtils/queryClient';
 import * as linkable from '../linkableAgents';
 import * as workflowApi from '@openjcockpit/api';
 import { mockSkillSpecs } from '@openjcockpit/api/testing';
@@ -122,7 +123,7 @@ async function renderWorkflowsTab() {
   vi.mocked(linkable.loadLinkableAgents).mockResolvedValue(AVAILABLE_AGENTS);
   vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(AVAILABLE_AGENTS);
   await act(async () => {
-    render(<WorkflowDesign />);
+    render(withQueryClient(<WorkflowDesign />));
   });
   await screen.findByText('Customer Onboarding');
 }
@@ -177,7 +178,7 @@ describe('workflow groups in the design tab', () => {
       description: 'Reporting workflows',
     });
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
 
     await act(async () => {
@@ -205,7 +206,7 @@ describe('workflow groups in the design tab', () => {
   it('shows whether a group is project-bound or global', async () => {
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue(GROUPS);
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
 
     await act(async () => {
@@ -275,7 +276,7 @@ describe('workflow groups in the design tab', () => {
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue(GROUPS);
     vi.mocked(workflowApi.deleteWorkflowGroup).mockResolvedValue();
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
 
     await act(async () => {
@@ -353,10 +354,11 @@ describe('human approval gate (designer)', () => {
     vi.mocked(linkable.loadLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
+    const newWorkflowButton = await screen.findByText('+ New workflow');
     await act(async () => {
-      screen.getByText('+ New workflow').click();
+      newWorkflowButton.click();
     });
     for (const id of agentIds) {
       const agent = PIPELINE_ORDERED_AGENTS.find((a) => a.id === id)!;
@@ -430,7 +432,7 @@ describe('human approval gate (designer)', () => {
     vi.mocked(linkable.loadLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
     await screen.findByText('Gated workflow');
 
@@ -476,7 +478,7 @@ describe('human approval gate (designer)', () => {
       new Error("Cannot delete workflow 'C': it is still referenced by workflow orb(s) in: [W]"),
     );
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
     await screen.findByText('Customer Onboarding');
 
@@ -517,10 +519,11 @@ describe('workflow orb authoring', () => {
     vi.mocked(linkable.loadLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
+    const newWorkflowButton = await screen.findByText('+ New workflow');
     await act(async () => {
-      screen.getByText('+ New workflow').click();
+      newWorkflowButton.click();
     });
     fireEvent.change(screen.getByLabelText('Workflow name'), {
       target: { value: 'New workflow' },
@@ -637,7 +640,7 @@ describe('workflow orb authoring', () => {
     });
 
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
     await screen.findByText('Legacy workflow');
 
@@ -672,7 +675,7 @@ describe('agents tab', () => {
 
   async function openAgentsTab() {
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
     await act(async () => {
       screen.getByText('Agents').click();
@@ -1077,7 +1080,7 @@ const FULL_CATALOG: SkillCatalog = {
 
 async function openSkillsTab() {
   await act(async () => {
-    render(<WorkflowDesign />);
+    render(withQueryClient(<WorkflowDesign />));
   });
   await act(async () => {
     fireEvent.click(screen.getByText('Skills'));
@@ -1328,8 +1331,11 @@ describe('skills tab (local + marketplace catalog)', () => {
       fireEvent.click(screen.getByText('⟳ Refresh'));
     });
 
-    expect(screen.queryByText('skill-a')).not.toBeInTheDocument();
-    expect(screen.getByText('Loading skills…')).toBeInTheDocument();
+    // The query client batches its notifications, so the loading state lands a tick later.
+    await waitFor(() => {
+      expect(screen.queryByText('skill-a')).not.toBeInTheDocument();
+      expect(screen.getByText('Loading skills…')).toBeInTheDocument();
+    });
 
     await act(async () => {
       resolveSecond(catalogB);
@@ -1523,7 +1529,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
     vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
     await screen.findByText('Populated workflow');
 
@@ -1546,10 +1552,11 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
     vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
+    const newWorkflowButton = await screen.findByText('+ New workflow');
     await act(async () => {
-      screen.getByText('+ New workflow').click();
+      newWorkflowButton.click();
     });
 
     fireEvent.change(screen.getByLabelText('Workflow name'), {
@@ -1575,10 +1582,11 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
     vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
+    const newWorkflowButton = await screen.findByText('+ New workflow');
     await act(async () => {
-      screen.getByText('+ New workflow').click();
+      newWorkflowButton.click();
     });
 
     fireEvent.change(screen.getByLabelText('Workflow name'), {
@@ -1613,7 +1621,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
     vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
     await screen.findByText('Unknown id workflow');
 
@@ -1633,7 +1641,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
       new Error('Failed to load agent definitions: 500'),
     );
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
 
     const alert = await screen.findByText('Failed to load agent definitions: 500');
@@ -1661,7 +1669,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
     vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue([]);
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
     await screen.findByText('Empty catalogue workflow');
 
@@ -1688,10 +1696,11 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
       status: 'ACTIVE',
     });
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
+    const newWorkflowButton = await screen.findByText('+ New workflow');
     await act(async () => {
-      screen.getByText('+ New workflow').click();
+      newWorkflowButton.click();
     });
 
     fireEvent.change(screen.getByLabelText('Workflow name'), {
@@ -1733,10 +1742,11 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
     vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     await act(async () => {
-      render(<WorkflowDesign />);
+      render(withQueryClient(<WorkflowDesign />));
     });
+    const newWorkflowButton = await screen.findByText('+ New workflow');
     await act(async () => {
-      screen.getByText('+ New workflow').click();
+      newWorkflowButton.click();
     });
 
     const checkboxes = PIPELINE_ORDERED_AGENTS.map((agent) =>

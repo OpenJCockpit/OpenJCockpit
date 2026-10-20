@@ -1,7 +1,7 @@
-import { type ReactNode, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { StatusMessage, Button } from '@openjcockpit/ui';
-import { getAgentCatalog } from '@openjcockpit/api';
-import type { AgentCatalog, AgentCatalogStatus } from '@openjcockpit/api';
+import type { AgentCatalogStatus } from '@openjcockpit/api';
+import { useAgentCatalog } from './useAgentCatalog';
 import { LocalAgentsTree } from './LocalAgentsTree';
 import { ProviderAgentsTable } from './ProviderAgentsTable';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
@@ -18,33 +18,13 @@ const STATUS_TEXT: Record<Exclude<AgentCatalogStatus, 'OK'>, string> = {
  * one section per A2A provider, headed by the provider's name (e.g. "LiteLLM").
  */
 export function AgentsPanel() {
-  const [catalog, setCatalog] = useState<AgentCatalog | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [reload, setReload] = useState(0);
+  const { data: catalog, isError, refetch } = useAgentCatalog();
 
-  useEffect(() => {
-    let cancelled = false;
-    getAgentCatalog()
-      .then((c) => {
-        if (!cancelled) {
-          setCatalog(c);
-          setError(null);
-        }
-      })
-      .catch((err: unknown) => {
-        console.warn(err);
-        if (!cancelled) setError('Failed to load the agent catalog.');
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [reload]);
-
-  if (error) {
+  if (isError) {
     return (
       <div>
-        <StatusMessage variant="error">{error}</StatusMessage>
-        <Button variant="secondary" onClick={() => setReload((n) => n + 1)}>
+        <StatusMessage variant="error">Failed to load the agent catalog.</StatusMessage>
+        <Button variant="secondary" onClick={() => void refetch()}>
           Retry
         </Button>
       </div>
@@ -56,7 +36,7 @@ export function AgentsPanel() {
     <div>
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
         <span className={WorkflowDesignStyles.workflowDesignToolbarSpacer} />
-        <Button variant="secondary" onClick={() => setReload((n) => n + 1)}>
+        <Button variant="secondary" onClick={() => void refetch()}>
           ↻ Refresh
         </Button>
       </div>

@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
@@ -22,6 +23,7 @@ vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
 
 import type { Project, SpecQueue, SpecQueueItem } from '@openjcockpit/api';
 import * as api from '@openjcockpit/api';
+import { withQueryClient } from '../testQueryClient';
 import { SpecQueueDashboard } from './SpecQueueDashboard';
 
 const PROJECT = { id: 'p1', name: 'Proj' } as Project;
@@ -54,9 +56,17 @@ function queue(extra: Partial<SpecQueue> = {}): SpecQueue {
   };
 }
 
+/** Lets resolved mocks reach the DOM; react-query notifies observers on a zero-delay timer. */
+async function settle() {
+  await act(async () => {
+    if (vi.isFakeTimers()) await vi.advanceTimersByTimeAsync(1);
+    else await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+}
+
 async function renderDashboard(props: { onOpenRun?: (w: string, r: string) => void } = {}) {
-  render(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} {...props} />);
-  await act(async () => {});
+  render(withQueryClient(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} {...props} />));
+  await waitFor(() => expect(screen.queryByTestId('queue-loading')).not.toBeInTheDocument());
 }
 
 describe('SpecQueueDashboard', () => {
@@ -69,7 +79,7 @@ describe('SpecQueueDashboard', () => {
   });
 
   it('asks for a project when none is selected', () => {
-    render(<SpecQueueDashboard project={null} onBack={vi.fn()} />);
+    render(withQueryClient(<SpecQueueDashboard project={null} onBack={vi.fn()} />));
     expect(screen.getByText(/Select a project first/)).toBeInTheDocument();
     expect(api.getSpecQueue).not.toHaveBeenCalled();
   });
@@ -101,14 +111,17 @@ describe('SpecQueueDashboard', () => {
     beforeEach(() => vi.useFakeTimers());
 
     it('polls every 5 s, keeps stale data on failure, and stops on unmount', async () => {
-      const { unmount } = render(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />);
-      await act(async () => {});
+      const { unmount } = render(
+        withQueryClient(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />),
+      );
+      await settle();
       expect(api.getSpecQueue).toHaveBeenCalledTimes(1);
 
       vi.mocked(api.getSpecQueue).mockRejectedValue(new Error('offline'));
       await act(async () => {
         await vi.advanceTimersByTimeAsync(5000);
       });
+      await settle();
       expect(api.getSpecQueue).toHaveBeenCalledTimes(2);
       expect(screen.getByTestId('queue-refresh-error')).toHaveTextContent('offline');
       expect(screen.getAllByTestId('queue-item')).toHaveLength(3);
@@ -121,8 +134,8 @@ describe('SpecQueueDashboard', () => {
     });
 
     it('skips a poll tick while the previous request is still in flight', async () => {
-      render(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />);
-      await act(async () => {});
+      render(withQueryClient(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />));
+      await settle();
       vi.mocked(api.getSpecQueue).mockReturnValue(new Promise(() => {}));
       await act(async () => {
         await vi.advanceTimersByTimeAsync(5000);
@@ -135,8 +148,8 @@ describe('SpecQueueDashboard', () => {
 
     it('backs off exponentially while loads keep failing', async () => {
       vi.mocked(api.getSpecQueue).mockRejectedValue(new Error('offline'));
-      render(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />);
-      await act(async () => {});
+      render(withQueryClient(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />));
+      await act(async () => {}); // no clock advance: the retry delay counts from the failure
       expect(api.getSpecQueue).toHaveBeenCalledTimes(1);
       await act(async () => {
         await vi.advanceTimersByTimeAsync(9999); // first retry waits 10 s
@@ -159,31 +172,36 @@ describe('SpecQueueDashboard', () => {
     it('stops polling while the tab is hidden and reloads when it is visible again', async () => {
       let hidden = false;
       const spy = vi.spyOn(document, 'hidden', 'get').mockImplementation(() => hidden);
+      // react-query's focus manager reads visibilityState, so keep both in step.
+      const stateSpy = vi
+        .spyOn(document, 'visibilityState', 'get')
+        .mockImplementation(() => (hidden ? 'hidden' : 'visible'));
       try {
-        render(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />);
-        await act(async () => {});
+        render(withQueryClient(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />));
+        await settle();
         expect(api.getSpecQueue).toHaveBeenCalledTimes(1);
 
         hidden = true;
         await act(async () => {
-          document.dispatchEvent(new Event('visibilitychange'));
+          document.dispatchEvent(new Event('visibilitychange', { bubbles: true }));
           await vi.advanceTimersByTimeAsync(30000);
         });
         expect(api.getSpecQueue).toHaveBeenCalledTimes(1);
 
         hidden = false;
         await act(async () => {
-          document.dispatchEvent(new Event('visibilitychange'));
+          document.dispatchEvent(new Event('visibilitychange', { bubbles: true }));
         });
         expect(api.getSpecQueue).toHaveBeenCalledTimes(2);
       } finally {
         spy.mockRestore();
+        stateSpy.mockRestore();
       }
     });
 
     it('ignores a poll response that resolves after a newer reorder response', async () => {
-      render(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />);
-      await act(async () => {});
+      render(withQueryClient(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />));
+      await settle();
 
       let resolvePoll!: (q: SpecQueue) => void;
       vi.mocked(api.getSpecQueue).mockReturnValue(
@@ -199,7 +217,7 @@ describe('SpecQueueDashboard', () => {
         queue({ items: [item('b'), item('a'), item('c')] }),
       );
       fireEvent.click(screen.getByRole('button', { name: 'Move a.md down' }));
-      await act(async () => {});
+      await settle();
       expect(screen.getAllByTestId('queue-item')[0]).toHaveAttribute('data-item-id', 'b');
 
       await act(async () => resolvePoll(queue())); // stale order a, b, c
@@ -214,10 +232,17 @@ describe('SpecQueueDashboard', () => {
         }),
       );
       const other = { id: 'p2', name: 'Other' } as Project;
-      const { rerender } = render(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />);
+      // One client across both renders, so the project switch is a key change, not a new cache.
+      const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+      const dashboard = (project: Project) => (
+        <QueryClientProvider client={client}>
+          <SpecQueueDashboard project={project} onBack={vi.fn()} />
+        </QueryClientProvider>
+      );
+      const { rerender } = render(dashboard(PROJECT));
       vi.mocked(api.getSpecQueue).mockResolvedValue(queue({ projectId: 'p2', items: [item('z')] }));
-      rerender(<SpecQueueDashboard project={other} onBack={vi.fn()} />);
-      await act(async () => {});
+      rerender(dashboard(other));
+      await settle();
 
       await act(async () => resolveOld(queue()));
       expect(

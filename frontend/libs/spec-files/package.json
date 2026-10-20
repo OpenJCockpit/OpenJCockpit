@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@openjcockpit/api": "*",
-    "@openjcockpit/ui": "*"
+    "@openjcockpit/ui": "*",
+    "@tanstack/react-query": "5.104.5"
   }
 }
