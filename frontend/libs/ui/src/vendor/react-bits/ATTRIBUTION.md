@@ -78,7 +78,7 @@ it remains under the upstream MIT + Commons Clause terms reproduced above.
 
 **Constraints (binding):**
 
-- Files under `libs/ui/src/vendor/**` stay under the upstream licence above,
+- Files under `frontend/libs/ui/src/vendor/**` stay under the upstream licence above,
   not Apache-2.0; the root `NOTICE` records this.
 - They must not be extracted into a separately distributed package, published
   standalone, or copied into `docs-site/` or any other surface outside this application.

@@ -25,14 +25,14 @@ docker-compose.override.yml
 # Local (per-developer) Keycloak users — never commit personal accounts/passwords
 infrastructure/keycloak/local-users/*.local.json
 
-# Playwright e2e harness (e2e/) — storage state contains live Keycloak SSO
+# Playwright e2e harness (frontend/e2e/) — storage state contains live Keycloak SSO
 # cookies, and report/artifact directories can contain bearer tokens (see
-# e2e/README.md). Never commit any of these.
-e2e/.auth/
-e2e/test-results/
-e2e/playwright-report/
-e2e/blob-report/
+# frontend/e2e/README.md). Never commit any of these.
+frontend/e2e/.auth/
+frontend/e2e/test-results/
+frontend/e2e/playwright-report/
+frontend/e2e/blob-report/
 
 # Nx local cache and workspace data
-.nx/cache
-.nx/workspace-data
+frontend/.nx/cache
+frontend/.nx/workspace-data

@@ -238,7 +238,7 @@ services:
 
   dashboard:
     build:
-      context: .
+      context: frontend
       dockerfile: apps/dashboard/Dockerfile
     container_name: openjcockpit-dashboard
     restart: unless-stopped

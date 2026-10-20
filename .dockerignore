@@ -1,4 +1,4 @@
-apps/
+frontend/
 infrastructure/themes/
 node_modules
 dist

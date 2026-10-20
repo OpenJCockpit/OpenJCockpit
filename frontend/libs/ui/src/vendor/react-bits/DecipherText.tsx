@@ -9,7 +9,7 @@ import { usePrefersReducedMotion } from '../../motion/usePrefersReducedMotion';
 //
 // This is NOT a byte-identical vendored copy — it is materially adapted
 // (ADR-6: adaptation means ownership). See
-// libs/ui/src/vendor/react-bits/ATTRIBUTION.md for the full
+// frontend/libs/ui/src/vendor/react-bits/ATTRIBUTION.md for the full
 // upstream licence text (MIT + Commons Clause License Condition v1.0), the
 // non-republication constraint, and the itemised list of the seven
 // mandatory local adaptations applied here (dropped `motion/react`,

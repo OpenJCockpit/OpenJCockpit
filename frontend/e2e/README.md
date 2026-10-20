@@ -73,7 +73,7 @@ npm run e2e:reduced
 npm run stack:reduced:stop
 
 # full mode (operator starts/stops the stack)
-docker compose -f ../docker-compose.yml up -d --build
+docker compose -f ../../docker-compose.yml up -d --build
 npm run e2e:full
 ```
 
