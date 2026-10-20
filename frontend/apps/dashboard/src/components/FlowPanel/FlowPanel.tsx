@@ -1,5 +1,5 @@
 import type { SpecInitStatus, WorkflowDefinition } from '@openjcockpit/api';
-import { WorkflowExecution } from '../../workflow/WorkflowExecution/WorkflowExecution';
+import { WorkflowExecution } from '@openjcockpit/workflow';
 import type { useRunLauncher } from '../../useRunLauncher';
 import { PreflightAlert } from '../PreflightAlert/PreflightAlert';
 import {

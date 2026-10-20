@@ -22,7 +22,8 @@
       "@openjcockpit/skills-hub": ["./libs/skills-hub/src/index.ts"],
       "@openjcockpit/spec-files": ["./libs/spec-files/src/index.ts"],
       "@openjcockpit/spec-queue": ["./libs/spec-queue/src/index.ts"],
-      "@openjcockpit/ui": ["./libs/ui/src/index.ts"]
+      "@openjcockpit/ui": ["./libs/ui/src/index.ts"],
+      "@openjcockpit/workflow": ["./libs/workflow/src/index.ts"]
     }
   }
 }

@@ -11,6 +11,7 @@ COPY libs/spec-files/package.json libs/spec-files/
 COPY libs/spec-queue/package.json libs/spec-queue/
 COPY libs/skills-hub/package.json libs/skills-hub/
 COPY libs/ui/package.json libs/ui/
+COPY libs/workflow/package.json libs/workflow/
 COPY e2e/package.json e2e/
 RUN npm ci --workspace=openjcockpit-frontend --include-workspace-root
 COPY libs libs

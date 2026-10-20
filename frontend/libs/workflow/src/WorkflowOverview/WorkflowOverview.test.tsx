@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { clickAsync, renderAsync } from '../../testUtils/dom';
+import { clickAsync, renderAsync } from '../testUtils/dom';
 import { WorkflowOverview } from './WorkflowOverview';
 import * as workflowApi from '@openjcockpit/api';
 import type { WorkflowDefinition } from '@openjcockpit/api';
@@ -14,7 +14,7 @@ vi.mock('../linkableAgents', async () => {
 });
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
-  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+  (await import('../testUtils/mockApi')).automockApiClients(await importOriginal()),
 );
 
 const WORKFLOW: WorkflowDefinition = {

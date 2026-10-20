@@ -25,6 +25,7 @@
     "@openjcockpit/spec-files": "*",
     "@openjcockpit/spec-queue": "*",
     "@openjcockpit/ui": "*",
+    "@openjcockpit/workflow": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

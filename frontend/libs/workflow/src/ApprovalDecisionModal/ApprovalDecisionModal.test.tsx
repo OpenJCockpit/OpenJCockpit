@@ -2,7 +2,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import type { ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { ApprovalDecisionModal } from './ApprovalDecisionModal';
-import { renderAsync } from '../../testUtils/dom';
+import { renderAsync } from '../testUtils/dom';
 import type { ApprovalGateContext } from '@openjcockpit/api';
 
 const BASE_CONTEXT: ApprovalGateContext = {

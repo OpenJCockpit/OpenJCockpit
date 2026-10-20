@@ -5,7 +5,7 @@ import * as workflowApi from '@openjcockpit/api';
 import type { A2AService } from '@openjcockpit/api';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
-  (await import('../../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
 );
 
 function service(overrides: Partial<A2AService> = {}): A2AService {

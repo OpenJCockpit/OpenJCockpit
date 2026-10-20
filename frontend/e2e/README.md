@@ -43,11 +43,11 @@ that qualifier.
 Selected by the `E2E_MODE` environment variable, default `full`. The suite is one config and one set
 of specs; the mode changes only which process serves the frontends and which readiness checks apply.
 
-|                                     | `E2E_MODE=reduced`                                                                       | `E2E_MODE=full` (default)                                                             |
-| ----------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Start with                          | `npm run stack:reduced` (from `e2e/`)                                                    | `docker compose up -d --build` (from the repo root — the existing, unchanged command) |
-| Dashboard `:4000`                   | Vite dev server, started and stopped by Playwright itself                                | nginx container, operator-owned                                                       |
-| Stop with                           | `npm run stack:reduced:stop` (from `e2e/`) — uses `docker compose stop`, never `down -v` | `docker compose stop` / leave running, operator's choice                              |
+|                   | `E2E_MODE=reduced`                                                                       | `E2E_MODE=full` (default)                                                             |
+| ----------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Start with        | `npm run stack:reduced` (from `e2e/`)                                                    | `docker compose up -d --build` (from the repo root — the existing, unchanged command) |
+| Dashboard `:4000` | Vite dev server, started and stopped by Playwright itself                                | nginx container, operator-owned                                                       |
+| Stop with         | `npm run stack:reduced:stop` (from `e2e/`) — uses `docker compose stop`, never `down -v` | `docker compose stop` / leave running, operator's choice                              |
 
 The two modes cannot run concurrently: the Vite dev server and the containerised dashboard both bind
 host port 4000. `globalSetup` detects an already-answering origin in reduced mode and fails fast,

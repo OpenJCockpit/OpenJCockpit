@@ -11,8 +11,8 @@ import {
 } from '@openjcockpit/api';
 import type { AgentDefinition, ApprovalDecisionKind, WorkflowDefinition } from '@openjcockpit/api';
 import { loadLinkableAgents } from '../linkableAgents';
-import { AgentSequencer } from '../../components/AgentSequencer/AgentSequencer';
-import { AgentLogConsole } from '../../components/AgentLogConsole/AgentLogConsole';
+import { AgentSequencer } from '../AgentSequencer/AgentSequencer';
+import { AgentLogConsole } from '../AgentLogConsole/AgentLogConsole';
 import { StatusChip, Eyebrow, Panel, fieldHintClass, cx, Button } from '@openjcockpit/ui';
 import { ApprovalDecisionModal } from '../ApprovalDecisionModal/ApprovalDecisionModal';
 import { WorkflowExecutionHistory } from '../WorkflowExecutionHistory/WorkflowExecutionHistory';

@@ -6,3 +6,4 @@ eslint-suppressions.json
 docs
 *.md
 public
+.vite

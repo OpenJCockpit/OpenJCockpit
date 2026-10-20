@@ -1,13 +1,13 @@
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { clickAsync, renderAsync } from '../../testUtils/dom';
+import { clickAsync, renderAsync } from '../testUtils/dom';
 import { WorkflowDashboard } from './WorkflowDashboard';
 import * as workflowApi from '@openjcockpit/api';
 import type { Project, WorkflowDefinition } from '@openjcockpit/api';
 import { tabActiveClass } from '@openjcockpit/ui';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
-  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+  (await import('../testUtils/mockApi')).automockApiClients(await importOriginal()),
 );
 
 const PROJECT: Project = {
