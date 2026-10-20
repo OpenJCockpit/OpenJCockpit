@@ -9,12 +9,12 @@ import {
 } from '@openjcockpit/project';
 import {
   getSpecInitStatus,
+  isAbortError,
   listWorkflowGroups,
   listWorkflows,
   loadProjectSpecs,
   loadProjects,
   loadWorkspace,
-  mockWorkspace,
   setAuthToken,
   workflowsForProject,
 } from '@openjcockpit/api';
@@ -56,6 +56,9 @@ type AppView =
   | 'skills-hub'
   | 'skills-hub-settings';
 
+// Failed list loads leave the previous (or empty) list in place; aborts are expected on cleanup.
+function ignoreAbortedAndFailed() {}
+
 const DEEP_LINK_VIEWS: AppView[] = ['spec-files'];
 
 function App() {
@@ -72,7 +75,8 @@ function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [runLink, setRunLink] = useState<{ workflowId: string; runId: string } | null>(null);
-  const [workspace, setWorkspace] = useState<Workspace>(mockWorkspace);
+  const [workspace, setWorkspace] = useState<Workspace | null>(null);
+  const [workspaceError, setWorkspaceError] = useState(false);
   const [specs, setSpecs] = useState<SpecFile[]>([]);
   const [specsLoading, setSpecsLoading] = useState(true);
   const [selectedSpecId, setSelectedSpecId] = useState<string>('');
@@ -92,6 +96,7 @@ function App() {
   useEffect(() => {
     const keycloak = getKeycloak();
     let refreshTimer: ReturnType<typeof setInterval>;
+    const controller = new AbortController();
     keycloak
       .init({ onLoad: 'login-required', pkceMethod: 'S256', checkLoginIframe: false })
       .then(async (authenticated) => {
@@ -101,7 +106,11 @@ function App() {
         }
         setAuthToken(keycloak.token);
         setUser(getUserFromToken(keycloak.tokenParsed));
-        const active = await loadProjects();
+        // A backend failure must not bounce the user back to the Keycloak login.
+        const active = await loadProjects(controller.signal).catch((err) => {
+          if (isAbortError(err)) throw err;
+          return [] as Project[];
+        });
         setProjects(active);
         const storedId = getStoredProjectId();
         const found = storedId ? active.find((p) => p.id === storedId) : undefined;
@@ -124,23 +133,32 @@ function App() {
           }
         }, 30_000);
       })
-      .catch(() => {
+      .catch((err) => {
+        if (isAbortError(err)) return;
         void keycloak.login();
       });
     return () => {
+      controller.abort();
       if (refreshTimer) window.clearInterval(refreshTimer);
     };
   }, [consumeDeepLink]);
 
-  async function reloadSpecs(projectId: string) {
+  async function reloadSpecs(projectId: string, signal?: AbortSignal) {
     setSpecsLoading(true);
-    const loaded = await loadProjectSpecs(projectId);
-    setSpecs(loaded);
-    const initial = loaded.find((s) => s.selected) ?? loaded[0];
-    setSelectedSpecId(initial?.id ?? '');
-    // Without specs, a spec-init branch (pull request) may already be open;
-    // in that case we show a link to that branch instead of a Start button.
-    setSpecInitStatus(loaded.length === 0 ? await getSpecInitStatus(projectId) : null);
+    try {
+      const loaded = await loadProjectSpecs(projectId, signal);
+      setSpecs(loaded);
+      const initial = loaded.find((s) => s.selected) ?? loaded[0];
+      setSelectedSpecId(initial?.id ?? '');
+      // Without specs, a spec-init branch (pull request) may already be open;
+      // in that case we show a link to that branch instead of a Start button.
+      setSpecInitStatus(loaded.length === 0 ? await getSpecInitStatus(projectId, signal) : null);
+    } catch (err) {
+      if (isAbortError(err)) return;
+      setSpecs([]);
+      setSelectedSpecId('');
+      setSpecInitStatus(null);
+    }
     setSpecsLoading(false);
   }
 
@@ -199,23 +217,20 @@ function App() {
   useEffect(() => {
     if (!authReady || !selectedProject) return;
     const customerId = selectedProject.customerId ?? selectedProject.id;
-    void loadWorkspace(customerId)
+    const controller = new AbortController();
+    const { signal } = controller;
+    setWorkspace(null);
+    setWorkspaceError(false);
+    loadWorkspace(customerId, signal)
       .then(setWorkspace)
-      .catch(() => {
-        // Error handled by API layer
+      .catch((err) => {
+        if (!isAbortError(err)) setWorkspaceError(true);
       });
     launcher.reset();
-    void reloadSpecs(selectedProject.id);
-    void listWorkflows()
-      .then(setWorkflows)
-      .catch(() => {
-        // Error handled by API layer
-      });
-    void listWorkflowGroups()
-      .then(setWorkflowGroups)
-      .catch(() => {
-        // Error handled by API layer
-      });
+    void reloadSpecs(selectedProject.id, signal);
+    listWorkflows(signal).then(setWorkflows).catch(ignoreAbortedAndFailed);
+    listWorkflowGroups(signal).then(setWorkflowGroups).catch(ignoreAbortedAndFailed);
+    return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- launcher.reset only needs to run when the project changes
   }, [authReady, selectedProject]);
 
@@ -365,7 +380,16 @@ function App() {
         />
 
         <main className={styles.workspace}>
-          <CustomerHero selectedProject={selectedProject} workspace={workspace} />
+          {workspace ? (
+            <CustomerHero selectedProject={selectedProject} workspace={workspace} />
+          ) : (
+            <StatusMessage
+              variant={workspaceError ? 'error' : 'loading'}
+              data-testid="workspace-status"
+            >
+              {workspaceError ? 'Failed to load the workspace.' : 'Loading workspace...'}
+            </StatusMessage>
+          )}
 
           <section className={styles.topTools}>
             <div className={styles.search}>
@@ -403,13 +427,17 @@ function App() {
               onOpenProjectSettings={() => setView('settings')}
             />
 
-            <QualityPanel controls={workspace.qualityControls} />
-            <PullRequestPanel pullRequests={workspace.pullRequests} />
-            <EvidencePanel events={workspace.evidenceEvents} />
+            {workspace && (
+              <>
+                <QualityPanel controls={workspace.qualityControls} />
+                <PullRequestPanel pullRequests={workspace.pullRequests} />
+                <EvidencePanel events={workspace.evidenceEvents} />
+              </>
+            )}
           </section>
         </main>
 
-        <StatusBar footer={workspace.footer} />
+        {workspace && <StatusBar footer={workspace.footer} />}
       </AppShell>
     </ErrorBoundary>
   );

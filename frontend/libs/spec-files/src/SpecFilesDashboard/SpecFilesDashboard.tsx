@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { loadProjectSpecs, saveSpecFile } from '@openjcockpit/api';
+import { isAbortError, loadProjectSpecs, saveSpecFile } from '@openjcockpit/api';
 import type { Project, SpecFile, SpecInitResult } from '@openjcockpit/api';
 import {
   IconBox,
@@ -55,15 +55,24 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue }: Props)
       return;
     }
     setLoading(true);
+    const controller = new AbortController();
     const loadSpecs = async () => {
-      const loaded = await loadProjectSpecs(project.id);
-      setSpecs(loaded);
-      const initial = loaded.find((s) => s.selected) ?? loaded[0];
-      setSelectedId(initial?.id ?? '');
-      setDraftContent(initial?.content ?? '');
+      try {
+        const loaded = await loadProjectSpecs(project.id, controller.signal);
+        setSpecs(loaded);
+        const initial = loaded.find((s) => s.selected) ?? loaded[0];
+        setSelectedId(initial?.id ?? '');
+        setDraftContent(initial?.content ?? '');
+      } catch (err) {
+        if (isAbortError(err)) return;
+        setSpecs([]);
+        setSelectedId('');
+        setDraftContent('');
+      }
       setLoading(false);
     };
     void loadSpecs();
+    return () => controller.abort();
   }, [project]);
 
   const selected = specs.find((s) => s.id === selectedId) ?? null;

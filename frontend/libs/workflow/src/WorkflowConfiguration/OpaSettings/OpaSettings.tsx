@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
-import { checkOpaHealth, getOpaConfig, mockOpaConfig, saveOpaConfig } from '@openjcockpit/api';
-import { StatusChip, CheckboxField, SecretField, SelectField, TextField } from '@openjcockpit/ui';
+import { checkOpaHealth, getOpaConfig, saveOpaConfig } from '@openjcockpit/api';
+import {
+  StatusChip,
+  CheckboxField,
+  SecretField,
+  SelectField,
+  StatusMessage,
+  TextField,
+} from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
 import { OPA_STATUS_KINDS, OPA_STATUS_LABELS, opaStatusFor } from './opaStatus';
 
@@ -36,6 +43,7 @@ export function OpaSettings() {
     projectLabel: '',
     authToken: '',
   });
+  const [loadError, setLoadError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
@@ -43,7 +51,6 @@ export function OpaSettings() {
   useEffect(() => {
     let cancelled = false;
     void getOpaConfig()
-      .catch(() => mockOpaConfig)
       .then((config) => {
         if (cancelled) return;
         setForm({
@@ -64,6 +71,9 @@ export function OpaSettings() {
         void checkOpaHealth().then((r) => {
           if (!cancelled) setReachable(r);
         });
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
       });
     return () => {
       cancelled = true;
@@ -102,6 +112,10 @@ export function OpaSettings() {
   }
 
   const status = opaStatusFor(form.enabled, form.baseUrl, reachable);
+
+  if (loadError) {
+    return <StatusMessage variant="error">Failed to load the OPA configuration.</StatusMessage>;
+  }
 
   return (
     <IntegrationConfigForm

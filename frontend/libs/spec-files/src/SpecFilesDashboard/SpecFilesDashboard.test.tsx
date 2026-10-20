@@ -62,7 +62,7 @@ describe('SpecFilesDashboard', () => {
       );
     });
 
-    expect(api.loadProjectSpecs).toHaveBeenCalledWith('project-1');
+    expect(api.loadProjectSpecs).toHaveBeenCalledWith('project-1', expect.any(AbortSignal));
     expect(await screen.findByDisplayValue('# Pricing rules')).toBeInTheDocument();
   });
 

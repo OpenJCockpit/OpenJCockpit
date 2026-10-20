@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 import * as api from '@openjcockpit/api';
-import { mockWorkspace } from '@openjcockpit/api';
+import { mockWorkspace } from '@openjcockpit/api/testing';
 import type { Project, SpecFile, WorkflowDefinition, WorkflowGroup } from '@openjcockpit/api';
 
 export const PROJECT: Project = {

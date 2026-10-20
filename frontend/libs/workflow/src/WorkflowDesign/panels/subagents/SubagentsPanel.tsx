@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ToolbarButton, StatusMessage } from '@openjcockpit/ui';
 import {
   createSubagentSpec,
   deleteSubagentSpec,
   generateSubagentSpec,
+  isAbortError,
   listSubagentSpecs,
   updateSubagentSpec,
 } from '@openjcockpit/api';
@@ -31,11 +32,22 @@ export function SubagentsPanel() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    listSubagentSpecs(controller.signal)
+      .then((s) => {
+        setItems(s);
+        setLoaded(true);
+      })
+      .catch((err) => {
+        if (isAbortError(err)) return;
+        setError(err instanceof Error ? err.message : 'Failed to load subagents');
+        setLoaded(true);
+      });
+    return () => controller.abort();
+  }, []);
+
   if (!loaded) {
-    void listSubagentSpecs().then((s) => {
-      setItems(s);
-      setLoaded(true);
-    });
     return <StatusMessage variant="loading">Loading subagents...</StatusMessage>;
   }
 

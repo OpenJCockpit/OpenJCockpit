@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WorkflowDesign } from './WorkflowDesign';
 import * as linkable from '../linkableAgents';
 import * as workflowApi from '@openjcockpit/api';
-import { mockSkillSpecs } from '@openjcockpit/api';
+import { mockSkillSpecs } from '@openjcockpit/api/testing';
 import type {
   ExternalSkill,
   SkillCatalog,

@@ -16,6 +16,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@openjcockpit/api": ["./libs/api/src/index.ts"],
+      "@openjcockpit/api/testing": ["./libs/api/src/testing/index.ts"],
       "@openjcockpit/auth": ["./libs/auth/src/index.ts"],
       "@openjcockpit/landing-hub": ["./libs/landing-hub/src/index.ts"],
       "@openjcockpit/project": ["./libs/project/src/index.ts"],

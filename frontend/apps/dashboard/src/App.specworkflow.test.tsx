@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import * as api from '@openjcockpit/api';
 import * as workflowApi from '@openjcockpit/api';
-import { mockWorkspace } from '@openjcockpit/api';
+import { mockWorkspace } from '@openjcockpit/api/testing';
 import type { SpecFile, WorkflowDefinition } from '@openjcockpit/api';
 import { mockDashboardApis, PROJECT, WORKFLOW } from './testUtils/dashboardFixtures';
 import { specStyles } from '@openjcockpit/ui';
@@ -88,7 +88,7 @@ describe('spec files in the left pane', () => {
   it('lists the spec files from the repository specs/ folder', async () => {
     await renderDashboard(SPECS);
 
-    expect(api.loadProjectSpecs).toHaveBeenCalledWith(PROJECT.id);
+    expect(api.loadProjectSpecs).toHaveBeenCalledWith(PROJECT.id, expect.any(AbortSignal));
     expect(screen.getAllByText('checkout-flow.md').length).toBeGreaterThan(0);
     expect(screen.getByText('pricing-rules.md')).toBeInTheDocument();
     expect(screen.queryByText('No Specs Found')).not.toBeInTheDocument();

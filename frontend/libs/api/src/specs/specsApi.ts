@@ -1,37 +1,22 @@
 import { errorMessageFrom } from '../core/httpErrors';
-import { API_BASE_URL, authHeaders } from '../core/http';
+import { API_BASE_URL, apiRequest, authHeaders } from '../core/http';
 import type { SpecFile, SpecInitResult, SpecInitStatus } from '../types/types';
 
-export async function loadProjectSpecs(projectId: string): Promise<SpecFile[]> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/spec-files`, {
-      headers: authHeaders(),
-    });
-    if (!response.ok) {
-      console.warn('Could not load spec files from repository: status', response.status);
-      return [];
-    }
-    return await response.json();
-  } catch (error) {
-    console.warn('Could not load spec files from repository', error);
-    return [];
-  }
+export function loadProjectSpecs(projectId: string, signal?: AbortSignal): Promise<SpecFile[]> {
+  return apiRequest(`/api/projects/${projectId}/spec-files`, {
+    signal,
+    errorMessage: 'Failed to load spec files',
+  });
 }
 
-export async function getSpecInitStatus(projectId: string): Promise<SpecInitStatus | null> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/spec-init/status`, {
-      headers: authHeaders(),
-    });
-    if (!response.ok) {
-      console.warn('Could not check spec-init status: status', response.status);
-      return null;
-    }
-    return await response.json();
-  } catch (error) {
-    console.warn('Could not check spec-init status', error);
-    return null;
-  }
+export function getSpecInitStatus(
+  projectId: string,
+  signal?: AbortSignal,
+): Promise<SpecInitStatus | null> {
+  return apiRequest(`/api/projects/${projectId}/spec-init/status`, {
+    signal,
+    errorMessage: 'Failed to check spec-init status',
+  });
 }
 
 export async function initSpecFolder(projectId: string): Promise<SpecInitResult> {

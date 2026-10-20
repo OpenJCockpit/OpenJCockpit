@@ -1,5 +1,5 @@
 import { errorMessageFrom } from '../core/httpErrors';
-import { API_BASE_URL, authHeaders } from '../core/http';
+import { API_BASE_URL, apiRequest, authHeaders } from '../core/http';
 import type {
   Project,
   ProjectGitCredentialDto,
@@ -8,28 +8,12 @@ import type {
   ProjectRequest,
 } from '../types/types';
 
-export async function loadProjects(): Promise<Project[]> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/projects`, {
-      headers: authHeaders(),
-    });
-    if (!response.ok) return [];
-    return await response.json();
-  } catch {
-    return [];
-  }
+export function loadProjects(signal?: AbortSignal): Promise<Project[]> {
+  return apiRequest('/api/projects', { signal, errorMessage: 'Failed to load projects' });
 }
 
-export async function loadAllProjects(): Promise<Project[]> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/projects/all`, {
-      headers: authHeaders(),
-    });
-    if (!response.ok) return [];
-    return await response.json();
-  } catch {
-    return [];
-  }
+export function loadAllProjects(signal?: AbortSignal): Promise<Project[]> {
+  return apiRequest('/api/projects/all', { signal, errorMessage: 'Failed to load projects' });
 }
 
 export async function createProject(req: ProjectRequest): Promise<Project> {

@@ -25,7 +25,7 @@ By default, the frontend tries to fetch the workspace via:
 /api/workspaces/noordzee-logistics
 ```
 
-If the backend is not reachable, the application falls back to the mock workspace in `libs/api` (`libs/api/src/workspace/mockWorkspace.ts`).
+If the backend is not reachable, the workspace panels show an error message. Fixture data for tests lives in `libs/api/src/testing` (import from `@openjcockpit/api/testing`).
 
 ## Build
 

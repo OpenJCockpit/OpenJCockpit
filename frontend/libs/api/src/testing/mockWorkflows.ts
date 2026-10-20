@@ -7,7 +7,7 @@ import {
   SkillSpec,
   SubagentSpec,
   WorkflowDefinition,
-} from './workflowTypes';
+} from '../workflow/workflowTypes';
 
 export const mockWorkflows: WorkflowDefinition[] = [
   {

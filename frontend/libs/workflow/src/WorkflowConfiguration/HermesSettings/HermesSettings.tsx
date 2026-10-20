@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getHermesConfig, mockHermesConfig, saveHermesConfig } from '@openjcockpit/api';
+import { getHermesConfig, saveHermesConfig } from '@openjcockpit/api';
 import { CheckboxField, SecretField, TextField, StatusMessage } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
 
@@ -25,6 +25,7 @@ export function HermesSettings({ projectId }: Props) {
     signalType: '',
     workflowId: '',
   });
+  const [loadError, setLoadError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
@@ -32,7 +33,6 @@ export function HermesSettings({ projectId }: Props) {
   useEffect(() => {
     let cancelled = false;
     void getHermesConfig(projectId)
-      .catch(() => mockHermesConfig)
       .then((hermes) => {
         if (cancelled) return;
         setForm({
@@ -44,6 +44,9 @@ export function HermesSettings({ projectId }: Props) {
         });
         setHasAuthToken(hermes.hasAuthToken);
         setLoaded(true);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
       });
     return () => {
       cancelled = true;
@@ -71,6 +74,10 @@ export function HermesSettings({ projectId }: Props) {
     } finally {
       setSaving(false);
     }
+  }
+
+  if (loadError) {
+    return <StatusMessage variant="error">Failed to load the Hermes configuration.</StatusMessage>;
   }
 
   if (!loaded) return <StatusMessage variant="loading">Loading configuration...</StatusMessage>;
