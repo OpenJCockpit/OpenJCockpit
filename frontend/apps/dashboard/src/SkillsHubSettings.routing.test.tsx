@@ -1,11 +1,11 @@
 import { act, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import App from '../../App';
+import App from './App';
 import * as api from '@openjcockpit/api';
 import * as workflowApi from '@openjcockpit/api';
 import { mockWorkspace } from '@openjcockpit/api';
 import type { Project } from '@openjcockpit/api';
-import { enterDashboard } from '../../testUtils/dom';
+import { enterDashboard } from './testUtils/dom';
 
 // This file renders the full <App>, which (via api.ts) touches `localStorage`.
 // It intentionally does NOT rely on any global localStorage shim from
@@ -33,7 +33,7 @@ function createLocalStorageStub(): Storage {
 
 vi.mock(
   '@openjcockpit/landing-hub',
-  async () => (await import('../../testUtils/landingHubStub')).landingHubStub,
+  async () => (await import('./testUtils/landingHubStub')).landingHubStub,
 );
 
 vi.mock('@openjcockpit/auth', async () => ({

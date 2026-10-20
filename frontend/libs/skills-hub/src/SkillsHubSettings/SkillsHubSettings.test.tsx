@@ -3,10 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SkillsHubSettings } from './SkillsHubSettings';
 import * as api from '@openjcockpit/api';
 import type { SkillsMarketplaceConnection } from '@openjcockpit/api';
-import { clickAsync, renderAsync, setInputValue } from '../../testUtils/dom';
+import { clickAsync, renderAsync, setInputValue } from '../testUtils';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
-  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+  (await import('../testUtils')).automockApiClients(await importOriginal()),
 );
 
 const CONNECTION: SkillsMarketplaceConnection = {
