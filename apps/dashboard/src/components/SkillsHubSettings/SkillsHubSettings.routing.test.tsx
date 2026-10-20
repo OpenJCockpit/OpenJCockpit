@@ -4,6 +4,7 @@ import App from '../../App';
 import * as api from '../../api';
 import * as workflowApi from '../../workflow/workflowApi';
 import { mockWorkspace } from '../../mockWorkspace';
+import { enterDashboard } from '../../testUtils/dom';
 import type { Project } from '../../types';
 
 // This file renders the full <App>, which (via api.ts) touches `localStorage`.
@@ -29,6 +30,11 @@ function createLocalStorageStub(): Storage {
     length: 0,
   };
 }
+
+vi.mock(
+  '@openjcockpit/landing-hub',
+  async () => (await import('../../testUtils/landingHubStub')).landingHubStub,
+);
 
 vi.mock('@openjcockpit/auth', async () => ({
   ...(await vi.importActual<typeof import('@openjcockpit/auth')>('@openjcockpit/auth')),
@@ -96,6 +102,7 @@ describe('Skills Hub Settings — routing (AC-27)', () => {
     await act(async () => {
       render(<App />);
     });
+    await enterDashboard();
     await screen.findByText('🧩 Skills Hub');
 
     await act(async () => {

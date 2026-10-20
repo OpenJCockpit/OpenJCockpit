@@ -8,6 +8,11 @@ import { mockDashboardApis, PROJECT, WORKFLOW } from './testUtils/dashboardFixtu
 import type { SpecFile } from './types';
 import type { WorkflowDefinition } from './workflow/workflowTypes';
 import { specStyles } from '@openjcockpit/ui';
+import { enterDashboard } from './testUtils/dom';
+vi.mock(
+  '@openjcockpit/landing-hub',
+  async () => (await import('./testUtils/landingHubStub')).landingHubStub,
+);
 
 vi.mock('@openjcockpit/auth', async () => ({
   ...(await vi.importActual<typeof import('@openjcockpit/auth')>('@openjcockpit/auth')),
@@ -82,6 +87,7 @@ async function renderDashboard(specs: SpecFile[], workflows: WorkflowDefinition[
   vi.mocked(api.getSpecInitStatus).mockResolvedValue({ pending: false });
 
   render(<App />);
+  await enterDashboard();
   await screen.findByText('▶ Start');
 }
 
@@ -317,6 +323,7 @@ describe('when a spec-init pull request is already open', () => {
     });
 
     render(<App />);
+    await enterDashboard();
     await screen.findByText('Pull request open');
   }
 
@@ -395,6 +402,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
     });
 
     render(<App />);
+    await enterDashboard();
     await screen.findByText('✨ Create spec with prompt');
   }
 

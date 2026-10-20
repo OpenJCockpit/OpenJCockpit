@@ -12,6 +12,8 @@ interface Props {
   onSpecQueue: () => void;
   onSkillsHub: () => void;
   onSettings: () => void;
+  onHub: () => void;
+  onLogout: () => void;
 }
 
 export function SiteHeader({
@@ -23,12 +25,14 @@ export function SiteHeader({
   onSpecQueue,
   onSkillsHub,
   onSettings,
+  onHub,
+  onLogout,
 }: Props) {
   return (
     <header className={shell.siteHeader}>
-      <div className={shell.brand}>
+      <button type="button" className={shell.brand} onClick={onHub} title="Back to hub">
         <BrandLogo />
-      </div>
+      </button>
 
       <nav className={styles.mainNav} aria-label="Primary navigation">
         <a href="#approach">Approach</a>
@@ -88,15 +92,11 @@ export function SiteHeader({
         <Button variant="secondary" onClick={onSettings} title="Project management">
           ⚙
         </Button>
-        <Button
-          variant="secondary"
-          onClick={() => {
-            window.location.href = 'http://localhost:3000';
-          }}
-          title="Back to portal"
-          data-testid="nav-portal"
-        >
-          ← Portal
+        <Button variant="secondary" onClick={onHub} title="Back to hub" data-testid="nav-hub">
+          ← Hub
+        </Button>
+        <Button variant="secondary" onClick={onLogout} title="Log out" data-testid="nav-logout">
+          Logout
         </Button>
         <span className={styles.notification}>3</span>
         <span className={styles.avatar}>D</span>

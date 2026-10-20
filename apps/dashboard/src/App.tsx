@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ToolbarButton } from './components/ToolbarButton/ToolbarButton';
 import {
   clearStoredProjectId,
@@ -10,7 +10,10 @@ import {
   setAuthToken,
   setStoredProjectId,
 } from './api';
-import { getKeycloak } from '@openjcockpit/auth';
+import { getKeycloak, getUserFromToken } from '@openjcockpit/auth';
+import type { User } from '@openjcockpit/auth';
+import { LandingHub } from '@openjcockpit/landing-hub';
+import type { PortalId } from '@openjcockpit/landing-hub';
 import type { Project, SpecFile, SpecInitStatus, Workspace } from './types';
 import { mockWorkspace } from './mockWorkspace';
 import { ProjectSelection } from './components/ProjectSelection/ProjectSelection';
@@ -38,6 +41,7 @@ import styles from './App.module.scss';
 import { StatusMessage } from './components/StatusMessage/StatusMessage';
 
 type AppView =
+  | 'landing'
   | 'project-selection'
   | 'dashboard'
   | 'settings'
@@ -51,11 +55,15 @@ const DEEP_LINK_VIEWS: AppView[] = ['spec-files'];
 
 function App() {
   const [authReady, setAuthReady] = useState(false);
-  const [view, setView] = useState<AppView>('project-selection');
-  const [pendingView, setPendingView] = useState<AppView | null>(() => {
-    const requested = new URLSearchParams(window.location.search).get('view');
-    return DEEP_LINK_VIEWS.includes(requested as AppView) ? (requested as AppView) : null;
-  });
+  const [view, setView] = useState<AppView>('landing');
+  const [user, setUser] = useState<User | null>(null);
+  // A ref, not state: the auth effect reads it, and changing it must never re-run Keycloak init.
+  const pendingViewRef = useRef<AppView | null>(
+    (() => {
+      const requested = new URLSearchParams(window.location.search).get('view');
+      return DEEP_LINK_VIEWS.includes(requested as AppView) ? (requested as AppView) : null;
+    })(),
+  );
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [runLink, setRunLink] = useState<{ workflowId: string; runId: string } | null>(null);
@@ -67,16 +75,14 @@ function App() {
   const [workflowGroups, setWorkflowGroups] = useState<WorkflowGroup[]>([]);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string>('');
 
-  const consumeDeepLink = useCallback(
-    (fallback: AppView) => {
-      setView(pendingView ?? fallback);
-      if (pendingView) {
-        setPendingView(null);
-        window.history.replaceState({}, '', window.location.pathname);
-      }
-    },
-    [pendingView],
-  );
+  const consumeDeepLink = useCallback((fallback: AppView) => {
+    const pending = pendingViewRef.current;
+    setView(pending ?? fallback);
+    if (pending) {
+      pendingViewRef.current = null;
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     const keycloak = getKeycloak();
@@ -89,18 +95,17 @@ function App() {
           return;
         }
         setAuthToken(keycloak.token);
+        setUser(getUserFromToken(keycloak.tokenParsed));
         const active = await loadProjects();
         setProjects(active);
         const storedId = getStoredProjectId();
-        if (storedId) {
-          const found = active.find((p) => p.id === storedId);
-          if (found) {
-            setSelectedProject(found);
-            consumeDeepLink('dashboard');
-          } else {
-            clearStoredProjectId();
-            setView('project-selection');
-          }
+        const found = storedId ? active.find((p) => p.id === storedId) : undefined;
+        if (storedId && !found) clearStoredProjectId();
+        if (found) setSelectedProject(found);
+        if (!pendingViewRef.current) {
+          setView('landing');
+        } else if (found) {
+          consumeDeepLink('dashboard');
         } else {
           setView('project-selection');
         }
@@ -138,6 +143,20 @@ function App() {
     setSelectedProject(project);
     setStoredProjectId(project.id);
     consumeDeepLink('dashboard');
+  }
+
+  function handleSelectPortal(portal: PortalId) {
+    if (portal === 'business') {
+      pendingViewRef.current = 'spec-files';
+      if (selectedProject) consumeDeepLink('dashboard');
+      else setView('project-selection');
+    } else {
+      setView(selectedProject ? 'dashboard' : 'project-selection');
+    }
+  }
+
+  function handleLogout() {
+    void getKeycloak().logout({ redirectUri: window.location.origin });
   }
 
   function handleProjectDropdownChange(projectId: string) {
@@ -200,6 +219,24 @@ function App() {
       <StatusMessage variant="loading" data-testid="auth-loading">
         Authenticating...
       </StatusMessage>
+    );
+  }
+
+  if (view === 'landing') {
+    return (
+      <Suspense
+        fallback={
+          <StatusMessage variant="loading" data-testid="hub-loading">
+            Loading...
+          </StatusMessage>
+        }
+      >
+        <LandingHub
+          user={user ?? getUserFromToken(undefined)}
+          onSelectPortal={handleSelectPortal}
+          onLogout={handleLogout}
+        />
+      </Suspense>
     );
   }
 
@@ -291,6 +328,8 @@ function App() {
         onSpecQueue={() => setView('spec-queue')}
         onSkillsHub={() => setView('skills-hub')}
         onSettings={() => setView('settings')}
+        onHub={() => setView('landing')}
+        onLogout={handleLogout}
       />
 
       <main className={styles.workspace}>
