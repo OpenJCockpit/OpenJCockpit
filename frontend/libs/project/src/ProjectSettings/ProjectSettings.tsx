@@ -5,6 +5,7 @@ import {
   deactivateProject,
   deleteGitCredentials,
   getGitCredentials,
+  isAbortError,
   loadAllProjects,
   saveGitCredentials,
   triggerGitCheck,
@@ -66,17 +67,19 @@ export function ProjectSettings({ onBack }: Props) {
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!loaded) {
-      void loadAllProjects()
-        .then((p) => {
-          setProjects(p);
-          setLoaded(true);
-        })
-        .catch((err) => {
-          setError('Failed to load projects.');
-          console.error(err);
-        });
-    }
+    if (loaded) return;
+    const controller = new AbortController();
+    loadAllProjects(controller.signal)
+      .then((p) => {
+        setProjects(p);
+        setLoaded(true);
+      })
+      .catch((err) => {
+        if (isAbortError(err)) return;
+        setError('Failed to load projects.');
+        console.error(err);
+      });
+    return () => controller.abort();
   }, [loaded]);
 
   if (!loaded) {

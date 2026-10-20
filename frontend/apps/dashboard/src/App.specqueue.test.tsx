@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import * as api from '@openjcockpit/api';
-import { mockWorkspace } from '@openjcockpit/api';
+import { mockWorkspace } from '@openjcockpit/api/testing';
 import type { Project, SpecFile, SpecQueue, WorkflowDefinition } from '@openjcockpit/api';
 import * as queueApi from '@openjcockpit/api';
 import * as workflowApi from '@openjcockpit/api';

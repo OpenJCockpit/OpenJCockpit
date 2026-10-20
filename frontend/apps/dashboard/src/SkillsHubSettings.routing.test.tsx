@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import * as api from '@openjcockpit/api';
 import * as workflowApi from '@openjcockpit/api';
-import { mockWorkspace } from '@openjcockpit/api';
+import { mockWorkspace } from '@openjcockpit/api/testing';
 import type { Project } from '@openjcockpit/api';
 import { enterDashboard } from './testUtils/dom';
 

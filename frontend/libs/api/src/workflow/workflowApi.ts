@@ -1,4 +1,4 @@
-import { API_BASE_URL, authHeaders } from '../core/http';
+import { API_BASE_URL, apiRequest, authHeaders } from '../core/http';
 import { errorMessageFrom } from '../core/httpErrors';
 import {
   A2AAgentCard,
@@ -32,18 +32,13 @@ import {
   WorkflowStartResponse,
 } from './workflowTypes';
 import type { AgentRun } from '../types/types';
-import { mockSkillSpecs, mockSubagentSpecs } from './mockWorkflows';
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 // ── Workflows ────────────────────────────────────────────────────────────
 
-export async function listWorkflows(): Promise<WorkflowDefinition[]> {
-  const response = await fetch(`${API_BASE_URL}/api/workflows`, {
-    headers: authHeaders(),
-  });
-  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to load workflows'));
-  return response.json();
+export function listWorkflows(signal?: AbortSignal): Promise<WorkflowDefinition[]> {
+  return apiRequest('/api/workflows', { signal, errorMessage: 'Failed to load workflows' });
 }
 
 export async function getWorkflow(id: string): Promise<WorkflowDefinition> {
@@ -103,20 +98,11 @@ export async function startWorkflow(
 
 // ── Workflow groups & export/import ──────────────────────────────────────
 
-export async function listWorkflowGroups(): Promise<WorkflowGroup[]> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/workflow-groups`, {
-      headers: authHeaders(),
-    });
-    if (!response.ok) {
-      console.warn('Falling back to empty workflow groups: status', response.status);
-      return [];
-    }
-    return await response.json();
-  } catch (error) {
-    console.warn('Falling back to empty workflow groups', error);
-    return [];
-  }
+export function listWorkflowGroups(signal?: AbortSignal): Promise<WorkflowGroup[]> {
+  return apiRequest('/api/workflow-groups', {
+    signal,
+    errorMessage: 'Failed to load workflow groups',
+  });
 }
 
 export async function createWorkflowGroup(request: WorkflowGroup): Promise<WorkflowGroup> {
@@ -321,17 +307,11 @@ export async function generateAgentSpec(prompt: string): Promise<AgentSpec> {
 
 // ── Subagent definitions ─────────────────────────────────────────────────
 
-export async function listSubagentSpecs(): Promise<SubagentSpec[]> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/subagent-definitions`, {
-      headers: authHeaders(),
-    });
-    if (!response.ok) return mockSubagentSpecs;
-    return await response.json();
-  } catch (error) {
-    console.warn('Falling back to mock subagent definitions', error);
-    return mockSubagentSpecs;
-  }
+export function listSubagentSpecs(signal?: AbortSignal): Promise<SubagentSpec[]> {
+  return apiRequest('/api/subagent-definitions', {
+    signal,
+    errorMessage: 'Failed to load subagent definitions',
+  });
 }
 
 export async function createSubagentSpec(request: SubagentSpec): Promise<SubagentSpec> {
@@ -377,17 +357,11 @@ export async function generateSubagentSpec(prompt: string): Promise<SubagentSpec
 
 // ── Skill definitions ────────────────────────────────────────────────────
 
-export async function listSkillSpecs(): Promise<SkillSpec[]> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/skill-definitions`, {
-      headers: authHeaders(),
-    });
-    if (!response.ok) return mockSkillSpecs;
-    return await response.json();
-  } catch (error) {
-    console.warn('Falling back to mock skill definitions', error);
-    return mockSkillSpecs;
-  }
+export function listSkillSpecs(signal?: AbortSignal): Promise<SkillSpec[]> {
+  return apiRequest('/api/skill-definitions', {
+    signal,
+    errorMessage: 'Failed to load skill definitions',
+  });
 }
 
 export async function createSkillSpec(request: SkillSpec): Promise<SkillSpec> {

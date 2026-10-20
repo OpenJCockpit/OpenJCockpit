@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  getDocumentFolderConfig,
-  mockDocumentFolderConfig,
-  saveDocumentFolderConfig,
-} from '@openjcockpit/api';
+import { getDocumentFolderConfig, saveDocumentFolderConfig } from '@openjcockpit/api';
 import type { Project } from '@openjcockpit/api';
 import { CheckboxField, TextField, StatusMessage } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
@@ -37,6 +33,7 @@ export function DocumentFolderSettings({ project }: Props) {
   });
   const [folderName, setFolderName] = useState('');
   const [folderBasePath, setFolderBasePath] = useState(DEFAULT_FOLDER_BASE_PATH);
+  const [loadError, setLoadError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
@@ -44,7 +41,6 @@ export function DocumentFolderSettings({ project }: Props) {
   useEffect(() => {
     let cancelled = false;
     void getDocumentFolderConfig(project.id)
-      .catch(() => ({ ...mockDocumentFolderConfig, folderName: project.name }))
       .then((folder) => {
         if (cancelled) return;
         const camelFolderName = toCamelCaseFolderName(folder.folderName || project.name);
@@ -61,6 +57,9 @@ export function DocumentFolderSettings({ project }: Props) {
         setFolderName(camelFolderName);
         setFolderBasePath(basePath);
         setLoaded(true);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
       });
     return () => {
       cancelled = true;
@@ -90,6 +89,14 @@ export function DocumentFolderSettings({ project }: Props) {
     } finally {
       setSaving(false);
     }
+  }
+
+  if (loadError) {
+    return (
+      <StatusMessage variant="error">
+        Failed to load the document folder configuration.
+      </StatusMessage>
+    );
   }
 
   if (!loaded) return <StatusMessage variant="loading">Loading configuration...</StatusMessage>;
