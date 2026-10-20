@@ -22,13 +22,13 @@
  */
 
 import { test, expect } from '../support/fixtures.js';
-import { env } from '../support/env.js';
+import { enterDashboard } from '../support/enterDashboard.js';
 
 test.describe('AC-11: rejected empty submission on ProjectSettings is accessible', () => {
   test('empty required name field renders an accessible, associated error and keeps focus on the invalid input', async ({
     page,
   }) => {
-    await page.goto(env.dashboardBaseUrl);
+    await enterDashboard(page);
 
     // Navigate from the project-selection grid into project settings. The
     // footer control's accessible name is "⚙ Manage projects" — matched

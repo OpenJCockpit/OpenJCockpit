@@ -4,6 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json nx.json tsconfig.base.json ./
 COPY apps/dashboard/package.json apps/dashboard/
 COPY libs/auth/package.json libs/auth/
+COPY libs/landing-hub/package.json libs/landing-hub/
 COPY libs/ui/package.json libs/ui/
 COPY e2e/package.json e2e/
 RUN npm ci --workspace=openjcockpit-frontend --include-workspace-root

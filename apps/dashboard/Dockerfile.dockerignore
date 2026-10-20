@@ -8,7 +8,6 @@
 .idea/
 .DS_Store
 *.log
-apps/landing
 apps/dashboard/visual/shots
 e2e/*
 !e2e/package.json

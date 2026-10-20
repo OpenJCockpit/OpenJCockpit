@@ -45,7 +45,7 @@
  */
 
 import { test, expect } from '../support/fixtures.js';
-import { env } from '../support/env.js';
+import { enterDashboard } from '../support/enterDashboard.js';
 import { testIds } from '../support/testIds.js';
 import { SEEDED_PROJECT_NAME } from '../support/seedData.js';
 
@@ -58,7 +58,7 @@ test.describe('workflow-trigger-workflow-orb: chained-workflow authoring end to 
     const parentName = `E2E Orb Parent ${unique}`;
     const project = `e2e-orb-${unique}`;
 
-    await page.goto(env.dashboardBaseUrl);
+    await enterDashboard(page);
 
     // Enter the workspace via the seeded project, then into Workflow Design
     // & Execution → Design (the same navigation `dashboard-workspace.spec.ts`

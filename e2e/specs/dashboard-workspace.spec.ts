@@ -28,7 +28,7 @@
  */
 
 import { test, expect } from '../support/fixtures.js';
-import { env } from '../support/env.js';
+import { enterDashboard } from '../support/enterDashboard.js';
 import { testIds } from '../support/testIds.js';
 import { SEEDED_PROJECT_NAME } from '../support/seedData.js';
 
@@ -36,7 +36,7 @@ test.describe('AC-10: dashboard project grid is genuinely backend-derived', () =
   test('positive proof: the Flyway-seeded "Noordzee Logistics" project card is visible (presence only, no count assertion)', async ({
     page,
   }) => {
-    await page.goto(env.dashboardBaseUrl);
+    await enterDashboard(page);
 
     const seededCard = page
       .getByTestId(testIds.projectCard)
@@ -73,7 +73,7 @@ test.describe('AC-10: dashboard project grid is genuinely backend-derived', () =
       route.fulfill({ status: 200, contentType: 'application/json', body: 'not valid json' }),
     );
 
-    await page.goto(env.dashboardBaseUrl);
+    await enterDashboard(page);
 
     await expect(page.getByTestId(testIds.projectSelectionEmpty)).toBeVisible();
     await expect(page.getByTestId(testIds.projectCard)).toHaveCount(0);

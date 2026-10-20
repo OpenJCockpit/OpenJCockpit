@@ -21,7 +21,7 @@
     {
       "clientId": "openjcockpit",
       "name": "openjcockpit",
-      "description": "OpenJCockpit landing page SPA",
+      "description": "OpenJCockpit dashboard SPA (hub and dashboard)",
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": true,
@@ -31,20 +31,16 @@
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": false,
       "frontchannelLogout": true,
-      "rootUrl": "http://localhost:3000",
+      "rootUrl": "http://localhost:4000",
       "baseUrl": "/",
-      "adminUrl": "http://localhost:3000",
+      "adminUrl": "http://localhost:4000",
       "redirectUris": [
-        "http://localhost:3000/*",
-        "http://127.0.0.1:3000/*",
         "http://localhost:5173/*",
         "http://127.0.0.1:5173/*",
         "http://localhost:4000/*",
         "http://127.0.0.1:4000/*"
       ],
       "webOrigins": [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:4000",

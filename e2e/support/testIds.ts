@@ -1,7 +1,7 @@
 /**
  * The single source of truth for `data-testid` string literals used by
  * specs. Values must stay byte-identical to the literals added to
- * production markup in `apps/dashboard` and `apps/landing` (architecture
+ * production markup in `apps/dashboard` and `libs/landing-hub` (architecture
  * §11, the closed list — eleven attributes across six files). Renaming a
  * value here without a matching production-markup change is a two-file
  * change, and grep finds both.
@@ -20,7 +20,7 @@ export const testIds = {
   addToQueueSpecError: 'add-to-queue-spec-error',
   addToQueueSubmit: 'add-to-queue-submit',
   addToQueueSubmitReason: 'add-to-queue-submit-reason',
-  navPortal: 'nav-portal',
+  navHub: 'nav-hub',
   projectCard: 'project-card',
   projectSelectionEmpty: 'project-selection-empty',
   authStatusScreen: 'auth-status-screen',
@@ -29,10 +29,10 @@ export const testIds = {
 } as const;
 
 /**
- * `apps/landing/src/components/PortalOrb/PortalOrb.jsx` renders
+ * `libs/landing-hub/src/PortalOrb/PortalOrb.tsx` renders
  * `data-testid={`portal-orb-${portal.id}`}` for each portal orb. The two
  * portal ids are confirmed against the shipped
- * `apps/landing/src/screens/LandingPage/LandingPage.jsx` (`portals` array):
+ * `libs/landing-hub/src/LandingPage/LandingPage.tsx` (`portals` array):
  * `business` and `implementation`.
  */
 export const PORTAL_ORB_IDS = {

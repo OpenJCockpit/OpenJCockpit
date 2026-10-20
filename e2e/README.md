@@ -1,7 +1,7 @@
 # Playwright E2E harness
 
-This is the repository's single Playwright installation (AC-01). It drives `apps/dashboard` and
-`apps/landing` against a running local stack — it never starts, stops, or wipes that stack itself.
+This is the repository's single Playwright installation (AC-01). It drives `apps/dashboard` (including the
+landing hub) against a running local stack — it never starts, stops, or wipes that stack itself.
 
 **Before you read the rest of this file:** this suite does **not** cover the platform's core value
 path — agent pipelines writing code to customer repositories. It never runs `embabel-agent-service`
@@ -22,7 +22,7 @@ that qualifier.
   boot with a blank value. **No scenario in this suite ever makes an LLM call and no valid/working key
   is required** — the variable only needs to be _set to some non-empty string_ so the service can
   boot. `.env.example`'s placeholder value is sufficient.
-- Ports **3000**, **4000**, **8080**, **9080** free of anything other than the mode you are about to
+- Ports **4000**, **8080**, **9080** free of anything other than the mode you are about to
   run (see "Two modes" below — the two modes cannot run at the same time on these ports).
 
 ### Additional prerequisites for the agent ⇄ LiteLLM check
@@ -31,7 +31,7 @@ that qualifier.
 - `litellm`, `local-seed`, and `embabel-agent-service` running.
 - Host Ollama running, with the `E2E_OLLAMA_MODEL`/`OLLAMA_MODEL` tag already pulled.
 - Host ports `4100` (LiteLLM), `8091` (`embabel-agent-service`), and `11434` (host Ollama) reachable.
-- `npm run e2e:llm` additionally requires `keycloak`, `ai-control-service`, `dashboard`, and `landing`
+- `npm run e2e:llm` additionally requires `keycloak`, `ai-control-service`, and `dashboard`
   to be running too: Playwright's global setup gates on Keycloak/`ai-control-service` readiness, and
   the `dashboard` Playwright project's `dependencies: ['setup']` performs a real browser login against
   `:4000` even when only this one spec file is targeted.
@@ -46,12 +46,12 @@ of specs; the mode changes only which process serves the frontends and which rea
 |                                     | `E2E_MODE=reduced`                                                                       | `E2E_MODE=full` (default)                                                             |
 | ----------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | Start with                          | `npm run stack:reduced` (from `e2e/`)                                                    | `docker compose up -d --build` (from the repo root — the existing, unchanged command) |
-| Dashboard `:4000` / landing `:3000` | Vite dev servers, started and stopped by Playwright itself                               | nginx containers, operator-owned                                                      |
+| Dashboard `:4000`                   | Vite dev server, started and stopped by Playwright itself                                | nginx container, operator-owned                                                       |
 | Stop with                           | `npm run stack:reduced:stop` (from `e2e/`) — uses `docker compose stop`, never `down -v` | `docker compose stop` / leave running, operator's choice                              |
 
 The two modes cannot run concurrently: the Vite dev server and the containerised dashboard both bind
 host port 4000. `globalSetup` detects an already-answering origin in reduced mode and fails fast,
-naming BR-21 and telling you to `docker compose stop dashboard landing` first.
+naming BR-21 and telling you to `docker compose stop dashboard` first.
 
 Full mode is the production-like mode: it drives the same nginx-built container images that
 `docker-compose.yml` runs for a real deployment, not a dev server. Prefer it when the question is
@@ -95,7 +95,6 @@ green with none of them set, given the documented environment.
 | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `E2E_MODE`                     | `full`                                                                                                                                              | selects `reduced` or `full` orchestration                                                |
 | `E2E_DASHBOARD_BASE_URL`       | `http://localhost:4000`                                                                                                                             | dashboard project base URL                                                               |
-| `E2E_LANDING_BASE_URL`         | `http://localhost:3000`                                                                                                                             | landing project base URL                                                                 |
 | `E2E_KEYCLOAK_URL`             | `http://localhost:8080`                                                                                                                             | setup project, readiness, Direct Access Grant                                            |
 | `E2E_KEYCLOAK_REALM`           | `openjcockpit`                                                                                                                                      | as above                                                                                 |
 | `E2E_KEYCLOAK_CLIENT_ID`       | `openjcockpit`                                                                                                                                      | as above (public client — no secret variable exists anywhere in this harness)            |
@@ -304,18 +303,18 @@ dependencies needing separate sign-off.
 - **Automated accessibility scanning** (e.g. axe or equivalent) as a gate. Targeted keyboard/ARIA
   assertions live inside individual scenarios; an automated scanner is a separate tool and a separate
   requirement.
-- **The landing intro overlay's own reduced-motion gap (F3, pre-existing, not introduced by this
-  delivery).** `apps/landing/src/screens/IntroGreeting/IntroGreeting.jsx` dismisses its full-screen
+- **The hub intro overlay's own reduced-motion gap (F3, pre-existing, not introduced by this
+  delivery).** `libs/landing-hub/src/IntroGreeting/IntroGreeting.tsx` dismisses its full-screen
   overlay with a plain `window.setTimeout(onDone, 2850)` that does **not** check
   `prefers-reduced-motion`, so the ~2.85s overlay covers the hero even under Playwright's
-  `reducedMotion: 'reduce'` emulation. This suite's landing specs wait for the overlay to appear and
+  `reducedMotion: 'reduce'` emulation. This suite's hub specs wait (`enterHub` in `support/enterDashboard.ts`) for the overlay to appear and
   then be removed from the DOM as an explicit condition before interacting with anything beneath it —
   they deliberately do **not** assert anything about the overlay's own timing, and AC-24 in those specs
   proves only that the _rest_ of the flow, past the overlay, respects reduced motion. This gap is
   recorded here, not fixed, since fixing it would be a user-visible behaviour change with no
   test-driven necessity.
 - **"Visible focus indicator" (AC-21) is verified as real DOM focus, not rendered focus-ring pixels.**
-  `dashboard-a11y.spec.ts` and `landing-portal.spec.ts` drive focus with real keyboard `Tab` presses and
+  `dashboard-a11y.spec.ts` and `hub-portal.spec.ts` drive focus with real keyboard `Tab` presses and
   assert the correct element has DOM focus (`toBeFocused()`) at each stop. Neither inspects whether a
   focus ring is actually painted on screen — that would need a visual/screenshot-based check, which is
   out of scope (see "Visual regression" above).

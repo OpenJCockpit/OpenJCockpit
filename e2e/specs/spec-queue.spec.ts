@@ -10,6 +10,7 @@
 import { test, expect } from '../support/fixtures.js';
 import type { Page } from '@playwright/test';
 import { env } from '../support/env.js';
+import { enterDashboard } from '../support/enterDashboard.js';
 import { requestAccessToken } from '../support/keycloak.js';
 import { SEEDED_PROJECT_ID, SEEDED_PROJECT_NAME } from '../support/seedData.js';
 import { testIds } from '../support/testIds.js';
@@ -39,7 +40,7 @@ async function stubSpecFilesFailure(page: Page): Promise<void> {
 }
 
 async function openQueueView(page: Page): Promise<void> {
-  await page.goto(env.dashboardBaseUrl);
+  await enterDashboard(page);
   await page
     .getByTestId(testIds.projectCard)
     .filter({ hasText: SEEDED_PROJECT_NAME })

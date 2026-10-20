@@ -18,7 +18,6 @@ export type E2eMode = 'reduced' | 'full';
 export interface E2eEnv {
   mode: E2eMode;
   dashboardBaseUrl: string;
-  landingBaseUrl: string;
   keycloakUrl: string;
   keycloakRealm: string;
   keycloakClientId: string;
@@ -115,7 +114,6 @@ function assertLocalhost(varName: string, url: string): void {
 function resolveEnv(): E2eEnv {
   const mode = readMode('E2E_MODE', 'full');
   const dashboardBaseUrl = readString('E2E_DASHBOARD_BASE_URL', 'http://localhost:4000');
-  const landingBaseUrl = readString('E2E_LANDING_BASE_URL', 'http://localhost:3000');
   const keycloakUrl = readString('E2E_KEYCLOAK_URL', 'http://localhost:8080');
   const apiBaseUrl = readString('E2E_API_BASE_URL', 'http://localhost:9080');
   const litellmBaseUrl = readString('E2E_LITELLM_BASE_URL', 'http://localhost:4100');
@@ -123,7 +121,6 @@ function resolveEnv(): E2eEnv {
   const ollamaBaseUrl = readString('E2E_OLLAMA_BASE_URL', 'http://localhost:11434');
 
   assertLocalhost('E2E_DASHBOARD_BASE_URL', dashboardBaseUrl);
-  assertLocalhost('E2E_LANDING_BASE_URL', landingBaseUrl);
   assertLocalhost('E2E_KEYCLOAK_URL', keycloakUrl);
   assertLocalhost('E2E_API_BASE_URL', apiBaseUrl);
   assertLocalhost('E2E_LITELLM_BASE_URL', litellmBaseUrl);
@@ -133,7 +130,6 @@ function resolveEnv(): E2eEnv {
   return {
     mode,
     dashboardBaseUrl,
-    landingBaseUrl,
     keycloakUrl,
     keycloakRealm: readString('E2E_KEYCLOAK_REALM', 'openjcockpit'),
     keycloakClientId: readString('E2E_KEYCLOAK_CLIENT_ID', 'openjcockpit'),

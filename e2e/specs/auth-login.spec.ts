@@ -60,7 +60,7 @@ test.describe('dashboard authentication (clean profile)', () => {
 
     // The app never renders authenticated content while unauthenticated.
     await expect(page.getByTestId(testIds.navWorkflow)).toHaveCount(0);
-    await expect(page.getByTestId(testIds.projectCard)).toHaveCount(0);
+    await expect(page.getByTestId(testIds.landingHero)).toHaveCount(0);
 
     // The themed login form, asserted by its stable, locale-independent ids
     // (infrastructure/themes/openjcockpit/login/login.ftl) — never by CSS
@@ -110,16 +110,8 @@ test.describe('dashboard authentication (clean profile)', () => {
     await expect(page).toHaveURL(new RegExp(`^${env.dashboardBaseUrl}`));
     await expect(page.getByTestId(testIds.authLoading)).toHaveCount(0);
 
-    // Authenticated dashboard content: the project-selection grid (backed
-    // by a live loadProjects() call) or its explicit empty state, both
-    // data-testid-anchored per AC-22 — never a Dutch copy match.
-    await expect(
-      page
-        .locator(
-          `[data-testid="${testIds.projectCard}"], [data-testid="${testIds.projectSelectionEmpty}"]`,
-        )
-        .first(),
-    ).toBeVisible();
+    // Authenticated dashboard content: the post-login hub, data-testid-anchored per AC-22 — never a Dutch copy match.
+    await expect(page.getByTestId(testIds.landingHero)).toBeVisible();
 
     expect(clientSecretLeaks).toEqual([]);
   });

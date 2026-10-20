@@ -279,15 +279,15 @@ Every PR: `lint`, `test`, `build`, `format:check` green for the touched projects
   - [x] Intro once per session (`sessionStorage`, wrapped in try/catch)
   - [x] Hub chunk not downloaded on the deep-link path
   - [x] `App.*.test.tsx` suites and `src/testUtils` updated for the new entry view; hub tests added
-- [ ] **PR 8: infra switch and deletion** (single PR)
-  - [ ] `landing` service removed from `docker-compose.yml`; nothing on `:3000`
-  - [ ] Dashboard nginx: immutable asset caching, `no-cache` on `index.html`
-  - [ ] Keycloak realm: `rootUrl`/`adminUrl` to `:4000`, `:3000` URIs/origins removed, client description updated
-  - [ ] `scripts/lib/_lib.sh`, `scripts/stack-start.sh` landing references removed
-  - [ ] CI: landing job and path filters removed
-  - [ ] e2e: landing project, webServer, `E2E_LANDING_BASE_URL`, globalSetup branch removed; hub specs merged into dashboard project; shared `enterDashboard` helper; `testIds.ts` paths updated
-  - [ ] `apps/landing` deleted; README, `e2e/README.md`, `SECURITY.md`, `NOTICE` updated
-  - [ ] Note for developers: re-import the Keycloak realm or edit the client manually
+- [x] **PR 8: infra switch and deletion** (single PR)
+  - [x] `landing` service removed from `docker-compose.yml`; nothing on `:3000`
+  - [x] Dashboard nginx: immutable asset caching, `no-cache` on `index.html`
+  - [x] Keycloak realm: `rootUrl`/`adminUrl` to `:4000`, `:3000` URIs/origins removed, client description updated
+  - [x] `scripts/lib/_lib.sh`, `scripts/stack-start.sh` landing references removed
+  - [x] CI: landing job and path filters removed
+  - [x] e2e: landing project, webServer, `E2E_LANDING_BASE_URL`, globalSetup branch removed; hub specs merged into dashboard project; shared `enterDashboard` helper; `testIds.ts` paths updated
+  - [x] `apps/landing` deleted; README, `e2e/README.md`, `SECURITY.md`, `NOTICE` updated
+  - [x] Note for developers: re-import the Keycloak realm or edit the client manually
 
 ### Phase 2 (separate spec)
 

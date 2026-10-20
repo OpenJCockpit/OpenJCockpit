@@ -4,7 +4,7 @@
  * *observes* the environment — it never starts, stops, or otherwise manages
  * Docker Compose or any container (ADR-006). The one exception, owned by
  * Playwright itself and not by this file, is the `webServer` array in
- * `playwright.config.ts`, which starts/stops the two Vite dev servers in
+ * `playwright.config.ts`, which starts/stops the Vite dev server in
  * reduced mode only.
  */
 
@@ -38,7 +38,7 @@ async function checkNotAccidentallyServedByContainer(name: string, baseUrl: stri
         'reduced-mode Vite dev server (no "/@vite/client" HMR marker in the response). This ' +
         'means the full-mode Compose stack (or another process) is already publishing this ' +
         "port and Playwright's webServer silently reused it instead of starting Vite. Run " +
-        '"docker compose stop dashboard landing" and retry.',
+        '"docker compose stop dashboard" and retry.',
     );
   }
 }
@@ -47,14 +47,12 @@ export default async function globalSetup(): Promise<void> {
   const banner = [
     `[e2e globalSetup] mode=${env.mode}`,
     `dashboard=${env.dashboardBaseUrl}`,
-    `landing=${env.landingBaseUrl}`,
     `keycloak=${env.keycloakUrl}`,
     `api=${env.apiBaseUrl}`,
   ];
 
   if (env.mode === 'reduced') {
     await checkNotAccidentallyServedByContainer('dashboard', env.dashboardBaseUrl);
-    await checkNotAccidentallyServedByContainer('landing', env.landingBaseUrl);
   }
 
   // 1. Keycloak OIDC discovery must be reachable.

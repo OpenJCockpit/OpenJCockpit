@@ -53,13 +53,7 @@ test('authenticate once via the themed Keycloak login form and save storage stat
   // exchanges it for a token and renders authenticated content.
   await expect(page).toHaveURL(new RegExp(`^${env.dashboardBaseUrl}`));
   await expect(page.getByTestId(testIds.authLoading)).toHaveCount(0);
-  await expect(
-    page
-      .locator(
-        `[data-testid="${testIds.projectCard}"], [data-testid="${testIds.projectSelectionEmpty}"]`,
-      )
-      .first(),
-  ).toBeVisible();
+  await expect(page.getByTestId(testIds.landingHero)).toBeVisible();
 
   await context.storageState({ path: AUTH_STATE_PATH });
 });

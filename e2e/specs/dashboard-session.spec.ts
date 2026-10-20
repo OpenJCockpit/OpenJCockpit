@@ -81,7 +81,7 @@ import { testIds } from '../support/testIds.js';
 const FAST_FORWARD_MS = 250_000;
 const TOKEN_ENDPOINT_PATTERN = /\/protocol\/openid-connect\/token/;
 
-const AUTHENTICATED_CONTENT_SELECTOR = `[data-testid="${testIds.projectCard}"], [data-testid="${testIds.projectSelectionEmpty}"]`;
+const AUTHENTICATED_CONTENT_SELECTOR = `[data-testid="${testIds.landingHero}"]`;
 
 test.describe('dashboard session / token refresh (AC-15)', () => {
   test('happy half: the app stays authenticated and issues a real refresh request once the token nears expiry', async ({

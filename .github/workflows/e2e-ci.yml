@@ -13,7 +13,6 @@ on:
     paths:
       - "e2e/**"
       - "apps/dashboard/**"
-      - "apps/landing/**"
       - "libs/**"
       - "package.json"
       - "package-lock.json"
@@ -29,7 +28,6 @@ on:
     paths:
       - "e2e/**"
       - "apps/dashboard/**"
-      - "apps/landing/**"
       - "libs/**"
       - "package.json"
       - "package-lock.json"
@@ -61,15 +59,9 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            apps/landing/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install workspace dependencies (dashboard, e2e)
-        run: npm ci
-
-      - name: Install landing dependencies
-        working-directory: apps/landing
         run: npm ci
 
       - name: Install Playwright browser

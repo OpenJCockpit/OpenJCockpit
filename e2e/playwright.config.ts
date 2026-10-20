@@ -27,8 +27,7 @@ export default defineConfig({
     video: 'retain-on-failure',
     // AC-24: emulate prefers-reduced-motion: reduce broadly. Scoped at the
     // top-level `use` block (rather than per-project) because architecture
-    // §6.5 requires it across both the dashboard and landing projects and
-    // there is no in-scope scenario that depends on an animation having
+    // §6.5 requires it across the whole suite and there is no in-scope scenario that depends on an animation having
     // played, so there is no reason to special-case it per project.
     contextOptions: {
       reducedMotion: 'reduce',
@@ -44,19 +43,8 @@ export default defineConfig({
       },
     },
     {
-      // Every *.spec.ts file that isn't landing-specific: auth-login.spec.ts
-      // and api-unauthenticated.spec.ts exercise the dashboard origin/API
-      // but don't carry a "dashboard" prefix in their filename, so this
-      // project is defined as "everything not claimed by `landing`" rather
-      // than a `dashboard*` prefix match, which silently excluded them.
-      // Globs (not regexes) are used here deliberately: an anchored regex
-      // (`^`/`$`) matches against Playwright's full resolved file path, not
-      // the bare filename, so `^(?!landing-)` never actually excluded
-      // anything and `^landing-` never actually matched anything — verified
-      // by `playwright test --list` before landing on this glob form.
       name: 'dashboard',
       testMatch: '**/*.spec.ts',
-      testIgnore: '**/landing-*.spec.ts',
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
@@ -64,20 +52,10 @@ export default defineConfig({
         storageState: AUTH_STATE_PATH,
       },
     },
-    {
-      name: 'landing',
-      testMatch: '**/landing-*.spec.ts',
-      dependencies: ['setup'],
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: env.landingBaseUrl,
-        storageState: AUTH_STATE_PATH,
-      },
-    },
   ],
   // webServer is only present in reduced mode: Playwright starts and stops
-  // the two Vite dev servers itself. In full mode, the operator-managed
-  // Compose stack (nginx-served dashboard/landing) is expected to already be
+  // the Vite dev server itself. In full mode, the operator-managed
+  // Compose stack (nginx-served dashboard) is expected to already be
   // running; this harness never starts or stops it (ADR-006).
   webServer:
     env.mode === 'reduced'
@@ -86,13 +64,6 @@ export default defineConfig({
             command: 'npm run dev',
             cwd: '../apps/dashboard',
             url: env.dashboardBaseUrl,
-            reuseExistingServer: !process.env.CI,
-            timeout: env.readinessTimeoutMs,
-          },
-          {
-            command: 'npm run dev',
-            cwd: '../apps/landing',
-            url: env.landingBaseUrl,
             reuseExistingServer: !process.env.CI,
             timeout: env.readinessTimeoutMs,
           },

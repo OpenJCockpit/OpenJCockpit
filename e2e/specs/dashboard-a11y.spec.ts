@@ -22,7 +22,7 @@
  */
 
 import { test, expect } from '../support/fixtures.js';
-import { env } from '../support/env.js';
+import { enterDashboard } from '../support/enterDashboard.js';
 import { tabUntilFocused } from '../support/keyboard.js';
 import { testIds } from '../support/testIds.js';
 
@@ -30,7 +30,7 @@ test.describe('dashboard keyboard-only core flow', () => {
   test('AC-21: the project-selection grid is reachable and operable by keyboard alone', async ({
     page,
   }) => {
-    await page.goto(env.dashboardBaseUrl);
+    await enterDashboard(page);
 
     const projectCard = page.getByTestId(testIds.projectCard).first();
     await expect(projectCard).toBeVisible();
@@ -48,7 +48,7 @@ test.describe('dashboard keyboard-only core flow', () => {
   test('AC-21: the main navigation controls are reachable in order, each with real DOM focus', async ({
     page,
   }) => {
-    await page.goto(env.dashboardBaseUrl);
+    await enterDashboard(page);
 
     const projectCard = page.getByTestId(testIds.projectCard).first();
     await expect(projectCard).toBeVisible();
@@ -58,13 +58,13 @@ test.describe('dashboard keyboard-only core flow', () => {
     const navWorkflow = page.getByTestId(testIds.navWorkflow);
     const navSpecFiles = page.getByTestId(testIds.navSpecFiles);
     const navSkillsHub = page.getByTestId(testIds.navSkillsHub);
-    const navPortal = page.getByTestId(testIds.navPortal);
+    const navHub = page.getByTestId(testIds.navHub);
 
     await expect(navWorkflow).toBeVisible();
 
     // Forward-only Tab presses, asserted in the same order the controls
     // appear in the DOM (App.tsx's header-actions block): nav-workflow,
-    // nav-spec-files, nav-skills-hub, then nav-portal (which may have the
+    // nav-spec-files, nav-skills-hub, then nav-hub (which may have the
     // project dropdown and the settings button as intervening tab stops —
     // tabUntilFocused tolerates that without asserting on them).
     await tabUntilFocused(page, navWorkflow, 'nav-workflow');
@@ -76,14 +76,14 @@ test.describe('dashboard keyboard-only core flow', () => {
     await tabUntilFocused(page, navSkillsHub, 'nav-skills-hub');
     await expect(navSkillsHub).toBeFocused();
 
-    await tabUntilFocused(page, navPortal, 'nav-portal');
-    await expect(navPortal).toBeFocused();
+    await tabUntilFocused(page, navHub, 'nav-hub');
+    await expect(navHub).toBeFocused();
   });
 
   test('AC-21: activating nav-workflow with the keyboard (Enter) opens the workflow view, and its keyboard-operable back control returns to the dashboard', async ({
     page,
   }) => {
-    await page.goto(env.dashboardBaseUrl);
+    await enterDashboard(page);
 
     const projectCard = page.getByTestId(testIds.projectCard).first();
     await expect(projectCard).toBeVisible();
@@ -107,43 +107,23 @@ test.describe('dashboard keyboard-only core flow', () => {
     await expect(navWorkflow).toBeVisible();
   });
 
-  test('AC-21: activating nav-portal with the keyboard (Space) triggers navigation to the portal origin', async ({
+  test('AC-21: activating nav-hub with the keyboard (Space) returns to the hub', async ({
     page,
   }) => {
-    await page.goto(env.dashboardBaseUrl);
+    await enterDashboard(page);
 
     const projectCard = page.getByTestId(testIds.projectCard).first();
     await expect(projectCard).toBeVisible();
     await tabUntilFocused(page, projectCard, 'the first project card');
     await page.keyboard.press('Enter');
 
-    const navPortal = page.getByTestId(testIds.navPortal);
-    await expect(navPortal).toBeVisible();
+    const navHub = page.getByTestId(testIds.navHub);
+    await expect(navHub).toBeVisible();
 
-    // nav-portal performs a real cross-origin navigation
-    // (window.location.href = 'http://localhost:3000'). Abort the outgoing
-    // navigation request rather than let the landing app actually load, so
-    // this spec proves keyboard-operability of the control without taking
-    // on the landing app's own console/a11y surface (covered separately by
-    // landing-portal.spec.ts and landing-auth.spec.ts).
-    let navigationAttempted = false;
-    await page.route(
-      (url) => url.origin === new URL(env.landingBaseUrl).origin,
-      (route) => {
-        navigationAttempted = true;
-        return route.abort();
-      },
-    );
-
-    await tabUntilFocused(page, navPortal, 'nav-portal');
-    await expect(navPortal).toBeFocused();
+    await tabUntilFocused(page, navHub, 'nav-hub');
+    await expect(navHub).toBeFocused();
     await page.keyboard.press('Space');
 
-    await expect
-      .poll(() => navigationAttempted, {
-        message:
-          'expected keyboard activation of nav-portal to trigger navigation to the portal origin',
-      })
-      .toBe(true);
+    await expect(page.getByTestId(testIds.landingHero)).toBeVisible();
   });
 });

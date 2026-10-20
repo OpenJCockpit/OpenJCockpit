@@ -73,7 +73,7 @@ jobs:
           if echo "$changed_files" | grep -Eq '^(services/|pom\.xml$|shared/contracts/|\.github/workflows/(backend-ci|ci-summary)\.yml$)'; then
             backend=true
           fi
-          if echo "$changed_files" | grep -Eq '^(apps/(dashboard|landing)/|libs/|nx\.json$|tsconfig\.base\.json$|package(-lock)?\.json$|e2e/package\.json$|\.nvmrc$|\.github/workflows/(frontend-ci|ci-summary)\.yml$)'; then
+          if echo "$changed_files" | grep -Eq '^(apps/dashboard/|libs/|nx\.json$|tsconfig\.base\.json$|package(-lock)?\.json$|e2e/package\.json$|\.nvmrc$|\.github/workflows/(frontend-ci|ci-summary)\.yml$)'; then
             frontend=true
           fi
           if echo "$changed_files" | grep -Eq '^(docker-compose\.yml$|infrastructure/|\.env\.example$|\.github/workflows/(infra-ci|ci-summary)\.yml$)'; then
