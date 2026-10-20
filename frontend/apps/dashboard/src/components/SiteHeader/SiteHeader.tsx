@@ -1,7 +1,6 @@
 import type { Project } from '@openjcockpit/api';
 import styles from './SiteHeader.module.scss';
 import { Button, BrandLogo, dropdownClass } from '@openjcockpit/ui';
-import shell from '../AppShell/AppShell.module.scss';
 
 interface Props {
   projects: Project[];
@@ -29,8 +28,8 @@ export function SiteHeader({
   onLogout,
 }: Props) {
   return (
-    <header className={shell.siteHeader}>
-      <button type="button" className={shell.brand} onClick={onHub} title="Back to hub">
+    <header className={styles.siteHeader}>
+      <button type="button" className={styles.brand} onClick={onHub} title="Back to hub">
         <BrandLogo />
       </button>
 
@@ -42,7 +41,7 @@ export function SiteHeader({
         <a href="#solutions">Solutions</a>
       </nav>
 
-      <div className={shell.headerActions}>
+      <div className={styles.headerActions}>
         <Button
           variant="workflow"
           onClick={onWorkflow}

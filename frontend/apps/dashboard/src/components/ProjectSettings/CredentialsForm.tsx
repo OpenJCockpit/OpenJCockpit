@@ -1,8 +1,8 @@
 import type { ProjectGitCredentialRequest } from '@openjcockpit/api';
-import { SelectField } from '../FormFields/SelectField/SelectField';
-import { TextField } from '../FormFields/TextField/TextField';
-import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import {
+  SelectField,
+  TextField,
+  ToolbarButton,
   fieldHintClass,
   formActionsClass,
   formClass,

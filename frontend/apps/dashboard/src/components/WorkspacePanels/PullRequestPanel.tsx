@@ -1,8 +1,6 @@
 import type { PullRequestSummary } from '@openjcockpit/api';
-import { IconBox } from '../IconBox/IconBox';
-import { StatusChip } from '../StatusChip/StatusChip';
+import { IconBox, StatusChip, Panel, PanelHeader, PanelTitle } from '@openjcockpit/ui';
 import styles from './WorkspacePanels.module.scss';
-import { Panel, PanelHeader, PanelTitle } from '@openjcockpit/ui';
 
 export function PullRequestPanel({ pullRequests }: { pullRequests: PullRequestSummary[] }) {
   return (

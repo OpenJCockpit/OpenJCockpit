@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getHermesConfig, mockHermesConfig, saveHermesConfig } from '@openjcockpit/api';
-import { CheckboxField } from '../../../components/FormFields/CheckboxField/CheckboxField';
-import { SecretField } from '../../../components/FormFields/SecretField/SecretField';
-import { TextField } from '../../../components/FormFields/TextField/TextField';
+import { CheckboxField, SecretField, TextField, StatusMessage } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
-import { StatusMessage } from '../../../components/StatusMessage/StatusMessage';
 
 interface HermesFormState {
   enabled: boolean;

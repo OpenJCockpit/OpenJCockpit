@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
-import { IconBox } from '../IconBox/IconBox';
-import { StatusChip } from '../StatusChip/StatusChip';
-import type { StatusKind } from '@openjcockpit/api';
-import { AppShell, AppHeader } from '../AppShell/AppShell';
 import {
+  IconBox,
+  StatusChip,
+  AppShell,
+  AppHeader,
   Eyebrow,
   Panel,
   DataTable,
@@ -15,6 +15,7 @@ import {
   pageClass,
   pageHeaderClass,
 } from '@openjcockpit/ui';
+import type { StatusKind } from '@openjcockpit/api';
 import styles from './SkillsHubDashboard.module.scss';
 
 interface Props {

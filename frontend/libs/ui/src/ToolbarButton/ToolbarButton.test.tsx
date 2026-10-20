@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { buttonClass } from '@openjcockpit/ui';
+import { buttonClass } from '../Button/Button';
 import { ToolbarButton } from './ToolbarButton';
 
 describe('ToolbarButton', () => {

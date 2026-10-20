@@ -1,6 +1,12 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { ModalShell, modalActionsClass } from '../ModalShell/ModalShell';
-import { fieldErrorClass, fieldHintClass, formInputClass, Button } from '@openjcockpit/ui';
+import {
+  ModalShell,
+  modalActionsClass,
+  fieldErrorClass,
+  fieldHintClass,
+  formInputClass,
+  Button,
+} from '@openjcockpit/ui';
 import styles from './ApprovalCommentModal.module.scss';
 
 // Not part of the wire contract (ApprovalGateContextDto carries no length field) —

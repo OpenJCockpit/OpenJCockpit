@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type { StatusKind } from '@openjcockpit/api';
+import type { StatusKind } from './StatusChip';
 import { StatusChip } from './StatusChip';
 import styles from './StatusChip.module.scss';
 

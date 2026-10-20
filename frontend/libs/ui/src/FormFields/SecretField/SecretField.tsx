@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { fieldHintClass, formInputClass } from '@openjcockpit/ui';
+import { fieldHintClass, formInputClass } from '../../Form/Form';
 import FormFieldsStyles from '../FormFields.module.scss';
 
 interface SecretFieldProps {

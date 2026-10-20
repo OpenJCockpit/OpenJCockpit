@@ -1,5 +1,5 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ToolbarButton } from './components/ToolbarButton/ToolbarButton';
+import { ToolbarButton, AppShell, StatusMessage } from '@openjcockpit/ui';
 import { clearStoredProjectId, getStoredProjectId, setStoredProjectId } from './storedProject';
 import {
   getSpecInitStatus,
@@ -32,7 +32,6 @@ import { SpecQueueDashboard } from './queue/SpecQueueDashboard/SpecQueueDashboar
 import { SpecFilesDashboard } from './spec/SpecFilesDashboard/SpecFilesDashboard';
 import { WorkflowDashboard } from './workflow/WorkflowDashboard/WorkflowDashboard';
 import { WorkflowPromptDialog } from './workflow/WorkflowPromptDialog/WorkflowPromptDialog';
-import { AppShell } from './components/AppShell/AppShell';
 import { CustomerHero } from './components/CustomerHero/CustomerHero';
 import { SiteHeader } from './components/SiteHeader/SiteHeader';
 import { SpecPanel } from './components/SpecPanel/SpecPanel';
@@ -43,7 +42,6 @@ import { QualityPanel } from './components/WorkspacePanels/QualityPanel';
 import { FlowPanel } from './components/FlowPanel/FlowPanel';
 import { useRunLauncher } from './useRunLauncher';
 import styles from './App.module.scss';
-import { StatusMessage } from './components/StatusMessage/StatusMessage';
 
 type AppView =
   | 'landing'

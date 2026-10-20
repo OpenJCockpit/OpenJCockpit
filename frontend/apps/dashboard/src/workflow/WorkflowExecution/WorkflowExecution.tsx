@@ -13,7 +13,7 @@ import type { AgentDefinition, ApprovalDecisionKind, WorkflowDefinition } from '
 import { loadLinkableAgents } from '../linkableAgents';
 import { AgentSequencer } from '../../components/AgentSequencer/AgentSequencer';
 import { AgentLogConsole } from '../../components/AgentLogConsole/AgentLogConsole';
-import { StatusChip } from '../../components/StatusChip/StatusChip';
+import { StatusChip, Eyebrow, Panel, fieldHintClass, cx, Button } from '@openjcockpit/ui';
 import { ApprovalDecisionModal } from '../ApprovalDecisionModal/ApprovalDecisionModal';
 import { WorkflowExecutionHistory } from '../WorkflowExecutionHistory/WorkflowExecutionHistory';
 import { ArtifactList, parseArtifactLinks } from './ArtifactList';
@@ -21,7 +21,6 @@ import { RunLostPanel } from './RunLostPanel';
 import { RunStatusAnnouncements } from './RunStatusAnnouncements';
 import { useRunHistory } from './useRunHistory';
 import { useRunEvents } from './useRunEvents';
-import { Eyebrow, Panel, fieldHintClass, cx, Button } from '@openjcockpit/ui';
 import styles from './WorkflowExecution.module.scss';
 
 // 'NOT_FOUND' is retained deliberately: it is what an OLDER backend (pre-dating this

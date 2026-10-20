@@ -1,6 +1,5 @@
 import type { SpecFile } from '@openjcockpit/api';
-import { IconBox } from '../IconBox/IconBox';
-import { specStyles, cx } from '@openjcockpit/ui';
+import { IconBox, specStyles, cx } from '@openjcockpit/ui';
 
 interface Props {
   spec: SpecFile;

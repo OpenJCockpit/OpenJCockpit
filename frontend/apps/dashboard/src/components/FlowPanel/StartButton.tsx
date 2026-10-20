@@ -1,5 +1,5 @@
 import type { LauncherButtonState } from '../../useRunLauncher';
-import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
+import { ToolbarButton } from '@openjcockpit/ui';
 
 interface Props {
   state: LauncherButtonState;

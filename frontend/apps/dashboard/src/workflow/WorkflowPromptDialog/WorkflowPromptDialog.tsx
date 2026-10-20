@@ -1,6 +1,6 @@
 import { useId, useState } from 'react';
-import { ModalShell } from '../ModalShell/ModalShell';
 import {
+  ModalShell,
   Eyebrow,
   panelClassName,
   cx,

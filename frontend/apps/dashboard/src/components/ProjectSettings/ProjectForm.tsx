@@ -1,9 +1,9 @@
 import type { Ref } from 'react';
 import type { ProjectRequest } from '@openjcockpit/api';
-import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
-import { TextField } from '../FormFields/TextField/TextField';
-import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import {
+  TextAreaField,
+  TextField,
+  ToolbarButton,
   formActionsClass,
   formClass,
   formGridClass,

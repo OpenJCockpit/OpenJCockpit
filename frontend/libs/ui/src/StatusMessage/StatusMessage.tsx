@@ -1,5 +1,7 @@
 import type { HTMLAttributes } from 'react';
-import { fieldErrorClass, fieldHintClass, cx } from '@openjcockpit/ui';
+import { fieldErrorClass, fieldHintClass } from '../Form/Form';
+import { cx } from '../cx';
+
 import styles from './StatusMessage.module.scss';
 
 interface StatusMessageProps extends HTMLAttributes<HTMLElement> {

@@ -1,7 +1,6 @@
 import type { QualityControl } from '@openjcockpit/api';
-import { IconBox } from '../IconBox/IconBox';
+import { IconBox, Panel, PanelHeader, PanelTitle, Button } from '@openjcockpit/ui';
 import styles from './WorkspacePanels.module.scss';
-import { Panel, PanelHeader, PanelTitle, Button } from '@openjcockpit/ui';
 
 export function QualityPanel({ controls }: { controls: QualityControl[] }) {
   return (
