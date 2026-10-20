@@ -1,4 +1,4 @@
-import type { GitStatus } from '../../types';
+import type { GitStatus } from '@openjcockpit/api';
 import styles from './GitStatusBadge.module.scss';
 import { cx } from '@openjcockpit/ui';
 

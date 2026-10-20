@@ -1,4 +1,4 @@
-import type { SpecInitStatus } from '../../types';
+import type { SpecInitStatus } from '@openjcockpit/api';
 import { StatusChip } from '../StatusChip/StatusChip';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import { buttonClass, feedbackResultClass } from '@openjcockpit/ui';

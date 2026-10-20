@@ -18,8 +18,18 @@ function workflow(id: string, projectName: string, groupId?: string): WorkflowDe
 }
 
 const GROUPS: WorkflowGroup[] = [
-  { id: 'wg-spec-workflow', name: 'Spec-driven development', description: '', projectName: '' },
-  { id: 'wg-noordzee', name: 'Noordzee flows', description: '', projectName: 'Noordzee Logistics' },
+  {
+    id: 'wg-spec-workflow',
+    name: 'Spec-driven development',
+    description: '',
+    projectName: '',
+  },
+  {
+    id: 'wg-noordzee',
+    name: 'Noordzee flows',
+    description: '',
+    projectName: 'Noordzee Logistics',
+  },
 ];
 
 const WORKFLOWS: WorkflowDefinition[] = [

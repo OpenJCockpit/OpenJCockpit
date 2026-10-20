@@ -1,21 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
-import { stopAgentRun } from '../../api';
+import {
+  buildAgentCards,
+  buildSequencerNodes,
+  isTerminalRunStatus,
+  listWorkflows,
+  runStatusKind,
+  runStatusLabel,
+  stopAgentRun,
+  submitApprovalDecision,
+} from '@openjcockpit/api';
+import type { AgentDefinition, ApprovalDecisionKind, WorkflowDefinition } from '@openjcockpit/api';
 import { loadLinkableAgents } from '../linkableAgents';
-import type { AgentDefinition } from '../../types';
-import type { ApprovalDecisionKind, WorkflowDefinition } from '../workflowTypes';
-import { listWorkflows, submitApprovalDecision } from '../workflowApi';
 import { AgentSequencer } from '../../components/AgentSequencer/AgentSequencer';
 import { AgentLogConsole } from '../../components/AgentLogConsole/AgentLogConsole';
 import { StatusChip } from '../../components/StatusChip/StatusChip';
 import { ApprovalDecisionModal } from '../ApprovalDecisionModal/ApprovalDecisionModal';
 import { WorkflowExecutionHistory } from '../WorkflowExecutionHistory/WorkflowExecutionHistory';
-import {
-  buildAgentCards,
-  buildSequencerNodes,
-  isTerminalRunStatus,
-  runStatusKind,
-  runStatusLabel,
-} from '../runStatus';
 import { ArtifactList, parseArtifactLinks } from './ArtifactList';
 import { RunLostPanel } from './RunLostPanel';
 import { RunStatusAnnouncements } from './RunStatusAnnouncements';

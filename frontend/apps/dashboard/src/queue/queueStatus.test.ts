@@ -9,7 +9,7 @@ import {
   queueStateText,
   safeHttpUrl,
 } from './queueStatus';
-import type { SpecQueueFailureReason, SpecQueueItemStatus } from './specQueueTypes';
+import type { SpecQueueFailureReason, SpecQueueItemStatus } from '@openjcockpit/api';
 
 const STATUSES: SpecQueueItemStatus[] = [
   'QUEUED',

@@ -1,10 +1,12 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { A2AServicesSettings } from './A2AServicesSettings';
-import * as workflowApi from '../../workflowApi';
-import type { A2AService } from '../../workflowTypes';
+import * as workflowApi from '@openjcockpit/api';
+import type { A2AService } from '@openjcockpit/api';
 
-vi.mock('../../workflowApi');
+vi.mock('@openjcockpit/api', async (importOriginal) =>
+  (await import('../../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+);
 
 function service(overrides: Partial<A2AService> = {}): A2AService {
   return {

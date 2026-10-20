@@ -1,4 +1,4 @@
-import type { WorkflowDefinition } from '../../workflow/workflowTypes';
+import type { WorkflowDefinition } from '@openjcockpit/api';
 import type { LauncherButtonState } from '../../useRunLauncher';
 import { StartButton } from './StartButton';
 import styles from './FlowPanel.module.scss';

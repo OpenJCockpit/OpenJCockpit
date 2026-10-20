@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { linkableAgents, referenceLabel } from './linkableAgents';
+import { linkableAgents } from './linkableAgents';
 import { AgentPicker } from './WorkflowDesign/panels/workflows/WorkflowEditor/AgentPicker';
-import type { AgentCatalog } from './workflowTypes';
+import type { AgentCatalog } from '@openjcockpit/api';
 
 const CATALOG: AgentCatalog = {
   local: {
@@ -48,12 +48,6 @@ describe('linkable agents', () => {
       ['local:triage', 'Local'],
       ['a2a:litellm:qa-engineer', 'LiteLLM'],
     ]);
-  });
-
-  it('labels references that are not in the catalog', () => {
-    expect(referenceLabel('local:triage')).toBe('triage (Local)');
-    expect(referenceLabel('a2a:litellm:qa-engineer')).toBe('qa-engineer (litellm)');
-    expect(referenceLabel('requirement')).toBe('requirement');
   });
 
   it('groups the picker by catalog section and appends linked agents to the execution order', () => {

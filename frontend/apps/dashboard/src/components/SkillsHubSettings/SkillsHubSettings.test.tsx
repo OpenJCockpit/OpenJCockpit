@@ -1,11 +1,13 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SkillsHubSettings } from './SkillsHubSettings';
-import * as api from '../../api';
-import type { SkillsMarketplaceConnection } from '../../types';
+import * as api from '@openjcockpit/api';
+import type { SkillsMarketplaceConnection } from '@openjcockpit/api';
 import { clickAsync, renderAsync, setInputValue } from '../../testUtils/dom';
 
-vi.mock('../../api');
+vi.mock('@openjcockpit/api', async (importOriginal) =>
+  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+);
 
 const CONNECTION: SkillsMarketplaceConnection = {
   id: 'mp-1',

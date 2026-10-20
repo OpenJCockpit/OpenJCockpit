@@ -1,4 +1,4 @@
-import type { EvidenceEvent } from '../../types';
+import type { EvidenceEvent } from '@openjcockpit/api';
 import { IconBox } from '../IconBox/IconBox';
 import styles from './WorkspacePanels.module.scss';
 import { Panel, PanelHeader, PanelTitle } from '@openjcockpit/ui';

@@ -1,4 +1,4 @@
-import type { PreflightError } from '../../types';
+import type { PreflightError } from '@openjcockpit/api';
 import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
 import { Button } from '@openjcockpit/ui';
 import styles from './PreflightAlert.module.scss';

@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { TextAreaField } from '../../../../components/FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../../../../components/FormFields/TextField/TextField';
-import type { SubagentSpec } from '../../../workflowTypes';
+import type { SubagentSpec } from '@openjcockpit/api';
 import { toList } from '../../utils';
 import { EditorForm } from '../shared/EditorForm';
 

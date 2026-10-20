@@ -1,13 +1,18 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../specQueueApi');
-vi.mock('../../workflow/workflowApi');
+vi.mock('@openjcockpit/api', async (importOriginal) =>
+  (await import('../../testUtils/mockApi')).automockApiClients(await importOriginal()),
+);
 
-import type { Project } from '../../types';
-import { listWorkflowGroups, listWorkflows } from '../../workflow/workflowApi';
-import type { WorkflowDefinition } from '../../workflow/workflowTypes';
-import { enqueueSpecQueueItem, getSpecQueueSettings, listSpecFilesStrict } from '../specQueueApi';
+import {
+  enqueueSpecQueueItem,
+  getSpecQueueSettings,
+  listSpecFilesStrict,
+  listWorkflowGroups,
+  listWorkflows,
+} from '@openjcockpit/api';
+import type { Project, WorkflowDefinition } from '@openjcockpit/api';
 import { AddToQueueDialog } from './AddToQueueDialog';
 
 const PROJECT = { id: 'p1', name: 'Proj' } as Project;

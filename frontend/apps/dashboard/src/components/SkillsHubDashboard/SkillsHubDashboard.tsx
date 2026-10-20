@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { IconBox } from '../IconBox/IconBox';
 import { StatusChip } from '../StatusChip/StatusChip';
-import type { StatusKind } from '../../types';
+import type { StatusKind } from '@openjcockpit/api';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
 import {
   Eyebrow,

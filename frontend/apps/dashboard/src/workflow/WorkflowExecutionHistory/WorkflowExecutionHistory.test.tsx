@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { WorkflowExecutionHistory } from './WorkflowExecutionHistory';
-import type { WorkflowExecutionPage, WorkflowExecutionSummary } from '../workflowTypes';
+import type { WorkflowExecutionPage, WorkflowExecutionSummary } from '@openjcockpit/api';
 
 function item(overrides: Partial<WorkflowExecutionSummary> = {}): WorkflowExecutionSummary {
   return {

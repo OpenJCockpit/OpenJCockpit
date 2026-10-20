@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { TextAreaField } from '../../../../components/FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../../../../components/FormFields/TextField/TextField';
-import type { SkillSpec } from '../../../workflowTypes';
+import type { SkillSpec } from '@openjcockpit/api';
 import { EditorForm } from '../shared/EditorForm';
 
 interface SkillEditorProps {

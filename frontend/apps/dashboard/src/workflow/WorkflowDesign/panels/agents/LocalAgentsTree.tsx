@@ -1,4 +1,4 @@
-import type { LocalCatalogAgent } from '../../../workflowTypes';
+import type { LocalCatalogAgent } from '@openjcockpit/api';
 import { DataTable, fieldErrorClass } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 

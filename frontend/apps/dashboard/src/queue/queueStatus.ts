@@ -1,11 +1,11 @@
-import type { StatusKind } from '../types';
 import type {
   SpecQueueFailureReason,
   SpecQueueItem,
   SpecQueueItemStatus,
   SpecQueuePollErrorCode,
   SpecQueueState,
-} from './specQueueTypes';
+  StatusKind,
+} from '@openjcockpit/api';
 
 export interface StatusPresentation {
   label: string;

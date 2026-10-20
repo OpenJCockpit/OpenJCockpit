@@ -1,4 +1,4 @@
-import type { SpecFile } from '../../types';
+import type { SpecFile } from '@openjcockpit/api';
 import { IconBox } from '../IconBox/IconBox';
 import { NoSpecsFound } from './NoSpecsFound';
 import { SpecCardButton } from './SpecCardButton';

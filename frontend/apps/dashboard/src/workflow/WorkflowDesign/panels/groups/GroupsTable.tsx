@@ -1,4 +1,4 @@
-import type { WorkflowGroup } from '../../../workflowTypes';
+import type { WorkflowGroup } from '@openjcockpit/api';
 import { DataTable, Button } from '@openjcockpit/ui';
 
 interface GroupsTableProps {

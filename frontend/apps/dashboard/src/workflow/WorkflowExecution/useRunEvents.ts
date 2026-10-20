@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import type { AgentEvent, AgentRun } from '../../types';
+import {
+  getApprovalGateContext,
+  getWorkflowExecution,
+  isTerminalRunStatus,
+} from '@openjcockpit/api';
 import type {
+  AgentEvent,
+  AgentRun,
   ApprovalGateContext,
   WorkflowDefinition,
   WorkflowExecutionPage,
-} from '../workflowTypes';
-import { getApprovalGateContext, getWorkflowExecution } from '../workflowApi';
-import { isTerminalRunStatus } from '../runStatus';
+} from '@openjcockpit/api';
 
 interface Options {
   workflow: WorkflowDefinition | null;

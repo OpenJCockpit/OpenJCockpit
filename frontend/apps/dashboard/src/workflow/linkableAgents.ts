@@ -1,6 +1,5 @@
-import type { AgentDefinition } from '../types';
-import { getAgentCatalog } from './workflowApi';
-import type { AgentCatalog } from './workflowTypes';
+import { getAgentCatalog } from '@openjcockpit/api';
+import type { AgentCatalog, AgentDefinition } from '@openjcockpit/api';
 
 /**
  * Agents a workflow can link: every valid agent of the central agent catalog (Workflow design →
@@ -36,14 +35,6 @@ export function linkableAgents(catalog: AgentCatalog): AgentDefinition[] {
 
 export async function fetchLinkableAgents(): Promise<AgentDefinition[]> {
   return linkableAgents(await getAgentCatalog());
-}
-
-/** Readable label for a reference that is not (or no longer) in the catalog. */
-export function referenceLabel(key: string): string {
-  const parts = key.split(':');
-  if (parts[0] === 'local' && parts.length === 2) return `${parts[1]} (Local)`;
-  if (parts[0] === 'a2a' && parts.length === 3) return `${parts[2]} (${parts[1]})`;
-  return key;
 }
 
 /** Like {@link fetchLinkableAgents}, but never fails: labels fall back to the references. */

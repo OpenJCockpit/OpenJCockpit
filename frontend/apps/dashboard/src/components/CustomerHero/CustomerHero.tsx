@@ -1,4 +1,4 @@
-import type { Project, Workspace } from '../../types';
+import type { Project, Workspace } from '@openjcockpit/api';
 import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
 import { IconBox } from '../IconBox/IconBox';
 import { StackServiceCard } from '../StackServiceCard/StackServiceCard';

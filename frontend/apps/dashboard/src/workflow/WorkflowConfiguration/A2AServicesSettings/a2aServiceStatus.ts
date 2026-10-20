@@ -1,5 +1,4 @@
-import type { StatusKind } from '../../../types';
-import type { A2AService } from '../../workflowTypes';
+import type { A2AService, StatusKind } from '@openjcockpit/api';
 
 /** Label and chip colour for an A2A service's live status. */
 export function a2aServiceStatus(service: A2AService): { label: string; kind: StatusKind } {

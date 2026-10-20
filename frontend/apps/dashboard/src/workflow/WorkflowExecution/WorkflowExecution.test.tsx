@@ -1,15 +1,15 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WorkflowExecution } from './WorkflowExecution';
-import * as api from '../../api';
+import * as api from '@openjcockpit/api';
 import * as linkable from '../linkableAgents';
-import * as workflowApi from '../workflowApi';
+import * as workflowApi from '@openjcockpit/api';
 import type {
+  AgentRun,
   ApprovalGateContext,
   WorkflowDefinition,
   WorkflowExecutionPage,
-} from '../workflowTypes';
-import type { AgentRun } from '../../types';
+} from '@openjcockpit/api';
 
 // The run view labels agents from the agent catalog; these tests stub that catalog.
 vi.mock('../linkableAgents', async () => {
@@ -17,11 +17,12 @@ vi.mock('../linkableAgents', async () => {
   return { ...actual, fetchLinkableAgents: vi.fn(), loadLinkableAgents: vi.fn() };
 });
 
-vi.mock('../../api');
-vi.mock('../workflowApi', async () => {
-  const actual = await vi.importActual<typeof import('../workflowApi')>('../workflowApi');
+vi.mock('@openjcockpit/api', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@openjcockpit/api')>();
   return {
     ...actual,
+    getAgentRun: vi.fn(),
+    stopAgentRun: vi.fn(),
     getApprovalGateContext: vi.fn(),
     submitApprovalDecision: vi.fn(),
     listWorkflowExecutions: vi.fn(),

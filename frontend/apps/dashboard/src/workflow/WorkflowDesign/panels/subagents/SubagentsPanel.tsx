@@ -7,8 +7,8 @@ import {
   generateSubagentSpec,
   listSubagentSpecs,
   updateSubagentSpec,
-} from '../../../workflowApi';
-import type { SubagentSpec } from '../../../workflowTypes';
+} from '@openjcockpit/api';
+import type { SubagentSpec } from '@openjcockpit/api';
 import { PromptGenerator } from '../shared/PromptGenerator';
 import { SubagentEditor } from './SubagentEditor';
 import { SubagentsTable } from './SubagentsTable';

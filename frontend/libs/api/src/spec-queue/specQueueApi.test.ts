@@ -41,12 +41,20 @@ describe('specQueueApi', () => {
 
   it('POSTs JSON when enqueueing', async () => {
     mockFetch.mockResolvedValueOnce(ok({ id: 'i1' }));
-    await enqueueSpecQueueItem('p1', { specFile: 'a.md', workflowId: 'w', autoMerge: false });
+    await enqueueSpecQueueItem('p1', {
+      specFile: 'a.md',
+      workflowId: 'w',
+      autoMerge: false,
+    });
     const [url, init] = mockFetch.mock.calls[0];
     expect(url).toContain('/spec-queue/items');
     expect(init.method).toBe('POST');
     expect(init.headers['Content-Type']).toBe('application/json');
-    expect(JSON.parse(init.body)).toEqual({ specFile: 'a.md', workflowId: 'w', autoMerge: false });
+    expect(JSON.parse(init.body)).toEqual({
+      specFile: 'a.md',
+      workflowId: 'w',
+      autoMerge: false,
+    });
   });
 
   it('PUTs the complete id list when reordering', async () => {

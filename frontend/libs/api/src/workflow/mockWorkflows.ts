@@ -24,7 +24,11 @@ export const mockWorkflows: WorkflowDefinition[] = [
       hermesSignalEnabled: false,
       fileDeliveryEnabled: false,
     },
-    execution: { customerId: 'noordzee-logistics', repositoryUrl: '', timeoutSeconds: 600 },
+    execution: {
+      customerId: 'noordzee-logistics',
+      repositoryUrl: '',
+      timeoutSeconds: 600,
+    },
     status: 'ACTIVE',
     lastExecutionStatus: 'COMPLETED',
     lastExecutionAt: new Date().toISOString(),
@@ -51,8 +55,16 @@ export const mockGatedWorkflow: WorkflowDefinition = {
   subagentNames: [],
   skillNames: [],
   mcpTools: [],
-  trigger: { dashboardButtonEnabled: true, hermesSignalEnabled: false, fileDeliveryEnabled: false },
-  execution: { customerId: 'noordzee-logistics', repositoryUrl: '', timeoutSeconds: 600 },
+  trigger: {
+    dashboardButtonEnabled: true,
+    hermesSignalEnabled: false,
+    fileDeliveryEnabled: false,
+  },
+  execution: {
+    customerId: 'noordzee-logistics',
+    repositoryUrl: '',
+    timeoutSeconds: 600,
+  },
   approvalGate: { enabled: true, placementStage: 'realisation' },
   status: 'ACTIVE',
 };

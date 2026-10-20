@@ -4,8 +4,11 @@ import {
   deleteSkillsMarketplace,
   listSkillsMarketplaces,
   updateSkillsMarketplace,
-} from '../../api';
-import type { SkillsMarketplaceConnection, SkillsMarketplaceConnectionRequest } from '../../types';
+} from '@openjcockpit/api';
+import type {
+  SkillsMarketplaceConnection,
+  SkillsMarketplaceConnectionRequest,
+} from '@openjcockpit/api';
 import { AppShell, AppHeader } from '../AppShell/AppShell';
 import { TextAreaField } from '../FormFields/TextAreaField/TextAreaField';
 import { TextField } from '../FormFields/TextField/TextField';

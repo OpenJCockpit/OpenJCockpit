@@ -1,6 +1,9 @@
-import type { AgentDefinition } from '../../types';
-import { referenceLabel } from '../linkableAgents';
-import type { SkillCatalogSourceStatus, WorkflowExportBundle } from '../workflowTypes';
+import type {
+  AgentDefinition,
+  SkillCatalogSourceStatus,
+  WorkflowExportBundle,
+} from '@openjcockpit/api';
+import { referenceLabel } from '@openjcockpit/api';
 
 export function toList(value: string): string[] {
   return value

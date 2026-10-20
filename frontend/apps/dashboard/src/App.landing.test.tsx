@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
-import * as api from './api';
+import * as api from '@openjcockpit/api';
 import { clickAsync } from './testUtils/dom';
 import { mockDashboardApis } from './testUtils/dashboardFixtures';
 
@@ -24,19 +24,12 @@ vi.mock('@openjcockpit/auth', async () => ({
   getKeycloak: () => keycloak,
 }));
 
-vi.mock('./api', async () => {
-  const actual = await vi.importActual<typeof import('./api')>('./api');
-  return {
-    ...actual,
-    loadProjects: vi.fn(),
-    loadWorkspace: vi.fn(),
-    loadProjectSpecs: vi.fn(),
-    getSpecInitStatus: vi.fn(),
-  };
-});
-
-vi.mock('./workflow/workflowApi', async () => ({
-  ...(await vi.importActual<typeof import('./workflow/workflowApi')>('./workflow/workflowApi')),
+vi.mock('@openjcockpit/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@openjcockpit/api')>()),
+  loadProjects: vi.fn(),
+  loadWorkspace: vi.fn(),
+  loadProjectSpecs: vi.fn(),
+  getSpecInitStatus: vi.fn(),
   listWorkflows: vi.fn(),
   listWorkflowGroups: vi.fn(),
 }));

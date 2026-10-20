@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { AgentEvent } from '../types';
+import type { AgentEvent } from '../types/types';
 import {
   buildAgentCards,
   buildSequencerNodes,
@@ -112,7 +112,11 @@ describe('formatRunDuration', () => {
 });
 
 describe('buildAgentCards / buildSequencerNodes', () => {
-  const workflow = { id: 'wf', name: 'WF', agentIds: ['a', 'b'] } as WorkflowDefinition;
+  const workflow = {
+    id: 'wf',
+    name: 'WF',
+    agentIds: ['a', 'b'],
+  } as WorkflowDefinition;
   const event = (agentId: string, status: string) => ({ agentId, status }) as AgentEvent;
 
   it('derives agent card status from the latest events', () => {

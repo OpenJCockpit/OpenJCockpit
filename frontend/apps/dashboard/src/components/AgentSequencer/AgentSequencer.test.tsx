@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { AgentSequencer } from './AgentSequencer';
-import type { AgentCard, AgentDefinition, AgentEvent, OrbCard } from '../../types';
+import type { AgentCard, AgentDefinition, AgentEvent, OrbCard } from '@openjcockpit/api';
 
 const agents: AgentCard[] = [
   {

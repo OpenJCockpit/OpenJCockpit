@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getJiraConfig, saveJiraConfig } from '../../workflowApi';
-import { mockJiraConfig } from '../../mockWorkflows';
+import { getJiraConfig, mockJiraConfig, saveJiraConfig } from '@openjcockpit/api';
 import { CheckboxField } from '../../../components/FormFields/CheckboxField/CheckboxField';
 import { SecretField } from '../../../components/FormFields/SecretField/SecretField';
 import { TextField } from '../../../components/FormFields/TextField/TextField';

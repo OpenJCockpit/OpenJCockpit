@@ -1,4 +1,4 @@
-import type { WorkflowDefinition } from '../../workflow/workflowTypes';
+import type { WorkflowDefinition } from '@openjcockpit/api';
 import { StatusChip } from '../StatusChip/StatusChip';
 import styles from './FlowPanel.module.scss';
 import { Button, feedbackResultClass } from '@openjcockpit/ui';

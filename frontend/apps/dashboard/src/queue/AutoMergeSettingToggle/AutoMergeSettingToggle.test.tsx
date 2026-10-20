@@ -2,10 +2,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@openjcockpit/auth', () => ({ isOpenJCockpitAdmin: vi.fn() }));
-vi.mock('../specQueueApi', () => ({ updateSpecQueueSettings: vi.fn() }));
+vi.mock('@openjcockpit/api', () => ({ updateSpecQueueSettings: vi.fn() }));
 
 import { isOpenJCockpitAdmin } from '@openjcockpit/auth';
-import { updateSpecQueueSettings } from '../specQueueApi';
+import { updateSpecQueueSettings } from '@openjcockpit/api';
 import { AutoMergeSettingToggle } from './AutoMergeSettingToggle';
 
 function setup(autoMergeAllowed: boolean) {

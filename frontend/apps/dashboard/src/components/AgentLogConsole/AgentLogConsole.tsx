@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { AgentEvent } from '../../types';
+import type { AgentEvent } from '@openjcockpit/api';
 import styles from './AgentLogConsole.module.scss';
 
 interface Props {

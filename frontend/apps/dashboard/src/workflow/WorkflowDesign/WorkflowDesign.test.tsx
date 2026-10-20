@@ -2,15 +2,15 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WorkflowDesign } from './WorkflowDesign';
 import * as linkable from '../linkableAgents';
-import * as workflowApi from '../workflowApi';
-import { mockSkillSpecs } from '../mockWorkflows';
+import * as workflowApi from '@openjcockpit/api';
+import { mockSkillSpecs } from '@openjcockpit/api';
 import type {
   ExternalSkill,
   SkillCatalog,
   SkillCatalogSourceStatus,
   WorkflowDefinition,
   WorkflowGroup,
-} from '../workflowTypes';
+} from '@openjcockpit/api';
 
 // The designer and overview load linkable agents from the agent catalog; these tests stub that
 // catalog with agent-definition fixtures (ids act as agent references).
@@ -19,8 +19,8 @@ vi.mock('../linkableAgents', async () => {
   return { ...actual, fetchLinkableAgents: vi.fn(), loadLinkableAgents: vi.fn() };
 });
 
-vi.mock('../workflowApi', async () => {
-  const actual = await vi.importActual<typeof import('../workflowApi')>('../workflowApi');
+vi.mock('@openjcockpit/api', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@openjcockpit/api')>();
   return {
     ...actual,
     listWorkflows: vi.fn(),

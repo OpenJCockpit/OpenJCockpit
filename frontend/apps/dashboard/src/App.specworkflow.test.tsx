@@ -1,12 +1,11 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
-import * as api from './api';
-import * as workflowApi from './workflow/workflowApi';
-import { mockWorkspace } from './mockWorkspace';
+import * as api from '@openjcockpit/api';
+import * as workflowApi from '@openjcockpit/api';
+import { mockWorkspace } from '@openjcockpit/api';
+import type { SpecFile, WorkflowDefinition } from '@openjcockpit/api';
 import { mockDashboardApis, PROJECT, WORKFLOW } from './testUtils/dashboardFixtures';
-import type { SpecFile } from './types';
-import type { WorkflowDefinition } from './workflow/workflowTypes';
 import { specStyles } from '@openjcockpit/ui';
 import { enterDashboard } from './testUtils/dom';
 vi.mock(
@@ -24,31 +23,20 @@ vi.mock('@openjcockpit/auth', async () => ({
   }),
 }));
 
-vi.mock('./api', async () => {
-  const actual = await vi.importActual<typeof import('./api')>('./api');
-  return {
-    ...actual,
-    loadProjects: vi.fn(),
-    loadWorkspace: vi.fn(),
-    loadProjectSpecs: vi.fn(),
-    initSpecFolder: vi.fn(),
-    getSpecInitStatus: vi.fn(),
-    checkWorkflowPreflight: vi.fn(),
-    getAgentRun: vi.fn(),
-    stopAgentRun: vi.fn(),
-  };
-});
-
-vi.mock('./workflow/workflowApi', async () => {
-  const actual =
-    await vi.importActual<typeof import('./workflow/workflowApi')>('./workflow/workflowApi');
-  return {
-    ...actual,
-    listWorkflows: vi.fn(),
-    listWorkflowGroups: vi.fn(),
-    startWorkflow: vi.fn(),
-  };
-});
+vi.mock('@openjcockpit/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@openjcockpit/api')>()),
+  loadProjects: vi.fn(),
+  loadWorkspace: vi.fn(),
+  loadProjectSpecs: vi.fn(),
+  initSpecFolder: vi.fn(),
+  getSpecInitStatus: vi.fn(),
+  checkWorkflowPreflight: vi.fn(),
+  getAgentRun: vi.fn(),
+  stopAgentRun: vi.fn(),
+  listWorkflows: vi.fn(),
+  listWorkflowGroups: vi.fn(),
+  startWorkflow: vi.fn(),
+}));
 
 const SPECS: SpecFile[] = [
   {

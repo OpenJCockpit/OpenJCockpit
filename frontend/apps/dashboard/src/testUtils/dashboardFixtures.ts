@@ -1,9 +1,7 @@
 import { vi } from 'vitest';
-import * as api from '../api';
-import * as workflowApi from '../workflow/workflowApi';
-import { mockWorkspace } from '../mockWorkspace';
-import type { Project, SpecFile } from '../types';
-import type { WorkflowDefinition, WorkflowGroup } from '../workflow/workflowTypes';
+import * as api from '@openjcockpit/api';
+import { mockWorkspace } from '@openjcockpit/api';
+import type { Project, SpecFile, WorkflowDefinition, WorkflowGroup } from '@openjcockpit/api';
 
 export const PROJECT: Project = {
   id: 'project-1',
@@ -45,6 +43,6 @@ export function mockDashboardApis({
   vi.mocked(api.loadProjects).mockResolvedValue([project]);
   vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
   vi.mocked(api.loadProjectSpecs).mockResolvedValue(specs);
-  vi.mocked(workflowApi.listWorkflows).mockResolvedValue(workflows);
-  vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue(groups);
+  vi.mocked(api.listWorkflows).mockResolvedValue(workflows);
+  vi.mocked(api.listWorkflowGroups).mockResolvedValue(groups);
 }

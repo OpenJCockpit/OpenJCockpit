@@ -1,14 +1,12 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
-import * as api from './api';
-import { mockWorkspace } from './mockWorkspace';
-import * as queueApi from './queue/specQueueApi';
-import type { SpecQueue } from './queue/specQueueTypes';
-import type { Project, SpecFile } from './types';
-import * as workflowApi from './workflow/workflowApi';
+import * as api from '@openjcockpit/api';
+import { mockWorkspace } from '@openjcockpit/api';
+import type { Project, SpecFile, SpecQueue, WorkflowDefinition } from '@openjcockpit/api';
+import * as queueApi from '@openjcockpit/api';
+import * as workflowApi from '@openjcockpit/api';
 import { tabActiveClass } from '@openjcockpit/ui';
-import type { WorkflowDefinition } from './workflow/workflowTypes';
 import { enterDashboard } from './testUtils/dom';
 vi.mock(
   '@openjcockpit/landing-hub',
@@ -26,34 +24,33 @@ vi.mock('@openjcockpit/auth', async () => ({
   }),
 }));
 
-vi.mock('./api', async () => {
-  const actual = await vi.importActual<typeof import('./api')>('./api');
-  return {
-    ...actual,
-    loadProjects: vi.fn(),
-    loadWorkspace: vi.fn(),
-    loadProjectSpecs: vi.fn(),
-    getSpecInitStatus: vi.fn(),
-    checkWorkflowPreflight: vi.fn(),
-    getAgentRun: vi.fn(),
-    stopAgentRun: vi.fn(),
-  };
-});
-
-vi.mock('./queue/specQueueApi');
-
-vi.mock('./workflow/workflowApi', async () => {
-  const actual =
-    await vi.importActual<typeof import('./workflow/workflowApi')>('./workflow/workflowApi');
-  return {
-    ...actual,
-    listWorkflows: vi.fn(),
-    listWorkflowGroups: vi.fn(),
-    startWorkflow: vi.fn(),
-    getWorkflow: vi.fn(),
-    listWorkflowExecutions: vi.fn(),
-  };
-});
+vi.mock('@openjcockpit/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@openjcockpit/api')>()),
+  loadProjects: vi.fn(),
+  loadWorkspace: vi.fn(),
+  loadProjectSpecs: vi.fn(),
+  getSpecInitStatus: vi.fn(),
+  checkWorkflowPreflight: vi.fn(),
+  getAgentRun: vi.fn(),
+  stopAgentRun: vi.fn(),
+  listWorkflows: vi.fn(),
+  listWorkflowGroups: vi.fn(),
+  startWorkflow: vi.fn(),
+  getWorkflow: vi.fn(),
+  listWorkflowExecutions: vi.fn(),
+  getSpecQueue: vi.fn(),
+  enqueueSpecQueueItem: vi.fn(),
+  updateSpecQueueItem: vi.fn(),
+  removeSpecQueueItem: vi.fn(),
+  reorderSpecQueue: vi.fn(),
+  pauseSpecQueue: vi.fn(),
+  resumeSpecQueue: vi.fn(),
+  retrySpecQueueItem: vi.fn(),
+  skipSpecQueueItem: vi.fn(),
+  getSpecQueueSettings: vi.fn(),
+  updateSpecQueueSettings: vi.fn(),
+  listSpecFilesStrict: vi.fn(),
+}));
 
 const PROJECT: Project = {
   id: 'project-1',

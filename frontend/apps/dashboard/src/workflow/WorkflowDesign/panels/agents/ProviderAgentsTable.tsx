@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
-import { getProviderAgentCard } from '../../../workflowApi';
-import type { A2AAgentCard, ProviderCatalogAgent } from '../../../workflowTypes';
+import { getProviderAgentCard } from '@openjcockpit/api';
+import type { A2AAgentCard, ProviderCatalogAgent } from '@openjcockpit/api';
 import { StatusMessage } from '../../../../components/StatusMessage/StatusMessage';
 import { Button, DataTable } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
