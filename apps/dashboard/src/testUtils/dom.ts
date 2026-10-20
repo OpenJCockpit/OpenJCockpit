@@ -1,4 +1,4 @@
-import { act, render } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import type { ReactElement } from 'react';
 
 /** Renders inside `act` so effects and their resolved mocks settle before assertions. */
@@ -24,4 +24,9 @@ export function setInputValue(element: HTMLInputElement | HTMLTextAreaElement, v
   const setter = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
   setter?.call(element, value);
   element.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+/** Passes the post-login hub by choosing the Implementation portal. */
+export async function enterDashboard() {
+  await clickAsync(await screen.findByTestId('portal-orb-implementation'));
 }

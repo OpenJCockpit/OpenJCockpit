@@ -9,6 +9,11 @@ import type { Project, SpecFile } from './types';
 import * as workflowApi from './workflow/workflowApi';
 import { tabActiveClass } from '@openjcockpit/ui';
 import type { WorkflowDefinition } from './workflow/workflowTypes';
+import { enterDashboard } from './testUtils/dom';
+vi.mock(
+  '@openjcockpit/landing-hub',
+  async () => (await import('./testUtils/landingHubStub')).landingHubStub,
+);
 
 vi.mock('@openjcockpit/auth', async () => ({
   ...(await vi.importActual<typeof import('@openjcockpit/auth')>('@openjcockpit/auth')),
@@ -117,6 +122,7 @@ async function renderApp(queue: SpecQueue = queueWith()) {
   vi.mocked(queueApi.getSpecQueue).mockResolvedValue(queue);
 
   render(<App />);
+  await enterDashboard();
   await screen.findByText('▶ Start');
 }
 

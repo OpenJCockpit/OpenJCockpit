@@ -12,7 +12,10 @@ vi.mock('@openjcockpit/ui', async (importOriginal) => ({
 const handlers = { onSelectPortal: vi.fn(), onLogout: vi.fn() };
 const user = { username: 'tstark', firstName: 'Tony', email: undefined };
 
-beforeEach(() => vi.useFakeTimers());
+beforeEach(() => {
+  sessionStorage.clear();
+  vi.useFakeTimers();
+});
 afterEach(() => vi.useRealTimers());
 
 describe('LandingPage', () => {
@@ -31,6 +34,16 @@ describe('LandingPage', () => {
     expect(screen.getByTestId('intro-greeting')).toBeInTheDocument();
 
     act(() => void vi.advanceTimersByTime(2850));
+
+    expect(screen.queryByTestId('intro-greeting')).not.toBeInTheDocument();
+    expect(screen.getByTestId('landing-hero')).toBeInTheDocument();
+  });
+
+  it('plays the intro once per browser session', () => {
+    const { unmount } = render(<LandingPage user={user} {...handlers} />);
+    unmount();
+
+    render(<LandingPage user={user} {...handlers} />);
 
     expect(screen.queryByTestId('intro-greeting')).not.toBeInTheDocument();
     expect(screen.getByTestId('landing-hero')).toBeInTheDocument();

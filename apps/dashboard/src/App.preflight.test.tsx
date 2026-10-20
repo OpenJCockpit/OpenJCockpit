@@ -5,6 +5,11 @@ import * as api from './api';
 import * as workflowApi from './workflow/workflowApi';
 import { mockWorkspace } from './mockWorkspace';
 import { mockDashboardApis, WORKFLOW } from './testUtils/dashboardFixtures';
+import { enterDashboard } from './testUtils/dom';
+vi.mock(
+  '@openjcockpit/landing-hub',
+  async () => (await import('./testUtils/landingHubStub')).landingHubStub,
+);
 
 vi.mock('@openjcockpit/auth', async () => ({
   ...(await vi.importActual<typeof import('@openjcockpit/auth')>('@openjcockpit/auth')),
@@ -46,6 +51,7 @@ async function renderDashboard() {
   mockDashboardApis();
 
   render(<App />);
+  await enterDashboard();
   await waitFor(() => {
     expect(screen.getByLabelText('Workflow')).toHaveValue(WORKFLOW.id);
     expect(screen.getByText('▶ Start')).toBeEnabled();

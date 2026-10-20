@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PuffsBackground, Reveal, RevealGroup } from '@openjcockpit/ui';
 import { AmbientBackdrop } from '../AmbientBackdrop/AmbientBackdrop';
 import { AppShell } from '../AppShell/AppShell';
@@ -9,6 +9,24 @@ import type { Portal, PortalId } from '../PortalOrb/PortalOrb';
 import { TopBar } from '../TopBar/TopBar';
 import type { HubUser } from '../types';
 import styles from './LandingPage.module.scss';
+
+const INTRO_SEEN_KEY = 'openjcockpit_hub_intro_seen';
+
+function wasIntroSeen(): boolean {
+  try {
+    return sessionStorage.getItem(INTRO_SEEN_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function markIntroSeen() {
+  try {
+    sessionStorage.setItem(INTRO_SEEN_KEY, '1');
+  } catch {
+    // Storage unavailable: the intro simply replays next time.
+  }
+}
 
 const portals: Portal[] = [
   {
@@ -32,7 +50,9 @@ type LandingPageProps = {
 };
 
 export function LandingPage({ user, onSelectPortal, onLogout }: LandingPageProps) {
-  const [introVisible, setIntroVisible] = useState(true);
+  const [introVisible, setIntroVisible] = useState(() => !wasIntroSeen());
+
+  useEffect(markIntroSeen, []);
 
   const firstName = useMemo(() => user?.firstName || 'Tony', [user]);
 

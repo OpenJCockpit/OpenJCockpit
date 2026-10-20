@@ -271,14 +271,14 @@ Every PR: `lint`, `test`, `build`, `format:check` green for the touched projects
   - [x] Props only: `user`, `onSelectPortal`, `onLogout`; no Keycloak import
   - [x] Vendored react-bits file and `ATTRIBUTION.md` moved; `NOTICE` paths updated
   - [x] Exported lazily; not yet wired
-- [ ] **PR 7: wire the hub into the dashboard**
-  - [ ] `AppView = 'landing'` as post-login default; `?view=spec-files` deep link bypasses it
-  - [ ] Implementation orb to project selection/dashboard; Business orb to `spec-files` via existing deep-link path
-  - [ ] Header brand/Hub entry returns to the hub
-  - [ ] Logout from hub and dashboard; one Keycloak init, one refresh timer
-  - [ ] Intro once per session (`sessionStorage`, wrapped in try/catch)
-  - [ ] Hub chunk not downloaded on the deep-link path
-  - [ ] `App.*.test.tsx` suites and `src/testUtils` updated for the new entry view; hub tests added
+- [x] **PR 7: wire the hub into the dashboard**
+  - [x] `AppView = 'landing'` as post-login default; `?view=spec-files` deep link bypasses it
+  - [x] Implementation orb to project selection/dashboard; Business orb to `spec-files` via existing deep-link path
+  - [x] Header brand/Hub entry returns to the hub
+  - [x] Logout from hub and dashboard; one Keycloak init, one refresh timer
+  - [x] Intro once per session (`sessionStorage`, wrapped in try/catch)
+  - [x] Hub chunk not downloaded on the deep-link path
+  - [x] `App.*.test.tsx` suites and `src/testUtils` updated for the new entry view; hub tests added
 - [ ] **PR 8: infra switch and deletion** (single PR)
   - [ ] `landing` service removed from `docker-compose.yml`; nothing on `:3000`
   - [ ] Dashboard nginx: immutable asset caching, `no-cache` on `index.html`
