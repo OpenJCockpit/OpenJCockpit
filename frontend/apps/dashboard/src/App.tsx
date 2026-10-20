@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
   Navigate,
@@ -9,43 +9,18 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router';
-import { ToolbarButton, AppShell, ErrorBoundary, StatusMessage } from '@openjcockpit/ui';
+import { ErrorBoundary, StatusMessage } from '@openjcockpit/ui';
 import {
   clearStoredProjectId,
   getStoredProjectId,
   setStoredProjectId,
+  useProjectsQuery,
 } from '@openjcockpit/project';
-import {
-  getSpecInitStatus,
-  isAbortError,
-  listWorkflowGroups,
-  listWorkflows,
-  loadProjectSpecs,
-  loadProjects,
-  loadWorkspace,
-  setAuthToken,
-  workflowsForProject,
-} from '@openjcockpit/api';
-import type {
-  Project,
-  SpecFile,
-  SpecInitStatus,
-  WorkflowDefinition,
-  WorkflowGroup,
-  Workspace,
-} from '@openjcockpit/api';
+import type { Project } from '@openjcockpit/api';
 import { getKeycloak, getUserFromToken } from '@openjcockpit/auth';
-import type { User } from '@openjcockpit/auth';
 import { LandingHub } from '@openjcockpit/landing-hub';
 import type { PortalId } from '@openjcockpit/landing-hub';
-import { CustomerHero } from './components/CustomerHero/CustomerHero';
-import { SiteHeader } from './components/SiteHeader/SiteHeader';
-import { SpecPanel } from './components/SpecPanel/SpecPanel';
-import { StatusBar } from './components/StatusBar/StatusBar';
-import { EvidencePanel } from './components/WorkspacePanels/EvidencePanel';
-import { PullRequestPanel } from './components/WorkspacePanels/PullRequestPanel';
-import { QualityPanel } from './components/WorkspacePanels/QualityPanel';
-import { FlowPanel } from './components/FlowPanel/FlowPanel';
+import { DashboardView } from './components/DashboardView/DashboardView';
 import {
   AddToQueueDialog,
   ProjectSelection,
@@ -55,14 +30,11 @@ import {
   SpecFilesDashboard,
   SpecQueueDashboard,
   WorkflowDashboard,
-  WorkflowPromptDialog,
 } from './lazyViews';
 import { ROUTES, workflowRunPath } from './routes';
-import { useRunLauncher } from './useRunLauncher';
-import styles from './App.module.scss';
+import { useAuthSession } from './useAuthSession';
 
-// Failed list loads leave the previous (or empty) list in place; aborts are expected on cleanup.
-function ignoreAbortedAndFailed() {}
+const NO_PROJECTS: Project[] = [];
 
 /** Views that need a project bounce to project selection and return here once one is chosen. */
 function RequireProject({ project, children }: { project: Project | null; children: ReactNode }) {
@@ -119,85 +91,26 @@ function WorkflowRoute({ project, onBack }: { project: Project | null; onBack: (
 }
 
 function App() {
-  const [authReady, setAuthReady] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState<User | null>(null);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [workspace, setWorkspace] = useState<Workspace | null>(null);
-  const [workspaceError, setWorkspaceError] = useState(false);
-  const [specs, setSpecs] = useState<SpecFile[]>([]);
-  const [specsLoading, setSpecsLoading] = useState(true);
-  const [selectedSpecId, setSelectedSpecId] = useState<string>('');
-  const [workflows, setWorkflows] = useState<WorkflowDefinition[]>([]);
-  const [workflowGroups, setWorkflowGroups] = useState<WorkflowGroup[]>([]);
-  const [selectedWorkflowId, setSelectedWorkflowId] = useState<string>('');
+  const { authenticated, user } = useAuthSession();
+  const projectsQuery = useProjectsQuery(authenticated);
+  const projects = projectsQuery.data ?? NO_PROJECTS;
+  const [selectedProjectId, setSelectedProjectId] = useState(getStoredProjectId);
+  const selectedProject = projects.find((p) => p.id === selectedProjectId) ?? null;
+  // A backend failure must not bounce the user back to the Keycloak login: a failed load
+  // settles the query and the app continues with no projects.
+  const authReady = authenticated && !projectsQuery.isPending;
 
   useEffect(() => {
-    const keycloak = getKeycloak();
-    let refreshTimer: ReturnType<typeof setInterval>;
-    const controller = new AbortController();
-    keycloak
-      .init({ onLoad: 'login-required', pkceMethod: 'S256', checkLoginIframe: false })
-      .then(async (authenticated) => {
-        if (!authenticated || !keycloak.token) {
-          void keycloak.login();
-          return;
-        }
-        setAuthToken(keycloak.token);
-        setUser(getUserFromToken(keycloak.tokenParsed));
-        // A backend failure must not bounce the user back to the Keycloak login.
-        const active = await loadProjects(controller.signal).catch((err) => {
-          if (isAbortError(err)) throw err;
-          return [] as Project[];
-        });
-        setProjects(active);
-        const storedId = getStoredProjectId();
-        const found = storedId ? active.find((p) => p.id === storedId) : undefined;
-        if (storedId && !found) clearStoredProjectId();
-        if (found) setSelectedProject(found);
-        setAuthReady(true);
-        refreshTimer = window.setInterval(async () => {
-          try {
-            const refreshed = await keycloak.updateToken(60);
-            if (refreshed && keycloak.token) setAuthToken(keycloak.token);
-          } catch {
-            void keycloak.login();
-          }
-        }, 30_000);
-      })
-      .catch((err) => {
-        if (isAbortError(err)) return;
-        void keycloak.login();
-      });
-    return () => {
-      controller.abort();
-      if (refreshTimer) window.clearInterval(refreshTimer);
-    };
-  }, []);
-
-  async function reloadSpecs(projectId: string, signal?: AbortSignal) {
-    setSpecsLoading(true);
-    try {
-      const loaded = await loadProjectSpecs(projectId, signal);
-      setSpecs(loaded);
-      const initial = loaded.find((s) => s.selected) ?? loaded[0];
-      setSelectedSpecId(initial?.id ?? '');
-      // Without specs, a spec-init branch (pull request) may already be open;
-      // in that case we show a link to that branch instead of a Start button.
-      setSpecInitStatus(loaded.length === 0 ? await getSpecInitStatus(projectId, signal) : null);
-    } catch (err) {
-      if (isAbortError(err)) return;
-      setSpecs([]);
-      setSelectedSpecId('');
-      setSpecInitStatus(null);
+    if (projectsQuery.isSuccess && selectedProjectId && !selectedProject) {
+      clearStoredProjectId();
+      setSelectedProjectId(null);
     }
-    setSpecsLoading(false);
-  }
+  }, [projectsQuery.isSuccess, selectedProjectId, selectedProject]);
 
   function handleSelectProject(project: Project) {
-    setSelectedProject(project);
+    setSelectedProjectId(project.id);
     setStoredProjectId(project.id);
   }
 
@@ -206,63 +119,11 @@ function App() {
     void navigate(portal === 'business' ? ROUTES.specFiles : ROUTES.dashboard);
   }
 
-  const backTarget = selectedProject ? ROUTES.dashboard : ROUTES.projects;
-
   function handleLogout() {
     void getKeycloak().logout({ redirectUri: window.location.origin });
   }
 
-  function handleProjectDropdownChange(projectId: string) {
-    const project = projects.find((p) => p.id === projectId);
-    if (project) {
-      setSelectedProject(project);
-      setStoredProjectId(project.id);
-    }
-  }
-
-  const [specInitStatus, setSpecInitStatus] = useState<SpecInitStatus | null>(null);
-
-  const selected = specs.find((s) => s.id === selectedSpecId) ?? specs[0];
-  const hasSpecs = !specsLoading && specs.length > 0;
-
-  const projectWorkflows = useMemo(
-    () => workflowsForProject(workflows, workflowGroups, selectedProject?.name),
-    [workflows, workflowGroups, selectedProject],
-  );
-
-  useEffect(() => {
-    if (projectWorkflows.length > 0 && !projectWorkflows.some((w) => w.id === selectedWorkflowId)) {
-      setSelectedWorkflowId(projectWorkflows[0].id);
-    }
-  }, [projectWorkflows, selectedWorkflowId]);
-
-  const launcher = useRunLauncher({
-    selectedProject,
-    projectWorkflows,
-    selectedWorkflowId,
-    selectedSpec: selected,
-  });
-  const { buttonState, promptWorkflow } = launcher;
-
-  useEffect(() => {
-    if (!authReady || !selectedProject) return;
-    const customerId = selectedProject.customerId ?? selectedProject.id;
-    const controller = new AbortController();
-    const { signal } = controller;
-    setWorkspace(null);
-    setWorkspaceError(false);
-    loadWorkspace(customerId, signal)
-      .then(setWorkspace)
-      .catch((err) => {
-        if (!isAbortError(err)) setWorkspaceError(true);
-      });
-    launcher.reset();
-    void reloadSpecs(selectedProject.id, signal);
-    listWorkflows(signal).then(setWorkflows).catch(ignoreAbortedAndFailed);
-    listWorkflowGroups(signal).then(setWorkflowGroups).catch(ignoreAbortedAndFailed);
-    return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- launcher.reset only needs to run when the project changes
-  }, [authReady, selectedProject]);
+  const backTarget = selectedProject ? ROUTES.dashboard : ROUTES.projects;
 
   if (!authReady) {
     return (
@@ -271,96 +132,6 @@ function App() {
       </StatusMessage>
     );
   }
-
-  const dashboard = (
-    <AppShell>
-      {promptWorkflow && (
-        <Suspense fallback={null}>
-          <WorkflowPromptDialog
-            workflowName={promptWorkflow.name}
-            busy={buttonState === 'preflight' || buttonState === 'starting'}
-            onSubmit={(prompt) => {
-              void launcher.handlePromptSubmit(prompt);
-            }}
-            onCancel={launcher.cancelPrompt}
-          />
-        </Suspense>
-      )}
-
-      <SiteHeader
-        projects={projects}
-        selectedProject={selectedProject}
-        onProjectChange={handleProjectDropdownChange}
-        onWorkflow={() => void navigate(ROUTES.workflow)}
-        onSpecFiles={() => void navigate(ROUTES.specFiles)}
-        onSpecQueue={() => void navigate(ROUTES.specQueue)}
-        onSkillsHub={() => void navigate(ROUTES.skillsHub)}
-        onSettings={() => void navigate(ROUTES.settings)}
-        onHub={() => void navigate(ROUTES.landing)}
-        onLogout={handleLogout}
-      />
-
-      <main className={styles.workspace}>
-        {workspace ? (
-          <CustomerHero selectedProject={selectedProject} workspace={workspace} />
-        ) : (
-          <StatusMessage
-            variant={workspaceError ? 'error' : 'loading'}
-            data-testid="workspace-status"
-          >
-            {workspaceError ? 'Failed to load the workspace.' : 'Loading workspace...'}
-          </StatusMessage>
-        )}
-
-        <section className={styles.topTools}>
-          <div className={styles.search}>
-            Search workspace... <span>⌕</span>
-          </div>
-          <ToolbarButton variant="small">Filters</ToolbarButton>
-          <div className={styles.topToolsSpacer} />
-          <ToolbarButton variant="small">⟳ Refresh</ToolbarButton>
-          <span className={styles.lastUpdate}>● Last update: 13:24:11</span>
-        </section>
-
-        <section className={styles.dashboardGrid}>
-          <SpecPanel
-            specs={specs}
-            loading={specsLoading}
-            selectedSpecId={selectedSpecId}
-            selected={selected}
-            onSelect={setSelectedSpecId}
-            onGoToWorkflow={() => void navigate(ROUTES.workflow)}
-            onViewAll={() => void navigate(ROUTES.specFiles)}
-          />
-
-          <FlowPanel
-            launcher={launcher}
-            specsLoading={specsLoading}
-            hasSpecs={hasSpecs}
-            selectedFileName={selected?.fileName}
-            projectWorkflows={projectWorkflows}
-            selectedWorkflowId={selectedWorkflowId}
-            onWorkflowChange={setSelectedWorkflowId}
-            specInitStatus={specInitStatus}
-            onReloadSpecs={() => {
-              if (selectedProject) void reloadSpecs(selectedProject.id);
-            }}
-            onOpenProjectSettings={() => void navigate(ROUTES.settings)}
-          />
-
-          {workspace && (
-            <>
-              <QualityPanel controls={workspace.qualityControls} />
-              <PullRequestPanel pullRequests={workspace.pullRequests} />
-              <EvidencePanel events={workspace.evidenceEvents} />
-            </>
-          )}
-        </section>
-      </main>
-
-      {workspace && <StatusBar footer={workspace.footer} />}
-    </AppShell>
-  );
 
   return (
     <ErrorBoundary resetKeys={[location.pathname]}>
@@ -390,7 +161,22 @@ function App() {
           />
           <Route
             path={ROUTES.dashboard}
-            element={<RequireProject project={selectedProject}>{dashboard}</RequireProject>}
+            element={
+              <RequireProject project={selectedProject}>
+                {selectedProject && (
+                  <DashboardView
+                    key={selectedProject.id}
+                    projects={projects}
+                    project={selectedProject}
+                    onProjectChange={(id) => {
+                      const project = projects.find((p) => p.id === id);
+                      if (project) handleSelectProject(project);
+                    }}
+                    onLogout={handleLogout}
+                  />
+                )}
+              </RequireProject>
+            }
           />
           <Route
             path={ROUTES.settings}
