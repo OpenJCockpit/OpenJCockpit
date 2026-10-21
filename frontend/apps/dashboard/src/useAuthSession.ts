@@ -7,14 +7,14 @@ const TOKEN_REFRESH_INTERVAL_MS = 30_000;
 
 const pendingInits = new WeakMap<object, Promise<boolean>>();
 
-/** Keycloak may only be initialised once per instance, so effect re-runs (StrictMode) share one init. */
+/**
+ * Keycloak may only be initialised once per instance, so effect re-runs (StrictMode) share one init.
+ * `keycloak.authenticated` defaults to false, so it cannot tell whether init already ran.
+ */
 function initKeycloakOnce(keycloak: ReturnType<typeof getKeycloak>) {
-  if (keycloak.authenticated !== undefined) return Promise.resolve(keycloak.authenticated);
   let init = pendingInits.get(keycloak);
   if (!init) {
-    init = keycloak
-      .init({ onLoad: 'login-required', pkceMethod: 'S256', checkLoginIframe: false })
-      .finally(() => pendingInits.delete(keycloak));
+    init = keycloak.init({ onLoad: 'login-required', pkceMethod: 'S256', checkLoginIframe: false });
     pendingInits.set(keycloak, init);
   }
   return init;
@@ -48,8 +48,9 @@ export function useAuthSession() {
           }
         }, TOKEN_REFRESH_INTERVAL_MS);
       })
-      .catch(() => {
-        if (!cancelled) void keycloak.login();
+      .catch((error: unknown) => {
+        // A failed init leaves keycloak-js without an adapter, so login() would throw and mask the real error.
+        console.error('Keycloak initialisation failed', error);
       });
     return () => {
       cancelled = true;
