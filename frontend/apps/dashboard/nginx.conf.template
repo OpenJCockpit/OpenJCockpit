@@ -4,23 +4,40 @@ server {
 
   root /usr/share/nginx/html;
 
+  gzip on;
+  gzip_vary on;
+  gzip_comp_level 5;
+  gzip_min_length 1024;
+  gzip_proxied any;
+  gzip_types text/plain text/css text/javascript application/javascript application/json image/svg+xml;
+
   # Vite emits content-hashed filenames under /assets/, so they can be cached forever.
   location /assets/ {
+    include /etc/nginx/conf.d/security-headers.inc;
     add_header Cache-Control "public, max-age=31536000, immutable";
     try_files $uri =404;
   }
 
   # The entry document references the hashed assets and must always be revalidated.
   location = /index.html {
+    include /etc/nginx/conf.d/security-headers.inc;
     add_header Cache-Control "no-cache";
   }
 
+  location = /healthz {
+    access_log off;
+    default_type text/plain;
+    return 200 "ok\n";
+  }
+
   location / {
+    include /etc/nginx/conf.d/security-headers.inc;
     try_files $uri $uri/ /index.html;
     add_header Cache-Control "no-cache";
   }
 
   location /api/ {
+    include /etc/nginx/conf.d/security-headers.inc;
     proxy_pass http://ai-control-service:8080/api/;
     # Spec listing and spec init run a git clone/push synchronously (max 120s each);
     # the nginx default of 60s would abort those requests with a gateway error.

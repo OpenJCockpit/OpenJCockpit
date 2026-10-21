@@ -1,0 +1,9 @@
+# Rendered to /etc/nginx/conf.d/security-headers.inc at container start (KEYCLOAK_URL comes from the environment).
+# add_header in a location block discards headers inherited from the server block, so every location
+# includes this file instead of relying on inheritance.
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-Frame-Options "DENY" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()" always;
+# style-src needs 'unsafe-inline' for React style props. Keycloak is the login redirect target and the token endpoint.
+add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' ${KEYCLOAK_URL}; frame-src 'self' ${KEYCLOAK_URL}; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self' ${KEYCLOAK_URL}" always;
