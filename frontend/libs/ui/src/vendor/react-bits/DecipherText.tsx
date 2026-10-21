@@ -122,6 +122,7 @@ export function DecipherText({
     window.clearInterval(intervalRef.current);
 
     if (reducedMotion) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- seeds the scrambled frame when the animation restarts
       setDisplayText(text);
       return undefined;
     }

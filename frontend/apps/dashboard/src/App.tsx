@@ -105,7 +105,6 @@ function App() {
   useEffect(() => {
     if (projectsQuery.isSuccess && selectedProjectId && !selectedProject) {
       clearStoredProjectId();
-      setSelectedProjectId(null);
     }
   }, [projectsQuery.isSuccess, selectedProjectId, selectedProject]);
 

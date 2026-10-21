@@ -124,6 +124,7 @@ export function useRunHistory(workflow: WorkflowDefinition | null, showHistory: 
 
   useEffect(() => {
     if (!workflow) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clears history when the workflow is unselected
       setHistoryPage(null);
       setHistoryError(null);
       return;

@@ -45,6 +45,7 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
         // WorkflowExecution has already interleaved agent cards and anchored orb cards
         // into the correct order; re-sorting by sequenceOrder would push orb nodes
         // (whose ids are not in the definitions orderMap) to the end.
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- sequence mirrors nodes until definitions arrive, then orders once
         setSequence(nodes);
         return;
       }
