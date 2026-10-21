@@ -1,4 +1,4 @@
-import { API_BASE_URL, authHeaders } from '../core/http';
+import { ApiError, API_BASE_URL, authHeaders } from '../core/http';
 import type { SpecFile } from '../types/types';
 import { errorMessageFrom } from '../core/httpErrors';
 import type {
@@ -35,7 +35,7 @@ async function request<T>(
   body?: unknown,
 ): Promise<T> {
   const response = await fetch(url, init(method, body));
-  if (!response.ok) throw new Error(await errorMessageFrom(response, fallback));
+  if (!response.ok) throw new ApiError(await errorMessageFrom(response, fallback), response.status);
   return response.json();
 }
 
@@ -102,7 +102,7 @@ export async function updateSpecQueueSettings(
       response.status === 403
         ? 'Only administrators can change this setting.'
         : 'Failed to update the queue settings';
-    throw new Error(await errorMessageFrom(response, fallback));
+    throw new ApiError(await errorMessageFrom(response, fallback), response.status);
   }
   return response.json();
 }
@@ -114,6 +114,10 @@ export async function listSpecFilesStrict(projectId: string): Promise<SpecFile[]
     `${API_BASE_URL}/api/projects/${encodeURIComponent(projectId)}/spec-files`,
     { headers: authHeaders() },
   );
-  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to load spec files'));
+  if (!response.ok)
+    {throw new ApiError(
+      await errorMessageFrom(response, 'Failed to load spec files'),
+      response.status,
+    );}
   return response.json();
 }

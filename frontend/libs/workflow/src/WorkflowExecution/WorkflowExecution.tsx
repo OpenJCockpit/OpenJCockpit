@@ -116,9 +116,11 @@ export function WorkflowExecution({
   // Keep selectedRunId in sync with a newly-provided runId prop (e.g. a fresh
   // "start workflow" flow), without clobbering a user's in-history selection when the
   // prop hasn't changed.
-  useEffect(() => {
+  const [prevRunId, setPrevRunId] = useState(runId);
+  if (prevRunId !== runId) {
+    setPrevRunId(runId);
     setSelectedRunId(runId);
-  }, [runId]);
+  }
 
   const agentCards = useMemo(
     () => buildAgentCards(workflow, definitions, latestEvents),

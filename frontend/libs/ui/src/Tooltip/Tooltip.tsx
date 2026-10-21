@@ -115,6 +115,7 @@ export function Tooltip({ content, placement = 'top', children }: TooltipProps) 
 
   useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clears the measured position when the tooltip closes
       setPos(null);
       return;
     }
@@ -144,6 +145,7 @@ export function Tooltip({ content, placement = 'top', children }: TooltipProps) 
     : existingProps['aria-describedby'];
 
   const cloned = cloneElement(child, {
+    // eslint-disable-next-line react-hooks/refs -- anchorRef is only passed to mergeRefs here; it is read in effects, never during render
     ref: mergeRefs<HTMLElement>(anchorRef, child.ref as Ref<HTMLElement> | undefined),
     onMouseEnter: (e) => {
       existingProps.onMouseEnter?.(e);

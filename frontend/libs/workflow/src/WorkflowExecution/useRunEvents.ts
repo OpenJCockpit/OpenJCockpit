@@ -109,6 +109,7 @@ export function useRunEvents({
   // selected run never tears down and recreates the single polling interval.
   useEffect(() => {
     if (!selectedRunId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets per-run detail state when the selected run changes
       setLatestEvents({});
       setRunEvents([]);
       setRunStatus(null);

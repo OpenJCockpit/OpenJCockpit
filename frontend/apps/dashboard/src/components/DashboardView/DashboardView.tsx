@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { AppShell, StatusMessage, ToolbarButton } from '@openjcockpit/ui';
 import { useProjectWorkflows } from '@openjcockpit/workflow/queries';
@@ -31,7 +31,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
   const specsQuery = useProjectSpecsQuery(project.id);
   const projectWorkflows = useProjectWorkflows(project.name);
   const [selectedSpecId, setSelectedSpecId] = useState('');
-  const [selectedWorkflowId, setSelectedWorkflowId] = useState('');
+  const [chosenWorkflowId, setSelectedWorkflowId] = useState('');
 
   const workspace = workspaceQuery.data;
   const specs = specsQuery.data?.specs ?? [];
@@ -41,11 +41,10 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
     specs.find((s) => s.id === selectedSpecId) ?? specs.find((s) => s.selected) ?? specs[0];
   const hasSpecs = !specsLoading && specs.length > 0;
 
-  useEffect(() => {
-    if (projectWorkflows.length > 0 && !projectWorkflows.some((w) => w.id === selectedWorkflowId)) {
-      setSelectedWorkflowId(projectWorkflows[0].id);
-    }
-  }, [projectWorkflows, selectedWorkflowId]);
+  // Falls back to the first workflow while the chosen one is unset or no longer in the project.
+  const selectedWorkflowId = projectWorkflows.some((w) => w.id === chosenWorkflowId)
+    ? chosenWorkflowId
+    : (projectWorkflows[0]?.id ?? chosenWorkflowId);
 
   const launcher = useRunLauncher({
     selectedProject: project,

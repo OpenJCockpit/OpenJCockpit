@@ -107,6 +107,7 @@ export function PuffsBackground({
   // at the call site) does not tear down and re-seed the puff field or
   // restart the animation loop — only a genuine reduced-motion change does.
   const settingsRef = useRef<(PuffFieldSettings & { color: string }) | null>(null);
+  // eslint-disable-next-line react-hooks/refs -- latest-settings ref read by the animation effect so prop churn does not restart it
   settingsRef.current = {
     color,
     quantity,
@@ -234,6 +235,7 @@ export function PuffsBackground({
 
   useEffect(() => {
     if (reducedMotion) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reveals the canvas for the fade-in; reduced motion shows it immediately
       setVisible(true);
       return undefined;
     }

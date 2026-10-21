@@ -12,6 +12,17 @@ export function authHeaders(): HeadersInit {
   return _authToken ? { Authorization: `Bearer ${_authToken}` } : {};
 }
 
+/** A non-2xx response; `status` lets callers tell a deterministic server failure from a network error. */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 export interface RequestOptions {
   method?: string;
   /** JSON-serialised and sent with a `Content-Type: application/json` header. */
@@ -37,7 +48,8 @@ export async function apiRequest<T>(
     body: body === undefined ? undefined : JSON.stringify(body),
     signal,
   });
-  if (!response.ok) throw new Error(await errorMessageFrom(response, errorMessage));
+  if (!response.ok)
+    {throw new ApiError(await errorMessageFrom(response, errorMessage), response.status);}
   return response.json();
 }
 

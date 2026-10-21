@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { cx } from '../cx';
@@ -63,7 +63,9 @@ export function ModalShell({
 }: ModalShellProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const onDismissRef = useRef(onDismiss);
-  onDismissRef.current = onDismiss;
+  useLayoutEffect(() => {
+    onDismissRef.current = onDismiss;
+  });
 
   // Focus restore: capture whatever had focus before this dialog opened, restore it on close.
   useEffect(() => {

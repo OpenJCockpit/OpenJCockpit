@@ -1,5 +1,5 @@
 import { errorMessageFrom } from '../core/httpErrors';
-import { API_BASE_URL, authHeaders } from '../core/http';
+import { ApiError, API_BASE_URL, authHeaders } from '../core/http';
 import type {
   SkillsMarketplaceConnection,
   SkillsMarketplaceConnectionRequest,
@@ -13,7 +13,10 @@ export async function listSkillsMarketplaces(): Promise<SkillsMarketplaceConnect
     headers: authHeaders(),
   });
   if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to load marketplaces'));
+    throw new ApiError(
+      await errorMessageFrom(response, 'Failed to load marketplaces'),
+      response.status,
+    );
   }
   return response.json();
 }
@@ -27,7 +30,10 @@ export async function createSkillsMarketplace(
     body: JSON.stringify(req),
   });
   if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to create marketplace'));
+    throw new ApiError(
+      await errorMessageFrom(response, 'Failed to create marketplace'),
+      response.status,
+    );
   }
   return response.json();
 }
@@ -42,7 +48,10 @@ export async function updateSkillsMarketplace(
     body: JSON.stringify(req),
   });
   if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to update marketplace'));
+    throw new ApiError(
+      await errorMessageFrom(response, 'Failed to update marketplace'),
+      response.status,
+    );
   }
   return response.json();
 }
@@ -53,6 +62,9 @@ export async function deleteSkillsMarketplace(id: string): Promise<void> {
     headers: authHeaders(),
   });
   if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to delete marketplace'));
+    throw new ApiError(
+      await errorMessageFrom(response, 'Failed to delete marketplace'),
+      response.status,
+    );
   }
 }

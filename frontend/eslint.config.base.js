@@ -102,7 +102,7 @@ export function createConfig(tsconfigRootDir) {
     // 7. React Hooks correctness
     {
       files: ["src/**/*.{ts,tsx}"],
-      ...reactHooks.configs["recommended-latest"],
+      ...reactHooks.configs.flat.recommended,
     },
 
     // 8. Project policy rules
