@@ -1,5 +1,5 @@
 import { errorMessageFrom } from '../core/httpErrors';
-import { API_BASE_URL, apiRequest, authHeaders } from '../core/http';
+import { ApiError, API_BASE_URL, apiRequest, authHeaders } from '../core/http';
 import type { SpecFile, SpecInitResult, SpecInitStatus } from '../types/types';
 
 export function loadProjectSpecs(projectId: string, signal?: AbortSignal): Promise<SpecFile[]> {
@@ -25,7 +25,10 @@ export async function initSpecFolder(projectId: string): Promise<SpecInitResult>
     headers: authHeaders(),
   });
   if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to initialize spec folder'));
+    throw new ApiError(
+      await errorMessageFrom(response, 'Failed to initialize spec folder'),
+      response.status,
+    );
   }
   return response.json();
 }
@@ -40,6 +43,10 @@ export async function saveSpecFile(
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ fileName, content }),
   });
-  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to save spec file'));
+  if (!response.ok)
+    throw new ApiError(
+      await errorMessageFrom(response, 'Failed to save spec file'),
+      response.status,
+    );
   return response.json();
 }

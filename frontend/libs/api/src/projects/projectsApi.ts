@@ -1,5 +1,5 @@
 import { errorMessageFrom } from '../core/httpErrors';
-import { API_BASE_URL, apiRequest, authHeaders } from '../core/http';
+import { ApiError, API_BASE_URL, apiRequest, authHeaders } from '../core/http';
 import type {
   Project,
   ProjectGitCredentialDto,
@@ -79,7 +79,10 @@ export async function saveGitCredentials(
     body: JSON.stringify(req),
   });
   if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to save git credentials'));
+    throw new ApiError(
+      await errorMessageFrom(response, 'Failed to save git credentials'),
+      response.status,
+    );
   }
 }
 

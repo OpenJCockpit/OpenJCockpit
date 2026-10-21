@@ -10,7 +10,8 @@ vi.mock(
   async () => (await import('./testUtils/landingHubStub')).landingHubStub,
 );
 
-const keycloak = vi.hoisted(() => ({
+// A fresh instance per test: the auth session initialises each Keycloak instance only once.
+const createKeycloak = vi.hoisted(() => () => ({
   init: vi.fn(),
   token: 'fake-token',
   tokenParsed: { preferred_username: 'tstark', given_name: 'Tony' },
@@ -18,6 +19,7 @@ const keycloak = vi.hoisted(() => ({
   login: vi.fn(),
   logout: vi.fn(),
 }));
+let keycloak = createKeycloak();
 
 vi.mock('@openjcockpit/auth', async () => ({
   ...(await vi.importActual<typeof import('@openjcockpit/auth')>('@openjcockpit/auth')),
@@ -38,6 +40,7 @@ describe('landing hub entry view', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+    keycloak = createKeycloak();
     keycloak.init.mockResolvedValue(true);
     keycloak.updateToken.mockResolvedValue(false);
     mockDashboardApis();
