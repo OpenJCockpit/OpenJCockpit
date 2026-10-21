@@ -10,12 +10,14 @@ permissions:
 jobs:
   # Nx workspace (apps/dashboard, libs, e2e). Pull requests run only the affected
   # projects; pushes run everything so a missed `affected` edge cannot hide
-  # a regression on main. Local Nx cache only (no remote cache).
+  # a regression on main. Local Nx cache only (no remote cache), persisted with actions/cache.
   workspace:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend
+    env:
+      NX_DAEMON: "false"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -29,6 +31,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # Nx task cache: exact key per commit, falling back to the newest cache for the same lockfile.
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: frontend/.nx/cache
+          key: nx-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            nx-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}-
 
       - name: Lint, check styles, test, build (affected on pull requests)
         if: github.event_name == 'pull_request'
