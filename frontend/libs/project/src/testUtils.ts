@@ -1,11 +1,12 @@
 import { act, render } from '@testing-library/react';
 import { vi } from 'vitest';
 import type { ReactElement } from 'react';
+import { withQueryClient } from './testQueryClient';
 
 /** Renders inside `act` so effects and their resolved mocks settle before assertions. */
 export async function renderAsync(ui: ReactElement) {
   await act(async () => {
-    render(ui);
+    render(withQueryClient(ui));
   });
 }
 

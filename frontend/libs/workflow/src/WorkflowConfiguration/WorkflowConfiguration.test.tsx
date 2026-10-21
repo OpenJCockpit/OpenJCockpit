@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { withQueryClient } from '../testUtils/queryClient';
 import { WorkflowConfiguration } from './WorkflowConfiguration';
 import * as workflowApi from '@openjcockpit/api';
 import type { DocumentFolderConfig, OpaConfig, Project } from '@openjcockpit/api';
@@ -37,7 +38,7 @@ describe('WorkflowConfiguration — OPA section', () => {
 
   it('shows "Not configured" when no base URL has ever been set', async () => {
     await act(async () => {
-      render(<WorkflowConfiguration project={null} />);
+      render(withQueryClient(<WorkflowConfiguration project={null} />));
     });
 
     expect(await screen.findByText('Not configured')).toBeInTheDocument();
@@ -50,7 +51,7 @@ describe('WorkflowConfiguration — OPA section', () => {
     vi.mocked(workflowApi.checkOpaHealth).mockResolvedValue(true);
 
     await act(async () => {
-      render(<WorkflowConfiguration project={null} />);
+      render(withQueryClient(<WorkflowConfiguration project={null} />));
     });
 
     expect(await screen.findByText('Configured and reachable')).toBeInTheDocument();
@@ -63,7 +64,7 @@ describe('WorkflowConfiguration — OPA section', () => {
     vi.mocked(workflowApi.checkOpaHealth).mockResolvedValue(false);
 
     await act(async () => {
-      render(<WorkflowConfiguration project={null} />);
+      render(withQueryClient(<WorkflowConfiguration project={null} />));
     });
 
     expect(await screen.findByText('Configured but unreachable')).toBeInTheDocument();
@@ -76,7 +77,7 @@ describe('WorkflowConfiguration — OPA section', () => {
     vi.mocked(workflowApi.checkOpaHealth).mockResolvedValue(true);
 
     await act(async () => {
-      render(<WorkflowConfiguration project={null} />);
+      render(withQueryClient(<WorkflowConfiguration project={null} />));
     });
 
     expect(await screen.findByText('Enabled and enforcing')).toBeInTheDocument();
@@ -89,7 +90,7 @@ describe('WorkflowConfiguration — OPA section', () => {
     vi.mocked(workflowApi.checkOpaHealth).mockResolvedValue(false);
 
     await act(async () => {
-      render(<WorkflowConfiguration project={null} />);
+      render(withQueryClient(<WorkflowConfiguration project={null} />));
     });
 
     expect(await screen.findByText('Enabled but policy unavailable')).toBeInTheDocument();
@@ -104,7 +105,7 @@ describe('WorkflowConfiguration — OPA section', () => {
     );
 
     await act(async () => {
-      render(<WorkflowConfiguration project={null} />);
+      render(withQueryClient(<WorkflowConfiguration project={null} />));
     });
     await screen.findByText('Configured but unreachable');
 
@@ -127,7 +128,7 @@ describe('WorkflowConfiguration — OPA section', () => {
     vi.mocked(workflowApi.saveOpaConfig).mockRejectedValue(new Error('network error'));
 
     await act(async () => {
-      render(<WorkflowConfiguration project={null} />);
+      render(withQueryClient(<WorkflowConfiguration project={null} />));
     });
     await screen.findByText('Not configured');
 
@@ -140,7 +141,7 @@ describe('WorkflowConfiguration — OPA section', () => {
 
   it('still renders the OPA section when no project is selected', async () => {
     await act(async () => {
-      render(<WorkflowConfiguration project={null} />);
+      render(withQueryClient(<WorkflowConfiguration project={null} />));
     });
 
     expect(await screen.findByText('Open Policy Agent')).toBeInTheDocument();
@@ -217,7 +218,7 @@ describe('WorkflowConfiguration — Project document folder section', () => {
 
   it('derives the folder name as CamelCase without spaces from the project name', async () => {
     await act(async () => {
-      render(<WorkflowConfiguration project={PROJECT} />);
+      render(withQueryClient(<WorkflowConfiguration project={PROJECT} />));
     });
 
     expect(await screen.findByDisplayValue('AbsenceProSolutions')).toBeDisabled();
@@ -225,7 +226,7 @@ describe('WorkflowConfiguration — Project document folder section', () => {
 
   it('defaults the folder location to /documents/<CamelCaseFolderName>', async () => {
     await act(async () => {
-      render(<WorkflowConfiguration project={PROJECT} />);
+      render(withQueryClient(<WorkflowConfiguration project={PROJECT} />));
     });
 
     expect(await screen.findByDisplayValue('/documents/AbsenceProSolutions')).toBeDisabled();
@@ -234,7 +235,7 @@ describe('WorkflowConfiguration — Project document folder section', () => {
 
   it('recomputes the folder location when the base path is edited', async () => {
     await act(async () => {
-      render(<WorkflowConfiguration project={PROJECT} />);
+      render(withQueryClient(<WorkflowConfiguration project={PROJECT} />));
     });
     await screen.findByDisplayValue('/documents');
 
@@ -253,7 +254,7 @@ describe('WorkflowConfiguration — Project document folder section', () => {
     );
 
     await act(async () => {
-      render(<WorkflowConfiguration project={PROJECT} />);
+      render(withQueryClient(<WorkflowConfiguration project={PROJECT} />));
     });
 
     expect(await screen.findByDisplayValue('/data/old')).toBeInTheDocument();
@@ -262,7 +263,7 @@ describe('WorkflowConfiguration — Project document folder section', () => {
 
   it('saves the composed folder path, not the raw base path', async () => {
     await act(async () => {
-      render(<WorkflowConfiguration project={PROJECT} />);
+      render(withQueryClient(<WorkflowConfiguration project={PROJECT} />));
     });
     await screen.findByDisplayValue('/documents');
 

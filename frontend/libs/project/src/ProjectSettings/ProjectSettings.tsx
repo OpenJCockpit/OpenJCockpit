@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   activateProject,
   createProject,
@@ -46,9 +47,30 @@ const EMPTY_CRED_FORM: ProjectGitCredentialRequest = {
   githubApiUrl: '',
 };
 
+const ALL_PROJECTS_KEY = ['projects', 'all'];
+
 export function ProjectSettings({ onBack }: Props) {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const queryClient = useQueryClient();
+  const projectsQuery = useQuery({
+    queryKey: ALL_PROJECTS_KEY,
+    queryFn: async ({ signal }) => {
+      try {
+        return await loadAllProjects(signal);
+      } catch (err) {
+        if (!isAbortError(err)) console.error(err);
+        throw err;
+      }
+    },
+  });
+  const projects = projectsQuery.data ?? [];
+  // A failed load keeps the loading message, as before.
+  const loaded = projectsQuery.data !== undefined;
+
+  function setProjects(update: (prev: Project[]) => Project[]) {
+    queryClient.setQueryData<Project[]>(ALL_PROJECTS_KEY, (prev) => update(prev ?? []));
+    // The dashboard's list of active projects is cached under ['projects'].
+    void queryClient.invalidateQueries({ queryKey: ['projects'], exact: true });
+  }
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ProjectRequest>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
@@ -65,22 +87,6 @@ export function ProjectSettings({ onBack }: Props) {
   const [credLoading, setCredLoading] = useState(false);
   const [checkingId, setCheckingId] = useState<string | null>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (loaded) return;
-    const controller = new AbortController();
-    loadAllProjects(controller.signal)
-      .then((p) => {
-        setProjects(p);
-        setLoaded(true);
-      })
-      .catch((err) => {
-        if (isAbortError(err)) return;
-        setError('Failed to load projects.');
-        console.error(err);
-      });
-    return () => controller.abort();
-  }, [loaded]);
 
   if (!loaded) {
     return <StatusMessage variant="loading">Loading projects...</StatusMessage>;

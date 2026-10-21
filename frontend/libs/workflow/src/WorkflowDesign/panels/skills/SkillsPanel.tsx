@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { ToolbarButton, StatusMessage, fieldErrorClass, Button } from '@openjcockpit/ui';
 import {
   createSkillSpec,
   deleteSkillSpec,
   generateSkillSpec,
-  getSkillCatalog,
   updateSkillSpec,
 } from '@openjcockpit/api';
 import type { SkillCatalog, SkillSpec } from '@openjcockpit/api';
@@ -12,6 +12,7 @@ import { describeSourceOutcome } from '../../utils';
 import { PromptGenerator } from '../shared/PromptGenerator';
 import { SkillEditor } from './SkillEditor';
 import { SkillsTable } from './SkillsTable';
+import { skillCatalogQueryKey, useSkillCatalog } from './useSkillCatalog';
 import type { SkillRow } from './SkillsTable';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
@@ -25,41 +26,29 @@ const EMPTY_SKILL: SkillSpec = {
   policyNotes: '',
 };
 
-const EMPTY_CATALOG: SkillCatalog = { localSkills: [], externalSkills: [], sources: [] };
-
 export function SkillsPanel() {
-  const [catalog, setCatalog] = useState<SkillCatalog | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const query = useSkillCatalog();
   const [editingName, setEditingName] = useState<string | null>(null);
   const [form, setForm] = useState<SkillSpec>(EMPTY_SKILL);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const mountedRef = useRef(true);
 
-  async function loadCatalog() {
-    setLoading(true);
-    setLoadError(null);
-    setCatalog(null);
-    try {
-      const result = await getSkillCatalog();
-      if (!mountedRef.current) return;
-      setCatalog(result);
-    } catch (err) {
-      if (!mountedRef.current) return;
-      setLoadError(err instanceof Error ? err.message : 'Failed to load skill catalog.');
-    } finally {
-      if (mountedRef.current) setLoading(false);
-    }
+  // A refresh clears the table and any load error until the new catalog arrives.
+  const loading = query.isFetching;
+  const catalog = loading ? undefined : query.data;
+  const loadError =
+    !loading && query.isError
+      ? query.error instanceof Error
+        ? query.error.message
+        : 'Failed to load skill catalog.'
+      : null;
+
+  function updateCatalog(update: (base: SkillCatalog) => SkillCatalog) {
+    queryClient.setQueryData<SkillCatalog>(skillCatalogQueryKey, (prev) =>
+      prev ? update(prev) : undefined,
+    );
   }
-
-  useEffect(() => {
-    mountedRef.current = true;
-    void loadCatalog();
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
 
   const rows = useMemo<SkillRow[]>(() => {
     if (!catalog) return [];
@@ -121,8 +110,7 @@ export function SkillsPanel() {
         editingName === 'new'
           ? await createSkillSpec(form)
           : await updateSkillSpec(editingName!, form);
-      setCatalog((prev) => {
-        const base = prev ?? EMPTY_CATALOG;
+      updateCatalog((base) => {
         const localSkills =
           editingName === 'new'
             ? [...base.localSkills, saved]
@@ -142,9 +130,10 @@ export function SkillsPanel() {
     setError(null);
     try {
       await deleteSkillSpec(name);
-      setCatalog((prev) =>
-        prev ? { ...prev, localSkills: prev.localSkills.filter((s) => s.name !== name) } : prev,
-      );
+      updateCatalog((base) => ({
+        ...base,
+        localSkills: base.localSkills.filter((s) => s.name !== name),
+      }));
     } catch (err) {
       setError('Failed to delete skill definition.');
       console.warn(err);
@@ -156,7 +145,7 @@ export function SkillsPanel() {
       <PromptGenerator kind="skill" onGenerate={handleGenerate} />
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
         <ToolbarButton onClick={startCreate}>+ New skill</ToolbarButton>
-        <Button variant="secondary" onClick={() => void loadCatalog()}>
+        <Button variant="secondary" onClick={() => void query.refetch()}>
           ⟳ Refresh
         </Button>
       </div>

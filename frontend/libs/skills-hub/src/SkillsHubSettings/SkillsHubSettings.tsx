@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createSkillsMarketplace,
   deleteSkillsMarketplace,
@@ -41,34 +42,38 @@ const EMPTY_FORM: SkillsMarketplaceConnectionRequest = {
   enabled: true,
 };
 
+const MARKETPLACES_KEY = ['skills-marketplaces'];
+
 export function SkillsHubSettings({ onBack }: Props) {
-  const [connections, setConnections] = useState<SkillsMarketplaceConnection[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const queryClient = useQueryClient();
+  const connectionsQuery = useQuery({
+    queryKey: MARKETPLACES_KEY,
+    queryFn: () => listSkillsMarketplaces(),
+  });
+  const connections = connectionsQuery.data ?? [];
+  const loaded = !connectionsQuery.isPending;
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingHasApiKey, setEditingHasApiKey] = useState(false);
   const [form, setForm] = useState<SkillsMarketplaceConnectionRequest>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // `undefined` = not touched yet, so the load error (if any) is shown; `null` clears it.
+  const [errorOverride, setError] = useState<string | null | undefined>(undefined);
+  const loadError = connectionsQuery.error
+    ? connectionsQuery.error instanceof Error
+      ? connectionsQuery.error.message
+      : 'Failed to load marketplaces.'
+    : null;
+  const error = errorOverride === undefined ? loadError : errorOverride;
   const [status, setStatus] = useState('');
   const nameInputRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    listSkillsMarketplaces()
-      .then((list) => {
-        if (cancelled) return;
-        setConnections(list);
-        setLoaded(true);
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        setError(err instanceof Error ? err.message : 'Failed to load marketplaces.');
-        setLoaded(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  function updateConnections(
+    update: (prev: SkillsMarketplaceConnection[]) => SkillsMarketplaceConnection[],
+  ) {
+    queryClient.setQueryData<SkillsMarketplaceConnection[]>(MARKETPLACES_KEY, (prev) =>
+      update(prev ?? []),
+    );
+  }
 
   function resetForm() {
     setEditingId(null);
@@ -114,11 +119,13 @@ export function SkillsHubSettings({ onBack }: Props) {
     try {
       if (editingId === null) {
         const created = await createSkillsMarketplace(form);
-        setConnections((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+        updateConnections((prev) =>
+          [...prev, created].sort((a, b) => a.name.localeCompare(b.name)),
+        );
         setStatus(`Marketplace "${created.name}" has been added.`);
       } else {
         const updated = await updateSkillsMarketplace(editingId, form);
-        setConnections((prev) =>
+        updateConnections((prev) =>
           prev
             .map((c) => (c.id === editingId ? updated : c))
             .sort((a, b) => a.name.localeCompare(b.name)),
@@ -138,7 +145,7 @@ export function SkillsHubSettings({ onBack }: Props) {
     setError(null);
     try {
       await deleteSkillsMarketplace(connection.id);
-      setConnections((prev) => prev.filter((c) => c.id !== connection.id));
+      updateConnections((prev) => prev.filter((c) => c.id !== connection.id));
       setStatus(`Marketplace "${connection.name}" has been deleted.`);
       if (editingId === connection.id) resetForm();
       focusName();

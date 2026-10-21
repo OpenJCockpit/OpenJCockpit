@@ -1,5 +1,7 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react';
+import type { ReactElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { withQueryClient } from '../testQueryClient';
 import { SpecFilesDashboard, type RenderAddToQueueArgs } from './SpecFilesDashboard';
 import * as api from '@openjcockpit/api';
 import type { Project, SpecFile } from '@openjcockpit/api';
@@ -7,6 +9,8 @@ import type { Project, SpecFile } from '@openjcockpit/api';
 vi.mock('@openjcockpit/api', async (importOriginal) =>
   (await import('../testUtils')).automockApiClients(await importOriginal()),
 );
+const render = (ui: ReactElement) => rtlRender(withQueryClient(ui));
+
 const renderAddToQueue = ({ fixedSpecFile, onAdded, onCancel }: RenderAddToQueueArgs) => (
   <div role="dialog" aria-label="Add to queue">
     <span>{fixedSpecFile}</span>

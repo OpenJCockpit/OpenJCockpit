@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getSpecQueue,
   pauseSpecQueue,
@@ -81,9 +82,43 @@ function confirmationCopy({ kind, item }: Confirmation) {
 
 export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
   const projectId = project?.id ?? null;
-  const [queue, setQueue] = useState<SpecQueue | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const queueKey = ['spec-queue', projectId, 'queue'] as const;
+  // react-query resets its own failure counters on every fetch, so count consecutive failures here.
+  const failures = useRef({ projectId, count: 0 });
+  const consecutiveFailures = () =>
+    failures.current.projectId === projectId ? failures.current.count : 0;
+  const queueQuery = useQuery({
+    queryKey: queueKey,
+    queryFn: async () => {
+      try {
+        const loaded = await getSpecQueue(projectId as string);
+        failures.current = { projectId, count: 0 };
+        return loaded;
+      } catch (e) {
+        failures.current = { projectId, count: consecutiveFailures() + 1 };
+        throw e;
+      }
+    },
+    enabled: projectId !== null,
+    // Polling is the retry; back off exponentially while loads keep failing.
+    retry: false,
+    refetchInterval: () =>
+      document.hidden
+        ? false
+        : Math.min(POLL_INTERVAL_MS * 2 ** consecutiveFailures(), MAX_POLL_INTERVAL_MS),
+    refetchIntervalInBackground: false,
+  });
+  const queue = queueQuery.data ?? null;
+  const loadError = queueQuery.isError
+    ? messageOf(queueQuery.error, 'Failed to load the spec queue')
+    : null;
+  // Scoped to a project so it clears when the project changes.
+  const [actionErrorState, setActionErrorState] = useState<{
+    projectId: string | null;
+    message: string;
+  } | null>(null);
+  const actionError = actionErrorState?.projectId === projectId ? actionErrorState.message : null;
   const [busy, setBusy] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
@@ -94,11 +129,6 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
   const listRef = useRef<HTMLOListElement>(null);
   const pendingFocus = useRef<{ itemId: string; direction: MoveDirection } | null>(null);
   const mounted = useRef(true);
-  // Bumped on every queue write and on project change: a response only applies if no newer
-  // write happened while it was in flight.
-  const generation = useRef(0);
-  const pendingLoads = useRef(0);
-
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -106,67 +136,19 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
     };
   }, []);
 
-  const applyQueue = useCallback((next: SpecQueue) => {
-    generation.current += 1;
-    setQueue(next);
-  }, []);
+  /** Writes a queue response; an in-flight poll is cancelled so it cannot overwrite it. */
+  const applyQueue = useCallback(
+    async (next: SpecQueue) => {
+      await queryClient.cancelQueries({ queryKey: ['spec-queue', projectId, 'queue'] });
+      queryClient.setQueryData(['spec-queue', projectId, 'queue'], next);
+    },
+    [queryClient, projectId],
+  );
 
-  /** Resolves false only when the load itself failed (a superseded response is not a failure). */
-  const refresh = useCallback(async (): Promise<boolean> => {
-    if (!projectId) return true;
-    const ticket = ++generation.current;
-    pendingLoads.current += 1;
-    try {
-      const loaded = await getSpecQueue(projectId);
-      if (!mounted.current || ticket !== generation.current) return true;
-      setQueue(loaded);
-      setLoadError(null);
-      return true;
-    } catch (e) {
-      if (!mounted.current || ticket !== generation.current) return true;
-      setLoadError(messageOf(e, 'Failed to load the spec queue'));
-      return false;
-    } finally {
-      pendingLoads.current -= 1;
-    }
-  }, [projectId]);
-
-  useEffect(() => {
-    setQueue(null);
-    setLoadError(null);
-    setActionError(null);
+  const refresh = useCallback(async () => {
     if (!projectId) return;
-    // Poll while the tab is visible; back off exponentially while loads keep failing.
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let failures = 0;
-    let stopped = false;
-    const schedule = () => {
-      clearTimeout(timer);
-      if (stopped || document.hidden) return;
-      const delay = Math.min(POLL_INTERVAL_MS * 2 ** failures, MAX_POLL_INTERVAL_MS);
-      timer = setTimeout(tick, delay);
-    };
-    const load = async () => {
-      failures = (await refresh()) ? 0 : failures + 1;
-      schedule();
-    };
-    const tick = () => {
-      if (pendingLoads.current === 0) void load();
-      else schedule();
-    };
-    const onVisibilityChange = () => {
-      clearTimeout(timer);
-      if (!document.hidden && pendingLoads.current === 0) void load();
-    };
-    void load();
-    document.addEventListener('visibilitychange', onVisibilityChange);
-    return () => {
-      stopped = true;
-      clearTimeout(timer);
-      document.removeEventListener('visibilitychange', onVisibilityChange);
-      generation.current += 1; // drop responses for the previous project
-    };
-  }, [projectId, refresh]);
+    await queryClient.refetchQueries({ queryKey: ['spec-queue', projectId, 'queue'] });
+  }, [queryClient, projectId]);
 
   // After a reorder, keep keyboard focus on the moved row's move button.
   useEffect(() => {
@@ -188,12 +170,12 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
 
   async function run(action: () => Promise<unknown>, fallback: string, reload = true) {
     setBusy(true);
-    setActionError(null);
+    setActionErrorState(null);
     try {
       await action();
       if (reload) await refresh();
     } catch (e) {
-      if (mounted.current) setActionError(messageOf(e, fallback));
+      if (mounted.current) setActionErrorState({ projectId, message: messageOf(e, fallback) });
       // Resync anyway so a stale-order 409 shows the current order.
       await refresh();
     } finally {
@@ -215,7 +197,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
         const response = await reorderSpecQueue(projectId, ids);
         if (!mounted.current) return;
         pendingFocus.current = { itemId: item.id, direction };
-        applyQueue(response);
+        await applyQueue(response);
         setAnnouncement(`${item.specFile} moved to position ${to + 1} of ${ids.length}`);
       },
       'Failed to reorder the queue',
@@ -229,7 +211,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
       async () => {
         const response = await (pause ? pauseSpecQueue(projectId) : resumeSpecQueue(projectId));
         if (!mounted.current) return;
-        applyQueue(response);
+        await applyQueue(response);
         setAnnouncement(pause ? 'Queue paused' : 'Queue resumed');
       },
       pause ? 'Failed to pause the queue' : 'Failed to resume the queue',
@@ -436,8 +418,13 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
                 projectId={project.id}
                 autoMergeAllowed={queue.autoMergeAllowed}
                 onChanged={(settings) => {
-                  generation.current += 1;
-                  setQueue((q) => (q ? { ...q, autoMergeAllowed: settings.autoMergeAllowed } : q));
+                  void queryClient
+                    .cancelQueries({ queryKey: queueKey })
+                    .then(() =>
+                      queryClient.setQueryData<SpecQueue>(queueKey, (q) =>
+                        q ? { ...q, autoMergeAllowed: settings.autoMergeAllowed } : q,
+                      ),
+                    );
                 }}
               />
             </Panel>

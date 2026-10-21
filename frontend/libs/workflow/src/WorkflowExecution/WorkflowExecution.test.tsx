@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { withQueryClient } from '../testUtils/queryClient';
 import { WorkflowExecution } from './WorkflowExecution';
 import * as api from '@openjcockpit/api';
 import * as linkable from '../linkableAgents';
@@ -95,7 +96,7 @@ describe('WorkflowExecution', () => {
 
   it('shows an empty state when no workflow has been opened yet', async () => {
     await act(async () => {
-      render(<WorkflowExecution workflow={null} runId={null} />);
+      render(withQueryClient(<WorkflowExecution workflow={null} runId={null} />));
     });
 
     expect(screen.getByText(/Start a workflow from the Overview tab/)).toBeInTheDocument();
@@ -103,7 +104,7 @@ describe('WorkflowExecution', () => {
 
   it('shows a not-running state when a workflow is opened without an active run', async () => {
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId={null} />);
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId={null} />));
     });
 
     expect(screen.getByText('Customer Onboarding')).toBeInTheDocument();
@@ -114,7 +115,7 @@ describe('WorkflowExecution', () => {
     vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(runWithStatus('RUNNING'));
 
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
     expect(screen.getByText('◼ Stop')).toBeInTheDocument();
@@ -126,7 +127,7 @@ describe('WorkflowExecution', () => {
     vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(runWithStatus('RUNNING'));
 
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
     await waitFor(
@@ -152,7 +153,7 @@ describe('WorkflowExecution', () => {
     );
 
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
     await waitFor(
@@ -179,7 +180,7 @@ describe('WorkflowExecution', () => {
     );
 
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
     await waitFor(
@@ -214,7 +215,7 @@ describe('WorkflowExecution', () => {
     );
 
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
     await waitFor(
@@ -249,7 +250,7 @@ describe('WorkflowExecution', () => {
     );
 
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
     await waitFor(
@@ -268,7 +269,11 @@ describe('WorkflowExecution', () => {
     const onRunEnded = vi.fn();
 
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" onRunEnded={onRunEnded} />);
+      render(
+        withQueryClient(
+          <WorkflowExecution workflow={WORKFLOW} runId="run-1" onRunEnded={onRunEnded} />,
+        ),
+      );
     });
 
     await waitFor(() => expect(onRunEnded).toHaveBeenCalledTimes(1), { timeout: 3000 });
@@ -279,7 +284,7 @@ describe('WorkflowExecution', () => {
     vi.mocked(api.stopAgentRun).mockResolvedValue(undefined);
 
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
     await act(async () => {
@@ -319,7 +324,11 @@ describe('WorkflowExecution', () => {
 
       vi.useFakeTimers();
       try {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" onRunEnded={onRunEnded} />);
+        render(
+          withQueryClient(
+            <WorkflowExecution workflow={WORKFLOW} runId="run-1" onRunEnded={onRunEnded} />,
+          ),
+        );
         await act(async () => {
           await vi.advanceTimersByTimeAsync(1000);
         });
@@ -347,7 +356,7 @@ describe('WorkflowExecution', () => {
 
       vi.useFakeTimers();
       try {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
         await act(async () => {
           await vi.advanceTimersByTimeAsync(1000);
         });
@@ -380,7 +389,7 @@ describe('WorkflowExecution', () => {
       });
 
       await act(async () => {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
       });
 
       await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument(), {
@@ -407,11 +416,13 @@ describe('WorkflowExecution', () => {
 
       await act(async () => {
         render(
-          <WorkflowExecution
-            workflow={WORKFLOW}
-            runId="run-1"
-            onRestartRequested={onRestartRequested}
-          />,
+          withQueryClient(
+            <WorkflowExecution
+              workflow={WORKFLOW}
+              runId="run-1"
+              onRestartRequested={onRestartRequested}
+            />,
+          ),
         );
       });
 
@@ -439,7 +450,7 @@ describe('WorkflowExecution', () => {
       vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(runWithStatus('DENIED'));
 
       await act(async () => {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
       });
 
       await waitFor(() => expect(screen.getByText('DENIED')).toBeInTheDocument(), {
@@ -460,7 +471,7 @@ describe('WorkflowExecution', () => {
       );
 
       await act(async () => {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
       });
 
       const branchLabel = await screen.findByText(
@@ -485,7 +496,7 @@ describe('WorkflowExecution', () => {
       vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(runWithStatus('RUNNING'));
 
       await act(async () => {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
       });
 
       expect(screen.getByText('◼ Stop')).toBeInTheDocument();
@@ -535,7 +546,7 @@ describe('WorkflowExecution', () => {
       });
 
       await act(async () => {
-        render(<WorkflowExecution workflow={WORKFLOW} runId={null} />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId={null} />));
       });
 
       await act(async () => {
@@ -591,7 +602,7 @@ describe('WorkflowExecution', () => {
       });
 
       await act(async () => {
-        render(<WorkflowExecution workflow={WORKFLOW} runId={null} />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId={null} />));
       });
 
       await act(async () => {
@@ -638,7 +649,7 @@ describe('WorkflowExecution', () => {
 
       vi.useFakeTimers();
       try {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
         await act(async () => {
           await vi.advanceTimersByTimeAsync(0);
         });
@@ -660,7 +671,7 @@ describe('WorkflowExecution', () => {
       vi.mocked(workflowApi.listWorkflowExecutions).mockRejectedValue(new Error('boom'));
 
       await act(async () => {
-        render(<WorkflowExecution workflow={WORKFLOW} runId={null} />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId={null} />));
       });
 
       expect(screen.getByRole('alert')).toBeInTheDocument();
@@ -711,7 +722,7 @@ describe('WorkflowExecution', () => {
 
       vi.useFakeTimers();
       try {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
         await act(async () => {
           await vi.advanceTimersByTimeAsync(0);
         });
@@ -797,7 +808,7 @@ describe('WorkflowExecution', () => {
 
       vi.useFakeTimers();
       try {
-        render(<WorkflowExecution workflow={WORKFLOW} runId={null} />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId={null} />));
         await act(async () => {
           await vi.advanceTimersByTimeAsync(0);
         });
@@ -876,7 +887,7 @@ describe('WorkflowExecution', () => {
 
       vi.useFakeTimers();
       try {
-        render(<WorkflowExecution workflow={WORKFLOW} runId={null} />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId={null} />));
         await act(async () => {
           await vi.advanceTimersByTimeAsync(0);
         });
@@ -924,7 +935,7 @@ describe('WorkflowExecution', () => {
       );
 
       await act(async () => {
-        render(<WorkflowExecution workflow={WORKFLOW} runId={null} />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId={null} />));
       });
 
       await act(async () => {
@@ -945,7 +956,11 @@ describe('WorkflowExecution', () => {
       vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(runWithStatus('RUNNING'));
 
       await act(async () => {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" showHistory={false} />);
+        render(
+          withQueryClient(
+            <WorkflowExecution workflow={WORKFLOW} runId="run-1" showHistory={false} />,
+          ),
+        );
       });
 
       expect(workflowApi.listWorkflowExecutions).not.toHaveBeenCalled();
@@ -965,7 +980,11 @@ describe('WorkflowExecution', () => {
 
       vi.useFakeTimers();
       try {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" onRunEnded={onRunEnded} />);
+        render(
+          withQueryClient(
+            <WorkflowExecution workflow={WORKFLOW} runId="run-1" onRunEnded={onRunEnded} />,
+          ),
+        );
         await act(async () => {
           await vi.advanceTimersByTimeAsync(1000);
         });
@@ -988,7 +1007,11 @@ describe('WorkflowExecution', () => {
       const onRunEnded = vi.fn();
 
       await act(async () => {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" onRunEnded={onRunEnded} />);
+        render(
+          withQueryClient(
+            <WorkflowExecution workflow={WORKFLOW} runId="run-1" onRunEnded={onRunEnded} />,
+          ),
+        );
       });
 
       await waitFor(() => expect(onRunEnded).toHaveBeenCalledTimes(1), { timeout: 3000 });
@@ -1000,7 +1023,11 @@ describe('WorkflowExecution', () => {
       const onRunEnded = vi.fn();
 
       await act(async () => {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" onRunEnded={onRunEnded} />);
+        render(
+          withQueryClient(
+            <WorkflowExecution workflow={WORKFLOW} runId="run-1" onRunEnded={onRunEnded} />,
+          ),
+        );
       });
 
       await waitFor(() => expect(onRunEnded).toHaveBeenCalledTimes(1), { timeout: 3000 });
@@ -1023,7 +1050,7 @@ describe('WorkflowExecution', () => {
       );
 
       await act(async () => {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
       });
 
       await waitFor(
@@ -1043,7 +1070,7 @@ describe('WorkflowExecution', () => {
 
       vi.useFakeTimers();
       try {
-        render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
         await act(async () => {
           await vi.advanceTimersByTimeAsync(1000);
         });
@@ -1098,7 +1125,7 @@ describe('WorkflowExecution', () => {
       );
 
       await act(async () => {
-        render(<WorkflowExecution workflow={workflowWithOrb} runId="run-1" />);
+        render(withQueryClient(<WorkflowExecution workflow={workflowWithOrb} runId="run-1" />));
       });
 
       await waitFor(
@@ -1129,7 +1156,9 @@ describe('WorkflowExecution', () => {
       vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(runWithStatus('RUNNING'));
 
       await act(async () => {
-        render(<WorkflowExecution workflow={workflowWithOrphanedOrb} runId="run-1" />);
+        render(
+          withQueryClient(<WorkflowExecution workflow={workflowWithOrphanedOrb} runId="run-1" />),
+        );
       });
 
       await waitFor(
@@ -1152,7 +1181,7 @@ describe('WorkflowExecution', () => {
     );
 
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
     await waitFor(() => {
@@ -1167,7 +1196,7 @@ describe('WorkflowExecution', () => {
     vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(runWithStatus('COMPLETED'));
 
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
     await waitFor(() => {
@@ -1182,7 +1211,7 @@ describe('WorkflowExecution', () => {
     );
 
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
     await waitFor(() => {
@@ -1203,7 +1232,9 @@ describe('WorkflowExecution', () => {
 
     let rerender!: ReturnType<typeof render>['rerender'];
     await act(async () => {
-      const result = render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+      const result = render(
+        withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />),
+      );
       rerender = result.rerender;
     });
 
@@ -1212,7 +1243,7 @@ describe('WorkflowExecution', () => {
     });
 
     await act(async () => {
-      rerender(<WorkflowExecution workflow={WORKFLOW} runId="run-2" />);
+      rerender(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-2" />));
     });
 
     await waitFor(() => {
@@ -1227,7 +1258,7 @@ describe('WorkflowExecution', () => {
     );
 
     await act(async () => {
-      render(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />);
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
     await waitFor(() => {

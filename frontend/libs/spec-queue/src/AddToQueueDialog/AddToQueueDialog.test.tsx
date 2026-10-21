@@ -13,6 +13,7 @@ import {
   listWorkflows,
 } from '@openjcockpit/api';
 import type { Project, WorkflowDefinition } from '@openjcockpit/api';
+import { withQueryClient } from '../testQueryClient';
 import { AddToQueueDialog } from './AddToQueueDialog';
 
 const PROJECT = { id: 'p1', name: 'Proj' } as Project;
@@ -28,7 +29,11 @@ function wf(id: string, extra: Partial<WorkflowDefinition> = {}): WorkflowDefini
 function setup(props: { fixedSpecFile?: string } = {}) {
   const onAdded = vi.fn();
   const onCancel = vi.fn();
-  render(<AddToQueueDialog project={PROJECT} onAdded={onAdded} onCancel={onCancel} {...props} />);
+  render(
+    withQueryClient(
+      <AddToQueueDialog project={PROJECT} onAdded={onAdded} onCancel={onCancel} {...props} />,
+    ),
+  );
   return { onAdded, onCancel };
 }
 

@@ -1,12 +1,10 @@
-import { useEffect, useState } from 'react';
-import { fetchLinkableAgents } from '../../../linkableAgents';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   createWorkflow,
   deleteWorkflow,
   exportWorkflows,
   importWorkflows,
-  listWorkflowGroups,
-  listWorkflows,
   updateWorkflow,
 } from '@openjcockpit/api';
 import type {
@@ -27,6 +25,11 @@ import {
 import { readFileText, downloadWorkflowBundle } from '../../utils';
 import { WorkflowEditor } from './WorkflowEditor/WorkflowEditor';
 import { WorkflowsTable } from './WorkflowsTable';
+import {
+  useWorkflowsPanelData,
+  workflowGroupsQueryKey,
+  workflowsQueryKey,
+} from './useWorkflowsPanelData';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_WORKFLOW: WorkflowDefinition = {
@@ -45,43 +48,32 @@ const EMPTY_WORKFLOW: WorkflowDefinition = {
   status: 'ACTIVE',
 };
 
+const NO_WORKFLOWS: WorkflowDefinition[] = [];
+const NO_GROUPS: WorkflowGroup[] = [];
+const NO_AGENTS: AgentDefinition[] = [];
+
 export function WorkflowsPanel() {
-  const [items, setItems] = useState<WorkflowDefinition[]>([]);
-  const [groups, setGroups] = useState<WorkflowGroup[]>([]);
-  const [availableAgents, setAvailableAgents] = useState<AgentDefinition[]>([]);
+  const queryClient = useQueryClient();
+  const data = useWorkflowsPanelData();
+  const items = data.items ?? NO_WORKFLOWS;
+  const groups = data.groups ?? NO_GROUPS;
+  const availableAgents = data.availableAgents ?? NO_AGENTS;
+  const { loaded, loadError: catalogueError } = data;
   const [groupFilter, setGroupFilter] = useState('all');
-  const [loaded, setLoaded] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<WorkflowDefinition>(EMPTY_WORKFLOW);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
-  const [catalogueError, setCatalogueError] = useState<string | null>(null);
   const [orbError, setOrbError] = useState<string | null>(null);
   const [importViolations, setImportViolations] = useState<string[]>([]);
 
-  useEffect(() => {
-    let cancelled = false;
-    Promise.all([listWorkflows(), listWorkflowGroups(), fetchLinkableAgents()])
-      .then(([w, g, a]) => {
-        if (cancelled) return;
-        setItems(w);
-        setGroups(g);
-        setAvailableAgents(a);
-        setLoaded(true);
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        setCatalogueError(err instanceof Error ? err.message : 'Failed to load the agent catalog.');
-        setLoaded(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   if (!loaded) {
     return <StatusMessage variant="loading">Loading workflows...</StatusMessage>;
+  }
+
+  function updateItems(update: (prev: WorkflowDefinition[]) => WorkflowDefinition[]) {
+    queryClient.setQueryData<WorkflowDefinition[]>(workflowsQueryKey, (prev) => update(prev ?? []));
   }
 
   function groupName(groupId?: string): string {
@@ -139,7 +131,7 @@ export function WorkflowsPanel() {
         editingId === 'new'
           ? await createWorkflow(request)
           : await updateWorkflow(editingId!, request);
-      setItems((prev) =>
+      updateItems((prev) =>
         editingId === 'new' ? [...prev, saved] : prev.map((i) => (i.id === saved.id ? saved : i)),
       );
       setEditingId(null);
@@ -157,7 +149,7 @@ export function WorkflowsPanel() {
   async function handleDelete(id: string) {
     try {
       await deleteWorkflow(id);
-      setItems((prev) => prev.filter((i) => i.id !== id));
+      updateItems((prev) => prev.filter((i) => i.id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete workflow.');
       console.warn(err);
@@ -182,9 +174,10 @@ export function WorkflowsPanel() {
     try {
       const bundle = JSON.parse(await readFileText(file)) as WorkflowExportBundle;
       const result = await importWorkflows(bundle);
-      const [w, g] = await Promise.all([listWorkflows(), listWorkflowGroups()]);
-      setItems(w);
-      setGroups(g);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: workflowsQueryKey }),
+        queryClient.invalidateQueries({ queryKey: workflowGroupsQueryKey }),
+      ]);
       setInfo(
         `Imported ${result.workflowsImported} workflow(s) and ${result.groupsImported} group(s).`,
       );

@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getJiraConfig, saveJiraConfig } from '@openjcockpit/api';
+import type { JiraConfig, JiraConfigRequest } from '@openjcockpit/api';
 import { CheckboxField, SecretField, TextField, StatusMessage } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
 
@@ -16,52 +18,51 @@ interface Props {
   projectId: string;
 }
 
-export function JiraSettings({ projectId }: Props) {
-  const [loaded, setLoaded] = useState(false);
-  const [hasAuthToken, setHasAuthToken] = useState(false);
-  const [form, setForm] = useState<JiraFormState>({
-    enabled: false,
-    baseUrl: '',
-    projectKey: '',
+const DEFAULT_FORM: JiraFormState = {
+  enabled: false,
+  baseUrl: '',
+  projectKey: '',
+  authToken: '',
+  issueTypeMapping: '',
+  workflowId: '',
+};
+
+function toFormState(jira: JiraConfig): JiraFormState {
+  return {
+    enabled: jira.enabled,
+    baseUrl: jira.baseUrl ?? '',
+    projectKey: jira.projectKey ?? '',
     authToken: '',
-    issueTypeMapping: '',
-    workflowId: '',
-  });
-  const [loadError, setLoadError] = useState(false);
+    issueTypeMapping: jira.issueTypeMapping ?? '',
+    workflowId: jira.workflowId ?? '',
+  };
+}
+
+export function JiraSettings({ projectId }: Props) {
+  const queryClient = useQueryClient();
+  const queryKey = ['jira-config', projectId];
+  const configQuery = useQuery({ queryKey, queryFn: () => getJiraConfig(projectId) });
+  const hasAuthToken = configQuery.data?.hasAuthToken ?? false;
+  // null until the operator edits; the displayed form is then derived from the server config.
+  const [edited, setEdited] = useState<JiraFormState | null>(null);
+  const form = edited ?? (configQuery.data ? toFormState(configQuery.data) : DEFAULT_FORM);
+  const update = (patch: Partial<JiraFormState>) => setEdited({ ...form, ...patch });
+  const loaded = configQuery.isSuccess;
+  const loadError = configQuery.isError;
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    void getJiraConfig(projectId)
-      .then((jira) => {
-        if (cancelled) return;
-        setForm({
-          enabled: jira.enabled,
-          baseUrl: jira.baseUrl ?? '',
-          projectKey: jira.projectKey ?? '',
-          authToken: '',
-          issueTypeMapping: jira.issueTypeMapping ?? '',
-          workflowId: jira.workflowId ?? '',
-        });
-        setHasAuthToken(jira.hasAuthToken);
-        setLoaded(true);
-      })
-      .catch(() => {
-        if (!cancelled) setLoadError(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [projectId]);
+  const saveMutation = useMutation({
+    mutationFn: (request: JiraConfigRequest) => saveJiraConfig(projectId, request),
+  });
 
   async function handleSave() {
     setSaving(true);
     setError(null);
     setSavedMessage(null);
     try {
-      const result = await saveJiraConfig(projectId, {
+      const result = await saveMutation.mutateAsync({
         enabled: form.enabled,
         baseUrl: form.baseUrl,
         projectKey: form.projectKey,
@@ -69,8 +70,8 @@ export function JiraSettings({ projectId }: Props) {
         issueTypeMapping: form.issueTypeMapping,
         workflowId: form.workflowId,
       });
-      setHasAuthToken(result.hasAuthToken);
-      setForm((f) => ({ ...f, authToken: '' }));
+      queryClient.setQueryData(queryKey, result);
+      setEdited(null);
       setSavedMessage('Jira configuration saved.');
     } catch (err) {
       setError('Failed to save Jira configuration.');
@@ -98,37 +99,37 @@ export function JiraSettings({ projectId }: Props) {
       <CheckboxField
         label="Enabled"
         checked={form.enabled}
-        onChange={(v) => setForm((f) => ({ ...f, enabled: v }))}
+        onChange={(v) => update({ enabled: v })}
       />
       <TextField
         label="Jira base URL"
         value={form.baseUrl}
-        onChange={(v) => setForm((f) => ({ ...f, baseUrl: v }))}
+        onChange={(v) => update({ baseUrl: v })}
         placeholder="https://your-org.atlassian.net"
       />
       <TextField
         label="Project key"
         value={form.projectKey}
-        onChange={(v) => setForm((f) => ({ ...f, projectKey: v }))}
+        onChange={(v) => update({ projectKey: v })}
         placeholder="NL"
       />
       <TextField
         label="Issue type mapping"
         value={form.issueTypeMapping}
-        onChange={(v) => setForm((f) => ({ ...f, issueTypeMapping: v }))}
+        onChange={(v) => update({ issueTypeMapping: v })}
         placeholder="Bug=bugfix-workflow"
       />
       <TextField
         label="Workflow ID to start"
         value={form.workflowId}
-        onChange={(v) => setForm((f) => ({ ...f, workflowId: v }))}
+        onChange={(v) => update({ workflowId: v })}
         placeholder="wf-onboarding"
       />
       <SecretField
         label="Auth token"
         hasValue={hasAuthToken}
         value={form.authToken}
-        onChange={(v) => setForm((f) => ({ ...f, authToken: v }))}
+        onChange={(v) => update({ authToken: v })}
       />
     </IntegrationConfigForm>
   );

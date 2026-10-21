@@ -1,10 +1,11 @@
 import { act, render, screen } from '@testing-library/react';
 import type { ReactElement } from 'react';
+import { withQueryClient } from './queryClient';
 
 /** Renders inside `act` so effects and their resolved mocks settle before assertions. */
 export async function renderAsync(ui: ReactElement) {
   await act(async () => {
-    render(ui);
+    render(withQueryClient(ui));
   });
 }
 

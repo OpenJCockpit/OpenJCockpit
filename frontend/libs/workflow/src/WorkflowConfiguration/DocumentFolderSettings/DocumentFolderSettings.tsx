@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getDocumentFolderConfig, saveDocumentFolderConfig } from '@openjcockpit/api';
-import type { Project } from '@openjcockpit/api';
+import type { DocumentFolderConfigRequest, Project } from '@openjcockpit/api';
 import { CheckboxField, TextField, StatusMessage } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
 import {
@@ -11,7 +12,7 @@ import {
 } from './folderPath';
 
 interface FolderFormState {
-  folderPath: string;
+  folderBasePath: string;
   fileTriggerEnabled: boolean;
   allowedDocumentTypes: string;
   workflowId: string;
@@ -24,64 +25,51 @@ interface Props {
 const noop = () => {};
 
 export function DocumentFolderSettings({ project }: Props) {
-  const [loaded, setLoaded] = useState(false);
-  const [form, setForm] = useState<FolderFormState>({
-    folderPath: '',
-    fileTriggerEnabled: false,
-    allowedDocumentTypes: '',
-    workflowId: '',
+  const queryClient = useQueryClient();
+  const queryKey = ['document-folder-config', project.id];
+  const configQuery = useQuery({
+    queryKey,
+    queryFn: () => getDocumentFolderConfig(project.id),
   });
-  const [folderName, setFolderName] = useState('');
-  const [folderBasePath, setFolderBasePath] = useState(DEFAULT_FOLDER_BASE_PATH);
-  const [loadError, setLoadError] = useState(false);
+  const folder = configQuery.data;
+  const folderName = toCamelCaseFolderName(folder?.folderName || project.name);
+  // null until the operator edits; the displayed form is then derived from the server config.
+  const [edited, setEdited] = useState<FolderFormState | null>(null);
+  const loadedPath = folder?.folderPath ?? '';
+  const form: FolderFormState = edited ?? {
+    folderBasePath: loadedPath
+      ? basePathOf(loadedPath) || DEFAULT_FOLDER_BASE_PATH
+      : DEFAULT_FOLDER_BASE_PATH,
+    fileTriggerEnabled: folder?.fileTriggerEnabled ?? false,
+    allowedDocumentTypes: folder?.allowedDocumentTypes ?? '',
+    workflowId: folder?.workflowId ?? '',
+  };
+  const folderPath = joinFolderPath(form.folderBasePath, folderName);
+  const update = (patch: Partial<FolderFormState>) => setEdited({ ...form, ...patch });
+  const loaded = configQuery.isSuccess;
+  const loadError = configQuery.isError;
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    void getDocumentFolderConfig(project.id)
-      .then((folder) => {
-        if (cancelled) return;
-        const camelFolderName = toCamelCaseFolderName(folder.folderName || project.name);
-        const loadedPath = folder.folderPath ?? '';
-        const basePath = loadedPath
-          ? basePathOf(loadedPath) || DEFAULT_FOLDER_BASE_PATH
-          : DEFAULT_FOLDER_BASE_PATH;
-        setForm({
-          folderPath: joinFolderPath(basePath, camelFolderName),
-          fileTriggerEnabled: folder.fileTriggerEnabled,
-          allowedDocumentTypes: folder.allowedDocumentTypes ?? '',
-          workflowId: folder.workflowId ?? '',
-        });
-        setFolderName(camelFolderName);
-        setFolderBasePath(basePath);
-        setLoaded(true);
-      })
-      .catch(() => {
-        if (!cancelled) setLoadError(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [project.id, project.name]);
-
-  function handleBasePathChange(basePath: string) {
-    setFolderBasePath(basePath);
-    setForm((f) => ({ ...f, folderPath: joinFolderPath(basePath, folderName) }));
-  }
+  const saveMutation = useMutation({
+    mutationFn: (request: DocumentFolderConfigRequest) =>
+      saveDocumentFolderConfig(project.id, request),
+  });
 
   async function handleSave() {
     setSaving(true);
     setError(null);
     setSavedMessage(null);
     try {
-      await saveDocumentFolderConfig(project.id, {
-        folderPath: form.folderPath,
+      const result = await saveMutation.mutateAsync({
+        folderPath,
         fileTriggerEnabled: form.fileTriggerEnabled,
         allowedDocumentTypes: form.allowedDocumentTypes,
         workflowId: form.workflowId,
       });
+      queryClient.setQueryData(queryKey, result);
+      setEdited(null);
       setSavedMessage('Document folder configuration saved.');
     } catch (err) {
       setError('Failed to save document folder configuration.');
@@ -119,32 +107,32 @@ export function DocumentFolderSettings({ project }: Props) {
       />
       <TextField
         label="Folder base location"
-        value={folderBasePath}
-        onChange={handleBasePathChange}
+        value={form.folderBasePath}
+        onChange={(v) => update({ folderBasePath: v })}
         placeholder="/documents"
       />
       <TextField
         label="Folder location (folder name is always appended automatically)"
-        value={form.folderPath}
+        value={folderPath}
         onChange={noop}
         disabled
       />
       <TextField
         label="Allowed document types"
         value={form.allowedDocumentTypes}
-        onChange={(v) => setForm((f) => ({ ...f, allowedDocumentTypes: v }))}
+        onChange={(v) => update({ allowedDocumentTypes: v })}
         placeholder="pdf,docx,md"
       />
       <TextField
         label="Workflow ID to start on new file"
         value={form.workflowId}
-        onChange={(v) => setForm((f) => ({ ...f, workflowId: v }))}
+        onChange={(v) => update({ workflowId: v })}
         placeholder="wf-onboarding"
       />
       <CheckboxField
         label="File trigger enabled"
         checked={form.fileTriggerEnabled}
-        onChange={(v) => setForm((f) => ({ ...f, fileTriggerEnabled: v }))}
+        onChange={(v) => update({ fileTriggerEnabled: v })}
       />
     </IntegrationConfigForm>
   );

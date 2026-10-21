@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { checkOpaHealth, getOpaConfig, saveOpaConfig } from '@openjcockpit/api';
+import type { OpaConfig, OpaConfigRequest } from '@openjcockpit/api';
 import {
   StatusChip,
   CheckboxField,
@@ -26,66 +28,71 @@ interface OpaFormState {
   authToken: string;
 }
 
-export function OpaSettings() {
-  const [hasAuthToken, setHasAuthToken] = useState(false);
-  const [reachable, setReachable] = useState<boolean | null>(null);
-  const [form, setForm] = useState<OpaFormState>({
-    enabled: false,
-    baseUrl: '',
-    policyPath: '',
-    healthPath: '',
-    timeoutSeconds: '3',
-    failMode: 'FAIL_CLOSED',
-    decisionLoggingEnabled: true,
-    decisionLogExportEnabled: true,
-    environment: '',
-    customerLabel: '',
-    projectLabel: '',
+const DEFAULT_FORM: OpaFormState = {
+  enabled: false,
+  baseUrl: '',
+  policyPath: '',
+  healthPath: '',
+  timeoutSeconds: '3',
+  failMode: 'FAIL_CLOSED',
+  decisionLoggingEnabled: true,
+  decisionLogExportEnabled: true,
+  environment: '',
+  customerLabel: '',
+  projectLabel: '',
+  authToken: '',
+};
+
+function toFormState(config: OpaConfig): OpaFormState {
+  return {
+    enabled: config.enabled,
+    baseUrl: config.baseUrl,
+    policyPath: config.policyPath,
+    healthPath: config.healthPath,
+    timeoutSeconds: String(config.timeoutSeconds),
+    failMode: config.failMode,
+    decisionLoggingEnabled: config.decisionLoggingEnabled,
+    decisionLogExportEnabled: config.decisionLogExportEnabled,
+    environment: config.environment,
+    customerLabel: config.customerLabel,
+    projectLabel: config.projectLabel,
     authToken: '',
+  };
+}
+
+const OPA_CONFIG_KEY = ['opa-config'];
+const OPA_HEALTH_KEY = ['opa-config', 'health'];
+
+export function OpaSettings() {
+  const queryClient = useQueryClient();
+  const configQuery = useQuery({ queryKey: OPA_CONFIG_KEY, queryFn: () => getOpaConfig() });
+  const healthQuery = useQuery({
+    queryKey: OPA_HEALTH_KEY,
+    queryFn: () => checkOpaHealth(),
+    enabled: configQuery.isSuccess,
+    staleTime: 0,
   });
-  const [loadError, setLoadError] = useState(false);
+  const reachable = healthQuery.data ?? null;
+  const hasAuthToken = configQuery.data?.hasAuthToken ?? false;
+  // null until the operator edits; the displayed form is then derived from the server config.
+  const [edited, setEdited] = useState<OpaFormState | null>(null);
+  const form = edited ?? (configQuery.data ? toFormState(configQuery.data) : DEFAULT_FORM);
+  const update = (patch: Partial<OpaFormState>) => setEdited({ ...form, ...patch });
+  const loadError = configQuery.isError;
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    void getOpaConfig()
-      .then((config) => {
-        if (cancelled) return;
-        setForm({
-          enabled: config.enabled,
-          baseUrl: config.baseUrl,
-          policyPath: config.policyPath,
-          healthPath: config.healthPath,
-          timeoutSeconds: String(config.timeoutSeconds),
-          failMode: config.failMode,
-          decisionLoggingEnabled: config.decisionLoggingEnabled,
-          decisionLogExportEnabled: config.decisionLogExportEnabled,
-          environment: config.environment,
-          customerLabel: config.customerLabel,
-          projectLabel: config.projectLabel,
-          authToken: '',
-        });
-        setHasAuthToken(config.hasAuthToken);
-        void checkOpaHealth().then((r) => {
-          if (!cancelled) setReachable(r);
-        });
-      })
-      .catch(() => {
-        if (!cancelled) setLoadError(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const saveMutation = useMutation({
+    mutationFn: (request: OpaConfigRequest) => saveOpaConfig(request),
+  });
 
   async function handleSave() {
     setSaving(true);
     setError(null);
     setSavedMessage(null);
     try {
-      const result = await saveOpaConfig({
+      const result = await saveMutation.mutateAsync({
         enabled: form.enabled,
         baseUrl: form.baseUrl,
         policyPath: form.policyPath,
@@ -99,10 +106,10 @@ export function OpaSettings() {
         projectLabel: form.projectLabel,
         authToken: form.authToken || null,
       });
-      setHasAuthToken(result.hasAuthToken);
-      setForm((f) => ({ ...f, authToken: '' }));
+      queryClient.setQueryData(OPA_CONFIG_KEY, result);
+      setEdited(null);
       setSavedMessage('OPA configuration saved.');
-      setReachable(await checkOpaHealth());
+      queryClient.setQueryData(OPA_HEALTH_KEY, await checkOpaHealth());
     } catch (err) {
       setError('Failed to save OPA configuration.');
       console.warn(err);
@@ -135,24 +142,24 @@ export function OpaSettings() {
       <CheckboxField
         label="Enabled"
         checked={form.enabled}
-        onChange={(v) => setForm((f) => ({ ...f, enabled: v }))}
+        onChange={(v) => update({ enabled: v })}
       />
       <TextField
         label="Base URL"
         value={form.baseUrl}
-        onChange={(v) => setForm((f) => ({ ...f, baseUrl: v }))}
+        onChange={(v) => update({ baseUrl: v })}
         placeholder="http://localhost:8181"
       />
       <TextField
         label="Health check path"
         value={form.healthPath}
-        onChange={(v) => setForm((f) => ({ ...f, healthPath: v }))}
+        onChange={(v) => update({ healthPath: v })}
         placeholder="/health"
       />
       <TextField
         label="Policy decision endpoint"
         value={form.policyPath}
-        onChange={(v) => setForm((f) => ({ ...f, policyPath: v }))}
+        onChange={(v) => update({ policyPath: v })}
         placeholder="/v1/data/openjcockpit/workflow/decision"
       />
       <TextField
@@ -160,12 +167,12 @@ export function OpaSettings() {
         type="number"
         min="1"
         value={form.timeoutSeconds}
-        onChange={(v) => setForm((f) => ({ ...f, timeoutSeconds: v }))}
+        onChange={(v) => update({ timeoutSeconds: v })}
       />
       <SelectField
         label="Fail mode"
         value={form.failMode}
-        onChange={(v) => setForm((f) => ({ ...f, failMode: v }))}
+        onChange={(v) => update({ failMode: v })}
       >
         <option value="FAIL_CLOSED">FAIL_CLOSED — block sensitive actions when unreachable</option>
         <option value="FAIL_OPEN">FAIL_OPEN — allow but log as policy-check-unavailable</option>
@@ -173,36 +180,36 @@ export function OpaSettings() {
       <TextField
         label="Environment label"
         value={form.environment}
-        onChange={(v) => setForm((f) => ({ ...f, environment: v }))}
+        onChange={(v) => update({ environment: v })}
         placeholder="production"
       />
       <TextField
         label="Customer/tenant label"
         value={form.customerLabel}
-        onChange={(v) => setForm((f) => ({ ...f, customerLabel: v }))}
+        onChange={(v) => update({ customerLabel: v })}
         placeholder="noordzee"
       />
       <TextField
         label="Project label"
         value={form.projectLabel}
-        onChange={(v) => setForm((f) => ({ ...f, projectLabel: v }))}
+        onChange={(v) => update({ projectLabel: v })}
         placeholder="onboarding"
       />
       <CheckboxField
         label="Decision logging enabled"
         checked={form.decisionLoggingEnabled}
-        onChange={(v) => setForm((f) => ({ ...f, decisionLoggingEnabled: v }))}
+        onChange={(v) => update({ decisionLoggingEnabled: v })}
       />
       <CheckboxField
         label="Decision log export enabled"
         checked={form.decisionLogExportEnabled}
-        onChange={(v) => setForm((f) => ({ ...f, decisionLogExportEnabled: v }))}
+        onChange={(v) => update({ decisionLogExportEnabled: v })}
       />
       <SecretField
         label="Auth token"
         hasValue={hasAuthToken}
         value={form.authToken}
-        onChange={(v) => setForm((f) => ({ ...f, authToken: v }))}
+        onChange={(v) => update({ authToken: v })}
       />
     </IntegrationConfigForm>
   );
