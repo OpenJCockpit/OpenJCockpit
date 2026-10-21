@@ -49,7 +49,7 @@ export async function apiRequest<T>(
     signal,
   });
   if (!response.ok)
-    throw new ApiError(await errorMessageFrom(response, errorMessage), response.status);
+    {throw new ApiError(await errorMessageFrom(response, errorMessage), response.status);}
   return response.json();
 }
 

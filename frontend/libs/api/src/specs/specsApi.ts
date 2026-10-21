@@ -44,9 +44,9 @@ export async function saveSpecFile(
     body: JSON.stringify({ fileName, content }),
   });
   if (!response.ok)
-    throw new ApiError(
+    {throw new ApiError(
       await errorMessageFrom(response, 'Failed to save spec file'),
       response.status,
-    );
+    );}
   return response.json();
 }
