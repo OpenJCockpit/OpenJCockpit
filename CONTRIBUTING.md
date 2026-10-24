@@ -25,7 +25,7 @@ Requirements:
 - Maven 3.9+
 - Node.js 22 and npm (see `frontend/.nvmrc`)
 - Docker with Docker Compose, for running the full stack
-- A local Ollama installation, as described in the [README](README.md)
+- A local Ollama installation, as described in [LLM providers](docs/readme/integrations/llm-providers.md)
 
 Common commands:
 
@@ -44,7 +44,7 @@ npx nx lint dashboard
 docker compose up --build
 ```
 
-See the [README](README.md) for the full stack setup and the end-to-end tests (Playwright).
+See the [Quickstart](docs/readme/getting-started/quickstart.md) for the full stack setup, [Local development](docs/readme/development/local-development.md) for building and verifying from source, and [Testing](docs/readme/development/testing.md) for the end-to-end tests (Playwright).
 
 ## Coding guidelines
 

@@ -1,0 +1,32 @@
+# Troubleshooting
+
+Common problems with the local stack, collected from the topic documentation. Each entry links to the
+page with the full explanation.
+
+| Symptom | Likely cause | What to do |
+| --- | --- | --- |
+| The stack does not start; `ai-control-service` or `embabel-agent-service` fails at boot. | `OPENAI_API_KEY` missing in `.env`. | `cp .env.example .env` and set `OPENAI_API_KEY`. It is mandatory to boot. [Quickstart](../getting-started/quickstart.md) |
+| Health is `UP`, but every agent run fails on the first LLM call. | Ollama not running, model not pulled, or not reachable from the containers. Health does not probe Ollama. | Check `ollama list` for `qwen3.6:27b`, keep the daemon running. On Linux, see the networking warning. [LLM providers](../integrations/llm-providers.md#local-ollama-qwen-model-prerequisite-before-you-start-the-stack) |
+| Agent runs fail after setting `OLLAMA_BASE_URL=http://localhost:11434` in `.env`. | `.env` applies to the container, whose loopback has no Ollama. | Remove the override, or point it at an address reachable from the container. [LLM providers](../integrations/llm-providers.md#local-ollama-qwen-model-prerequisite-before-you-start-the-stack) |
+| LLM calls fail with `401` from the gateway (two requests per call). | Wrong or missing `LITELLM_VIRTUAL_KEY`, or `local-seed` did not run. | Check `docker compose logs local-seed`; this is expected fail-closed behaviour. [Known limitations](known-limitations.md#llm-and-gateway-limitations) |
+| The LiteLLM gateway is down and you need agents to work. | Gateway outage. | Revert B: `LLM_CODING_ROUTE=direct` in `.env`, then `docker compose up -d embabel-agent-service`. [LLM providers](../integrations/llm-providers.md#reverting-the-default-llm) |
+| Runs take very long or time out. | Several agents on a large local model; worst case 600 s per LLM call. | Expected locally; jobs wait up to `WORKFLOW_AGENT_TIMEOUT` (3600 s). [LLM providers](../integrations/llm-providers.md#litellm-gateway) |
+| Login redirects to `:3000`, or "invalid redirect URI". | Keycloak database still holds the old realm from before the landing app was removed. | Re-import the realm or edit the `openjcockpit` client. [Authentication](../getting-started/authentication.md#re-importing-the-realm) |
+| A workflow start returns `BLOCKED`. | No agents linked, all agents denied by policy, or an invalid git-workspace ticket. | Read the reason; check `docker compose logs opa`. [Agents and workflows](../workflows/agents-and-workflows.md#refusals-at-the-write-and-start-boundaries) |
+| Agent tool calls are denied by policy. | Missing `workflowId`/`customerId` in the policy input, e.g. an agent run outside a workflow. | Start agents through a workflow. [Policy enforcement](../governance/policy-enforcement.md#the-default-policy-is-a-starting-point) |
+| A manual workflow start returns `409 SPEC_QUEUE_ITEM_ACTIVE`. | A spec queue item is active for this project. | Wait, or pause/cancel the queue item. [Spec queue](../workflows/spec-queue.md#how-to-use-it) |
+| The spec queue halted. | A failed item (for example `START_OUTCOME_UNKNOWN` or `MERGE_WAIT_TIMEOUT`). | Retry, skip or remove the item, then resume the queue. Check the workflow executions for a still-running run. [Spec queue](../workflows/spec-queue.md#residual-risks) |
+| The dashboard shows **"run state lost"**. | Unknown or expired run id, e.g. after a restart of `embabel-agent-service` (paused runs are in memory). | Start the workflow again. [Approval gates](../governance/approval-gates.md#in-flight-paused-runs-do-not-survive-a-restart-or-redeploy) |
+| A git-workspace job fails to start its container. | The job image is not pulled automatically. | `docker pull eclipse-temurin:25-jre` [Git integration](../workflows/git-integration.md#known-limitations-of-workspace-runs) |
+| A dashboard start on a project returns `502`. | Cloning the project repository failed (URL or credential). | Check the project URL and *Settings → Git credentials*. [Git integration](../workflows/git-integration.md#dashboard-starts-on-a-project-run-in-a-git-workspace) |
+| A workflow is missing from the list, or a policy/approval audit record is missing. | A malformed YAML file was skipped. | `docker compose logs embabel-agent-service \| grep definition.file.read.failed`. [Runbooks](runbooks.md#workflow-definition-file-logging) |
+| `GET /api/workflows` returns `502`. | The upstream listing in `embabel-agent-service` failed (different from an empty `200`). | See the service log. [Runbooks](runbooks.md#workflow-definition-file-logging) |
+| `embabel-agent-service` fails at boot after a rollback. | Older code cannot parse `approvalGate:` in saved workflows, or a seeded workflow file is malformed. | [Approval gates rollback hazard](../governance/approval-gates.md#rollback-hazard-removing-a-saved-approvalgate-configuration-before-rolling-back-past-this-feature), [Runbooks](runbooks.md#workflow-definition-file-logging) |
+| Old workflows load without agents. | Pre-catalogue workflow YAML with old stage ids. | Re-link agents in Workflow Design. [Agents and workflows](../workflows/agents-and-workflows.md#export-and-import) |
+| Marketplace requests go to `/skills/skills`. | The stored marketplace URL already ends in `/skills`. | Register the base URL. [Skills Hub](../integrations/skills-marketplace.md#known-limitation-double-skills-if-the-stored-url-already-ends-in-skills) |
+| Port `4000` already in use when running E2E or Vite. | The Vite dev server and the containerised dashboard both bind `4000` in E2E modes. | Use one E2E mode at a time. [Testing](../development/testing.md) |
+| A local, non-Docker `embabel-agent-service` does not show your workflows. | It uses `${java.io.tmpdir}/embabel-workflow-definitions`, not the Compose volume. | Set `WORKFLOW_DEFINITIONS_PATH`. [Runbooks](runbooks.md#local-non-docker-runs-use-a-different-storage-path) |
+
+Still stuck? Check the logs (see [Runbooks](runbooks.md#useful-log-commands)) and open an issue on
+[GitHub](https://github.com/OpenJCockpit/OpenJCockpit/issues). Report security problems privately via
+the [security policy](../../../SECURITY.md).

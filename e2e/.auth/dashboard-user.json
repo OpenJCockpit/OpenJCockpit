@@ -1,0 +1,45 @@
+{
+  "cookies": [
+    {
+      "name": "AUTH_SESSION_ID",
+      "value": "VTBKc3BNQVBLemM2Mmh1Nm1xbk0xcXV2LmVvd1NFR3Z0elhPbGVZOHp3NkdCTjA2SEdYSElyejBXMGlUZGRHQUxnYkVsdGRPMXFRNlNzTWZvcUVFN1huakp0ZV9GTnp4V3Uyczk0SU9zWXNBV3RR",
+      "domain": "localhost",
+      "path": "/realms/metafactory/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KC_AUTH_SESSION_HASH",
+      "value": "qPieSrmdBsJD0P9dxty9+tyAQh9EJD74cP5X1+vyrrg",
+      "domain": "localhost",
+      "path": "/realms/metafactory/",
+      "expires": 1789085796.200654,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KEYCLOAK_IDENTITY",
+      "value": "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIxODY1NWFmZi1mMjlkLTRmY2UtOTljOS00Mzc0YzZjOGFlMzAifQ.eyJleHAiOjE3ODkxMjE3MzYsImlhdCI6MTc4OTA4NTczNiwianRpIjoiZTNlZDVmNzctMWE4Ni05YWJhLTM4NDAtM2Q3ZjAxZjgyM2VlIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9tZXRhZmFjdG9yeSIsInN1YiI6IjJmMDgyMTAxLTRhOTEtNGUwMS05OWQ5LTYyYzkwZjA0NjhhNSIsInR5cCI6IlNlcmlhbGl6ZWQtSUQiLCJzaWQiOiJVMEpzcE1BUEt6YzYyaHU2bXFuTTFxdXYiLCJzdGF0ZV9jaGVja2VyIjoiQjJqb3JxTmhiTXdHQUpPRWRMTE90TkJaakQtM2ZFMEZ1RWZlS2Q5enlKbyJ9.Oq6yrFyWjJ_xERqQH-WjpDJpJrrRjizWwzOIuBGz3-lmh0S_J0xKh8PcClV-cSVLtbPsPSeCq2QXaXq_GIO2xQ",
+      "domain": "localhost",
+      "path": "/realms/metafactory/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KEYCLOAK_SESSION",
+      "value": "qPieSrmdBsJD0P9dxty9-tyAQh9EJD74cP5X1-vyrrg",
+      "domain": "localhost",
+      "path": "/realms/metafactory/",
+      "expires": 1789121736.332454,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    }
+  ],
+  "origins": []
+}
