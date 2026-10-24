@@ -179,6 +179,9 @@ extension point. They are not yet a verified target. → [Architecture](docs/rea
 Looking for a section of the previous README? See the
 [documentation migration map](docs/readme/reference/documentation-migration-map.md).
 
+For AI assistants, [`llms.txt`](llms.txt) gives a compact project summary and a curated index of
+these documents.
+
 ## Security and current limitations
 
 OpenJCockpit is designed to support governed AI-driven software engineering. The stack in this

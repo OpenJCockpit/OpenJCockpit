@@ -1,0 +1,80 @@
+# OpenJCockpit
+
+> OpenJCockpit is the open-source AI Software Factory: an AI Orchestration Dashboard and backend platform for governed agentic software development. It runs teams of role-based AI agents (business analyst, solution architect, software developer, QA engineer) through specification-driven workflows, with Open Policy Agent checks, human approval gates and reviewable Git delivery built in. Java-first, Apache 2.0 licensed, in active development, and not yet production-hardened.
+
+OpenJCockpit is not a code-generation assistant. It is the orchestration and governance layer around coding agents. Humans decide what gets built, which agents may use which tools, and where a human must approve. The agents then work on a dedicated Git branch that the team reviews through its normal pull-request process.
+
+Key facts for reasoning about the project:
+
+- **Execution model:** a workflow is an ordered chain of agents. Each agent builds on the previous agents' outputs, and a run can pause at optional approval gates (accept, deny, or accept with comments, which sends the agent back with bounded retries). Specs (Markdown files with requirements and acceptance criteria in the project repository's `specs/` folder) are the input contract for the implementation workflows.
+- **Governance:** OPA evaluates every workflow start, every agent and every tool call. Tools are granted server-side from the run's scope, never chosen by the LLM. Guardrails fail closed, and policy and approval decisions are recorded in a queryable audit trail. Agents reach Git only through an MCP server behind the LiteLLM gateway, so Git credentials never pass through an LLM.
+- **Components:** React 19/Vite/Nx dashboard (`frontend/`). Java 25/Spring Boot services in `services/`: `ai-control-service` (dashboard-facing API, projects and Git credentials, specs, spec queue, git-workspace jobs), `embabel-agent-service` (workflow engine: definitions, agent catalogue, OPA client, approval gates, run state; built on Embabel and Spring AI), `git-mcp-server` (MCP Git tools via JGit) and `service-common`. Infrastructure for the LiteLLM gateway, Keycloak, OPA policies and PostgreSQL lives in `infrastructure/`. The REST contract is in `shared/contracts/`.
+- **Models:** model aliases behind LiteLLM, backed by local Ollama (`qwen3.6:27b`) plus OpenAI. Running locally requires Docker Compose, Ollama on the host and an `OPENAI_API_KEY`.
+- **Agents:** agents are defined as Markdown files with YAML frontmatter, or served remotely over A2A 0.3. Skills use the Agent Skills format.
+- **Implemented vs. not yet:** implemented today are multi-agent workflows, spec-driven workflows, OPA checks, approval gates, one branch per run with checkpoint commits, and a per-project spec queue. Not yet available: automatic PR creation in the default workflows, fine-grained roles (any authenticated user can approve gates), multi-tenancy, production deployment artefacts, persistence of paused runs across restarts, and automatic LLM provider fallback. The default OPA policy is a permissive starting point, and the Skills Marketplace integration is an early placeholder.
+- **Languages:** Java application development is the primary focus. Other languages are an architectural extension point (agents operate on plain repository files), not a verified target.
+- **Security posture:** the shipped Docker Compose stack is for local development only. It uses publicly known seed credentials and exposes the Docker daemon to a service, and it has not been independently security-assessed. Do not present it as production-ready or compliant.
+
+## Project Overview
+
+- [README](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/README.md): Product introduction, how a run works end to end, technology stack and documentation map.
+- [Overview](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/concepts/overview.md): Core concepts (project, spec, agent, workflow, gate, policy, tool, skill, queue), dashboard features, and a vision vs. current-status table.
+- [Documentation index](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/README.md): Goal-based entry point to every documentation page.
+
+## Getting Started
+
+- [Quickstart](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/getting-started/quickstart.md): Prerequisites, starting the Docker Compose stack, a first workflow run, and stop/reset.
+- [Authentication](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/getting-started/authentication.md): Keycloak realm, seeded local-only users, roles and service clients.
+- [LLM providers](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/integrations/llm-providers.md): Ollama, LiteLLM gateway, OpenAI requirement, model aliases and manual revert paths.
+
+## Architecture
+
+- [Architecture](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/concepts/architecture.md): Components, technologies, design principles, and the request flow of a workflow run on a project.
+- [OpenAPI contract](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/shared/contracts/openapi.yaml): REST contract between the dashboard and the backend services.
+
+## Agentic Workflows
+
+- [Agents and workflows](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/workflows/agents-and-workflows.md): How a run executes, the default workflows (spec init, create spec, implement spec, realise spec), prompts, groups, JSON export/import and chaining.
+- [Spec-driven development](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/workflows/spec-driven-development.md): Specs in project repositories and the spec folder rules.
+- [Spec queue](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/workflows/spec-queue.md): Sequential per-project spec processing, admin-controlled auto-merge and residual risks.
+- [Git integration](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/workflows/git-integration.md): Workspaces, one branch per run, checkpoint commits, credentials and pull requests.
+
+## Governance and Human Oversight
+
+- [Policy enforcement](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/governance/policy-enforcement.md): OPA integration, policy-guarded tool execution, guardrails, audit trails and what is not covered yet.
+- [Approval gates](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/governance/approval-gates.md): Human-in-the-loop decisions, bounded feedback loops and operational caveats.
+- [Default OPA policy](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/infrastructure/opa/policies/workflow_decision.rego): The Rego policy evaluated for workflow, agent and tool decisions.
+- [Security considerations](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/governance/security-considerations.md): Local-only credentials, high-impact development postures and hardening starting points.
+
+## Integrations
+
+- [MCP tools](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/integrations/mcp-tools.md): The Git MCP server, policy-checked tools and workspace isolation.
+- [Agents and A2A](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/integrations/a2a-agents.md): Agent catalogue, configuration-driven Markdown agents, remote A2A agents and their limitations.
+- [Local agent format](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/agents/README.md): Frontmatter fields and folder conventions for local agent definitions.
+- [Skills Hub](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/integrations/skills-marketplace.md): Agent skills and the development-only marketplace mock.
+- [LiteLLM gateway configuration](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/infrastructure/litellm/README.md): Gateway keys, model routing and the salt-key rotation hazard.
+
+## Development and Extension
+
+- [Contributing](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/CONTRIBUTING.md): Toolchain requirements, build and test commands, coding guidelines and PR process.
+- [Local development](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/development/local-development.md): Repository layout, running individual services or the frontend on the host, and verification.
+- [Testing](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/development/testing.md): Test layers and the Playwright end-to-end suite.
+- [Continuous integration](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/development/continuous-integration.md): CI legs, the required `ci-summary` check and other GitHub workflows.
+- [Dashboard app](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/frontend/apps/dashboard/README.md): Frontend application structure; feature libraries are documented in `frontend/libs/*/README.md`.
+
+## Operations and Limitations
+
+- [Known limitations](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/operations/known-limitations.md): Maturity by area, accepted risks and named follow-ups. Read this before making claims about capabilities.
+- [Troubleshooting](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/operations/troubleshooting.md): Symptom, cause and fix for common local-stack problems.
+- [Runbooks](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/operations/runbooks.md): Services, volumes, destructive commands and logging.
+- [Configuration reference](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/reference/configuration-reference.md): Environment variables and their defaults.
+- [Security policy](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/SECURITY.md): Private vulnerability reporting and scope.
+
+## Optional
+
+- [Documentation site](https://openjcockpit.github.io/OpenJCockpit/): Published HTML site with an illustrated first-run tutorial and spec queue details.
+- [Agent integration operations guide (Dutch)](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/services/embabel-agent-service/docs/agent-integration/OPERATIONS.md): Detailed operations guide for configuration-driven agents, A2A and git-workspace runs.
+- [Spec workflow rules](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/services/embabel-agent-service/AGENTS.md): Spec folder rules (`spec.md`, `plan.md`, `tasks.md`, `review.md`) applied to work on the agent service.
+- [End-to-end test harness](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/frontend/e2e/README.md): Full Playwright harness details and deliberate coverage exclusions.
+- [Dependency management](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/operations/dependency-management.md): Renovate configuration.
+- [Historical notes](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/reference/historical-notes.md): Superseded behaviour kept for traceability; not current behaviour.
