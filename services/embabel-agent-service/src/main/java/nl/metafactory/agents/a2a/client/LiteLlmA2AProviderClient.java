@@ -1,10 +1,10 @@
 package nl.metafactory.agents.a2a.client;
 
-import nl.metafactory.agents.definition.litellm.AgentCardMetadata;
-import nl.metafactory.agents.definition.litellm.LiteLlmAgentMetadataClient;
-import nl.metafactory.agents.definition.litellm.LiteLlmHttpClient;
-import nl.metafactory.agents.definition.markdown.Identifiers;
-import nl.metafactory.agents.definition.model.SourceStatus;
+import nl.metafactory.agents.a2a.client.AgentCardMetadata;
+import nl.metafactory.agents.a2a.client.LiteLlmAgentMetadataClient;
+import nl.metafactory.common.agentdefinition.LiteLlmHttpClient;
+import nl.metafactory.common.agentdefinition.Identifiers;
+import nl.metafactory.common.agentdefinition.SourceStatus;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;

@@ -1,11 +1,9 @@
 package nl.metafactory.agents.workflow;
 
-import com.embabel.common.ai.model.ModelProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -63,8 +61,6 @@ class ExecutionPackagesDoNotWriteDefinitionsTest {
             "WorkflowOrbRunner",
             "ApprovalDecisionAuditRepository");
 
-    @MockitoBean
-    private ModelProvider modelProvider;
 
     @Autowired
     private ApplicationContext context;

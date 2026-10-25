@@ -1,6 +1,6 @@
 package nl.metafactory.agents.workflow.agents;
 
-import nl.metafactory.agents.definition.markdown.Identifiers;
+import nl.metafactory.common.agentdefinition.Identifiers;
 
 import java.util.Optional;
 

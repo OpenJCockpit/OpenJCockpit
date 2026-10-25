@@ -30,27 +30,11 @@ spring:
   jackson:
     deserialization:
       fail-on-null-for-primitives: false
-  ai:
-    model:
-      chat: openai
-      embedding: openai
-    openai:
-      api-key: ${OPENAI_API_KEY}
-      # The effective spring.ai.openai.chat.max-retries is the framework default of 3,
-      # replacing the previously hand-built RetryUtils.DEFAULT_RETRY_TEMPLATE retry behavior —
-      # this is a disclosed, accepted change for this delivery.
-      chat:
-        model: gpt-4.1-mini
-      embedding:
-        model: text-embedding-3-small
-    mcp:
-      client:
-        enabled: false
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs}
   # Frozen Contract #2 (workflow-approval-gate work plan §5) — implemented verbatim. Makes
   # today's implicit Spring Boot defaults explicit and tunable; not load-bearing for correctness
   # under the return-and-resume design (a parked run holds no thread), but documentation-as-
@@ -72,37 +56,6 @@ spring:
     open-in-view: false
   flyway:
     locations: classpath:db/migration
-
-embabel:
-  models:
-    default-llm: "${openjcockpit.llm.ollama.model}"
-    default-embedding-model: text-embedding-3-small
-    llms:
-      coding: "${openjcockpit.llm.ollama.model}"
-      best: gpt-4.1-mini
-      cheapest: gpt-4.1-mini
-    embedding-services:
-      best: text-embedding-3-small
-      cheapest: text-embedding-3-small
-  agent:
-    platform:
-      llm-operations:
-        prompts:
-          # Embabel wraps every LLM call in future.get(defaultTimeout) (ChatClientLlmOperations).
-          # Its default is 60s, which silently caps calls far below the 600s HTTP read timeout in
-          # openjcockpit.llm.read-timeout-seconds. A 27B local model routinely needs minutes, so the
-          # two budgets are aligned here. Keep this >= openjcockpit.llm.read-timeout-seconds.
-          default-timeout: ${LLM_OPERATION_TIMEOUT:600s}
-        data-binding:
-          # LlmDataBindingProperties' own default (maxAttempts=10, fixedBackoffMillis=30) exists to
-          # re-ask a model whose JSON response failed to bind (com.embabel.agent.spi.support
-          # .LlmDataBindingProperties) -- it also catches HTTP-level failures such as the read
-          # timeout above. Because it re-issues the *same* slow call with only a 30ms backoff, a
-          # genuinely-slow-but-working local model can be retried up to 10x, each burning the full
-          # read-timeout budget again, before the run finally fails (worst case ~10x
-          # openjcockpit.llm.read-timeout-seconds). Capped lower here so a slow response still gets
-          # one retry without multiplying the wait an order of magnitude.
-          max-attempts: ${LLM_DATA_BINDING_MAX_ATTEMPTS:2}
 
 management:
   endpoints:
@@ -136,37 +89,34 @@ management:
 info:
   app:
     name: ${spring.application.name}
-    description: Embabel Agent Service — runs AI agent pipelines via Embabel GOAP
+    description: Embabel Agent Service — workflows, agent catalog, policy and run state (agents run in embabel-agent-runtime)
     version: "@project.version@"
 
 openjcockpit:
+  # The execution plane. Every agent (local catalog agents directly, A2A agents through LiteLLM) and every LLM
+  # call runs in embabel-agent-runtime; this service reaches it with its own service identity. Any host or
+  # HTTPS URL works; blank -> local agents and definition drafts report "runtime not configured".
+  agent-runtime:
+    base-url: ${EMBABEL_AGENT_RUNTIME_BASE_URL:}
+    token-url: ${AGENT_SERVICE_TOKEN_URL:}
+    client-id: ${AGENT_SERVICE_CLIENT_ID:openjcockpit-agent-service}
+    client-secret: ${AGENT_SERVICE_CLIENT_SECRET:}
+    connect-timeout: ${AGENT_RUNTIME_CONNECT_TIMEOUT:5s}
+    # one synchronous agent run (never retried); keep >= the runtime's LLM budget x expected LLM turns
+    execution-timeout: ${AGENT_RUNTIME_EXECUTION_TIMEOUT:60m}
+    draft-timeout: ${AGENT_RUNTIME_DRAFT_TIMEOUT:10m}
+    # the only identity that may read /internal/agent-runtime/v1/** (bindings, run scopes, tool decisions)
+    runtime-client-id: ${AGENT_RUNTIME_CLIENT_ID:openjcockpit-agent-runtime}
   # Runs on a project are bound (via a single-use ticket issued to ai-control) to a workspace of the git MCP
-  # server; the agents' git tools and the per-agent checkpoint commits use it through LiteLLM.
-  # Blank gateway -> git tools and checkpoints report "unavailable".
+  # server; the per-agent checkpoint commits use it through LiteLLM (the agents' git tools run in the runtime).
+  # Blank gateway -> checkpoints report "unavailable".
   git-workspace:
     trusted-client-id: ${GIT_WORKSPACE_TRUSTED_CLIENT_ID:openjcockpit-ai-control}
-    engine-a2a-client-id: ${GIT_WORKSPACE_ENGINE_A2A_CLIENT_ID:openjcockpit-a2a}
     gateway-base-url: ${GIT_WORKSPACE_GATEWAY_BASE_URL:}
     gateway-api-key: ${GIT_WORKSPACE_GATEWAY_API_KEY:}
     server-id: ${GIT_WORKSPACE_GIT_MCP_SERVER_ID:openjcockpit_git}
     ticket-ttl: ${GIT_WORKSPACE_TICKET_TTL:PT2M}
     checkpoints: ${GIT_WORKSPACE_CHECKPOINTS:true}
-  llm:
-    # Matches the OpenAI SDK's own documented default timeout (10 minutes) — reasoning-heavy
-    # calls (e.g. realisation's CodeChangeSet generation) can take a while.
-    connect-timeout-seconds: ${LLM_CONNECT_TIMEOUT_SECONDS:45}
-    read-timeout-seconds: ${LLM_READ_TIMEOUT_SECONDS:600}
-    coding:
-      # BR-14 Revert B: `gateway` (default) routes the default/coding LLM through the
-      # LiteLLM container; `direct` restores the pre-gateway path straight to host
-      # Ollama. Configuration-only switch -- no rebuild, no docker-compose.yml edit.
-      route: ${LLM_CODING_ROUTE:gateway}
-    gateway:
-      base-url: ${LITELLM_BASE_URL:http://localhost:4000/v1}
-      api-key: ${LITELLM_VIRTUAL_KEY:sk-openjcockpit-embabel-local}
-    ollama:
-      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}         # UNCHANGED
-      model: "${OLLAMA_MODEL:qwen3.6:27b}"                        # UNCHANGED
   mcp:
     enabled: ${MCP_CLIENT_ENABLED:false}
     request-timeout-seconds: ${MCP_REQUEST_TIMEOUT_SECONDS:120}
@@ -174,7 +124,7 @@ openjcockpit:
       - name: git
         url: ${GIT_MCP_SERVER_URL:http://localhost:8093}
   security:
-    jwt-issuer: http://localhost:8080/realms/openjcockpit
+    jwt-issuer: ${KEYCLOAK_ISSUER:http://localhost:8080/realms/openjcockpit}
     spec-queue-runner:
       # Blank secret disables this auth path. Issuer/audience must match ai-control-service.
       secret: ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:}
@@ -193,24 +143,6 @@ openjcockpit:
   a2a-services:
     encryption-secret: ${A2A_SERVICE_ENCRYPTION_SECRET:}
     encryption-salt: ${A2A_SERVICE_ENCRYPTION_SALT:}
-  # SPEC-002: configuration-driven agent definitions + inbound A2A. Disabled by default.
-  agent-definitions:
-    enabled: ${AGENT_DEFINITIONS_ENABLED:false}
-    local-root: ${AGENT_DEFINITIONS_LOCAL_ROOT:}
-    tenant-claim: ${AGENT_DEFINITIONS_TENANT_CLAIM:tenant_id}
-    fallback:
-      on-unavailable: ${AGENT_DEFINITIONS_FALLBACK_ON_UNAVAILABLE:true}
-      on-not-found: ${AGENT_DEFINITIONS_FALLBACK_ON_NOT_FOUND:false}
-    cache:
-      ttl: ${AGENT_DEFINITIONS_CACHE_TTL:1h}
-      directory: ${AGENT_DEFINITIONS_CACHE_DIR:}
-    litellm:
-      # model traffic for agent model aliases (e.g. customer-chat); separate from the registry key
-      model-gateway-url: ${LITELLM_BASE_URL:http://localhost:4000/v1}
-      model-gateway-key: ${LITELLM_VIRTUAL_KEY:sk-openjcockpit-embabel-local}
-    a2a:
-      enabled: ${A2A_ENABLED:false}
-      public-base-url: ${A2A_PUBLIC_BASE_URL:}
 
   spec-workflow:
     base-path: ${SPEC_WORKFLOW_BASE:.}
@@ -246,4 +178,3 @@ openjcockpit:
 logging:
   level:
     nl.metafactory.agents: INFO
-    com.embabel.agent: DEBUG

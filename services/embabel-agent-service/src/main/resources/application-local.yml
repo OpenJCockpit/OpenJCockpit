@@ -1,17 +1,11 @@
-# Profile `local`: everything needed to develop and test agents against the local docker-compose
-# stack, enabled with SPRING_PROFILES_ACTIVE=local (docker-compose does this). Secrets are not in
+# Profile `local`: everything needed to manage and run workflows against the local docker-compose
+# stack, enabled with SPRING_PROFILES_ACTIVE=local (docker-compose does this). The agents themselves run in
+# embabel-agent-runtime (its own application-local.yml). Secrets are not in
 # this file: they arrive as environment variables seeded by the compose `local-seed` service.
 spring:
   flyway:
     # approved migrations + local seed (tenant 'local' bindings for the seeded agents)
     locations: classpath:db/migration,classpath:db/seed-local
-
-embabel:
-  models:
-    llms:
-      # agent model aliases -> gateway-routed Embabel LLMs (same names as in LiteLLM's model_list)
-      agent-chat: agent-chat
-      customer-chat: customer-chat
 
 openjcockpit:
   # One A2A client per A2A provider; locally that is the LiteLLM A2A Gateway.
@@ -26,26 +20,18 @@ openjcockpit:
         token-url: ${A2A_TOKEN_URL:http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token}
         client-id: openjcockpit-a2a
         client-secret: ${A2A_CLIENT_SECRET:}
-  # Workflows reference catalog agents; local (/agents) agents run in-process for this tenant.
+  # Workflows reference catalog agents; local (/agents) agents run on the runtime for this tenant.
   agent-workflows:
     tenant: local
-  # Agents' git tools (git.list_files/read_file/write_file) reach the git MCP server through LiteLLM
-  # (mcp_servers.openjcockpit_git, granted to this key by local-seed). Runs on a project are bound to the
-  # workspace ai-control prepared, through a ticket only ai-control (azp openjcockpit-ai-control) may issue.
+  # The execution plane (separate container locally; any host or HTTPS URL elsewhere).
+  agent-runtime:
+    base-url: ${EMBABEL_AGENT_RUNTIME_BASE_URL:http://embabel-agent-runtime:8082}
+    token-url: ${AGENT_SERVICE_TOKEN_URL:http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token}
+  # Checkpoint commits reach the git MCP server through LiteLLM (mcp_servers.openjcockpit_git, granted to this
+  # MCP-only key by local-seed). Runs on a project are bound to the workspace ai-control prepared, through a
+  # ticket only ai-control (azp openjcockpit-ai-control) may issue.
   git-workspace:
     gateway-base-url: ${LITELLM_PROXY_URL:http://litellm:4000}
-    gateway-api-key: ${LITELLM_VIRTUAL_KEY:}
+    gateway-api-key: ${LITELLM_AGENT_SERVICE_KEY:}
   agent-catalog:
     local-path: ${AGENT_CATALOG_LOCAL_PATH:/agents}
-  agent-definitions:
-    enabled: true
-    local-root: ${AGENT_DEFINITIONS_LOCAL_ROOT:/agent-definitions}
-    tenant-claim: tenant_id
-    litellm:
-      gateway-model-aliases:
-        - agent-chat
-        - customer-chat
-    a2a:
-      enabled: true
-      # address LiteLLM forwards to; equals the url of the agents in infrastructure/litellm/config.yaml
-      public-base-url: ${A2A_PUBLIC_BASE_URL:http://embabel-agent-service:8081}

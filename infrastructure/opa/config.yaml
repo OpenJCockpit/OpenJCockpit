@@ -1,4 +1,5 @@
-# Persistent runtime configuration for the local OPA server used by embabel-agent-service.
+# Persistent runtime configuration for the local OPA server used by embabel-agent-service (the policy
+# decision owner; embabel-agent-runtime asks it for tool-call decisions).
 # Loaded via `opa run --server --config-file=/config/config.yaml /policies` (see docker-compose.yml).
 # This only configures the OPA server process itself (logging, labels, default decision path) —
 # the connection settings on the *client* side (base URL, policy path, auth token, fail mode) are

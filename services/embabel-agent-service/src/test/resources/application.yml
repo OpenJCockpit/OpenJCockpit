@@ -10,15 +10,6 @@ spring:
   jackson:
     deserialization:
       fail-on-null-for-primitives: false
-  ai:
-    model:
-      chat: openai
-      embedding: openai
-    openai:
-      api-key: test
-    mcp:
-      client:
-        enabled: false
   security:
     oauth2:
       resourceserver:
@@ -37,16 +28,3 @@ spring:
 openjcockpit:
   security:
     jwt-issuer: http://localhost:8080/realms/openjcockpit
-embabel:
-  agent-platform:
-    scanning:
-      auto: false
-  models:
-    default-llm: test-llm
-    default-embedding-model: test
-    embedding-services:
-      best: test
-      cheapest: test
-    llms:
-      best: test-llm
-      cheapest: test-llm

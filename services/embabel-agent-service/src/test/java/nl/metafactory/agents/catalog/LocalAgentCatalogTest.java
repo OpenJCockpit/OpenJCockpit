@@ -1,6 +1,6 @@
 package nl.metafactory.agents.catalog;
 
-import nl.metafactory.agents.definition.markdown.AgentMarkdownParser;
+import nl.metafactory.common.agentdefinition.AgentMarkdownParser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -26,7 +26,7 @@ class LocalAgentCatalogTest {
         Path file = root.resolve(relative);
         Files.createDirectories(file.getParent());
         Files.writeString(file, "---\nid: " + id + "\n" + (name == null ? "" : "name: \"" + name + "\"\n")
-                + "version: \"1.0.0\"\ndescription: \"d " + id + "\"\nmodel: agent-chat\n---\n# Rol\nx\n");
+                + "version: \"1.0.0\"\ndescription: \"d " + id + "\"\nmodel: agent-chat\n---\n# Role\nx\n");
     }
 
     @Test

@@ -34,7 +34,7 @@ class AgentCatalogControllerTest {
         var litellm = new AgentCatalogProviderSectionDto("LiteLLM", "litellm", "OK", null, List.of(
                 new AgentCatalogProviderAgentDto("a1", "business-analyst", "Requirements", "http://localhost:4100/a2a/business-analyst",
                         "http://localhost:4100/a2a/business-analyst/.well-known/agent-card.json",
-                        "http://embabel-agent-service:8081/a2a/business-analyst",
+                        "http://embabel-agent-runtime:8082/a2a/business-analyst",
                         "0.3.0", "1.0.0", false, List.of("Business Analyst"))));
         when(client.getAgentCatalog()).thenReturn(Optional.of(new AgentCatalogDto(local, List.of(litellm))));
 

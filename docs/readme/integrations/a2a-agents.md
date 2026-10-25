@@ -43,11 +43,25 @@ guardrails: [pii-protection] # optional
 See [`agents/README.md`](../../../agents/README.md) for the local catalogue rules. Invalid files are
 still listed in the dashboard, marked with the problem.
 
+## Where A2A is served
+
+Inbound A2A (`/a2a/{agentId}` and the Agent Cards under `/a2a/{agentId}/.well-known/`) is hosted by
+**`embabel-agent-runtime`** (host port 8092 locally), not by `embabel-agent-service`. The advertised URL is
+`A2A_PUBLIC_BASE_URL` (locally `http://embabel-agent-runtime:8082`); the `url` of each agent in
+[`infrastructure/litellm/config.yaml`](../../../infrastructure/litellm/config.yaml) must equal
+`A2A_PUBLIC_BASE_URL/a2a/<agent>`. Outbound A2A — the provider clients that list agents for the catalogue and
+call `a2a:` agents in workflows — stays in `embabel-agent-service`. See [Agent runtime](../concepts/agent-runtime.md).
+
+**Migration note.** Before the split the endpoints were at `http://embabel-agent-service:8081/a2a/...`
+(host port 8091). Callers going through LiteLLM need no change; direct callers must use the runtime's
+address. The protocol, card content, error codes and authentication are unchanged.
+
 ## The seeded agents
 
 The local stack seeds four role-based agents, defined in
-[`services/embabel-agent-service/agent-definitions/agents/`](../../../services/embabel-agent-service/agent-definitions/agents/)
-and served over A2A through LiteLLM:
+[`services/embabel-agent-runtime/agent-definitions/agents/`](../../../services/embabel-agent-runtime/agent-definitions/agents/)
+(shipped in the `openjcockpit/embabel-agent-runtime` image) and served over A2A through LiteLLM by
+`embabel-agent-runtime`:
 
 | Agent | Role | Git tools |
 | --- | --- | --- |
@@ -66,13 +80,15 @@ The default workflows use these agents. See
 ```text
 A2A client ──► LiteLLM A2A gateway (/a2a/<agent>)
                  ▼
-embabel-agent-service  POST /a2a/{agentId}   (A2A 0.3, JSON-RPC, message/send only)
+embabel-agent-runtime  POST /a2a/{agentId}   (A2A 0.3, JSON-RPC, message/send only)
   ├─ JWT validation → tenant from the configured tenant claim
+  ├─ workflow run id header (engine identity only) → run scope from embabel-agent-service
   ├─ AgentDefinitionResolver (once per run)
-  │    tenant binding (PostgreSQL): enabled agents, tool allowlist, mandatory guardrails, pins
+  │    tenant binding (embabel-agent-service, internal API): enabled agents, tool allowlist, mandatory guardrails, pins
   │    source order: REMOTE → LAST_KNOWN_GOOD → LOCAL definition
   │    ⇒ immutable resolved definition: skills, tools (server registry ∩ allowlist), guardrails, model alias
-  ├─ Embabel agent with the resolved prompt, skills, call-time-checked tools and guardrails
+  ├─ Embabel agent with the resolved prompt, skills, call-time-checked tools (OPA decision by
+  │    embabel-agent-service per call) and guardrails
   └─ LLM call via the LiteLLM model gateway (model = alias)
 ```
 

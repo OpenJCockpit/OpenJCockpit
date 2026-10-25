@@ -5,7 +5,10 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
-/** Git-workspace binding of workflow runs and the agents' git tools (git MCP server via LiteLLM). */
+/**
+ * Git-workspace binding of workflow runs (tickets) and the checkpoint commits after each agent (git MCP
+ * server via LiteLLM). The agents' own git tools run in embabel-agent-runtime with its own key.
+ */
 @Component
 @ConfigurationProperties("openjcockpit.git-workspace")
 public class GitWorkspaceProperties {
@@ -16,16 +19,7 @@ public class GitWorkspaceProperties {
      */
     private String trustedClientId = "openjcockpit-ai-control";
 
-    /**
-     * Keycloak client (azp) the workflow engine calls A2A agents with (a2a-providers[].caller-auth). An
-     * inbound A2A call carries a run's git workspace only when it comes from this identity.
-     */
-    private String engineA2aClientId = "openjcockpit-a2a";
-
-    public String getEngineA2aClientId() { return engineA2aClientId; }
-    public void setEngineA2aClientId(String engineA2aClientId) { this.engineA2aClientId = engineA2aClientId; }
-
-    /** LiteLLM root (e.g. {@code http://litellm:4000}); blank disables the agents' git tools. */
+    /** LiteLLM root (e.g. {@code http://litellm:4000}); blank disables checkpoint commits. */
     private String gatewayBaseUrl;
 
     /** LiteLLM virtual key granted the git MCP server ({@code object_permission.mcp_servers}). */

@@ -728,7 +728,7 @@ describe('agents tab', () => {
             id: `id-${id}`,
             name: id,
             description: `${id} description`,
-            url: `http://embabel-agent-service:8081/a2a/${id}`,
+            url: `http://embabel-agent-runtime:8082/a2a/${id}`,
             protocolVersion: '0.3.0',
             version: '1.0.0',
             streaming: false,
@@ -779,7 +779,7 @@ describe('agents tab', () => {
               description: 'Tests',
               url: 'http://localhost:4100/a2a/qa-engineer',
               cardUrl: 'http://localhost:4100/a2a/qa-engineer/.well-known/agent-card.json',
-              backendUrl: 'http://embabel-agent-service:8081/a2a/qa-engineer',
+              backendUrl: 'http://embabel-agent-runtime:8082/a2a/qa-engineer',
               protocolVersion: '0.3.0',
               version: '1.0.0',
               streaming: false,
@@ -807,7 +807,7 @@ describe('agents tab', () => {
     const litellm = await screen.findByRole('region', { name: 'LiteLLM' });
     expect(within(litellm).getByText('http://localhost:4100/a2a/qa-engineer')).toBeInTheDocument();
     expect(
-      within(litellm).getByText('routes to http://embabel-agent-service:8081/a2a/qa-engineer'),
+      within(litellm).getByText('routes to http://embabel-agent-runtime:8082/a2a/qa-engineer'),
     ).toBeInTheDocument();
 
     await act(async () => {

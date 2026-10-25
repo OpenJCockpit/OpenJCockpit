@@ -14,15 +14,15 @@
 #     is forwarded to the agent as `authorization` (carries the caller's Keycloak JWT, which must
 #     contain the tenant claim); `litellm_params.guardrails` are applied to the A2A traffic.
 #
-# The url must equal embabel-agent-service's A2A_PUBLIC_BASE_URL + /a2a/customer-support, i.e. the
+# The url must equal embabel-agent-runtime's A2A_PUBLIC_BASE_URL + /a2a/customer-support, i.e. the
 # `url` in the service's own Agent Card. No streaming: the server implements message/send only.
 agents:
   - agent_name: customer-support
     agent_card_params:
       protocolVersion: "0.3.0"
       name: customer-support
-      description: "Ondersteunt klantvragen"
-      url: "http://embabel-agent-service:8081/a2a/customer-support"
+      description: "Handles customer questions"
+      url: "http://embabel-agent-runtime:8082/a2a/customer-support"
       preferredTransport: JSONRPC
       version: "1.0.0"
       capabilities:
@@ -34,7 +34,7 @@ agents:
       skills:
         - id: customer-support
           name: customer-support
-          description: "Ondersteunt klantvragen"
+          description: "Handles customer questions"
           tags: ["configuration-driven"]
     litellm_params:
       guardrails: [openjcockpit-pii]

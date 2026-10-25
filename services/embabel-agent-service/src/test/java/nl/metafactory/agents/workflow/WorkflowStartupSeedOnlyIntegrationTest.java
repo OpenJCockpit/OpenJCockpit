@@ -1,6 +1,5 @@
 package nl.metafactory.agents.workflow;
 
-import com.embabel.common.ai.model.ModelProvider;
 import tools.jackson.databind.json.JsonMapper;
 import nl.metafactory.agents.workflow.model.WorkflowDefinition;
 import org.junit.jupiter.api.BeforeAll;
@@ -127,8 +126,6 @@ class WorkflowStartupSeedOnlyIntegrationTest {
                 "jdbc:h2:mem:startup-seed-only;MODE=PostgreSQL;DATABASE_TO_UPPER=false;DEFAULT_NULL_ORDERING=HIGH");
     }
 
-    @MockitoBean
-    ModelProvider modelProvider;
 
     // no /agents agents or A2A provider in this test context; existence is covered elsewhere
     @MockitoBean

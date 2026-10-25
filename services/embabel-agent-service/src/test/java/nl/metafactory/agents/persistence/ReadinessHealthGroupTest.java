@@ -5,7 +5,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.embabel.common.ai.model.ModelProvider;
 import nl.metafactory.agents.approval.ApprovalDecisionAuditRepository;
 import nl.metafactory.agents.approval.ApprovalDecisionService;
 import nl.metafactory.agents.approval.ApprovalGateContextAssembler;
@@ -58,7 +57,6 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 class ReadinessHealthGroupTest {
 
-    @MockitoBean ModelProvider modelProvider;
 
     @Autowired MockMvc mockMvc;
     @MockitoBean AgentOrchestrator orchestrator;

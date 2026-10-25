@@ -3,11 +3,7 @@ package nl.metafactory.agents.workflow.agents;
 import nl.metafactory.agents.a2a.client.A2AProviderClient;
 import nl.metafactory.agents.a2a.client.A2AProviderClient.Status;
 import nl.metafactory.agents.a2a.client.A2AProviderClients;
-import nl.metafactory.agents.definition.model.AgentResolutionException;
-import nl.metafactory.agents.definition.model.ResolutionFailure;
-import nl.metafactory.agents.definition.runtime.ConfiguredDefinitionAgent;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.ObjectProvider;
 
 import java.util.Optional;
 
@@ -28,33 +24,39 @@ class WorkflowAgentInvokerTest {
     final AgentWorkflowProperties props = new AgentWorkflowProperties();
     final WorkflowAgentInvoker.Invocation context = new WorkflowAgentInvoker.Invocation("run-1", "acme", "alice");
 
-    @SuppressWarnings("unchecked")
     WorkflowAgentInvoker invoker(LocalCatalogAgentRunner localRunner) {
-        ObjectProvider<LocalCatalogAgentRunner> provider = mock(ObjectProvider.class);
-        when(provider.getIfAvailable()).thenReturn(localRunner);
-        return new WorkflowAgentInvoker(provider, providers, props);
+        return new WorkflowAgentInvoker(localRunner, providers, props);
     }
 
     @Test
-    void localAgentsRunInProcessForTheConfiguredTenantOrTheCustomer() {
-        when(runner.run(any(), eq("triage"), eq("alice"), eq("msg"), isNull()))
-                .thenReturn(new ConfiguredDefinitionAgent.Response("triage", "1", "h", "t", "local answer"));
+    void localAgentsRunOnTheRuntimeForTheConfiguredTenantOrTheCustomer() {
+        when(runner.run(any(), any(), eq("triage"), eq("alice"), eq("msg"), isNull())).thenReturn("local answer");
         assertThat(invoker(runner).invoke(AgentRef.local("triage"), "msg", context)).isEqualTo("local answer");
-        verify(runner).run("acme", "triage", "alice", "msg", null);
+        verify(runner).run(org.mockito.ArgumentMatchers.startsWith("run-1:"), eq("acme"), eq("triage"), eq("alice"),
+                eq("msg"), isNull());
 
         props.setTenant("local");
         invoker(runner).invoke(AgentRef.local("triage"), "msg", context);
-        verify(runner).run("local", "triage", "alice", "msg", null);
+        verify(runner).run(any(), eq("local"), eq("triage"), eq("alice"), eq("msg"), isNull());
     }
 
     @Test
-    void localResolutionFailuresBecomeSafeInvocationErrors() {
-        when(runner.run(any(), any(), any(), any(), any()))
-                .thenThrow(new AgentResolutionException(ResolutionFailure.TENANT_FORBIDDEN, "no binding"));
+    void everyLocalInvocationGetsItsOwnExecutionIdAndAWorkflowPrincipalWhenNoneIsKnown() {
+        var ids = org.mockito.ArgumentCaptor.forClass(String.class);
+        var anonymous = new WorkflowAgentInvoker.Invocation(null, "acme", null);
+        invoker(runner).invoke(AgentRef.local("triage"), "msg", anonymous);
+        invoker(runner).invoke(AgentRef.local("triage"), "msg", anonymous);
+        verify(runner, org.mockito.Mockito.times(2)).run(ids.capture(), eq("acme"), eq("triage"), eq("workflow"),
+                eq("msg"), isNull());
+        assertThat(ids.getAllValues().get(0)).doesNotContain(":").isNotEqualTo(ids.getAllValues().get(1));
+    }
+
+    @Test
+    void localInvocationFailuresPropagateAsSafeInvocationErrors() {
+        when(runner.run(any(), any(), any(), any(), any(), any()))
+                .thenThrow(new AgentInvocationException("Local agent triage not runnable: TENANT_FORBIDDEN"));
         assertThatThrownBy(() -> invoker(runner).invoke(AgentRef.local("triage"), "msg", context))
                 .isInstanceOf(AgentInvocationException.class).hasMessageContaining("TENANT_FORBIDDEN");
-        assertThatThrownBy(() -> invoker(null).invoke(AgentRef.local("triage"), "msg", context))
-                .isInstanceOf(AgentInvocationException.class).hasMessageContaining("agent-definitions.enabled");
     }
 
     @Test
@@ -77,8 +79,7 @@ class WorkflowAgentInvokerTest {
     void aWorkflowRunPassesItsScopeToLocalAgentsAndOnlyTheRunIdToA2AAgents() {
         var scope = new nl.metafactory.agents.workflowrun.WorkflowRunScope("wf-1", "run-7", null);
         var bound = new WorkflowAgentInvoker.Invocation("run-7", "acme", "alice", scope);
-        when(runner.run(any(), any(), any(), any(), eq(scope)))
-                .thenReturn(new ConfiguredDefinitionAgent.Response("dev", "1", "h", "t", "wrote files"));
+        when(runner.run(any(), any(), any(), any(), any(), eq(scope))).thenReturn("wrote files");
         assertThat(invoker(runner).invoke(AgentRef.local("dev"), "msg", bound)).isEqualTo("wrote files");
 
         when(providers.find("litellm")).thenReturn(Optional.of(litellm));

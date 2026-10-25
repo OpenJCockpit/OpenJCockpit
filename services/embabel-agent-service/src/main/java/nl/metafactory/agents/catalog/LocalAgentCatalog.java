@@ -1,8 +1,8 @@
 package nl.metafactory.agents.catalog;
 
-import nl.metafactory.agents.definition.markdown.AgentMarkdownParser;
-import nl.metafactory.agents.definition.markdown.InvalidDefinitionException;
-import nl.metafactory.agents.definition.source.ConfinedRoot;
+import nl.metafactory.common.agentdefinition.AgentMarkdownParser;
+import nl.metafactory.common.agentdefinition.InvalidDefinitionException;
+import nl.metafactory.common.agentdefinition.ConfinedRoot;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;

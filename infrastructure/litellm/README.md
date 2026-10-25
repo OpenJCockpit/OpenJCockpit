@@ -26,8 +26,9 @@ via the environment.
 
 `config.yaml` registers the local `git-mcp-server` under `mcp_servers.openjcockpit_git` (SSE,
 `http://git-mcp-server:8093/sse`, pinned `server_id`, `allow_all_keys: false`, private network only).
-`local-seed` grants it to the `embabel-agent-service` key (agents' git tools) and the `ai-control-service` key
-(git-workspace jobs; MCP REST bridge routes only). Clients use LiteLLM's `/mcp`, `/sse` or `/mcp-rest/tools/*`;
+`local-seed` grants it to the `embabel-agent-runtime` model key (agents' git tools), the MCP-only
+`embabel-agent-service` key (checkpoint commits) and the `ai-control-service` key (git-workspace jobs; MCP REST
+bridge routes only). Clients use LiteLLM's `/mcp`, `/sse` or `/mcp-rest/tools/*`;
 tools appear as `openjcockpit_git-<tool>`. The server is not published on the host, and no tool takes a git
 credential: job workspaces (`workspaceKey=job-<uuid>`) get theirs from ai-control server-side. Quick check:
 

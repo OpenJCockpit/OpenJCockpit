@@ -22,6 +22,12 @@ together with [Security considerations](../governance/security-considerations.md
 
 ## Platform and integration limitations
 
+- **Agent runtime boundary.** Agent executions are synchronous HTTP requests from `embabel-agent-service` to
+  `embabel-agent-runtime` (no streaming, no asynchronous submit/poll, no cancellation of an agent that is
+  already running — the same semantics as before the split). The runtime's execution registry is in memory
+  per instance; the LiteLLM agent URLs must be changed by hand when the runtime moves. See
+  [Agent runtime](../concepts/agent-runtime.md).
+
 - **MCP transport pinned to SSE.** The MCP transport between `git-mcp-server` and its clients is
   explicitly pinned to the older SSE protocol (`spring.ai.mcp.server.protocol: sse` in `git-mcp-server`'s
   `application.yml`), because Spring AI 2.0.1 changed its default server transport to a newer

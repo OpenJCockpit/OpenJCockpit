@@ -56,7 +56,11 @@
         </div>
         <div class="card">
           <h4>embabel-agent-service</h4>
-          <p>The Embabel agent application (<code>services/embabel-agent-service</code>) that orchestrates the spec-driven pipeline: impact analysis, planning, review, and code realization.</p>
+          <p>The management plane (<code>services/embabel-agent-service</code>): workflows and their orchestration, the agent catalogue, tenant bindings, approval gates, OPA policy decisions and run history.</p>
+        </div>
+        <div class="card">
+          <h4>embabel-agent-runtime</h4>
+          <p>The execution plane (<code>services/embabel-agent-runtime</code>): the Embabel agent runtime that runs configuration-driven agents, their LLM calls and tools, and serves them over A2A — an independently deployable container.</p>
         </div>
         <div class="card">
           <h4>git-mcp-server</h4>

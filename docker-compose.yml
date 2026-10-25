@@ -1,10 +1,16 @@
-# Single source of truth for values shared by embabel-agent-service and litellm.
+# Single source of truth for values shared by embabel-agent-runtime and litellm.
 # YAML anchors keep each literal in exactly ONE place (BR-6); docker compose
 # resolves them before interpolation -- verified with `docker compose config`.
 x-ollama-base-url: &ollama-base-url ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
 x-ollama-model: &ollama-model ${OLLAMA_MODEL:-qwen3.6:27b}
 x-litellm-master-key: &litellm-master-key ${LITELLM_MASTER_KEY:-sk-openjcockpit-litellm-local}
 x-litellm-virtual-key: &litellm-virtual-key ${LITELLM_VIRTUAL_KEY:-sk-openjcockpit-embabel-local}
+# MCP-only LiteLLM key of embabel-agent-service (checkpoint commits through the git MCP server; no models).
+x-litellm-agent-service-key: &litellm-agent-service-key ${LITELLM_AGENT_SERVICE_KEY:-sk-openjcockpit-agent-service-local}
+# Service identities across the management/execution boundary (seeded by local-seed, client_credentials):
+# embabel-agent-service -> embabel-agent-runtime (run agents, drafts) and back (bindings, run scopes, policy).
+x-agent-service-client-secret: &agent-service-client-secret ${AGENT_SERVICE_CLIENT_SECRET:-openjcockpit-agent-service-local-secret}
+x-agent-runtime-client-secret: &agent-runtime-client-secret ${AGENT_RUNTIME_CLIENT_SECRET:-openjcockpit-agent-runtime-local-secret}
 # The one A2A client of the LiteLLM provider (seeded by local-seed): LiteLLM key + Keycloak client
 # secret (client openjcockpit-a2a issues the JWT, with tenant_id=local, that embabel requires).
 x-litellm-a2a-key: &litellm-a2a-key ${LITELLM_A2A_KEY:-sk-openjcockpit-a2a-local}
@@ -157,7 +163,7 @@ services:
     restart: "no"
 
   # OpenAI-compatible gateway in front of the HOST's Ollama daemon. This is now the
-  # only route embabel-agent-service takes to the local model (BR-13: OpenAI is NOT
+  # only route embabel-agent-runtime takes to the local model (BR-13: OpenAI is NOT
   # proxied). Host port 4100 -- LiteLLM's conventional 4000 collides with `dashboard`.
   litellm:
     image: ghcr.io/berriai/litellm:v1.101.6@sha256:fc0e36a0965e4ffe75bc509b3a1085f5d6c6b78b16efa2ffbb525e122e51f83b
@@ -200,10 +206,9 @@ services:
       postgres-init:
         condition: service_completed_successfully
 
-  # One-shot, idempotent seeding of the dedicated non-admin virtual key used by
-  # embabel-agent-service (BR-15). Mirrors keycloak-e2e-user exactly.
   # One-shot local development seed, runs on every `docker compose up` (idempotent):
-  # Keycloak A2A client + LiteLLM keys (agent service model key, the one LiteLLM A2A key).
+  # Keycloak service clients (A2A, git MCP, ai-control, agent service <-> agent runtime) + LiteLLM keys
+  # (runtime model key, agent service MCP key, the one LiteLLM A2A key, ai-control MCP key).
   # See infrastructure/local-seed/seed-local.sh.
   local-seed:
     image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
@@ -216,7 +221,7 @@ services:
       LITELLM_URL: http://litellm:4000
       LITELLM_MASTER_KEY: *litellm-master-key
       LITELLM_VIRTUAL_KEY: *litellm-virtual-key
-      LITELLM_KEY_ALIAS: embabel-agent-service
+      LITELLM_KEY_ALIAS: embabel-agent-runtime
       LITELLM_KEY_MODEL: *ollama-model
       LITELLM_A2A_KEY: *litellm-a2a-key
       KC_URL: http://keycloak:8080
@@ -231,6 +236,9 @@ services:
       GIT_MCP_CLIENT_SECRET: *git-mcp-client-secret
       AI_CONTROL_CLIENT_SECRET: *ai-control-client-secret
       LITELLM_AI_CONTROL_KEY: *litellm-ai-control-key
+      LITELLM_AGENT_SERVICE_KEY: *litellm-agent-service-key
+      AGENT_SERVICE_CLIENT_SECRET: *agent-service-client-secret
+      AGENT_RUNTIME_CLIENT_SECRET: *agent-runtime-client-secret
     volumes:
       - ./infrastructure/local-seed:/local-seed:ro
     entrypoint: ["/bin/sh", "/local-seed/seed-local.sh"]
@@ -312,10 +320,14 @@ services:
       - ./infrastructure/spec-repository-stub:/spec-repository:ro
       - workflow-workspaces:/workflow-workspaces
 
+  # Management plane: workflows and their orchestration, agent catalog, tenant bindings, approval gates,
+  # OPA policy decisions and run history (PostgreSQL). It runs no agent and no LLM: every agent runs in
+  # embabel-agent-runtime, reached through EMBABEL_AGENT_RUNTIME_BASE_URL (any host or HTTPS URL works).
   embabel-agent-service:
     build:
       context: .
       dockerfile: services/embabel-agent-service/Dockerfile
+    image: openjcockpit/embabel-agent-service:${OPENJCOCKPIT_IMAGE_TAG:-local}
     container_name: openjcockpit-embabel-agents
     restart: unless-stopped
     ports:
@@ -324,35 +336,25 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/embabel
       DB_USERNAME: embabel_app
       DB_PASSWORD: embabel_app
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
       WORKFLOW_DEFINITIONS_PATH: /workflow-definitions
       OPA_ENABLED: ${OPA_ENABLED:-true}
       OPA_BASE_URL: http://opa:8181
       MCP_CLIENT_ENABLED: ${MCP_CLIENT_ENABLED:-true}
       GIT_MCP_SERVER_URL: http://git-mcp-server:8093
-      # Local Ollama for the default/coding LLM. The container reaches the HOST's Ollama daemon
-      # via host.docker.internal (see extra_hosts below); the in-code default is loopback for
-      # host-run execution. No Ollama container is part of this stack -- the operator installs
-      # Ollama on the host and runs `ollama pull qwen3.6:27b` before starting the stack.
-      # WARNING: setting OLLAMA_BASE_URL in .env to a host-oriented value such as
-      # http://localhost:11434 leaks into this container and will break it (nothing listens on
-      # the container's own loopback). Leave it unset unless you know you need a different host.
-      OLLAMA_BASE_URL: *ollama-base-url
-      OLLAMA_MODEL: *ollama-model
-      # The default/coding LLM now transits the LiteLLM gateway (BR-13/BR-14).
-      LITELLM_BASE_URL: http://litellm:4000/v1
-      LITELLM_VIRTUAL_KEY: *litellm-virtual-key
-      # Spring profile `local` (application-local.yml): agent catalog, the LiteLLM A2A provider client,
-      # configuration-driven agents served over A2A, agent model aliases and the tenant 'local' seed.
-      # Only container paths and secrets are set here.
+      # Spring profile `local` (application-local.yml): agent catalog, the LiteLLM A2A provider client, the
+      # agent runtime connection and the tenant 'local' seed. Only container paths and secrets are set here.
       SPRING_PROFILES_ACTIVE: local
+      # The execution plane and this service's identity towards it (client openjcockpit-agent-service).
+      EMBABEL_AGENT_RUNTIME_BASE_URL: ${EMBABEL_AGENT_RUNTIME_BASE_URL:-http://embabel-agent-runtime:8082}
+      AGENT_SERVICE_CLIENT_SECRET: *agent-service-client-secret
       LITELLM_A2A_KEY: *litellm-a2a-key
       A2A_CLIENT_SECRET: *a2a-client-secret
       A2A_SERVICE_ENCRYPTION_SECRET: *a2a-service-encryption-secret
       A2A_SERVICE_ENCRYPTION_SALT: *a2a-service-encryption-salt
       LITELLM_PUBLIC_URL: ${LITELLM_PUBLIC_URL:-http://localhost:4100}
+      # checkpoint commits of runs on a project (git MCP server through LiteLLM; MCP-only key, no models)
+      LITELLM_AGENT_SERVICE_KEY: *litellm-agent-service-key
       AGENT_CATALOG_LOCAL_PATH: /agents
-      AGENT_DEFINITIONS_LOCAL_ROOT: /agent-definitions
       APPROVAL_GATE_MAX_FEEDBACK_ITERATIONS: ${APPROVAL_GATE_MAX_FEEDBACK_ITERATIONS:-3}
       APPROVAL_GATE_COMMENT_MAX_LENGTH: ${APPROVAL_GATE_COMMENT_MAX_LENGTH:-4000}
       APPROVAL_GATE_MAX_CHANGED_PATHS: ${APPROVAL_GATE_MAX_CHANGED_PATHS:-50}
@@ -364,15 +366,8 @@ services:
       WORKFLOW_TRIGGER_ENABLED: ${WORKFLOW_TRIGGER_ENABLED:-true}
       # Must be identical to the value given to ai-control-service.
       SPEC_QUEUE_RUNNER_TOKEN_SECRET: *spec-queue-runner-secret
-    # Required so the container can resolve the host on Linux Docker (where
-    # host.docker.internal is not built in). Harmless on Docker Desktop, which already
-    # provides the name. Host access is granted to exactly two services -- litellm, because
-    # it is now the component that calls the host Ollama daemon, and embabel-agent-service,
-    # because retaining that grant is what makes a revert to direct Ollama access a
-    # configuration-only change (no docker-compose.yml edit) during an incident. No other
-    # service needs host access, including the dynamically spawned workflow containers.
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    # No dependency on embabel-agent-runtime: both start independently; local agents and drafts fail with
+    # "runtime unavailable" until it is reachable.
     depends_on:
       postgres:
         condition: service_healthy
@@ -385,17 +380,74 @@ services:
       litellm:
         condition: service_healthy                    # BR-16
       local-seed:
-        condition: service_completed_successfully     # D-2: the key must exist before the first call
+        condition: service_completed_successfully     # D-2: the keys and clients must exist before the first call
     volumes:
       - workflow-workspaces:/workflow-workspaces
       - workflow-definitions:/workflow-definitions
+      # the agent catalog (dashboard: Workflow design -> Agents); its definitions travel to the runtime per run
       - ./agents:/agents:ro
-      - ./services/embabel-agent-service/agent-definitions:/agent-definitions:ro
+
+  # Execution plane: the Embabel agent platform, configuration-driven agents (definitions ship in the image),
+  # LLM access (LiteLLM, host Ollama), agent tools (git MCP via LiteLLM) and the inbound A2A endpoints that
+  # LiteLLM routes to. No database and no shared volume: tenant bindings, workflow runs and tool-call policy
+  # decisions come from embabel-agent-service over HTTP, so this container can run on another host by
+  # changing EMBABEL_AGENT_SERVICE_BASE_URL / A2A_PUBLIC_BASE_URL (and the LiteLLM agent URLs) only.
+  embabel-agent-runtime:
+    build:
+      context: .
+      dockerfile: services/embabel-agent-runtime/Dockerfile
+    image: openjcockpit/embabel-agent-runtime:${OPENJCOCKPIT_IMAGE_TAG:-local}
+    container_name: openjcockpit-embabel-runtime
+    restart: unless-stopped
+    ports:
+      - "8092:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      # Local Ollama for the default/coding LLM. The container reaches the HOST's Ollama daemon via
+      # host.docker.internal (see extra_hosts below); the in-code default is loopback for host-run execution.
+      # No Ollama container is part of this stack -- the operator installs Ollama on the host and runs
+      # `ollama pull qwen3.6:27b` before starting the stack.
+      # WARNING: setting OLLAMA_BASE_URL in .env to a host-oriented value such as http://localhost:11434
+      # leaks into this container and will break it (nothing listens on the container's own loopback).
+      OLLAMA_BASE_URL: *ollama-base-url
+      OLLAMA_MODEL: *ollama-model
+      # The default/coding LLM and the agent model aliases transit the LiteLLM gateway (BR-13/BR-14).
+      LITELLM_BASE_URL: http://litellm:4000/v1
+      LITELLM_VIRTUAL_KEY: *litellm-virtual-key
+      # The management plane and this runtime's identity towards it (client openjcockpit-agent-runtime).
+      EMBABEL_AGENT_SERVICE_BASE_URL: ${EMBABEL_AGENT_SERVICE_BASE_URL:-http://embabel-agent-service:8081}
+      AGENT_RUNTIME_CLIENT_SECRET: *agent-runtime-client-secret
+      # Address advertised in Agent Cards; LiteLLM forwards to it (infrastructure/litellm/config.yaml).
+      A2A_PUBLIC_BASE_URL: ${A2A_PUBLIC_BASE_URL:-http://embabel-agent-runtime:8082}
+      AGENT_DEFINITIONS_LOCAL_ROOT: /agent-definitions
+    # Required so the container can resolve the host on Linux Docker (where host.docker.internal is not
+    # built in). Host access is granted to exactly two services -- litellm, because it is the component that
+    # calls the host Ollama daemon, and embabel-agent-runtime, because retaining that grant is what makes a
+    # revert to direct Ollama access (LLM_CODING_ROUTE=direct) a configuration-only change during an incident.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      # readiness of the runtime itself (no database); the image ships bash but no curl
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8082 && printf 'GET /actuator/health/readiness HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && grep -q '\"status\":\"UP\"' <&3"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    depends_on:
+      litellm:
+        condition: service_healthy                    # BR-16
+      local-seed:
+        condition: service_completed_successfully     # the model key and the service clients must exist
+    volumes:
+      # optional local override of the definitions baked into the image (edit without rebuilding)
+      - ./services/embabel-agent-runtime/agent-definitions:/agent-definitions:ro
 
   # Separate MCP server that exposes the git integration as tools (checkout, create branch,
   # pull, read/write files, commit, push). Registered with LiteLLM (infrastructure/litellm/config.yaml,
   # mcp_servers.openjcockpit_git) and reached through the gateway; local-seed grants it to the
-  # embabel-agent-service key (agents' git tools) and the ai-control-service key (git-workspace jobs).
+  # embabel-agent-runtime key (agents' git tools), the embabel-agent-service key (checkpoint commits) and
+  # the ai-control-service key (git-workspace jobs).
   # Git-workspace jobs clone into a workspace here (job-<uuid>); credentials are resolved server-side.
   git-mcp-server:
     build:

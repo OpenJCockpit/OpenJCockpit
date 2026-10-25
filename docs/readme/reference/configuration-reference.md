@@ -18,7 +18,7 @@ helps you find them.
 
 | Variable | Default | Used by | Docs |
 | --- | --- | --- | --- |
-| `OPENAI_API_KEY` | none (placeholder in `.env.example`) | `ai-control-service`, `embabel-agent-service` | [LLM providers](../integrations/llm-providers.md) |
+| `OPENAI_API_KEY` | none (placeholder in `.env.example`) | `ai-control-service`, `embabel-agent-runtime` | [LLM providers](../integrations/llm-providers.md) |
 
 ## LLM, Ollama and LiteLLM
 
@@ -107,12 +107,37 @@ Application properties without a Compose variable:
 `SKILLS_MARKETPLACE_ALLOW_PRIVATE_EGRESS` (never in a deployed environment): see
 [Skills Hub](../integrations/skills-marketplace.md#skills_marketplace_-environment-variables).
 
+## Agent service ↔ agent runtime
+
+| Variable | Compose default | Used by | Meaning |
+| --- | --- | --- | --- |
+| `EMBABEL_AGENT_RUNTIME_BASE_URL` | `http://embabel-agent-runtime:8082` | `embabel-agent-service` | Where local agents and definition drafts run. Any host or HTTPS URL. |
+| `AGENT_SERVICE_TOKEN_URL` | Keycloak token endpoint (local profile) | `embabel-agent-service` | Token endpoint of its identity towards the runtime. |
+| `AGENT_SERVICE_CLIENT_ID` / `AGENT_SERVICE_CLIENT_SECRET` | `openjcockpit-agent-service` / local placeholder | `embabel-agent-service` | Keycloak client the runtime trusts (`openjcockpit.agent-runtime.trusted-client-id` on the runtime). |
+| `AGENT_RUNTIME_EXECUTION_TIMEOUT` | `60m` | `embabel-agent-service` | Max wait for one agent execution (never retried). |
+| `AGENT_RUNTIME_DRAFT_TIMEOUT` | `10m` | `embabel-agent-service` | Max wait for one definition draft. |
+| `EMBABEL_AGENT_SERVICE_BASE_URL` | `http://embabel-agent-service:8081` | `embabel-agent-runtime` | Where bindings, run scopes and tool-call decisions come from. |
+| `AGENT_RUNTIME_TOKEN_URL` | Keycloak token endpoint (local profile) | `embabel-agent-runtime` | Token endpoint of its identity towards the agent service. |
+| `AGENT_RUNTIME_CLIENT_ID` / `AGENT_RUNTIME_CLIENT_SECRET` | `openjcockpit-agent-runtime` / local placeholder | both | The runtime's identity; the agent service only answers it (`openjcockpit.agent-runtime.runtime-client-id`). |
+| `A2A_PUBLIC_BASE_URL` | `http://embabel-agent-runtime:8082` | `embabel-agent-runtime` | Base URL advertised in Agent Cards; LiteLLM agent URLs must match. |
+| `LITELLM_VIRTUAL_KEY` | `sk-openjcockpit-embabel-local` | `embabel-agent-runtime` | Model + git MCP key (LiteLLM alias `embabel-agent-runtime`). |
+| `LITELLM_AGENT_SERVICE_KEY` | `sk-openjcockpit-agent-service-local` | `embabel-agent-service` | MCP-only key for checkpoint commits (alias `embabel-agent-service-mcp`). |
+| `KEYCLOAK_ISSUER` / `KEYCLOAK_JWK_SET_URI` | `http://localhost:8080/realms/openjcockpit` / `http://keycloak:8080/.../certs` | both | Token validation; set for a runtime on another host. |
+| `OPENJCOCKPIT_IMAGE_TAG` | `local` | Compose | Tag of `openjcockpit/embabel-agent-service` and `openjcockpit/embabel-agent-runtime`. |
+
+See [Agent runtime](../concepts/agent-runtime.md) and [Remote agent runtime](../operations/remote-agent-runtime.md).
+
 ## Agent definitions and A2A
 
 The `openjcockpit.agent-definitions.*` properties (`AGENT_DEFINITIONS_*`, `A2A_ENABLED`,
-`A2A_PUBLIC_BASE_URL`, cache and fallback settings) are documented in §2 of the
+`A2A_PUBLIC_BASE_URL`, cache and fallback settings) now belong to **`embabel-agent-runtime`** and are
+documented in §2 of the
 [agent-integration operations guide](../../../services/embabel-agent-service/docs/agent-integration/OPERATIONS.md).
-In Compose they are set through the `local` Spring profile (`application-local.yml`).
+In Compose they are set through the runtime's `local` Spring profile
+(`services/embabel-agent-runtime/src/main/resources/application-local.yml`); the runtime enables agent
+definitions by default and ships its definitions in the image (`/agent-definitions`). New:
+`LITELLM_REGISTRY_URL` / `LITELLM_REGISTRY_KEY` (the LiteLLM management API, needed only for gateway
+guardrails) replace the former reuse of the A2A provider client.
 
 ## Logging
 

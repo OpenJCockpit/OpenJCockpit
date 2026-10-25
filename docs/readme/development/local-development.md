@@ -16,7 +16,8 @@ How to build, run and verify OpenJCockpit from source. For contribution guidelin
 ```text
 services/
   ai-control-service/      Spring Boot: dashboard API, projects, credentials, spec queue, git-workspace jobs
-  embabel-agent-service/   Spring Boot + Embabel: workflows, agents, A2A, policy, approval gates
+  embabel-agent-service/   Spring Boot: workflows, agent catalogue, tenant bindings, policy, approval gates (management plane)
+  embabel-agent-runtime/   Spring Boot + Embabel: agent execution, LLMs, agent tools, inbound A2A (execution plane)
   git-mcp-server/          Spring AI MCP server: Git and GitHub tools
   service-common/          Shared Java code
 frontend/                  Nx workspace: apps/dashboard + libs/* + e2e
@@ -57,7 +58,7 @@ UI); see also [`frontend/apps/dashboard/README.md`](../../../frontend/apps/dashb
 
 ### Running a Java service on the host
 
-A host-run `embabel-agent-service` (for example `mvn spring-boot:run`) uses `http://localhost:11434` for
+A host-run `embabel-agent-runtime` (for example `mvn -pl services/embabel-agent-runtime spring-boot:run`) uses `http://localhost:11434` for
 Ollama by default, and stores workflow definitions in `${java.io.tmpdir}/embabel-workflow-definitions`
 rather than the Compose volume. See
 [LLM providers](../integrations/llm-providers.md#local-ollama-qwen-model-prerequisite-before-you-start-the-stack) and
@@ -72,8 +73,9 @@ mvn test
 mvn verify
 
 # or just this module:
-mvn -pl services/embabel-agent-service test
-mvn -pl services/embabel-agent-service verify
+mvn -pl services/embabel-agent-service -am test
+mvn -pl services/embabel-agent-service -am verify
+mvn -pl services/embabel-agent-runtime -am verify
 ```
 
 `mvn verify` includes the JaCoCo line-coverage gate enforced in CI.
@@ -101,3 +103,24 @@ End-to-end tests: see [Testing](testing.md).
 - [Testing](testing.md)
 - [Continuous integration](continuous-integration.md)
 - [Spec-driven development](../workflows/spec-driven-development.md)
+
+## Running the agent service and the agent runtime
+
+`docker compose up` starts both as separate containers: `embabel-agent-service` on host port 8091 and
+`embabel-agent-runtime` on host port 8092. They start independently (neither waits for the other); until
+the runtime is reachable, local agents and definition drafts fail with "agent runtime unavailable".
+
+To run one of them on the host against the rest of the stack, point it at the other by URL:
+
+```bash
+# runtime on the host, agent service in Compose
+EMBABEL_AGENT_SERVICE_BASE_URL=http://localhost:8091 \
+AGENT_RUNTIME_TOKEN_URL=http://localhost:8080/realms/openjcockpit/protocol/openid-connect/token \
+AGENT_RUNTIME_CLIENT_SECRET=openjcockpit-agent-runtime-local-secret \
+KEYCLOAK_JWK_SET_URI=http://localhost:8080/realms/openjcockpit/protocol/openid-connect/certs \
+AGENT_DEFINITIONS_LOCAL_ROOT=services/embabel-agent-runtime/agent-definitions \
+mvn -pl services/embabel-agent-runtime spring-boot:run
+```
+
+and set `EMBABEL_AGENT_RUNTIME_BASE_URL=http://host.docker.internal:8082` for the agent service container.
+

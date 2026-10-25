@@ -1,5 +1,6 @@
 package nl.metafactory.agents.definition.binding;
 
+import nl.metafactory.common.agentruntime.AgentTenantBinding;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
 import java.util.HashSet;

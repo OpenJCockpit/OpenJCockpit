@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class AgentWorkflowProperties {
 
     /**
-     * Tenant whose agent bindings apply to local (in-process) agents in workflow runs. When unset the
+     * Tenant whose agent bindings apply to local (catalog) agents in workflow runs. When unset the
      * workflow's customer id is used. A2A agents get their tenant from the caller token instead.
      */
     private String tenant;
