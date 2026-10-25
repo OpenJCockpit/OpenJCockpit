@@ -1,6 +1,5 @@
 package nl.metafactory.agents.config;
 
-import com.embabel.common.ai.model.ModelProvider;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -40,7 +39,6 @@ class SpecQueueRunnerSecurityIntegrationTest {
     private static final String SECRET = "test-only-spec-queue-runner-secret-32-bytes-minimum";
     private static final String ISSUER = "urn:openjcockpit:ai-control-service:spec-queue-runner";
 
-    @MockitoBean ModelProvider modelProvider;
     @MockitoBean AgentOrchestrator orchestrator;
     @MockitoBean ApprovalGateRegistry approvalGateRegistry;
     @MockitoBean ApprovalGateContextAssembler approvalGateContextAssembler;

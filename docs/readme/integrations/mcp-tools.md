@@ -34,7 +34,8 @@ way in is through the LiteLLM gateway:
 - `infrastructure/litellm/config.yaml` registers it under `mcp_servers.openjcockpit_git`
   (SSE, `http://git-mcp-server:8093/sse`, pinned `server_id`, `allow_all_keys: false`, private
   network only). Through LiteLLM, tools appear as `openjcockpit_git-<tool>`.
-- `local-seed` grants it to two LiteLLM keys only: the `embabel-agent-service` key (agents' Git tools)
+- `local-seed` grants it to three LiteLLM keys only: the `embabel-agent-runtime` model key (agents' Git tools),
+  the MCP-only `embabel-agent-service-mcp` key (checkpoint commits)
   and the `ai-control-service` key (git-workspace jobs; MCP REST bridge routes only).
 
 Quick check against a running stack:
@@ -55,14 +56,16 @@ closed. Details: [Git integration](../workflows/git-integration.md#git-credentia
 
 ## Clients
 
-### Agent tools in `embabel-agent-service`
+### Agent tools in `embabel-agent-runtime`
 
 Catalogue agents receive Git tools by **definition** (`tools:` in the agent's Markdown front matter)
 **and** by **tenant binding** (`agent_tenant_binding_tools`). The seeded agents use
 `git.list_files`, `git.read_file` and (for the software developer and QA engineer) `git.write_file`.
 These tools always use the run's own repository and workspace, never values chosen by the LLM, and
 reach `git-mcp-server` through LiteLLM. Each call is authorized at call time against the agent's
-snapshot and OPA (`SnapshotBoundTool` → `OpaToolCallAuthorizer`).
+snapshot and OPA (`SnapshotBoundTool` → `AgentServiceToolCallAuthorizer`, which asks
+`embabel-agent-service` for the OPA decision; no decision means deny). The checkpoint commits after each
+agent are made by `embabel-agent-service` itself, with its own MCP-only LiteLLM key.
 
 ### Central MCP client (`RemoteMcpToolExecutor`)
 

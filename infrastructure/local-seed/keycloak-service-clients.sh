@@ -8,6 +8,10 @@
 #                           git-workspace job workspace (GET /internal/git-workspaces/{key}/credentials).
 #  - openjcockpit-ai-control ai-control -> embabel: git-workspace jobs start their workflow with this
 #                           identity; only it may bind a run to a job's git workspace.
+#  - openjcockpit-agent-service  embabel-agent-service -> embabel-agent-runtime: runs agents and definition
+#                           drafts (/internal/v1/**); the runtime refuses every other caller.
+#  - openjcockpit-agent-runtime  embabel-agent-runtime -> embabel-agent-service: reads tenant bindings, active
+#                           workflow runs and tool-call policy decisions (/internal/agent-runtime/v1/**).
 # Re-running reconciles the secrets and adds the tenant mapper when missing.
 set -e
 trap 'rm -f /tmp/kc-seed-resp.json' EXIT
@@ -19,11 +23,15 @@ A2A_TENANT_CLAIM="${A2A_TENANT_CLAIM:-tenant_id}"
 A2A_TENANT="${A2A_TENANT:-local}"
 GIT_MCP_CLIENT_ID="${GIT_MCP_CLIENT_ID:-openjcockpit-git-mcp}"
 AI_CONTROL_CLIENT_ID="${AI_CONTROL_CLIENT_ID:-openjcockpit-ai-control}"
+AGENT_SERVICE_CLIENT_ID="${AGENT_SERVICE_CLIENT_ID:-openjcockpit-agent-service}"
+AGENT_RUNTIME_CLIENT_ID="${AGENT_RUNTIME_CLIENT_ID:-openjcockpit-agent-runtime}"
 
 if [ -z "$KC_BOOTSTRAP_ADMIN_USERNAME" ] || [ -z "$KC_BOOTSTRAP_ADMIN_PASSWORD" ] || [ -z "$A2A_CLIENT_SECRET" ] \
-   || [ -z "$GIT_MCP_CLIENT_SECRET" ] || [ -z "$AI_CONTROL_CLIENT_SECRET" ]; then
+   || [ -z "$GIT_MCP_CLIENT_SECRET" ] || [ -z "$AI_CONTROL_CLIENT_SECRET" ] \
+   || [ -z "$AGENT_SERVICE_CLIENT_SECRET" ] || [ -z "$AGENT_RUNTIME_CLIENT_SECRET" ]; then
   echo "local-seed[keycloak]: KC_BOOTSTRAP_ADMIN_USERNAME / KC_BOOTSTRAP_ADMIN_PASSWORD / A2A_CLIENT_SECRET /"
-  echo "                      GIT_MCP_CLIENT_SECRET / AI_CONTROL_CLIENT_SECRET must be set"
+  echo "                      GIT_MCP_CLIENT_SECRET / AI_CONTROL_CLIENT_SECRET /"
+  echo "                      AGENT_SERVICE_CLIENT_SECRET / AGENT_RUNTIME_CLIENT_SECRET must be set"
   exit 1
 fi
 
@@ -82,6 +90,8 @@ seed_client() {
 seed_client "$A2A_CLIENT_ID" "$A2A_CLIENT_SECRET" "A2A callers (local)"
 seed_client "$GIT_MCP_CLIENT_ID" "$GIT_MCP_CLIENT_SECRET" "git-mcp-server (local)"
 seed_client "$AI_CONTROL_CLIENT_ID" "$AI_CONTROL_CLIENT_SECRET" "ai-control-service jobs (local)"
+seed_client "$AGENT_SERVICE_CLIENT_ID" "$AGENT_SERVICE_CLIENT_SECRET" "embabel-agent-service -> runtime (local)"
+seed_client "$AGENT_RUNTIME_CLIENT_ID" "$AGENT_RUNTIME_CLIENT_SECRET" "embabel-agent-runtime -> service (local)"
 
 # Tenant claim on the A2A client's tokens only.
 a2a_id=$(client_uuid "$A2A_CLIENT_ID")

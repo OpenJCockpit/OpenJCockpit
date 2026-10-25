@@ -6,7 +6,7 @@
     "agent_card_params": {
       "protocolVersion": "0.3.0",
       "name": "customer-support",
-      "description": "Ondersteunt klantvragen",
+      "description": "Handles customer questions",
       "url": "http://embabel-agent-service:8081/a2a/customer-support",
       "version": "1.0.0",
       "capabilities": {"streaming": false, "pushNotifications": false},

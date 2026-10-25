@@ -1,6 +1,5 @@
 package nl.metafactory.agents.config;
 
-import com.embabel.common.ai.model.ModelProvider;
 import nl.metafactory.agents.approval.model.ApprovalDecisionKind;
 import nl.metafactory.agents.approval.model.ApprovalDecisionRequest;
 import nl.metafactory.agents.approval.model.ApprovalGateConfig;
@@ -84,8 +83,6 @@ class ErrorResponseContractIntegrationTest {
 
     @MockitoBean nl.metafactory.agents.workflow.agents.AgentReferenceCheck agentReferenceCheck;
 
-    @MockitoBean
-    ModelProvider modelProvider;
 
     @Autowired
     TestRestTemplate restTemplate;

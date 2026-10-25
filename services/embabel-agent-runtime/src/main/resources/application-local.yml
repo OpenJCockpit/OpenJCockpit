@@ -1,0 +1,34 @@
+# Profile `local`: the runtime in the local docker-compose stack (SPRING_PROFILES_ACTIVE=local). Secrets are
+# not in this file: they arrive as environment variables seeded by the compose `local-seed` service.
+
+embabel:
+  models:
+    llms:
+      # agent model aliases -> gateway-routed Embabel LLMs (same names as in LiteLLM's model_list)
+      agent-chat: agent-chat
+      customer-chat: customer-chat
+
+openjcockpit:
+  # Management plane (tenant bindings, workflow runs, tool-call policy); any host or HTTPS URL works.
+  agent-service:
+    base-url: ${EMBABEL_AGENT_SERVICE_BASE_URL:http://embabel-agent-service:8081}
+    token-url: ${AGENT_RUNTIME_TOKEN_URL:http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token}
+  # Agents' git tools reach the git MCP server through LiteLLM (mcp_servers.openjcockpit_git, granted to the
+  # runtime's model key by local-seed).
+  git-workspace:
+    gateway-base-url: ${LITELLM_PROXY_URL:http://litellm:4000}
+    gateway-api-key: ${LITELLM_VIRTUAL_KEY:}
+  agent-definitions:
+    enabled: true
+    local-root: ${AGENT_DEFINITIONS_LOCAL_ROOT:/agent-definitions}
+    tenant-claim: tenant_id
+    litellm:
+      gateway-model-aliases:
+        - agent-chat
+        - customer-chat
+      # LiteLLM as (remote) definition source in the resolution chain
+      registry-url: ${LITELLM_PROXY_URL:http://litellm:4000}
+    a2a:
+      enabled: true
+      # address LiteLLM forwards to; equals the url of the agents in infrastructure/litellm/config.yaml
+      public-base-url: ${A2A_PUBLIC_BASE_URL:http://embabel-agent-runtime:8082}

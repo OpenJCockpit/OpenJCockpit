@@ -11,7 +11,7 @@ stack, three providers are involved:
 
 ```mermaid
 flowchart LR
-    E[embabel-agent-service] -- "default / coding LLM<br/>(virtual key)" --> L[LiteLLM gateway<br/>localhost:4100]
+    E[embabel-agent-runtime] -- "default / coding LLM<br/>(virtual key)" --> L[LiteLLM gateway<br/>localhost:4100]
     L --> O[(Ollama on the host<br/>qwen3.6:27b)]
     E -- "best / cheapest, embeddings" --> OA[(OpenAI API)]
     E -. "Revert B: LLM_CODING_ROUTE=direct" .-> O
@@ -22,7 +22,7 @@ OpenAI and the local model are in use.
 
 ## Local Ollama Qwen model (prerequisite, before you start the stack)
 
-The agent pipeline's default LLM (`embabel-agent-service`) runs on a locally
+The agent pipeline's default LLM (`embabel-agent-runtime`) runs on a locally
 hosted Qwen model served by **Ollama on your host machine**. Ollama is
 **not** part of the Docker Compose stack. You install and run it yourself,
 before `docker compose up`:
@@ -33,7 +33,7 @@ before `docker compose up`:
    pipeline calls it on every agent run.
 
 **Networking defaults: host-run vs. Compose-run.** The default Ollama base
-URL depends on how `embabel-agent-service` itself is running:
+URL depends on how `embabel-agent-runtime` itself is running:
 
 | Mode                                             | Default `OLLAMA_BASE_URL`           |
 | ------------------------------------------------ | ----------------------------------- |
@@ -48,11 +48,11 @@ Two environment variables control this, both overridable in `.env`:
 | `OLLAMA_MODEL`    | `qwen3.6:27b`                                                                       | The Ollama model tag to use; must exist in `ollama list`. |
 
 In `docker-compose.yml` both values are defined once (YAML anchors) and shared by the `litellm` and
-`embabel-agent-service` containers.
+`embabel-agent-runtime` containers.
 
 **Caveat:** `OLLAMA_BASE_URL` in `.env` applies to the **container**, not your
 host. Setting `OLLAMA_BASE_URL=http://localhost:11434` in `.env` breaks the
-containerized `embabel-agent-service`, because nothing listens on the
+containerized `embabel-agent-runtime`, because nothing listens on the
 container's own loopback interface. Only override it if your Ollama daemon
 listens somewhere other than the Compose default.
 
@@ -97,7 +97,7 @@ defined in `.env.example` (commented out by default) and overridable in
 | ---------------------- | ------------------------------------ | ----------------------------------------------------------------------- |
 | `LITELLM_MASTER_KEY`   | `sk-openjcockpit-litellm-local`       | The LiteLLM proxy admin/master API key.                                 |
 | `LITELLM_SALT_KEY`     | `sk-openjcockpit-litellm-salt-local`  | LiteLLM's encryption salt key. Changing it invalidates stored credentials. |
-| `LITELLM_VIRTUAL_KEY`  | `sk-openjcockpit-embabel-local`       | The virtual key `embabel-agent-service` presents to the gateway.        |
+| `LITELLM_VIRTUAL_KEY`  | `sk-openjcockpit-embabel-local`       | The virtual key `embabel-agent-runtime` presents to the gateway.        |
 | `LITELLM_A2A_KEY`      | `sk-openjcockpit-a2a-local`           | The one LiteLLM A2A client key (catalog, agent cards, calling agents).  |
 | `LITELLM_AI_CONTROL_KEY` | `sk-openjcockpit-ai-control-local`  | LiteLLM key of `ai-control-service`: MCP REST bridge and the Git MCP server only. |
 | `LITELLM_UI_USERNAME`  | `ricky`                              | LiteLLM admin UI username.                                              |
@@ -111,7 +111,7 @@ The non-admin virtual keys are created by the idempotent `local-seed` one-shot o
 check proves a real agent LLM call actually transits this gateway to host
 Ollama and is attributed to the expected virtual key and model: run
 `npm run e2e:llm` from `frontend/e2e/`. It requires the full stack running (LiteLLM,
-`embabel-agent-service`, host Ollama with the configured model pulled, plus
+`embabel-agent-runtime`, host Ollama with the configured model pulled, plus
 Keycloak/`ai-control-service`/`dashboard`). See [`frontend/e2e/README.md`](../../../frontend/e2e/README.md)'s
 "The agent ⇄ LiteLLM ⇄ Ollama live check" section for the exact
 preconditions, strict-mode flag, and what it does and does not prove.
@@ -156,25 +156,25 @@ through the gateway. **This revert is not automatic**; it requires a
 manual step.
 
 **Revert B: to direct host Ollama.** Add `LLM_CODING_ROUTE=direct` to
-`.env`, then run `docker compose up -d embabel-agent-service`. No rebuild,
+`.env`, then run `docker compose up -d embabel-agent-runtime`. No rebuild,
 no code edit and no `docker-compose.yml` edit is needed. **This revert is not
 automatic**; it requires a manual step. Caveat: the `litellm` service's
-`depends_on: ... service_healthy` condition on `embabel-agent-service`
+`depends_on: ... service_healthy` condition on `embabel-agent-runtime`
 still applies, so the `litellm` container must still start even though it
 will not be called when `LLM_CODING_ROUTE=direct`. Removing that dependency
 would itself be a `docker-compose.yml` edit, which is explicitly out of
 scope here.
 
 > **Verification note: check that the variable reaches the container.** Both reverts are configured
-> through environment variables read by `embabel-agent-service`'s `application.yml`
+> through environment variables read by `embabel-agent-runtime`'s `application.yml`
 > (`openjcockpit.llm.coding.route: ${LLM_CODING_ROUTE:gateway}`, and Spring's relaxed binding for
-> `EMBABEL_MODELS_DEFAULT_LLM`). In the current `docker-compose.yml`, the `embabel-agent-service` service
+> `EMBABEL_MODELS_DEFAULT_LLM`). In the current `docker-compose.yml`, the `embabel-agent-runtime` service
 > has no `env_file` and does not list `LLM_CODING_ROUTE` or `EMBABEL_MODELS_DEFAULT_LLM` under
 > `environment`, and `.env` is only used by Compose for variable interpolation. As the files stand,
 > adding these variables to `.env` alone therefore does **not** appear to reach the container; the
 > variable must be present in the service's environment (which is a `docker-compose.yml` change) or set
 > when running the service on the host. Verify with
-> `docker compose exec embabel-agent-service env | grep -E "LLM_CODING_ROUTE|EMBABEL_MODELS"` before
+> `docker compose exec embabel-agent-runtime env | grep -E "LLM_CODING_ROUTE|EMBABEL_MODELS"` before
 > relying on either revert during an incident.
 
 ## Release notes

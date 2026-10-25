@@ -1,21 +1,23 @@
 package nl.metafactory.agents.workflow;
 
-import com.embabel.agent.api.common.Ai;
-import com.embabel.common.ai.model.LlmOptions;
+import nl.metafactory.agents.runtime.AgentRuntimeClient;
 import nl.metafactory.agents.workflow.model.AgentSpec;
 import nl.metafactory.agents.workflow.model.SkillSpec;
 import nl.metafactory.agents.workflow.model.SubagentSpec;
+import nl.metafactory.common.agentruntime.DefinitionDrafts;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
 /**
- * Generates draft agent/subagent/skill definitions from a free-text concept using the
- * platform's default LLM (the same OpenAI model configured for the hardcoded delivery
- * agents, see OpenAiModelConfig). When no concept is supplied, a representative example
- * concept is used instead so the button always produces a usable draft.
+ * Generates draft agent/subagent/skill definitions from a free-text concept. The LLM call itself runs in
+ * embabel-agent-runtime (its default LLM); this service picks the concept and sanitises the draft. When no
+ * concept is supplied, a representative example concept is used instead so the button always produces a
+ * usable draft.
  */
 @Service
 public class PromptToDefinitionService {
@@ -30,42 +32,34 @@ public class PromptToDefinitionService {
             "A generic example reusable skill with a clear input contract and output contract that a " +
             "subagent could invoke as a discrete step.";
 
-    private final Ai ai;
+    private final AgentRuntimeClient runtime;
 
-    public PromptToDefinitionService(Ai ai) {
-        this.ai = ai;
+    public PromptToDefinitionService(AgentRuntimeClient runtime) {
+        this.runtime = runtime;
     }
 
     public AgentSpec generateAgentSpec(String prompt) {
         String concept = effectiveConcept(prompt, EXAMPLE_AGENT_CONCEPT);
-        String instruction = "You are an expert AI agent architect for a software delivery automation platform. " +
-                "Given the following concept, produce a structured agent definition with a short, memorable name, " +
-                "a one-sentence description, a short role label, detailed operating instructions for the agent, " +
-                "and lists of related subagent names and skill names it may delegate to (leave lists empty if " +
-                "none are obviously implied). Concept: " + concept;
-        AgentSpec generated = ai.withLlm(LlmOptions.withDefaultLlm()).createObject(instruction, AgentSpec.class);
-        return sanitizeAgentSpec(generated, concept);
+        return sanitizeAgentSpec(draft(DefinitionDrafts.Kind.AGENT, concept, AgentSpec.class), concept);
     }
 
     public SubagentSpec generateSubagentSpec(String prompt) {
         String concept = effectiveConcept(prompt, EXAMPLE_SUBAGENT_CONCEPT);
-        String instruction = "You are an expert AI agent architect for a software delivery automation platform. " +
-                "Given the following concept, produce a structured subagent definition with a short, memorable " +
-                "name, the name of a plausible parent agent, a one-sentence description, its responsibilities, " +
-                "detailed operating instructions, and a list of related skill names it may invoke (leave the list " +
-                "empty if none are obviously implied). Concept: " + concept;
-        SubagentSpec generated = ai.withLlm(LlmOptions.withDefaultLlm()).createObject(instruction, SubagentSpec.class);
-        return sanitizeSubagentSpec(generated, concept);
+        return sanitizeSubagentSpec(draft(DefinitionDrafts.Kind.SUBAGENT, concept, SubagentSpec.class), concept);
     }
 
     public SkillSpec generateSkillSpec(String prompt) {
         String concept = effectiveConcept(prompt, EXAMPLE_SKILL_CONCEPT);
-        String instruction = "You are an expert AI agent architect for a software delivery automation platform. " +
-                "Given the following concept, produce a structured skill definition with a short, memorable name, " +
-                "a one-sentence description, its input contract, its output contract, detailed execution " +
-                "instructions, and any policy or validation notes. Concept: " + concept;
-        SkillSpec generated = ai.withLlm(LlmOptions.withDefaultLlm()).createObject(instruction, SkillSpec.class);
-        return sanitizeSkillSpec(generated, concept);
+        return sanitizeSkillSpec(draft(DefinitionDrafts.Kind.SKILL, concept, SkillSpec.class), concept);
+    }
+
+    private <T> T draft(DefinitionDrafts.Kind kind, String concept, Class<T> type) {
+        try {
+            return runtime.draft(kind, concept, type);
+        } catch (AgentRuntimeClient.AgentRuntimeException e) {
+            throw new ResponseStatusException(AgentRuntimeClient.RUNTIME_UNAVAILABLE.equals(e.reason())
+                    ? HttpStatus.SERVICE_UNAVAILABLE : HttpStatus.BAD_GATEWAY, "Definition draft failed: " + e.getMessage());
+        }
     }
 
     private AgentSpec sanitizeAgentSpec(AgentSpec spec, String concept) {

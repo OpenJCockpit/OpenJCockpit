@@ -1,6 +1,5 @@
 package nl.metafactory.agents.config;
 
-import com.embabel.common.ai.model.ModelProvider;
 import nl.metafactory.agents.approval.ApprovalDecisionAuditRepository;
 import nl.metafactory.agents.approval.ApprovalDecisionService;
 import nl.metafactory.agents.approval.ApprovalGateContextAssembler;
@@ -26,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class SecurityConfigTest {
 
-    @MockitoBean ModelProvider modelProvider;
 
     @Autowired MockMvc mockMvc;
     @MockitoBean AgentOrchestrator orchestrator;

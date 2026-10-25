@@ -64,6 +64,11 @@ Rotating `LITELLM_SALT_KEY` invalidates every credential already encrypted in Li
 - Service-to-service trust uses dedicated Keycloak clients and narrowly scoped endpoints (for example,
   only `openjcockpit-ai-control` may issue git-workspace tickets, and only `openjcockpit-git-mcp` may fetch
   workspace credentials).
+- **Agent service ↔ agent runtime.** Only `openjcockpit-agent-service` may run agents or request drafts on
+  `embabel-agent-runtime` (`/internal/v1/**`), and only `openjcockpit-agent-runtime` may read tenant bindings,
+  run scopes and tool-call decisions from `embabel-agent-service` (`/internal/agent-runtime/v1/**`). Both
+  check the token's `azp` and fail closed; the runtime denies a tool call when no policy decision can be
+  obtained. LLM credentials live only in the runtime. See [Agent runtime](../concepts/agent-runtime.md#security-model).
 - Multi-tenancy is not production-ready: the tenant claim exists only for the local service client
   (`tenant_id=local`).
 
@@ -92,7 +97,8 @@ At a minimum:
 1. Replace every seeded credential, secret, salt and key, and remove seeded users.
 2. Remove the `docker-socat` Docker daemon proxy and choose an isolated job execution model.
 3. Put authentication in front of, or remove network reachability to, `git-mcp-server`, OPA and the
-   LiteLLM admin UI.
+   LiteLLM admin UI. Serve `embabel-agent-runtime` and `embabel-agent-service` over HTTPS when they run on
+   different hosts, and give their Keycloak clients real secrets.
 4. Replace the default OPA policy with your organization's rules and decide on role-based authorization
    for workflow starts and approvals.
 5. Review LLM data flows against your data-protection requirements.

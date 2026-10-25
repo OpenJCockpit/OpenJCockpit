@@ -37,8 +37,45 @@ class ComposeA2AWiringContractTest {
         assertThat(service.path("depends_on").path("local-seed").path("condition").asString())
                 .isEqualTo("service_completed_successfully");
         assertThat(service.path("volumes").valueStream().map(JsonNode::asString).toList())
-                .contains("./agents:/agents:ro",
-                        "./services/embabel-agent-service/agent-definitions:/agent-definitions:ro");
+                .contains("./agents:/agents:ro")
+                .noneMatch(v -> v.contains("agent-definitions"));
+    }
+
+    /** The management plane runs no agent: no LLM credentials, no host access, no runtime start dependency. */
+    @Test
+    void theAgentServiceReachesTheRuntimeOnlyThroughItsConfigurableUrl() throws IOException {
+        JsonNode services = services();
+        JsonNode service = services.path("embabel-agent-service");
+        JsonNode env = service.path("environment");
+        assertThat(env.path("EMBABEL_AGENT_RUNTIME_BASE_URL").asString())
+                .isEqualTo("${EMBABEL_AGENT_RUNTIME_BASE_URL:-http://embabel-agent-runtime:8082}");
+        assertThat(env.path("AGENT_SERVICE_CLIENT_SECRET").asString())
+                .isEqualTo(services.path("local-seed").path("environment").path("AGENT_SERVICE_CLIENT_SECRET").asString());
+        for (String llm : new String[]{"OPENAI_API_KEY", "OLLAMA_BASE_URL", "OLLAMA_MODEL", "LITELLM_BASE_URL",
+                "LITELLM_VIRTUAL_KEY", "AGENT_DEFINITIONS_LOCAL_ROOT"}) {
+            assertThat(env.has(llm)).as(llm + " belongs to embabel-agent-runtime").isFalse();
+        }
+        assertThat(env.path("LITELLM_AGENT_SERVICE_KEY").asString())
+                .isEqualTo(services.path("local-seed").path("environment").path("LITELLM_AGENT_SERVICE_KEY").asString());
+        assertThat(service.has("extra_hosts")).isFalse();
+        assertThat(service.path("depends_on").has("embabel-agent-runtime"))
+                .as("both planes start independently").isFalse();
+        assertThat(service.path("image").asString()).startsWith("openjcockpit/embabel-agent-service:");
+    }
+
+    @Test
+    void theServiceIdentitiesAcrossTheBoundaryAreSeeded() throws IOException {
+        String clients = Files.readString(ROOT.resolve("infrastructure/local-seed/keycloak-service-clients.sh"));
+        assertThat(clients).contains("AGENT_SERVICE_CLIENT_ID:-openjcockpit-agent-service",
+                "AGENT_RUNTIME_CLIENT_ID:-openjcockpit-agent-runtime",
+                "seed_client \"$AGENT_SERVICE_CLIENT_ID\"", "seed_client \"$AGENT_RUNTIME_CLIENT_ID\"");
+        String keys = Files.readString(ROOT.resolve("infrastructure/local-seed/litellm-keys.sh"));
+        assertThat(keys).contains("LITELLM_AGENT_SERVICE_KEY_ALIAS:-embabel-agent-service-mcp",
+                "LITELLM_KEY_ALIAS:-embabel-agent-runtime");
+        assertThat(keys.indexOf("/key/delete")).as("obsolete aliases are removed before keys are (re)created")
+                .isLessThan(keys.indexOf("seed_key \"${LITELLM_KEY_ALIAS}\""));
+        assertThat(services().path("local-seed").path("environment").path("LITELLM_KEY_ALIAS").asString())
+                .isEqualTo("embabel-agent-runtime");
     }
 
     @Test
@@ -67,21 +104,6 @@ class ComposeA2AWiringContractTest {
     }
 
     @Test
-    void litellmForwardsToTheAddressTheLocalProfileAdvertises() throws IOException {
-        JsonNode profile = YAMLMapper.builder().build().readTree(
-                getClass().getResourceAsStream("/application-local.yml"));
-        String advertised = profile.path("openjcockpit").path("agent-definitions").path("a2a")
-                .path("public-base-url").asString().replaceAll("\\$\\{[A-Z0-9_]+:(.*)}", "$1");
-        int agents = 0;
-        for (JsonNode agent : yaml("infrastructure/litellm/config.yaml").path("agents")) {
-            assertThat(agent.path("agent_card_params").path("url").asString())
-                    .isEqualTo(advertised + "/a2a/" + agent.path("agent_name").asString());
-            agents++;
-        }
-        assertThat(agents).isEqualTo(4);
-    }
-
-    @Test
     void localSeedTenantMatchesTheKeycloakClaim() throws IOException {
         String tenant = services().path("local-seed").path("environment").path("A2A_TENANT").asString();
         String seed = new String(getClass().getResourceAsStream("/db/seed-local/R__seed_local_agent_bindings.sql")
@@ -89,7 +111,7 @@ class ComposeA2AWiringContractTest {
         assertThat(seed).contains("'" + tenant + "', 'business-analyst'", "'" + tenant + "', 'qa-engineer'");
     }
 
-    /** The local git MCP server is a separate MCP server registered with LiteLLM and granted to the agent-service key. */
+    /** The local git MCP server is a separate MCP server registered with LiteLLM and granted to the runtime and service keys. */
     @Test
     void gitMcpServerIsRegisteredWithLiteLlmAndGrantedToTheAgentServiceKey() throws IOException {
         JsonNode services = services();

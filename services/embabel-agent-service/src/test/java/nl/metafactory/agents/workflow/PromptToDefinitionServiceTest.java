@@ -1,8 +1,7 @@
 package nl.metafactory.agents.workflow;
 
-import com.embabel.agent.api.common.Ai;
-import com.embabel.agent.api.common.PromptRunner;
-import com.embabel.common.ai.model.LlmOptions;
+import nl.metafactory.agents.runtime.AgentRuntimeClient;
+import nl.metafactory.common.agentruntime.DefinitionDrafts;
 import nl.metafactory.agents.workflow.model.AgentSpec;
 import nl.metafactory.agents.workflow.model.SkillSpec;
 import nl.metafactory.agents.workflow.model.SubagentSpec;
@@ -21,22 +20,20 @@ import static org.mockito.Mockito.when;
 
 class PromptToDefinitionServiceTest {
 
-    @Mock private Ai ai;
-    @Mock private PromptRunner promptRunner;
+    @Mock private AgentRuntimeClient runtime;
 
     private PromptToDefinitionService service;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(ai.withLlm(any(LlmOptions.class))).thenReturn(promptRunner);
-        service = new PromptToDefinitionService(ai);
+        service = new PromptToDefinitionService(runtime);
     }
 
     @SuppressWarnings("unchecked")
     private String capturedPrompt(Class<?> targetType) {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        org.mockito.Mockito.verify(promptRunner).createObject(captor.capture(), (Class) any(Class.class));
+        org.mockito.Mockito.verify(runtime).draft(any(DefinitionDrafts.Kind.class), captor.capture(), (Class) any(Class.class));
         return captor.getValue();
     }
 
@@ -44,7 +41,7 @@ class PromptToDefinitionServiceTest {
     void generateAgentSpecSendsConceptToLlmAndSlugifiesReturnedName() {
         var llmDraft = new AgentSpec("Triage Incoming Issues", "Handles triage", "triage-lead",
                 "Classify by severity and route to the right team.", List.of("router"), List.of("classifier"), null, null, false);
-        when(promptRunner.createObject(anyString(), any(Class.class))).thenReturn(llmDraft);
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class))).thenReturn(llmDraft);
 
         var spec = service.generateAgentSpec("Triage incoming support issues by severity");
 
@@ -60,7 +57,7 @@ class PromptToDefinitionServiceTest {
     @Test
     void generateAgentSpecUsesExampleConceptWhenPromptBlank() {
         var llmDraft = new AgentSpec(null, null, null, null, null, null, null, null, false);
-        when(promptRunner.createObject(anyString(), any(Class.class))).thenReturn(llmDraft);
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class))).thenReturn(llmDraft);
 
         var spec = service.generateAgentSpec("   ");
 
@@ -77,7 +74,7 @@ class PromptToDefinitionServiceTest {
     @Test
     void generateAgentSpecUsesExampleConceptWhenPromptNull() {
         var llmDraft = new AgentSpec(null, null, null, null, null, null, null, null, false);
-        when(promptRunner.createObject(anyString(), any(Class.class))).thenReturn(llmDraft);
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class))).thenReturn(llmDraft);
 
         service.generateAgentSpec(null);
 
@@ -89,7 +86,7 @@ class PromptToDefinitionServiceTest {
         var llmDraft = new AgentSpec("Reviewer", "desc", "role", "instructions",
                 List.of("Security Scanner", "security-scanner", "  ", "Linting Helper!"),
                 List.of("Diff Summary", ""), null, null, false);
-        when(promptRunner.createObject(anyString(), any(Class.class))).thenReturn(llmDraft);
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class))).thenReturn(llmDraft);
 
         var spec = service.generateAgentSpec("concept");
 
@@ -100,7 +97,7 @@ class PromptToDefinitionServiceTest {
     @Test
     void generateAgentSpecGeneratesRandomNameWhenLlmNameHasNoAlphanumericCharacters() {
         var llmDraft = new AgentSpec("???", "desc", "role", "instructions", List.of(), List.of(), List.of(), null, false);
-        when(promptRunner.createObject(anyString(), any(Class.class))).thenReturn(llmDraft);
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class))).thenReturn(llmDraft);
 
         var spec = service.generateAgentSpec("concept");
 
@@ -111,7 +108,7 @@ class PromptToDefinitionServiceTest {
     void generateSubagentSpecSendsConceptToLlmAndSanitizesResult() {
         var llmDraft = new SubagentSpec("Collect Application Logs", "log-agent", "Collects logs",
                 "Gathers logs for the incident window", "Pull logs from the last hour", List.of("log-search"), null, null);
-        when(promptRunner.createObject(anyString(), any(Class.class))).thenReturn(llmDraft);
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class))).thenReturn(llmDraft);
 
         var spec = service.generateSubagentSpec("Collect application logs for the incident window");
 
@@ -126,7 +123,7 @@ class PromptToDefinitionServiceTest {
     @Test
     void generateSubagentSpecUsesExampleConceptWhenPromptBlank() {
         var llmDraft = new SubagentSpec(null, null, null, null, null, null, null, null);
-        when(promptRunner.createObject(anyString(), any(Class.class))).thenReturn(llmDraft);
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class))).thenReturn(llmDraft);
 
         var spec = service.generateSubagentSpec("");
 
@@ -140,7 +137,7 @@ class PromptToDefinitionServiceTest {
     void generateSkillSpecSendsConceptToLlmAndSanitizesResult() {
         var llmDraft = new SkillSpec("Summarize Text", "Summarizes text", "raw text", "summary",
                 "Summarize the provided text into three bullet points.", List.of(), "must not hallucinate facts");
-        when(promptRunner.createObject(anyString(), any(Class.class))).thenReturn(llmDraft);
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class))).thenReturn(llmDraft);
 
         var spec = service.generateSkillSpec("Summarize text");
 
@@ -154,7 +151,7 @@ class PromptToDefinitionServiceTest {
     @Test
     void generateSkillSpecUsesExampleConceptWhenPromptBlank() {
         var llmDraft = new SkillSpec(null, null, null, null, null, null, null);
-        when(promptRunner.createObject(anyString(), any(Class.class))).thenReturn(llmDraft);
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class))).thenReturn(llmDraft);
 
         var spec = service.generateSkillSpec(null);
 
@@ -168,7 +165,7 @@ class PromptToDefinitionServiceTest {
     void truncatesLongConceptInFallbackDescriptionButKeepsFullInstructions() {
         String longPrompt = "x".repeat(250);
         var llmDraft = new AgentSpec(null, null, null, null, null, null, null, null, false);
-        when(promptRunner.createObject(anyString(), any(Class.class))).thenReturn(llmDraft);
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class))).thenReturn(llmDraft);
 
         var spec = service.generateAgentSpec(longPrompt);
 
@@ -180,10 +177,36 @@ class PromptToDefinitionServiceTest {
     void truncatesFirstLineUsedForNameWhenVeryLong() {
         String longFirstLine = "a".repeat(100);
         var llmDraft = new SkillSpec(null, null, null, null, null, null, null);
-        when(promptRunner.createObject(anyString(), any(Class.class))).thenReturn(llmDraft);
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class))).thenReturn(llmDraft);
 
         var spec = service.generateSkillSpec(longFirstLine);
 
         assertThat(spec.name()).hasSize(60);
+    }
+
+    @Test
+    void aRuntimeThatIsDownOrFailsBecomesAServiceUnavailableOrBadGatewayResponse() {
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class)))
+                .thenThrow(new AgentRuntimeClient.AgentRuntimeException(AgentRuntimeClient.RUNTIME_UNAVAILABLE, "down", null));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.generateAgentSpec("x"))
+                .isInstanceOfSatisfying(org.springframework.web.server.ResponseStatusException.class,
+                        e -> assertThat(e.getStatusCode().value()).isEqualTo(503));
+
+        org.mockito.Mockito.reset(runtime);
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class)))
+                .thenThrow(new AgentRuntimeClient.AgentRuntimeException("EXECUTION_FAILED", "llm failed", null));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.generateSkillSpec("x"))
+                .isInstanceOfSatisfying(org.springframework.web.server.ResponseStatusException.class,
+                        e -> assertThat(e.getStatusCode().value()).isEqualTo(502));
+    }
+
+    @Test
+    void eachKindIsDraftedAsItsOwnDraftKind() {
+        when(runtime.draft(any(DefinitionDrafts.Kind.class), anyString(), any(Class.class))).thenReturn(null);
+        org.mockito.Mockito.doReturn(new SubagentSpec("s", null, null, null, null, null, null, null))
+                .when(runtime).draft(org.mockito.ArgumentMatchers.eq(DefinitionDrafts.Kind.SUBAGENT), anyString(),
+                        org.mockito.ArgumentMatchers.eq(SubagentSpec.class));
+
+        assertThat(service.generateSubagentSpec("helper").name()).isEqualTo("s");
     }
 }

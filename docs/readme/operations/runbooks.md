@@ -18,12 +18,14 @@ feature:
 | `keycloak` | `8080` | Compose healthcheck |
 | `litellm` | `4100` | Compose healthcheck on `/health/liveliness` (never `/health`, which calls every model) |
 | `ai-control-service` | `9080` | `/actuator/health` |
-| `embabel-agent-service` | `8091` | `/actuator/health`; `/actuator/health/agentDefinitions` for local agent definitions |
+| `embabel-agent-service` | `8091` | `/actuator/health` (readiness includes the database) |
+| `embabel-agent-runtime` | `8092` | Compose healthcheck on `/actuator/health/readiness`; `/actuator/health/agentDefinitions` for the served agent definitions |
 | `opa` | `8181` | `/health` |
 | `git-mcp-server` | not published | `/actuator/health` inside the network |
 | `postgres` | not published | Compose healthcheck |
 
-`/actuator/health` on `embabel-agent-service` reports `UP` even when Ollama is unreachable. See
+`/actuator/health` on `embabel-agent-runtime` reports `UP` even when Ollama, LiteLLM or the agent service is
+unreachable: those are per-request dependencies it fails closed on, not readiness conditions. See
 [Troubleshooting](troubleshooting.md).
 
 ## Data and volumes

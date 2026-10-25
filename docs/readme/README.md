@@ -30,6 +30,7 @@ topics.
 
 - [Overview](concepts/overview.md): the AI Software Factory, core concepts, the dashboard, vision vs. current status.
 - [Architecture](concepts/architecture.md): components, technologies, design principles, request flow.
+- [Agent runtime](concepts/agent-runtime.md): the execution plane, its contract with the agent service, security and failure semantics.
 
 ### Workflows
 
@@ -60,6 +61,7 @@ topics.
 ### Operations
 
 - [Runbooks](operations/runbooks.md): services, volumes, destructive commands, definition-file logging.
+- [Remote agent runtime](operations/remote-agent-runtime.md): running `embabel-agent-runtime` on another host.
 - [Troubleshooting](operations/troubleshooting.md): symptom → cause → fix.
 - [Known limitations](operations/known-limitations.md): maturity, accepted risks and follow-ups.
 - [Dependency management](operations/dependency-management.md): Renovate.

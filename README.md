@@ -143,13 +143,15 @@ All seeded credentials are **local-development-only** examples.
 ```mermaid
 flowchart LR
     D["Dashboard<br/>(React)"] --> AC["ai-control-service"]
-    AC --> EA["embabel-agent-service<br/>(workflows and agents)"]
+    AC --> EA["embabel-agent-service<br/>(workflows, catalogue, policy)"]
     EA --> OPA["Open Policy Agent"]
-    EA --> L["LiteLLM gateway"]
+    EA <-- "internal API" --> RT["embabel-agent-runtime<br/>(agent execution)"]
+    RT --> L["LiteLLM gateway"]
+    L -- "A2A" --> RT
     L --> M[("Ollama / models")]
     L --> G["git-mcp-server"]
     G --> R[("Git repository")]
-    K["Keycloak"] -.-> D & AC & EA
+    K["Keycloak"] -.-> D & AC & EA & RT
 ```
 
 | Layer | Technology |
@@ -168,7 +170,7 @@ extension point. They are not yet a verified target. → [Architecture](docs/rea
 
 | Goal | Read |
 | --- | --- |
-| **Understand the platform** | [Overview](docs/readme/concepts/overview.md) · [Architecture](docs/readme/concepts/architecture.md) |
+| **Understand the platform** | [Overview](docs/readme/concepts/overview.md) · [Architecture](docs/readme/concepts/architecture.md) · [Agent runtime](docs/readme/concepts/agent-runtime.md) |
 | **Start using it** | [Quickstart](docs/readme/getting-started/quickstart.md) · [Authentication](docs/readme/getting-started/authentication.md) · [LLM providers](docs/readme/integrations/llm-providers.md) |
 | **Build with agents** | [Agents and workflows](docs/readme/workflows/agents-and-workflows.md) · [Spec-driven development](docs/readme/workflows/spec-driven-development.md) · [Agents and A2A](docs/readme/integrations/a2a-agents.md) · [Spec queue](docs/readme/workflows/spec-queue.md) · [Git integration](docs/readme/workflows/git-integration.md) |
 | **Configure governance** | [Policy enforcement](docs/readme/governance/policy-enforcement.md) · [Approval gates](docs/readme/governance/approval-gates.md) · [Security considerations](docs/readme/governance/security-considerations.md) |

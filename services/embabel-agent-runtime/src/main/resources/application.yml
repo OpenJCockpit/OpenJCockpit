@@ -1,0 +1,159 @@
+server:
+  port: ${SERVER_PORT:8082}
+  error:
+    include-message: always
+  # Finish in-flight agent executions (bounded below) before the process exits.
+  shutdown: graceful
+
+spring:
+  application:
+    name: embabel-agent-runtime
+  lifecycle:
+    # An agent run is one synchronous request; give it a bounded chance to complete on SIGTERM.
+    timeout-per-shutdown-phase: ${RUNTIME_SHUTDOWN_GRACE:60s}
+  web:
+    error:
+      include-message: always
+  jackson:
+    deserialization:
+      fail-on-null-for-primitives: false
+  ai:
+    model:
+      chat: openai
+      embedding: openai
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        model: gpt-4.1-mini
+      embedding:
+        model: text-embedding-3-small
+    mcp:
+      client:
+        enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs}
+
+embabel:
+  models:
+    default-llm: "${openjcockpit.llm.ollama.model}"
+    default-embedding-model: text-embedding-3-small
+    llms:
+      coding: "${openjcockpit.llm.ollama.model}"
+      best: gpt-4.1-mini
+      cheapest: gpt-4.1-mini
+    embedding-services:
+      best: text-embedding-3-small
+      cheapest: text-embedding-3-small
+  agent:
+    platform:
+      llm-operations:
+        prompts:
+          # Embabel wraps every LLM call in future.get(defaultTimeout) (ChatClientLlmOperations).
+          # Its default is 60s, which silently caps calls far below the 600s HTTP read timeout in
+          # openjcockpit.llm.read-timeout-seconds. A 27B local model routinely needs minutes, so the
+          # two budgets are aligned here. Keep this >= openjcockpit.llm.read-timeout-seconds.
+          default-timeout: ${LLM_OPERATION_TIMEOUT:600s}
+        data-binding:
+          # LlmDataBindingProperties' own default (maxAttempts=10, fixedBackoffMillis=30) re-issues the same
+          # slow call; capped so a slow-but-working local model gets one retry, not ten.
+          max-attempts: ${LLM_DATA_BINDING_MAX_ATTEMPTS:2}
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+      group:
+        # No database: ready once the context is up. The agent service and LiteLLM are dependencies the
+        # runtime fails closed on per request; they are deliberately not readiness conditions.
+        readiness:
+          include: readinessState
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  info:
+    env:
+      enabled: true
+    build:
+      enabled: true
+
+info:
+  app:
+    name: ${spring.application.name}
+    description: Embabel Agent Runtime — executes configuration-driven agents (Embabel, LLMs, tools, inbound A2A)
+    version: "@project.version@"
+
+openjcockpit:
+  security:
+    # Issuer of every accepted token (Keycloak pins it with KC_HOSTNAME).
+    jwt-issuer: ${KEYCLOAK_ISSUER:http://localhost:8080/realms/openjcockpit}
+  # Only embabel-agent-service may call /internal/v1/** (executions, definition drafts).
+  agent-runtime:
+    trusted-client-id: ${AGENT_RUNTIME_TRUSTED_CLIENT_ID:openjcockpit-agent-service}
+  # The management plane: tenant bindings, active workflow runs and tool-call policy decisions are read here,
+  # with the runtime's own service identity. Blank base URL -> every lookup fails closed.
+  agent-service:
+    base-url: ${EMBABEL_AGENT_SERVICE_BASE_URL:}
+    token-url: ${AGENT_RUNTIME_TOKEN_URL:}
+    client-id: ${AGENT_RUNTIME_CLIENT_ID:openjcockpit-agent-runtime}
+    client-secret: ${AGENT_RUNTIME_CLIENT_SECRET:}
+    connect-timeout: ${AGENT_SERVICE_CONNECT_TIMEOUT:5s}
+    read-timeout: ${AGENT_SERVICE_READ_TIMEOUT:15s}
+  # Agents' git tools (git.list_files/read_file/write_file) reach the git MCP server through LiteLLM.
+  # Blank gateway -> the git tools report "unavailable".
+  git-workspace:
+    engine-a2a-client-id: ${GIT_WORKSPACE_ENGINE_A2A_CLIENT_ID:openjcockpit-a2a}
+    gateway-base-url: ${GIT_WORKSPACE_GATEWAY_BASE_URL:}
+    gateway-api-key: ${GIT_WORKSPACE_GATEWAY_API_KEY:}
+    server-id: ${GIT_WORKSPACE_GIT_MCP_SERVER_ID:openjcockpit_git}
+  llm:
+    connect-timeout-seconds: ${LLM_CONNECT_TIMEOUT_SECONDS:45}
+    read-timeout-seconds: ${LLM_READ_TIMEOUT_SECONDS:600}
+    coding:
+      # BR-14 Revert B: `gateway` (default) routes the default/coding LLM through LiteLLM; `direct` goes
+      # straight to the host's Ollama. Configuration-only switch.
+      route: ${LLM_CODING_ROUTE:gateway}
+    gateway:
+      base-url: ${LITELLM_BASE_URL:http://localhost:4000/v1}
+      api-key: ${LITELLM_VIRTUAL_KEY:sk-openjcockpit-embabel-local}
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      model: "${OLLAMA_MODEL:qwen3.6:27b}"
+  # SPEC-002: configuration-driven agents and inbound A2A. The runtime exists to run them, so they are on;
+  # the definition root ships in the image (/agent-definitions) and can be overridden by a mount.
+  agent-definitions:
+    enabled: ${AGENT_DEFINITIONS_ENABLED:true}
+    local-root: ${AGENT_DEFINITIONS_LOCAL_ROOT:/agent-definitions}
+    tenant-claim: ${AGENT_DEFINITIONS_TENANT_CLAIM:tenant_id}
+    fallback:
+      on-unavailable: ${AGENT_DEFINITIONS_FALLBACK_ON_UNAVAILABLE:true}
+      on-not-found: ${AGENT_DEFINITIONS_FALLBACK_ON_NOT_FOUND:false}
+    cache:
+      ttl: ${AGENT_DEFINITIONS_CACHE_TTL:1h}
+      directory: ${AGENT_DEFINITIONS_CACHE_DIR:}
+    litellm:
+      model-gateway-url: ${LITELLM_BASE_URL:http://localhost:4000/v1}
+      model-gateway-key: ${LITELLM_VIRTUAL_KEY:sk-openjcockpit-embabel-local}
+      registry-url: ${LITELLM_REGISTRY_URL:}
+      registry-key: ${LITELLM_REGISTRY_KEY:}
+    a2a:
+      enabled: ${A2A_ENABLED:false}
+      # Externally reachable base URL advertised in Agent Cards; the address callers (LiteLLM) use.
+      public-base-url: ${A2A_PUBLIC_BASE_URL:}
+
+logging:
+  level:
+    nl.metafactory.agentruntime: INFO
+    com.embabel.agent: DEBUG

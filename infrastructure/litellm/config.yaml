@@ -16,7 +16,7 @@ model_list:
 
   # SPEC-002: model alias used by configuration-driven agents (agent Markdown `model: customer-chat`).
   # Same upstream model, but a separate model_name so the policy attachment below can select
-  # exactly this traffic. embabel-agent-service registers it as an Embabel LLM role of the same name.
+  # exactly this traffic. embabel-agent-runtime registers it as an Embabel LLM role of the same name.
   - model_name: customer-chat
     litellm_params:
       model: os.environ/OLLAMA_MODEL
@@ -79,7 +79,7 @@ policy_attachments:
 #  - the name must not contain the tool-prefix separator '-', hence the underscore;
 #  - server_id is pinned so key grants (object_permission.mcp_servers) survive edits of url/transport;
 #  - allow_all_keys: false -> only keys granted this server can use it (local-seed grants the
-#    embabel-agent-service key); available_on_public_internet: false -> private-network callers only.
+#    embabel-agent-runtime and embabel-agent-service keys); available_on_public_internet: false -> private-network callers only.
 # The server has no own authentication; it is reachable only on the compose network (no LiteLLM auth
 # headers are forwarded to it).
 mcp_servers:
@@ -91,8 +91,10 @@ mcp_servers:
     allow_all_keys: false
     available_on_public_internet: false
 
-# Seeded A2A agents, served by embabel-agent-service (definitions in
-# services/embabel-agent-service/agent-definitions/agents/). Listed in the dashboard under
+# Seeded A2A agents, served by embabel-agent-runtime (definitions in
+# services/embabel-agent-runtime/agent-definitions/agents/). The url is the runtime's A2A_PUBLIC_BASE_URL +
+# /a2a/<agent>; when the runtime moves to another host, change these urls (e.g. https://agents.example.com).
+# Listed in the dashboard under
 # Workflow design -> Agents -> LiteLLM. Pinned to A2A 0.3 (the protocol the service implements:
 # message/send only, no streaming). Config agents get agent_id = sha256(agent_name) and are
 # read-only in the LiteLLM UI. Callers pass their Keycloak JWT as
@@ -103,7 +105,7 @@ agents:
       protocolVersion: "0.3.0"
       name: business-analyst
       description: "Turns a business request into clear, testable requirements and acceptance criteria"
-      url: "http://embabel-agent-service:8081/a2a/business-analyst"
+      url: "http://embabel-agent-runtime:8082/a2a/business-analyst"
       preferredTransport: JSONRPC
       version: "1.1.1"
       capabilities: {streaming: false, pushNotifications: false, stateTransitionHistory: false}
@@ -117,7 +119,7 @@ agents:
       protocolVersion: "0.3.0"
       name: solution-architect
       description: "Designs a solution for given requirements: components, boundaries, integrations and trade-offs"
-      url: "http://embabel-agent-service:8081/a2a/solution-architect"
+      url: "http://embabel-agent-runtime:8082/a2a/solution-architect"
       preferredTransport: JSONRPC
       version: "1.1.1"
       capabilities: {streaming: false, pushNotifications: false, stateTransitionHistory: false}
@@ -131,7 +133,7 @@ agents:
       protocolVersion: "0.3.0"
       name: software-developer
       description: "Implements a designed change as small, reviewable code changes with tests"
-      url: "http://embabel-agent-service:8081/a2a/software-developer"
+      url: "http://embabel-agent-runtime:8082/a2a/software-developer"
       preferredTransport: JSONRPC
       version: "1.1.1"
       capabilities: {streaming: false, pushNotifications: false, stateTransitionHistory: false}
@@ -145,7 +147,7 @@ agents:
       protocolVersion: "0.3.0"
       name: qa-engineer
       description: "Designs test strategy and test cases and assesses whether acceptance criteria are met"
-      url: "http://embabel-agent-service:8081/a2a/qa-engineer"
+      url: "http://embabel-agent-runtime:8082/a2a/qa-engineer"
       preferredTransport: JSONRPC
       version: "1.1.1"
       capabilities: {streaming: false, pushNotifications: false, stateTransitionHistory: false}

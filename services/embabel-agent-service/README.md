@@ -5,6 +5,13 @@ test-design, implementation, review, realisation, evidence), exposes workflow an
 history APIs, and persists per-run execution state durably in `agent_runs` (see
 `src/main/resources/db/migration`).
 
+It is the **management plane**: it owns workflows, the agent catalogue, tenant bindings, policy decisions
+and run state, but runs no agent and no LLM. Agents execute in
+[`embabel-agent-runtime`](../embabel-agent-runtime/README.md), reached over HTTP
+(`openjcockpit.agent-runtime.base-url` / `EMBABEL_AGENT_RUNTIME_BASE_URL`); the runtime in turn reads
+bindings, run scopes and tool-call decisions from this service's `/internal/agent-runtime/v1/**`. See
+[Agent runtime](../../docs/readme/concepts/agent-runtime.md).
+
 ## Log keys
 
 | Key | Level | When it is emitted | Notes |

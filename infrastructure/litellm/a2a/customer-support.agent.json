@@ -3,8 +3,8 @@
   "agent_card_params": {
     "protocolVersion": "0.3.0",
     "name": "customer-support",
-    "description": "Ondersteunt klantvragen",
-    "url": "http://embabel-agent-service:8081/a2a/customer-support",
+    "description": "Handles customer questions",
+    "url": "http://embabel-agent-runtime:8082/a2a/customer-support",
     "preferredTransport": "JSONRPC",
     "version": "1.0.0",
     "capabilities": {
@@ -18,7 +18,7 @@
       {
         "id": "customer-support",
         "name": "customer-support",
-        "description": "Ondersteunt klantvragen",
+        "description": "Handles customer questions",
         "tags": ["configuration-driven"]
       }
     ]

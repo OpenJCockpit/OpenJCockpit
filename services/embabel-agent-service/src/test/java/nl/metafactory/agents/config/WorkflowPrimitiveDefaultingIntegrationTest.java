@@ -1,6 +1,5 @@
 package nl.metafactory.agents.config;
 
-import com.embabel.common.ai.model.ModelProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +55,6 @@ class WorkflowPrimitiveDefaultingIntegrationTest {
 
     @MockitoBean nl.metafactory.agents.workflow.agents.AgentReferenceCheck agentReferenceCheck;
 
-    @MockitoBean
-    ModelProvider modelProvider;
 
     @Autowired
     TestRestTemplate restTemplate;

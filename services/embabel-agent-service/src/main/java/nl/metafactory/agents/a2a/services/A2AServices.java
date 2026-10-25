@@ -4,7 +4,7 @@ import nl.metafactory.agents.a2a.client.A2AProviderClient;
 import nl.metafactory.agents.a2a.client.A2AProviderClients;
 import nl.metafactory.agents.a2a.client.A2AProvidersProperties;
 import nl.metafactory.agents.a2a.client.LiteLlmA2AProviderClient;
-import nl.metafactory.agents.definition.markdown.Identifiers;
+import nl.metafactory.common.agentdefinition.Identifiers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
