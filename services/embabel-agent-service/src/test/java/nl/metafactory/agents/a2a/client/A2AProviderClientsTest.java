@@ -1,6 +1,10 @@
 package nl.metafactory.agents.a2a.client;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.context.properties.source.MapConfigurationPropertySource;
+
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -37,6 +41,23 @@ class A2AProviderClientsTest {
     void unknownTypesAndDuplicatesFailStartup() {
         assertThatThrownBy(() -> new A2AProviderClients(props("unknown"))).hasMessageContaining("Unsupported");
         assertThatThrownBy(() -> new A2AProviderClients(props("litellm", "litellm"))).hasMessageContaining("twice");
+    }
+
+    @Test
+    void bindsProvidersAndTheirCallerIdentityFromConfiguration() {
+        var source = new MapConfigurationPropertySource(Map.of(
+                "openjcockpit.a2a-providers[0].type", "litellm",
+                "openjcockpit.a2a-providers[0].base-url", "http://litellm:4000",
+                "openjcockpit.a2a-providers[0].caller-auth.token-url", "http://keycloak:8080/token",
+                "openjcockpit.a2a-providers[0].caller-auth.client-id", "openjcockpit-a2a",
+                "openjcockpit.a2a-providers[0].caller-auth.client-secret", "s"));
+
+        var props = new Binder(source).bind("openjcockpit", A2AProvidersProperties.class).get();
+
+        var provider = props.getA2aProviders().getFirst();
+        assertThat(provider.getType()).isEqualTo("litellm");
+        assertThat(provider.getCallerAuth().getClientId()).isEqualTo("openjcockpit-a2a");
+        assertThat(provider.getCallerAuth().configured()).isTrue();
     }
 
     @Test
