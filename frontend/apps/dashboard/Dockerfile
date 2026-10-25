@@ -1,5 +1,5 @@
 # Build context is the frontend/ folder (see docker-compose.yml): the dashboard is an Nx workspace project.
-FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS manifests
+FROM node:22-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914 AS manifests
 # Collect every workspace package.json so a new lib needs no Dockerfile edit. This stage reruns on any
 # source change, but its output layer is content-addressed, so the npm ci layer below stays cached
 # until a manifest actually changes.
@@ -10,7 +10,7 @@ COPY e2e e2e
 RUN mkdir /manifests \
  && find apps libs e2e -name package.json -not -path '*/node_modules/*' | tar -cf - -T - | tar -xf - -C /manifests
 
-FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS build
+FROM node:22-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914 AS build
 WORKDIR /app
 COPY package.json package-lock.json nx.json tsconfig.base.json vite.config.base.ts ./
 COPY --from=manifests /manifests ./

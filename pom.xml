@@ -27,7 +27,7 @@
     <properties>
         <java.version>25</java.version>
         <spring-ai.version>2.0.1</spring-ai.version>
-        <embabel-agent.version>1.5.1</embabel-agent.version>
+        <embabel-agent.version>1.5.3</embabel-agent.version>
         <mcp-sdk.version>2.0.1</mcp-sdk.version>
     </properties>
 

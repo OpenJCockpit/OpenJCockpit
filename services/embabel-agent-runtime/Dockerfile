@@ -4,7 +4,7 @@ COPY . .
 # Reactor build of the runtime and what it needs (service-common) only; the management plane is not built.
 RUN mvn -pl services/embabel-agent-runtime -am package -DskipTests --no-transfer-progress
 
-FROM eclipse-temurin:25-jre@sha256:fcd7fd7b387f94bb2ac461478a7436ad8e349924c374ea8313919624dceae636
+FROM eclipse-temurin:25-jre@sha256:dbb43d81099eec91e0800226ed2296d03146ee7857165b95112372ad0d67e87f
 WORKDIR /app
 # Unprivileged user; the only writable places are /tmp (per-run skill directories) and the optional
 # last-known-good cache directory an operator mounts.
