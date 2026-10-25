@@ -37,11 +37,22 @@
   gap: 44px;
   color: #9fb4c1;
   font-size: 14px;
-  & a {
+  & button {
     position: relative;
     padding: 31px 0 29px;
-    text-decoration: none;
-    cursor: default;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+    &:hover {
+      color: #fff;
+    }
+    &:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 4px;
+    }
     &.active {
       color: #fff;
       &::after {

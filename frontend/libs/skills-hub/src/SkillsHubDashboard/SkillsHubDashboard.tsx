@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { FormEvent } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import {
   IconBox,
   StatusChip,
@@ -21,6 +21,8 @@ import styles from './SkillsHubDashboard.module.scss';
 interface Props {
   onBack: () => void;
   onSettings: () => void;
+  /** Replaces the default back-button header, e.g. with the app's shared top menu. */
+  header?: ReactNode;
 }
 
 interface SkillCategory {
@@ -58,7 +60,7 @@ const SKILLS: SkillEntry[] = [
   },
 ];
 
-export function SkillsHubDashboard({ onBack, onSettings }: Props) {
+export function SkillsHubDashboard({ onBack, onSettings, header }: Props) {
   const [query, setQuery] = useState('');
   const [term, setTerm] = useState('');
 
@@ -80,18 +82,17 @@ export function SkillsHubDashboard({ onBack, onSettings }: Props) {
 
   return (
     <AppShell>
-      <AppHeader onBack={onBack} backTitle="Back to dashboard">
-        <Button variant="secondary" onClick={onSettings} title="Skills Hub settings">
-          ⚙ Settings
-        </Button>
-      </AppHeader>
+      {header ?? <AppHeader onBack={onBack} backTitle="Back to dashboard" />}
 
       <main className={pageClass}>
-        <div className={pageHeaderClass}>
+        <div className={cx(pageHeaderClass, styles.skillsHubHeader)}>
           <div>
             <Eyebrow>Skills Hub</Eyebrow>
             <h1>Available skills</h1>
           </div>
+          <Button variant="secondary" onClick={onSettings} title="Skills Hub settings">
+            ⚙ Settings
+          </Button>
         </div>
 
         <form className={styles.skillsHubSearch} onSubmit={handleSearch} role="search">

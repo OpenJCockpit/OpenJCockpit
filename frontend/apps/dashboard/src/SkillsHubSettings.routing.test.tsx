@@ -91,10 +91,10 @@ describe('Skills Hub Settings — routing (AC-27)', () => {
       renderRoutedApp();
     });
     await enterDashboard();
-    await screen.findByText('🧩 Skills Hub');
+    await screen.findByTestId('nav-skills-hub');
 
     await act(async () => {
-      screen.getByText('🧩 Skills Hub').click();
+      screen.getByTestId('nav-skills-hub').click();
     });
     await screen.findByText('Available skills');
 
@@ -111,6 +111,6 @@ describe('Skills Hub Settings — routing (AC-27)', () => {
     // Back from Settings must land on the Skills Hub overview, not the project dashboard.
     expect(await screen.findByText('Available skills')).toBeInTheDocument();
     expect(screen.queryByText('Marketplace connections')).not.toBeInTheDocument();
-    expect(screen.queryByText('🧩 Skills Hub')).not.toBeInTheDocument();
+    expect(screen.getByTestId('nav-skills-hub')).toHaveAttribute('aria-current', 'page');
   });
 });

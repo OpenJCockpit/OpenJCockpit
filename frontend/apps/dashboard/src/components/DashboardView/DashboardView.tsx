@@ -1,6 +1,6 @@
 import { Suspense, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { AppShell, StatusMessage, ToolbarButton } from '@openjcockpit/ui';
+import { AppShell, StatusMessage } from '@openjcockpit/ui';
 import { useProjectWorkflows } from '@openjcockpit/workflow/queries';
 import type { Project } from '@openjcockpit/api';
 import { WorkflowPromptDialog } from '../../lazyViews';
@@ -12,7 +12,6 @@ import { SiteHeader } from '../SiteHeader/SiteHeader';
 import { SpecPanel } from '../SpecPanel/SpecPanel';
 import { StatusBar } from '../StatusBar/StatusBar';
 import { EvidencePanel } from '../WorkspacePanels/EvidencePanel';
-import { PullRequestPanel } from '../WorkspacePanels/PullRequestPanel';
 import { QualityPanel } from '../WorkspacePanels/QualityPanel';
 import { useProjectSpecsQuery, useWorkspaceQuery } from './useDashboardQueries';
 import styles from './DashboardView.module.scss';
@@ -70,15 +69,10 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
       )}
 
       <SiteHeader
+        active="platform"
         projects={projects}
         selectedProject={project}
         onProjectChange={onProjectChange}
-        onWorkflow={() => void navigate(ROUTES.workflow)}
-        onSpecFiles={() => void navigate(ROUTES.specFiles)}
-        onSpecQueue={() => void navigate(ROUTES.specQueue)}
-        onSkillsHub={() => void navigate(ROUTES.skillsHub)}
-        onSettings={() => void navigate(ROUTES.settings)}
-        onHub={() => void navigate(ROUTES.landing)}
         onLogout={onLogout}
       />
 
@@ -93,16 +87,6 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
             {workspaceQuery.isError ? 'Failed to load the workspace.' : 'Loading workspace...'}
           </StatusMessage>
         )}
-
-        <section className={styles.topTools}>
-          <div className={styles.search}>
-            Search workspace... <span>⌕</span>
-          </div>
-          <ToolbarButton variant="small">Filters</ToolbarButton>
-          <div className={styles.topToolsSpacer} />
-          <ToolbarButton variant="small">⟳ Refresh</ToolbarButton>
-          <span className={styles.lastUpdate}>● Last update: 13:24:11</span>
-        </section>
 
         <section className={styles.dashboardGrid}>
           <SpecPanel
@@ -131,7 +115,6 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
           {workspace && (
             <>
               <QualityPanel controls={workspace.qualityControls} />
-              <PullRequestPanel pullRequests={workspace.pullRequests} />
               <EvidencePanel events={workspace.evidenceEvents} />
             </>
           )}

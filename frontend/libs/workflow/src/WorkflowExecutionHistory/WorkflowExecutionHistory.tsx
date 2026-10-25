@@ -74,7 +74,11 @@ export function WorkflowExecutionHistory({
                   aria-current={item.runId === selectedRunId ? 'true' : undefined}
                 >
                   <td>
-                    <button type="button" onClick={() => onSelect(item.runId)}>
+                    <button
+                      type="button"
+                      className={styles.workflowExecutionHistoryRunId}
+                      onClick={() => onSelect(item.runId)}
+                    >
                       {item.runId}
                     </button>
                   </td>
