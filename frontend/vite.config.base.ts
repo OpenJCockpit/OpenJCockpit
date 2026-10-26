@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  // Source maps stay off in production: no external tracker to upload them to (see docs/frontend-production-readiness.md).
+  build: { sourcemap: false },
   css: {
     // Class names in .module.scss files stay kebab/BEM; TSX reads them as camelCase.
     modules: { localsConvention: 'camelCaseOnly' },

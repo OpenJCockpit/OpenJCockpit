@@ -22,11 +22,13 @@ RUN NX_DAEMON=false npx nx run dashboard:build
 FROM nginxinc/nginx-unprivileged:1.27-alpine@sha256:65e3e85dbaed8ba248841d9d58a899b6197106c23cb0ff1a132b7bfe0547e4c0
 # The nginx image renders /etc/nginx/templates/*.template into /etc/nginx/conf.d at startup. The filter
 # keeps envsubst from touching nginx's own $variables ($uri, $host, ...).
-ENV API_UPSTREAM=http://ai-control-service:8080 \
+ARG BUILD_SHA=unknown
+ENV BUILD_SHA=$BUILD_SHA \
+    API_UPSTREAM=http://ai-control-service:8080 \
     KEYCLOAK_URL=http://localhost:8080 \
     KEYCLOAK_REALM=openjcockpit \
     KEYCLOAK_CLIENT_ID=openjcockpit \
-    NGINX_ENVSUBST_FILTER=^(KEYCLOAK_|API_UPSTREAM$)
+    NGINX_ENVSUBST_FILTER=^(KEYCLOAK_|API_UPSTREAM$|BUILD_SHA$)
 COPY --from=build /app/apps/dashboard/dist /usr/share/nginx/html
 COPY apps/dashboard/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY apps/dashboard/security-headers.inc.template /etc/nginx/templates/security-headers.inc.template

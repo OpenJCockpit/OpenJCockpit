@@ -248,6 +248,8 @@ services:
     build:
       context: frontend
       dockerfile: apps/dashboard/Dockerfile
+      args:
+        BUILD_SHA: ${BUILD_SHA:-dev}
     container_name: openjcockpit-dashboard
     restart: unless-stopped
     ports:
