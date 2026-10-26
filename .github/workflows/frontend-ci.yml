@@ -52,11 +52,11 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           NX_BASE: origin/${{ github.base_ref }}
-        run: npx nx affected --base="$NX_BASE" --head=HEAD -t lint check-styles typecheck coverage build --outputStyle=stream
+        run: npx nx affected --base="$NX_BASE" --head=HEAD -t lint check-styles typecheck coverage build check-bundle --outputStyle=stream
 
       - name: Lint, check styles, typecheck, coverage (runs tests), build (all projects)
         if: github.event_name != 'pull_request'
-        run: npx nx run-many -t lint check-styles typecheck coverage build --outputStyle=stream
+        run: npx nx run-many -t lint check-styles typecheck coverage build check-bundle --outputStyle=stream
 
       - name: Coverage summary
         if: always()

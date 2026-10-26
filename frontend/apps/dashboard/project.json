@@ -29,6 +29,13 @@
         "script": "visual:check"
       }
     },
+    "check-bundle": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "check:bundle"
+      },
+      "dependsOn": ["build"]
+    },
     "coverage": {
       "executor": "nx:run-commands",
       "options": {
