@@ -8,6 +8,7 @@ import { useAuthSession } from './useAuthSession';
 vi.mock('@openjcockpit/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@openjcockpit/api')>()),
   setAuthToken: vi.fn(),
+  setSessionRefresher: vi.fn(),
 }));
 vi.mock('@openjcockpit/auth', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@openjcockpit/auth')>()),
@@ -171,5 +172,53 @@ describe('useAuthSession', () => {
       await vi.advanceTimersByTimeAsync(120_000);
     });
     expect(keycloak.updateToken).not.toHaveBeenCalled();
+  });
+
+  describe('session refresher for rejected API calls', () => {
+    async function mountWithRefresher(keycloak: FakeKeycloak) {
+      vi.mocked(auth.getKeycloak).mockReturnValue(
+        keycloak as unknown as ReturnType<typeof auth.getKeycloak>,
+      );
+      const hook = await mount();
+      const refresher = vi.mocked(api.setSessionRefresher).mock.calls[0]![0]!;
+      return { hook, refresher };
+    }
+
+    it('forces a token refresh and returns the new token', async () => {
+      const keycloak = fakeKeycloak();
+      keycloak.updateToken.mockImplementation(() => {
+        keycloak.token = 'tok-2';
+        return Promise.resolve(true);
+      });
+      const { refresher } = await mountWithRefresher(keycloak);
+      await expect(refresher()).resolves.toBe('tok-2');
+      expect(keycloak.updateToken).toHaveBeenCalledWith(-1);
+      expect(keycloak.login).not.toHaveBeenCalled();
+    });
+
+    it('redirects to login and rejects when the refresh fails', async () => {
+      const keycloak = fakeKeycloak();
+      keycloak.updateToken.mockRejectedValue(new Error('expired'));
+      const { refresher } = await mountWithRefresher(keycloak);
+      await expect(refresher()).rejects.toThrow('expired');
+      expect(keycloak.login).toHaveBeenCalledTimes(1);
+    });
+
+    it('redirects to login when no token is left after the refresh', async () => {
+      const keycloak = fakeKeycloak();
+      keycloak.updateToken.mockImplementation(() => {
+        keycloak.token = undefined;
+        return Promise.resolve(true);
+      });
+      const { refresher } = await mountWithRefresher(keycloak);
+      await expect(refresher()).rejects.toThrow('No token after refresh');
+      expect(keycloak.login).toHaveBeenCalledTimes(1);
+    });
+
+    it('unregisters the refresher on unmount', async () => {
+      const { hook } = await mountWithRefresher(fakeKeycloak());
+      hook.unmount();
+      expect(api.setSessionRefresher).toHaveBeenLastCalledWith(null);
+    });
   });
 });

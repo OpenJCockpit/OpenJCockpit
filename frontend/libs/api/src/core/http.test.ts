@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { apiRequest, authHeaders, isAbortError, setAuthToken } from './http';
+import { apiRequest, authHeaders, isAbortError, setAuthToken, setSessionRefresher } from './http';
 import { getSpecQueue } from '../spec-queue/specQueueApi';
 import { listWorkflows } from '../workflow/workflowApi';
 
@@ -98,5 +98,77 @@ describe('apiRequest', () => {
 
     expect(isAbortError(error)).toBe(true);
     expect(isAbortError(new Error('boom'))).toBe(false);
+  });
+});
+
+describe('401 handling', () => {
+  const ok = { ok: true, status: 200, json: () => Promise.resolve({ done: true }) };
+  const unauthorized = { ok: false, status: 401, json: () => Promise.reject(new Error()) };
+
+  beforeEach(() => {
+    mockFetch.mockReset();
+    vi.stubGlobal('fetch', mockFetch);
+    setAuthToken('stale');
+  });
+
+  afterEach(() => {
+    setSessionRefresher(null);
+    vi.unstubAllGlobals();
+  });
+
+  it('refreshes the session once and retries with the new token', async () => {
+    const refresher = vi.fn().mockResolvedValue('fresh');
+    setSessionRefresher(refresher);
+    mockFetch.mockResolvedValueOnce(unauthorized).mockResolvedValueOnce(ok);
+
+    await expect(apiRequest('/api/x', { errorMessage: 'Failed' })).resolves.toEqual({ done: true });
+
+    expect(refresher).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch.mock.calls[1]![1].headers).toMatchObject({ Authorization: 'Bearer fresh' });
+  });
+
+  it('throws the 401 when the retry is rejected too, without refreshing again', async () => {
+    const refresher = vi.fn().mockResolvedValue('fresh');
+    setSessionRefresher(refresher);
+    mockFetch.mockResolvedValue(unauthorized);
+
+    await expect(apiRequest('/api/x', { errorMessage: 'Failed' })).rejects.toMatchObject({
+      status: 401,
+    });
+    expect(refresher).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('rejects without retrying when the refresh fails', async () => {
+    setSessionRefresher(vi.fn().mockRejectedValue(new Error('expired')));
+    mockFetch.mockResolvedValue(unauthorized);
+
+    await expect(apiRequest('/api/x', { errorMessage: 'Failed' })).rejects.toThrow('expired');
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('shares one refresh between concurrent 401s', async () => {
+    const refresher = vi.fn().mockResolvedValue('fresh');
+    setSessionRefresher(refresher);
+    mockFetch.mockImplementation((_url, init) =>
+      Promise.resolve(init.headers.Authorization === 'Bearer fresh' ? ok : unauthorized),
+    );
+
+    await Promise.all([
+      apiRequest('/api/a', { errorMessage: 'Failed' }),
+      apiRequest('/api/b', { errorMessage: 'Failed' }),
+    ]);
+
+    expect(refresher).toHaveBeenCalledTimes(1);
+  });
+
+  it('throws the 401 as before when no refresher is registered', async () => {
+    mockFetch.mockResolvedValue(unauthorized);
+
+    await expect(apiRequest('/api/x', { errorMessage: 'Failed' })).rejects.toMatchObject({
+      status: 401,
+    });
+    expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 });

@@ -8,6 +8,33 @@ export function setAuthToken(token: string) {
   _authToken = token;
 }
 
+/** Returns a fresh token, or rejects when the session cannot be renewed (the app then re-authenticates). */
+export type SessionRefresher = () => Promise<string>;
+
+let _refreshSession: SessionRefresher | null = null;
+let _pendingRefresh: Promise<string> | null = null;
+
+/** Registers how a rejected (401) request renews the session; the api lib stays independent of the auth lib. */
+export function setSessionRefresher(refresher: SessionRefresher | null) {
+  _refreshSession = refresher;
+  _pendingRefresh = null;
+}
+
+// Concurrent 401s share one refresh.
+function refreshSession(refresher: SessionRefresher): Promise<string> {
+  if (!_pendingRefresh) {
+    _pendingRefresh = refresher()
+      .then((token) => {
+        setAuthToken(token);
+        return token;
+      })
+      .finally(() => {
+        _pendingRefresh = null;
+      });
+  }
+  return _pendingRefresh;
+}
+
 export function authHeaders(): HeadersInit {
   return _authToken ? { Authorization: `Bearer ${_authToken}` } : {};
 }
@@ -39,15 +66,22 @@ export async function apiRequest<T>(
   path: string,
   { method, body, signal, errorMessage }: RequestOptions,
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method,
-    headers: {
-      ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
-      ...authHeaders(),
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    signal,
-  });
+  const send = () =>
+    fetch(`${API_BASE_URL}${path}`, {
+      method,
+      headers: {
+        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+        ...authHeaders(),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal,
+    });
+  let response = await send();
+  // A stale token (e.g. after a throttled background tab): renew once and retry before failing.
+  if (response.status === 401 && _refreshSession) {
+    await refreshSession(_refreshSession);
+    response = await send();
+  }
   if (!response.ok) {
     throw new ApiError(await errorMessageFrom(response, errorMessage), response.status);
   }
