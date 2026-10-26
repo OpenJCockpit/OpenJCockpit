@@ -1,3 +1,11 @@
+import { mergeConfig } from 'vite';
 import base from '../../vite.config.base';
 
-export default base;
+// Floors sit just under the measured baseline; raise them as coverage grows.
+export default mergeConfig(base, {
+  test: {
+    coverage: {
+      thresholds: { statements: 88, branches: 92, functions: 88, lines: 88 },
+    },
+  },
+});
