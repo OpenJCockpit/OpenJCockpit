@@ -17,6 +17,14 @@
         "command": "vitest run --coverage",
         "cwd": "{projectRoot}"
       }
+    },
+    "generate": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/src/generated"],
+      "options": {
+        "command": "orval",
+        "cwd": "{projectRoot}"
+      }
     }
   }
 }

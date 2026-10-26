@@ -1,5 +1,12 @@
 SpecInitResult:
   type: object
+  required:
+    - projectId
+    - branch
+    - baseBranch
+    - commitHash
+    - fileName
+    - message
   properties:
     projectId:
       type: string
@@ -19,6 +26,8 @@ SpecInitResult:
 
 SpecInitStatus:
   type: object
+  required:
+    - pending
   properties:
     pending:
       type: boolean

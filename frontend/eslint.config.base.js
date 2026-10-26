@@ -32,6 +32,7 @@ export function createConfig(tsconfigRootDir) {
       'coverage/**',
       'public/**',
       'docs/**',
+      '**/src/generated/**',
       'eslint-suppressions.json',
     ]),
 

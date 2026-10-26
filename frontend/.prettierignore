@@ -8,3 +8,4 @@ docs
 public
 .vite
 *.module.scss.d.ts
+libs/*/src/generated

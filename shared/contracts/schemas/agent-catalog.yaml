@@ -2,6 +2,9 @@
 # OK, NOT_CONFIGURED, UNAVAILABLE, UNAUTHORIZED, INVALID.
 AgentCatalogDto:
   type: object
+  required:
+    - local
+    - providers
   properties:
     local:
       $ref: '#/AgentCatalogLocalSectionDto'
@@ -12,11 +15,21 @@ AgentCatalogDto:
 
 AgentCatalogLocalSectionDto:
   type: object
+  required:
+    - name
+    - status
+    - agents
   properties:
     name:
       type: string
     status:
       type: string
+      enum:
+        - OK
+        - NOT_CONFIGURED
+        - UNAVAILABLE
+        - UNAUTHORIZED
+        - INVALID
     message:
       type: string
     agents:
@@ -26,6 +39,14 @@ AgentCatalogLocalSectionDto:
 
 AgentCatalogLocalAgentDto:
   type: object
+  required:
+    - id
+    - name
+    - path
+    - folders
+    - skills
+    - tools
+    - valid
   properties:
     id:
       type: string
@@ -60,6 +81,11 @@ AgentCatalogLocalAgentDto:
 
 AgentCatalogProviderSectionDto:
   type: object
+  required:
+    - name
+    - type
+    - status
+    - agents
   properties:
     name:
       type: string
@@ -68,6 +94,12 @@ AgentCatalogProviderSectionDto:
       type: string
     status:
       type: string
+      enum:
+        - OK
+        - NOT_CONFIGURED
+        - UNAVAILABLE
+        - UNAUTHORIZED
+        - INVALID
     message:
       type: string
     agents:
@@ -77,6 +109,11 @@ AgentCatalogProviderSectionDto:
 
 AgentCatalogProviderAgentDto:
   type: object
+  required:
+    - id
+    - name
+    - streaming
+    - skills
   properties:
     id:
       type: string

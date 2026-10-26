@@ -1,5 +1,18 @@
 OpaConfigDto:
   type: object
+  required:
+    - enabled
+    - baseUrl
+    - policyPath
+    - healthPath
+    - timeoutSeconds
+    - failMode
+    - decisionLoggingEnabled
+    - decisionLogExportEnabled
+    - environment
+    - customerLabel
+    - projectLabel
+    - hasAuthToken
   properties:
     enabled:
       type: boolean
@@ -28,6 +41,8 @@ OpaConfigDto:
 
 OpaConfigRequestDto:
   type: object
+  required:
+    - enabled
   properties:
     enabled:
       type: boolean
@@ -53,3 +68,4 @@ OpaConfigRequestDto:
       type: string
     authToken:
       type: string
+      nullable: true

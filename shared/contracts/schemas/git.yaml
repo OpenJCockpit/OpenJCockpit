@@ -17,6 +17,9 @@ GitStatus:
 
 ProjectGitStatusDto:
   type: object
+  required:
+    - projectId
+    - gitStatus
   properties:
     projectId:
       type: string
@@ -31,6 +34,9 @@ ProjectGitStatusDto:
 
 ProjectGitCredentialDto:
   type: object
+  required:
+    - credentialType
+    - hasSecret
   properties:
     credentialType:
       $ref: '#/GitCredentialType'
@@ -43,6 +49,8 @@ ProjectGitCredentialDto:
 
 ProjectGitCredentialRequest:
   type: object
+  required:
+    - credentialType
   properties:
     credentialType:
       $ref: '#/GitCredentialType'
@@ -50,5 +58,6 @@ ProjectGitCredentialRequest:
       type: string
     secret:
       type: string
+      nullable: true
     githubApiUrl:
       type: string

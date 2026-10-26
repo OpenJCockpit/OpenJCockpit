@@ -1,5 +1,13 @@
 ProjectDto:
   type: object
+  required:
+    - id
+    - name
+    - active
+    - newProject
+    - gitStatus
+    - createdAt
+    - updatedAt
   properties:
     id:
       type: string
@@ -68,6 +76,10 @@ NewProjectFlagRequest:
 
 ProjectHermesConfigDto:
   type: object
+  required:
+    - projectId
+    - enabled
+    - hasAuthToken
   properties:
     projectId:
       type: string
@@ -85,6 +97,8 @@ ProjectHermesConfigDto:
 
 ProjectHermesConfigRequest:
   type: object
+  required:
+    - enabled
   properties:
     enabled:
       type: boolean
@@ -92,6 +106,7 @@ ProjectHermesConfigRequest:
       type: string
     authToken:
       type: string
+      nullable: true
     signalType:
       type: string
     workflowId:
@@ -99,6 +114,10 @@ ProjectHermesConfigRequest:
 
 ProjectJiraConfigDto:
   type: object
+  required:
+    - projectId
+    - enabled
+    - hasAuthToken
   properties:
     projectId:
       type: string
@@ -118,6 +137,8 @@ ProjectJiraConfigDto:
 
 ProjectJiraConfigRequest:
   type: object
+  required:
+    - enabled
   properties:
     enabled:
       type: boolean
@@ -127,6 +148,7 @@ ProjectJiraConfigRequest:
       type: string
     authToken:
       type: string
+      nullable: true
     issueTypeMapping:
       type: string
     workflowId:
@@ -134,6 +156,11 @@ ProjectJiraConfigRequest:
 
 ProjectDocumentFolderConfigDto:
   type: object
+  required:
+    - projectId
+    - projectName
+    - folderName
+    - fileTriggerEnabled
   properties:
     projectId:
       type: string
@@ -153,6 +180,8 @@ ProjectDocumentFolderConfigDto:
 
 ProjectDocumentFolderConfigRequest:
   type: object
+  required:
+    - fileTriggerEnabled
   properties:
     folderPath:
       type: string

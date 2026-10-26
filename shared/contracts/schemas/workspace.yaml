@@ -1,5 +1,16 @@
 Workspace:
   type: object
+  required:
+    - customer
+    - selectedSpecFile
+    - specs
+    - agents
+    - pullRequests
+    - evidenceEvents
+    - evidenceDetails
+    - qualityControls
+    - stack
+    - footer
   properties:
     customer:
       $ref: '#/CustomerSummary'
@@ -36,6 +47,12 @@ Workspace:
 
 SpecFile:
   type: object
+  required:
+    - id
+    - fileName
+    - owner
+    - lastChanged
+    - status
   properties:
     id:
       type: string
@@ -56,6 +73,14 @@ SpecFile:
 
 CustomerSummary:
   type: object
+  required:
+    - id
+    - name
+    - sector
+    - environment
+    - lastActive
+    - dataClassification
+    - region
   properties:
     id:
       type: string
@@ -74,6 +99,12 @@ CustomerSummary:
 
 AgentCard:
   type: object
+  required:
+    - id
+    - name
+    - description
+    - status
+    - statusKind
   properties:
     id:
       type: string
@@ -85,9 +116,27 @@ AgentCard:
       type: string
     statusKind:
       type: string
+      description: Visual status category the dashboard maps to a status chip colour.
+      enum:
+        - active
+        - done
+        - waiting
+        - open
+        - review
+        - changes
+        - ok
 
 PullRequestSummary:
   type: object
+  required:
+    - id
+    - title
+    - branch
+    - createdAt
+    - ownerLabel
+    - ownerName
+    - status
+    - statusKind
   properties:
     id:
       type: string
@@ -105,9 +154,23 @@ PullRequestSummary:
       type: string
     statusKind:
       type: string
+      description: Visual status category the dashboard maps to a status chip colour.
+      enum:
+        - active
+        - done
+        - waiting
+        - open
+        - review
+        - changes
+        - ok
 
 EvidenceEvent:
   type: object
+  required:
+    - time
+    - title
+    - actor
+    - status
   properties:
     time:
       type: string
@@ -120,6 +183,11 @@ EvidenceEvent:
 
 EvidenceDetails:
   type: object
+  required:
+    - specVersion
+    - runId
+    - agentFlow
+    - lastUpdate
   properties:
     specVersion:
       type: string
@@ -132,6 +200,10 @@ EvidenceDetails:
 
 QualityControl:
   type: object
+  required:
+    - name
+    - status
+    - statusText
   properties:
     name:
       type: string
@@ -142,6 +214,10 @@ QualityControl:
 
 StackServiceStatus:
   type: object
+  required:
+    - name
+    - description
+    - status
   properties:
     name:
       type: string
@@ -152,6 +228,12 @@ StackServiceStatus:
 
 FooterStatus:
   type: object
+  required:
+    - environment
+    - region
+    - dataClassification
+    - embabelVersion
+    - springAiControlVersion
   properties:
     environment:
       type: string

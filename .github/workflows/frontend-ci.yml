@@ -41,6 +41,13 @@ jobs:
           restore-keys: |
             nx-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}-
 
+      # Not covered by `affected`: a change under shared/contracts does not touch libs/api.
+      - name: Check generated API types are up to date
+        run: |
+          npx nx run api:generate --skip-nx-cache
+          git diff --exit-code -- libs/api/src/generated \
+            || { echo "::error::libs/api/src/generated is stale. Run 'npx nx run api:generate' in frontend/ and commit the result."; exit 1; }
+
       - name: Lint, check styles, typecheck, coverage (runs tests), build (affected on pull requests)
         if: github.event_name == 'pull_request'
         env:
