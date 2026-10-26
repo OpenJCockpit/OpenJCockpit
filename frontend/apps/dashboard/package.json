@@ -23,8 +23,8 @@
     "@openjcockpit/ui": "*",
     "@openjcockpit/workflow": "*",
     "@tanstack/react-query": "5.104.5",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "react-router": "7.18.4"
   },
   "nx": {
