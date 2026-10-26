@@ -11,6 +11,7 @@
     "typings": "typed-scss-modules \"{libs,apps}/**/*.module.scss\" --exportType default --nameFormat camel --logLevel error",
     "typecheck": "nx run-many -t typecheck",
     "test": "nx run-many -t test",
+    "coverage": "nx run-many -t coverage",
     "build": "nx run dashboard:build",
     "check": "nx run-many -t lint typecheck test format-check check-styles",
     "affected": "nx affected -t lint typecheck test build"
@@ -37,6 +38,7 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "4.7.0",
+    "@vitest/coverage-v8": "4.1.11",
     "eslint": "9.39.5",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-jsx-a11y": "6.10.2",

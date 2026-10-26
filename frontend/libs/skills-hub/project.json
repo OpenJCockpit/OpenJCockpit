@@ -10,6 +10,13 @@
       "options": {
         "script": "format:check"
       }
+    },
+    "coverage": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --coverage",
+        "cwd": "{projectRoot}"
+      }
     }
   }
 }
