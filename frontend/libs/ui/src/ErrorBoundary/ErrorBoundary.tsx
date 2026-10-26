@@ -21,23 +21,23 @@ function keysChanged(a: readonly unknown[] = [], b: readonly unknown[] = []): bo
 
 /** Catches render errors below it and shows a reload fallback instead of a blank page. */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  state: ErrorBoundaryState = { error: null };
+  override state: ErrorBoundaryState = { error: null };
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { error };
   }
 
-  componentDidCatch(error: Error, info: ErrorInfo) {
+  override componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('Unhandled render error', error, info.componentStack);
   }
 
-  componentDidUpdate(prev: ErrorBoundaryProps) {
+  override componentDidUpdate(prev: ErrorBoundaryProps) {
     if (this.state.error && keysChanged(prev.resetKeys, this.props.resetKeys)) {
       this.setState({ error: null });
     }
   }
 
-  render() {
+  override render() {
     if (!this.state.error) return this.props.children;
     return (
       <StatusMessage variant="loading" role="alert" data-testid="error-boundary">

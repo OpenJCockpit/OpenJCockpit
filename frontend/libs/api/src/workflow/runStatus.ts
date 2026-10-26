@@ -134,6 +134,7 @@ export function buildSequencerNodes(
     for (let j = 0; j < orbEvents.length; j++) {
       if (consumed.has(j)) continue;
       const e = orbEvents[j];
+      if (!e) continue;
       if (e.title === startedTitle && e.evidenceRef.startsWith('run://')) {
         consumed.add(j);
         matches.set(i, { event: e, kind: 'started' });
@@ -152,6 +153,7 @@ export function buildSequencerNodes(
     for (let j = 0; j < orbEvents.length; j++) {
       if (consumed.has(j)) continue;
       const e = orbEvents[j];
+      if (!e) continue;
       if (e.title.startsWith('Workflow orb refused: ')) {
         consumed.add(j);
         matches.set(i, { event: e, kind: 'refused' });

@@ -282,7 +282,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
                     kind={opaEnabled ? 'ok' : 'waiting'}
                   />{' '}
                   {decisionSummaries[workflow.id]?.lastResult
-                    ? `Last decision: ${decisionSummaries[workflow.id].lastResult} (${decisionSummaries[workflow.id].lastDecisionId ?? 'n/a'})`
+                    ? `Last decision: ${decisionSummaries[workflow.id]?.lastResult} (${decisionSummaries[workflow.id]?.lastDecisionId ?? 'n/a'})`
                     : 'No decisions recorded yet'}
                 </dd>
               </div>

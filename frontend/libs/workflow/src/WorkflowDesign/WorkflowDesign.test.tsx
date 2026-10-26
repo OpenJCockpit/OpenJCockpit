@@ -241,7 +241,7 @@ describe('workflow groups in the design tab', () => {
 
   it('offers the available pipeline agents as checkboxes and saves selected ids', async () => {
     vi.mocked(workflowApi.createWorkflow).mockResolvedValue({
-      ...WORKFLOWS[0],
+      ...WORKFLOWS[0]!,
       id: 'wf-new',
       name: 'Standalone workflow',
       agentIds: ['realisation'],
@@ -470,7 +470,7 @@ describe('human approval gate (designer)', () => {
   });
 
   it('displays the server-provided message naming the referencing workflow when delete is refused (AC-08)', async () => {
-    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOWS[0]]);
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOWS[0]!]);
     vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([]);
     vi.mocked(linkable.loadLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
     vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(PIPELINE_ORDERED_AGENTS);
@@ -574,7 +574,7 @@ describe('workflow orb authoring', () => {
 
     const placementSelect = screen.getByLabelText<HTMLSelectElement>('Placement anchor');
     expect(placementSelect.value).toBe('');
-    expect(placementSelect.options[0].textContent).toMatch(/run first/i);
+    expect(placementSelect.options[0]?.textContent).toMatch(/run first/i);
   });
 
   it('disables Add orb once 5 orbs are already present (UX cap hint)', async () => {
@@ -662,7 +662,7 @@ describe('workflow orb authoring', () => {
     });
 
     await waitFor(() => expect(workflowApi.updateWorkflow).toHaveBeenCalled());
-    const [, savedRequest] = vi.mocked(workflowApi.updateWorkflow).mock.calls[0];
+    const [, savedRequest] = vi.mocked(workflowApi.updateWorkflow).mock.calls[0]!;
     expect(savedRequest).toEqual(expect.objectContaining({ someFutureField: 'unexpected-value' }));
     expect(savedRequest).toEqual(expect.objectContaining({ agentIds: ['requirement'] }));
   });
@@ -1184,7 +1184,7 @@ describe('skills tab (local + marketplace catalog)', () => {
     expect(cells).toHaveLength(3);
 
     const marketplaceValues = cells
-      .map((cell) => cell.closest('tr')!.children[1].textContent)
+      .map((cell) => cell.closest('tr')!.children[1]?.textContent)
       .sort();
     expect(marketplaceValues).toEqual(['Acme Skills', 'Globex Hub', 'Local']);
 
@@ -1236,7 +1236,7 @@ describe('skills tab (local + marketplace catalog)', () => {
     };
     vi.mocked(workflowApi.getSkillCatalog).mockResolvedValue(catalog);
     vi.mocked(workflowApi.updateSkillSpec).mockResolvedValue({
-      ...catalog.localSkills[0],
+      ...catalog.localSkills[0]!,
       inputContract: 'updated-input',
     });
     await openSkillsTab();
@@ -1450,7 +1450,7 @@ describe('skills tab (local + marketplace catalog)', () => {
     await screen.findByRole('alert');
     expect(screen.getByRole('alert')).toHaveTextContent('Failed to load skill catalog: 401');
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
-    expect(screen.queryByText(mockSkillSpecs[0].name)).not.toBeInTheDocument();
+    expect(screen.queryByText(mockSkillSpecs[0]!.name)).not.toBeInTheDocument();
   });
 
   it('renders no reachable button for external rows and marks them read-only as text (AC-22/AC-23/AC-39)', async () => {
@@ -1758,7 +1758,7 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
       expect(document.activeElement).toBe(checkbox);
     }
 
-    const first = checkboxes[0];
+    const first = checkboxes[0]!;
     first.focus();
     expect(first).not.toBeChecked();
     await act(async () => {

@@ -32,7 +32,7 @@ describe('specQueueApi', () => {
   it('GETs the queue without a body or content type', async () => {
     mockFetch.mockResolvedValueOnce(ok({ items: [] }));
     await getSpecQueue('p 1');
-    const [url, init] = mockFetch.mock.calls[0];
+    const [url, init] = mockFetch.mock.calls[0]!;
     expect(url).toContain('/api/projects/p%201/spec-queue');
     expect(init.method).toBe('GET');
     expect(init.body).toBeUndefined();
@@ -46,7 +46,7 @@ describe('specQueueApi', () => {
       workflowId: 'w',
       autoMerge: false,
     });
-    const [url, init] = mockFetch.mock.calls[0];
+    const [url, init] = mockFetch.mock.calls[0]!;
     expect(url).toContain('/spec-queue/items');
     expect(init.method).toBe('POST');
     expect(init.headers['Content-Type']).toBe('application/json');
@@ -60,7 +60,7 @@ describe('specQueueApi', () => {
   it('PUTs the complete id list when reordering', async () => {
     mockFetch.mockResolvedValueOnce(ok({ items: [] }));
     await reorderSpecQueue('p1', ['a', 'b']);
-    const [url, init] = mockFetch.mock.calls[0];
+    const [url, init] = mockFetch.mock.calls[0]!;
     expect(url).toContain('/spec-queue/order');
     expect(init.method).toBe('PUT');
     expect(JSON.parse(init.body)).toEqual({ itemIds: ['a', 'b'] });
@@ -69,8 +69,8 @@ describe('specQueueApi', () => {
   it('DELETEs an item with an encoded id', async () => {
     mockFetch.mockResolvedValueOnce(ok({ id: 'x/y' }));
     await removeSpecQueueItem('p1', 'x/y');
-    expect(mockFetch.mock.calls[0][0]).toContain('/items/x%2Fy');
-    expect(mockFetch.mock.calls[0][1].method).toBe('DELETE');
+    expect(mockFetch.mock.calls[0]![0]).toContain('/items/x%2Fy');
+    expect(mockFetch.mock.calls[0]![1].method).toBe('DELETE');
   });
 
   it('throws the server message, or a fallback for non-JSON bodies', async () => {

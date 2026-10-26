@@ -9,7 +9,7 @@ interface Props {
 }
 
 interface BadgeConfig {
-  className: string;
+  className: string | undefined;
   icon: string;
   label: string;
   /** Aria label for the compact variant. Omitted for statuses it does not render. */

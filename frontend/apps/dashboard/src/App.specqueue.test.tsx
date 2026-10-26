@@ -221,6 +221,6 @@ describe('spec queue in the app', () => {
     fireEvent.click(await screen.findByTestId('queue-item-run-link'));
 
     await waitFor(() => expect(workflowApi.getWorkflow).toHaveBeenCalledWith('wf-1'));
-    expect(await screen.findByText('Workflow Execution')).toHaveClass(tabActiveClass);
+    expect(await screen.findByText('Workflow Execution')).toHaveClass(tabActiveClass!);
   });
 });

@@ -66,14 +66,14 @@ describe('A2AServicesSettings', () => {
 
     expect(screen.getByRole('heading', { name: 'A2A services' })).toBeInTheDocument();
     const rows = screen.getAllByRole('row');
-    const litellm = within(rows[1]);
+    const litellm = within(rows[1]!);
     expect(litellm.getByText('LiteLLM')).toBeInTheDocument();
     expect(litellm.getByText('Reachable · 4 agents')).toBeInTheDocument();
     expect(litellm.getByText('Read-only')).toBeInTheDocument();
     expect(litellm.getByText('Caller identity: openjcockpit-a2a')).toBeInTheDocument();
     expect(litellm.queryByRole('button')).not.toBeInTheDocument();
 
-    const added = within(rows[2]);
+    const added = within(rows[2]!);
     expect(added.getByText('Unreachable')).toBeInTheDocument();
     expect(added.getByText('Acme gateway: connection refused')).toBeInTheDocument();
     expect(added.getByRole('button', { name: 'Edit' })).toBeInTheDocument();

@@ -635,7 +635,7 @@ describe('WorkflowExecution', () => {
         ...initialPage,
         items: [
           {
-            ...initialPage.items[0],
+            ...initialPage.items[0]!,
             status: 'COMPLETED',
             completedAt: new Date('2024-01-01T00:05:00.000Z').toISOString(),
             durationMillis: 300000,
@@ -706,7 +706,7 @@ describe('WorkflowExecution', () => {
         ...runningHistoryPage,
         items: [
           {
-            ...runningHistoryPage.items[0],
+            ...runningHistoryPage.items[0]!,
             status: 'COMPLETED',
             completedAt: new Date().toISOString(),
             durationMillis: 1000,
@@ -874,7 +874,7 @@ describe('WorkflowExecution', () => {
         ...runningPage,
         items: [
           {
-            ...runningPage.items[0],
+            ...runningPage.items[0]!,
             status: 'COMPLETED',
             completedAt: new Date().toISOString(),
             durationMillis: 1000,

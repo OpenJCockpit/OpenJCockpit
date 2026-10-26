@@ -52,7 +52,7 @@ describe('apiRequest', () => {
 
     await apiRequest('/api/projects', { signal: controller.signal, errorMessage: 'Failed' });
 
-    expect(mockFetch.mock.calls[0][1].signal).toBe(controller.signal);
+    expect(mockFetch.mock.calls[0]![1].signal).toBe(controller.signal);
   });
 
   it('rejects instead of returning an empty result on a failed response', async () => {
