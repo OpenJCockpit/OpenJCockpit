@@ -88,7 +88,11 @@ export function ProjectForm({
           <input
             type="checkbox"
             checked={form.newProject === 1}
-            onChange={(e) => onChange((f) => ({ ...f, newProject: e.target.checked ? 1 : 0 }))}
+            onChange={(e) => {
+              // Read now: the updater may run after React has restored the controlled value.
+              const checked = e.target.checked;
+              onChange((f) => ({ ...f, newProject: checked ? 1 : 0 }));
+            }}
           />
           New project (repository does not exist yet — skip Git check)
         </label>

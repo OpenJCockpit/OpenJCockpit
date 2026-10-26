@@ -255,6 +255,101 @@ describe('Tooltip', () => {
     expect(tooltip.style.left).toBe(`${expected.left}px`);
   });
 
+  it('keeps the same position when a scroll does not move the anchor', () => {
+    const anchorRect = rect({ top: 300, bottom: 340, left: 200, width: 100 });
+    const tipRect = rect({ width: 160, height: 40 });
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return this.getAttribute('role') === 'tooltip' ? tipRect : anchorRect;
+    });
+
+    render(
+      <Tooltip content="Tip text">
+        <button>Go</button>
+      </Tooltip>,
+    );
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Go' }));
+    const tooltip = screen.getByRole('tooltip');
+    const before = { top: tooltip.style.top, left: tooltip.style.left };
+
+    fireEvent.scroll(window);
+
+    expect(tooltip.style.top).toBe(before.top);
+    expect(tooltip.style.left).toBe(before.left);
+  });
+
+  it('updates when only the horizontal position changes', () => {
+    let anchorRect = rect({ top: 300, bottom: 340, left: 200, width: 100 });
+    const tipRect = rect({ width: 160, height: 40 });
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return this.getAttribute('role') === 'tooltip' ? tipRect : anchorRect;
+    });
+
+    render(
+      <Tooltip content="Tip text">
+        <button>Go</button>
+      </Tooltip>,
+    );
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Go' }));
+    const tooltip = screen.getByRole('tooltip');
+    const top = tooltip.style.top;
+
+    anchorRect = rect({ top: 300, bottom: 340, left: 400, width: 100 });
+    fireEvent.scroll(window);
+
+    expect(tooltip.style.top).toBe(top);
+    expect(tooltip.style.left).toBe('370px');
+  });
+
+  it('updates when only the resolved placement changes', () => {
+    const anchorRect = rect({ top: 300, bottom: 340, left: 200, width: 100 });
+    // A negative height makes the above/below offsets coincide, isolating the placement change.
+    const tipRect = rect({ width: 160, height: -60 });
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return this.getAttribute('role') === 'tooltip' ? tipRect : anchorRect;
+    });
+
+    const { rerender } = render(
+      <Tooltip content="Tip text" placement="top">
+        <button>Go</button>
+      </Tooltip>,
+    );
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Go' }));
+    const tooltip = screen.getByRole('tooltip');
+    const top = tooltip.style.top;
+
+    rerender(
+      <Tooltip content="Tip text" placement="bottom">
+        <button>Go</button>
+      </Tooltip>,
+    );
+
+    expect(tooltip.style.top).toBe(top);
+  });
+
+  it('forwards the anchor to a callback ref and preserves aria-describedby', () => {
+    const ref = vi.fn();
+    render(
+      <Tooltip content="Tip text">
+        <button ref={ref} aria-describedby="existing">
+          Go
+        </button>
+      </Tooltip>,
+    );
+    const trigger = screen.getByRole('button', { name: 'Go' });
+    expect(ref).toHaveBeenCalledWith(trigger);
+
+    fireEvent.mouseEnter(trigger);
+    expect(trigger.getAttribute('aria-describedby')).toBe(
+      `existing ${screen.getByRole('tooltip').id}`,
+    );
+  });
+
   it('registers and cleans up scroll/resize listeners with identical options (AD-4 tripwire)', () => {
     const addSpy = vi.spyOn(window, 'addEventListener');
     const removeSpy = vi.spyOn(window, 'removeEventListener');

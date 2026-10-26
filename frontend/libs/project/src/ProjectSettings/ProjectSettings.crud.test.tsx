@@ -305,3 +305,84 @@ describe('ProjectSettings — credentials', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Failed to save credentials.');
   });
 });
+
+describe('ProjectSettings — with several projects', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  const two = () => [project(), project({ id: 'p2', name: 'Gamma', hasCredentials: true })];
+
+  it('only changes the edited project', async () => {
+    await renderSettings(two());
+    vi.mocked(api.updateProject).mockImplementation(async (id, req) =>
+      project({ id, name: req.name }),
+    );
+    await clickAsync(within(row('Beta')).getByText('Edit'));
+    fireEvent.change(screen.getByPlaceholderText('Project name'), { target: { value: 'Beta 2' } });
+    await clickAsync(screen.getByText('Save'));
+    expect(await screen.findByText('Beta 2')).toBeInTheDocument();
+    expect(screen.getByText('Gamma')).toBeInTheDocument();
+  });
+
+  it('only toggles the targeted project', async () => {
+    await renderSettings([project(), project({ id: 'p2', name: 'Gamma', active: 0 })]);
+    vi.mocked(api.deactivateProject).mockResolvedValue(undefined);
+    vi.mocked(api.activateProject).mockResolvedValue(undefined);
+
+    await clickAsync(within(row('Beta')).getByText('Deactivate'));
+    expect(await within(row('Beta')).findByText('Inactive')).toBeInTheDocument();
+    expect(within(row('Gamma')).getByText('Inactive')).toBeInTheDocument();
+
+    await clickAsync(within(row('Gamma')).getByText('Activate'));
+    expect(await within(row('Gamma')).findByText('Active')).toBeInTheDocument();
+    expect(within(row('Beta')).getByText('Inactive')).toBeInTheDocument();
+  });
+
+  it('only applies the git check result to the checked project', async () => {
+    await renderSettings(two());
+    vi.mocked(api.triggerGitCheck).mockResolvedValue({
+      projectId: 'p1',
+      gitStatus: 'ACCESSIBLE',
+      gitStatusMessage: 'all good',
+    });
+    await clickAsync(within(row('Beta')).getByText('Git check'));
+    expect(await within(row('Beta')).findByText('all good')).toBeInTheDocument();
+    expect(within(row('Gamma')).queryByText('all good')).not.toBeInTheDocument();
+  });
+
+  it('only marks the saved project as having credentials', async () => {
+    await renderSettings(two());
+    vi.mocked(api.getGitCredentials).mockResolvedValue({
+      credentialType: 'NONE',
+      hasSecret: false,
+    });
+    vi.mocked(api.saveGitCredentials).mockResolvedValue(undefined);
+    await clickAsync(within(row('Beta')).getByText('Add credentials'));
+    await screen.findByText('Type');
+    await clickAsync(screen.getByText('Save'));
+    expect(await within(row('Beta')).findByText('Credentials set')).toBeInTheDocument();
+    expect(within(row('Gamma')).getByText('Credentials set')).toBeInTheDocument();
+  });
+
+  it('only clears credentials of the targeted project', async () => {
+    await renderSettings(two());
+    vi.mocked(api.deleteGitCredentials).mockResolvedValue(undefined);
+    await clickAsync(within(row('Gamma')).getByText('Delete credentials'));
+    await waitFor(() =>
+      expect(within(row('Gamma')).queryByText('Credentials set')).not.toBeInTheDocument(),
+    );
+    expect(row('Beta')).toBeInTheDocument();
+  });
+});
+
+describe('ProjectSettings — aborted load', () => {
+  it('does not log an aborted load', async () => {
+    vi.clearAllMocks();
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(api.isAbortError).mockReturnValue(true);
+    vi.mocked(api.loadAllProjects).mockRejectedValue(new DOMException('aborted', 'AbortError'));
+    await renderAsync(<ProjectSettings onBack={vi.fn()} />);
+    await waitFor(() => expect(api.loadAllProjects).toHaveBeenCalled());
+    expect(spy).not.toHaveBeenCalled();
+    expect(screen.getByText('Loading projects...')).toBeInTheDocument();
+  });
+});

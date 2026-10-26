@@ -168,3 +168,64 @@ describe.each(integrations)('$name', (i) => {
     expect(screen.queryByText(i.saveError)).not.toBeInTheDocument();
   });
 });
+
+describe('JiraSettings field edits', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(api.getJiraConfig).mockResolvedValue({
+      enabled: false,
+      hasAuthToken: false,
+    } as never);
+    vi.mocked(api.saveJiraConfig).mockResolvedValue({
+      enabled: false,
+      hasAuthToken: false,
+    } as never);
+  });
+
+  it('sends every edited field', async () => {
+    await renderAsync(<JiraSettings projectId="p1" />);
+    const set = async (placeholder: string, value: string) =>
+      fireEvent.change(await screen.findByPlaceholderText(placeholder), { target: { value } });
+    await set('https://your-org.atlassian.net', 'https://x.atlassian.net');
+    await set('NL', 'KEY');
+    await set('Bug=bugfix-workflow', 'Bug=wf');
+    await set('wf-onboarding', 'wf-9');
+    await clickAsync(screen.getByRole('button', { name: 'Save Jira config' }));
+    expect(api.saveJiraConfig).toHaveBeenCalledWith('p1', {
+      enabled: false,
+      baseUrl: 'https://x.atlassian.net',
+      projectKey: 'KEY',
+      authToken: null,
+      issueTypeMapping: 'Bug=wf',
+      workflowId: 'wf-9',
+    });
+  });
+});
+
+describe('HermesSettings field edits', () => {
+  it('sends every edited field', async () => {
+    vi.clearAllMocks();
+    vi.mocked(api.getHermesConfig).mockResolvedValue({
+      enabled: false,
+      hasAuthToken: false,
+    } as never);
+    vi.mocked(api.saveHermesConfig).mockResolvedValue({
+      enabled: false,
+      hasAuthToken: false,
+    } as never);
+    await renderAsync(<HermesSettings projectId="p1" />);
+    const set = async (placeholder: string, value: string) =>
+      fireEvent.change(await screen.findByPlaceholderText(placeholder), { target: { value } });
+    await set('https://hermes.example.com/signals', 'https://h.example/s');
+    await set('issue.created', 'pr.opened');
+    await set('wf-onboarding', 'wf-9');
+    await clickAsync(screen.getByRole('button', { name: 'Save Hermes config' }));
+    expect(api.saveHermesConfig).toHaveBeenCalledWith('p1', {
+      enabled: false,
+      endpointUrl: 'https://h.example/s',
+      authToken: null,
+      signalType: 'pr.opened',
+      workflowId: 'wf-9',
+    });
+  });
+});

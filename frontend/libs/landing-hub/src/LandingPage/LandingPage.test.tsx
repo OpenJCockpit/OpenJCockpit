@@ -49,6 +49,22 @@ describe('LandingPage', () => {
     expect(screen.getByTestId('landing-hero')).toBeInTheDocument();
   });
 
+  it('still renders when session storage is unavailable', () => {
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('denied');
+    });
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('denied');
+    });
+
+    render(<LandingPage user={user} {...handlers} />);
+
+    expect(screen.getByTestId('intro-greeting')).toBeInTheDocument();
+    expect(screen.getByTestId('landing-hero')).toBeInTheDocument();
+    getItem.mockRestore();
+    setItem.mockRestore();
+  });
+
   it('reports the selected portal', () => {
     render(<LandingPage user={user} {...handlers} />);
 

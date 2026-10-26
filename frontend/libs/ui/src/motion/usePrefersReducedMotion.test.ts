@@ -32,6 +32,23 @@ describe('usePrefersReducedMotion', () => {
     expect(renderHook(() => usePrefersReducedMotion()).result.current).toBe(true);
   });
 
+  it('uses the legacy addListener API when addEventListener is missing', () => {
+    const listeners = new Set<Listener>();
+    const mql = {
+      matches: false,
+      addListener: (l: Listener) => listeners.add(l),
+      removeListener: (l: Listener) => listeners.delete(l),
+    };
+    vi.stubGlobal('matchMedia', vi.fn().mockReturnValue(mql));
+    const { result, unmount } = renderHook(() => usePrefersReducedMotion());
+
+    act(() => listeners.forEach((l) => l({ matches: true } as MediaQueryListEvent)));
+    expect(result.current).toBe(true);
+
+    unmount();
+    expect(listeners.size).toBe(0);
+  });
+
   it('follows changes and unsubscribes on unmount', () => {
     const media = stubMatchMedia(false);
     const { result, unmount } = renderHook(() => usePrefersReducedMotion());

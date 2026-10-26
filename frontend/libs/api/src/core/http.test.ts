@@ -67,6 +67,30 @@ describe('apiRequest', () => {
     ).rejects.toThrow('Failed to load projects: 503');
   });
 
+  it('sends a JSON body with a Content-Type header', async () => {
+    mockFetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({}) });
+
+    await apiRequest('/api/projects', {
+      method: 'POST',
+      body: { name: 'x' },
+      errorMessage: 'Failed',
+    });
+
+    const init = mockFetch.mock.calls[0]![1];
+    expect(init.headers).toMatchObject({ 'Content-Type': 'application/json' });
+    expect(init.body).toBe('{"name":"x"}');
+  });
+
+  it('omits Content-Type and body when there is no payload', async () => {
+    mockFetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({}) });
+
+    await apiRequest('/api/projects', { errorMessage: 'Failed' });
+
+    const init = mockFetch.mock.calls[0]![1];
+    expect(init.headers).not.toHaveProperty('Content-Type');
+    expect(init.body).toBeUndefined();
+  });
+
   it('recognises an aborted request', async () => {
     mockFetch.mockRejectedValue(new DOMException('aborted', 'AbortError'));
 

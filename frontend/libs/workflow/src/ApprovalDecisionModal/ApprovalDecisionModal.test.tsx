@@ -253,4 +253,56 @@ describe('ApprovalDecisionModal', () => {
     expect(screen.getByRole('button', { name: 'Deny' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Accept with my comments' })).toBeDisabled();
   });
+
+  it('forwards the typed comment to onAcceptWithComments and closes the comment modal on cancel', async () => {
+    const onAcceptWithComments = vi.fn();
+    await renderModal({ onAcceptWithComments });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Accept with my comments' }));
+    });
+    fireEvent.change(screen.getByLabelText('Feedback for the next attempt'), {
+      target: { value: 'Rename the button' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    expect(onAcceptWithComments).toHaveBeenCalledWith('Rename the button');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(
+      screen.queryByRole('dialog', { name: 'Accept with my comments' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('falls back to the branch compare link and singular wording', async () => {
+    const context: ApprovalGateContext = {
+      ...BASE_CONTEXT,
+      pullRequestUrl: undefined,
+      changedFileCount: 1,
+      changedPaths: [],
+      omittedFileCount: 1,
+      maxFeedbackIterations: 3,
+      iteration: 3,
+    };
+    await renderModal({ context });
+
+    expect(screen.getByRole('link', { name: 'View branch' })).toHaveAttribute(
+      'href',
+      BASE_CONTEXT.branchCompareUrl,
+    );
+    expect(screen.getByText('1 file changed')).toBeInTheDocument();
+    expect(screen.getByText('1 more file')).toBeInTheDocument();
+    expect(screen.getByText(/1 feedback iteration remaining\./)).toBeInTheDocument();
+  });
+
+  it('shows the outcome reason for a non-published outcome and the error message outside the comment modal', async () => {
+    const context: ApprovalGateContext = {
+      ...BASE_CONTEXT,
+      stageOutcome: 'PUBLISH_FAILED',
+      outcomeReason: 'Publishing failed',
+    };
+    await renderModal({ context, errorMessage: 'Could not record decision' });
+
+    expect(screen.getByRole('status')).toHaveTextContent('Publishing failed');
+    expect(screen.getByRole('alert')).toHaveTextContent('Could not record decision');
+  });
 });

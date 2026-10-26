@@ -143,6 +143,41 @@ describe('SkillsHubSettings — flows', () => {
     expect(screen.getByText('New marketplace')).toBeInTheDocument();
   });
 
+  it('leaves other connections untouched when updating one', async () => {
+    await open([connection(), connection({ id: 'mp-2', name: 'Zulu' })]);
+    vi.mocked(api.updateSkillsMarketplace).mockImplementation(async (id, req) =>
+      connection({ id, name: req.name }),
+    );
+    await clickAsync(within(row('Acme Skills')).getByText('Edit'));
+    type('Name *', 'Acme 2');
+    await clickAsync(screen.getByRole('button', { name: 'Save' }));
+
+    expect(screen.getByText('Acme 2')).toBeInTheDocument();
+    expect(screen.getByText('Zulu')).toBeInTheDocument();
+  });
+
+  it('edits a connection that has no description as an empty field', async () => {
+    await open([connection({ description: null })]);
+    await clickAsync(within(row('Acme Skills')).getByText('Edit'));
+    expect(screen.getByLabelText('Description')).toHaveValue('');
+  });
+
+  it('can still add a marketplace after the list failed to load', async () => {
+    vi.mocked(api.listSkillsMarketplaces).mockRejectedValue(new Error('down'));
+    vi.mocked(api.createSkillsMarketplace).mockImplementation(async (req) =>
+      connection({ id: 'mp-9', name: req.name }),
+    );
+    await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
+    await screen.findByRole('alert');
+    type('Name *', 'Alpha');
+    type('Marketplace URL *', 'https://a.example.com');
+    type('API key *', 'k');
+    await clickAsync(screen.getByRole('button', { name: 'Save' }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('Marketplace "Alpha" has been added.');
+    expect(screen.getByText('Alpha')).toBeInTheDocument();
+  });
+
   it('asks for a key on edit when the connection has none', async () => {
     await open([connection({ hasApiKey: false })]);
     await clickAsync(within(row('Acme Skills')).getByText('Edit'));

@@ -95,6 +95,74 @@ describe('ModalShell', () => {
     expect(document.activeElement).toBe(comment);
   });
 
+  it('keeps focus on the dialog surface when it has no focusable controls', async () => {
+    await act(async () => {
+      render(
+        <ModalShell labelledBy="empty-title" onDismiss={vi.fn()}>
+          <h2 id="empty-title">Nothing to focus</h2>
+        </ModalShell>,
+      );
+    });
+    const dialog = screen.getByRole('dialog');
+    expect(document.activeElement).toBe(dialog);
+
+    const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    dialog.dispatchEvent(tab);
+    expect(tab.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(dialog);
+  });
+
+  it('ignores keys other than Escape and Tab', async () => {
+    const onDismiss = vi.fn();
+    await act(async () => {
+      render(<TwoControlDialog onDismiss={onDismiss} />);
+    });
+    const key = new KeyboardEvent('keydown', { key: 'a', bubbles: true, cancelable: true });
+    screen.getByRole('dialog').dispatchEvent(key);
+    expect(key.defaultPrevented).toBe(false);
+    expect(onDismiss).not.toHaveBeenCalled();
+  });
+
+  it('lets Tab move naturally between controls in the middle of the dialog', async () => {
+    await act(async () => {
+      render(<ThreeControlDialog onDismiss={vi.fn()} />);
+    });
+    const dialog = screen.getByRole('dialog');
+    screen.getByText('Deny').focus();
+
+    const forward = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    dialog.dispatchEvent(forward);
+    expect(forward.defaultPrevented).toBe(false);
+
+    const backward = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      shiftKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    dialog.dispatchEvent(backward);
+    expect(backward.defaultPrevented).toBe(false);
+  });
+
+  it('pulls focus back into the dialog when Tab is pressed from outside it', async () => {
+    await act(async () => {
+      render(<TwoControlDialog onDismiss={vi.fn()} />);
+    });
+    const dialog = screen.getByRole('dialog');
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+
+    outside.focus();
+    fireEvent.keyDown(dialog, { key: 'Tab' });
+    expect(document.activeElement).toBe(screen.getByText('Accept'));
+
+    outside.focus();
+    fireEvent.keyDown(dialog, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(screen.getByText('Deny'));
+
+    document.body.removeChild(outside);
+  });
+
   it('dismisses on Escape without any side effect other than calling onDismiss', async () => {
     const onDismiss = vi.fn();
     await act(async () => {

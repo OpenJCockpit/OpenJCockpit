@@ -157,4 +157,34 @@ describe('ApprovalCommentModal', () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
     expect(onConfirm).not.toHaveBeenCalled();
   });
+
+  it('clears the validation message as soon as the user types again', async () => {
+    await act(async () => {
+      render(<ApprovalCommentModal submitting={false} onConfirm={vi.fn()} onCancel={vi.fn()} />);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('Feedback for the next attempt'), {
+      target: { value: 'Use a smaller button' },
+    });
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByText('Up to 4000 characters.')).toBeInTheDocument();
+  });
+
+  it('clears the validation error as soon as the user types', async () => {
+    await act(async () => {
+      render(<ApprovalCommentModal submitting={false} onConfirm={vi.fn()} onCancel={vi.fn()} />);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('Feedback for the next attempt'), {
+      target: { value: 'x' },
+    });
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
 });

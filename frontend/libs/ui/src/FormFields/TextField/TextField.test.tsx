@@ -3,6 +3,7 @@ import { createRef } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { TextField } from './TextField';
 import { TextAreaField } from '../TextAreaField/TextAreaField';
+import styles from '../FormFields.module.scss';
 import { formInputClass } from '../../Form/Form';
 
 describe('TextField', () => {
@@ -15,6 +16,13 @@ describe('TextField', () => {
 
     expect(onChange).toHaveBeenCalledWith('b');
     expect(ref.current).toBe(screen.getByPlaceholderText('p'));
+  });
+
+  it('TextField renders a hint and spans the full width when wide', () => {
+    render(<TextField label="Name" value="" onChange={vi.fn()} hint="Required" wide />);
+
+    expect(screen.getByText('Required')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Name/).closest('label')).toHaveClass(styles.formFieldWide);
   });
 
   it('TextField and TextAreaField extend the shared input style with a custom className', () => {

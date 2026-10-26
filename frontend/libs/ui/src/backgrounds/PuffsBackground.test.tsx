@@ -165,6 +165,29 @@ describe('PuffsBackground', () => {
     expect(rafCallbacks.size).toBe(0);
   });
 
+  it('falls back to a device pixel ratio of 2 when none is reported', () => {
+    vi.stubGlobal('devicePixelRatio', 0);
+    const { container } = render(<PuffsBackground />);
+    expect(container.querySelector('canvas')!.width).toBe(400);
+  });
+
+  it('measures elapsed time from the first frame across later frames', () => {
+    render(<PuffsBackground quantity={10} sets={2} />);
+    runFrames(1000);
+    ctx.arc!.mockClear();
+    runFrames(1500);
+    expect(ctx.arc).toHaveBeenCalledTimes(10);
+  });
+
+  it('ignores a frame that fires after unmount', () => {
+    const { unmount } = render(<PuffsBackground quantity={10} sets={2} />);
+    const stale = Array.from(rafCallbacks.values());
+    unmount();
+    ctx.clearRect!.mockClear();
+    act(() => stale.forEach((cb) => cb(1000)));
+    expect(ctx.clearRect).not.toHaveBeenCalled();
+  });
+
   it('stops drawing and disconnects on unmount', () => {
     const { unmount } = render(<PuffsBackground />);
     unmount();

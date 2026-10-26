@@ -82,24 +82,23 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
   const isDirty = selected != null && draftContent !== (selected.content ?? '');
 
   function setDraftContent(draft: string) {
-    if (projectId) setSelection({ projectId, id: selectedId, draft });
+    setSelection({ projectId: projectId!, id: selectedId, draft });
   }
 
   function handleSelect(spec: SpecFile) {
-    if (projectId) setSelection({ projectId, id: spec.id, draft: spec.content ?? '' });
+    setSelection({ projectId: projectId!, id: spec.id, draft: spec.content ?? '' });
     setSaveResult(null);
     setSaveError(null);
     setQueuedNotice(null);
   }
 
   async function handleSave() {
-    if (!project || !selected) return;
     setSaveError(null);
     setSaveResult(null);
     try {
       await saveMutation.mutateAsync({
-        projectId: project.id,
-        fileName: selected.fileName,
+        projectId: project!.id,
+        fileName: selected!.fileName,
         content: draftContent,
       });
     } catch (err) {

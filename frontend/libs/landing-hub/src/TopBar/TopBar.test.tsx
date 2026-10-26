@@ -25,6 +25,11 @@ describe('TopBar', () => {
     expect(screen.getByText('tstark')).toBeInTheDocument();
   });
 
+  it('falls back to a generic label without an email or username', () => {
+    setup({ email: undefined, username: '' });
+    expect(screen.getByText('Authenticated launch hub')).toBeInTheDocument();
+  });
+
   it('opens a popover per action and toggles it closed', () => {
     setup();
     expect(screen.queryByText('No new notifications.')).not.toBeInTheDocument();

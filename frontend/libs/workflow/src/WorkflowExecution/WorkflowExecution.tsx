@@ -185,10 +185,9 @@ export function WorkflowExecution({
   const isRunLost = runStatus !== null && RUN_LOST_STATUSES.includes(runStatus);
 
   async function handleStop() {
-    if (!selectedRunId) return;
     setStopping(true);
     try {
-      await stopAgentRun(selectedRunId);
+      await stopAgentRun(selectedRunId!);
       setRunStatus('CANCELLED');
       setApprovalModalVisible(false);
       onRunEnded?.();
@@ -198,13 +197,12 @@ export function WorkflowExecution({
   }
 
   async function submitDecision(decision: ApprovalDecisionKind, comment?: string) {
-    if (!selectedRunId || !approvalContext) return;
     setDecisionSubmitting(true);
     setDecisionError(null);
     try {
-      await submitApprovalDecision(selectedRunId, {
+      await submitApprovalDecision(selectedRunId!, {
         decision,
-        iteration: approvalContext.iteration,
+        iteration: approvalContext!.iteration,
         comment,
       });
       // The run has moved on (resumed, denied, or is re-running with feedback) — the

@@ -118,6 +118,17 @@ describe('SubagentsPanel', () => {
     expect(await screen.findByText('chief')).toBeInTheDocument();
   });
 
+  it('leaves the other subagents untouched when one is edited', async () => {
+    vi.mocked(api.listSubagentSpecs).mockResolvedValue([sub, { ...sub, name: 'other' }]);
+    vi.mocked(api.updateSubagentSpec).mockImplementation(async (_n, s) => s);
+    await openPanel(<SubagentsPanel />, 'scanner');
+    await clickAsync(within(row('scanner')).getByText('Edit'));
+    fireEvent.change(screen.getByLabelText('Parent agent'), { target: { value: 'chief' } });
+    await clickAsync(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByText('chief')).toBeInTheDocument();
+    expect(screen.getByText('other')).toBeInTheDocument();
+  });
+
   it('keeps the editor open and shows an error when saving fails', async () => {
     vi.mocked(api.createSubagentSpec).mockRejectedValue(new Error('x'));
     await openPanel(<SubagentsPanel />, 'scanner');
@@ -284,6 +295,20 @@ describe('SkillsPanel', () => {
     expect(await screen.findByText('changelog')).toBeInTheDocument();
   });
 
+  it('leaves the other local skills untouched when one is edited', async () => {
+    vi.mocked(api.getSkillCatalog).mockResolvedValue({
+      ...catalog,
+      localSkills: [local, { ...local, name: 'translate', outputContract: 'text' }],
+    });
+    vi.mocked(api.updateSkillSpec).mockImplementation(async (_n, s) => s);
+    await openPanel(<SkillsPanel />, 'summarise');
+    await clickAsync(within(row('summarise')).getByText('Edit'));
+    fireEvent.change(screen.getByLabelText('Output contract'), { target: { value: 'changelog' } });
+    await clickAsync(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByText('changelog')).toBeInTheDocument();
+    expect(screen.getByText('translate')).toBeInTheDocument();
+  });
+
   it('shows an error when saving fails and closes on cancel', async () => {
     vi.mocked(api.createSkillSpec).mockRejectedValue(new Error('x'));
     await openPanel(<SkillsPanel />, 'summarise');
@@ -361,6 +386,20 @@ describe('GroupsPanel', () => {
       expect.objectContaining({ name: 'Compliance', projectName: 'Acme', description: 'rules' }),
     );
     expect(await screen.findByText('Compliance')).toBeInTheDocument();
+  });
+
+  it('leaves the other groups untouched when one is edited', async () => {
+    vi.mocked(api.listWorkflowGroups).mockResolvedValue([
+      group,
+      { ...group, id: 'g2', name: 'Other' },
+    ]);
+    vi.mocked(api.updateWorkflowGroup).mockImplementation(async (_id, g) => g);
+    await renderAsync(<GroupsPanel />);
+    await clickAsync(within(row('Onboarding')).getByText('Edit'));
+    fireEvent.change(screen.getByLabelText('Group name'), { target: { value: 'Renamed' } });
+    await clickAsync(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByText('Renamed')).toBeInTheDocument();
+    expect(screen.getByText('Other')).toBeInTheDocument();
   });
 
   it('edits a group with the id locked', async () => {

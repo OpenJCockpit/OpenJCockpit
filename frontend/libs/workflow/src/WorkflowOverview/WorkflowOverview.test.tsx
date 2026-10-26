@@ -698,3 +698,184 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
     expect(within(agentsRow).getByText('None')).toBeInTheDocument();
   });
 });
+
+describe('WorkflowOverview — card details and failure paths', () => {
+  const entry = (over: Partial<workflowApi.PolicyDecisionAuditEntry>) =>
+    ({
+      id: 'd',
+      workflowId: 'wf-1',
+      opaDecisionId: 'opa-1',
+      opaDecisionResult: 'ALLOWED',
+      requiredApproval: false,
+      auditTags: [],
+      timestamp: new Date().toISOString(),
+      policyUnavailable: false,
+      ...over,
+    }) as workflowApi.PolicyDecisionAuditEntry;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(workflowApi.getOpaConfig).mockResolvedValue({
+      enabled: false,
+      baseUrl: '',
+      policyPath: '',
+      healthPath: '',
+      timeoutSeconds: 3,
+      failMode: 'FAIL_CLOSED',
+      decisionLoggingEnabled: true,
+      decisionLogExportEnabled: true,
+      environment: '',
+      customerLabel: '',
+      projectLabel: '',
+      hasAuthToken: false,
+    });
+    vi.mocked(workflowApi.getWorkflowDecisionLogs).mockResolvedValue([]);
+    vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue([
+      { id: 'wg-spec-workflow', name: 'Spec-driven development', description: '', projectName: '' },
+    ]);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(FULL_AGENT_CATALOGUE);
+  });
+
+  it('summarises every enabled trigger, with "any" for a Hermes signal without a type', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([
+      {
+        ...WORKFLOW,
+        id: 'wf-a',
+        name: 'All triggers',
+        trigger: {
+          dashboardButtonEnabled: true,
+          hermesSignalEnabled: true,
+          hermesSignalType: 'deploy',
+          fileDeliveryEnabled: true,
+        },
+      },
+      {
+        ...WORKFLOW,
+        id: 'wf-b',
+        name: 'Untyped hermes',
+        trigger: {
+          dashboardButtonEnabled: false,
+          hermesSignalEnabled: true,
+          fileDeliveryEnabled: false,
+        },
+      },
+      { ...WORKFLOW, id: 'wf-c', name: 'No trigger', trigger: undefined },
+    ]);
+
+    await renderAsync(<WorkflowOverview project={null} />);
+
+    expect(
+      await screen.findByText('Dashboard button, Hermes signal (deploy), File delivery'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Hermes signal (any)')).toBeInTheDocument();
+    expect(screen.getByText('None configured')).toBeInTheDocument();
+  });
+
+  it('lists subagents, skills and MCP tool names when configured and a missing status as a waiting chip', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([
+      {
+        ...WORKFLOW,
+        status: undefined as unknown as string,
+        subagentNames: ['sub-a', 'sub-b'],
+        skillNames: ['skill-a'],
+        mcpTools: [{ name: 'tool-a' }, { name: 'tool-b' }] as WorkflowDefinition['mcpTools'],
+      },
+    ]);
+
+    await renderAsync(<WorkflowOverview project={null} />);
+
+    expect(await screen.findByText('sub-a, sub-b')).toBeInTheDocument();
+    expect(screen.getByText('skill-a')).toBeInTheDocument();
+    expect(screen.getByText('tool-a, tool-b')).toBeInTheDocument();
+  });
+
+  it('counts approvals and falls back to n/a for a decision without an id', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
+    vi.mocked(workflowApi.getWorkflowDecisionLogs).mockResolvedValue([
+      entry({ requiredApproval: true }),
+      entry({ opaDecisionResult: 'OTHER' }),
+      entry({ opaDecisionId: undefined }),
+    ]);
+
+    await renderAsync(<WorkflowOverview project={null} />);
+
+    expect(await screen.findByText(/Last decision: ALLOWED \(n\/a\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Allowed 1 · Denied 0 · Requires approval 1/)).toBeInTheDocument();
+  });
+
+  it('shows zeroed decision counts while the decision logs are still loading', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
+    vi.mocked(workflowApi.getWorkflowDecisionLogs).mockReturnValue(new Promise(() => {}));
+
+    await renderAsync(<WorkflowOverview project={null} />);
+
+    expect(
+      await screen.findByText(/Allowed 0 · Denied 0 · Requires approval 0/),
+    ).toBeInTheDocument();
+  });
+
+  it('treats OPA as disabled when its config cannot be loaded', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
+    vi.mocked(workflowApi.getOpaConfig).mockRejectedValue(new Error('opa down'));
+
+    await renderAsync(<WorkflowOverview project={null} />);
+
+    expect(await screen.findByText('Disabled')).toBeInTheDocument();
+  });
+
+  it('uses a generic alert when the workflow list rejects with a non-Error', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockRejectedValue('nope');
+
+    await renderAsync(<WorkflowOverview project={null} />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Workflows could not be loaded — Failed to load workflows',
+    );
+  });
+
+  it('warns and re-enables the export button when exporting decision logs fails', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
+    await renderAsync(<WorkflowOverview project={null} />);
+    await screen.findByText('Customer Onboarding');
+
+    vi.mocked(workflowApi.getWorkflowDecisionLogs).mockRejectedValue(new Error('export failed'));
+    await clickAsync(screen.getByText('⬇ Export decision logs'));
+
+    await waitFor(() =>
+      expect(warn).toHaveBeenCalledWith('Failed to export decision logs', expect.any(Error)),
+    );
+    expect(screen.getByText('⬇ Export decision logs')).not.toBeDisabled();
+    warn.mockRestore();
+  });
+
+  it.each([
+    ['the error message', new Error('Quota exceeded'), 'Quota exceeded'],
+    ['a generic message for an empty error message', new Error(''), 'Failed to start workflow'],
+    ['a generic message for a non-Error rejection', 'nope', 'Failed to start workflow'],
+  ])('shows %s when starting fails', async (_label, rejection, expected) => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
+    vi.mocked(workflowApi.startWorkflow).mockRejectedValue(rejection);
+
+    await renderAsync(<WorkflowOverview project={null} />);
+    await screen.findByText('Customer Onboarding');
+    await clickAsync(screen.getByText('▶ Start'));
+
+    expect(await screen.findByText(expected)).toBeInTheDocument();
+    expect(screen.getByText('▶ Start')).not.toBeDisabled();
+    warn.mockRestore();
+  });
+
+  it('only updates the last execution of the started workflow, not of the others', async () => {
+    const other: WorkflowDefinition = { ...WORKFLOW, id: 'wf-2', name: 'Other Workflow' };
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW, other]);
+    mockStartResponse('wf-1', 'run-1', 'RUNNING', 'ok');
+
+    await renderAsync(<WorkflowOverview project={null} />);
+    await screen.findByText('Other Workflow');
+    await clickAsync(screen.getAllByText('▶ Start')[0]!);
+
+    await waitFor(() => expect(screen.getAllByText('Never run')).toHaveLength(1));
+  });
+});

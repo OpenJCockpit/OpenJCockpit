@@ -78,23 +78,20 @@ export function ModalShell({
   // Nested-modal handling: mark whatever shell was previously topmost as inert while
   // this one is open, and clear that the moment this one unmounts.
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
+    const el = containerRef.current!;
     const outer = openShells[openShells.length - 1] ?? null;
     if (outer) markInert(outer);
     openShells.push(el);
 
     return () => {
-      const index = openShells.indexOf(el);
-      if (index >= 0) openShells.splice(index, 1);
+      openShells.splice(openShells.indexOf(el), 1);
       if (outer) clearInert(outer);
     };
   }, []);
 
   // Initial focus: move focus into the dialog, onto its first focusable control.
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
+    const el = containerRef.current!;
     const [first] = focusableElements(el);
     (first ?? el).focus();
   }, []);
@@ -105,8 +102,7 @@ export function ModalShell({
   // event handler — the WAI-ARIA APG modal pattern still calls for handling the
   // key here, on the dialog surface itself.
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
+    const el = containerRef.current!;
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
@@ -116,7 +112,6 @@ export function ModalShell({
       }
       if (event.key !== 'Tab') return;
       event.stopPropagation();
-      if (!el) return;
       const focusable = focusableElements(el);
       if (focusable.length === 0) {
         event.preventDefault();

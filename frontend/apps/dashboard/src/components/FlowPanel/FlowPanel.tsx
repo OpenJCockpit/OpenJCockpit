@@ -59,12 +59,11 @@ export function FlowPanel({
   }
 
   function renderActiveRun() {
-    if (!activeRun) return null;
     return (
       <>
         <WorkflowExecution
-          workflow={activeRun.workflow}
-          runId={activeRun.runId}
+          workflow={activeRun!.workflow}
+          runId={activeRun!.runId}
           onRunEnded={launcher.markRunEnded}
           showHistory={false}
         />

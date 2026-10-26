@@ -408,6 +408,124 @@ describe('WorkflowExecution', () => {
       );
     });
 
+    async function openGate() {
+      vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(
+        runWithStatus('AWAITING_APPROVAL'),
+      );
+      vi.mocked(workflowApi.getApprovalGateContext).mockResolvedValue(CONTEXT);
+      await act(async () => {
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
+      });
+      await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument(), {
+        timeout: 3000,
+      });
+    }
+
+    it('submits Deny and Accept-with-comments decisions', async () => {
+      vi.mocked(workflowApi.submitApprovalDecision).mockResolvedValue({
+        runId: 'run-1',
+        status: 'RUNNING',
+        iteration: 1,
+        message: 'ok',
+      });
+      await openGate();
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Deny' }));
+      });
+      await waitFor(() =>
+        expect(workflowApi.submitApprovalDecision).toHaveBeenCalledWith('run-1', {
+          decision: 'DENY',
+          iteration: 1,
+          comment: undefined,
+        }),
+      );
+    });
+
+    it('submits Accept-with-comments with the typed comment', async () => {
+      vi.mocked(workflowApi.submitApprovalDecision).mockResolvedValue({
+        runId: 'run-1',
+        status: 'RUNNING',
+        iteration: 1,
+        message: 'ok',
+      });
+      await openGate();
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Accept with my comments' }));
+      });
+      fireEvent.change(screen.getByLabelText('Feedback for the next attempt'), {
+        target: { value: 'Please rename' },
+      });
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+      });
+      await waitFor(() =>
+        expect(workflowApi.submitApprovalDecision).toHaveBeenCalledWith('run-1', {
+          decision: 'ACCEPT_WITH_COMMENTS',
+          iteration: 1,
+          comment: 'Please rename',
+        }),
+      );
+    });
+
+    it('shows the error message when submitting a decision fails, with a generic fallback', async () => {
+      vi.mocked(workflowApi.submitApprovalDecision)
+        .mockRejectedValueOnce(new Error('Gate already closed'))
+        .mockRejectedValueOnce('nope');
+      await openGate();
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Accept' }));
+      });
+      expect(await screen.findByText('Gate already closed')).toBeInTheDocument();
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Accept' }));
+      });
+      expect(
+        await screen.findByText('Failed to submit the approval decision.'),
+      ).toBeInTheDocument();
+    });
+
+    it('lets the operator dismiss the decision modal and reopen it via "Review pending approval"', async () => {
+      await openGate();
+
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Review pending approval' }));
+      });
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('stops a run awaiting approval, closes the modal and notifies onRunEnded', async () => {
+      vi.mocked(api.stopAgentRun).mockResolvedValue(undefined);
+      const onRunEnded = vi.fn();
+      vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(
+        runWithStatus('AWAITING_APPROVAL'),
+      );
+      vi.mocked(workflowApi.getApprovalGateContext).mockResolvedValue(CONTEXT);
+      await act(async () => {
+        render(
+          withQueryClient(
+            <WorkflowExecution workflow={WORKFLOW} runId="run-1" onRunEnded={onRunEnded} />,
+          ),
+        );
+      });
+      await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument(), {
+        timeout: 3000,
+      });
+
+      await act(async () => {
+        screen.getByText('◼ Stop').click();
+      });
+
+      await waitFor(() => expect(onRunEnded).toHaveBeenCalled());
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
     it('stops polling and renders a terminal explanation with a restart affordance for RUN_STATE_LOST', async () => {
       vi.mocked(workflowApi.getWorkflowExecution).mockRejectedValue(
         Object.assign(new Error('Failed to load workflow execution: 404'), { status: 404 }),
@@ -665,6 +783,23 @@ describe('WorkflowExecution', () => {
 
       const runButtons = screen.getAllByRole('button', { name: 'run-1' });
       expect(runButtons.length).toBe(1);
+    });
+
+    it('retries the history fetch when Retry is clicked', async () => {
+      vi.mocked(workflowApi.listWorkflowExecutions)
+        .mockRejectedValueOnce(new Error('boom'))
+        .mockResolvedValue(emptyHistoryPage());
+
+      await act(async () => {
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId={null} />));
+      });
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+      });
+
+      expect(
+        await screen.findByText('This workflow has not been executed yet.'),
+      ).toBeInTheDocument();
     });
 
     it('shows the history error state (never an empty list) when the history fetch fails', async () => {

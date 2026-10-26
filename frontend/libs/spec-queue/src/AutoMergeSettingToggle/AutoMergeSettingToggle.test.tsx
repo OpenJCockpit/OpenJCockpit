@@ -86,4 +86,13 @@ describe('AutoMergeSettingToggle', () => {
     fireEvent.click(screen.getByTestId('auto-merge-setting-toggle'));
     expect(await screen.findByTestId('auto-merge-setting-error')).toHaveTextContent('boom');
   });
+
+  it('falls back to a generic message for a non-Error failure', async () => {
+    vi.mocked(updateSpecQueueSettings).mockRejectedValue('boom');
+    setup(true);
+    fireEvent.click(screen.getByTestId('auto-merge-setting-toggle'));
+    expect(await screen.findByTestId('auto-merge-setting-error')).toHaveTextContent(
+      'Failed to update the queue settings',
+    );
+  });
 });

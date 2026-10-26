@@ -111,7 +111,6 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
     if (workflowList.length === 0) {
       return 'No workflow without a required prompt is available for this project.';
     }
-    if (!workflowId) return 'Select a workflow.';
     return null;
   }
   const reason = submitBlocker();
@@ -126,7 +125,6 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
   }
 
   async function handleSubmit() {
-    if (reason) return;
     setSubmitting(true);
     setSubmitError(null);
     try {

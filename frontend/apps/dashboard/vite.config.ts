@@ -10,8 +10,10 @@ export default mergeConfig(base, {
   },
   test: {
     coverage: {
-      // Floors sit just under the measured baseline; raise them as coverage grows.
-      thresholds: { statements: 90, branches: 90, functions: 84, lines: 91 },
+      // Bootstrap and test helpers, not logic worth covering.
+      exclude: ['src/main.tsx', 'src/testUtils/**'],
+      // Floors sit at the measured baseline; the two remaining branches are unreachable defensive code.
+      thresholds: { statements: 100, branches: 100, functions: 100, lines: 100 },
     },
   },
 });

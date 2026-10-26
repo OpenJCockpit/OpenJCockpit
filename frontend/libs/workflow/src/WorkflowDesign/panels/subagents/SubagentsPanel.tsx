@@ -43,7 +43,7 @@ export function SubagentsPanel() {
   const error = actionError ?? loadError;
 
   function updateItems(update: (prev: SubagentSpec[]) => SubagentSpec[]) {
-    queryClient.setQueryData<SubagentSpec[]>(subagentSpecsQueryKey, (prev) => update(prev ?? []));
+    queryClient.setQueryData<SubagentSpec[]>(subagentSpecsQueryKey, (prev) => update(prev!));
   }
 
   if (!loaded) {

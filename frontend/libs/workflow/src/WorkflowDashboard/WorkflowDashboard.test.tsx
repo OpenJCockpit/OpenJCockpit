@@ -226,4 +226,50 @@ describe('WorkflowDashboard', () => {
 
     expect(onBack).toHaveBeenCalledTimes(1);
   });
+
+  it('falls back to a generic message when the initial workflow fails with a non-Error', async () => {
+    vi.mocked(workflowApi.getWorkflow).mockRejectedValue('nope');
+
+    await renderAsync(
+      <WorkflowDashboard
+        project={PROJECT}
+        onBack={vi.fn()}
+        initialExecution={{ workflowId: 'wf-9', runId: 'run-9' }}
+      />,
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The workflow of this run could not be loaded — Failed to load workflow',
+    );
+  });
+
+  it('shows "All projects" when no project is given and returns to Overview via its tab', async () => {
+    await renderAsync(<WorkflowDashboard project={null} onBack={vi.fn()} />);
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('All projects');
+
+    await clickAsync(screen.getByText('Design'));
+    await clickAsync(screen.getByText('Overview'));
+
+    expect(screen.getByText('Overview')).toHaveClass(tabActiveClass);
+  });
+
+  it('returns to the Overview tab when a lost run asks to be restarted', async () => {
+    vi.mocked(workflowApi.getWorkflow).mockResolvedValue(makeWorkflow({ id: 'wf-9' }));
+    vi.mocked(workflowApi.getWorkflowExecution).mockRejectedValue(
+      Object.assign(new Error('gone'), { status: 404 }),
+    );
+
+    await renderAsync(
+      <WorkflowDashboard
+        project={PROJECT}
+        onBack={vi.fn()}
+        initialExecution={{ workflowId: 'wf-9', runId: 'run-9' }}
+      />,
+    );
+
+    await clickAsync(await screen.findByText('Start again'));
+
+    expect(screen.getByText('Overview')).toHaveClass(tabActiveClass);
+  });
 });

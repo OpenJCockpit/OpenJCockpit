@@ -175,4 +175,144 @@ describe('A2AServicesSettings', () => {
     await renderSettings();
     expect(screen.getByRole('alert')).toHaveTextContent('Agent service unreachable');
   });
+
+  it('falls back to a generic message when loading fails with a non-Error', async () => {
+    vi.mocked(workflowApi.listA2AServices).mockRejectedValue('boom');
+    await renderSettings();
+    expect(screen.getByRole('alert')).toHaveTextContent('Failed to load A2A services.');
+  });
+
+  it('shows the empty state when the API returns no services', async () => {
+    vi.mocked(workflowApi.listA2AServices).mockResolvedValue(undefined as unknown as A2AService[]);
+    await renderSettings();
+    expect(screen.getByText('No A2A services configured yet.')).toBeInTheDocument();
+  });
+
+  it('validates each required field when adding', async () => {
+    await renderSettings();
+    fireEvent.click(screen.getByRole('button', { name: '+ Add A2A service' }));
+    const add = () => fireEvent.click(screen.getByRole('button', { name: 'Add A2A service' }));
+
+    add();
+    expect(screen.getByRole('alert')).toHaveTextContent('Id is required.');
+    fireEvent.change(input(/^Id/), { target: { value: 'beta' } });
+    add();
+    expect(screen.getByRole('alert')).toHaveTextContent('Name is required.');
+    fireEvent.change(input(/^Name/), { target: { value: 'Beta' } });
+    add();
+    expect(screen.getByRole('alert')).toHaveTextContent('Base URL is required.');
+    expect(workflowApi.createA2AService).not.toHaveBeenCalled();
+  });
+
+  it('sends trimmed optional caller identity fields and the public URL', async () => {
+    vi.mocked(workflowApi.createA2AService).mockResolvedValue(service({ ...acme, id: 'beta' }));
+    await renderSettings();
+    fireEvent.click(screen.getByRole('button', { name: '+ Add A2A service' }));
+    fireEvent.change(input(/^Id/), { target: { value: 'beta' } });
+    fireEvent.change(input(/^Name/), { target: { value: 'Beta' } });
+    fireEvent.change(input(/^Base URL/), { target: { value: 'https://beta.example' } });
+    fireEvent.change(input(/^Public URL/), { target: { value: ' https://pub.example ' } });
+    fireEvent.change(input(/^API key/), { target: { value: 'sk' } });
+    fireEvent.change(input(/^Caller token URL/), { target: { value: 'https://idp/token' } });
+    fireEvent.change(input(/^Caller client id/), { target: { value: 'client' } });
+    fireEvent.change(input(/^Caller client secret/), { target: { value: 'shh' } });
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Add A2A service' }));
+    });
+
+    expect(workflowApi.createA2AService).toHaveBeenCalledWith({
+      id: 'beta',
+      name: 'Beta',
+      baseUrl: 'https://beta.example',
+      publicUrl: 'https://pub.example',
+      apiKey: 'sk',
+      callerTokenUrl: 'https://idp/token',
+      callerClientId: 'client',
+      callerClientSecret: 'shh',
+    });
+  });
+
+  it('shows the saving state, then the error when saving fails, and cancels the form', async () => {
+    let reject: (e: unknown) => void = () => undefined;
+    vi.mocked(workflowApi.updateA2AService).mockReturnValue(
+      new Promise((_, r) => {
+        reject = r;
+      }),
+    );
+    await renderSettings();
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    expect(screen.getByRole('heading', { name: 'Edit Acme gateway' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Save A2A service' }));
+    expect(screen.getByRole('button', { name: /Saving/ })).toBeDisabled();
+    await act(async () => reject('nope'));
+    expect(screen.getByRole('alert')).toHaveTextContent('Failed to save A2A service.');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('heading', { name: /Edit Acme/ })).not.toBeInTheDocument();
+  });
+
+  it('shows the error message when adding fails', async () => {
+    vi.mocked(workflowApi.createA2AService).mockRejectedValue(new Error('Id already exists'));
+    await renderSettings();
+    fireEvent.click(screen.getByRole('button', { name: '+ Add A2A service' }));
+    fireEvent.change(input(/^Id/), { target: { value: 'beta' } });
+    fireEvent.change(input(/^Name/), { target: { value: 'Beta' } });
+    fireEvent.change(input(/^Base URL/), { target: { value: 'https://beta.example' } });
+    fireEvent.change(input(/^API key/), { target: { value: 'sk' } });
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Add A2A service' }));
+    });
+    expect(screen.getByRole('alert')).toHaveTextContent('Id already exists');
+  });
+
+  it('keeps a service when removal is declined and closes the edit form when it is removed', async () => {
+    vi.mocked(workflowApi.deleteA2AService).mockResolvedValue(undefined);
+    await renderSettings();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Keep' }));
+    expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm remove' }));
+    });
+    expect(screen.getByText('A2A service "Acme gateway" removed.')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Edit Acme/ })).not.toBeInTheDocument();
+  });
+
+  it('falls back to a generic message when removal fails with a non-Error', async () => {
+    vi.mocked(workflowApi.deleteA2AService).mockRejectedValue('x');
+    await renderSettings();
+    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm remove' }));
+    });
+    expect(screen.getByRole('alert')).toHaveTextContent('Failed to remove A2A service.');
+  });
+
+  it('shows the public URL when it differs and prefills the edit form from the service', async () => {
+    vi.mocked(workflowApi.listA2AServices).mockResolvedValue([
+      {
+        ...acme,
+        publicUrl: 'https://public.acme.example',
+        callerClientId: 'cid',
+        hasApiKey: false,
+      },
+    ]);
+    await renderSettings();
+    expect(screen.getByText('public: https://public.acme.example')).toBeInTheDocument();
+    expect(screen.getByText('No API key')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    expect(input(/^Public URL/).value).toBe('https://public.acme.example');
+    expect(input(/^Caller client id/).value).toBe('cid');
+  });
+
+  it('prefills an empty base URL when the service has none', async () => {
+    vi.mocked(workflowApi.listA2AServices).mockResolvedValue([{ ...acme, baseUrl: null }]);
+    await renderSettings();
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    expect(input(/^Base URL/).value).toBe('');
+  });
 });

@@ -65,4 +65,28 @@ describe('FrameOctagon', () => {
     unmount();
     expect(disconnect).toHaveBeenCalled();
   });
+
+  it('renders an empty frame without observing when the svg has no host element', () => {
+    const observe = vi.fn();
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe = observe;
+        disconnect = vi.fn();
+      },
+    );
+    const parent = Object.getOwnPropertyDescriptor(Node.prototype, 'parentElement')!;
+    Object.defineProperty(SVGSVGElement.prototype, 'parentElement', {
+      configurable: true,
+      get: () => null,
+    });
+    try {
+      const { host } = renderInHost(200, 100);
+      expect(host.querySelector('path')?.getAttribute('d')).toBe(buildFrameOctagonPaths(0, 0).bg);
+      expect(observe).not.toHaveBeenCalled();
+    } finally {
+      delete (SVGSVGElement.prototype as { parentElement?: unknown }).parentElement;
+      expect(Object.getOwnPropertyDescriptor(Node.prototype, 'parentElement')).toEqual(parent);
+    }
+  });
 });

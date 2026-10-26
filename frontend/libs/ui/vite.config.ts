@@ -7,7 +7,7 @@ export default mergeConfig(base, {
     coverage: {
       // Vendored react-bits components are third-party code, not ours to cover.
       exclude: ['src/vendor/**'],
-      thresholds: { statements: 94, branches: 85, functions: 95, lines: 95 },
+      thresholds: { statements: 100, branches: 100, functions: 100, lines: 100 },
     },
   },
 });

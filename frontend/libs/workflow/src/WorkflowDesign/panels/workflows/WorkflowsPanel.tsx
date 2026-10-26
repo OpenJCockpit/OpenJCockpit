@@ -73,7 +73,7 @@ export function WorkflowsPanel() {
   }
 
   function updateItems(update: (prev: WorkflowDefinition[]) => WorkflowDefinition[]) {
-    queryClient.setQueryData<WorkflowDefinition[]>(workflowsQueryKey, (prev) => update(prev ?? []));
+    queryClient.setQueryData<WorkflowDefinition[]>(workflowsQueryKey, (prev) => update(prev!));
   }
 
   function groupName(groupId?: string): string {

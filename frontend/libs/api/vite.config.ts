@@ -5,7 +5,9 @@ import base from '../../vite.config.base';
 export default mergeConfig(base, {
   test: {
     coverage: {
-      thresholds: { statements: 80, branches: 84, functions: 88, lines: 80 },
+      // Mock fixtures for other libs' tests are test support, not shipped logic; index.ts is a pure re-export barrel.
+      exclude: ['src/testing/**', 'src/index.ts'],
+      thresholds: { statements: 100, branches: 100, functions: 100, lines: 100 },
     },
   },
 });

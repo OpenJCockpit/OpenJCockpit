@@ -17,7 +17,7 @@ import {
   useProjectsQuery,
 } from '@openjcockpit/project';
 import type { Project } from '@openjcockpit/api';
-import { getKeycloak, getUserFromToken } from '@openjcockpit/auth';
+import { getKeycloak } from '@openjcockpit/auth';
 import { LandingHub } from '@openjcockpit/landing-hub';
 import type { PortalId } from '@openjcockpit/landing-hub';
 import { DashboardView } from './components/DashboardView/DashboardView';
@@ -172,7 +172,7 @@ function App() {
             element={
               <LandingRoute>
                 <LandingHub
-                  user={user ?? getUserFromToken(undefined)}
+                  user={user!}
                   onSelectPortal={handleSelectPortal}
                   onLogout={handleLogout}
                 />

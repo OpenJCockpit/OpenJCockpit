@@ -4,6 +4,16 @@ import { SelectField } from './SelectField';
 import { fieldHintClass } from '../../Form/Form';
 
 describe('SelectField', () => {
+  it('SelectField omits the hint when none is given', () => {
+    render(
+      <SelectField label="Group" value="" onChange={vi.fn()}>
+        <option value="">None</option>
+      </SelectField>,
+    );
+
+    expect(screen.getByLabelText('Group').closest('label')?.querySelector('span')).toBeNull();
+  });
+
   it('SelectField reports the selected value and renders a hint', () => {
     const onChange = vi.fn();
     render(
