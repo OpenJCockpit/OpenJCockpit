@@ -200,7 +200,7 @@ export function SkillsHubSettings({ onBack }: Props) {
             <TextField
               label={`API key${editingId === null ? ' *' : ''}`}
               type="password"
-              value={form.apiKey ?? ''}
+              value={form.apiKey!}
               onChange={(v) => setForm((f) => ({ ...f, apiKey: v }))}
               placeholder={
                 editingId !== null && editingHasApiKey
@@ -212,7 +212,7 @@ export function SkillsHubSettings({ onBack }: Props) {
               label="Description"
               wide
               rows={3}
-              value={form.description ?? ''}
+              value={form.description!}
               onChange={(v) => setForm((f) => ({ ...f, description: v }))}
               placeholder="Optional description"
             />

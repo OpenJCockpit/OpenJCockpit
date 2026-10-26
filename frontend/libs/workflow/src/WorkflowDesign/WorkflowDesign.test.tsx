@@ -1768,3 +1768,112 @@ describe('WorkflowsPanel agent catalogue and validation (workflow-designer-pipel
     expect(first).toBeChecked();
   });
 });
+
+describe('workflows panel actions', () => {
+  const LINKED: WorkflowDefinition[] = WORKFLOWS.map((w) => ({ ...w, agentIds: ['requirement'] }));
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  it('filters to workflows without a group', async () => {
+    await renderWorkflowsTab();
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText(/^Group$/), { target: { value: 'none' } });
+    });
+    expect(screen.queryByText('Customer Onboarding')).not.toBeInTheDocument();
+    expect(screen.getByText('Spec to pull request')).toBeInTheDocument();
+  });
+
+  it('closes the editor without saving on Cancel', async () => {
+    await renderWorkflowsTab();
+    await act(async () => {
+      screen.getByText('+ New workflow').click();
+    });
+    expect(screen.getByLabelText('Workflow name')).toBeInTheDocument();
+    await act(async () => {
+      screen.getByText('Cancel').click();
+    });
+    expect(screen.queryByLabelText('Workflow name')).not.toBeInTheDocument();
+  });
+
+  it('replaces only the saved workflow in the list after an update', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue(LINKED);
+    vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue(GROUPS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(AVAILABLE_AGENTS);
+    vi.mocked(workflowApi.updateWorkflow).mockResolvedValue({
+      ...LINKED[0]!,
+      name: 'Renamed onboarding',
+    });
+    await act(async () => {
+      render(withQueryClient(<WorkflowDesign />));
+    });
+    await screen.findByText('Customer Onboarding');
+    await act(async () => {
+      within(screen.getByText('Customer Onboarding').closest('tr')!).getByText('Edit').click();
+    });
+    await act(async () => {
+      screen.getByText('Save').click();
+    });
+    expect(await screen.findByText('Renamed onboarding')).toBeInTheDocument();
+    expect(screen.getByText('Spec to pull request')).toBeInTheDocument();
+  });
+
+  it('falls back to a generic message when saving fails with a non-Error', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue(LINKED);
+    vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue(GROUPS);
+    vi.mocked(linkable.fetchLinkableAgents).mockResolvedValue(AVAILABLE_AGENTS);
+    vi.mocked(workflowApi.updateWorkflow).mockRejectedValue('boom');
+    await act(async () => {
+      render(withQueryClient(<WorkflowDesign />));
+    });
+    await screen.findByText('Customer Onboarding');
+    await act(async () => {
+      within(screen.getByText('Customer Onboarding').closest('tr')!).getByText('Edit').click();
+    });
+    await act(async () => {
+      screen.getByText('Save').click();
+    });
+    expect((await screen.findAllByText('Failed to save workflow.')).length).toBeGreaterThan(0);
+  });
+
+  it('removes a deleted workflow from the list', async () => {
+    vi.mocked(workflowApi.deleteWorkflow).mockResolvedValue();
+    await renderWorkflowsTab();
+    await act(async () => {
+      within(screen.getByText('Customer Onboarding').closest('tr')!).getByText('Delete').click();
+    });
+    await waitFor(() => expect(screen.queryByText('Customer Onboarding')).not.toBeInTheDocument());
+    expect(workflowApi.deleteWorkflow).toHaveBeenCalledWith('wf-1');
+  });
+
+  it('falls back to a generic message when deleting fails with a non-Error', async () => {
+    vi.mocked(workflowApi.deleteWorkflow).mockRejectedValue('nope');
+    await renderWorkflowsTab();
+    await act(async () => {
+      within(screen.getByText('Customer Onboarding').closest('tr')!).getByText('Delete').click();
+    });
+    expect(await screen.findByText('Failed to delete workflow.')).toBeInTheDocument();
+    expect(screen.getByText('Customer Onboarding')).toBeInTheDocument();
+  });
+
+  it('shows an error when exporting fails', async () => {
+    vi.mocked(workflowApi.exportWorkflows).mockRejectedValue(new Error('down'));
+    await renderWorkflowsTab();
+    await act(async () => {
+      screen.getByText('⬇ Export JSON').click();
+    });
+    expect(await screen.findByText('Failed to export workflows.')).toBeInTheDocument();
+  });
+
+  it('shows a generic catalogue error when loading fails with a non-Error', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue(WORKFLOWS);
+    vi.mocked(workflowApi.listWorkflowGroups).mockResolvedValue(GROUPS);
+    vi.mocked(linkable.fetchLinkableAgents).mockRejectedValue('catalog down');
+    await act(async () => {
+      render(withQueryClient(<WorkflowDesign />));
+    });
+    expect(await screen.findByText('Failed to load the agent catalog.')).toBeInTheDocument();
+  });
+});

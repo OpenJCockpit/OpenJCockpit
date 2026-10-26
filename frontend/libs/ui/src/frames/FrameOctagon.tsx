@@ -83,8 +83,7 @@ export function FrameOctagon({ className, duration = 1 }: FrameOctagonProps) {
   const [size, setSize] = useState({ width: 0, height: 0 });
 
   useLayoutEffect(() => {
-    const svg = svgRef.current;
-    const host = svg ? svg.parentElement : null;
+    const host = svgRef.current!.parentElement;
     if (!host) {
       return undefined;
     }

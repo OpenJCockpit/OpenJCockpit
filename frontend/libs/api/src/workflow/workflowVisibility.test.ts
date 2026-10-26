@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { workflowsForProject } from './workflowVisibility';
+import { candidateOrbTargets, workflowsForProject } from './workflowVisibility';
 import type { WorkflowDefinition, WorkflowGroup } from './workflowTypes';
 
 function workflow(id: string, projectName: string, groupId?: string): WorkflowDefinition {
@@ -76,5 +76,33 @@ describe('workflowsForProject', () => {
     const own = [workflow('wf-x', 'Test Project', 'wg-noordzee')];
     expect(workflowsForProject(own, GROUPS, 'Test Project')).toHaveLength(1);
     expect(workflowsForProject(own, GROUPS, 'Noordzee Logistics')).toHaveLength(0);
+  });
+});
+
+describe('candidateOrbTargets', () => {
+  const ids = (current: WorkflowDefinition) =>
+    candidateOrbTargets(current, WORKFLOWS, GROUPS).map((w) => w.id);
+
+  it('excludes the current workflow itself', () => {
+    const current = WORKFLOWS[0]!;
+    expect(ids(current)).not.toContain(current.id);
+  });
+
+  it('offers only global workflows to a global workflow', () => {
+    expect(ids(WORKFLOWS[0]!)).toEqual(['wf-spec-create', 'wf-spec-implement']);
+  });
+
+  it('offers global and same-project workflows to a project workflow', () => {
+    expect(ids(workflow('wf-me', 'Test Project'))).toEqual([
+      'wf-spec-init',
+      'wf-spec-create',
+      'wf-spec-implement',
+      'wf-own-project',
+    ]);
+  });
+
+  it('resolves the current workflow project through its group', () => {
+    expect(ids(workflow('wf-me', '', 'wg-noordzee'))).toContain('wf-grouped-noordzee');
+    expect(ids(workflow('wf-me', '', 'wg-noordzee'))).not.toContain('wf-own-project');
   });
 });

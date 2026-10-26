@@ -13,4 +13,10 @@ describe('buildFrameOctagonPaths', () => {
   it('treats non-finite and negative sizes as zero', () => {
     expect(buildFrameOctagonPaths(Number.NaN, -5)).toEqual(buildFrameOctagonPaths(0, 0));
   });
+
+  it('treats a non-finite height as zero', () => {
+    expect(buildFrameOctagonPaths(40, Number.POSITIVE_INFINITY)).toEqual(
+      buildFrameOctagonPaths(40, 0),
+    );
+  });
 });

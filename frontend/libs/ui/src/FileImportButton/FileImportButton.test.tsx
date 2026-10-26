@@ -15,6 +15,18 @@ describe('FileImportButton', () => {
     expect(onFile).toHaveBeenCalledWith(file);
   });
 
+  it('opens the hidden file input when the button is clicked', () => {
+    render(
+      <FileImportButton accept=".json" inputLabel="Import" onFile={vi.fn()}>
+        Import JSON
+      </FileImportButton>,
+    );
+    const input = screen.getByLabelText('Import');
+    const click = vi.spyOn(input, 'click');
+    fireEvent.click(screen.getByRole('button', { name: 'Import JSON' }));
+    expect(click).toHaveBeenCalledTimes(1);
+  });
+
   it('ignores an empty selection', () => {
     const onFile = vi.fn();
     render(

@@ -54,6 +54,11 @@ describe('SpecQueueItemRow', () => {
     expect(screen.getByTestId('queue-item-position')).toHaveTextContent('2');
   });
 
+  it('falls back to the workflow id when the name is unknown', () => {
+    setup(makeItem({ workflowName: undefined }));
+    expect(screen.getByTestId('queue-item-workflow')).toHaveTextContent('w1');
+  });
+
   it('names move buttons after the spec and reports the direction', () => {
     const h = setup(makeItem());
     fireEvent.click(screen.getByRole('button', { name: 'Move a.md up' }));

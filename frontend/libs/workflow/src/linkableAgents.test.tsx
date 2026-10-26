@@ -50,6 +50,22 @@ describe('linkable agents', () => {
     ]);
   });
 
+  it('defaults a missing description to an empty string', () => {
+    const catalog: AgentCatalog = {
+      local: {
+        ...CATALOG.local,
+        agents: [{ ...CATALOG.local.agents[0]! }],
+      },
+      providers: [
+        {
+          ...CATALOG.providers[0]!,
+          agents: [{ id: 'y', name: 'bare', streaming: false, skills: [] }],
+        },
+      ],
+    };
+    expect(linkableAgents(catalog).map((a) => a.description)).toEqual(['', '']);
+  });
+
   it('groups the picker by catalog section and appends linked agents to the execution order', () => {
     const onChange = vi.fn();
     render(

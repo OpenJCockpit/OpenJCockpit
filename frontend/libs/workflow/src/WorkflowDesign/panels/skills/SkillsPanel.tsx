@@ -45,9 +45,7 @@ export function SkillsPanel() {
       : null;
 
   function updateCatalog(update: (base: SkillCatalog) => SkillCatalog) {
-    queryClient.setQueryData<SkillCatalog>(skillCatalogQueryKey, (prev) =>
-      prev ? update(prev) : undefined,
-    );
+    queryClient.setQueryData<SkillCatalog>(skillCatalogQueryKey, (prev) => update(prev!));
   }
 
   const rows = useMemo<SkillRow[]>(() => {

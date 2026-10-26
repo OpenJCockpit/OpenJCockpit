@@ -183,4 +183,58 @@ describe('pre-flight checks before starting a workflow', () => {
       });
     });
   });
+
+  it('falls back to the raw message for an unknown pre-flight error code', async () => {
+    await renderDashboard();
+    vi.mocked(api.checkWorkflowPreflight).mockResolvedValue({
+      passed: false,
+      errors: [{ code: 'UNKNOWN_ERROR', message: 'Quota exceeded.' }],
+    });
+
+    await act(async () => {
+      screen.getByText('▶ Start').click();
+    });
+
+    expect(await screen.findByText('Pre-flight check failed: Quota exceeded.')).toBeInTheDocument();
+    expect(screen.queryByText('Check Git settings')).not.toBeInTheDocument();
+  });
+
+  it('offers to start a new workflow once the run has ended', async () => {
+    await renderDashboard();
+    vi.mocked(api.checkWorkflowPreflight).mockResolvedValue({ passed: true, errors: [] });
+    vi.mocked(workflowApi.startWorkflow).mockResolvedValue({
+      workflowId: WORKFLOW.id,
+      executionId: 'exec-1',
+      status: 'RUNNING',
+      startedAt: '2026-01-01T00:00:00Z',
+      message: 'started',
+    });
+    vi.mocked(api.getAgentRun).mockResolvedValue({
+      runId: 'exec-1',
+      customerId: mockWorkspace.customer.id,
+      specFile: 'spec',
+      repositoryUrl: '',
+      status: 'RUNNING',
+      startedAt: '2026-01-01T00:00:00Z',
+      events: [],
+      generatedArtifacts: [],
+    });
+
+    await act(async () => {
+      screen.getByText('▶ Start').click();
+    });
+
+    vi.mocked(api.stopAgentRun).mockResolvedValue(undefined);
+    await act(async () => {
+      (await screen.findByText('◼ Stop')).click();
+    });
+
+    const reset = await screen.findByText('↺ Start new workflow');
+    await act(async () => {
+      reset.click();
+    });
+
+    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+    expect(screen.queryByText('↺ Start new workflow')).not.toBeInTheDocument();
+  });
 });

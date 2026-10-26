@@ -23,7 +23,6 @@ export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPicker
 
   function move(index: number, delta: number) {
     const target = index + delta;
-    if (target < 0 || target >= agentIds.length) return;
     const next = [...agentIds];
     [next[index], next[target]] = [next[target]!, next[index]!];
     onChange(next);

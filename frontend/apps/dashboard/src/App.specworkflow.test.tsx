@@ -332,6 +332,25 @@ describe('when a spec-init pull request is already open', () => {
     expect(api.initSpecFolder).not.toHaveBeenCalled();
   });
 
+  it('omits the branch name and links when the status carries none', async () => {
+    localStorage.setItem('openjcockpit_project_id', PROJECT.id);
+    vi.mocked(api.loadProjects).mockResolvedValue([PROJECT_WITH_GIT]);
+    vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
+    vi.mocked(api.loadProjectSpecs).mockResolvedValue([]);
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
+    vi.mocked(api.getSpecInitStatus).mockResolvedValue({ pending: true });
+
+    renderRoutedApp();
+    await enterDashboard();
+    await screen.findByText('Pull request open');
+
+    expect(
+      screen.getByText(/A branch with the spec template is already prepared\./),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /View branch on the repository/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Open pull request/ })).toBeNull();
+  });
+
   it('shows the branch name and the pull request link', async () => {
     await renderWithPendingBranch();
 

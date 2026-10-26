@@ -250,4 +250,71 @@ describe('SpecFilesDashboard — without the queue slot', () => {
     await screen.findByLabelText('Contents of pricing-rules.md');
     expect(screen.queryByTestId('spec-add-to-queue')).not.toBeInTheDocument();
   });
+
+  describe('spec list', () => {
+    const OTHER: SpecFile = {
+      ...SPEC,
+      id: 'other',
+      fileName: 'other.md',
+      selected: false,
+      content: '# Other',
+    };
+    const open = async (specs: SpecFile[]) => {
+      vi.mocked(api.loadProjectSpecs).mockResolvedValue(specs);
+      await act(async () => {
+        render(
+          <SpecFilesDashboard
+            project={PROJECT}
+            onBack={vi.fn()}
+            renderAddToQueue={renderAddToQueue}
+          />,
+        );
+      });
+    };
+
+    it('switches to another spec and discards unsaved edits of the previous one', async () => {
+      await open([SPEC, OTHER]);
+      fireEvent.change(await screen.findByLabelText('Contents of pricing-rules.md'), {
+        target: { value: 'edited' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: /other\.md/ }));
+      expect(await screen.findByDisplayValue('# Other')).toBeInTheDocument();
+      expect(screen.getByText('💾 Save')).toBeDisabled();
+      fireEvent.click(screen.getByRole('button', { name: /pricing-rules\.md/ }));
+      expect(await screen.findByDisplayValue('# Pricing rules')).toBeInTheDocument();
+    });
+
+    it('selects the first spec when none is flagged as selected', async () => {
+      await open([{ ...OTHER }, { ...SPEC, selected: false }]);
+      expect(await screen.findByDisplayValue('# Other')).toBeInTheDocument();
+    });
+
+    it('treats specs without content as empty text', async () => {
+      const { content: _omit, ...noContent } = OTHER;
+      await open([{ ...SPEC, content: undefined }, noContent]);
+      const textarea = await screen.findByLabelText('Contents of pricing-rules.md');
+      expect(textarea).toHaveValue('');
+      expect(screen.getByText('💾 Save')).toBeDisabled();
+      fireEvent.click(screen.getByRole('button', { name: /other\.md/ }));
+      expect(await screen.findByLabelText('Contents of other.md')).toHaveValue('');
+    });
+
+    it('explains an empty repository', async () => {
+      await open([]);
+      expect(await screen.findByText('No Specs Found')).toBeInTheDocument();
+      expect(screen.getByText('No spec selected.')).toBeInTheDocument();
+    });
+
+    it('shows a fallback message when saving rejects with a non-Error', async () => {
+      await open([SPEC]);
+      vi.mocked(api.saveSpecFile).mockRejectedValue('nope');
+      fireEvent.change(await screen.findByLabelText('Contents of pricing-rules.md'), {
+        target: { value: 'edited' },
+      });
+      await act(async () => {
+        fireEvent.click(screen.getByText('💾 Save'));
+      });
+      expect(await screen.findByText('Saving the spec failed')).toBeInTheDocument();
+    });
+  });
 });

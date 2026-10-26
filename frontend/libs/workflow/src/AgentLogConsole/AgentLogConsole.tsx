@@ -25,8 +25,8 @@ export function AgentLogConsole({ events, agentName, isActive }: Props) {
     events.length > 0 ? events.map(formatLine).join('\n') : '// waiting for agent output…';
 
   useEffect(() => {
-    const el = textareaRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    const el = textareaRef.current!;
+    el.scrollTop = el.scrollHeight;
   }, [content]);
 
   return (

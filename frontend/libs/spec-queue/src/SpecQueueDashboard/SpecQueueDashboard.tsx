@@ -148,7 +148,6 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
   );
 
   const refresh = useCallback(async () => {
-    if (!projectId) return;
     await queryClient.refetchQueries({ queryKey: ['spec-queue', projectId, 'queue'] });
   }, [queryClient, projectId]);
 
@@ -188,15 +187,13 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
   const queuedItems = queue?.items.filter((i) => i.status === 'QUEUED') ?? [];
 
   function handleMove(item: SpecQueueItem, direction: MoveDirection) {
-    if (!projectId) return;
     const ids = queuedItems.map((i) => i.id);
     const from = ids.indexOf(item.id);
     const to = direction === 'up' ? from - 1 : from + 1;
-    if (from < 0 || to < 0 || to >= ids.length) return;
     [ids[from], ids[to]] = [ids[to]!, ids[from]!];
     void run(
       async () => {
-        const response = await reorderSpecQueue(projectId, ids);
+        const response = await reorderSpecQueue(projectId!, ids);
         if (!mounted.current) return;
         pendingFocus.current = { itemId: item.id, direction };
         await applyQueue(response);
@@ -208,10 +205,9 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
   }
 
   function handlePauseResume(pause: boolean) {
-    if (!projectId) return;
     void run(
       async () => {
-        const response = await (pause ? pauseSpecQueue(projectId) : resumeSpecQueue(projectId));
+        const response = await (pause ? pauseSpecQueue(projectId!) : resumeSpecQueue(projectId!));
         if (!mounted.current) return;
         await applyQueue(response);
         setAnnouncement(pause ? 'Queue paused' : 'Queue resumed');
@@ -227,15 +223,14 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
   }
 
   async function handleConfirm() {
-    if (!projectId || !confirmation) return;
-    const { kind, item } = confirmation;
-    const copy = confirmationCopy(confirmation);
+    const { kind, item } = confirmation!;
+    const copy = confirmationCopy(confirmation!);
     setConfirmBusy(true);
     setConfirmError(null);
     try {
       await (kind === 'skip'
-        ? skipSpecQueueItem(projectId, item.id)
-        : removeSpecQueueItem(projectId, item.id));
+        ? skipSpecQueueItem(projectId!, item.id)
+        : removeSpecQueueItem(projectId!, item.id));
       if (!mounted.current) return;
       setConfirmation(null);
       setAnnouncement(copy.done);
@@ -276,7 +271,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
         onOpenRun={
           onOpenRun
             ? (it) => {
-                if (it.workflowRunId) onOpenRun(it.workflowId, it.workflowRunId);
+                onOpenRun(it.workflowId, it.workflowRunId!);
               }
             : undefined
         }

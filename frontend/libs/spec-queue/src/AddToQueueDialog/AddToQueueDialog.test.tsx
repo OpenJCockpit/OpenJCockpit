@@ -184,4 +184,83 @@ describe('AddToQueueDialog', () => {
     expect(onCancel).toHaveBeenCalledTimes(2);
     await waitFor(() => expect(getSpecQueueSettings).toHaveBeenCalled());
   });
+
+  it('submits the spec and workflow the user picked', async () => {
+    vi.mocked(listWorkflows).mockResolvedValue([wf('w1'), wf('w4')]);
+    const { onAdded } = setup();
+    await waitFor(() => expect(screen.getByTestId('add-to-queue-submit')).not.toBeDisabled());
+    fireEvent.change(screen.getByTestId('add-to-queue-spec-select'), { target: { value: 'a.md' } });
+    fireEvent.change(screen.getByTestId('add-to-queue-workflow-select'), {
+      target: { value: 'w4' },
+    });
+    fireEvent.click(screen.getByTestId('add-to-queue-submit'));
+    await waitFor(() => expect(onAdded).toHaveBeenCalled());
+    expect(enqueueSpecQueueItem).toHaveBeenCalledWith('p1', {
+      specFile: 'a.md',
+      workflowId: 'w4',
+      autoMerge: false,
+    });
+  });
+
+  it('falls back to the first spec when none is flagged as selected', async () => {
+    vi.mocked(listSpecFilesStrict).mockResolvedValue([
+      { id: 'a', fileName: 'a.md' },
+      { id: 'b', fileName: 'b.md' },
+    ] as never);
+    setup();
+    await waitFor(() => expect(screen.getByTestId('add-to-queue-submit')).not.toBeDisabled());
+    expect(screen.getByTestId<HTMLSelectElement>('add-to-queue-spec-select').value).toBe('a.md');
+  });
+
+  it('asks for a spec when the repository has none', async () => {
+    vi.mocked(listSpecFilesStrict).mockResolvedValue([]);
+    setup();
+    await waitFor(() =>
+      expect(screen.getByTestId('add-to-queue-submit-reason')).toHaveTextContent(
+        'Select a spec file.',
+      ),
+    );
+    expect(screen.getByTestId('add-to-queue-spec-select')).toBeDisabled();
+  });
+
+  it('explains while the lists are still loading', () => {
+    vi.mocked(listSpecFilesStrict).mockReturnValue(new Promise(() => undefined));
+    vi.mocked(getSpecQueueSettings).mockReturnValue(new Promise(() => undefined));
+    setup();
+    expect(screen.getByTestId('add-to-queue-submit-reason')).toHaveTextContent(
+      'Loading specs and workflows…',
+    );
+    expect(screen.getByTestId('add-to-queue-auto-merge-description')).toHaveTextContent(
+      'Checking whether auto-merge is allowed…',
+    );
+  });
+
+  it('says auto-merge is unavailable when the settings fail to load', async () => {
+    vi.mocked(getSpecQueueSettings).mockRejectedValue('boom');
+    setup();
+    await waitFor(() =>
+      expect(screen.getByTestId('add-to-queue-auto-merge-description')).toHaveTextContent(
+        'Auto-merge is unavailable because the queue settings could not be loaded.',
+      ),
+    );
+    expect(screen.getByTestId('add-to-queue-auto-merge')).toBeDisabled();
+  });
+
+  it('shows a generic message for a non-Error enqueue failure', async () => {
+    vi.mocked(enqueueSpecQueueItem).mockRejectedValue('nope');
+    setup();
+    await waitFor(() => expect(screen.getByTestId('add-to-queue-submit')).not.toBeDisabled());
+    fireEvent.click(screen.getByTestId('add-to-queue-submit'));
+    expect(await screen.findByTestId('add-to-queue-error')).toHaveTextContent('Unknown error');
+  });
+
+  it('ignores dismissal while the request is in flight', async () => {
+    vi.mocked(enqueueSpecQueueItem).mockReturnValue(new Promise(() => undefined));
+    const { onCancel } = setup();
+    await waitFor(() => expect(screen.getByTestId('add-to-queue-submit')).not.toBeDisabled());
+    fireEvent.click(screen.getByTestId('add-to-queue-submit'));
+    expect(await screen.findByText('⟳ Adding…')).toBeInTheDocument();
+    fireEvent.keyDown(screen.getByRole('dialog', { name: 'Add to queue' }), { key: 'Escape' });
+    expect(onCancel).not.toHaveBeenCalled();
+  });
 });

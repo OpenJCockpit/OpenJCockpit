@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { SecretField } from './SecretField';
 
@@ -12,5 +12,12 @@ describe('SecretField', () => {
     rerender(<SecretField label="Token" hasValue value="" onChange={vi.fn()} />);
     expect(screen.getByText(/leave blank to keep/)).toBeTruthy();
     expect(screen.getByPlaceholderText('••••••••')).toHaveAttribute('type', 'password');
+  });
+
+  it('reports typed input', () => {
+    const onChange = vi.fn();
+    render(<SecretField label="Token" hasValue={false} value="" onChange={onChange} />);
+    fireEvent.change(screen.getByLabelText('Token'), { target: { value: 'abc' } });
+    expect(onChange).toHaveBeenCalledWith('abc');
   });
 });

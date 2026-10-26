@@ -52,4 +52,12 @@ describe('CustomerHero', () => {
     render(<CustomerHero selectedProject={project()} workspace={mockWorkspace} />);
     expect(screen.queryByTestId('project-repository-link')).not.toBeInTheDocument();
   });
+
+  it('falls back to the workspace customer when no project is selected', () => {
+    render(<CustomerHero selectedProject={null} workspace={mockWorkspace} />);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      `Customer: ${mockWorkspace.customer.name}`,
+    );
+    expect(screen.queryByTestId('project-repository-link')).not.toBeInTheDocument();
+  });
 });

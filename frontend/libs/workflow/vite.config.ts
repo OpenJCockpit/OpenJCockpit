@@ -5,7 +5,9 @@ import base from '../../vite.config.base';
 export default mergeConfig(base, {
   test: {
     coverage: {
-      thresholds: { statements: 75, branches: 78, functions: 65, lines: 77 },
+      // Test helpers, not shipped code.
+      exclude: ['src/testUtils/**'],
+      thresholds: { statements: 100, branches: 100, functions: 100, lines: 100 },
     },
   },
 });

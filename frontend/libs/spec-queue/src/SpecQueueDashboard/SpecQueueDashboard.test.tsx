@@ -1,11 +1,11 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
   (await import('../testUtils')).automockApiClients(await importOriginal()),
 );
-vi.mock('@openjcockpit/auth', () => ({ isOpenJCockpitAdmin: () => false }));
+vi.mock('@openjcockpit/auth', () => ({ isOpenJCockpitAdmin: vi.fn(() => false) }));
 vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
   AddToQueueDialog: ({
     onAdded,
@@ -23,6 +23,7 @@ vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
 
 import type { Project, SpecQueue, SpecQueueItem } from '@openjcockpit/api';
 import * as api from '@openjcockpit/api';
+import { isOpenJCockpitAdmin } from '@openjcockpit/auth';
 import { withQueryClient } from '../testQueryClient';
 import { SpecQueueDashboard } from './SpecQueueDashboard';
 
@@ -460,5 +461,145 @@ describe('SpecQueueDashboard', () => {
     const recent = screen.getByTestId('queue-recent');
     expect(recent).toHaveTextContent('z.md');
     expect(recent.querySelector('[data-testid="queue-item-pr-link"]')).toBeInTheDocument();
+  });
+
+  it('falls back to a generic load error for a non-Error rejection', async () => {
+    vi.mocked(api.getSpecQueue).mockRejectedValue('boom');
+    await renderDashboard();
+    expect(screen.getByTestId('queue-load-error')).toHaveTextContent(
+      'The queue could not be loaded — Failed to load the spec queue',
+    );
+  });
+
+  it('does not poll when the tab is hidden from the start', async () => {
+    vi.useFakeTimers();
+    const spy = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+    try {
+      render(withQueryClient(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />));
+      await settle();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(30000);
+      });
+      expect(api.getSpecQueue).toHaveBeenCalledTimes(1);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('shows when the runner last checked', async () => {
+    vi.mocked(api.getSpecQueue).mockResolvedValue(queue({ lastPolledAt: '2026-01-01T00:00:00Z' }));
+    await renderDashboard();
+    expect(screen.getByTestId('queue-last-polled')).toHaveTextContent('Runner last checked:');
+  });
+
+  it('closes the remove confirmation on cancel without calling the API', async () => {
+    await renderDashboard();
+    fireEvent.click(screen.getByRole('button', { name: 'Remove a.md from the queue' }));
+    fireEvent.click(screen.getByTestId('confirm-action-cancel'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(api.removeSpecQueueItem).not.toHaveBeenCalled();
+  });
+
+  it('closes the add dialog on cancel', async () => {
+    await renderDashboard();
+    fireEvent.click(screen.getByTestId('queue-add'));
+    fireEvent.click(screen.getByText('stub-cancel'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('keeps focus handling quiet when the moved row is gone from the response', async () => {
+    vi.mocked(api.reorderSpecQueue).mockResolvedValue(queue({ items: [item('b'), item('c')] }));
+    await renderDashboard();
+    fireEvent.click(screen.getByRole('button', { name: 'Move a.md down' }));
+    await waitFor(() => expect(screen.getAllByTestId('queue-item')).toHaveLength(2));
+    expect(api.reorderSpecQueue).toHaveBeenCalledWith('p1', ['b', 'a', 'c']);
+  });
+
+  describe('unmounting during an action', () => {
+    it('does not apply a reorder response after unmount', async () => {
+      let resolve!: (q: SpecQueue) => void;
+      vi.mocked(api.reorderSpecQueue).mockReturnValue(new Promise((r) => (resolve = r)));
+      render(withQueryClient(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />));
+      fireEvent.click(await screen.findByRole('button', { name: 'Move a.md down' }));
+      cleanup();
+      await act(async () => resolve(queue()));
+      expect(api.getSpecQueue).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not apply a pause response after unmount', async () => {
+      let resolve!: (q: SpecQueue) => void;
+      vi.mocked(api.pauseSpecQueue).mockReturnValue(new Promise((r) => (resolve = r)));
+      render(withQueryClient(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />));
+      fireEvent.click(await screen.findByTestId('queue-pause'));
+      cleanup();
+      await act(async () => resolve(queue({ state: 'PAUSED' })));
+      expect(api.pauseSpecQueue).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not touch state when a failing action settles after unmount', async () => {
+      let reject!: (e: Error) => void;
+      vi.mocked(api.pauseSpecQueue).mockReturnValue(new Promise((_, r) => (reject = r)));
+      render(withQueryClient(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />));
+      fireEvent.click(await screen.findByTestId('queue-pause'));
+      cleanup();
+      await act(async () => reject(new Error('late')));
+      expect(api.pauseSpecQueue).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not apply a confirmed removal after unmount', async () => {
+      let resolve!: (i: SpecQueueItem) => void;
+      vi.mocked(api.removeSpecQueueItem).mockReturnValue(new Promise((r) => (resolve = r)));
+      render(withQueryClient(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />));
+      fireEvent.click(await screen.findByRole('button', { name: 'Remove a.md from the queue' }));
+      fireEvent.click(screen.getByTestId('confirm-action-confirm'));
+      cleanup();
+      await act(async () => resolve(item('a')));
+      expect(api.getSpecQueue).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not show a removal failure after unmount', async () => {
+      let reject!: (e: Error) => void;
+      vi.mocked(api.removeSpecQueueItem).mockReturnValue(new Promise((_, r) => (reject = r)));
+      render(withQueryClient(<SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />));
+      fireEvent.click(await screen.findByRole('button', { name: 'Remove a.md from the queue' }));
+      fireEvent.click(screen.getByTestId('confirm-action-confirm'));
+      cleanup();
+      await act(async () => reject(new Error('late')));
+      expect(api.removeSpecQueueItem).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('project auto-merge setting', () => {
+    const enable = async () => {
+      vi.mocked(isOpenJCockpitAdmin).mockReturnValue(true);
+      vi.mocked(api.updateSpecQueueSettings).mockResolvedValue({ autoMergeAllowed: true });
+      await renderDashboard();
+      fireEvent.click(screen.getByTestId('auto-merge-setting-toggle'));
+      fireEvent.click(screen.getByTestId('confirm-action-confirm'));
+    };
+
+    it('applies the saved setting to the cached queue', async () => {
+      await enable();
+      await waitFor(() => expect(screen.getByTestId('auto-merge-setting-toggle')).toBeChecked());
+    });
+
+    it('leaves an evicted queue cache untouched', async () => {
+      const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+      vi.mocked(isOpenJCockpitAdmin).mockReturnValue(true);
+      vi.mocked(api.updateSpecQueueSettings).mockImplementation(async () => {
+        client.removeQueries({ queryKey: ['spec-queue', 'p1', 'queue'] });
+        return { autoMergeAllowed: true };
+      });
+      render(
+        <QueryClientProvider client={client}>
+          <SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />
+        </QueryClientProvider>,
+      );
+      fireEvent.click(await screen.findByTestId('auto-merge-setting-toggle'));
+      fireEvent.click(screen.getByTestId('confirm-action-confirm'));
+      await waitFor(() => expect(api.updateSpecQueueSettings).toHaveBeenCalled());
+      await settle();
+      expect(client.getQueryData(['spec-queue', 'p1', 'queue'])).toBeUndefined();
+    });
   });
 });

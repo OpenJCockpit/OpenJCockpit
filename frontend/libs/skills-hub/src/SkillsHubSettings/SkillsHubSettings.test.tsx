@@ -72,6 +72,7 @@ describe('SkillsHubSettings', () => {
       setInputValue(nameInput, 'Acme Skills');
       setInputValue(urlInput, 'https://marketplace.example.com/api');
       setInputValue(keyInput, 'secret-key-value');
+      setInputValue(screen.getByLabelText<HTMLTextAreaElement>('Description'), 'Internal catalog');
     });
 
     await clickAsync(screen.getByText('Save'));
@@ -81,7 +82,7 @@ describe('SkillsHubSettings', () => {
         name: 'Acme Skills',
         marketplaceUrl: 'https://marketplace.example.com/api',
         apiKey: 'secret-key-value',
-        description: '',
+        description: 'Internal catalog',
         enabled: true,
       }),
     );

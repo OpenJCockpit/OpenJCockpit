@@ -195,4 +195,93 @@ describe('AgentSequencer', () => {
     ).map((el) => el.textContent);
     expect(names).toEqual(['Agent A', 'Child Workflow', 'Agent B']);
   });
+
+  it('maps statusKind to compact labels (Active / Ready / Waiting)', () => {
+    const mk = (id: string, name: string, statusKind: AgentCard['statusKind']): AgentCard => ({
+      kind: 'agent',
+      id,
+      name,
+      description: `${name} desc`,
+      status: 's',
+      statusKind,
+    });
+    render(
+      <AgentSequencer
+        nodes={[
+          mk('requirement', 'Req', 'active'),
+          mk('impact', 'Imp', 'done'),
+          mk('review', 'Rev', 'review'),
+        ]}
+        definitions={definitions}
+      />,
+    );
+    fireEvent.mouseEnter(nodeFor('Req'));
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Active');
+    fireEvent.mouseLeave(nodeFor('Req'));
+    fireEvent.mouseEnter(nodeFor('Imp'));
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Ready');
+    fireEvent.mouseLeave(nodeFor('Imp'));
+    fireEvent.mouseEnter(nodeFor('Rev'));
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Ready');
+  });
+
+  it('renders a parallel orb and falls back to a default icon for unknown agents', () => {
+    const orbNode: OrbCard = {
+      kind: 'orb',
+      id: 'orb-p',
+      referencedWorkflowId: 'wf',
+      referencedWorkflowName: 'Fan out',
+      mode: 'PARALLEL',
+      status: 'WAITING',
+      statusKind: 'waiting',
+    };
+    const custom: AgentCard = { ...agents[0]!, id: 'custom', name: 'Custom' };
+    render(<AgentSequencer nodes={[custom, orbNode]} definitions={[]} />);
+    expect(screen.getByLabelText('Workflow orb: Fan out, parallel')).toBeInTheDocument();
+    expect(screen.getByText('parallel')).toBeInTheDocument();
+    expect(screen.getByText('⬡')).toBeInTheDocument();
+  });
+
+  it('sorts agents missing from the definitions after the defined ones', () => {
+    const unknown: AgentCard = { ...agents[0]!, id: 'unknown', name: 'Unknown' };
+    const [requirement, impact] = agents as [AgentCard, AgentCard];
+    render(<AgentSequencer nodes={[unknown, impact, requirement]} definitions={definitions} />);
+    const names = Array.from(
+      screen.getByLabelText('Agent pipeline sequence').querySelectorAll('strong'),
+    ).map((el) => el.textContent);
+    expect(names).toEqual(['Requirement', 'Impact', 'Unknown']);
+  });
+
+  it('ignores dragOver without a drag in progress or over the dragged node itself', () => {
+    render(<AgentSequencer nodes={agents} definitions={definitions} />);
+    fireEvent.dragOver(nodeFor('Impact'));
+    fireEvent.dragStart(nodeFor('Requirement'));
+    fireEvent.dragOver(nodeFor('Requirement'));
+    const names = Array.from(
+      screen.getByLabelText('Agent pipeline sequence').querySelectorAll('strong'),
+    ).map((el) => el.textContent);
+    expect(names).toEqual(['Requirement', 'Impact']);
+  });
+
+  it('keeps an existing node when a later nodes update no longer contains it', () => {
+    const { rerender } = render(<AgentSequencer nodes={agents} definitions={definitions} />);
+    rerender(<AgentSequencer nodes={[agents[0]!]} definitions={definitions} />);
+    expect(screen.getByText('Impact')).toBeInTheDocument();
+  });
+
+  it('mirrors nodes until definitions arrive', () => {
+    const { rerender } = render(<AgentSequencer nodes={[agents[1]!]} definitions={[]} />);
+    expect(screen.getByText('Impact')).toBeInTheDocument();
+    rerender(<AgentSequencer nodes={agents} definitions={[]} />);
+    expect(screen.getByText('Requirement')).toBeInTheDocument();
+  });
+
+  it('ignores a stale drag index when the nodes shrink mid-drag before definitions load', () => {
+    const { rerender } = render(<AgentSequencer nodes={agents} definitions={[]} />);
+    fireEvent.dragStart(nodeFor('Impact'));
+    rerender(<AgentSequencer nodes={[agents[0]!]} definitions={[]} />);
+    fireEvent.dragOver(nodeFor('Requirement'));
+    expect(nodeFor('Requirement')).toBeInTheDocument();
+    expect(screen.queryByText('Impact')).not.toBeInTheDocument();
+  });
 });
