@@ -8,6 +8,7 @@
     "format": "prettier --write . --ignore-path ../../.prettierignore",
     "format:check": "prettier --check . --ignore-path ../../.prettierignore",
     "check:styles": "node visual/check-classes.mjs",
+    "check:bundle": "node scripts/check-bundle-size.mjs",
     "visual:baseline": "node visual/run.mjs baseline",
     "visual:check": "node visual/run.mjs check"
   },

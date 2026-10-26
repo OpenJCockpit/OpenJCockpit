@@ -248,10 +248,12 @@ services:
     build:
       context: frontend
       dockerfile: apps/dashboard/Dockerfile
+      args:
+        BUILD_SHA: ${BUILD_SHA:-dev}
     container_name: openjcockpit-dashboard
     restart: unless-stopped
     ports:
-      - "4000:80"
+      - "4000:8080"
     depends_on:
       - ai-control-service
 

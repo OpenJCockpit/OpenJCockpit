@@ -19,14 +19,19 @@ COPY libs libs
 COPY apps/dashboard apps/dashboard
 RUN NX_DAEMON=false npx nx run dashboard:build
 
-FROM nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+FROM nginxinc/nginx-unprivileged:1.27-alpine@sha256:65e3e85dbaed8ba248841d9d58a899b6197106c23cb0ff1a132b7bfe0547e4c0
 # The nginx image renders /etc/nginx/templates/*.template into /etc/nginx/conf.d at startup. The filter
 # keeps envsubst from touching nginx's own $variables ($uri, $host, ...).
-ENV KEYCLOAK_URL=http://localhost:8080 \
-    NGINX_ENVSUBST_FILTER=^KEYCLOAK_
+ARG BUILD_SHA=unknown
+ENV BUILD_SHA=$BUILD_SHA \
+    API_UPSTREAM=http://ai-control-service:8080 \
+    KEYCLOAK_URL=http://localhost:8080 \
+    KEYCLOAK_REALM=openjcockpit \
+    KEYCLOAK_CLIENT_ID=openjcockpit \
+    NGINX_ENVSUBST_FILTER=^(KEYCLOAK_|API_UPSTREAM$|BUILD_SHA$)
 COPY --from=build /app/apps/dashboard/dist /usr/share/nginx/html
 COPY apps/dashboard/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY apps/dashboard/security-headers.inc.template /etc/nginx/templates/security-headers.inc.template
-EXPOSE 80
+EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget -q -O /dev/null http://127.0.0.1/healthz || exit 1
+  CMD wget -q -O /dev/null http://127.0.0.1:8080/healthz || exit 1

@@ -4,19 +4,23 @@ import { BrowserRouter } from 'react-router';
 import { QueryClientProvider } from '@tanstack/react-query';
 import './styles/index.scss';
 import { ErrorBoundary } from '@openjcockpit/ui';
+import { loadKeycloakConfig } from '@openjcockpit/auth';
 import App from './App';
 import { createQueryClient } from './queryClient';
 
 const queryClient = createQueryClient();
 
-createRoot(document.getElementById('root') as HTMLElement).render(
-  <StrictMode>
-    <ErrorBoundary message="The application hit an unexpected error.">
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </QueryClientProvider>
-    </ErrorBoundary>
-  </StrictMode>,
-);
+// Keycloak settings come from the container at runtime; they must be loaded before the first login.
+void loadKeycloakConfig().then(() => {
+  createRoot(document.getElementById('root') as HTMLElement).render(
+    <StrictMode>
+      <ErrorBoundary message="The application hit an unexpected error.">
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </StrictMode>,
+  );
+});

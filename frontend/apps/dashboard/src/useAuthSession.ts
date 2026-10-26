@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { setAuthToken } from '@openjcockpit/api';
+import { setAuthToken, setSessionRefresher } from '@openjcockpit/api';
 import { getKeycloak, getUserFromToken } from '@openjcockpit/auth';
 import type { User } from '@openjcockpit/auth';
 
@@ -37,6 +37,17 @@ export function useAuthSession() {
           return;
         }
         setAuthToken(keycloak.token);
+        setSessionRefresher(async () => {
+          try {
+            // -1 forces a refresh: the server already rejected the current token.
+            await keycloak.updateToken(-1);
+            if (!keycloak.token) throw new Error('No token after refresh');
+            return keycloak.token;
+          } catch (error) {
+            void keycloak.login();
+            throw error;
+          }
+        });
         setUser(getUserFromToken(keycloak.tokenParsed));
         setAuthenticated(true);
         refreshTimer = window.setInterval(async () => {
@@ -54,6 +65,7 @@ export function useAuthSession() {
       });
     return () => {
       cancelled = true;
+      setSessionRefresher(null);
       if (refreshTimer) window.clearInterval(refreshTimer);
     };
   }, []);
