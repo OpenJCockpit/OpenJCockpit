@@ -15,5 +15,8 @@
   },
   "nx": {
     "includedScripts": []
+  },
+  "devDependencies": {
+    "orval": "8.45.0"
   }
 }
