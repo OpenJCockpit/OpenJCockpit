@@ -1,5 +1,4 @@
-import { API_BASE_URL, apiRequest, authHeaders } from '../core/http';
-import { errorMessageFrom } from '../core/httpErrors';
+import { apiRequest, apiRequestVoid } from '../core/http';
 import {
   A2AAgentCard,
   A2AService,
@@ -33,67 +32,53 @@ import {
 } from './workflowTypes';
 import type { AgentRun } from '../types/types';
 
-const JSON_HEADERS = { 'Content-Type': 'application/json' };
-
 // ── Workflows ────────────────────────────────────────────────────────────
 
 export function listWorkflows(signal?: AbortSignal): Promise<WorkflowDefinition[]> {
   return apiRequest('/api/workflows', { signal, errorMessage: 'Failed to load workflows' });
 }
 
-export async function getWorkflow(id: string): Promise<WorkflowDefinition> {
-  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}`, {
-    headers: authHeaders(),
+export function getWorkflow(id: string): Promise<WorkflowDefinition> {
+  return apiRequest(`/api/workflows/${id}`, {
+    errorMessage: 'Failed to load workflow',
   });
-  if (!response.ok) throw new Error(`Failed to load workflow: ${response.status}`);
-  return response.json();
 }
 
-export async function createWorkflow(request: WorkflowDefinition): Promise<WorkflowDefinition> {
-  const response = await fetch(`${API_BASE_URL}/api/workflows`, {
+export function createWorkflow(request: WorkflowDefinition): Promise<WorkflowDefinition> {
+  return apiRequest(`/api/workflows`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to create workflow',
   });
-  // Surfaces the server's actual ApiErrorResponse.message (e.g. the approval-gate
-  // placement validation naming the offending stage) instead of a generic status-only
-  // message — required for the gate's validation error to reach the user (AC-03).
-  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to create workflow'));
-  return response.json();
 }
 
-export async function updateWorkflow(
+export function updateWorkflow(
   id: string,
   request: WorkflowDefinition,
 ): Promise<WorkflowDefinition> {
-  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}`, {
+  return apiRequest(`/api/workflows/${id}`, {
     method: 'PUT',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to update workflow',
   });
-  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to update workflow'));
-  return response.json();
 }
 
-export async function deleteWorkflow(id: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}`, {
+export function deleteWorkflow(id: string): Promise<void> {
+  return apiRequestVoid(`/api/workflows/${id}`, {
     method: 'DELETE',
-    headers: authHeaders(),
+    errorMessage: 'Failed to delete workflow',
   });
-  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to delete workflow'));
 }
 
-export async function startWorkflow(
+export function startWorkflow(
   id: string,
   input: WorkflowStartInput = {},
 ): Promise<WorkflowStartResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/workflows/${id}/start`, {
+  return apiRequest(`/api/workflows/${id}/start`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(input),
+    body: input,
+    errorMessage: 'Failed to start workflow',
   });
-  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to start workflow'));
-  return response.json();
 }
 
 // ── Workflow groups & export/import ──────────────────────────────────────
@@ -105,53 +90,41 @@ export function listWorkflowGroups(signal?: AbortSignal): Promise<WorkflowGroup[
   });
 }
 
-export async function createWorkflowGroup(request: WorkflowGroup): Promise<WorkflowGroup> {
-  const response = await fetch(`${API_BASE_URL}/api/workflow-groups`, {
+export function createWorkflowGroup(request: WorkflowGroup): Promise<WorkflowGroup> {
+  return apiRequest(`/api/workflow-groups`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to create workflow group',
   });
-  if (!response.ok) throw new Error(`Failed to create workflow group: ${response.status}`);
-  return response.json();
 }
 
-export async function updateWorkflowGroup(
-  id: string,
-  request: WorkflowGroup,
-): Promise<WorkflowGroup> {
-  const response = await fetch(`${API_BASE_URL}/api/workflow-groups/${id}`, {
+export function updateWorkflowGroup(id: string, request: WorkflowGroup): Promise<WorkflowGroup> {
+  return apiRequest(`/api/workflow-groups/${id}`, {
     method: 'PUT',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to update workflow group',
   });
-  if (!response.ok) throw new Error(`Failed to update workflow group: ${response.status}`);
-  return response.json();
 }
 
-export async function deleteWorkflowGroup(id: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/workflow-groups/${id}`, {
+export function deleteWorkflowGroup(id: string): Promise<void> {
+  return apiRequestVoid(`/api/workflow-groups/${id}`, {
     method: 'DELETE',
-    headers: authHeaders(),
+    errorMessage: 'Failed to delete workflow group',
   });
-  if (!response.ok) throw new Error(`Failed to delete workflow group: ${response.status}`);
 }
 
-export async function exportWorkflows(): Promise<WorkflowExportBundle> {
-  const response = await fetch(`${API_BASE_URL}/api/workflows/export`, {
-    headers: authHeaders(),
+export function exportWorkflows(): Promise<WorkflowExportBundle> {
+  return apiRequest(`/api/workflows/export`, {
+    errorMessage: 'Failed to export workflows',
   });
-  if (!response.ok) throw new Error(`Failed to export workflows: ${response.status}`);
-  return response.json();
 }
 
-export async function importWorkflows(bundle: WorkflowExportBundle): Promise<WorkflowImportResult> {
-  const response = await fetch(`${API_BASE_URL}/api/workflows/import`, {
+export function importWorkflows(bundle: WorkflowExportBundle): Promise<WorkflowImportResult> {
+  return apiRequest(`/api/workflows/import`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(bundle),
+    body: bundle,
+    errorMessage: 'Failed to import workflows',
   });
-  if (!response.ok) throw new Error(`Failed to import workflows: ${response.status}`);
-  return response.json();
 }
 
 function decisionLogQuery(filter?: DecisionLogFilter): string {
@@ -168,61 +141,48 @@ function decisionLogQuery(filter?: DecisionLogFilter): string {
   return query ? `?${query}` : '';
 }
 
-export async function getWorkflowDecisionLogs(
+export function getWorkflowDecisionLogs(
   workflowId: string,
   filter?: DecisionLogFilter,
 ): Promise<PolicyDecisionAuditEntry[]> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/workflows/${workflowId}/decision-logs${decisionLogQuery(filter)}`,
-    {
-      headers: authHeaders(),
-    },
-  );
-  if (!response.ok) throw new Error(`Failed to load decision logs: ${response.status}`);
-  return response.json();
+  return apiRequest(`/api/workflows/${workflowId}/decision-logs${decisionLogQuery(filter)}`, {
+    errorMessage: 'Failed to load decision logs',
+  });
 }
 
-export async function getWorkflowExecutionDecisionLogs(
+export function getWorkflowExecutionDecisionLogs(
   workflowExecutionId: string,
   filter?: DecisionLogFilter,
 ): Promise<PolicyDecisionAuditEntry[]> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/workflow-executions/${workflowExecutionId}/decision-logs${decisionLogQuery(filter)}`,
+  return apiRequest(
+    `/api/workflow-executions/${workflowExecutionId}/decision-logs${decisionLogQuery(filter)}`,
     {
-      headers: authHeaders(),
+      errorMessage: 'Failed to load decision logs',
     },
   );
-  if (!response.ok) throw new Error(`Failed to load decision logs: ${response.status}`);
-  return response.json();
 }
 
 // ── OPA configuration ────────────────────────────────────────────────────
 
-export async function getOpaConfig(): Promise<OpaConfig> {
-  const response = await fetch(`${API_BASE_URL}/api/opa-config`, {
-    headers: authHeaders(),
+export function getOpaConfig(): Promise<OpaConfig> {
+  return apiRequest(`/api/opa-config`, {
+    errorMessage: 'Failed to load OPA config',
   });
-  if (!response.ok) throw new Error(`Failed to load OPA config: ${response.status}`);
-  return response.json();
 }
 
-export async function saveOpaConfig(request: OpaConfigRequest): Promise<OpaConfig> {
-  const response = await fetch(`${API_BASE_URL}/api/opa-config`, {
+export function saveOpaConfig(request: OpaConfigRequest): Promise<OpaConfig> {
+  return apiRequest(`/api/opa-config`, {
     method: 'PUT',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to save OPA config',
   });
-  if (!response.ok) throw new Error(`Failed to save OPA config: ${response.status}`);
-  return response.json();
 }
 
 export async function checkOpaHealth(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/opa-config/health`, {
-      headers: authHeaders(),
+    const body = await apiRequest<{ reachable?: boolean }>('/api/opa-config/health', {
+      errorMessage: 'Failed to check OPA health',
     });
-    if (!response.ok) return false;
-    const body = await response.json();
     return Boolean(body.reachable);
   } catch (error) {
     console.warn('Failed to check OPA health', error);
@@ -233,76 +193,62 @@ export async function checkOpaHealth(): Promise<boolean> {
 // ── Agent definitions ────────────────────────────────────────────────────
 
 /** Local /agents folder plus the agents of each A2A provider (e.g. LiteLLM). */
-export async function getAgentCatalog(): Promise<AgentCatalog> {
-  const response = await fetch(`${API_BASE_URL}/api/agent-catalog`, {
-    headers: authHeaders(),
+export function getAgentCatalog(): Promise<AgentCatalog> {
+  return apiRequest(`/api/agent-catalog`, {
+    errorMessage: 'Failed to load agent catalog',
   });
-  if (!response.ok) throw new Error(`Failed to load agent catalog: ${response.status}`);
-  return response.json();
 }
 
 /** The agent card the A2A provider hosts for one agent, fetched live through the backend. */
-export async function getProviderAgentCard(provider: string, name: string): Promise<A2AAgentCard> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/agent-catalog/providers/${encodeURIComponent(provider)}/agents/${encodeURIComponent(name)}/card`,
-    { headers: authHeaders() },
+export function getProviderAgentCard(provider: string, name: string): Promise<A2AAgentCard> {
+  return apiRequest(
+    `/api/agent-catalog/providers/${encodeURIComponent(provider)}/agents/${encodeURIComponent(name)}/card`,
+    {
+      errorMessage: 'Failed to load agent card',
+    },
   );
-  if (!response.ok) throw new Error(`Failed to load agent card: ${response.status}`);
-  return response.json();
 }
 
 export async function listAgentSpecs(): Promise<AgentSpec[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/agent-definitions`, {
-      headers: authHeaders(),
+    return await apiRequest('/api/agent-definitions', {
+      errorMessage: 'Failed to load agent definitions',
     });
-    if (!response.ok) {
-      console.warn('Falling back to empty agent specs: status', response.status);
-      return [];
-    }
-    return await response.json();
   } catch (error) {
     console.warn('Falling back to empty agent specs', error);
     return [];
   }
 }
 
-export async function createAgentSpec(request: AgentSpec): Promise<AgentSpec> {
-  const response = await fetch(`${API_BASE_URL}/api/agent-definitions`, {
+export function createAgentSpec(request: AgentSpec): Promise<AgentSpec> {
+  return apiRequest(`/api/agent-definitions`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to create agent definition',
   });
-  if (!response.ok) throw new Error(`Failed to create agent definition: ${response.status}`);
-  return response.json();
 }
 
-export async function updateAgentSpec(name: string, request: AgentSpec): Promise<AgentSpec> {
-  const response = await fetch(`${API_BASE_URL}/api/agent-definitions/${name}`, {
+export function updateAgentSpec(name: string, request: AgentSpec): Promise<AgentSpec> {
+  return apiRequest(`/api/agent-definitions/${name}`, {
     method: 'PUT',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to update agent definition',
   });
-  if (!response.ok) throw new Error(`Failed to update agent definition: ${response.status}`);
-  return response.json();
 }
 
-export async function deleteAgentSpec(name: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/agent-definitions/${name}`, {
+export function deleteAgentSpec(name: string): Promise<void> {
+  return apiRequestVoid(`/api/agent-definitions/${name}`, {
     method: 'DELETE',
-    headers: authHeaders(),
+    errorMessage: 'Failed to delete agent definition',
   });
-  if (!response.ok) throw new Error(`Failed to delete agent definition: ${response.status}`);
 }
 
-export async function generateAgentSpec(prompt: string): Promise<AgentSpec> {
-  const response = await fetch(`${API_BASE_URL}/api/agent-definitions/generate-from-prompt`, {
+export function generateAgentSpec(prompt: string): Promise<AgentSpec> {
+  return apiRequest(`/api/agent-definitions/generate-from-prompt`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify({ prompt }),
+    body: { prompt },
+    errorMessage: 'Failed to generate agent definition',
   });
-  if (!response.ok) throw new Error(`Failed to generate agent definition: ${response.status}`);
-  return response.json();
 }
 
 // ── Subagent definitions ─────────────────────────────────────────────────
@@ -314,45 +260,35 @@ export function listSubagentSpecs(signal?: AbortSignal): Promise<SubagentSpec[]>
   });
 }
 
-export async function createSubagentSpec(request: SubagentSpec): Promise<SubagentSpec> {
-  const response = await fetch(`${API_BASE_URL}/api/subagent-definitions`, {
+export function createSubagentSpec(request: SubagentSpec): Promise<SubagentSpec> {
+  return apiRequest(`/api/subagent-definitions`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to create subagent definition',
   });
-  if (!response.ok) throw new Error(`Failed to create subagent definition: ${response.status}`);
-  return response.json();
 }
 
-export async function updateSubagentSpec(
-  name: string,
-  request: SubagentSpec,
-): Promise<SubagentSpec> {
-  const response = await fetch(`${API_BASE_URL}/api/subagent-definitions/${name}`, {
+export function updateSubagentSpec(name: string, request: SubagentSpec): Promise<SubagentSpec> {
+  return apiRequest(`/api/subagent-definitions/${name}`, {
     method: 'PUT',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to update subagent definition',
   });
-  if (!response.ok) throw new Error(`Failed to update subagent definition: ${response.status}`);
-  return response.json();
 }
 
-export async function deleteSubagentSpec(name: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/subagent-definitions/${name}`, {
+export function deleteSubagentSpec(name: string): Promise<void> {
+  return apiRequestVoid(`/api/subagent-definitions/${name}`, {
     method: 'DELETE',
-    headers: authHeaders(),
+    errorMessage: 'Failed to delete subagent definition',
   });
-  if (!response.ok) throw new Error(`Failed to delete subagent definition: ${response.status}`);
 }
 
-export async function generateSubagentSpec(prompt: string): Promise<SubagentSpec> {
-  const response = await fetch(`${API_BASE_URL}/api/subagent-definitions/generate-from-prompt`, {
+export function generateSubagentSpec(prompt: string): Promise<SubagentSpec> {
+  return apiRequest(`/api/subagent-definitions/generate-from-prompt`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify({ prompt }),
+    body: { prompt },
+    errorMessage: 'Failed to generate subagent definition',
   });
-  if (!response.ok) throw new Error(`Failed to generate subagent definition: ${response.status}`);
-  return response.json();
 }
 
 // ── Skill definitions ────────────────────────────────────────────────────
@@ -364,188 +300,147 @@ export function listSkillSpecs(signal?: AbortSignal): Promise<SkillSpec[]> {
   });
 }
 
-export async function createSkillSpec(request: SkillSpec): Promise<SkillSpec> {
-  const response = await fetch(`${API_BASE_URL}/api/skill-definitions`, {
+export function createSkillSpec(request: SkillSpec): Promise<SkillSpec> {
+  return apiRequest(`/api/skill-definitions`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to create skill definition',
   });
-  if (!response.ok) throw new Error(`Failed to create skill definition: ${response.status}`);
-  return response.json();
 }
 
-export async function updateSkillSpec(name: string, request: SkillSpec): Promise<SkillSpec> {
-  const response = await fetch(`${API_BASE_URL}/api/skill-definitions/${name}`, {
+export function updateSkillSpec(name: string, request: SkillSpec): Promise<SkillSpec> {
+  return apiRequest(`/api/skill-definitions/${name}`, {
     method: 'PUT',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to update skill definition',
   });
-  if (!response.ok) throw new Error(`Failed to update skill definition: ${response.status}`);
-  return response.json();
 }
 
-export async function deleteSkillSpec(name: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/skill-definitions/${name}`, {
+export function deleteSkillSpec(name: string): Promise<void> {
+  return apiRequestVoid(`/api/skill-definitions/${name}`, {
     method: 'DELETE',
-    headers: authHeaders(),
+    errorMessage: 'Failed to delete skill definition',
   });
-  if (!response.ok) throw new Error(`Failed to delete skill definition: ${response.status}`);
 }
 
-export async function generateSkillSpec(prompt: string): Promise<SkillSpec> {
-  const response = await fetch(`${API_BASE_URL}/api/skill-definitions/generate-from-prompt`, {
+export function generateSkillSpec(prompt: string): Promise<SkillSpec> {
+  return apiRequest(`/api/skill-definitions/generate-from-prompt`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify({ prompt }),
+    body: { prompt },
+    errorMessage: 'Failed to generate skill definition',
   });
-  if (!response.ok) throw new Error(`Failed to generate skill definition: ${response.status}`);
-  return response.json();
 }
 
 // ── A2A services ─────────────────────────────────────────────────────────
 
-export async function listA2AServices(): Promise<A2AService[]> {
-  const response = await fetch(`${API_BASE_URL}/api/a2a-services`, {
-    headers: authHeaders(),
+export function listA2AServices(): Promise<A2AService[]> {
+  return apiRequest(`/api/a2a-services`, {
+    errorMessage: 'Failed to load A2A services',
   });
-  if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to load A2A services'));
-  }
-  return response.json();
 }
 
-export async function createA2AService(request: A2AServiceRequest): Promise<A2AService> {
-  const response = await fetch(`${API_BASE_URL}/api/a2a-services`, {
+export function createA2AService(request: A2AServiceRequest): Promise<A2AService> {
+  return apiRequest(`/api/a2a-services`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to add A2A service',
   });
-  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to add A2A service'));
-  return response.json();
 }
 
-export async function updateA2AService(
-  id: string,
-  request: A2AServiceRequest,
-): Promise<A2AService> {
-  const response = await fetch(`${API_BASE_URL}/api/a2a-services/${encodeURIComponent(id)}`, {
+export function updateA2AService(id: string, request: A2AServiceRequest): Promise<A2AService> {
+  return apiRequest(`/api/a2a-services/${encodeURIComponent(id)}`, {
     method: 'PUT',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to save A2A service',
   });
-  if (!response.ok) throw new Error(await errorMessageFrom(response, 'Failed to save A2A service'));
-  return response.json();
 }
 
-export async function deleteA2AService(id: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/a2a-services/${encodeURIComponent(id)}`, {
+export function deleteA2AService(id: string): Promise<void> {
+  return apiRequestVoid(`/api/a2a-services/${encodeURIComponent(id)}`, {
     method: 'DELETE',
-    headers: authHeaders(),
+    errorMessage: 'Failed to remove A2A service',
   });
-  if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to remove A2A service'));
-  }
 }
 
 // ── Skill catalog (local + marketplace) ──────────────────────────────────
 // Intentionally throw-on-failure, unlike listSkillSpecs above: a real failure
 // (e.g. 401) must surface as a real error, never as silently-rendered mock data.
 
-export async function getSkillCatalog(): Promise<SkillCatalog> {
-  const response = await fetch(`${API_BASE_URL}/api/skill-catalog`, {
-    headers: authHeaders(),
+export function getSkillCatalog(): Promise<SkillCatalog> {
+  return apiRequest(`/api/skill-catalog`, {
+    errorMessage: 'Failed to load skill catalog',
   });
-  if (!response.ok) throw new Error(`Failed to load skill catalog: ${response.status}`);
-  return response.json();
 }
 
 // ── Project integration config ───────────────────────────────────────────
 
-export async function getHermesConfig(projectId: string): Promise<HermesConfig> {
-  const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/hermes-config`, {
-    headers: authHeaders(),
+export function getHermesConfig(projectId: string): Promise<HermesConfig> {
+  return apiRequest(`/api/projects/${projectId}/hermes-config`, {
+    errorMessage: 'Failed to load Hermes config',
   });
-  if (!response.ok) throw new Error(`Failed to load Hermes config: ${response.status}`);
-  return response.json();
 }
 
-export async function saveHermesConfig(
+export function saveHermesConfig(
   projectId: string,
   request: HermesConfigRequest,
 ): Promise<HermesConfig> {
-  const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/hermes-config`, {
+  return apiRequest(`/api/projects/${projectId}/hermes-config`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to save Hermes config',
   });
-  if (!response.ok) throw new Error(`Failed to save Hermes config: ${response.status}`);
-  return response.json();
 }
 
-export async function deleteHermesConfig(projectId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/hermes-config`, {
+export function deleteHermesConfig(projectId: string): Promise<void> {
+  return apiRequestVoid(`/api/projects/${projectId}/hermes-config`, {
     method: 'DELETE',
-    headers: authHeaders(),
+    errorMessage: 'Failed to delete Hermes config',
   });
-  if (!response.ok) throw new Error(`Failed to delete Hermes config: ${response.status}`);
 }
 
-export async function getJiraConfig(projectId: string): Promise<JiraConfig> {
-  const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/jira-config`, {
-    headers: authHeaders(),
+export function getJiraConfig(projectId: string): Promise<JiraConfig> {
+  return apiRequest(`/api/projects/${projectId}/jira-config`, {
+    errorMessage: 'Failed to load Jira config',
   });
-  if (!response.ok) throw new Error(`Failed to load Jira config: ${response.status}`);
-  return response.json();
 }
 
-export async function saveJiraConfig(
-  projectId: string,
-  request: JiraConfigRequest,
-): Promise<JiraConfig> {
-  const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/jira-config`, {
+export function saveJiraConfig(projectId: string, request: JiraConfigRequest): Promise<JiraConfig> {
+  return apiRequest(`/api/projects/${projectId}/jira-config`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to save Jira config',
   });
-  if (!response.ok) throw new Error(`Failed to save Jira config: ${response.status}`);
-  return response.json();
 }
 
-export async function deleteJiraConfig(projectId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/jira-config`, {
+export function deleteJiraConfig(projectId: string): Promise<void> {
+  return apiRequestVoid(`/api/projects/${projectId}/jira-config`, {
     method: 'DELETE',
-    headers: authHeaders(),
+    errorMessage: 'Failed to delete Jira config',
   });
-  if (!response.ok) throw new Error(`Failed to delete Jira config: ${response.status}`);
 }
 
-export async function getDocumentFolderConfig(projectId: string): Promise<DocumentFolderConfig> {
-  const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/document-folder-config`, {
-    headers: authHeaders(),
+export function getDocumentFolderConfig(projectId: string): Promise<DocumentFolderConfig> {
+  return apiRequest(`/api/projects/${projectId}/document-folder-config`, {
+    errorMessage: 'Failed to load document folder config',
   });
-  if (!response.ok) throw new Error(`Failed to load document folder config: ${response.status}`);
-  return response.json();
 }
 
-export async function saveDocumentFolderConfig(
+export function saveDocumentFolderConfig(
   projectId: string,
   request: DocumentFolderConfigRequest,
 ): Promise<DocumentFolderConfig> {
-  const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/document-folder-config`, {
+  return apiRequest(`/api/projects/${projectId}/document-folder-config`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to save document folder config',
   });
-  if (!response.ok) throw new Error(`Failed to save document folder config: ${response.status}`);
-  return response.json();
 }
 
-export async function deleteDocumentFolderConfig(projectId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/document-folder-config`, {
+export function deleteDocumentFolderConfig(projectId: string): Promise<void> {
+  return apiRequestVoid(`/api/projects/${projectId}/document-folder-config`, {
     method: 'DELETE',
-    headers: authHeaders(),
+    errorMessage: 'Failed to delete document folder config',
   });
-  if (!response.ok) throw new Error(`Failed to delete document folder config: ${response.status}`);
 }
 
 // ── Human approval gate ──────────────────────────────────────────────────
@@ -553,46 +448,34 @@ export async function deleteDocumentFolderConfig(projectId: string): Promise<voi
 // a decision, its context, or its audit trail must never silently degrade into
 // fabricated data.
 
-export async function getApprovalGateContext(runId: string): Promise<ApprovalGateContext> {
-  const response = await fetch(`${API_BASE_URL}/api/agent-runs/${runId}/approval-gate`, {
-    headers: authHeaders(),
+export function getApprovalGateContext(runId: string): Promise<ApprovalGateContext> {
+  return apiRequest(`/api/agent-runs/${runId}/approval-gate`, {
+    errorMessage: 'Failed to load the approval gate',
   });
-  if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to load the approval gate'));
-  }
-  return response.json();
 }
 
-export async function submitApprovalDecision(
+export function submitApprovalDecision(
   runId: string,
   request: ApprovalDecisionRequest,
 ): Promise<ApprovalDecisionResult> {
-  const response = await fetch(`${API_BASE_URL}/api/agent-runs/${runId}/approval-gate/decision`, {
+  return apiRequest(`/api/agent-runs/${runId}/approval-gate/decision`, {
     method: 'POST',
-    headers: { ...JSON_HEADERS, ...authHeaders() },
-    body: JSON.stringify(request),
+    body: request,
+    errorMessage: 'Failed to submit the approval decision',
   });
-  if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to submit the approval decision'));
-  }
-  return response.json();
 }
 
-export async function listApprovalDecisions(runId: string): Promise<ApprovalDecisionAuditEntry[]> {
-  const response = await fetch(`${API_BASE_URL}/api/agent-runs/${runId}/approval-decisions`, {
-    headers: authHeaders(),
+export function listApprovalDecisions(runId: string): Promise<ApprovalDecisionAuditEntry[]> {
+  return apiRequest(`/api/agent-runs/${runId}/approval-decisions`, {
+    errorMessage: 'Failed to load approval decisions',
   });
-  if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to load approval decisions'));
-  }
-  return response.json();
 }
 
 // ── Workflow execution history ───────────────────────────────────────────
 // Throw-on-failure, deliberately never the listWorkflows swallow-to-[] idiom:
 // a downstream failure must never silently look like "zero executions".
 
-export async function listWorkflowExecutions(
+export function listWorkflowExecutions(
   workflowId: string,
   params?: { limit?: number; offset?: number },
 ): Promise<WorkflowExecutionPage> {
@@ -600,23 +483,16 @@ export async function listWorkflowExecutions(
   if (params?.limit !== undefined) query.set('limit', String(params.limit));
   if (params?.offset !== undefined) query.set('offset', String(params.offset));
   const queryString = query.toString();
-  const response = await fetch(
-    `${API_BASE_URL}/api/workflows/${workflowId}/executions${queryString ? `?${queryString}` : ''}`,
-    { headers: authHeaders() },
+  return apiRequest(
+    `/api/workflows/${workflowId}/executions${queryString ? `?${queryString}` : ''}`,
+    {
+      errorMessage: 'Failed to load workflow executions',
+    },
   );
-  if (!response.ok) {
-    throw new Error(await errorMessageFrom(response, 'Failed to load workflow executions'));
-  }
-  return response.json();
 }
 
-export async function getWorkflowExecution(workflowId: string, runId: string): Promise<AgentRun> {
-  const response = await fetch(`${API_BASE_URL}/api/workflows/${workflowId}/executions/${runId}`, {
-    headers: authHeaders(),
+export function getWorkflowExecution(workflowId: string, runId: string): Promise<AgentRun> {
+  return apiRequest(`/api/workflows/${workflowId}/executions/${runId}`, {
+    errorMessage: 'Failed to load workflow execution',
   });
-  if (!response.ok) {
-    const message = await errorMessageFrom(response, 'Failed to load workflow execution');
-    throw Object.assign(new Error(message), { status: response.status });
-  }
-  return response.json();
 }

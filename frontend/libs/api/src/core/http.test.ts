@@ -1,7 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { apiRequest, authHeaders, isAbortError, setAuthToken, setSessionRefresher } from './http';
+import {
+  apiRequest,
+  apiRequestVoid,
+  authHeaders,
+  isAbortError,
+  setAuthToken,
+  setSessionRefresher,
+} from './http';
 import { getSpecQueue } from '../spec-queue/specQueueApi';
-import { listWorkflows } from '../workflow/workflowApi';
+import { deleteWorkflow, listWorkflows } from '../workflow/workflowApi';
 
 const mockFetch = vi.fn();
 
@@ -170,5 +177,52 @@ describe('401 handling', () => {
       status: 401,
     });
     expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('also renews the session for write clients that return no body', async () => {
+    setSessionRefresher(vi.fn().mockResolvedValue('fresh'));
+    mockFetch.mockResolvedValueOnce(unauthorized).mockResolvedValueOnce({ ok: true, status: 204 });
+
+    await expect(deleteWorkflow('wf-1')).resolves.toBeUndefined();
+
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch.mock.calls[1]![1].headers).toMatchObject({ Authorization: 'Bearer fresh' });
+  });
+});
+
+describe('apiRequestVoid', () => {
+  beforeEach(() => {
+    mockFetch.mockReset();
+    vi.stubGlobal('fetch', mockFetch);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('resolves without reading the response body', async () => {
+    const json = vi.fn();
+    mockFetch.mockResolvedValue({ ok: true, status: 204, json });
+
+    await expect(
+      apiRequestVoid('/api/x', { method: 'DELETE', errorMessage: 'Failed' }),
+    ).resolves.toBeUndefined();
+
+    expect(json).not.toHaveBeenCalled();
+  });
+
+  it('rejects with the status on a failed response', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: () => Promise.reject(new Error()),
+    });
+
+    await expect(
+      apiRequestVoid('/api/x', { errorMessage: 'Failed to delete' }),
+    ).rejects.toMatchObject({
+      message: 'Failed to delete: 500',
+      status: 500,
+    });
   });
 });

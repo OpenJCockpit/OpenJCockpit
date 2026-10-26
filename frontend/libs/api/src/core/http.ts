@@ -56,16 +56,19 @@ export interface RequestOptions {
   body?: unknown;
   /** Aborts the request, e.g. when the effect that started it is cleaned up. */
   signal?: AbortSignal;
-  /** Prefix of the error message thrown for a non-2xx response ("<prefix>: <status>"). */
-  errorMessage: string;
+  /**
+   * Fallback error message for a non-2xx response without a server message ("<message>: <status>").
+   * A function picks the message from the status.
+   */
+  errorMessage: string | ((status: number) => string);
 }
 
-// Authenticated JSON request. Rejects on network errors, aborts and non-2xx responses,
+// Authenticated request. Rejects on network errors, aborts and non-2xx responses,
 // so callers can tell "failed" from "empty". Pass `signal` from an effect's AbortController.
-export async function apiRequest<T>(
+async function apiFetch(
   path: string,
   { method, body, signal, errorMessage }: RequestOptions,
-): Promise<T> {
+): Promise<Response> {
   const send = () =>
     fetch(`${API_BASE_URL}${path}`, {
       method,
@@ -83,9 +86,21 @@ export async function apiRequest<T>(
     response = await send();
   }
   if (!response.ok) {
-    throw new ApiError(await errorMessageFrom(response, errorMessage), response.status);
+    const fallback =
+      typeof errorMessage === 'function' ? errorMessage(response.status) : errorMessage;
+    throw new ApiError(await errorMessageFrom(response, fallback), response.status);
   }
-  return response.json();
+  return response;
+}
+
+/** Authenticated JSON request; resolves with the parsed response body. */
+export async function apiRequest<T>(path: string, options: RequestOptions): Promise<T> {
+  return (await apiFetch(path, options)).json();
+}
+
+/** Like `apiRequest` for endpoints that answer without a body (DELETE, activate, ...). */
+export async function apiRequestVoid(path: string, options: RequestOptions): Promise<void> {
+  await apiFetch(path, options);
 }
 
 export function isAbortError(error: unknown): boolean {

@@ -1,4 +1,4 @@
-import { API_BASE_URL, apiRequest, authHeaders } from '../core/http';
+import { apiRequest, apiRequestVoid } from '../core/http';
 import type { AgentRun, PreflightResult, Workspace } from '../types/types';
 
 export function loadWorkspace(customerId: string, signal?: AbortSignal): Promise<Workspace> {
@@ -8,30 +8,20 @@ export function loadWorkspace(customerId: string, signal?: AbortSignal): Promise
   });
 }
 
-export async function checkWorkflowPreflight(projectId: string): Promise<PreflightResult> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/agentic-workflows/preflight?projectId=${projectId}`,
-    {
-      method: 'POST',
-      headers: authHeaders(),
-    },
-  );
-  if (!response.ok) throw new Error(`Failed to run pre-flight checks: ${response.status}`);
-  return response.json();
-}
-
-export async function getAgentRun(runId: string): Promise<AgentRun> {
-  const response = await fetch(`${API_BASE_URL}/api/agent-runs/${runId}`, {
-    headers: authHeaders(),
+export function checkWorkflowPreflight(projectId: string): Promise<PreflightResult> {
+  return apiRequest(`/api/agentic-workflows/preflight?projectId=${projectId}`, {
+    method: 'POST',
+    errorMessage: 'Failed to run pre-flight checks',
   });
-  if (!response.ok) throw new Error(`Failed to get agent run: ${response.status}`);
-  return response.json();
 }
 
-export async function stopAgentRun(runId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/agent-runs/${runId}`, {
+export function getAgentRun(runId: string): Promise<AgentRun> {
+  return apiRequest(`/api/agent-runs/${runId}`, { errorMessage: 'Failed to get agent run' });
+}
+
+export function stopAgentRun(runId: string): Promise<void> {
+  return apiRequestVoid(`/api/agent-runs/${runId}`, {
     method: 'DELETE',
-    headers: authHeaders(),
+    errorMessage: 'Failed to stop agent run',
   });
-  if (!response.ok) throw new Error(`Failed to stop agent run: ${response.status}`);
 }

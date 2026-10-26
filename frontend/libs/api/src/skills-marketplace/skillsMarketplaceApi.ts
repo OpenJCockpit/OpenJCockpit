@@ -1,5 +1,4 @@
-import { errorMessageFrom } from '../core/httpErrors';
-import { ApiError, API_BASE_URL, authHeaders } from '../core/http';
+import { apiRequest, apiRequestVoid } from '../core/http';
 import type {
   SkillsMarketplaceConnection,
   SkillsMarketplaceConnectionRequest,
@@ -8,63 +7,34 @@ import type {
 // listSkillsMarketplaces intentionally throws on failure (unlike loadProjects' swallow-to-[]
 // idiom) — an empty array must mean "genuinely zero marketplaces", never "request failed",
 // so the Skills Hub Settings empty state is never shown for a transport or auth error.
-export async function listSkillsMarketplaces(): Promise<SkillsMarketplaceConnection[]> {
-  const response = await fetch(`${API_BASE_URL}/api/skills-marketplaces`, {
-    headers: authHeaders(),
-  });
-  if (!response.ok) {
-    throw new ApiError(
-      await errorMessageFrom(response, 'Failed to load marketplaces'),
-      response.status,
-    );
-  }
-  return response.json();
+export function listSkillsMarketplaces(): Promise<SkillsMarketplaceConnection[]> {
+  return apiRequest('/api/skills-marketplaces', { errorMessage: 'Failed to load marketplaces' });
 }
 
-export async function createSkillsMarketplace(
+export function createSkillsMarketplace(
   req: SkillsMarketplaceConnectionRequest,
 ): Promise<SkillsMarketplaceConnection> {
-  const response = await fetch(`${API_BASE_URL}/api/skills-marketplaces`, {
+  return apiRequest('/api/skills-marketplaces', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify(req),
+    body: req,
+    errorMessage: 'Failed to create marketplace',
   });
-  if (!response.ok) {
-    throw new ApiError(
-      await errorMessageFrom(response, 'Failed to create marketplace'),
-      response.status,
-    );
-  }
-  return response.json();
 }
 
-export async function updateSkillsMarketplace(
+export function updateSkillsMarketplace(
   id: string,
   req: SkillsMarketplaceConnectionRequest,
 ): Promise<SkillsMarketplaceConnection> {
-  const response = await fetch(`${API_BASE_URL}/api/skills-marketplaces/${id}`, {
+  return apiRequest(`/api/skills-marketplaces/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify(req),
+    body: req,
+    errorMessage: 'Failed to update marketplace',
   });
-  if (!response.ok) {
-    throw new ApiError(
-      await errorMessageFrom(response, 'Failed to update marketplace'),
-      response.status,
-    );
-  }
-  return response.json();
 }
 
-export async function deleteSkillsMarketplace(id: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/skills-marketplaces/${id}`, {
+export function deleteSkillsMarketplace(id: string): Promise<void> {
+  return apiRequestVoid(`/api/skills-marketplaces/${id}`, {
     method: 'DELETE',
-    headers: authHeaders(),
+    errorMessage: 'Failed to delete marketplace',
   });
-  if (!response.ok) {
-    throw new ApiError(
-      await errorMessageFrom(response, 'Failed to delete marketplace'),
-      response.status,
-    );
-  }
 }
