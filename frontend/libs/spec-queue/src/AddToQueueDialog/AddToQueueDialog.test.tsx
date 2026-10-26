@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { axe } from 'vitest-axe';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
   (await import('../testUtils')).automockApiClients(await importOriginal()),
@@ -49,6 +50,17 @@ describe('AddToQueueDialog', () => {
     vi.mocked(listWorkflowGroups).mockResolvedValue([]);
     vi.mocked(getSpecQueueSettings).mockResolvedValue({ autoMergeAllowed: false });
     vi.mocked(enqueueSpecQueueItem).mockResolvedValue({ id: 'i1', specFile: 'b.md' } as never);
+  });
+
+  it('has no axe violations', async () => {
+    const { container } = render(
+      withQueryClient(<AddToQueueDialog project={PROJECT} onAdded={vi.fn()} onCancel={vi.fn()} />),
+    );
+    const workflowSelect = await screen.findByTestId<HTMLSelectElement>(
+      'add-to-queue-workflow-select',
+    );
+    await waitFor(() => expect(workflowSelect).not.toBeDisabled());
+    expect(await axe(container)).toHaveNoViolations();
   });
 
   it('lists specs and only usable workflows', async () => {
