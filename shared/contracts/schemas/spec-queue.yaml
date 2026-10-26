@@ -180,7 +180,9 @@ SpecQueueItemDto:
     status:
       $ref: '#/SpecQueueItemStatus'
     failureReason:
-      $ref: '#/SpecQueueFailureReason'
+      allOf:
+        - $ref: '#/SpecQueueFailureReason'
+      nullable: true
     workflowRunId:
       type: string
       nullable: true
@@ -188,7 +190,9 @@ SpecQueueItemDto:
       type: string
       nullable: true
     mergeState:
-      $ref: '#/SpecQueueMergeState'
+      allOf:
+        - $ref: '#/SpecQueueMergeState'
+      nullable: true
     pullRequestUrls:
       type: array
       items:
@@ -237,6 +241,8 @@ SpecQueueDto:
       format: date-time
       nullable: true
     lastPollError:
-      $ref: '#/SpecQueuePollErrorDto'
+      allOf:
+        - $ref: '#/SpecQueuePollErrorDto'
+      nullable: true
     runner:
       $ref: '#/SpecQueueRunnerStatusDto'

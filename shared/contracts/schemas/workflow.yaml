@@ -54,6 +54,9 @@ GitWorkspaceJobErrorCode:
 
 PreflightError:
   type: object
+  required:
+    - code
+    - message
   properties:
     code:
       $ref: '#/GitWorkspaceJobErrorCode'
@@ -62,6 +65,9 @@ PreflightError:
 
 WorkflowPreflightResult:
   type: object
+  required:
+    - passed
+    - errors
   properties:
     passed:
       type: boolean
@@ -170,6 +176,10 @@ GitWorkspaceJobEventDto:
 
 TriggerConfigDto:
   type: object
+  required:
+    - dashboardButtonEnabled
+    - hermesSignalEnabled
+    - fileDeliveryEnabled
   properties:
     dashboardButtonEnabled:
       type: boolean
@@ -195,6 +205,16 @@ ExecutionConfigDto:
 
 WorkflowDefinitionDto:
   type: object
+  required:
+    - id
+    - name
+    - projectName
+    - description
+    - agentIds
+    - subagentNames
+    - skillNames
+    - mcpTools
+    - status
   properties:
     id:
       type: string
@@ -261,6 +281,9 @@ WorkflowDefinitionDto:
 
 ApprovalGateConfigDto:
   type: object
+  required:
+    - enabled
+    - placementStage
   properties:
     enabled:
       type: boolean
@@ -288,6 +311,10 @@ WorkflowOrbDto:
 
 WorkflowGroupDto:
   type: object
+  required:
+    - id
+    - name
+    - description
   properties:
     id:
       type: string
@@ -300,6 +327,9 @@ WorkflowGroupDto:
 
 WorkflowExportBundleDto:
   type: object
+  required:
+    - groups
+    - workflows
   properties:
     groups:
       type: array
@@ -312,6 +342,9 @@ WorkflowExportBundleDto:
 
 WorkflowImportResultDto:
   type: object
+  required:
+    - groupsImported
+    - workflowsImported
   properties:
     groupsImported:
       type: integer
@@ -342,6 +375,12 @@ WorkflowStartInputDto:
 
 WorkflowStartResponseDto:
   type: object
+  required:
+    - workflowId
+    - executionId
+    - status
+    - startedAt
+    - message
   properties:
     workflowId:
       type: string
@@ -357,6 +396,13 @@ WorkflowStartResponseDto:
 
 PolicyDecisionAuditEntryDto:
   type: object
+  required:
+    - id
+    - opaDecisionResult
+    - requiredApproval
+    - auditTags
+    - timestamp
+    - policyUnavailable
   properties:
     id:
       type: string
@@ -410,6 +456,14 @@ PolicyDecisionAuditEntryDto:
 
 WorkflowExecutionSummaryDto:
   type: object
+  required:
+    - runId
+    - workflowId
+    - status
+    - startedAt
+    - completedAt
+    - durationMillis
+    - startedBy
   properties:
     runId:
       type: string
@@ -434,6 +488,12 @@ WorkflowExecutionSummaryDto:
 
 WorkflowExecutionPageDto:
   type: object
+  required:
+    - items
+    - limit
+    - offset
+    - total
+    - hasMore
   properties:
     items:
       type: array

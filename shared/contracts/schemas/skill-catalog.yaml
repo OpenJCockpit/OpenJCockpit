@@ -20,6 +20,11 @@ SkillCatalogDto:
 
 ExternalSkillDto:
   type: object
+  required:
+    - marketplaceId
+    - marketplaceName
+    - name
+    - description
   properties:
     marketplaceId:
       type: string
@@ -34,6 +39,13 @@ ExternalSkillDto:
 
 SkillCatalogSourceStatusDto:
   type: object
+  required:
+    - kind
+    - marketplaceId
+    - name
+    - outcome
+    - itemCount
+    - httpStatus
   properties:
     kind:
       type: string

@@ -2,6 +2,14 @@
 # status: OK, NOT_CONFIGURED, UNAVAILABLE, UNAUTHORIZED, INVALID; agentCount is set when OK.
 A2AServiceDto:
   type: object
+  required:
+    - id
+    - name
+    - type
+    - source
+    - editable
+    - hasApiKey
+    - hasCallerClientSecret
   properties:
     id:
       type: string
@@ -11,34 +19,54 @@ A2AServiceDto:
       type: string
     source:
       type: string
+      enum:
+        - CONFIGURATION
+        - DASHBOARD
     editable:
       type: boolean
     baseUrl:
       type: string
+      nullable: true
     publicUrl:
       type: string
+      nullable: true
     hasApiKey:
       type: boolean
     callerTokenUrl:
       type: string
+      nullable: true
     callerClientId:
       type: string
+      nullable: true
     hasCallerClientSecret:
       type: boolean
     status:
       type: string
+      enum:
+        - OK
+        - NOT_CONFIGURED
+        - UNAVAILABLE
+        - UNAUTHORIZED
+        - INVALID
+      nullable: true
     message:
       type: string
+      nullable: true
     agentCount:
       type: integer
+      nullable: true
     updatedAt:
       type: string
       format: date-time
+      nullable: true
 
 # id is required on create and cannot change. Blank apiKey/callerClientSecret on update keep the
 # stored secret; blank callerTokenUrl and callerClientId remove the caller identity.
 A2AServiceRequest:
   type: object
+  required:
+    - name
+    - baseUrl
   properties:
     id:
       type: string

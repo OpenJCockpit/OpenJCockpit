@@ -19,6 +19,11 @@ ApprovalDecisionKind:
 
 ApprovalGateCommentDto:
   type: object
+  required:
+    - iteration
+    - author
+    - comment
+    - submittedAt
   properties:
     iteration:
       type: integer
@@ -33,6 +38,21 @@ ApprovalGateCommentDto:
 
 ApprovalGateContextDto:
   type: object
+  required:
+    - runId
+    - workflowId
+    - placementStage
+    - stageOutcome
+    - changeSummary
+    - changedPaths
+    - changedFileCount
+    - omittedFileCount
+    - iteration
+    - maxFeedbackIterations
+    - feedbackSupported
+    - furtherFeedbackAllowed
+    - commentHistory
+    - openedAt
   properties:
     runId:
       type: string
@@ -98,6 +118,11 @@ ApprovalDecisionRequestDto:
 
 ApprovalDecisionResultDto:
   type: object
+  required:
+    - runId
+    - status
+    - iteration
+    - message
   properties:
     runId:
       type: string
@@ -111,6 +136,17 @@ ApprovalDecisionResultDto:
 
 ApprovalDecisionAuditEntryDto:
   type: object
+  required:
+    - id
+    - runId
+    - workflowId
+    - gateStage
+    - iteration
+    - decision
+    - actorUsername
+    - actorSubject
+    - stageOutcome
+    - timestamp
   properties:
     id:
       type: string

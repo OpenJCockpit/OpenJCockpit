@@ -1,5 +1,11 @@
 AgentEventDto:
   type: object
+  required:
+    - timestamp
+    - agentId
+    - title
+    - status
+    - evidenceRef
   properties:
     timestamp:
       type: string
@@ -15,6 +21,15 @@ AgentEventDto:
 
 AgentRunDto:
   type: object
+  required:
+    - runId
+    - customerId
+    - specFile
+    - repositoryUrl
+    - status
+    - startedAt
+    - events
+    - generatedArtifacts
   properties:
     runId:
       type: string
@@ -62,6 +77,9 @@ AgentRunDto:
 
 McpToolRefDto:
   type: object
+  required:
+    - name
+    - description
   properties:
     name:
       type: string
@@ -70,6 +88,14 @@ McpToolRefDto:
 
 AgentSpecDto:
   type: object
+  required:
+    - name
+    - description
+    - role
+    - instructions
+    - subagentNames
+    - skillNames
+    - mcpTools
   properties:
     name:
       type: string
@@ -98,6 +124,13 @@ AgentSpecDto:
 
 SkillSpecDto:
   type: object
+  required:
+    - name
+    - description
+    - inputContract
+    - outputContract
+    - executionInstructions
+    - mcpTools
   properties:
     name:
       type: string
@@ -118,6 +151,14 @@ SkillSpecDto:
 
 SubagentSpecDto:
   type: object
+  required:
+    - name
+    - parentAgent
+    - description
+    - responsibilities
+    - instructions
+    - skillNames
+    - mcpTools
   properties:
     name:
       type: string
@@ -142,6 +183,8 @@ SubagentSpecDto:
 
 PromptRequestDto:
   type: object
+  required:
+    - prompt
   properties:
     prompt:
       type: string

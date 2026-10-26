@@ -1,5 +1,13 @@
 SkillsMarketplaceConnectionDto:
   type: object
+  required:
+    - id
+    - name
+    - marketplaceUrl
+    - enabled
+    - hasApiKey
+    - createdAt
+    - updatedAt
   properties:
     id:
       type: string
