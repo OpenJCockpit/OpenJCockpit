@@ -37,8 +37,7 @@ mvn -B -pl :ai-control-service -am verify
 # Frontend (Nx workspace; run from the repo root)
 cd frontend
 npm ci
-npx nx test dashboard
-npx nx lint dashboard
+npx nx affected -t lint typecheck test   # or `npm run check` for the full quick gate
 
 # Full stack
 docker compose up --build

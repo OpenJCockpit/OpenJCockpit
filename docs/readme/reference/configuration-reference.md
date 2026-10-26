@@ -139,6 +139,26 @@ definitions by default and ships its definitions in the image (`/agent-definitio
 `LITELLM_REGISTRY_URL` / `LITELLM_REGISTRY_KEY` (the LiteLLM management API, needed only for gateway
 guardrails) replace the former reuse of the A2A provider client.
 
+## Dashboard container
+
+The `dashboard` image (nginx, unprivileged) is configured at container start. Variables are substituted
+into `/config.json`, the nginx config and the CSP; nothing is baked in at build time except `BUILD_SHA`.
+
+| Variable | Default | Effect |
+| --- | --- | --- |
+| `KEYCLOAK_URL` | `http://localhost:8080` | Served in `/config.json`; also feeds the CSP `connect-src`, `frame-src` and `form-action`. |
+| `KEYCLOAK_REALM` | `openjcockpit` | Served in `/config.json`. |
+| `KEYCLOAK_CLIENT_ID` | `openjcockpit` | Served in `/config.json`. |
+| `API_UPSTREAM` | `http://ai-control-service:8080` | nginx `proxy_pass` target for `/api/`. |
+| `BUILD_SHA` (build arg and env) | `unknown` (`dev` from Compose) | Served at `/version.json`. |
+
+- The container listens on **8080**; Compose maps `4000:8080`.
+- `/healthz` is the liveness endpoint and the Docker `HEALTHCHECK`. `/version.json` reports `BUILD_SHA`.
+- `/api/` requests may take up to 300 s (`proxy_read_timeout`).
+- The image terminates no TLS; the customer ingress does.
+- The CSP ships with `style-src 'self' 'unsafe-inline'` because the UI still uses React `style` props.
+- If `/config.json` cannot be loaded, the dashboard falls back to Keycloak at `http://localhost:8080`.
+
 ## Logging
 
 | Variable | Effect | Docs |
