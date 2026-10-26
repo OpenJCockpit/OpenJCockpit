@@ -9,6 +9,7 @@
 
 export const testIds = {
   authLoading: 'auth-loading',
+  navPlatform: 'nav-platform',
   navWorkflow: 'nav-workflow',
   navSpecFiles: 'nav-spec-files',
   navSkillsHub: 'nav-skills-hub',

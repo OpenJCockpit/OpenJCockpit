@@ -129,7 +129,7 @@ describe('spec queue in the app', () => {
     vi.resetAllMocks();
   });
 
-  it('opens the Queue view from the nav and returns with "Back"', async () => {
+  it('opens the Queue view from the nav and returns via Platform', async () => {
     await renderApp(
       queueWith([
         {
@@ -149,7 +149,9 @@ describe('spec queue in the app', () => {
     fireEvent.click(screen.getByTestId('nav-spec-queue'));
     expect(await screen.findByTestId('queue-items')).toHaveTextContent('checkout-flow.md');
 
-    fireEvent.click(screen.getByText(/Back/));
+    expect(screen.getByTestId('nav-spec-queue')).toHaveAttribute('aria-current', 'page');
+
+    fireEvent.click(screen.getByTestId('nav-platform'));
     expect(await screen.findByText('▶ Start')).toBeInTheDocument();
   });
 

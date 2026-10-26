@@ -1,79 +1,70 @@
+import { useNavigate } from 'react-router';
 import type { Project } from '@openjcockpit/api';
 import styles from './SiteHeader.module.scss';
 import { Button, BrandLogo, dropdownClass } from '@openjcockpit/ui';
+import { ROUTES } from '../../routes';
+
+export type SiteSection = 'platform' | 'workflow' | 'specFiles' | 'specQueue' | 'skillsHub';
+
+const NAV_ITEMS: { section: SiteSection; label: string; path: string; testId: string }[] = [
+  { section: 'platform', label: 'Platform', path: ROUTES.dashboard, testId: 'nav-platform' },
+  {
+    section: 'workflow',
+    label: 'Workflow Design & Execution',
+    path: ROUTES.workflow,
+    testId: 'nav-workflow',
+  },
+  { section: 'specFiles', label: 'Spec Files', path: ROUTES.specFiles, testId: 'nav-spec-files' },
+  { section: 'specQueue', label: 'Spec Queue', path: ROUTES.specQueue, testId: 'nav-spec-queue' },
+  { section: 'skillsHub', label: 'Skills Hub', path: ROUTES.skillsHub, testId: 'nav-skills-hub' },
+];
 
 interface Props {
+  /** The menu item shown as selected: the section of the page being viewed. */
+  active: SiteSection;
   projects: Project[];
   selectedProject: Project | null;
   onProjectChange: (projectId: string) => void;
-  onWorkflow: () => void;
-  onSpecFiles: () => void;
-  onSpecQueue: () => void;
-  onSkillsHub: () => void;
-  onSettings: () => void;
-  onHub: () => void;
   onLogout: () => void;
 }
 
+/** The top menu shared by the platform overview and the feature pages it links to. */
 export function SiteHeader({
+  active,
   projects,
   selectedProject,
   onProjectChange,
-  onWorkflow,
-  onSpecFiles,
-  onSpecQueue,
-  onSkillsHub,
-  onSettings,
-  onHub,
   onLogout,
 }: Props) {
+  const navigate = useNavigate();
+
   return (
     <header className={styles.siteHeader}>
-      <button type="button" className={styles.brand} onClick={onHub} title="Back to hub">
+      <button
+        type="button"
+        className={styles.brand}
+        onClick={() => void navigate(ROUTES.landing)}
+        title="Back to hub"
+      >
         <BrandLogo />
       </button>
 
       <nav className={styles.mainNav} aria-label="Primary navigation">
-        <a href="#approach">Approach</a>
-        <a href="#platform" className={styles.active}>
-          Platform
-        </a>
-        <a href="#solutions">Solutions</a>
+        {NAV_ITEMS.map((item) => (
+          <button
+            key={item.section}
+            type="button"
+            className={item.section === active ? styles.active : undefined}
+            aria-current={item.section === active ? 'page' : undefined}
+            onClick={() => void navigate(item.path)}
+            data-testid={item.testId}
+          >
+            {item.label}
+          </button>
+        ))}
       </nav>
 
       <div className={styles.headerActions}>
-        <Button
-          variant="workflow"
-          onClick={onWorkflow}
-          title="Workflow Design & Execution"
-          data-testid="nav-workflow"
-        >
-          ⚡ Workflow Design &amp; Execution
-        </Button>
-        <Button
-          variant="workflow"
-          onClick={onSpecFiles}
-          title="Spec Files"
-          data-testid="nav-spec-files"
-        >
-          📄 Spec Files
-        </Button>
-        <Button
-          variant="workflow"
-          onClick={onSpecQueue}
-          title="Spec Queue"
-          data-testid="nav-spec-queue"
-        >
-          📋 Spec Queue
-        </Button>
-        <Button
-          variant="workflow"
-          onClick={onSkillsHub}
-          title="Skills Hub"
-          data-testid="nav-skills-hub"
-        >
-          🧩 Skills Hub
-        </Button>
         {projects.length > 0 && (
           <select
             className={dropdownClass}
@@ -88,10 +79,19 @@ export function SiteHeader({
             ))}
           </select>
         )}
-        <Button variant="secondary" onClick={onSettings} title="Project management">
+        <Button
+          variant="secondary"
+          onClick={() => void navigate(ROUTES.settings)}
+          title="Project management"
+        >
           ⚙
         </Button>
-        <Button variant="secondary" onClick={onHub} title="Back to hub" data-testid="nav-hub">
+        <Button
+          variant="secondary"
+          onClick={() => void navigate(ROUTES.landing)}
+          title="Back to hub"
+          data-testid="nav-hub"
+        >
           ← Hub
         </Button>
         <Button variant="secondary" onClick={onLogout} title="Log out" data-testid="nav-logout">

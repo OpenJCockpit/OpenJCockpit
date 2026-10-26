@@ -34,6 +34,8 @@ interface Props {
   onBack: () => void;
   /** Slot for the "add to queue" dialog; the action is hidden when not provided. */
   renderAddToQueue?: (args: RenderAddToQueueArgs) => ReactNode;
+  /** Replaces the default back-button header, e.g. with the app's shared top menu. */
+  header?: ReactNode;
 }
 
 interface Selection {
@@ -43,7 +45,7 @@ interface Selection {
   draft: string | null;
 }
 
-export function SpecFilesDashboard({ project, onBack, renderAddToQueue }: Props) {
+export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }: Props) {
   const queryClient = useQueryClient();
   const projectId = project?.id ?? null;
   const specsQuery = useQuery({
@@ -107,7 +109,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue }: Props)
 
   return (
     <AppShell>
-      <AppHeader onBack={onBack} backTitle="Back to dashboard" />
+      {header ?? <AppHeader onBack={onBack} backTitle="Back to dashboard" />}
 
       <main className={pageClass}>
         <div className={pageHeaderClass}>

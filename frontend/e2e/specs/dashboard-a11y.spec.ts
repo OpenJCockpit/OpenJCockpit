@@ -63,9 +63,9 @@ test.describe('dashboard keyboard-only core flow', () => {
     await expect(navWorkflow).toBeVisible();
 
     // Forward-only Tab presses, asserted in the same order the controls
-    // appear in the DOM (App.tsx's header-actions block): nav-workflow,
-    // nav-spec-files, nav-skills-hub, then nav-hub (which may have the
-    // project dropdown and the settings button as intervening tab stops —
+    // appear in the DOM (SiteHeader's primary nav, then its header actions):
+    // nav-workflow, nav-spec-files, nav-skills-hub, then nav-hub (which may have
+    // the project dropdown and the settings button as intervening tab stops —
     // tabUntilFocused tolerates that without asserting on them).
     await tabUntilFocused(page, navWorkflow, 'nav-workflow');
     await expect(navWorkflow).toBeFocused();
@@ -95,16 +95,17 @@ test.describe('dashboard keyboard-only core flow', () => {
     await tabUntilFocused(page, navWorkflow, 'nav-workflow');
     await page.keyboard.press('Enter');
 
-    // WorkflowDashboard.tsx renders a back button with accessible name
-    // "← Back" (role + name, not an emoji glyph alone — AC-22).
-    const backButton = page.getByRole('button', { name: '← Back' });
-    await expect(backButton).toBeVisible();
+    // The workflow view shares the dashboard's top menu; its "Platform" item
+    // (role + name, not an emoji glyph alone — AC-22) is the way back.
+    await expect(navWorkflow).toHaveAttribute('aria-current', 'page');
+    const navPlatform = page.getByTestId(testIds.navPlatform);
+    await expect(navPlatform).toHaveAccessibleName('Platform');
 
-    await tabUntilFocused(page, backButton, 'the workflow view back button');
-    await expect(backButton).toBeFocused();
+    await navPlatform.focus();
+    await expect(navPlatform).toBeFocused();
     await page.keyboard.press('Enter');
 
-    await expect(navWorkflow).toBeVisible();
+    await expect(navPlatform).toHaveAttribute('aria-current', 'page');
   });
 
   test('AC-21: activating nav-hub with the keyboard (Space) returns to the hub', async ({

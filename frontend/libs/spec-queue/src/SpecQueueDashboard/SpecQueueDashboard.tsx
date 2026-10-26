@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getSpecQueue,
@@ -33,6 +33,8 @@ interface Props {
   project: Project | null;
   onBack: () => void;
   onOpenRun?: (workflowId: string, runId: string) => void;
+  /** Replaces the default back-button header, e.g. with the app's shared top menu. */
+  header?: ReactNode;
 }
 
 type ConfirmationKind = 'remove' | 'cancel' | 'skip';
@@ -80,7 +82,7 @@ function confirmationCopy({ kind, item }: Confirmation) {
   }
 }
 
-export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
+export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props) {
   const projectId = project?.id ?? null;
   const queryClient = useQueryClient();
   const queueKey = ['spec-queue', projectId, 'queue'] as const;
@@ -286,7 +288,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun }: Props) {
 
   return (
     <AppShell>
-      <AppHeader onBack={onBack} backTitle="Back to dashboard" />
+      {header ?? <AppHeader onBack={onBack} backTitle="Back to dashboard" />}
 
       <main className={styles.specQueue}>
         <div className={styles.specQueueHeader}>

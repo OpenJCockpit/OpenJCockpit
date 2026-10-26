@@ -23,6 +23,27 @@
     }
   }
 
+  &-run-id {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--cyan);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-align: left;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+    &:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+    &:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+  }
+
   &-row--selected {
     background: rgba(39, 231, 255, 0.08);
   }

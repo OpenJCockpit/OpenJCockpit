@@ -21,6 +21,7 @@ import { getKeycloak, getUserFromToken } from '@openjcockpit/auth';
 import { LandingHub } from '@openjcockpit/landing-hub';
 import type { PortalId } from '@openjcockpit/landing-hub';
 import { DashboardView } from './components/DashboardView/DashboardView';
+import { SiteHeader, type SiteSection } from './components/SiteHeader/SiteHeader';
 import {
   AddToQueueDialog,
   ProjectSelection,
@@ -78,7 +79,15 @@ function ProjectSelectionRoute({
   );
 }
 
-function WorkflowRoute({ project, onBack }: { project: Project | null; onBack: () => void }) {
+function WorkflowRoute({
+  project,
+  onBack,
+  header,
+}: {
+  project: Project | null;
+  onBack: () => void;
+  header: ReactNode;
+}) {
   const { workflowId, runId } = useParams();
   return (
     <WorkflowDashboard
@@ -86,6 +95,7 @@ function WorkflowRoute({ project, onBack }: { project: Project | null; onBack: (
       project={project}
       initialExecution={workflowId && runId ? { workflowId, runId } : undefined}
       onBack={onBack}
+      header={header}
     />
   );
 }
@@ -113,6 +123,11 @@ function App() {
     setStoredProjectId(project.id);
   }
 
+  function handleProjectChange(projectId: string) {
+    const project = projects.find((p) => p.id === projectId);
+    if (project) handleSelectProject(project);
+  }
+
   function handleSelectPortal(portal: PortalId) {
     // RequireProject sends a project-less user to selection and then on to the chosen view.
     void navigate(portal === 'business' ? ROUTES.specFiles : ROUTES.dashboard);
@@ -123,6 +138,16 @@ function App() {
   }
 
   const backTarget = selectedProject ? ROUTES.dashboard : ROUTES.projects;
+
+  const siteHeader = (active: SiteSection) => (
+    <SiteHeader
+      active={active}
+      projects={projects}
+      selectedProject={selectedProject}
+      onProjectChange={handleProjectChange}
+      onLogout={handleLogout}
+    />
+  );
 
   if (!authReady) {
     return (
@@ -167,10 +192,7 @@ function App() {
                     key={selectedProject.id}
                     projects={projects}
                     project={selectedProject}
-                    onProjectChange={(id) => {
-                      const project = projects.find((p) => p.id === id);
-                      if (project) handleSelectProject(project);
-                    }}
+                    onProjectChange={handleProjectChange}
                     onLogout={handleLogout}
                   />
                 )}
@@ -190,6 +212,7 @@ function App() {
                   <WorkflowRoute
                     project={selectedProject}
                     onBack={() => void navigate(backTarget)}
+                    header={siteHeader('workflow')}
                   />
                 </RequireProject>
               }
@@ -202,6 +225,7 @@ function App() {
                 <SpecQueueDashboard
                   project={selectedProject}
                   onBack={() => void navigate(backTarget)}
+                  header={siteHeader('specQueue')}
                   onOpenRun={(workflowId, runId) =>
                     void navigate(workflowRunPath(workflowId, runId))
                   }
@@ -216,6 +240,7 @@ function App() {
                 <SpecFilesDashboard
                   project={selectedProject}
                   onBack={() => void navigate(backTarget)}
+                  header={siteHeader('specFiles')}
                   renderAddToQueue={({ project, fixedSpecFile, onAdded, onCancel }) => (
                     <Suspense fallback={null}>
                       <AddToQueueDialog
@@ -235,6 +260,7 @@ function App() {
             element={
               <SkillsHubDashboard
                 onBack={() => void navigate(backTarget)}
+                header={siteHeader('skillsHub')}
                 onSettings={() => void navigate(ROUTES.skillsHubSettings)}
               />
             }

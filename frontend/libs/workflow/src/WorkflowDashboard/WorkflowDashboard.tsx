@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getWorkflow } from '@openjcockpit/api';
 import type { Project, WorkflowDefinition } from '@openjcockpit/api';
@@ -16,9 +16,11 @@ interface Props {
   onBack: () => void;
   /** Open straight on the Execution tab for this run (e.g. from the spec queue). */
   initialExecution?: { workflowId: string; runId: string };
+  /** Replaces the default back-button header, e.g. with the app's shared top menu. */
+  header?: ReactNode;
 }
 
-export function WorkflowDashboard({ project, onBack, initialExecution }: Props) {
+export function WorkflowDashboard({ project, onBack, initialExecution, header }: Props) {
   const [tab, setTab] = useState<WorkflowTab>(initialExecution ? 'execution' : 'overview');
   const [pickedWorkflow, setPickedWorkflow] = useState<WorkflowDefinition | null>(null);
   const [executionRunId, setExecutionRunId] = useState<string | null>(
@@ -52,7 +54,7 @@ export function WorkflowDashboard({ project, onBack, initialExecution }: Props) 
 
   return (
     <AppShell>
-      <AppHeader onBack={onBack} backTitle="Back to dashboard" />
+      {header ?? <AppHeader onBack={onBack} backTitle="Back to dashboard" />}
 
       <main className={styles.workflowDashboard}>
         <div className={styles.workflowDashboardHeader}>

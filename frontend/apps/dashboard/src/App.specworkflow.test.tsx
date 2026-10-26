@@ -119,7 +119,9 @@ describe('spec files in the left pane', () => {
       screen.getByText(/Go to Workflow Design & Execution/).click();
     });
 
-    expect(screen.getByText('Workflow Design & Execution')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByTestId('nav-workflow')).toHaveAttribute('aria-current', 'page'),
+    );
     expect(screen.queryByText('No Specs Found')).not.toBeInTheDocument();
   });
 
@@ -130,7 +132,9 @@ describe('spec files in the left pane', () => {
       screen.getByText(/View all specs/).click();
     });
 
-    expect(await screen.findByText('Spec Files')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByTestId('nav-spec-files')).toHaveAttribute('aria-current', 'page'),
+    );
     expect(screen.getByRole('heading', { name: 'Test Project' })).toBeInTheDocument();
   });
 });
