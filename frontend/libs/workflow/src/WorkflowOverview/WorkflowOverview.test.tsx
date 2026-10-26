@@ -470,6 +470,30 @@ describe('WorkflowOverview', () => {
     expect(screen.queryByText(/Workflows could not be loaded/)).toBeNull();
   });
 
+  it('shows feedback on the card when exporting decision logs fails', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
+    vi.mocked(workflowApi.getWorkflowDecisionLogs).mockRejectedValue(new Error('export down'));
+
+    await renderAsync(<WorkflowOverview project={null} />);
+    await screen.findByText('Customer Onboarding');
+    await clickAsync(screen.getByText('⬇ Export decision logs'));
+
+    expect(await screen.findByText('export down')).toBeInTheDocument();
+  });
+
+  it('falls back to a generic message when the export failure has no message', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
+    vi.mocked(workflowApi.getWorkflowDecisionLogs).mockRejectedValue('nope');
+
+    await renderAsync(<WorkflowOverview project={null} />);
+    await screen.findByText('Customer Onboarding');
+    await clickAsync(screen.getByText('⬇ Export decision logs'));
+
+    expect(await screen.findByText('Failed to export decision logs')).toBeInTheDocument();
+  });
+
   it('leaves the Last execution cell unchanged when a start is BLOCKED (no executionId)', async () => {
     const thatWorkflow: WorkflowDefinition = {
       ...WORKFLOW,

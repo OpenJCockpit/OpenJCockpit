@@ -142,11 +142,19 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
 
   async function handleExportDecisionLogs(workflow: WorkflowDefinition) {
     setExportingId(workflow.id);
+    setFeedback((prev) => ({ ...prev, [workflow.id]: '' }));
     try {
       const entries = await getWorkflowDecisionLogs(workflow.id);
       downloadDecisionLogs(workflow.id, entries);
     } catch (error) {
       console.warn('Failed to export decision logs', error);
+      setFeedback((prev) => ({
+        ...prev,
+        [workflow.id]:
+          error instanceof Error && error.message
+            ? error.message
+            : 'Failed to export decision logs',
+      }));
     } finally {
       setExportingId(null);
     }
