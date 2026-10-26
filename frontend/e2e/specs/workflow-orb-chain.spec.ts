@@ -48,6 +48,25 @@ import { test, expect } from '../support/fixtures.js';
 import { enterDashboard } from '../support/enterDashboard.js';
 import { testIds } from '../support/testIds.js';
 import { SEEDED_PROJECT_NAME } from '../support/seedData.js';
+import type { Page } from '@playwright/test';
+
+/**
+ * The picker lists whatever the agent catalog serves (the `/agents` folder
+ * and A2A providers), not a fixed set, so the spec selects the first
+ * linkable agent instead of a hardcoded name. Returns its display name and
+ * the checkbox it checked; `null` when the catalog offers no agent.
+ */
+async function checkFirstCatalogAgent(page: Page): Promise<string | null> {
+  const checkbox = page.getByRole('group').getByRole('checkbox').first();
+  try {
+    await checkbox.waitFor({ state: 'visible', timeout: 5_000 });
+  } catch {
+    return null;
+  }
+  const name = (await checkbox.locator('xpath=..').locator('span').first().innerText()).trim();
+  await checkbox.check();
+  return name;
+}
 
 test.describe('workflow-trigger-workflow-orb: chained-workflow authoring end to end', () => {
   test('a SEQUENTIAL orb referencing a same-project workflow is authored, persisted, and round-trips on reload; self-reference is excluded from the picker; deleting a referenced workflow is refused until the reference is gone', async ({
@@ -69,13 +88,17 @@ test.describe('workflow-trigger-workflow-orb: chained-workflow authoring end to 
       .first()
       .click();
     await page.getByTestId(testIds.navWorkflow).click();
-    await page.getByRole('button', { name: 'Design' }).click();
+    await page.getByRole('button', { name: 'Design', exact: true }).click();
 
     // ---- 1. Create the child workflow first (the orb needs it to exist) ----
     await page.getByText('+ New workflow', { exact: true }).click();
     await page.getByLabel('Workflow name').fill(childName);
     await page.getByLabel(/^Project name/).fill(project);
-    await page.getByRole('checkbox', { name: /Requirement Agent/ }).check();
+    const agentName = await checkFirstCatalogAgent(page);
+    test.skip(
+      agentName === null,
+      'The agent catalog is empty (no /agents definitions or A2A provider), so a workflow cannot be given a stage.',
+    );
     await page.getByText('Save', { exact: true }).click();
 
     const childRow = page.getByRole('row', { name: new RegExp(childName) });
@@ -86,7 +109,7 @@ test.describe('workflow-trigger-workflow-orb: chained-workflow authoring end to 
     await page.getByText('+ New workflow', { exact: true }).click();
     await page.getByLabel('Workflow name').fill(parentName);
     await page.getByLabel(/^Project name/).fill(project);
-    await page.getByRole('checkbox', { name: /Requirement Agent/ }).check();
+    await checkFirstCatalogAgent(page);
 
     await page.getByText('+ Add orb', { exact: true }).click();
 
@@ -109,9 +132,12 @@ test.describe('workflow-trigger-workflow-orb: chained-workflow authoring end to 
     await expect(page.getByRole('radio', { name: /Parallel/ })).not.toBeChecked();
     await page.getByRole('radio', { name: /Sequential/ }).check();
 
-    // Only one stage ("Requirement Agent") is selected on the parent, so it
-    // is the only real placement-anchor option besides "Run first".
-    await page.getByLabel('Placement anchor').selectOption({ label: 'Requirement Agent' });
+    // Only one stage is selected on the parent, so it is the only real
+    // placement-anchor option besides "Run first".
+    const placementAnchor = page.getByLabel('Placement anchor');
+    await placementAnchor.selectOption({ label: agentName! });
+    const anchorValue = await placementAnchor.inputValue();
+    expect(anchorValue).not.toBe('');
 
     await page.getByText('Save', { exact: true }).click();
 
@@ -125,7 +151,7 @@ test.describe('workflow-trigger-workflow-orb: chained-workflow authoring end to 
     await expect(page.getByLabel('Referenced workflow')).toHaveValue(childWorkflowId);
     await expect(page.getByRole('radio', { name: /Sequential/ })).toBeChecked();
     await expect(page.getByRole('radio', { name: /Parallel/ })).not.toBeChecked();
-    await expect(page.getByLabel('Placement anchor')).toHaveValue('requirement');
+    await expect(page.getByLabel('Placement anchor')).toHaveValue(anchorValue);
 
     await page.getByText('Cancel', { exact: true }).click();
 

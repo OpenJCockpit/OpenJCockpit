@@ -300,9 +300,10 @@ dependencies needing separate sign-off.
   writable repository, and this suite never introduces one.
 - **Positive admin-role scenarios** — see above.
 - **Visual regression / screenshot diffing.**
-- **Automated accessibility scanning** (e.g. axe or equivalent) as a gate. Targeted keyboard/ARIA
-  assertions live inside individual scenarios; an automated scanner is a separate tool and a separate
-  requirement.
+- **Exhaustive accessibility coverage.** `specs/axe-a11y.spec.ts` runs `@axe-core/playwright`
+  (WCAG 2.0/2.1 A and AA) on the landing, dashboard, workflow and settings pages and fails on
+  `serious`/`critical` violations only. Automated scanning does not replace the targeted
+  keyboard/ARIA assertions inside individual scenarios, and other pages and dialog states are not scanned.
 - **The hub intro overlay's own reduced-motion gap (F3, pre-existing, not introduced by this
   delivery).** `libs/landing-hub/src/IntroGreeting/IntroGreeting.tsx` dismisses its full-screen
   overlay with a plain `window.setTimeout(onDone, 2850)` that does **not** check

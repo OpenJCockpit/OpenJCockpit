@@ -114,10 +114,11 @@ export async function listSpecFilesStrict(projectId: string): Promise<SpecFile[]
     `${API_BASE_URL}/api/projects/${encodeURIComponent(projectId)}/spec-files`,
     { headers: authHeaders() },
   );
-  if (!response.ok)
-    {throw new ApiError(
+  if (!response.ok) {
+    throw new ApiError(
       await errorMessageFrom(response, 'Failed to load spec files'),
       response.status,
-    );}
+    );
+  }
   return response.json();
 }

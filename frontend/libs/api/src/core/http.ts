@@ -48,8 +48,9 @@ export async function apiRequest<T>(
     body: body === undefined ? undefined : JSON.stringify(body),
     signal,
   });
-  if (!response.ok)
-    {throw new ApiError(await errorMessageFrom(response, errorMessage), response.status);}
+  if (!response.ok) {
+    throw new ApiError(await errorMessageFrom(response, errorMessage), response.status);
+  }
   return response.json();
 }
 

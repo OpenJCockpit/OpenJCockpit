@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { axe } from 'vitest-axe';
 import { WorkflowPromptDialog } from './WorkflowPromptDialog';
 
 const PROMPT_PLACEHOLDER =
@@ -20,6 +21,21 @@ describe('WorkflowPromptDialog', () => {
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveAccessibleName('Prompt for Create spec from prompt (RAG)');
+  });
+
+  it('has no axe violations', async () => {
+    let container!: HTMLElement;
+    await act(async () => {
+      ({ container } = render(
+        <WorkflowPromptDialog
+          workflowName="Create spec from prompt (RAG)"
+          onSubmit={vi.fn()}
+          onCancel={vi.fn()}
+        />,
+      ));
+    });
+
+    expect(await axe(container)).toHaveNoViolations();
   });
 
   it('focuses the prompt textarea on mount', async () => {
