@@ -193,7 +193,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
     const from = ids.indexOf(item.id);
     const to = direction === 'up' ? from - 1 : from + 1;
     if (from < 0 || to < 0 || to >= ids.length) return;
-    [ids[from], ids[to]] = [ids[to], ids[from]];
+    [ids[from], ids[to]] = [ids[to]!, ids[from]!];
     void run(
       async () => {
         const response = await reorderSpecQueue(projectId, ids);

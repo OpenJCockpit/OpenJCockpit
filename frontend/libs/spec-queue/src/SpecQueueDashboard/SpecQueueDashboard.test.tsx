@@ -294,7 +294,7 @@ describe('SpecQueueDashboard', () => {
 
   it('uses native buttons in reading order', async () => {
     await renderDashboard();
-    const row = screen.getAllByTestId('queue-item')[1];
+    const row = screen.getAllByTestId('queue-item')[1]!;
     const buttons = Array.from(row.querySelectorAll('button')).map((b) => b.tagName);
     expect(buttons.every((t) => t === 'BUTTON')).toBe(true);
     expect(Array.from(row.querySelectorAll('button')).map((b) => b.dataset.testid)).toEqual([

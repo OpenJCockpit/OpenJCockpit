@@ -37,7 +37,7 @@ export function WorkflowEditor({
 }: WorkflowEditorProps) {
   function defaultGatePlacement(agentIds: string[]): string {
     const ordered = selectedStagesInOrder(availableAgents, agentIds);
-    return ordered.length > 0 ? ordered[ordered.length - 1].id : '';
+    return ordered[ordered.length - 1]?.id ?? '';
   }
 
   const orbCandidates = candidateOrbTargets(form, items, groups);

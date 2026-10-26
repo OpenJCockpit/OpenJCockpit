@@ -130,12 +130,12 @@ export function ModalShell({
       if (event.shiftKey) {
         if (!withinDialog || active === first) {
           event.preventDefault();
-          last.focus();
+          last?.focus();
         }
       } else {
         if (!withinDialog || active === last) {
           event.preventDefault();
-          first.focus();
+          first?.focus();
         }
       }
     }

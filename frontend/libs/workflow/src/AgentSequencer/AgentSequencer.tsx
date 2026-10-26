@@ -75,7 +75,7 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
     setSequence((prev) => {
       const next = [...prev];
       const [moved] = next.splice(fromIdx, 1);
-      next.splice(overIdx, 0, moved);
+      if (moved) next.splice(overIdx, 0, moved);
       return next;
     });
     dragFromRef.current = overIdx;

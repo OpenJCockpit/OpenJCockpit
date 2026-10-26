@@ -26,8 +26,8 @@ describe('TextField', () => {
       </>,
     );
 
-    expect(screen.getByLabelText('Name')).toHaveClass(formInputClass, 'mono');
-    expect(screen.getByLabelText('Notes')).toHaveClass(formInputClass, 'tall');
+    expect(screen.getByLabelText('Name')).toHaveClass(formInputClass!, 'mono');
+    expect(screen.getByLabelText('Notes')).toHaveClass(formInputClass!, 'tall');
     expect(screen.getByLabelText('Plain').className).toBe(formInputClass);
   });
 });

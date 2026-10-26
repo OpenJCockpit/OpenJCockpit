@@ -140,6 +140,6 @@ describe('buildAgentCards / buildSequencerNodes', () => {
     const cards = buildAgentCards(wf, [], {});
     const nodes = buildSequencerNodes(wf, cards, [], null, new Map());
     expect(nodes.map((n) => n.id)).toEqual(['orb:1', 'a', 'orb:0', 'b', 'orb:2']);
-    expect(nodes[4].status).toBe('Waiting (anchor stage removed)');
+    expect(nodes[4]?.status).toBe('Waiting (anchor stage removed)');
   });
 });

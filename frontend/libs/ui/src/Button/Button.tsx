@@ -12,7 +12,7 @@ interface ButtonStyle {
   size?: ButtonSize;
 }
 
-const variantClass: Record<Exclude<ButtonVariant, 'default'>, string> = {
+const variantClass: Record<Exclude<ButtonVariant, 'default'>, string | undefined> = {
   primary: styles.primary,
   secondary: styles.secondary,
   danger: styles.danger,
@@ -23,7 +23,7 @@ const variantClass: Record<Exclude<ButtonVariant, 'default'>, string> = {
 /** Class names for a button look; use it directly on elements that are not a <button>, e.g. an <a>. */
 export function buttonClass({ variant = 'default', size = 'md' }: ButtonStyle = {}): string {
   // `secondary` is a standalone look; every other variant builds on the shared base.
-  if (variant === 'secondary') return styles.secondary;
+  if (variant === 'secondary') return styles.secondary ?? '';
   return cx(
     styles.base,
     size === 'sm' && styles.small,

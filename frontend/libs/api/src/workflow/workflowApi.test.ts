@@ -132,7 +132,7 @@ describe('workflowApi', () => {
       });
 
       expect(result).toEqual(mockPage);
-      const calledUrl = mockFetch.mock.calls[0][0] as string;
+      const calledUrl = mockFetch.mock.calls[0]![0] as string;
       expect(calledUrl).toContain('/api/workflows/wf-1/executions');
       expect(calledUrl).toContain('limit=20');
       expect(calledUrl).toContain('offset=0');
@@ -153,7 +153,7 @@ describe('workflowApi', () => {
 
       await listWorkflowExecutions('wf-1');
 
-      const calledUrl = mockFetch.mock.calls[0][0] as string;
+      const calledUrl = mockFetch.mock.calls[0]![0] as string;
       expect(calledUrl).toContain('/api/workflows/wf-1/executions');
     });
 
@@ -191,7 +191,7 @@ describe('workflowApi', () => {
       const result = await getWorkflowExecution('wf-1', 'run-1');
 
       expect(result).toEqual(mockRun);
-      const calledUrl = mockFetch.mock.calls[0][0] as string;
+      const calledUrl = mockFetch.mock.calls[0]![0] as string;
       expect(calledUrl).toContain('/api/workflows/wf-1/executions/run-1');
     });
 
@@ -247,7 +247,7 @@ describe('startWorkflow / errorMessageFrom', () => {
     await expect(startWorkflow('wf-1', { prompt: 'hi' })).resolves.toEqual({
       runId: 'r1',
     });
-    const [url, init] = mockFetch.mock.calls[0];
+    const [url, init] = mockFetch.mock.calls[0]!;
     expect(url).toContain('/api/workflows/wf-1/start');
     expect(init.method).toBe('POST');
     expect(init.body).toBe(JSON.stringify({ prompt: 'hi' }));
