@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   # Nx workspace (apps/dashboard, libs, e2e). Pull requests run only the affected
@@ -54,12 +55,26 @@ jobs:
         if: always()
         run: |
           {
-            echo "### Frontend coverage (lines)"
+            echo "### Frontend coverage"
+            echo
+            echo "| Project | Lines | Branches |"
+            echo "| --- | --- | --- |"
             for f in libs/*/coverage/coverage-summary.json apps/*/coverage/coverage-summary.json; do
               [ -f "$f" ] || continue
-              node -e "const t=require('./$f').total;console.log('- $(basename $(dirname $(dirname $f))): '+t.lines.pct+'% lines, '+t.branches.pct+'% branches')"
+              node -e "const t=require('./$f').total;console.log('| $(basename $(dirname $(dirname $f))) | '+t.lines.pct+'% | '+t.branches.pct+'% |')"
             done
-          } >> "$GITHUB_STEP_SUMMARY"
+          } > "$RUNNER_TEMP/coverage-summary.md"
+          cat "$RUNNER_TEMP/coverage-summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+      # Updates the bot's previous comment instead of adding one per push. Fork PRs get a
+      # read-only token, so they only get the job summary.
+      - name: Comment coverage on pull request
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr comment "$PR_NUMBER" --body-file "$RUNNER_TEMP/coverage-summary.md" --edit-last --create-if-none
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
