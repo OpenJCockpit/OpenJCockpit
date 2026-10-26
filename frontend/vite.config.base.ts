@@ -16,5 +16,12 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/setupTests.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.d.ts', 'src/setupTests.ts'],
+      reporter: ['text-summary', 'json-summary', 'lcov'],
+      reportsDirectory: './coverage',
+    },
   },
 });

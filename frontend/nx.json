@@ -50,6 +50,11 @@
       "cache": true,
       "inputs": ["default"],
       "dependsOn": [{ "projects": ["openjcockpit"], "target": "typings" }]
+    },
+    "coverage": {
+      "cache": true,
+      "inputs": ["default"],
+      "outputs": ["{projectRoot}/coverage"]
     }
   }
 }

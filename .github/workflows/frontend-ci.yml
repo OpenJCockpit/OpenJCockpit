@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   # Nx workspace (apps/dashboard, libs, e2e). Pull requests run only the affected
@@ -40,15 +41,48 @@ jobs:
           restore-keys: |
             nx-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}-
 
-      - name: Lint, check styles, test, build (affected on pull requests)
+      - name: Lint, check styles, typecheck, coverage (runs tests), build (affected on pull requests)
         if: github.event_name == 'pull_request'
         env:
           NX_BASE: origin/${{ github.base_ref }}
-        run: npx nx affected --base="$NX_BASE" --head=HEAD -t lint check-styles typecheck test build --outputStyle=stream
+        run: npx nx affected --base="$NX_BASE" --head=HEAD -t lint check-styles typecheck coverage build --outputStyle=stream
 
-      - name: Lint, check styles, test, build (all projects)
+      - name: Lint, check styles, typecheck, coverage (runs tests), build (all projects)
         if: github.event_name != 'pull_request'
-        run: npx nx run-many -t lint check-styles typecheck test build --outputStyle=stream
+        run: npx nx run-many -t lint check-styles typecheck coverage build --outputStyle=stream
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          {
+            echo "### Frontend coverage"
+            echo
+            echo "| Project | Lines | Branches |"
+            echo "| --- | --- | --- |"
+            for f in libs/*/coverage/coverage-summary.json apps/*/coverage/coverage-summary.json; do
+              [ -f "$f" ] || continue
+              node -e "const t=require('./$f').total;console.log('| $(basename $(dirname $(dirname $f))) | '+t.lines.pct+'% | '+t.branches.pct+'% |')"
+            done
+          } > "$RUNNER_TEMP/coverage-summary.md"
+          cat "$RUNNER_TEMP/coverage-summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+      # Updates the bot's previous comment instead of adding one per push. Fork PRs get a
+      # read-only token, so they only get the job summary.
+      - name: Comment coverage on pull request
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr comment "$PR_NUMBER" --body-file "$RUNNER_TEMP/coverage-summary.md" --edit-last --create-if-none
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: frontend-coverage
+          path: frontend/*/*/coverage
+          if-no-files-found: ignore
+          retention-days: 7
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()

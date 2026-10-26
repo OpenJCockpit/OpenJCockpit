@@ -101,6 +101,7 @@ jobs:
     uses: ./.github/workflows/frontend-ci.yml
     permissions:
       contents: read
+      pull-requests: write
 
   infra:
     needs: changes
