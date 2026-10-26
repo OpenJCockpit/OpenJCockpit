@@ -16,6 +16,6 @@ describe('SelectField', () => {
     fireEvent.change(screen.getByLabelText(/Group/), { target: { value: 'g1' } });
 
     expect(onChange).toHaveBeenCalledWith('g1');
-    expect(screen.getByText('Pick one')).toHaveClass(fieldHintClass!);
+    expect(screen.getByText('Pick one')).toHaveClass(fieldHintClass);
   });
 });

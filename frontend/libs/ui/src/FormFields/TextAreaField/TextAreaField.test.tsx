@@ -11,6 +11,6 @@ describe('TextAreaField', () => {
     fireEvent.change(screen.getByLabelText('Notes'), { target: { value: 'y' } });
 
     expect(onChange).toHaveBeenCalledWith('y');
-    expect(screen.getByLabelText('Notes').closest('label')).toHaveClass(styles.formFieldWide!);
+    expect(screen.getByLabelText('Notes').closest('label')).toHaveClass(styles.formFieldWide);
   });
 });

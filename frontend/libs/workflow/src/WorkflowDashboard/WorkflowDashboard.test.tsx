@@ -109,7 +109,7 @@ describe('WorkflowDashboard', () => {
   it('defaults to the Overview tab when opened', async () => {
     await renderAsync(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
 
-    expect(screen.getByText('Overview')).toHaveClass(tabActiveClass!);
+    expect(screen.getByText('Overview')).toHaveClass(tabActiveClass);
     expect(workflowApi.listWorkflows).toHaveBeenCalledTimes(1);
   });
 
@@ -133,7 +133,7 @@ describe('WorkflowDashboard', () => {
       />,
     );
 
-    expect(screen.getByText('Workflow Execution')).toHaveClass(tabActiveClass!);
+    expect(screen.getByText('Workflow Execution')).toHaveClass(tabActiveClass);
     expect(workflowApi.getWorkflow).toHaveBeenCalledWith('wf-9');
     expect((await screen.findAllByText('Queued Workflow')).length).toBeGreaterThan(0);
   });
@@ -159,7 +159,7 @@ describe('WorkflowDashboard', () => {
 
     await clickAsync(screen.getByText('Configuration'));
 
-    expect(screen.getByText('Configuration')).toHaveClass(tabActiveClass!);
+    expect(screen.getByText('Configuration')).toHaveClass(tabActiveClass);
   });
 
   it('switches to the Design tab when clicked', async () => {
@@ -167,8 +167,8 @@ describe('WorkflowDashboard', () => {
 
     await clickAsync(screen.getByText('Design'));
 
-    expect(screen.getByText('Design')).toHaveClass(tabActiveClass!);
-    expect(screen.getByText('Workflows')).toHaveClass(tabActiveClass!);
+    expect(screen.getByText('Design')).toHaveClass(tabActiveClass);
+    expect(screen.getByText('Workflows')).toHaveClass(tabActiveClass);
   });
 
   it('switches to the Workflow Execution tab when clicked', async () => {
@@ -176,7 +176,7 @@ describe('WorkflowDashboard', () => {
 
     await clickAsync(screen.getByText('Workflow Execution'));
 
-    expect(screen.getByText('Workflow Execution')).toHaveClass(tabActiveClass!);
+    expect(screen.getByText('Workflow Execution')).toHaveClass(tabActiveClass);
     expect(screen.getByText(/Start a workflow from the Overview tab/)).toBeInTheDocument();
   });
 
@@ -197,7 +197,7 @@ describe('WorkflowDashboard', () => {
     await clickAsync(screen.getByText('▶ Start'));
 
     await waitFor(() => {
-      expect(screen.getByText('Workflow Execution')).toHaveClass(tabActiveClass!);
+      expect(screen.getByText('Workflow Execution')).toHaveClass(tabActiveClass);
     });
     expect(screen.getAllByText('Customer Onboarding').length).toBeGreaterThan(0);
   });
@@ -211,7 +211,7 @@ describe('WorkflowDashboard', () => {
 
     await clickAsync(screen.getByText(/Open Workflow Execution/));
 
-    expect(screen.getByText('Workflow Execution')).toHaveClass(tabActiveClass!);
+    expect(screen.getByText('Workflow Execution')).toHaveClass(tabActiveClass);
     // The execution tab must be scoped to the clicked workflow, not left in the
     // pre-existing empty/no-workflow state — this is the confirmed gap being fixed.
     expect(screen.queryByText(/Start a workflow from the Overview tab/)).not.toBeInTheDocument();

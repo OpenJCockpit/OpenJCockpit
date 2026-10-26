@@ -38,13 +38,18 @@
       "inputs": ["production", "^production"],
       "outputs": ["{projectRoot}/dist"]
     },
-    "lint": { "cache": true, "inputs": ["default"] },
+    "typings": {
+      "cache": true,
+      "inputs": ["{workspaceRoot}/{libs,apps}/**/*.module.scss"],
+      "outputs": ["{workspaceRoot}/{libs,apps}/**/*.module.scss.d.ts"]
+    },
+    "lint": { "cache": true, "inputs": ["default"], "dependsOn": ["//#typings"] },
     "test": { "cache": true, "inputs": ["default"] },
     "format-check": { "cache": true, "inputs": ["default"] },
     "check-styles": {
       "cache": true,
       "inputs": ["default", "{workspaceRoot}/libs/**/*.{scss,ts,tsx,mjs}"]
     },
-    "typecheck": { "cache": true, "inputs": ["default"] }
+    "typecheck": { "cache": true, "inputs": ["default"], "dependsOn": ["//#typings"] }
   }
 }

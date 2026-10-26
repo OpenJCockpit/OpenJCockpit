@@ -10,7 +10,7 @@ describe('StatusChip', () => {
   it.each(KINDS)('styles the %s kind with the base chip plus a kind class', (kind) => {
     render(<StatusChip label={kind} kind={kind} />);
     const chip = screen.getByText(kind);
-    expect(chip).toHaveClass(styles.statusChip!);
+    expect(chip).toHaveClass(styles.statusChip);
     expect(chip.classList).toHaveLength(2);
     expect(chip.className).not.toContain('undefined');
   });
