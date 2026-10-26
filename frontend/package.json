@@ -15,6 +15,11 @@
     "check": "nx run-many -t lint typecheck test format-check check-styles",
     "affected": "nx affected -t lint typecheck test build"
   },
+  "nx": {
+    "includedScripts": [
+      "typings"
+    ]
+  },
   "workspaces": [
     "apps/dashboard",
     "libs/*",
