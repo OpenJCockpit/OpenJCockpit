@@ -16,7 +16,10 @@ describe('getKeycloak', () => {
     vi.stubEnv('VITE_KEYCLOAK_REALM', '');
     vi.stubEnv('VITE_KEYCLOAK_CLIENT_ID', '');
   });
-  afterEach(() => vi.unstubAllEnvs());
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
 
   it('creates the client with the local defaults when no env is set', async () => {
     const { getKeycloak } = await loadModule();
@@ -38,6 +41,51 @@ describe('getKeycloak', () => {
       url: 'https://sso.example.com',
       realm: 'acme',
       clientId: 'acme-web',
+    });
+  });
+
+  it('prefers the runtime config from /config.json over the build-time values', async () => {
+    vi.stubEnv('VITE_KEYCLOAK_URL', 'https://build.example.com');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          keycloak: { url: 'https://sso.example.com', realm: 'acme', clientId: 42 },
+        }),
+      }),
+    );
+    const { getKeycloak, loadKeycloakConfig } = await loadModule();
+    await loadKeycloakConfig();
+    getKeycloak();
+    expect(fetch).toHaveBeenCalledWith('/config.json', { cache: 'no-store' });
+    expect(Keycloak).toHaveBeenCalledWith({
+      url: 'https://sso.example.com',
+      realm: 'acme',
+      clientId: 'openjcockpit',
+    });
+  });
+
+  it.each([
+    ['a non-OK response', vi.fn().mockResolvedValue({ ok: false })],
+    ['a network failure', vi.fn().mockRejectedValue(new Error('offline'))],
+    [
+      'a body that is not JSON',
+      vi.fn().mockResolvedValue({ ok: true, json: async () => Promise.reject(new SyntaxError()) }),
+    ],
+    [
+      'a body without a keycloak section',
+      vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) }),
+    ],
+  ])('keeps the build-time values on %s', async (_name, fetchMock) => {
+    vi.stubGlobal('fetch', fetchMock);
+    const { getKeycloak, loadKeycloakConfig } = await loadModule();
+    await loadKeycloakConfig();
+    getKeycloak();
+    expect(Keycloak).toHaveBeenCalledWith({
+      url: 'http://localhost:8080',
+      realm: 'openjcockpit',
+      clientId: 'openjcockpit',
     });
   });
 

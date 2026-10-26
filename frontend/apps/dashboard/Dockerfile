@@ -23,6 +23,8 @@ FROM nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef
 # The nginx image renders /etc/nginx/templates/*.template into /etc/nginx/conf.d at startup. The filter
 # keeps envsubst from touching nginx's own $variables ($uri, $host, ...).
 ENV KEYCLOAK_URL=http://localhost:8080 \
+    KEYCLOAK_REALM=openjcockpit \
+    KEYCLOAK_CLIENT_ID=openjcockpit \
     NGINX_ENVSUBST_FILTER=^KEYCLOAK_
 COPY --from=build /app/apps/dashboard/dist /usr/share/nginx/html
 COPY apps/dashboard/nginx.conf.template /etc/nginx/templates/default.conf.template
