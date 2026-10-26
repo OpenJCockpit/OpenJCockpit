@@ -8,11 +8,17 @@
   },
   "scripts": {
     "lint": "nx run-many -t lint",
+    "typings": "typed-scss-modules \"{libs,apps}/**/*.module.scss\" --exportType default --nameFormat camel --logLevel error",
     "typecheck": "nx run-many -t typecheck",
     "test": "nx run-many -t test",
     "build": "nx run dashboard:build",
     "check": "nx run-many -t lint typecheck test format-check check-styles",
     "affected": "nx affected -t lint typecheck test build"
+  },
+  "nx": {
+    "includedScripts": [
+      "typings"
+    ]
   },
   "workspaces": [
     "apps/dashboard",
@@ -42,6 +48,7 @@
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "sass": "1.104.0",
+    "typed-scss-modules": "8.1.1",
     "typescript": "5.9.3",
     "typescript-eslint": "8.69.0",
     "vite": "6.4.4",

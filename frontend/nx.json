@@ -26,11 +26,7 @@
       "{workspaceRoot}/.prettierignore",
       "{workspaceRoot}/package-lock.json"
     ],
-    "production": [
-      "default",
-      "!{projectRoot}/**/*.test.{ts,tsx}",
-      "!{projectRoot}/visual/**/*"
-    ]
+    "production": ["default", "!{projectRoot}/**/*.test.{ts,tsx}", "!{projectRoot}/visual/**/*"]
   },
   "targetDefaults": {
     "build": {
@@ -38,13 +34,22 @@
       "inputs": ["production", "^production"],
       "outputs": ["{projectRoot}/dist"]
     },
-    "lint": { "cache": true, "inputs": ["default"] },
+    "typings": { "cache": false },
+    "lint": {
+      "cache": true,
+      "inputs": ["default"],
+      "dependsOn": [{ "projects": ["openjcockpit"], "target": "typings" }]
+    },
     "test": { "cache": true, "inputs": ["default"] },
     "format-check": { "cache": true, "inputs": ["default"] },
     "check-styles": {
       "cache": true,
       "inputs": ["default", "{workspaceRoot}/libs/**/*.{scss,ts,tsx,mjs}"]
     },
-    "typecheck": { "cache": true, "inputs": ["default"] }
+    "typecheck": {
+      "cache": true,
+      "inputs": ["default"],
+      "dependsOn": [{ "projects": ["openjcockpit"], "target": "typings" }]
+    }
   }
 }

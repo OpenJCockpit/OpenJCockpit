@@ -7,3 +7,4 @@ docs
 *.md
 public
 .vite
+*.module.scss.d.ts
