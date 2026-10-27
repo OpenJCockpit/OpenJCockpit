@@ -10,8 +10,8 @@ import {
 import type { Project } from '@openjcockpit/api';
 import { getKeycloak } from '@openjcockpit/auth';
 import type { PortalId } from '@openjcockpit/landing-hub';
-import { DashboardView } from './components/DashboardView/DashboardView';
 import { ROUTES } from './routes';
+import { DashboardRoute } from './routeViews/DashboardRoute';
 import { LandingHubRoute } from './routeViews/LandingHubRoute';
 import { LandingRoute } from './routeViews/LandingRoute';
 import { ProjectSelectionRoute } from './routeViews/ProjectSelectionRoute';
@@ -109,15 +109,7 @@ function App() {
             path={ROUTES.dashboard}
             element={
               <RequireProject project={selectedProject}>
-                {selectedProject && (
-                  <DashboardView
-                    key={selectedProject.id}
-                    projects={projects}
-                    project={selectedProject}
-                    onProjectChange={handleProjectChange}
-                    onLogout={handleLogout}
-                  />
-                )}
+                <DashboardRoute shell={shell} />
               </RequireProject>
             }
           />
