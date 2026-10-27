@@ -40,8 +40,7 @@ export function GroupsPanel() {
     setError(null);
   }
 
-  async function handleSave() {
-    if (!editingId) return;
+  async function handleSave(editingId: string) {
     setSaving(true);
     setError(null);
     try {
@@ -88,7 +87,7 @@ export function GroupsPanel() {
           form={form}
           setForm={setForm}
           saving={saving}
-          onSave={() => void handleSave()}
+          onSave={() => void handleSave(editingId)}
           onCancel={() => setEditingId(null)}
         />
       )}

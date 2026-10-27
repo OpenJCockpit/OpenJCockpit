@@ -105,14 +105,13 @@ export function useProjectSettings() {
     setNameInvalid(false);
   }
 
-  async function handleSave() {
+  async function handleSave(editingId: string) {
     if (!form.name.trim()) {
       setError('Name is required');
       setNameInvalid(true);
       nameInputRef.current?.focus();
       return;
     }
-    if (!editingId) return;
     setNameInvalid(false);
     setSaving(true);
     setError(null);
@@ -200,8 +199,7 @@ export function useProjectSettings() {
     setError(null);
   }
 
-  async function handleSaveCred() {
-    if (!credEditingId) return;
+  async function handleSaveCred(credEditingId: string) {
     setSaving(true);
     setError(null);
     try {

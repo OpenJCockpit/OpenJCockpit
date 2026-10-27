@@ -64,8 +64,8 @@ export function useRunActions({
         : 'Failed to stop the run.'
       : null;
 
-  function handleStop() {
-    stopMutation.mutate(selectedRunId!);
+  function handleStop(runId: string) {
+    stopMutation.mutate(runId);
   }
 
   function submitDecision(decision: ApprovalDecisionKind, comment?: string) {

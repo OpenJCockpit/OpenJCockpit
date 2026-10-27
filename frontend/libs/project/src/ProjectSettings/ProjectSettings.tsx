@@ -72,7 +72,7 @@ export function ProjectSettings({ onBack }: Props) {
             saving={saving}
             nameInvalid={nameInvalid}
             nameInputRef={nameInputRef}
-            onSave={() => void handleSave()}
+            onSave={() => void handleSave(editingId)}
             onCancel={cancelEdit}
           />
         )}
@@ -84,7 +84,7 @@ export function ProjectSettings({ onBack }: Props) {
             hasSecret={credHasSecret}
             loading={credLoading}
             saving={saving}
-            onSave={() => void handleSaveCred()}
+            onSave={() => void handleSaveCred(credEditingId)}
             onCancel={cancelCredEdit}
           />
         )}

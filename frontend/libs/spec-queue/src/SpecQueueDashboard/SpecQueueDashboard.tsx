@@ -66,13 +66,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
         onCancelRun={(it) => actions.openConfirmation('cancel', it)}
         onSkip={(it) => actions.openConfirmation('skip', it)}
         onRetry={actions.retry}
-        onOpenRun={
-          onOpenRun
-            ? (it) => {
-                if (it.workflowRunId) onOpenRun(it.workflowId, it.workflowRunId);
-              }
-            : undefined
-        }
+        onOpenRun={onOpenRun}
       />
     );
   }

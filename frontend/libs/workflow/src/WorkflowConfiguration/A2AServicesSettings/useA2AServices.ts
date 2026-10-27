@@ -97,8 +97,7 @@ export function useA2AServices() {
     setForm(EMPTY_FORM);
   }
 
-  async function handleSave() {
-    if (!editing) return;
+  async function handleSave(editing: Editing) {
     if (editing.mode === 'add' && !form.id.trim()) return setError('Id is required.');
     if (!form.name.trim()) return setError('Name is required.');
     if (!form.baseUrl.trim()) return setError('Base URL is required.');

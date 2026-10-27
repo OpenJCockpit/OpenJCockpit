@@ -81,26 +81,23 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
   const draftContent = current?.draft ?? selected?.content ?? '';
   const isDirty = selected != null && draftContent !== (selected.content ?? '');
 
-  function setDraftContent(draft: string) {
-    if (!projectId) return;
+  function setDraftContent(projectId: string, draft: string) {
     setSelection({ projectId, id: selectedId, draft });
   }
 
-  function handleSelect(spec: SpecFile) {
-    if (!projectId) return;
+  function handleSelect(projectId: string, spec: SpecFile) {
     setSelection({ projectId, id: spec.id, draft: spec.content ?? '' });
     setSaveResult(null);
     setSaveError(null);
     setQueuedNotice(null);
   }
 
-  async function handleSave() {
-    if (!project || !selected) return;
+  async function handleSave(projectId: string, selected: SpecFile) {
     setSaveError(null);
     setSaveResult(null);
     try {
       await saveMutation.mutateAsync({
-        projectId: project.id,
+        projectId,
         fileName: selected.fileName,
         content: draftContent,
       });
@@ -153,7 +150,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                       spec.id === selectedId && specStyles.selected,
                     )}
                     key={spec.id}
-                    onClick={() => handleSelect(spec)}
+                    onClick={() => handleSelect(project.id, spec)}
                   >
                     <IconBox label="📄" compact className={specStyles.icon} />
                     <div>
@@ -178,7 +175,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                     <div className={styles.specEditorActions}>
                       <Button
                         size="sm"
-                        onClick={() => void handleSave()}
+                        onClick={() => void handleSave(project.id, selected)}
                         disabled={!isDirty || saving}
                       >
                         {saving ? '⟳ Saving…' : '💾 Save'}
@@ -215,7 +212,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                   <textarea
                     className={styles.specEditorTextarea}
                     value={draftContent}
-                    onChange={(e) => setDraftContent(e.target.value)}
+                    onChange={(e) => setDraftContent(project.id, e.target.value)}
                     spellCheck={false}
                     aria-label={`Contents of ${selected.fileName}`}
                   />

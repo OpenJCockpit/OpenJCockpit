@@ -221,7 +221,7 @@ export function A2AServicesSettings() {
             />
           </div>
           <div className={formActionsClass}>
-            <ToolbarButton onClick={() => void handleSave()} disabled={saving}>
+            <ToolbarButton onClick={() => void handleSave(editing)} disabled={saving}>
               {saving ? '⟳ Saving…' : editingService ? 'Save A2A service' : 'Add A2A service'}
             </ToolbarButton>
             <Button variant="secondary" onClick={closeForm} disabled={saving}>

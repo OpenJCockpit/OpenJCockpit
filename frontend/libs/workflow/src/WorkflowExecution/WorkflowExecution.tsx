@@ -223,7 +223,7 @@ export function WorkflowExecution({
             <StatusChip label={runStatusLabel(runStatus)} kind={runStatusKind(runStatus)} />
           )}
           {selectedRunId && !isTerminalRunStatus(runStatus ?? '') && (
-            <Button variant="danger" onClick={() => void handleStop()} disabled={stopping}>
+            <Button variant="danger" onClick={() => handleStop(selectedRunId)} disabled={stopping}>
               {stopping ? '⟳ Stopping…' : '◼ Stop'}
             </Button>
           )}

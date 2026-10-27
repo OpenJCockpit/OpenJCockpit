@@ -100,8 +100,7 @@ export function SkillsPanel() {
     }
   }
 
-  async function handleSave() {
-    if (!editingName) return;
+  async function handleSave(editingName: string) {
     setSaving(true);
     setError(null);
     try {
@@ -156,7 +155,7 @@ export function SkillsPanel() {
           form={form}
           setForm={setForm}
           saving={saving}
-          onSave={() => void handleSave()}
+          onSave={() => void handleSave(editingName)}
           onCancel={() => setEditingName(null)}
         />
       )}

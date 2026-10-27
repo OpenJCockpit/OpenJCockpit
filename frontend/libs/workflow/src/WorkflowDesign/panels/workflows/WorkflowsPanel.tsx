@@ -12,6 +12,7 @@ import type {
   WorkflowDefinition,
   WorkflowExportBundle,
   WorkflowGroup,
+  WorkflowOrb,
 } from '@openjcockpit/api';
 import {
   ToolbarButton,
@@ -74,7 +75,10 @@ export function WorkflowsPanel() {
   }
 
   function updateItems(update: (prev: WorkflowDefinition[]) => WorkflowDefinition[]) {
-    queryClient.setQueryData<WorkflowDefinition[]>(workflowsQueryKey, (prev) => prev && update(prev));
+    queryClient.setQueryData<WorkflowDefinition[]>(
+      workflowsQueryKey,
+      (prev) => prev && update(prev),
+    );
   }
 
   function groupName(groupId?: string): string {
@@ -105,8 +109,7 @@ export function WorkflowsPanel() {
     setInfo(null);
   }
 
-  async function handleSave() {
-    if (!editingId) return;
+  async function handleSave(editingId: string) {
     if (!form.groupId && !form.projectName.trim()) {
       setError(
         'Link the workflow to a group or enter a project name — without a group, a project is required.',
@@ -118,22 +121,22 @@ export function WorkflowsPanel() {
       return;
     }
     setOrbError(null);
-    const orbDrafts = form.workflowOrbs ?? [];
-    const missingModeIndex = orbDrafts.findIndex((orb) => !orb.mode);
-    if (missingModeIndex !== -1) {
-      setOrbError(
-        `Workflow orb ${missingModeIndex + 1}: choose an execution mode (Sequential or Parallel) before saving.`,
-      );
-      return;
+    const orbs: WorkflowOrb[] = [];
+    for (const [index, { mode, ...orb }] of (form.workflowOrbs ?? []).entries()) {
+      if (!mode) {
+        setOrbError(
+          `Workflow orb ${index + 1}: choose an execution mode (Sequential or Parallel) before saving.`,
+        );
+        return;
+      }
+      orbs.push({ ...orb, mode });
     }
     setSaving(true);
     setError(null);
     try {
       const request: WorkflowDefinition = {
         ...form,
-        workflowOrbs:
-          form.workflowOrbs &&
-          orbDrafts.flatMap(({ mode, ...orb }) => (mode ? [{ ...orb, mode }] : [])),
+        workflowOrbs: form.workflowOrbs && orbs,
         groupId: form.groupId || undefined,
       };
       const saved =
@@ -257,7 +260,7 @@ export function WorkflowsPanel() {
           form={form}
           setForm={setForm}
           saving={saving}
-          onSave={() => void handleSave()}
+          onSave={() => void handleSave(editingId)}
           onCancel={cancelEdit}
           groups={groups}
           items={items}

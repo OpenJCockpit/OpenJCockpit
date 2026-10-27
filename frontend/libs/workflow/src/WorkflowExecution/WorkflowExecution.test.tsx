@@ -122,6 +122,16 @@ describe('WorkflowExecution', () => {
     expect(screen.getByText('RUNNING')).toBeInTheDocument();
   });
 
+  it('shows the Stop button while the run status is still loading', async () => {
+    vi.mocked(workflowApi.getWorkflowExecution).mockReturnValue(new Promise(() => undefined));
+
+    await act(async () => {
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
+    });
+
+    expect(screen.getByText('◼ Stop')).toBeInTheDocument();
+  });
+
   it('still renders the run status when listWorkflows rejects', async () => {
     vi.mocked(workflowApi.listWorkflows).mockRejectedValue(new Error('boom'));
     vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(runWithStatus('RUNNING'));
@@ -292,6 +302,20 @@ describe('WorkflowExecution', () => {
     });
 
     await waitFor(() => expect(api.stopAgentRun).toHaveBeenCalledWith('run-1'));
+  });
+
+  it('disables the Stop button while the stop request is pending', async () => {
+    vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(runWithStatus('RUNNING'));
+    vi.mocked(api.stopAgentRun).mockReturnValue(new Promise(() => undefined));
+
+    await act(async () => {
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
+    });
+    await act(async () => {
+      screen.getByText('◼ Stop').click();
+    });
+
+    expect((await screen.findByText('⟳ Stopping…')).closest('button')).toBeDisabled();
   });
 
   it('shows an error and keeps the run status when stopping fails', async () => {

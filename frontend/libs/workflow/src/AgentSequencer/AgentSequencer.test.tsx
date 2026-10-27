@@ -269,6 +269,22 @@ describe('AgentSequencer', () => {
     expect(screen.queryByText('Impact')).not.toBeInTheDocument();
   });
 
+  it('keeps the dragged order and places nodes added later after it', () => {
+    const added: AgentCard = { ...agents[0]!, id: 'added', name: 'Added' };
+    const addedLast: AgentCard = { ...agents[0]!, id: 'added-last', name: 'Added last' };
+    const { rerender } = render(<AgentSequencer nodes={agents} definitions={[]} />);
+    fireEvent.dragStart(nodeFor('Requirement'));
+    fireEvent.dragOver(nodeFor('Impact'));
+    fireEvent.dragEnd(nodeFor('Requirement'));
+
+    rerender(<AgentSequencer nodes={[added, ...agents, addedLast]} definitions={[]} />);
+
+    const names = Array.from(
+      screen.getByLabelText('Agent pipeline sequence').querySelectorAll('strong'),
+    ).map((el) => el.textContent);
+    expect(names).toEqual(['Impact', 'Requirement', 'Added', 'Added last']);
+  });
+
   it('mirrors nodes until definitions arrive', () => {
     const { rerender } = render(<AgentSequencer nodes={[agents[1]!]} definitions={[]} />);
     expect(screen.getByText('Impact')).toBeInTheDocument();
