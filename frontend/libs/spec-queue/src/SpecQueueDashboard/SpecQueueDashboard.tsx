@@ -256,7 +256,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
           confirmLabel={copy.confirmLabel}
           busy={actions.confirmBusy}
           error={actions.confirmError}
-          onConfirm={() => void actions.confirm()}
+          onConfirm={actions.confirm}
           onCancel={actions.closeConfirmation}
         />
       )}

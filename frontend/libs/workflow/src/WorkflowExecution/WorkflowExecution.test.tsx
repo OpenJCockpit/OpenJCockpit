@@ -294,6 +294,22 @@ describe('WorkflowExecution', () => {
     await waitFor(() => expect(api.stopAgentRun).toHaveBeenCalledWith('run-1'));
   });
 
+  it('shows an error and keeps the run status when stopping fails', async () => {
+    vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(runWithStatus('RUNNING'));
+    vi.mocked(api.stopAgentRun).mockRejectedValue(new Error('Stop refused'));
+
+    await act(async () => {
+      render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
+    });
+
+    await act(async () => {
+      screen.getByText('◼ Stop').click();
+    });
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Stop refused');
+    expect(screen.getByText('◼ Stop')).toBeEnabled();
+  });
+
   describe('human approval gate', () => {
     const CONTEXT: ApprovalGateContext = {
       runId: 'run-1',

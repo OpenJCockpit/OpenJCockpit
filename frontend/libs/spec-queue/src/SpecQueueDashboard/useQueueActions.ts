@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useState, type RefObject } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import {
   pauseSpecQueue,
   removeSpecQueueItem,
@@ -47,6 +48,12 @@ export function confirmationCopy({ kind, item }: Confirmation) {
   }
 }
 
+interface Action {
+  projectId: string | null;
+  fallback: string;
+  run: () => Promise<unknown>;
+}
+
 interface Options {
   projectId: string | null;
   queue: SpecQueue | null;
@@ -67,40 +74,32 @@ export function useQueueActions({
   refresh,
   announce,
 }: Options) {
-  // Scoped to a project so it clears when the project changes.
-  const [actionErrorState, setActionErrorState] = useState<{
-    projectId: string | null;
-    message: string;
-  } | null>(null);
-  const actionError = actionErrorState?.projectId === projectId ? actionErrorState.message : null;
-  const [busy, setBusy] = useState(false);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
-  const [confirmBusy, setConfirmBusy] = useState(false);
-  const [confirmError, setConfirmError] = useState<string | null>(null);
+
+  // The request and its follow-up (cache write, announcement) share one mutation so `isPending` covers both.
+  const actionMutation = useMutation({
+    mutationFn: ({ run }: Action) => run(),
+    // Resync anyway so a stale-order 409 shows the current order.
+    onError: () => refresh(),
+  });
+  const busy = actionMutation.isPending;
+  // Scoped to a project so it clears when the project changes.
+  const actionError =
+    actionMutation.isError && actionMutation.variables.projectId === projectId
+      ? messageOf(actionMutation.error, actionMutation.variables.fallback)
+      : null;
 
   const requestFocus = useFocusAfterMove(listRef, queue, busy);
 
-  const mounted = useRef(true);
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
-
-  async function run(action: () => Promise<unknown>, fallback: string, reload = true) {
-    setBusy(true);
-    setActionErrorState(null);
-    try {
-      await action();
-      if (reload) await refresh();
-    } catch (e) {
-      if (mounted.current) setActionErrorState({ projectId, message: messageOf(e, fallback) });
-      // Resync anyway so a stale-order 409 shows the current order.
-      await refresh();
-    } finally {
-      if (mounted.current) setBusy(false);
-    }
+  function run(run: () => Promise<unknown>, fallback: string, reload = true) {
+    actionMutation.mutate({
+      projectId,
+      fallback,
+      run: async () => {
+        await run();
+        if (reload) await refresh();
+      },
+    });
   }
 
   function move(item: SpecQueueItem, direction: MoveDirection) {
@@ -108,10 +107,9 @@ export function useQueueActions({
     const from = ids.indexOf(item.id);
     const to = direction === 'up' ? from - 1 : from + 1;
     [ids[from], ids[to]] = [ids[to]!, ids[from]!];
-    void run(
+    run(
       async () => {
         const response = await reorderSpecQueue(projectId!, ids);
-        if (!mounted.current) return;
         requestFocus(item.id, direction);
         await applyQueue(response);
         announce(`${item.specFile} moved to position ${to + 1} of ${ids.length}`);
@@ -122,10 +120,9 @@ export function useQueueActions({
   }
 
   function pauseResume(pause: boolean) {
-    void run(
+    run(
       async () => {
         const response = await (pause ? pauseSpecQueue(projectId!) : resumeSpecQueue(projectId!));
-        if (!mounted.current) return;
         await applyQueue(response);
         announce(pause ? 'Queue paused' : 'Queue resumed');
       },
@@ -136,7 +133,7 @@ export function useQueueActions({
 
   function setAutoMerge(item: SpecQueueItem, autoMerge: boolean) {
     if (!projectId) return;
-    void run(
+    run(
       () => updateSpecQueueItem(projectId, item.id, { autoMerge }),
       'Failed to update the queue item',
     );
@@ -144,11 +141,22 @@ export function useQueueActions({
 
   function retry(item: SpecQueueItem) {
     if (!projectId) return;
-    void run(() => retrySpecQueueItem(projectId, item.id), 'Failed to retry the queue item');
+    run(() => retrySpecQueueItem(projectId, item.id), 'Failed to retry the queue item');
   }
 
+  const confirmMutation = useMutation({
+    mutationFn: ({ kind, item }: Confirmation) =>
+      kind === 'skip'
+        ? skipSpecQueueItem(projectId!, item.id)
+        : removeSpecQueueItem(projectId!, item.id),
+  });
+  const confirmBusy = confirmMutation.isPending;
+  const confirmError = confirmMutation.isError
+    ? messageOf(confirmMutation.error, 'The action failed')
+    : null;
+
   function openConfirmation(kind: ConfirmationKind, item: SpecQueueItem) {
-    setConfirmError(null);
+    confirmMutation.reset();
     setConfirmation({ kind, item });
   }
 
@@ -156,24 +164,15 @@ export function useQueueActions({
     setConfirmation(null);
   }
 
-  async function confirm() {
-    const { kind, item } = confirmation!;
-    const copy = confirmationCopy(confirmation!);
-    setConfirmBusy(true);
-    setConfirmError(null);
-    try {
-      await (kind === 'skip'
-        ? skipSpecQueueItem(projectId!, item.id)
-        : removeSpecQueueItem(projectId!, item.id));
-      if (!mounted.current) return;
-      setConfirmation(null);
-      announce(copy.done);
-      await refresh();
-    } catch (e) {
-      if (mounted.current) setConfirmError(messageOf(e, 'The action failed'));
-    } finally {
-      if (mounted.current) setConfirmBusy(false);
-    }
+  function confirm() {
+    // Per-call callbacks do not run after unmount, so a late response is not applied.
+    confirmMutation.mutate(confirmation!, {
+      onSuccess: () => {
+        setConfirmation(null);
+        announce(confirmationCopy(confirmation!).done);
+        void refresh();
+      },
+    });
   }
 
   return {

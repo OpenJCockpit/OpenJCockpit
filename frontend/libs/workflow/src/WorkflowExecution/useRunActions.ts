@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { stopAgentRun, submitApprovalDecision } from '@openjcockpit/api';
 import type { ApprovalDecisionKind } from '@openjcockpit/api';
 import type { useRunEvents } from './useRunEvents';
@@ -25,42 +25,56 @@ export function useRunActions({
   setDecisionError,
   onRunEnded,
 }: Options) {
-  const [stopping, setStopping] = useState(false);
-  const [decisionSubmitting, setDecisionSubmitting] = useState(false);
-
-  async function handleStop() {
-    setStopping(true);
-    try {
-      await stopAgentRun(selectedRunId!);
+  const stopMutation = useMutation({
+    mutationFn: (runId: string) => stopAgentRun(runId),
+    onSuccess: () => {
       setRunStatus('CANCELLED');
       setApprovalModalVisible(false);
       onRunEnded?.();
-    } finally {
-      setStopping(false);
-    }
-  }
+    },
+  });
 
-  async function submitDecision(decision: ApprovalDecisionKind, comment?: string) {
-    setDecisionSubmitting(true);
-    setDecisionError(null);
-    try {
-      await submitApprovalDecision(selectedRunId!, {
+  const decisionMutation = useMutation({
+    mutationFn: ({ decision, comment }: { decision: ApprovalDecisionKind; comment?: string }) =>
+      submitApprovalDecision(selectedRunId!, {
         decision,
         iteration: approvalContext!.iteration,
         comment,
-      });
+      }),
+    onMutate: () => setDecisionError(null),
+    onSuccess: () => {
       // The run has moved on (resumed, denied, or is re-running with feedback) — the
       // next poll tick reports the new status; the gate itself is no longer open.
       setApprovalModalVisible(false);
       setApprovalContext(null);
-    } catch (err) {
+    },
+    onError: (err) =>
       setDecisionError(
         err instanceof Error ? err.message : 'Failed to submit the approval decision.',
-      );
-    } finally {
-      setDecisionSubmitting(false);
-    }
+      ),
+  });
+
+  // Scoped to the run it was raised for so it clears when another run is selected.
+  const stopError =
+    stopMutation.isError && stopMutation.variables === selectedRunId
+      ? stopMutation.error instanceof Error && stopMutation.error.message
+        ? stopMutation.error.message
+        : 'Failed to stop the run.'
+      : null;
+
+  function handleStop() {
+    stopMutation.mutate(selectedRunId!);
   }
 
-  return { stopping, decisionSubmitting, handleStop, submitDecision };
+  function submitDecision(decision: ApprovalDecisionKind, comment?: string) {
+    decisionMutation.mutate({ decision, comment });
+  }
+
+  return {
+    stopping: stopMutation.isPending,
+    stopError,
+    decisionSubmitting: decisionMutation.isPending,
+    handleStop,
+    submitDecision,
+  };
 }

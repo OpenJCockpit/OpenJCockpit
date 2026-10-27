@@ -187,7 +187,7 @@ export function WorkflowExecution({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- ref and setter are stable
   }, [runStatus, latestChildWorkflowEvent]);
 
-  const { stopping, decisionSubmitting, handleStop, submitDecision } = useRunActions({
+  const { stopping, stopError, decisionSubmitting, handleStop, submitDecision } = useRunActions({
     selectedRunId,
     approvalContext,
     setRunStatus,
@@ -261,6 +261,12 @@ export function WorkflowExecution({
       <RunStatusAnnouncements
         messages={[waitingAnnouncement, definitionFailureEvent?.title, failureSummary]}
       />
+
+      {stopError && (
+        <p className={fieldErrorClass} role="alert">
+          {stopError}
+        </p>
+      )}
 
       {approvalLoadError && (
         <p className={fieldErrorClass} role="alert">
