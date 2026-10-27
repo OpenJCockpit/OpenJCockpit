@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
 import { QueryClientProvider } from '@tanstack/react-query';
-import './styles/index.scss';
+import '@openjcockpit/ui/styles.scss';
 import { ErrorBoundary } from '@openjcockpit/ui';
 import { loadKeycloakConfig } from '@openjcockpit/auth';
 import App from './App';

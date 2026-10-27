@@ -14,7 +14,7 @@ The shell app of the OpenJCockpit frontend: React 19, Vite, React Router and Tan
 | `src/useAuthSession.ts`                                              | Keycloak session, token hand-off to `@openjcockpit/api`, refresh.               |
 | `src/useRunLauncher.ts`                                              | Starts a workflow run from the UI.                                              |
 | `src/components/`                                                    | App-level components (shell, navigation).                                       |
-| `src/styles/`                                                        | Global tokens, reset and animations (see Styling).                              |
+| `@openjcockpit/ui/styles.scss` | Global tokens, reset and animations, imported from `main.tsx` (see Styling). |
 | `visual/`                                                            | Visual-regression runner and the `check-styles` script.                         |
 | `scripts/`                                                           | `check-bundle-size.mjs`.                                                        |
 | `Dockerfile`, `nginx.conf.template`, `security-headers.inc.template` | Production image.                                                               |
@@ -62,7 +62,7 @@ Run from `frontend/`.
 
 ## Styling
 
-- Global CSS is limited to `src/styles/` (tokens, reset, animations), loaded once from `main.tsx`. Declare colors, fonts, spacing and radii as custom properties in `styles/_tokens.scss` and use `var(--…)`. `libs/ui` depends on these tokens and does not render correctly without them.
+- Global CSS is limited to `libs/ui/src/styles/` (tokens, reset, animations), loaded once from `main.tsx` via `@openjcockpit/ui/styles.scss`. Declare colors, fonts, spacing and radii as custom properties in `_tokens.scss` and use `var(--…)`. They are owned by `libs/ui`, whose primitives use them.
 - Component styles live next to the component in `Name.module.scss` and are imported as `import styles from './Name.module.scss'`. Write class names in kebab-case or BEM; read them in TSX as camelCase (`styles.statusChipActive`).
 - Shared building blocks live in `libs/ui` (`@openjcockpit/ui`: `Button`, `Panel`, `DataTable`, `Tabs`, form classes, …). Prefer them over new one-off styles.
 - Static `style={{…}}` is not allowed (ESLint `no-restricted-syntax`). Use a module class, or set a custom property for a runtime value.

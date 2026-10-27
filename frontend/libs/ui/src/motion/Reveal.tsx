@@ -6,7 +6,7 @@ import styles from './Reveal.module.scss';
 // package's <Animated /> for this app's six entrance profiles (auth card, topbar, intro frame,
 // hero copy, two portal orbs). CSS-only by design (ADR-3): no WAAPI, no JS
 // timers. This makes the existing global
-// `@media (prefers-reduced-motion: reduce)` block in styles/_reset.scss
+// `@media (prefers-reduced-motion: reduce)` block in src/styles/_reset.scss
 // automatically authoritative for every entrance animation in the app.
 //
 // Stagger indices are always passed explicitly by the caller via `index`
