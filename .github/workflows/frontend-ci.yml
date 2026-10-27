@@ -98,3 +98,46 @@ jobs:
           path: frontend/.nx/cache/terminalOutputs
           if-no-files-found: ignore
           retention-days: 7
+
+  # Nothing else exercises the Dockerfile or the nginx templates (the full-mode e2e does, but CI does not run it).
+  # Builds the image, starts it with non-default env and checks the endpoints the runtime config depends on.
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      IMAGE: openjcockpit-dashboard:ci
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Build image
+        run: docker build -f frontend/apps/dashboard/Dockerfile --build-arg BUILD_SHA="$GITHUB_SHA" -t "$IMAGE" frontend
+
+      - name: Start container
+        run: |
+          docker run -d --name dashboard -p 8080:8080 \
+            -e KEYCLOAK_URL=https://auth.example.test \
+            -e KEYCLOAK_REALM=ci-realm \
+            -e KEYCLOAK_CLIENT_ID=ci-client \
+            "$IMAGE"
+          for _ in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8080/healthz >/dev/null 2>&1 && exit 0
+            sleep 1
+          done
+          echo "::error::container did not become healthy within 30s"
+          exit 1
+
+      - name: Smoke test endpoints
+        run: |
+          set -euo pipefail
+          base=http://127.0.0.1:8080
+          [ "$(curl -fsS "$base/healthz")" = "ok" ]
+          curl -fsS "$base/config.json" | jq -e '.keycloak == {url: "https://auth.example.test", realm: "ci-realm", clientId: "ci-client"}'
+          curl -fsS "$base/version.json" | jq -e --arg sha "$GITHUB_SHA" '.sha == $sha'
+          curl -fsS "$base/" | grep -q '<div id="root"'
+          # SPA fallback: unknown client routes serve the entry document.
+          curl -fsS "$base/some/client/route" | grep -q '<div id="root"'
+          curl -fsSI "$base/" | grep -qi '^content-security-policy:'
+
+      - name: Container logs
+        if: failure()
+        run: docker logs dashboard || true
