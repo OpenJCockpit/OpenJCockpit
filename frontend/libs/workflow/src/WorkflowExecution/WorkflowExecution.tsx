@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   buildAgentCards,
@@ -97,7 +97,8 @@ export function WorkflowExecution({
     approvalLoadError,
     waitingAnnouncement,
     setWaitingAnnouncement,
-    previousWaitingStatusRef,
+    previousWaitingStatus,
+    setPreviousWaitingStatus,
   } = useRunEvents({
     workflow,
     selectedRunId,
@@ -173,20 +174,22 @@ export function WorkflowExecution({
     ? latestChildWorkflowEvent.evidenceRef.slice('run://'.length)
     : null;
 
-  useEffect(() => {
-    const previous = previousWaitingStatusRef.current;
-    if (runStatus === 'AWAITING_CHILD_WORKFLOW' && previous !== 'AWAITING_CHILD_WORKFLOW') {
+  // Derived during render (not in an effect): announce only on entering/leaving the waiting state.
+  if (previousWaitingStatus !== runStatus) {
+    setPreviousWaitingStatus(runStatus);
+    if (
+      runStatus === 'AWAITING_CHILD_WORKFLOW' &&
+      previousWaitingStatus !== 'AWAITING_CHILD_WORKFLOW'
+    ) {
       setWaitingAnnouncement(
         latestChildWorkflowEvent
           ? `Waiting for child workflow: ${latestChildWorkflowEvent.title}`
           : 'Waiting for a triggered child workflow to complete.',
       );
-    } else if (previous === 'AWAITING_CHILD_WORKFLOW' && runStatus !== 'AWAITING_CHILD_WORKFLOW') {
+    } else if (previousWaitingStatus === 'AWAITING_CHILD_WORKFLOW') {
       setWaitingAnnouncement('No longer waiting for the child workflow.');
     }
-    previousWaitingStatusRef.current = runStatus;
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- ref and setter are stable
-  }, [runStatus, latestChildWorkflowEvent]);
+  }
 
   const { stopping, stopError, decisionSubmitting, handleStop, submitDecision } = useRunActions({
     selectedRunId,

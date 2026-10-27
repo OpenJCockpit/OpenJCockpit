@@ -263,10 +263,10 @@ describe('AgentSequencer', () => {
     expect(names).toEqual(['Requirement', 'Impact']);
   });
 
-  it('keeps an existing node when a later nodes update no longer contains it', () => {
+  it('drops a node when a later nodes update no longer contains it', () => {
     const { rerender } = render(<AgentSequencer nodes={agents} definitions={definitions} />);
     rerender(<AgentSequencer nodes={[agents[0]!]} definitions={definitions} />);
-    expect(screen.getByText('Impact')).toBeInTheDocument();
+    expect(screen.queryByText('Impact')).not.toBeInTheDocument();
   });
 
   it('mirrors nodes until definitions arrive', () => {
