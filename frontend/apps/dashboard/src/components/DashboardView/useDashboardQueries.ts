@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { getSpecInitStatus, loadProjectSpecs, loadWorkspace } from '@openjcockpit/api';
+import { getSpecInitStatus, loadProjectSpecs, loadWorkspace, queryKeys } from '@openjcockpit/api';
 import type { Project } from '@openjcockpit/api';
 
 export function useWorkspaceQuery(project: Project) {
   const customerId = project.customerId ?? project.id;
   return useQuery({
-    queryKey: ['workspace', customerId],
+    queryKey: queryKeys.workspace(customerId),
     queryFn: ({ signal }) => loadWorkspace(customerId, signal),
   });
 }
@@ -16,7 +16,7 @@ export function useWorkspaceQuery(project: Project) {
  */
 export function useProjectSpecsQuery(projectId: string) {
   return useQuery({
-    queryKey: ['project-specs', projectId],
+    queryKey: queryKeys.projectSpecs(projectId),
     queryFn: async ({ signal }) => {
       const specs = await loadProjectSpecs(projectId, signal);
       const specInitStatus = specs.length === 0 ? await getSpecInitStatus(projectId, signal) : null;

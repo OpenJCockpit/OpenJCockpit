@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { loadProjectSpecs, saveSpecFile } from '@openjcockpit/api';
+import { loadProjectSpecs, queryKeys, saveSpecFile } from '@openjcockpit/api';
 import type { Project, SpecFile, SpecInitResult } from '@openjcockpit/api';
 import {
   IconBox,
@@ -49,7 +49,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
   const queryClient = useQueryClient();
   const projectId = project?.id ?? null;
   const specsQuery = useQuery({
-    queryKey: ['project-specs', projectId, 'files'],
+    queryKey: queryKeys.projectSpecFiles(projectId),
     queryFn: ({ signal }) => loadProjectSpecs(projectId as string, signal),
     enabled: projectId !== null,
   });
@@ -68,7 +68,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
     mutationFn: async (vars: { projectId: string; fileName: string; content: string }) => {
       const result = await saveSpecFile(vars.projectId, vars.fileName, vars.content);
       setSaveResult(result);
-      await queryClient.invalidateQueries({ queryKey: ['project-specs', vars.projectId] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.projectSpecs(vars.projectId) });
     },
   });
   const saving = saveMutation.isPending;

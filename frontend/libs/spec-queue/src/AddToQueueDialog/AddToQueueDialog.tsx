@@ -7,6 +7,7 @@ import {
   listSpecFilesStrict,
   listWorkflowGroups,
   listWorkflows,
+  queryKeys,
   workflowsForProject,
 } from '@openjcockpit/api';
 import type { Project, SpecFile, SpecQueueItem, WorkflowDefinition } from '@openjcockpit/api';
@@ -50,18 +51,21 @@ const AUTO_MERGE_NOTE =
 
 export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: Props) {
   const specsQuery = useQuery({
-    queryKey: ['spec-queue', project.id, 'spec-files'],
+    queryKey: queryKeys.specQueueSpecFiles(project.id),
     queryFn: () => listSpecFilesStrict(project.id),
     enabled: !fixedSpecFile,
   });
   // Same keys as the dashboard app, so the lists are shared from cache.
-  const allWorkflowsQuery = useQuery({ queryKey: ['workflows'], queryFn: () => listWorkflows() });
+  const allWorkflowsQuery = useQuery({
+    queryKey: queryKeys.workflows,
+    queryFn: () => listWorkflows(),
+  });
   const groupsQuery = useQuery({
-    queryKey: ['workflow-groups'],
+    queryKey: queryKeys.workflowGroups,
     queryFn: () => listWorkflowGroups(),
   });
   const settingsQuery = useQuery({
-    queryKey: ['spec-queue', project.id, 'settings'],
+    queryKey: queryKeys.specQueueSettings(project.id),
     queryFn: () => getSpecQueueSettings(project.id),
   });
 

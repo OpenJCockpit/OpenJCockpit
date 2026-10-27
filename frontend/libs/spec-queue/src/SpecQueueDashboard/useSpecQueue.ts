@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getSpecQueue } from '@openjcockpit/api';
+import { getSpecQueue, queryKeys } from '@openjcockpit/api';
 import type { SpecQueue } from '@openjcockpit/api';
 
 const POLL_INTERVAL_MS = 5000;
@@ -13,7 +13,7 @@ export function messageOf(e: unknown, fallback: string): string {
 /** Polls a project's spec queue (with exponential backoff while loads fail) and writes responses back into the cache. */
 export function useSpecQueue(projectId: string | null) {
   const queryClient = useQueryClient();
-  const queueKey = ['spec-queue', projectId, 'queue'] as const;
+  const queueKey = queryKeys.specQueue(projectId);
   // react-query resets its own failure counters on every fetch, so count consecutive failures here.
   const failures = useRef({ projectId, count: 0 });
   const consecutiveFailures = () =>
@@ -47,20 +47,20 @@ export function useSpecQueue(projectId: string | null) {
   /** Writes a queue response; an in-flight poll is cancelled so it cannot overwrite it. */
   const applyQueue = useCallback(
     async (next: SpecQueue) => {
-      await queryClient.cancelQueries({ queryKey: ['spec-queue', projectId, 'queue'] });
-      queryClient.setQueryData(['spec-queue', projectId, 'queue'], next);
+      await queryClient.cancelQueries({ queryKey: queryKeys.specQueue(projectId) });
+      queryClient.setQueryData(queryKeys.specQueue(projectId), next);
     },
     [queryClient, projectId],
   );
 
   const refresh = useCallback(async () => {
-    await queryClient.refetchQueries({ queryKey: ['spec-queue', projectId, 'queue'] });
+    await queryClient.refetchQueries({ queryKey: queryKeys.specQueue(projectId) });
   }, [queryClient, projectId]);
 
   const applyAutoMergeAllowed = useCallback(
     async (autoMergeAllowed: boolean) => {
-      await queryClient.cancelQueries({ queryKey: ['spec-queue', projectId, 'queue'] });
-      queryClient.setQueryData<SpecQueue>(['spec-queue', projectId, 'queue'], (q) =>
+      await queryClient.cancelQueries({ queryKey: queryKeys.specQueue(projectId) });
+      queryClient.setQueryData<SpecQueue>(queryKeys.specQueue(projectId), (q) =>
         q ? { ...q, autoMergeAllowed } : q,
       );
     },

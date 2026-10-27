@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getWorkflow } from '@openjcockpit/api';
+import { getWorkflow, queryKeys } from '@openjcockpit/api';
 import type { Project, WorkflowDefinition } from '@openjcockpit/api';
 import { WorkflowOverview } from '../WorkflowOverview/WorkflowOverview';
 import { WorkflowConfiguration } from '../WorkflowConfiguration/WorkflowConfiguration';
@@ -29,7 +29,7 @@ export function WorkflowDashboard({ project, onBack, initialExecution, header }:
 
   const initialWorkflowId = initialExecution?.workflowId;
   const initialWorkflowQuery = useQuery({
-    queryKey: ['workflow', initialWorkflowId],
+    queryKey: queryKeys.workflow(initialWorkflowId as string),
     queryFn: () => getWorkflow(initialWorkflowId as string),
     enabled: Boolean(initialWorkflowId),
   });

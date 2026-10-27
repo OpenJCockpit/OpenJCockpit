@@ -5,6 +5,7 @@ import {
   buildSequencerNodes,
   isTerminalRunStatus,
   listWorkflows,
+  queryKeys,
   runStatusKind,
   runStatusLabel,
 } from '@openjcockpit/api';
@@ -108,13 +109,13 @@ export function WorkflowExecution({
   });
 
   const { data: definitions = NO_DEFINITIONS } = useQuery({
-    queryKey: ['linkable-agents'],
+    queryKey: queryKeys.linkableAgents,
     queryFn: loadLinkableAgents, // never rejects: a failed catalog degrades to []
   });
 
   // display-name lookup only (workflowNameById); [] degrades an orb label to its raw id, no functional loss
   const { data: allWorkflows = NO_WORKFLOWS } = useQuery({
-    queryKey: ['workflows'],
+    queryKey: queryKeys.workflows,
     queryFn: ({ signal }) => listWorkflows(signal),
   });
 

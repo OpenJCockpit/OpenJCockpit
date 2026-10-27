@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getHermesConfig, saveHermesConfig } from '@openjcockpit/api';
+import { getHermesConfig, queryKeys, saveHermesConfig } from '@openjcockpit/api';
 import type { HermesConfig, HermesConfigRequest } from '@openjcockpit/api';
 import { CheckboxField, SecretField, TextField, StatusMessage } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
@@ -37,7 +37,7 @@ function toFormState(hermes: HermesConfig): HermesFormState {
 
 export function HermesSettings({ projectId }: Props) {
   const queryClient = useQueryClient();
-  const queryKey = ['hermes-config', projectId];
+  const queryKey = queryKeys.hermesConfig(projectId);
   const configQuery = useQuery({ queryKey, queryFn: () => getHermesConfig(projectId) });
   const hasAuthToken = configQuery.data?.hasAuthToken ?? false;
   // null until the operator edits; the displayed form is then derived from the server config.
