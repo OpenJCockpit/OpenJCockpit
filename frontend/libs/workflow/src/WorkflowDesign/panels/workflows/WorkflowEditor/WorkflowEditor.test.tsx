@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import type { AgentDefinition, WorkflowDefinition } from '@openjcockpit/api';
 import { WorkflowEditor } from './WorkflowEditor';
+import type { WorkflowDraft } from './OrbEditor';
 
 const agent = (id: string, name: string): AgentDefinition => ({
   id,
@@ -24,7 +25,7 @@ const baseForm = {
   status: 'ACTIVE',
 } as WorkflowDefinition;
 
-let latest: WorkflowDefinition;
+let latest: WorkflowDraft;
 
 interface HarnessProps {
   isNew?: boolean;
@@ -49,7 +50,7 @@ function Harness({
   onSave = () => {},
   onCancel = () => {},
 }: HarnessProps) {
-  const [form, setForm] = useState(initial);
+  const [form, setForm] = useState<WorkflowDraft>(initial);
   useEffect(() => {
     latest = form;
   });

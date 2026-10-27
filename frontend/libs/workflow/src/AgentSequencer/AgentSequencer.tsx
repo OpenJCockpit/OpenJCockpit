@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import type {
   AgentCard,
   AgentDefinition,
@@ -33,35 +33,26 @@ interface Props {
 }
 
 export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props) {
-  const [sequence, setSequence] = useState<SequencerNode[]>(nodes);
+  const [userOrder, setUserOrder] = useState<string[] | null>(null);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const dragFromRef = useRef<number | null>(null);
-  const definitionsApplied = useRef(false);
 
-  useEffect(() => {
-    if (definitions.length > 0 && !definitionsApplied.current) {
-      definitionsApplied.current = true;
-      if (nodes.some((n) => n.kind === 'orb')) {
-        // WorkflowExecution has already interleaved agent cards and anchored orb cards
-        // into the correct order; re-sorting by sequenceOrder would push orb nodes
-        // (whose ids are not in the definitions orderMap) to the end.
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- sequence mirrors nodes until definitions arrive, then orders once
-        setSequence(nodes);
-        return;
-      }
-      const orderMap = new Map(definitions.map((d) => [d.id, d.sequenceOrder]));
-      setSequence(
-        [...nodes].sort((a, b) => (orderMap.get(a.id) ?? 99) - (orderMap.get(b.id) ?? 99)),
-      );
-      return;
-    }
-    if (!definitionsApplied.current) {
-      setSequence(nodes);
-      return;
-    }
-    const nodeMap = new Map(nodes.map((n) => [n.id, n]));
-    setSequence((prev) => prev.map((n) => nodeMap.get(n.id) ?? n));
+  // WorkflowExecution has already interleaved agent cards and anchored orb cards into the
+  // correct order; re-sorting by sequenceOrder would push orb nodes (whose ids are not in
+  // the definitions orderMap) to the end, so only sort when there are no orbs.
+  const baseSequence = useMemo(() => {
+    if (definitions.length === 0 || nodes.some((n) => n.kind === 'orb')) return nodes;
+    const orderMap = new Map(definitions.map((d) => [d.id, d.sequenceOrder]));
+    return [...nodes].sort((a, b) => (orderMap.get(a.id) ?? 99) - (orderMap.get(b.id) ?? 99));
   }, [nodes, definitions]);
+
+  const sequence = useMemo(() => {
+    if (!userOrder) return baseSequence;
+    const rank = new Map(userOrder.map((id, i) => [id, i]));
+    return [...baseSequence].sort(
+      (a, b) => (rank.get(a.id) ?? userOrder.length) - (rank.get(b.id) ?? userOrder.length),
+    );
+  }, [baseSequence, userOrder]);
 
   function handleDragStart(idx: number) {
     dragFromRef.current = idx;
@@ -72,12 +63,10 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
     e.preventDefault();
     const fromIdx = dragFromRef.current;
     if (fromIdx === null || fromIdx === overIdx) return;
-    setSequence((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(fromIdx, 1);
-      if (moved) next.splice(overIdx, 0, moved);
-      return next;
-    });
+    const ids = sequence.map((n) => n.id);
+    const [moved] = ids.splice(fromIdx, 1);
+    if (moved) ids.splice(overIdx, 0, moved);
+    setUserOrder(ids);
     dragFromRef.current = overIdx;
     setDragIdx(overIdx);
   }

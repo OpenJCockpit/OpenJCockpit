@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { listWorkflowGroups, listWorkflows, workflowsForProject } from '@openjcockpit/api';
+import {
+  listWorkflowGroups,
+  listWorkflows,
+  queryKeys,
+  workflowsForProject,
+} from '@openjcockpit/api';
 import type { WorkflowDefinition } from '@openjcockpit/api';
 
 const NO_WORKFLOWS: WorkflowDefinition[] = [];
@@ -8,12 +13,12 @@ const NO_WORKFLOWS: WorkflowDefinition[] = [];
 /** Workflows visible to the project (its own plus global ones). Failed loads yield an empty list. */
 export function useProjectWorkflows(projectName: string | undefined, enabled = true) {
   const workflows = useQuery({
-    queryKey: ['workflows'],
+    queryKey: queryKeys.workflows,
     queryFn: ({ signal }) => listWorkflows(signal),
     enabled,
   });
   const groups = useQuery({
-    queryKey: ['workflow-groups'],
+    queryKey: queryKeys.workflowGroups,
     queryFn: ({ signal }) => listWorkflowGroups(signal),
     enabled,
   });

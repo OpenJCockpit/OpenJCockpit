@@ -12,6 +12,7 @@ import type {
   WorkflowDefinition,
   WorkflowExportBundle,
   WorkflowGroup,
+  WorkflowOrb,
 } from '@openjcockpit/api';
 import {
   ToolbarButton,
@@ -24,6 +25,7 @@ import {
 } from '@openjcockpit/ui';
 import { readFileText, downloadWorkflowBundle } from '../../utils';
 import { WorkflowEditor } from './WorkflowEditor/WorkflowEditor';
+import type { WorkflowDraft } from './WorkflowEditor/OrbEditor';
 import { WorkflowsTable } from './WorkflowsTable';
 import {
   useWorkflowsPanelData,
@@ -32,7 +34,7 @@ import {
 } from './useWorkflowsPanelData';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
-const EMPTY_WORKFLOW: WorkflowDefinition = {
+const EMPTY_WORKFLOW: WorkflowDraft = {
   id: '',
   name: '',
   projectName: '',
@@ -61,7 +63,7 @@ export function WorkflowsPanel() {
   const { loaded, loadError: catalogueError } = data;
   const [groupFilter, setGroupFilter] = useState('all');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<WorkflowDefinition>(EMPTY_WORKFLOW);
+  const [form, setForm] = useState<WorkflowDraft>(EMPTY_WORKFLOW);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -73,7 +75,10 @@ export function WorkflowsPanel() {
   }
 
   function updateItems(update: (prev: WorkflowDefinition[]) => WorkflowDefinition[]) {
-    queryClient.setQueryData<WorkflowDefinition[]>(workflowsQueryKey, (prev) => update(prev!));
+    queryClient.setQueryData<WorkflowDefinition[]>(
+      workflowsQueryKey,
+      (prev) => prev && update(prev),
+    );
   }
 
   function groupName(groupId?: string): string {
@@ -104,7 +109,7 @@ export function WorkflowsPanel() {
     setInfo(null);
   }
 
-  async function handleSave() {
+  async function handleSave(editingId: string) {
     if (!form.groupId && !form.projectName.trim()) {
       setError(
         'Link the workflow to a group or enter a project name — without a group, a project is required.',
@@ -116,21 +121,28 @@ export function WorkflowsPanel() {
       return;
     }
     setOrbError(null);
-    const missingModeIndex = (form.workflowOrbs ?? []).findIndex((orb) => !orb.mode);
-    if (missingModeIndex !== -1) {
-      setOrbError(
-        `Workflow orb ${missingModeIndex + 1}: choose an execution mode (Sequential or Parallel) before saving.`,
-      );
-      return;
+    const orbs: WorkflowOrb[] = [];
+    for (const [index, { mode, ...orb }] of (form.workflowOrbs ?? []).entries()) {
+      if (!mode) {
+        setOrbError(
+          `Workflow orb ${index + 1}: choose an execution mode (Sequential or Parallel) before saving.`,
+        );
+        return;
+      }
+      orbs.push({ ...orb, mode });
     }
     setSaving(true);
     setError(null);
     try {
-      const request = { ...form, groupId: form.groupId || undefined };
+      const request: WorkflowDefinition = {
+        ...form,
+        workflowOrbs: form.workflowOrbs && orbs,
+        groupId: form.groupId || undefined,
+      };
       const saved =
         editingId === 'new'
           ? await createWorkflow(request)
-          : await updateWorkflow(editingId!, request);
+          : await updateWorkflow(editingId, request);
       updateItems((prev) =>
         editingId === 'new' ? [...prev, saved] : prev.map((i) => (i.id === saved.id ? saved : i)),
       );
@@ -248,7 +260,7 @@ export function WorkflowsPanel() {
           form={form}
           setForm={setForm}
           saving={saving}
-          onSave={() => void handleSave()}
+          onSave={() => void handleSave(editingId)}
           onCancel={cancelEdit}
           groups={groups}
           items={items}

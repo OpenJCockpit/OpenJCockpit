@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { listWorkflowGroups, listWorkflows } from '@openjcockpit/api';
+import { listWorkflowGroups, listWorkflows, queryKeys } from '@openjcockpit/api';
 import { fetchLinkableAgents } from '../../../linkableAgents';
 
-export const workflowsQueryKey = ['workflows'] as const;
-export const workflowGroupsQueryKey = ['workflow-groups'] as const;
-export const linkableAgentsQueryKey = ['linkable-agents'] as const;
+export const workflowsQueryKey = queryKeys.workflows;
+export const workflowGroupsQueryKey = queryKeys.workflowGroups;
+export const linkableAgentsQueryKey = queryKeys.linkableAgents;
 
 /** Workflows, groups and linkable agents; `loaded` once every query has settled (success or error). */
 export function useWorkflowsPanelData() {

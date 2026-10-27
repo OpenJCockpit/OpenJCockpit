@@ -40,14 +40,14 @@ export function GroupsPanel() {
     setError(null);
   }
 
-  async function handleSave() {
+  async function handleSave(editingId: string) {
     setSaving(true);
     setError(null);
     try {
       const saved =
         editingId === 'new'
           ? await createWorkflowGroup(form)
-          : await updateWorkflowGroup(editingId!, form);
+          : await updateWorkflowGroup(editingId, form);
       setItems((prev) =>
         editingId === 'new' ? [...prev, saved] : prev.map((i) => (i.id === saved.id ? saved : i)),
       );
@@ -87,7 +87,7 @@ export function GroupsPanel() {
           form={form}
           setForm={setForm}
           saving={saving}
-          onSave={() => void handleSave()}
+          onSave={() => void handleSave(editingId)}
           onCancel={() => setEditingId(null)}
         />
       )}

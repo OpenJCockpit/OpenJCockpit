@@ -20,7 +20,7 @@ interface Props {
   onCancelRun: (item: SpecQueueItem) => void;
   onRetry: (item: SpecQueueItem) => void;
   onSkip: (item: SpecQueueItem) => void;
-  onOpenRun?: (item: SpecQueueItem) => void;
+  onOpenRun?: (workflowId: string, runId: string) => void;
 }
 
 const MERGE_STATE_TEXT = {
@@ -46,6 +46,7 @@ export function SpecQueueItemRow({
   const actions = itemActions(item.status);
   const presentation = itemPresentation(item);
   const spec = item.specFile;
+  const runId = item.workflowRunId;
   const prUrls = item.pullRequestUrls.map(safeHttpUrl).filter((url): url is string => url !== null);
 
   return (
@@ -129,13 +130,13 @@ export function SpecQueueItemRow({
             {prUrls.length > 1 ? `Pull request ${index + 1} ↗` : 'Pull request ↗'}
           </a>
         ))}
-        {item.workflowRunId && onOpenRun && (
+        {runId && onOpenRun && (
           <Button
             type="button"
             variant="link"
             data-testid="queue-item-run-link"
             aria-label={`View the run of ${spec}`}
-            onClick={() => onOpenRun(item)}
+            onClick={() => onOpenRun(item.workflowId, runId)}
           >
             View run →
           </Button>

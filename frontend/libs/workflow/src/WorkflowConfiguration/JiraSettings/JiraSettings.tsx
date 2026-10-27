@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getJiraConfig, saveJiraConfig } from '@openjcockpit/api';
+import { getJiraConfig, queryKeys, saveJiraConfig } from '@openjcockpit/api';
 import type { JiraConfig, JiraConfigRequest } from '@openjcockpit/api';
 import { CheckboxField, SecretField, TextField, StatusMessage } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
@@ -40,7 +40,7 @@ function toFormState(jira: JiraConfig): JiraFormState {
 
 export function JiraSettings({ projectId }: Props) {
   const queryClient = useQueryClient();
-  const queryKey = ['jira-config', projectId];
+  const queryKey = queryKeys.jiraConfig(projectId);
   const configQuery = useQuery({ queryKey, queryFn: () => getJiraConfig(projectId) });
   const hasAuthToken = configQuery.data?.hasAuthToken ?? false;
   // null until the operator edits; the displayed form is then derived from the server config.

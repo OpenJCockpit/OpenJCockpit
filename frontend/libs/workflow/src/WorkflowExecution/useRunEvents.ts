@@ -47,7 +47,7 @@ export function useRunEvents({
   const [approvalLoadError, setApprovalLoadError] = useState<string | null>(null);
   const [waitingAnnouncement, setWaitingAnnouncement] = useState<string | null>(null);
   const previousStatusRef = useRef<string | null>(null);
-  const previousWaitingStatusRef = useRef<string | null>(null);
+  const [previousWaitingStatus, setPreviousWaitingStatus] = useState<string | null>(null);
   const tickRef = useRef(0);
   // Lets the single interval (which is only recreated when the workflow changes, not on
   // every selection change) always read the CURRENT selection without needing to be
@@ -126,7 +126,7 @@ export function useRunEvents({
       setApprovalLoadError(null);
       setWaitingAnnouncement(null);
       previousStatusRef.current = null;
-      previousWaitingStatusRef.current = null;
+      setPreviousWaitingStatus(null);
       return;
     }
     if (!workflow) return;
@@ -142,7 +142,7 @@ export function useRunEvents({
     setApprovalLoadError(null);
     setWaitingAnnouncement(null);
     previousStatusRef.current = 'RUNNING';
-    previousWaitingStatusRef.current = 'RUNNING';
+    setPreviousWaitingStatus('RUNNING');
     tickRef.current = 0;
 
     // Seed from the already-known summary row for this run (from the currently-loaded
@@ -216,6 +216,7 @@ export function useRunEvents({
     approvalLoadError,
     waitingAnnouncement,
     setWaitingAnnouncement,
-    previousWaitingStatusRef,
+    previousWaitingStatus,
+    setPreviousWaitingStatus,
   };
 }

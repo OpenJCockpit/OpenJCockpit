@@ -7,6 +7,7 @@ import {
   listSpecFilesStrict,
   listWorkflowGroups,
   listWorkflows,
+  queryKeys,
   workflowsForProject,
 } from '@openjcockpit/api';
 import type { Project, SpecFile, SpecQueueItem, WorkflowDefinition } from '@openjcockpit/api';
@@ -35,14 +36,18 @@ function messageOf(e: unknown): string {
   return e instanceof Error ? e.message : 'Unknown error';
 }
 
-function loadable<Q, T = Q>(
+function loadableMap<Q, T>(
   query: UseQueryResult<Q>,
   fallback: T,
-  pick: (data: Q) => T = (data) => data as unknown as T,
+  pick: (data: Q) => T,
 ): Loadable<T> {
   if (query.data !== undefined) return { loading: false, error: null, data: pick(query.data) };
   if (query.isError) return { loading: false, error: messageOf(query.error), data: fallback };
   return { loading: true };
+}
+
+function loadable<Q>(query: UseQueryResult<Q>, fallback: Q): Loadable<Q> {
+  return loadableMap(query, fallback, (data) => data);
 }
 
 const AUTO_MERGE_NOTE =
@@ -50,18 +55,21 @@ const AUTO_MERGE_NOTE =
 
 export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: Props) {
   const specsQuery = useQuery({
-    queryKey: ['spec-queue', project.id, 'spec-files'],
+    queryKey: queryKeys.specQueueSpecFiles(project.id),
     queryFn: () => listSpecFilesStrict(project.id),
     enabled: !fixedSpecFile,
   });
   // Same keys as the dashboard app, so the lists are shared from cache.
-  const allWorkflowsQuery = useQuery({ queryKey: ['workflows'], queryFn: () => listWorkflows() });
+  const allWorkflowsQuery = useQuery({
+    queryKey: queryKeys.workflows,
+    queryFn: () => listWorkflows(),
+  });
   const groupsQuery = useQuery({
-    queryKey: ['workflow-groups'],
+    queryKey: queryKeys.workflowGroups,
     queryFn: () => listWorkflowGroups(),
   });
   const settingsQuery = useQuery({
-    queryKey: ['spec-queue', project.id, 'settings'],
+    queryKey: queryKeys.specQueueSettings(project.id),
     queryFn: () => getSpecQueueSettings(project.id),
   });
 
@@ -91,7 +99,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
   } else {
     workflows = { loading: true };
   }
-  const settings: Loadable<boolean> = loadable(settingsQuery, false, (s) => s.autoMergeAllowed);
+  const settings: Loadable<boolean> = loadableMap(settingsQuery, false, (s) => s.autoMergeAllowed);
 
   const specList = specs.loading ? [] : specs.data;
   const specFile =

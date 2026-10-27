@@ -4,26 +4,51 @@ import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 const MAX_ORBS = 5;
 
+// An orb being edited: the execution mode is unset until the user picks one.
+export type OrbDraft = Omit<WorkflowOrb, 'mode'> & { mode?: WorkflowOrb['mode'] };
+
+// A workflow being edited; its orbs may still be incomplete.
+export type WorkflowDraft = Omit<WorkflowDefinition, 'workflowOrbs'> & {
+  workflowOrbs?: OrbDraft[];
+};
+
+// Rows are editable and removable, so they need a key that survives reordering. Orbs carry no id of
+// their own, so each draft object gets a client-side key kept off the payload; edits inherit it.
+const orbKeys = new WeakMap<OrbDraft, string>();
+
+function orbKey(orb: OrbDraft): string {
+  let key = orbKeys.get(orb);
+  if (!key) {
+    key = crypto.randomUUID();
+    orbKeys.set(orb, key);
+  }
+  return key;
+}
+
 interface OrbEditorProps {
-  orbs: WorkflowOrb[];
+  orbs: OrbDraft[];
   candidates: WorkflowDefinition[];
   stages: AgentDefinition[];
   error: string | null;
-  onChange: (orbs: WorkflowOrb[]) => void;
+  onChange: (orbs: OrbDraft[]) => void;
 }
 
 export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEditorProps) {
   function addOrb() {
-    onChange([
-      ...orbs,
-      { workflowId: '', mode: undefined as unknown as WorkflowOrb['mode'], placementStage: '' },
-    ]);
+    onChange([...orbs, { workflowId: '', placementStage: '' }]);
   }
   function removeOrb(index: number) {
     onChange(orbs.filter((_, i) => i !== index));
   }
-  function updateOrb(index: number, patch: Partial<WorkflowOrb>) {
-    onChange(orbs.map((orb, i) => (i === index ? { ...orb, ...patch } : orb)));
+  function updateOrb(index: number, patch: Partial<OrbDraft>) {
+    onChange(
+      orbs.map((orb, i) => {
+        if (i !== index) return orb;
+        const updated = { ...orb, ...patch };
+        orbKeys.set(updated, orbKey(orb));
+        return updated;
+      }),
+    );
   }
 
   return (
@@ -35,7 +60,7 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
         </p>
       )}
       {orbs.map((orb, index) => (
-        <div key={index} className="workflow-orb-row">
+        <div key={orbKey(orb)} className="workflow-orb-row">
           <SelectField
             id={`orb-target-${index}`}
             label="Referenced workflow"

@@ -6,12 +6,13 @@ import { AgentPicker } from './AgentPicker';
 import { SelectField, TextAreaField, TextField, fieldHintClass, cx } from '@openjcockpit/ui';
 import { EditorForm } from '../../shared/EditorForm';
 import { OrbEditor } from './OrbEditor';
+import type { WorkflowDraft } from './OrbEditor';
 import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 interface WorkflowEditorProps {
   isNew: boolean;
-  form: WorkflowDefinition;
-  setForm: Dispatch<SetStateAction<WorkflowDefinition>>;
+  form: WorkflowDraft;
+  setForm: Dispatch<SetStateAction<WorkflowDraft>>;
   saving: boolean;
   onSave: () => void;
   onCancel: () => void;

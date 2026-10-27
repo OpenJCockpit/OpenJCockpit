@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { loadProjectSpecs, saveSpecFile } from '@openjcockpit/api';
+import { loadProjectSpecs, queryKeys, saveSpecFile } from '@openjcockpit/api';
 import type { Project, SpecFile, SpecInitResult } from '@openjcockpit/api';
 import {
   IconBox,
@@ -49,7 +49,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
   const queryClient = useQueryClient();
   const projectId = project?.id ?? null;
   const specsQuery = useQuery({
-    queryKey: ['project-specs', projectId, 'files'],
+    queryKey: queryKeys.projectSpecFiles(projectId),
     queryFn: ({ signal }) => loadProjectSpecs(projectId as string, signal),
     enabled: projectId !== null,
   });
@@ -68,7 +68,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
     mutationFn: async (vars: { projectId: string; fileName: string; content: string }) => {
       const result = await saveSpecFile(vars.projectId, vars.fileName, vars.content);
       setSaveResult(result);
-      await queryClient.invalidateQueries({ queryKey: ['project-specs', vars.projectId] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.projectSpecs(vars.projectId) });
     },
   });
   const saving = saveMutation.isPending;
@@ -81,24 +81,24 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
   const draftContent = current?.draft ?? selected?.content ?? '';
   const isDirty = selected != null && draftContent !== (selected.content ?? '');
 
-  function setDraftContent(draft: string) {
-    setSelection({ projectId: projectId!, id: selectedId, draft });
+  function setDraftContent(projectId: string, draft: string) {
+    setSelection({ projectId, id: selectedId, draft });
   }
 
-  function handleSelect(spec: SpecFile) {
-    setSelection({ projectId: projectId!, id: spec.id, draft: spec.content ?? '' });
+  function handleSelect(projectId: string, spec: SpecFile) {
+    setSelection({ projectId, id: spec.id, draft: spec.content ?? '' });
     setSaveResult(null);
     setSaveError(null);
     setQueuedNotice(null);
   }
 
-  async function handleSave() {
+  async function handleSave(projectId: string, selected: SpecFile) {
     setSaveError(null);
     setSaveResult(null);
     try {
       await saveMutation.mutateAsync({
-        projectId: project!.id,
-        fileName: selected!.fileName,
+        projectId,
+        fileName: selected.fileName,
         content: draftContent,
       });
     } catch (err) {
@@ -150,7 +150,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                       spec.id === selectedId && specStyles.selected,
                     )}
                     key={spec.id}
-                    onClick={() => handleSelect(spec)}
+                    onClick={() => handleSelect(project.id, spec)}
                   >
                     <IconBox label="📄" compact className={specStyles.icon} />
                     <div>
@@ -175,7 +175,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                     <div className={styles.specEditorActions}>
                       <Button
                         size="sm"
-                        onClick={() => void handleSave()}
+                        onClick={() => void handleSave(project.id, selected)}
                         disabled={!isDirty || saving}
                       >
                         {saving ? '⟳ Saving…' : '💾 Save'}
@@ -212,7 +212,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                   <textarea
                     className={styles.specEditorTextarea}
                     value={draftContent}
-                    onChange={(e) => setDraftContent(e.target.value)}
+                    onChange={(e) => setDraftContent(project.id, e.target.value)}
                     spellCheck={false}
                     aria-label={`Contents of ${selected.fileName}`}
                   />

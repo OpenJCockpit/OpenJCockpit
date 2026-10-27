@@ -1,16 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   buildAgentCards,
   buildSequencerNodes,
   isTerminalRunStatus,
   listWorkflows,
+  queryKeys,
   runStatusKind,
   runStatusLabel,
-  stopAgentRun,
-  submitApprovalDecision,
 } from '@openjcockpit/api';
-import type { AgentDefinition, ApprovalDecisionKind, WorkflowDefinition } from '@openjcockpit/api';
+import type { AgentDefinition, WorkflowDefinition } from '@openjcockpit/api';
 import { loadLinkableAgents } from '../linkableAgents';
 import { AgentSequencer } from '../AgentSequencer/AgentSequencer';
 import { AgentLogConsole } from '../AgentLogConsole/AgentLogConsole';
@@ -29,6 +28,7 @@ import { ArtifactList, parseArtifactLinks } from './ArtifactList';
 import { RunLostPanel } from './RunLostPanel';
 import { RunStatusAnnouncements } from './RunStatusAnnouncements';
 import { useRunHistory } from './useRunHistory';
+import { useRunActions } from './useRunActions';
 import { useRunEvents } from './useRunEvents';
 import styles from './WorkflowExecution.module.scss';
 
@@ -66,9 +66,6 @@ export function WorkflowExecution({
   onRestartRequested,
   showHistory = true,
 }: Props) {
-  const [stopping, setStopping] = useState(false);
-  const [decisionSubmitting, setDecisionSubmitting] = useState(false);
-
   // Container state: which run is currently selected (seeded from the runId prop when
   // a "just started" flow hands one in).
   const [selectedRunId, setSelectedRunId] = useState<string | null>(runId);
@@ -100,7 +97,8 @@ export function WorkflowExecution({
     approvalLoadError,
     waitingAnnouncement,
     setWaitingAnnouncement,
-    previousWaitingStatusRef,
+    previousWaitingStatus,
+    setPreviousWaitingStatus,
   } = useRunEvents({
     workflow,
     selectedRunId,
@@ -112,13 +110,13 @@ export function WorkflowExecution({
   });
 
   const { data: definitions = NO_DEFINITIONS } = useQuery({
-    queryKey: ['linkable-agents'],
+    queryKey: queryKeys.linkableAgents,
     queryFn: loadLinkableAgents, // never rejects: a failed catalog degrades to []
   });
 
   // display-name lookup only (workflowNameById); [] degrades an orb label to its raw id, no functional loss
   const { data: allWorkflows = NO_WORKFLOWS } = useQuery({
-    queryKey: ['workflows'],
+    queryKey: queryKeys.workflows,
     queryFn: ({ signal }) => listWorkflows(signal),
   });
 
@@ -176,56 +174,34 @@ export function WorkflowExecution({
     ? latestChildWorkflowEvent.evidenceRef.slice('run://'.length)
     : null;
 
-  useEffect(() => {
-    const previous = previousWaitingStatusRef.current;
-    if (runStatus === 'AWAITING_CHILD_WORKFLOW' && previous !== 'AWAITING_CHILD_WORKFLOW') {
+  // Derived during render (not in an effect): announce only on entering/leaving the waiting state.
+  if (previousWaitingStatus !== runStatus) {
+    setPreviousWaitingStatus(runStatus);
+    if (
+      runStatus === 'AWAITING_CHILD_WORKFLOW' &&
+      previousWaitingStatus !== 'AWAITING_CHILD_WORKFLOW'
+    ) {
       setWaitingAnnouncement(
         latestChildWorkflowEvent
           ? `Waiting for child workflow: ${latestChildWorkflowEvent.title}`
           : 'Waiting for a triggered child workflow to complete.',
       );
-    } else if (previous === 'AWAITING_CHILD_WORKFLOW' && runStatus !== 'AWAITING_CHILD_WORKFLOW') {
+    } else if (previousWaitingStatus === 'AWAITING_CHILD_WORKFLOW') {
       setWaitingAnnouncement('No longer waiting for the child workflow.');
     }
-    previousWaitingStatusRef.current = runStatus;
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- ref and setter are stable
-  }, [runStatus, latestChildWorkflowEvent]);
+  }
+
+  const { stopping, stopError, decisionSubmitting, handleStop, submitDecision } = useRunActions({
+    selectedRunId,
+    approvalContext,
+    setRunStatus,
+    setApprovalContext,
+    setApprovalModalVisible,
+    setDecisionError,
+    onRunEnded,
+  });
 
   const isRunLost = runStatus !== null && RUN_LOST_STATUSES.includes(runStatus);
-
-  async function handleStop() {
-    setStopping(true);
-    try {
-      await stopAgentRun(selectedRunId!);
-      setRunStatus('CANCELLED');
-      setApprovalModalVisible(false);
-      onRunEnded?.();
-    } finally {
-      setStopping(false);
-    }
-  }
-
-  async function submitDecision(decision: ApprovalDecisionKind, comment?: string) {
-    setDecisionSubmitting(true);
-    setDecisionError(null);
-    try {
-      await submitApprovalDecision(selectedRunId!, {
-        decision,
-        iteration: approvalContext!.iteration,
-        comment,
-      });
-      // The run has moved on (resumed, denied, or is re-running with feedback) — the
-      // next poll tick reports the new status; the gate itself is no longer open.
-      setApprovalModalVisible(false);
-      setApprovalContext(null);
-    } catch (err) {
-      setDecisionError(
-        err instanceof Error ? err.message : 'Failed to submit the approval decision.',
-      );
-    } finally {
-      setDecisionSubmitting(false);
-    }
-  }
 
   if (!workflow) {
     return (
@@ -247,7 +223,7 @@ export function WorkflowExecution({
             <StatusChip label={runStatusLabel(runStatus)} kind={runStatusKind(runStatus)} />
           )}
           {selectedRunId && !isTerminalRunStatus(runStatus ?? '') && (
-            <Button variant="danger" onClick={() => void handleStop()} disabled={stopping}>
+            <Button variant="danger" onClick={() => handleStop(selectedRunId)} disabled={stopping}>
               {stopping ? '⟳ Stopping…' : '◼ Stop'}
             </Button>
           )}
@@ -289,6 +265,12 @@ export function WorkflowExecution({
       <RunStatusAnnouncements
         messages={[waitingAnnouncement, definitionFailureEvent?.title, failureSummary]}
       />
+
+      {stopError && (
+        <p className={fieldErrorClass} role="alert">
+          {stopError}
+        </p>
+      )}
 
       {approvalLoadError && (
         <p className={fieldErrorClass} role="alert">

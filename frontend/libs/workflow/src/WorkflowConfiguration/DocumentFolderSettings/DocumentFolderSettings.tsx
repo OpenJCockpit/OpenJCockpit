@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getDocumentFolderConfig, saveDocumentFolderConfig } from '@openjcockpit/api';
+import { getDocumentFolderConfig, queryKeys, saveDocumentFolderConfig } from '@openjcockpit/api';
 import type { DocumentFolderConfigRequest, Project } from '@openjcockpit/api';
 import { CheckboxField, TextField, StatusMessage } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
@@ -26,7 +26,7 @@ const noop = () => {};
 
 export function DocumentFolderSettings({ project }: Props) {
   const queryClient = useQueryClient();
-  const queryKey = ['document-folder-config', project.id];
+  const queryKey = queryKeys.documentFolderConfig(project.id);
   const configQuery = useQuery({
     queryKey,
     queryFn: () => getDocumentFolderConfig(project.id),

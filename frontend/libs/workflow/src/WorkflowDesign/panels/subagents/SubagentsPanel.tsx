@@ -43,7 +43,7 @@ export function SubagentsPanel() {
   const error = actionError ?? loadError;
 
   function updateItems(update: (prev: SubagentSpec[]) => SubagentSpec[]) {
-    queryClient.setQueryData<SubagentSpec[]>(subagentSpecsQueryKey, (prev) => update(prev!));
+    queryClient.setQueryData<SubagentSpec[]>(subagentSpecsQueryKey, (prev) => prev && update(prev));
   }
 
   if (!loaded) {
@@ -72,14 +72,14 @@ export function SubagentsPanel() {
     }
   }
 
-  async function handleSave() {
+  async function handleSave(editingName: string) {
     setSaving(true);
     setError(null);
     try {
       const saved =
         editingName === 'new'
           ? await createSubagentSpec(form)
-          : await updateSubagentSpec(editingName!, form);
+          : await updateSubagentSpec(editingName, form);
       updateItems((prev) =>
         editingName === 'new'
           ? [...prev, saved]
@@ -118,7 +118,7 @@ export function SubagentsPanel() {
           form={form}
           setForm={setForm}
           saving={saving}
-          onSave={() => void handleSave()}
+          onSave={() => void handleSave(editingName)}
           onCancel={() => setEditingName(null)}
         />
       )}

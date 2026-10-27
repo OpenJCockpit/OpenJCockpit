@@ -92,4 +92,20 @@ describe('OrbEditor', () => {
       'workflow-orb-error',
     );
   });
+
+  it('keeps surviving rows bound to their own DOM when a middle row is removed', () => {
+    const rows = [
+      orb({ workflowId: 'wf-a' }),
+      orb({ workflowId: 'wf-b' }),
+      orb({ workflowId: 'wf-a' }),
+    ];
+    const props = { candidates, stages, error: null, onChange: vi.fn() };
+    const { rerender } = render(<OrbEditor orbs={rows} {...props} />);
+    const before = screen.getAllByLabelText('Referenced workflow');
+    rerender(<OrbEditor orbs={[rows[0]!, rows[2]!]} {...props} />);
+    const after = screen.getAllByLabelText('Referenced workflow');
+    expect(after).toHaveLength(2);
+    expect(after[0]).toBe(before[0]);
+    expect(after[1]).toBe(before[2]);
+  });
 });

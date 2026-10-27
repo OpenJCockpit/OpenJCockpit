@@ -1,14 +1,5 @@
 import { Suspense, useEffect, useState } from 'react';
-import type { ReactNode } from 'react';
-import {
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from 'react-router';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { ErrorBoundary, StatusMessage } from '@openjcockpit/ui';
 import {
   clearStoredProjectId,
@@ -18,87 +9,23 @@ import {
 } from '@openjcockpit/project';
 import type { Project } from '@openjcockpit/api';
 import { getKeycloak } from '@openjcockpit/auth';
-import { LandingHub } from '@openjcockpit/landing-hub';
 import type { PortalId } from '@openjcockpit/landing-hub';
-import { DashboardView } from './components/DashboardView/DashboardView';
-import { SiteHeader, type SiteSection } from './components/SiteHeader/SiteHeader';
-import {
-  AddToQueueDialog,
-  ProjectSelection,
-  ProjectSettings,
-  SkillsHubDashboard,
-  SkillsHubSettings,
-  SpecFilesDashboard,
-  SpecQueueDashboard,
-  WorkflowDashboard,
-} from './lazyViews';
-import { ROUTES, workflowRunPath } from './routes';
+import { ROUTES } from './routes';
+import { DashboardRoute } from './routeViews/DashboardRoute';
+import { LandingHubRoute } from './routeViews/LandingHubRoute';
+import { LandingRoute } from './routeViews/LandingRoute';
+import { ProjectSelectionRoute } from './routeViews/ProjectSelectionRoute';
+import { RequireProject } from './routeViews/RequireProject';
+import { SettingsRoute } from './routeViews/SettingsRoute';
+import { SkillsHubRoute } from './routeViews/SkillsHubRoute';
+import { SkillsHubSettingsRoute } from './routeViews/SkillsHubSettingsRoute';
+import { SpecFilesRoute } from './routeViews/SpecFilesRoute';
+import { SpecQueueRoute } from './routeViews/SpecQueueRoute';
+import type { ShellProps } from './routeViews/shell';
+import { WorkflowRoute } from './routeViews/WorkflowRoute';
 import { useAuthSession } from './useAuthSession';
 
 const NO_PROJECTS: Project[] = [];
-
-/** Views that need a project bounce to project selection and return here once one is chosen. */
-function RequireProject({ project, children }: { project: Project | null; children: ReactNode }) {
-  const location = useLocation();
-  if (project) return children;
-  return (
-    <Navigate
-      to={ROUTES.projects}
-      replace
-      state={{ from: `${location.pathname}${location.search}` }}
-    />
-  );
-}
-
-function LandingRoute({ children }: { children: ReactNode }) {
-  const [params] = useSearchParams();
-  // Legacy deep link, kept so existing bookmarks still bypass the hub.
-  if (params.get('view') === 'spec-files') return <Navigate to={ROUTES.specFiles} replace />;
-  return children;
-}
-
-function ProjectSelectionRoute({
-  projects,
-  onSelect,
-}: {
-  projects: Project[];
-  onSelect: (project: Project) => void;
-}) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const from = (location.state as { from?: string } | null)?.from;
-  return (
-    <ProjectSelection
-      projects={projects}
-      onSelect={(project) => {
-        onSelect(project);
-        void navigate(from ?? ROUTES.dashboard, { replace: true });
-      }}
-      onSettings={() => void navigate(ROUTES.settings)}
-    />
-  );
-}
-
-function WorkflowRoute({
-  project,
-  onBack,
-  header,
-}: {
-  project: Project | null;
-  onBack: () => void;
-  header: ReactNode;
-}) {
-  const { workflowId, runId } = useParams();
-  return (
-    <WorkflowDashboard
-      key={`${workflowId ?? ''}/${runId ?? ''}`}
-      project={project}
-      initialExecution={workflowId && runId ? { workflowId, runId } : undefined}
-      onBack={onBack}
-      header={header}
-    />
-  );
-}
 
 function App() {
   const navigate = useNavigate();
@@ -137,17 +64,12 @@ function App() {
     void getKeycloak().logout({ redirectUri: window.location.origin });
   }
 
-  const backTarget = selectedProject ? ROUTES.dashboard : ROUTES.projects;
-
-  const siteHeader = (active: SiteSection) => (
-    <SiteHeader
-      active={active}
-      projects={projects}
-      selectedProject={selectedProject}
-      onProjectChange={handleProjectChange}
-      onLogout={handleLogout}
-    />
-  );
+  const shell: ShellProps = {
+    projects,
+    selectedProject,
+    onProjectChange: handleProjectChange,
+    onLogout: handleLogout,
+  };
 
   if (!authReady) {
     return (
@@ -171,8 +93,8 @@ function App() {
             path={ROUTES.landing}
             element={
               <LandingRoute>
-                <LandingHub
-                  user={user!}
+                <LandingHubRoute
+                  user={user}
                   onSelectPortal={handleSelectPortal}
                   onLogout={handleLogout}
                 />
@@ -187,21 +109,13 @@ function App() {
             path={ROUTES.dashboard}
             element={
               <RequireProject project={selectedProject}>
-                {selectedProject && (
-                  <DashboardView
-                    key={selectedProject.id}
-                    projects={projects}
-                    project={selectedProject}
-                    onProjectChange={handleProjectChange}
-                    onLogout={handleLogout}
-                  />
-                )}
+                <DashboardRoute shell={shell} />
               </RequireProject>
             }
           />
           <Route
             path={ROUTES.settings}
-            element={<ProjectSettings onBack={() => void navigate(backTarget)} />}
+            element={<SettingsRoute selectedProject={selectedProject} />}
           />
           {[ROUTES.workflow, `${ROUTES.workflow}/:workflowId/runs/:runId`].map((path) => (
             <Route
@@ -209,11 +123,7 @@ function App() {
               path={path}
               element={
                 <RequireProject project={selectedProject}>
-                  <WorkflowRoute
-                    project={selectedProject}
-                    onBack={() => void navigate(backTarget)}
-                    header={siteHeader('workflow')}
-                  />
+                  <WorkflowRoute shell={shell} />
                 </RequireProject>
               }
             />
@@ -222,14 +132,7 @@ function App() {
             path={ROUTES.specQueue}
             element={
               <RequireProject project={selectedProject}>
-                <SpecQueueDashboard
-                  project={selectedProject}
-                  onBack={() => void navigate(backTarget)}
-                  header={siteHeader('specQueue')}
-                  onOpenRun={(workflowId, runId) =>
-                    void navigate(workflowRunPath(workflowId, runId))
-                  }
-                />
+                <SpecQueueRoute shell={shell} />
               </RequireProject>
             }
           />
@@ -237,38 +140,12 @@ function App() {
             path={ROUTES.specFiles}
             element={
               <RequireProject project={selectedProject}>
-                <SpecFilesDashboard
-                  project={selectedProject}
-                  onBack={() => void navigate(backTarget)}
-                  header={siteHeader('specFiles')}
-                  renderAddToQueue={({ project, fixedSpecFile, onAdded, onCancel }) => (
-                    <Suspense fallback={null}>
-                      <AddToQueueDialog
-                        project={project}
-                        fixedSpecFile={fixedSpecFile}
-                        onAdded={onAdded}
-                        onCancel={onCancel}
-                      />
-                    </Suspense>
-                  )}
-                />
+                <SpecFilesRoute shell={shell} />
               </RequireProject>
             }
           />
-          <Route
-            path={ROUTES.skillsHub}
-            element={
-              <SkillsHubDashboard
-                onBack={() => void navigate(backTarget)}
-                header={siteHeader('skillsHub')}
-                onSettings={() => void navigate(ROUTES.skillsHubSettings)}
-              />
-            }
-          />
-          <Route
-            path={ROUTES.skillsHubSettings}
-            element={<SkillsHubSettings onBack={() => void navigate(ROUTES.skillsHub)} />}
-          />
+          <Route path={ROUTES.skillsHub} element={<SkillsHubRoute shell={shell} />} />
+          <Route path={ROUTES.skillsHubSettings} element={<SkillsHubSettingsRoute />} />
           <Route path="*" element={<Navigate to={ROUTES.landing} replace />} />
         </Routes>
       </Suspense>
