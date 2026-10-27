@@ -90,6 +90,7 @@ function AgentCardDetails({ state, cardUrl }: { state?: CardState; cardUrl?: str
   }
   if ('error' in state) return <StatusMessage variant="error">{state.error}</StatusMessage>;
   const { card } = state;
+  const skills = card.skills ?? [];
   return (
     <div
       className={WorkflowDesignStyles.agentCatalogDetails}
@@ -118,9 +119,9 @@ function AgentCardDetails({ state, cardUrl }: { state?: CardState; cardUrl?: str
           {(card.defaultInputModes ?? []).join(', ')} → {(card.defaultOutputModes ?? []).join(', ')}
         </dd>
       </dl>
-      {(card.skills ?? []).length > 0 && (
+      {skills.length > 0 && (
         <ul className={WorkflowDesignStyles.agentCatalogSkills}>
-          {card.skills!.map((skill) => (
+          {skills.map((skill) => (
             <li key={skill.id}>
               <strong>{skill.name ?? skill.id}</strong>
               {skill.description && ` — ${skill.description}`}

@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import {
   Navigate,
   Route,
@@ -18,6 +18,7 @@ import {
 } from '@openjcockpit/project';
 import type { Project } from '@openjcockpit/api';
 import { getKeycloak } from '@openjcockpit/auth';
+import type { User } from '@openjcockpit/auth';
 import { LandingHub } from '@openjcockpit/landing-hub';
 import type { PortalId } from '@openjcockpit/landing-hub';
 import { DashboardView } from './components/DashboardView/DashboardView';
@@ -57,6 +58,20 @@ function LandingRoute({ children }: { children: ReactNode }) {
   return children;
 }
 
+function redirectFrom(state: unknown): string | undefined {
+  if (typeof state !== 'object' || state === null || !('from' in state)) return undefined;
+  return typeof state.from === 'string' ? state.from : undefined;
+}
+
+// An authenticated session always has a user; fail loudly (caught by the ErrorBoundary) if not.
+function LandingHubRoute({
+  user,
+  ...props
+}: Omit<ComponentProps<typeof LandingHub>, 'user'> & { user: User | null }) {
+  if (!user) throw new Error('Authenticated session has no user');
+  return <LandingHub user={user} {...props} />;
+}
+
 function ProjectSelectionRoute({
   projects,
   onSelect,
@@ -66,7 +81,7 @@ function ProjectSelectionRoute({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as { from?: string } | null)?.from;
+  const from = redirectFrom(location.state);
   return (
     <ProjectSelection
       projects={projects}
@@ -171,8 +186,8 @@ function App() {
             path={ROUTES.landing}
             element={
               <LandingRoute>
-                <LandingHub
-                  user={user!}
+                <LandingHubRoute
+                  user={user}
                   onSelectPortal={handleSelectPortal}
                   onLogout={handleLogout}
                 />

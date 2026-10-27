@@ -45,7 +45,7 @@ export function useA2AServices() {
   const services = servicesQuery.data ?? NO_SERVICES;
   const loaded = !servicesQuery.isPending;
   const setServices = (update: (prev: A2AService[]) => A2AService[]) =>
-    queryClient.setQueryData<A2AService[]>(A2A_SERVICES_KEY, (prev) => update(prev!));
+    queryClient.setQueryData<A2AService[]>(A2A_SERVICES_KEY, (prev) => prev && update(prev));
   const [editing, setEditing] = useState<Editing | null>(null);
   const [form, setForm] = useState<A2AServiceFormState>(EMPTY_FORM);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -98,10 +98,11 @@ export function useA2AServices() {
   }
 
   async function handleSave() {
-    if (editing!.mode === 'add' && !form.id.trim()) return setError('Id is required.');
+    if (!editing) return;
+    if (editing.mode === 'add' && !form.id.trim()) return setError('Id is required.');
     if (!form.name.trim()) return setError('Name is required.');
     if (!form.baseUrl.trim()) return setError('Base URL is required.');
-    if (editing!.mode === 'add' && !form.apiKey.trim()) return setError('API key is required.');
+    if (editing.mode === 'add' && !form.apiKey.trim()) return setError('API key is required.');
     setSaving(true);
     setError(null);
     setSavedMessage(null);
@@ -115,12 +116,12 @@ export function useA2AServices() {
       callerClientSecret: form.callerClientSecret || undefined,
     };
     try {
-      if (editing!.mode === 'add') {
+      if (editing.mode === 'add') {
         const created = await createMutation.mutateAsync({ id: form.id.trim(), ...request });
         setServices((prev) => [...prev, created]);
         setSavedMessage(`A2A service "${created.name}" added.`);
       } else {
-        const updated = await updateMutation.mutateAsync({ id: editing!.service.id, request });
+        const updated = await updateMutation.mutateAsync({ id: editing.service.id, request });
         setServices((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
         setSavedMessage(`A2A service "${updated.name}" saved.`);
       }

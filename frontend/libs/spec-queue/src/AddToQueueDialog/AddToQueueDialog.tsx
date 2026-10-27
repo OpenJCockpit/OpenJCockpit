@@ -36,14 +36,18 @@ function messageOf(e: unknown): string {
   return e instanceof Error ? e.message : 'Unknown error';
 }
 
-function loadable<Q, T = Q>(
+function loadableMap<Q, T>(
   query: UseQueryResult<Q>,
   fallback: T,
-  pick: (data: Q) => T = (data) => data as unknown as T,
+  pick: (data: Q) => T,
 ): Loadable<T> {
   if (query.data !== undefined) return { loading: false, error: null, data: pick(query.data) };
   if (query.isError) return { loading: false, error: messageOf(query.error), data: fallback };
   return { loading: true };
+}
+
+function loadable<Q>(query: UseQueryResult<Q>, fallback: Q): Loadable<Q> {
+  return loadableMap(query, fallback, (data) => data);
 }
 
 const AUTO_MERGE_NOTE =
@@ -95,7 +99,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
   } else {
     workflows = { loading: true };
   }
-  const settings: Loadable<boolean> = loadable(settingsQuery, false, (s) => s.autoMergeAllowed);
+  const settings: Loadable<boolean> = loadableMap(settingsQuery, false, (s) => s.autoMergeAllowed);
 
   const specList = specs.loading ? [] : specs.data;
   const specFile =

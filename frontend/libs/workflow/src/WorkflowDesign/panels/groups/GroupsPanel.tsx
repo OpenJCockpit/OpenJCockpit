@@ -41,13 +41,14 @@ export function GroupsPanel() {
   }
 
   async function handleSave() {
+    if (!editingId) return;
     setSaving(true);
     setError(null);
     try {
       const saved =
         editingId === 'new'
           ? await createWorkflowGroup(form)
-          : await updateWorkflowGroup(editingId!, form);
+          : await updateWorkflowGroup(editingId, form);
       setItems((prev) =>
         editingId === 'new' ? [...prev, saved] : prev.map((i) => (i.id === saved.id ? saved : i)),
       );

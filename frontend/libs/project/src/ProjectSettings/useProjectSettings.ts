@@ -53,7 +53,7 @@ export function useProjectSettings() {
   const loaded = projectsQuery.data !== undefined;
 
   function setProjects(update: (prev: Project[]) => Project[]) {
-    queryClient.setQueryData<Project[]>(ALL_PROJECTS_KEY, (prev) => update(prev!));
+    queryClient.setQueryData<Project[]>(ALL_PROJECTS_KEY, (prev) => prev && update(prev));
     // The dashboard's list of active projects is cached under ['projects'].
     void queryClient.invalidateQueries({ queryKey: ['projects'], exact: true });
   }
@@ -112,6 +112,7 @@ export function useProjectSettings() {
       nameInputRef.current?.focus();
       return;
     }
+    if (!editingId) return;
     setNameInvalid(false);
     setSaving(true);
     setError(null);
@@ -120,7 +121,7 @@ export function useProjectSettings() {
         const created = await createProject(form);
         setProjects((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
       } else {
-        const updated = await updateProject(editingId!, form);
+        const updated = await updateProject(editingId, form);
         setProjects((prev) => prev.map((p) => (p.id === editingId ? updated : p)));
       }
       setEditingId(null);
@@ -200,6 +201,7 @@ export function useProjectSettings() {
   }
 
   async function handleSaveCred() {
+    if (!credEditingId) return;
     setSaving(true);
     setError(null);
     try {
@@ -207,7 +209,7 @@ export function useProjectSettings() {
         ...credForm,
         secret: credForm.secret === '' ? null : credForm.secret,
       };
-      await saveGitCredentials(credEditingId!, req);
+      await saveGitCredentials(credEditingId, req);
       setProjects((prev) =>
         prev.map((p) => (p.id === credEditingId ? { ...p, hasCredentials: true } : p)),
       );

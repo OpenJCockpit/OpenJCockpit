@@ -45,7 +45,7 @@ export function SkillsPanel() {
       : null;
 
   function updateCatalog(update: (base: SkillCatalog) => SkillCatalog) {
-    queryClient.setQueryData<SkillCatalog>(skillCatalogQueryKey, (prev) => update(prev!));
+    queryClient.setQueryData<SkillCatalog>(skillCatalogQueryKey, (prev) => prev && update(prev));
   }
 
   const rows = useMemo<SkillRow[]>(() => {
@@ -101,13 +101,14 @@ export function SkillsPanel() {
   }
 
   async function handleSave() {
+    if (!editingName) return;
     setSaving(true);
     setError(null);
     try {
       const saved =
         editingName === 'new'
           ? await createSkillSpec(form)
-          : await updateSkillSpec(editingName!, form);
+          : await updateSkillSpec(editingName, form);
       updateCatalog((base) => {
         const localSkills =
           editingName === 'new'

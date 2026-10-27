@@ -58,12 +58,12 @@ export function FlowPanel({
     return hasSpecs ? selectedFileName : 'No specs found';
   }
 
-  function renderActiveRun() {
+  function renderActiveRun(run: NonNullable<typeof activeRun>) {
     return (
       <>
         <WorkflowExecution
-          workflow={activeRun!.workflow}
-          runId={activeRun!.runId}
+          workflow={run.workflow}
+          runId={run.runId}
           onRunEnded={launcher.markRunEnded}
           showHistory={false}
         />
@@ -103,7 +103,7 @@ export function FlowPanel({
   }
 
   function renderBody() {
-    if (activeRun) return renderActiveRun();
+    if (activeRun) return renderActiveRun(activeRun);
     if (specsLoading) return null;
     if (!hasSpecs) return renderSpecInit();
     return (

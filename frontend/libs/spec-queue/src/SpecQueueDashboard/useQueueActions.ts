@@ -103,13 +103,14 @@ export function useQueueActions({
   }
 
   function move(item: SpecQueueItem, direction: MoveDirection) {
+    if (!projectId) return;
     const ids = queuedItems.map((i) => i.id);
     const from = ids.indexOf(item.id);
     const to = direction === 'up' ? from - 1 : from + 1;
     [ids[from], ids[to]] = [ids[to]!, ids[from]!];
     run(
       async () => {
-        const response = await reorderSpecQueue(projectId!, ids);
+        const response = await reorderSpecQueue(projectId, ids);
         requestFocus(item.id, direction);
         await applyQueue(response);
         announce(`${item.specFile} moved to position ${to + 1} of ${ids.length}`);
@@ -120,9 +121,10 @@ export function useQueueActions({
   }
 
   function pauseResume(pause: boolean) {
+    if (!projectId) return;
     run(
       async () => {
-        const response = await (pause ? pauseSpecQueue(projectId!) : resumeSpecQueue(projectId!));
+        const response = await (pause ? pauseSpecQueue(projectId) : resumeSpecQueue(projectId));
         await applyQueue(response);
         announce(pause ? 'Queue paused' : 'Queue resumed');
       },
@@ -145,10 +147,12 @@ export function useQueueActions({
   }
 
   const confirmMutation = useMutation({
-    mutationFn: ({ kind, item }: Confirmation) =>
-      kind === 'skip'
-        ? skipSpecQueueItem(projectId!, item.id)
-        : removeSpecQueueItem(projectId!, item.id),
+    mutationFn: ({ kind, item }: Confirmation) => {
+      if (!projectId) throw new Error('No project selected');
+      return kind === 'skip'
+        ? skipSpecQueueItem(projectId, item.id)
+        : removeSpecQueueItem(projectId, item.id);
+    },
   });
   const confirmBusy = confirmMutation.isPending;
   const confirmError = confirmMutation.isError
@@ -165,11 +169,12 @@ export function useQueueActions({
   }
 
   function confirm() {
+    if (!confirmation) return;
     // Per-call callbacks do not run after unmount, so a late response is not applied.
-    confirmMutation.mutate(confirmation!, {
+    confirmMutation.mutate(confirmation, {
       onSuccess: () => {
         setConfirmation(null);
-        announce(confirmationCopy(confirmation!).done);
+        announce(confirmationCopy(confirmation).done);
         void refresh();
       },
     });

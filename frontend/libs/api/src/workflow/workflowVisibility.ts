@@ -4,7 +4,10 @@ import type { WorkflowDefinition, WorkflowGroup } from './workflowTypes';
  * Resolve a workflow's effective project: the workflow's own project wins;
  * otherwise the project of its group decides. Empty result means global.
  */
-function resolveEffectiveProject(w: WorkflowDefinition, groups: WorkflowGroup[]): string {
+function resolveEffectiveProject(
+  w: Pick<WorkflowDefinition, 'groupId' | 'projectName'>,
+  groups: WorkflowGroup[],
+): string {
   return w.projectName || groups.find((g) => g.id === w.groupId)?.projectName || '';
 }
 
@@ -39,7 +42,7 @@ export function workflowsForProject(
  *   (empty effective project), OR any workflow whose effective project equals P.
  */
 export function candidateOrbTargets(
-  current: WorkflowDefinition,
+  current: Pick<WorkflowDefinition, 'id' | 'groupId' | 'projectName'>,
   workflows: WorkflowDefinition[],
   groups: WorkflowGroup[],
 ): WorkflowDefinition[] {

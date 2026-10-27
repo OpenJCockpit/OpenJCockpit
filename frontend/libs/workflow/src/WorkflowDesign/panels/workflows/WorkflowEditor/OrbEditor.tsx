@@ -4,25 +4,30 @@ import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
 const MAX_ORBS = 5;
 
+// An orb being edited: the execution mode is unset until the user picks one.
+export type OrbDraft = Omit<WorkflowOrb, 'mode'> & { mode?: WorkflowOrb['mode'] };
+
+// A workflow being edited; its orbs may still be incomplete.
+export type WorkflowDraft = Omit<WorkflowDefinition, 'workflowOrbs'> & {
+  workflowOrbs?: OrbDraft[];
+};
+
 interface OrbEditorProps {
-  orbs: WorkflowOrb[];
+  orbs: OrbDraft[];
   candidates: WorkflowDefinition[];
   stages: AgentDefinition[];
   error: string | null;
-  onChange: (orbs: WorkflowOrb[]) => void;
+  onChange: (orbs: OrbDraft[]) => void;
 }
 
 export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEditorProps) {
   function addOrb() {
-    onChange([
-      ...orbs,
-      { workflowId: '', mode: undefined as unknown as WorkflowOrb['mode'], placementStage: '' },
-    ]);
+    onChange([...orbs, { workflowId: '', placementStage: '' }]);
   }
   function removeOrb(index: number) {
     onChange(orbs.filter((_, i) => i !== index));
   }
-  function updateOrb(index: number, patch: Partial<WorkflowOrb>) {
+  function updateOrb(index: number, patch: Partial<OrbDraft>) {
     onChange(orbs.map((orb, i) => (i === index ? { ...orb, ...patch } : orb)));
   }
 

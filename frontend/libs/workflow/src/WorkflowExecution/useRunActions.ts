@@ -35,12 +35,14 @@ export function useRunActions({
   });
 
   const decisionMutation = useMutation({
-    mutationFn: ({ decision, comment }: { decision: ApprovalDecisionKind; comment?: string }) =>
-      submitApprovalDecision(selectedRunId!, {
+    mutationFn: ({ decision, comment }: { decision: ApprovalDecisionKind; comment?: string }) => {
+      if (!selectedRunId || !approvalContext) throw new Error('No approval is pending.');
+      return submitApprovalDecision(selectedRunId, {
         decision,
-        iteration: approvalContext!.iteration,
+        iteration: approvalContext.iteration,
         comment,
-      }),
+      });
+    },
     onMutate: () => setDecisionError(null),
     onSuccess: () => {
       // The run has moved on (resumed, denied, or is re-running with feedback) — the

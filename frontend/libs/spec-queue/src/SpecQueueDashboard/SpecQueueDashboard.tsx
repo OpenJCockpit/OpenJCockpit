@@ -69,7 +69,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
         onOpenRun={
           onOpenRun
             ? (it) => {
-                onOpenRun(it.workflowId, it.workflowRunId!);
+                if (it.workflowRunId) onOpenRun(it.workflowId, it.workflowRunId);
               }
             : undefined
         }
