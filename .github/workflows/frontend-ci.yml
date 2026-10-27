@@ -113,8 +113,11 @@ jobs:
         run: docker build -f frontend/apps/dashboard/Dockerfile --build-arg BUILD_SHA="$GITHUB_SHA" -t "$IMAGE" frontend
 
       - name: Start container
+        # nginx resolves the proxy_pass host at startup and exits if it is unknown. The default
+        # (ai-control-service) only exists in Compose, so point it at a literal address here.
         run: |
           docker run -d --name dashboard -p 8080:8080 \
+            -e API_UPSTREAM=http://127.0.0.1:9 \
             -e KEYCLOAK_URL=https://auth.example.test \
             -e KEYCLOAK_REALM=ci-realm \
             -e KEYCLOAK_CLIENT_ID=ci-client \
