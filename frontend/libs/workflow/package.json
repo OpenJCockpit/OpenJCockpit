@@ -13,7 +13,7 @@
     "format:check": "prettier --check . --ignore-path ../../.prettierignore"
   },
   "peerDependencies": {
-    "react": "^19.1.0"
+    "react": "^19.3.1"
   },
   "nx": {
     "includedScripts": []
