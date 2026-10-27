@@ -12,6 +12,19 @@ export type WorkflowDraft = Omit<WorkflowDefinition, 'workflowOrbs'> & {
   workflowOrbs?: OrbDraft[];
 };
 
+// Rows are editable and removable, so they need a key that survives reordering. Orbs carry no id of
+// their own, so each draft object gets a client-side key kept off the payload; edits inherit it.
+const orbKeys = new WeakMap<OrbDraft, string>();
+
+function orbKey(orb: OrbDraft): string {
+  let key = orbKeys.get(orb);
+  if (!key) {
+    key = crypto.randomUUID();
+    orbKeys.set(orb, key);
+  }
+  return key;
+}
+
 interface OrbEditorProps {
   orbs: OrbDraft[];
   candidates: WorkflowDefinition[];
@@ -28,7 +41,14 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
     onChange(orbs.filter((_, i) => i !== index));
   }
   function updateOrb(index: number, patch: Partial<OrbDraft>) {
-    onChange(orbs.map((orb, i) => (i === index ? { ...orb, ...patch } : orb)));
+    onChange(
+      orbs.map((orb, i) => {
+        if (i !== index) return orb;
+        const updated = { ...orb, ...patch };
+        orbKeys.set(updated, orbKey(orb));
+        return updated;
+      }),
+    );
   }
 
   return (
@@ -40,7 +60,7 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
         </p>
       )}
       {orbs.map((orb, index) => (
-        <div key={index} className="workflow-orb-row">
+        <div key={orbKey(orb)} className="workflow-orb-row">
           <SelectField
             id={`orb-target-${index}`}
             label="Referenced workflow"
