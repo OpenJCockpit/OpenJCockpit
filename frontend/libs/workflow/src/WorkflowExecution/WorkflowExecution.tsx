@@ -7,10 +7,8 @@ import {
   listWorkflows,
   runStatusKind,
   runStatusLabel,
-  stopAgentRun,
-  submitApprovalDecision,
 } from '@openjcockpit/api';
-import type { AgentDefinition, ApprovalDecisionKind, WorkflowDefinition } from '@openjcockpit/api';
+import type { AgentDefinition, WorkflowDefinition } from '@openjcockpit/api';
 import { loadLinkableAgents } from '../linkableAgents';
 import { AgentSequencer } from '../AgentSequencer/AgentSequencer';
 import { AgentLogConsole } from '../AgentLogConsole/AgentLogConsole';
@@ -29,6 +27,7 @@ import { ArtifactList, parseArtifactLinks } from './ArtifactList';
 import { RunLostPanel } from './RunLostPanel';
 import { RunStatusAnnouncements } from './RunStatusAnnouncements';
 import { useRunHistory } from './useRunHistory';
+import { useRunActions } from './useRunActions';
 import { useRunEvents } from './useRunEvents';
 import styles from './WorkflowExecution.module.scss';
 
@@ -66,9 +65,6 @@ export function WorkflowExecution({
   onRestartRequested,
   showHistory = true,
 }: Props) {
-  const [stopping, setStopping] = useState(false);
-  const [decisionSubmitting, setDecisionSubmitting] = useState(false);
-
   // Container state: which run is currently selected (seeded from the runId prop when
   // a "just started" flow hands one in).
   const [selectedRunId, setSelectedRunId] = useState<string | null>(runId);
@@ -191,41 +187,17 @@ export function WorkflowExecution({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- ref and setter are stable
   }, [runStatus, latestChildWorkflowEvent]);
 
+  const { stopping, decisionSubmitting, handleStop, submitDecision } = useRunActions({
+    selectedRunId,
+    approvalContext,
+    setRunStatus,
+    setApprovalContext,
+    setApprovalModalVisible,
+    setDecisionError,
+    onRunEnded,
+  });
+
   const isRunLost = runStatus !== null && RUN_LOST_STATUSES.includes(runStatus);
-
-  async function handleStop() {
-    setStopping(true);
-    try {
-      await stopAgentRun(selectedRunId!);
-      setRunStatus('CANCELLED');
-      setApprovalModalVisible(false);
-      onRunEnded?.();
-    } finally {
-      setStopping(false);
-    }
-  }
-
-  async function submitDecision(decision: ApprovalDecisionKind, comment?: string) {
-    setDecisionSubmitting(true);
-    setDecisionError(null);
-    try {
-      await submitApprovalDecision(selectedRunId!, {
-        decision,
-        iteration: approvalContext!.iteration,
-        comment,
-      });
-      // The run has moved on (resumed, denied, or is re-running with feedback) — the
-      // next poll tick reports the new status; the gate itself is no longer open.
-      setApprovalModalVisible(false);
-      setApprovalContext(null);
-    } catch (err) {
-      setDecisionError(
-        err instanceof Error ? err.message : 'Failed to submit the approval decision.',
-      );
-    } finally {
-      setDecisionSubmitting(false);
-    }
-  }
 
   if (!workflow) {
     return (

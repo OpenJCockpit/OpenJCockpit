@@ -1,22 +1,10 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  getSpecQueue,
-  pauseSpecQueue,
-  removeSpecQueueItem,
-  reorderSpecQueue,
-  resumeSpecQueue,
-  retrySpecQueueItem,
-  skipSpecQueueItem,
-  updateSpecQueueItem,
-} from '@openjcockpit/api';
-import type { Project, SpecQueue, SpecQueueItem } from '@openjcockpit/api';
+import { useRef, useState, type ReactNode } from 'react';
+import type { Project, SpecQueueItem } from '@openjcockpit/api';
 import { AddToQueueDialog } from '../AddToQueueDialog/AddToQueueDialog';
 import { AutoMergeSettingToggle } from '../AutoMergeSettingToggle/AutoMergeSettingToggle';
 import { ConfirmActionDialog } from '../ConfirmActionDialog/ConfirmActionDialog';
 import { pollErrorText, queueStateText } from '../queueStatus';
 import { SpecQueueItemRow } from '../SpecQueueItemRow/SpecQueueItemRow';
-import type { MoveDirection } from '../SpecQueueItemRow/SpecQueueItemRow';
 import {
   AppHeader,
   AppShell,
@@ -28,6 +16,8 @@ import {
   cx,
 } from '@openjcockpit/ui';
 import styles from './SpecQueueDashboard.module.scss';
+import { confirmationCopy, useQueueActions } from './useQueueActions';
+import { useSpecQueue } from './useSpecQueue';
 
 interface Props {
   project: Project | null;
@@ -37,210 +27,27 @@ interface Props {
   header?: ReactNode;
 }
 
-type ConfirmationKind = 'remove' | 'cancel' | 'skip';
-interface Confirmation {
-  kind: ConfirmationKind;
-  item: SpecQueueItem;
-}
-
-const POLL_INTERVAL_MS = 5000;
-const MAX_POLL_INTERVAL_MS = 60000;
-
-function messageOf(e: unknown, fallback: string): string {
-  return e instanceof Error && e.message ? e.message : fallback;
-}
-
 function localized(iso: string): string {
   return new Date(iso).toLocaleString();
 }
 
-function confirmationCopy({ kind, item }: Confirmation) {
-  const spec = item.specFile;
-  switch (kind) {
-    case 'remove':
-      return {
-        title: `Remove ${spec}?`,
-        message: 'The spec file leaves the queue. It can be added again later.',
-        confirmLabel: 'Remove',
-        done: `${spec} removed`,
-      };
-    case 'cancel':
-      return {
-        title: `Cancel ${spec}?`,
-        message:
-          'The running workflow is stopped and the queue is paused. Any pull request that was already opened stays open.',
-        confirmLabel: 'Cancel run',
-        done: `${spec} cancelled`,
-      };
-    case 'skip':
-      return {
-        title: `Skip ${spec}?`,
-        message: 'The failed item is marked as skipped so the queue can continue.',
-        confirmLabel: 'Skip',
-        done: `${spec} skipped`,
-      };
-  }
-}
-
 export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props) {
   const projectId = project?.id ?? null;
-  const queryClient = useQueryClient();
-  const queueKey = ['spec-queue', projectId, 'queue'] as const;
-  // react-query resets its own failure counters on every fetch, so count consecutive failures here.
-  const failures = useRef({ projectId, count: 0 });
-  const consecutiveFailures = () =>
-    failures.current.projectId === projectId ? failures.current.count : 0;
-  const queueQuery = useQuery({
-    queryKey: queueKey,
-    queryFn: async () => {
-      try {
-        const loaded = await getSpecQueue(projectId as string);
-        failures.current = { projectId, count: 0 };
-        return loaded;
-      } catch (e) {
-        failures.current = { projectId, count: consecutiveFailures() + 1 };
-        throw e;
-      }
-    },
-    enabled: projectId !== null,
-    // Polling is the retry; back off exponentially while loads keep failing.
-    retry: false,
-    refetchInterval: () =>
-      document.hidden
-        ? false
-        : Math.min(POLL_INTERVAL_MS * 2 ** consecutiveFailures(), MAX_POLL_INTERVAL_MS),
-    refetchIntervalInBackground: false,
-  });
-  const queue = queueQuery.data ?? null;
-  const loadError = queueQuery.isError
-    ? messageOf(queueQuery.error, 'Failed to load the spec queue')
-    : null;
-  // Scoped to a project so it clears when the project changes.
-  const [actionErrorState, setActionErrorState] = useState<{
-    projectId: string | null;
-    message: string;
-  } | null>(null);
-  const actionError = actionErrorState?.projectId === projectId ? actionErrorState.message : null;
-  const [busy, setBusy] = useState(false);
+  const { queue, loadError, applyQueue, refresh, applyAutoMergeAllowed } = useSpecQueue(projectId);
   const [announcement, setAnnouncement] = useState('');
-  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
-  const [confirmBusy, setConfirmBusy] = useState(false);
-  const [confirmError, setConfirmError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
-
-  const listRef = useRef<HTMLOListElement>(null);
-  const pendingFocus = useRef<{ itemId: string; direction: MoveDirection } | null>(null);
-  const mounted = useRef(true);
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
-
-  /** Writes a queue response; an in-flight poll is cancelled so it cannot overwrite it. */
-  const applyQueue = useCallback(
-    async (next: SpecQueue) => {
-      await queryClient.cancelQueries({ queryKey: ['spec-queue', projectId, 'queue'] });
-      queryClient.setQueryData(['spec-queue', projectId, 'queue'], next);
-    },
-    [queryClient, projectId],
-  );
-
-  const refresh = useCallback(async () => {
-    await queryClient.refetchQueries({ queryKey: ['spec-queue', projectId, 'queue'] });
-  }, [queryClient, projectId]);
-
-  // After a reorder, keep keyboard focus on the moved row's move button.
-  useEffect(() => {
-    if (busy || !pendingFocus.current) return;
-    const { itemId, direction } = pendingFocus.current;
-    pendingFocus.current = null;
-    const row = listRef.current?.querySelector<HTMLElement>(
-      `[data-item-id="${CSS.escape(itemId)}"]`,
-    );
-    if (!row) return;
-    const same = row.querySelector<HTMLButtonElement>(
-      `[data-testid="queue-item-move-${direction}"]`,
-    );
-    const opposite = row.querySelector<HTMLButtonElement>(
-      `[data-testid="queue-item-move-${direction === 'up' ? 'down' : 'up'}"]`,
-    );
-    (same && !same.disabled ? same : opposite)?.focus();
-  }, [queue, busy]);
-
-  async function run(action: () => Promise<unknown>, fallback: string, reload = true) {
-    setBusy(true);
-    setActionErrorState(null);
-    try {
-      await action();
-      if (reload) await refresh();
-    } catch (e) {
-      if (mounted.current) setActionErrorState({ projectId, message: messageOf(e, fallback) });
-      // Resync anyway so a stale-order 409 shows the current order.
-      await refresh();
-    } finally {
-      if (mounted.current) setBusy(false);
-    }
-  }
-
   const queuedItems = queue?.items.filter((i) => i.status === 'QUEUED') ?? [];
-
-  function handleMove(item: SpecQueueItem, direction: MoveDirection) {
-    const ids = queuedItems.map((i) => i.id);
-    const from = ids.indexOf(item.id);
-    const to = direction === 'up' ? from - 1 : from + 1;
-    [ids[from], ids[to]] = [ids[to]!, ids[from]!];
-    void run(
-      async () => {
-        const response = await reorderSpecQueue(projectId!, ids);
-        if (!mounted.current) return;
-        pendingFocus.current = { itemId: item.id, direction };
-        await applyQueue(response);
-        setAnnouncement(`${item.specFile} moved to position ${to + 1} of ${ids.length}`);
-      },
-      'Failed to reorder the queue',
-      false,
-    );
-  }
-
-  function handlePauseResume(pause: boolean) {
-    void run(
-      async () => {
-        const response = await (pause ? pauseSpecQueue(projectId!) : resumeSpecQueue(projectId!));
-        if (!mounted.current) return;
-        await applyQueue(response);
-        setAnnouncement(pause ? 'Queue paused' : 'Queue resumed');
-      },
-      pause ? 'Failed to pause the queue' : 'Failed to resume the queue',
-      false,
-    );
-  }
-
-  function openConfirmation(kind: ConfirmationKind, item: SpecQueueItem) {
-    setConfirmError(null);
-    setConfirmation({ kind, item });
-  }
-
-  async function handleConfirm() {
-    const { kind, item } = confirmation!;
-    const copy = confirmationCopy(confirmation!);
-    setConfirmBusy(true);
-    setConfirmError(null);
-    try {
-      await (kind === 'skip'
-        ? skipSpecQueueItem(projectId!, item.id)
-        : removeSpecQueueItem(projectId!, item.id));
-      if (!mounted.current) return;
-      setConfirmation(null);
-      setAnnouncement(copy.done);
-      await refresh();
-    } catch (e) {
-      if (mounted.current) setConfirmError(messageOf(e, 'The action failed'));
-    } finally {
-      if (mounted.current) setConfirmBusy(false);
-    }
-  }
+  const listRef = useRef<HTMLOListElement>(null);
+  const actions = useQueueActions({
+    projectId,
+    queue,
+    queuedItems,
+    listRef,
+    applyQueue,
+    refresh,
+    announce: setAnnouncement,
+  });
+  const { busy, confirmation } = actions;
 
   const autoMergeAllowed = queue?.autoMergeAllowed ?? false;
 
@@ -253,21 +60,12 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
         queuedCount={queuedItems.length}
         autoMergeAllowed={autoMergeAllowed}
         busy={busy}
-        onMove={handleMove}
-        onAutoMergeChange={(it, autoMerge) =>
-          projectId &&
-          void run(
-            () => updateSpecQueueItem(projectId, it.id, { autoMerge }),
-            'Failed to update the queue item',
-          )
-        }
-        onRemove={(it) => openConfirmation('remove', it)}
-        onCancelRun={(it) => openConfirmation('cancel', it)}
-        onSkip={(it) => openConfirmation('skip', it)}
-        onRetry={(it) =>
-          projectId &&
-          void run(() => retrySpecQueueItem(projectId, it.id), 'Failed to retry the queue item')
-        }
+        onMove={actions.move}
+        onAutoMergeChange={actions.setAutoMerge}
+        onRemove={(it) => actions.openConfirmation('remove', it)}
+        onCancelRun={(it) => actions.openConfirmation('cancel', it)}
+        onSkip={(it) => actions.openConfirmation('skip', it)}
+        onRetry={actions.retry}
         onOpenRun={
           onOpenRun
             ? (it) => {
@@ -300,7 +98,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                   size="sm"
                   data-testid="queue-pause"
                   disabled={busy}
-                  onClick={() => handlePauseResume(true)}
+                  onClick={() => actions.pauseResume(true)}
                 >
                   Pause queue
                 </Button>
@@ -310,7 +108,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                   size="sm"
                   data-testid="queue-resume"
                   disabled={busy}
-                  onClick={() => handlePauseResume(false)}
+                  onClick={() => actions.pauseResume(false)}
                 >
                   Resume queue
                 </Button>
@@ -403,9 +201,9 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                 The queue could not be refreshed — {loadError}
               </p>
             )}
-            {actionError && (
+            {actions.actionError && (
               <p className={feedbackErrorClass} role="alert" data-testid="queue-action-error">
-                {actionError}
+                {actions.actionError}
               </p>
             )}
 
@@ -414,15 +212,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
               <AutoMergeSettingToggle
                 projectId={project.id}
                 autoMergeAllowed={queue.autoMergeAllowed}
-                onChanged={(settings) => {
-                  void queryClient
-                    .cancelQueries({ queryKey: queueKey })
-                    .then(() =>
-                      queryClient.setQueryData<SpecQueue>(queueKey, (q) =>
-                        q ? { ...q, autoMergeAllowed: settings.autoMergeAllowed } : q,
-                      ),
-                    );
-                }}
+                onChanged={(settings) => void applyAutoMergeAllowed(settings.autoMergeAllowed)}
               />
             </Panel>
 
@@ -464,10 +254,10 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
           title={copy.title}
           message={copy.message}
           confirmLabel={copy.confirmLabel}
-          busy={confirmBusy}
-          error={confirmError}
-          onConfirm={() => void handleConfirm()}
-          onCancel={() => setConfirmation(null)}
+          busy={actions.confirmBusy}
+          error={actions.confirmError}
+          onConfirm={() => void actions.confirm()}
+          onCancel={actions.closeConfirmation}
         />
       )}
       {adding && project && (
