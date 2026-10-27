@@ -1,6 +1,5 @@
-import { ApiError, API_BASE_URL, authHeaders } from '../core/http';
+import { apiRequest } from '../core/http';
 import type { SpecFile } from '../types/types';
-import { errorMessageFrom } from '../core/httpErrors';
 import type {
   SpecQueue,
   SpecQueueEnqueueRequest,
@@ -11,36 +10,25 @@ import type {
 
 type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
-function queueUrl(projectId: string, suffix = ''): string {
-  return `${API_BASE_URL}/api/projects/${encodeURIComponent(projectId)}/spec-queue${suffix}`;
+function queuePath(projectId: string, suffix = ''): string {
+  return `/api/projects/${encodeURIComponent(projectId)}/spec-queue${suffix}`;
 }
 
-function itemUrl(projectId: string, itemId: string, suffix = ''): string {
-  return queueUrl(projectId, `/items/${encodeURIComponent(itemId)}${suffix}`);
+function itemPath(projectId: string, itemId: string, suffix = ''): string {
+  return queuePath(projectId, `/items/${encodeURIComponent(itemId)}${suffix}`);
 }
 
-function init(method: Method, body?: unknown): RequestInit {
-  if (body === undefined) return { method, headers: authHeaders() };
-  return {
-    method,
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify(body),
-  };
-}
-
-async function request<T>(
-  url: string,
+function request<T>(
+  path: string,
   method: Method,
-  fallback: string,
+  errorMessage: string | ((status: number) => string),
   body?: unknown,
 ): Promise<T> {
-  const response = await fetch(url, init(method, body));
-  if (!response.ok) throw new ApiError(await errorMessageFrom(response, fallback), response.status);
-  return response.json();
+  return apiRequest(path, { method, body, errorMessage });
 }
 
 export function getSpecQueue(projectId: string): Promise<SpecQueue> {
-  return request(queueUrl(projectId), 'GET', 'Failed to load the spec queue');
+  return request(queuePath(projectId), 'GET', 'Failed to load the spec queue');
 }
 
 export function enqueueSpecQueueItem(
@@ -48,7 +36,7 @@ export function enqueueSpecQueueItem(
   body: SpecQueueEnqueueRequest,
 ): Promise<SpecQueueItem> {
   return request(
-    queueUrl(projectId, '/items'),
+    queuePath(projectId, '/items'),
     'POST',
     'Failed to add the spec to the queue',
     body,
@@ -60,65 +48,57 @@ export function updateSpecQueueItem(
   itemId: string,
   body: SpecQueueItemUpdateRequest,
 ): Promise<SpecQueueItem> {
-  return request(itemUrl(projectId, itemId), 'PATCH', 'Failed to update the queue item', body);
+  return request(itemPath(projectId, itemId), 'PATCH', 'Failed to update the queue item', body);
 }
 
 export function removeSpecQueueItem(projectId: string, itemId: string): Promise<SpecQueueItem> {
-  return request(itemUrl(projectId, itemId), 'DELETE', 'Failed to remove the queue item');
+  return request(itemPath(projectId, itemId), 'DELETE', 'Failed to remove the queue item');
 }
 
 export function reorderSpecQueue(projectId: string, itemIds: string[]): Promise<SpecQueue> {
-  return request(queueUrl(projectId, '/order'), 'PUT', 'Failed to reorder the queue', { itemIds });
+  return request(queuePath(projectId, '/order'), 'PUT', 'Failed to reorder the queue', { itemIds });
 }
 
 export function pauseSpecQueue(projectId: string): Promise<SpecQueue> {
-  return request(queueUrl(projectId, '/pause'), 'POST', 'Failed to pause the queue');
+  return request(queuePath(projectId, '/pause'), 'POST', 'Failed to pause the queue');
 }
 
 export function resumeSpecQueue(projectId: string): Promise<SpecQueue> {
-  return request(queueUrl(projectId, '/resume'), 'POST', 'Failed to resume the queue');
+  return request(queuePath(projectId, '/resume'), 'POST', 'Failed to resume the queue');
 }
 
 export function retrySpecQueueItem(projectId: string, itemId: string): Promise<SpecQueueItem> {
-  return request(itemUrl(projectId, itemId, '/retry'), 'POST', 'Failed to retry the queue item');
+  return request(itemPath(projectId, itemId, '/retry'), 'POST', 'Failed to retry the queue item');
 }
 
 export function skipSpecQueueItem(projectId: string, itemId: string): Promise<SpecQueueItem> {
-  return request(itemUrl(projectId, itemId, '/skip'), 'POST', 'Failed to skip the queue item');
+  return request(itemPath(projectId, itemId, '/skip'), 'POST', 'Failed to skip the queue item');
 }
 
 export function getSpecQueueSettings(projectId: string): Promise<SpecQueueSettings> {
-  return request(queueUrl(projectId, '/settings'), 'GET', 'Failed to load the queue settings');
+  return request(queuePath(projectId, '/settings'), 'GET', 'Failed to load the queue settings');
 }
 
-export async function updateSpecQueueSettings(
+export function updateSpecQueueSettings(
   projectId: string,
   autoMergeAllowed: boolean,
 ): Promise<SpecQueueSettings> {
-  const response = await fetch(queueUrl(projectId, '/settings'), init('PUT', { autoMergeAllowed }));
-  if (!response.ok) {
-    // errorMessageFrom prefers the server's own message; the fallback covers a bodiless 403.
-    const fallback =
-      response.status === 403
+  // The server's own message wins; the fallback covers a bodiless 403.
+  return request(
+    queuePath(projectId, '/settings'),
+    'PUT',
+    (status) =>
+      status === 403
         ? 'Only administrators can change this setting.'
-        : 'Failed to update the queue settings';
-    throw new ApiError(await errorMessageFrom(response, fallback), response.status);
-  }
-  return response.json();
+        : 'Failed to update the queue settings',
+    { autoMergeAllowed },
+  );
 }
 
 // Unlike loadProjectSpecs, this does not swallow errors: the dialog must tell a failed
 // listing (502) apart from an empty repository.
-export async function listSpecFilesStrict(projectId: string): Promise<SpecFile[]> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/projects/${encodeURIComponent(projectId)}/spec-files`,
-    { headers: authHeaders() },
-  );
-  if (!response.ok) {
-    throw new ApiError(
-      await errorMessageFrom(response, 'Failed to load spec files'),
-      response.status,
-    );
-  }
-  return response.json();
+export function listSpecFilesStrict(projectId: string): Promise<SpecFile[]> {
+  return apiRequest(`/api/projects/${encodeURIComponent(projectId)}/spec-files`, {
+    errorMessage: 'Failed to load spec files',
+  });
 }

@@ -14,7 +14,15 @@ import type { AgentDefinition, ApprovalDecisionKind, WorkflowDefinition } from '
 import { loadLinkableAgents } from '../linkableAgents';
 import { AgentSequencer } from '../AgentSequencer/AgentSequencer';
 import { AgentLogConsole } from '../AgentLogConsole/AgentLogConsole';
-import { StatusChip, Eyebrow, Panel, fieldHintClass, cx, Button } from '@openjcockpit/ui';
+import {
+  StatusChip,
+  Eyebrow,
+  Panel,
+  fieldHintClass,
+  fieldErrorClass,
+  cx,
+  Button,
+} from '@openjcockpit/ui';
 import { ApprovalDecisionModal } from '../ApprovalDecisionModal/ApprovalDecisionModal';
 import { WorkflowExecutionHistory } from '../WorkflowExecutionHistory/WorkflowExecutionHistory';
 import { ArtifactList, parseArtifactLinks } from './ArtifactList';
@@ -89,6 +97,7 @@ export function WorkflowExecution({
     setApprovalModalVisible,
     decisionError,
     setDecisionError,
+    approvalLoadError,
     waitingAnnouncement,
     setWaitingAnnouncement,
     previousWaitingStatusRef,
@@ -280,6 +289,12 @@ export function WorkflowExecution({
       <RunStatusAnnouncements
         messages={[waitingAnnouncement, definitionFailureEvent?.title, failureSummary]}
       />
+
+      {approvalLoadError && (
+        <p className={fieldErrorClass} role="alert">
+          {approvalLoadError}
+        </p>
+      )}
 
       {selectedRunId &&
         runStatus === 'AWAITING_APPROVAL' &&

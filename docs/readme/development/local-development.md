@@ -86,9 +86,13 @@ Frontend verification (Nx workspace in `frontend/`: `apps/dashboard`, `libs/*` a
 ```bash
 cd frontend
 npm ci
-npx nx run-many -t lint check-styles typecheck test build
-npx nx affected -t lint test build   # only what changed vs. main
+npx nx run-many -t lint check-styles typecheck coverage build check-bundle   # what CI runs
+npx nx affected -t lint typecheck test build   # only what changed vs. main
+npm run check                        # quick gate: lint typecheck test format-check check-styles
 ```
+
+After changing `shared/contracts/openapi.yaml`, run `npx nx run api:generate` and commit the result.
+CI fails when the generated types are stale.
 
 Compose configuration check (what the infra CI leg runs):
 

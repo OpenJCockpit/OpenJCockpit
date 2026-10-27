@@ -18,7 +18,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   /* Deterministic end-state for ui/backgrounds/PuffsBackground.tsx. This
-     extends the global reduced-motion reset in styles/_reset.scss; it does not
+     extends the global reduced-motion reset in src/styles/_reset.scss; it does not
      replace or weaken it. */
   .puffs-background {
     transition: none !important;

@@ -44,6 +44,7 @@ export function useRunEvents({
   const [approvalContext, setApprovalContext] = useState<ApprovalGateContext | null>(null);
   const [approvalModalVisible, setApprovalModalVisible] = useState(false);
   const [decisionError, setDecisionError] = useState<string | null>(null);
+  const [approvalLoadError, setApprovalLoadError] = useState<string | null>(null);
   const [waitingAnnouncement, setWaitingAnnouncement] = useState<string | null>(null);
   const previousStatusRef = useRef<string | null>(null);
   const previousWaitingStatusRef = useRef<string | null>(null);
@@ -63,8 +64,12 @@ export function useRunEvents({
       setApprovalContext(context);
       setApprovalModalVisible(true);
       setDecisionError(null);
+      setApprovalLoadError(null);
     } catch (err) {
       console.warn('Failed to load approval gate context', err);
+      setApprovalLoadError('The approval request could not be loaded. Retrying…');
+      // Forget the status so the next poll tick sees a fresh AWAITING_APPROVAL and retries.
+      previousStatusRef.current = null;
     }
   }
 
@@ -118,6 +123,7 @@ export function useRunEvents({
       setApprovalContext(null);
       setApprovalModalVisible(false);
       setDecisionError(null);
+      setApprovalLoadError(null);
       setWaitingAnnouncement(null);
       previousStatusRef.current = null;
       previousWaitingStatusRef.current = null;
@@ -133,6 +139,7 @@ export function useRunEvents({
     setApprovalContext(null);
     setApprovalModalVisible(false);
     setDecisionError(null);
+    setApprovalLoadError(null);
     setWaitingAnnouncement(null);
     previousStatusRef.current = 'RUNNING';
     previousWaitingStatusRef.current = 'RUNNING';
@@ -206,6 +213,7 @@ export function useRunEvents({
     setApprovalModalVisible,
     decisionError,
     setDecisionError,
+    approvalLoadError,
     waitingAnnouncement,
     setWaitingAnnouncement,
     previousWaitingStatusRef,

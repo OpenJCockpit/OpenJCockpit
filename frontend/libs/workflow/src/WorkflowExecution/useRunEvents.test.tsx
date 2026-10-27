@@ -116,6 +116,7 @@ describe('useRunEvents', () => {
 
     expect(warn).toHaveBeenCalledWith('Failed to load approval gate context', expect.any(Error));
     expect(result.current.approvalContext).toBeNull();
+    expect(result.current.approvalLoadError).toMatch(/could not be loaded/);
     warn.mockRestore();
   });
 

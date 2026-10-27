@@ -346,6 +346,34 @@ describe('WorkflowExecution', () => {
       expect(screen.getByText('Awaiting approval')).toBeInTheDocument();
     });
 
+    it('tells the operator when the approval context cannot be loaded, then recovers on retry', async () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.mocked(workflowApi.getWorkflowExecution).mockResolvedValue(
+        runWithStatus('AWAITING_APPROVAL'),
+      );
+      vi.mocked(workflowApi.getApprovalGateContext)
+        .mockRejectedValueOnce(new Error('ctx down'))
+        .mockResolvedValue(CONTEXT);
+
+      vi.useFakeTimers();
+      try {
+        render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(10);
+        });
+        expect(screen.getByRole('alert')).toHaveTextContent(/approval request could not be loaded/);
+
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(2000);
+        });
+      } finally {
+        vi.useRealTimers();
+      }
+
+      expect(screen.queryByText(/approval request could not be loaded/)).toBeNull();
+      expect(workflowApi.getApprovalGateContext).toHaveBeenCalledTimes(2);
+    });
+
     it('fetches the approval context exactly once per transition into AWAITING_APPROVAL, including a re-gate', async () => {
       vi.mocked(workflowApi.getWorkflowExecution)
         .mockResolvedValueOnce(runWithStatus('AWAITING_APPROVAL'))
