@@ -32,10 +32,10 @@ class AgenticWorkflowPropertiesTest {
     void containerNetworkModeDefaultsAndCanBeChanged() {
         var properties = new AgenticWorkflowProperties();
 
-        assertThat(properties.getContainer().getNetworkMode()).isEqualTo("bridge");
+        assertThat(properties.getContainer().getNetworkMode()).isEqualTo("none");
 
-        properties.getContainer().setNetworkMode("host");
-        assertThat(properties.getContainer().getNetworkMode()).isEqualTo("host");
+        properties.getContainer().setNetworkMode("openjcockpit-jobs");
+        assertThat(properties.getContainer().getNetworkMode()).isEqualTo("openjcockpit-jobs");
     }
 
     @Test
@@ -56,5 +56,19 @@ class AgenticWorkflowPropertiesTest {
 
         properties.setDefaultBaseBranch("develop");
         assertThat(properties.getDefaultBaseBranch()).isEqualTo("develop");
+    }
+
+    @Test
+    void jobContainersAreOffByDefaultWithBoundedResources() {
+        var container = new AgenticWorkflowProperties().getContainer();
+
+        assertThat(container.isEnabled()).isFalse();
+        assertThat(container.getCpus()).isEqualTo(1.0);
+        assertThat(container.getPidsLimit()).isEqualTo(256);
+
+        container.setCpus(0.5);
+        container.setPidsLimit(64);
+        assertThat(container.getCpus()).isEqualTo(0.5);
+        assertThat(container.getPidsLimit()).isEqualTo(64);
     }
 }

@@ -61,8 +61,9 @@ export default defineConfig({
     env.mode === 'reduced'
       ? [
           {
-            command: 'npm run dev',
-            cwd: '../apps/dashboard',
+            // The dashboard is an Nx project (no npm `dev` script since the Nx migration).
+            command: 'npx nx dev dashboard',
+            cwd: '..',
             url: env.dashboardBaseUrl,
             reuseExistingServer: !process.env.CI,
             timeout: env.readinessTimeoutMs,

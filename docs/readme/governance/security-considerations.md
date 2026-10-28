@@ -1,9 +1,11 @@
 # Security considerations
 
-OpenJCockpit's repository ships a **local development stack**. It is designed to support governed AI
-software engineering, but the stack as shipped is **not production-hardened**, has not been
-independently security-assessed or certified, and must not be deployed to a shared, internet-facing
-or production environment without your own security assessment and hardening.
+OpenJCockpit's repository ships a **local development stack** (`docker-compose.yml`, everything below
+under *Local-only credentials* and *High-impact local-development postures*) and **production profiles**
+for Kubernetes and VM/VPS under `deploy/` (see the [Production runbook](../operations/production-runbook.md)).
+Never expose the development stack. The production profiles were reviewed internally
+([Security review](security-review.md)); they have not been independently penetration-tested or
+certified.
 
 To report a vulnerability, follow the [security policy](../../../SECURITY.md) (private GitHub
 vulnerability reporting, not public issues).
@@ -30,10 +32,11 @@ Rotating `LITELLM_SALT_KEY` invalidates every credential already encrypted in Li
 
 ## High-impact local-development postures
 
-- **Docker daemon access (`docker-socat`).** The stack exposes the host's Docker daemon without TLS on
-  the internal Compose network (port `2375`, not published to the host), so `ai-control-service` can
-  start workflow containers. Every container in that network effectively has full control over the
-  host. Local development only; consider Docker-in-Docker or Kubernetes jobs in production.
+- **Docker daemon access (`docker-socat`), opt-in only.** Job containers are disabled by default. With
+  `AGENTIC_CONTAINER_ENABLED=true docker compose --profile docker-jobs up`, the host's Docker daemon is
+  exposed without TLS on the internal Compose network so `ai-control-service` can start (hardened, no
+  network, read-only) job containers; every container on that network then effectively controls the
+  host. Never in production: no production manifest mounts a Docker socket.
 - **`git-mcp-server` has no authentication of its own.** It is not published on the host and is only
   reachable through LiteLLM with keys that are explicitly granted the server. Anything that can reach
   it on the Compose network can use it.
@@ -58,9 +61,8 @@ Rotating `LITELLM_SALT_KEY` invalidates every credential already encrypted in Li
 ## Authorization model
 
 - All users authenticate through Keycloak; the services validate JWTs.
-- **There is no fine-grained authorization** beyond the `openjcockpit-admin` role (spec queue
-  auto-merge setting). Any authenticated user can start workflows and decide approval gates, which can
-  write to customer repositories through agent runs.
+- Four roles (viewer, operator, approver, admin), deny by default; see the
+  [Authorization model](authorization-model.md). There is no per-project membership.
 - Service-to-service trust uses dedicated Keycloak clients and narrowly scoped endpoints (for example,
   only `openjcockpit-ai-control` may issue git-workspace tickets, and only `openjcockpit-git-mcp` may fetch
   workspace credentials).
@@ -92,7 +94,8 @@ require explicit permission before such a destructive volume action. See
 
 ## Before any shared or production deployment
 
-At a minimum:
+Use the production profiles and follow the [Production runbook](../operations/production-runbook.md) and
+the [Release checklist](../operations/release-checklist.md); they implement the list below. At a minimum:
 
 1. Replace every seeded credential, secret, salt and key, and remove seeded users.
 2. Remove the `docker-socat` Docker daemon proxy and choose an isolated job execution model.

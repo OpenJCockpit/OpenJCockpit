@@ -36,6 +36,7 @@ class OpaPropertiesTest {
         properties.setCustomerLabel("Noordzee Logistics");
         properties.setProjectLabel("public-sector-case-system");
         properties.setAuthToken("secret-token");
+        properties.setConfigLocked(true);
 
         assertThat(properties.isEnabled()).isTrue();
         assertThat(properties.getBaseUrl()).isEqualTo("http://opa:8181");
@@ -49,5 +50,6 @@ class OpaPropertiesTest {
         assertThat(properties.getCustomerLabel()).isEqualTo("Noordzee Logistics");
         assertThat(properties.getProjectLabel()).isEqualTo("public-sector-case-system");
         assertThat(properties.getAuthToken()).isEqualTo("secret-token");
+        assertThat(properties.isConfigLocked()).isTrue();
     }
 }

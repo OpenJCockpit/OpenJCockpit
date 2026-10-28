@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
-// Admin endpoints (create/update/activate/deactivate) are open to all authenticated users.
-// TODO: Add @PreAuthorize("hasRole('OPENJCOCKPIT_ADMIN')") and @EnableMethodSecurity in SecurityConfig
-//       once Keycloak realm roles are configured. See ProjectService for context.
+// Listing requires openjcockpit-viewer; create/update/activate/deactivate/new-project require
+// openjcockpit-admin. Enforced by the URL rules in config/SecurityConfig (deny by default).
 @RestController
 public class ProjectController implements ProjectApi {
 

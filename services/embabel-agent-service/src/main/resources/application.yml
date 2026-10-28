@@ -62,7 +62,7 @@ management:
     web:
       base-path: /actuator
       exposure:
-        include: health,info,metrics,loggers
+        include: health,info,metrics,loggers,prometheus
   endpoint:
     health:
       show-details: always
@@ -74,7 +74,7 @@ management:
           include: readinessState,db
     web:
       exposure:
-          include: health,info,metrics, loggers
+          include: health,info,metrics,loggers,prometheus
   health:
     livenessstate:
       enabled: true
@@ -160,6 +160,8 @@ openjcockpit:
     customer-label: ${OPA_CUSTOMER_LABEL:}
     project-label: ${OPA_PROJECT_LABEL:}
     auth-token: ${OPA_AUTH_TOKEN:}
+    # true refuses PUT /api/opa-config (always true under the `prod` profile).
+    config-locked: ${OPA_CONFIG_LOCKED:false}
   # Frozen Contract #2 (workflow-approval-gate work plan §5) — implemented verbatim.
   approval-gate:
     max-feedback-iterations: ${APPROVAL_GATE_MAX_FEEDBACK_ITERATIONS:3}

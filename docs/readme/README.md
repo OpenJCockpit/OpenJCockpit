@@ -44,6 +44,8 @@ topics.
 - [Policy enforcement](governance/policy-enforcement.md): OPA, policy-guarded tools, guardrails, audit trails.
 - [Approval gates](governance/approval-gates.md): human-in-the-loop decisions and the operations runbook.
 - [Security considerations](governance/security-considerations.md): local-only credentials, risky postures, hardening starting points.
+- [Authorization model](governance/authorization-model.md): roles, endpoint matrix, service identities.
+- [Security review](governance/security-review.md): production-readiness findings, resolutions and residual risks.
 
 ### Integrations
 
@@ -60,6 +62,8 @@ topics.
 
 ### Operations
 
+- [Production runbook](operations/production-runbook.md): Kubernetes and VM/VPS install, upgrade, rollback, backup, monitoring, alerts.
+- [Release checklist](operations/release-checklist.md): what must pass before a production release.
 - [Runbooks](operations/runbooks.md): services, volumes, destructive commands, definition-file logging.
 - [Remote agent runtime](operations/remote-agent-runtime.md): running `embabel-agent-runtime` on another host.
 - [Troubleshooting](operations/troubleshooting.md): symptom → cause → fix.

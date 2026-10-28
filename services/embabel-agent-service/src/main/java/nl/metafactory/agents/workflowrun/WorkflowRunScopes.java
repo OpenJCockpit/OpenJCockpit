@@ -10,7 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Active workflow runs of this instance, keyed by run id. Agents receive only the run id (A2A: forwarded by
  * LiteLLM as a header; catalog agents: in the execution request) and the agent runtime looks their scope up
  * here through the internal API, so a caller can never name a workflow or a git workspace itself; an
- * unknown or finished run has no scope. In-memory, like parked runs (ADR-001): lost on restart.
+ * unknown or finished run has no scope. In-memory; the scope of a run parked at an approval gate is part of
+ * its persisted snapshot and is registered again on startup by {@code ParkedRunRehydrator}.
  */
 @Component
 public class WorkflowRunScopes {

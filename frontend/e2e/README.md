@@ -134,15 +134,15 @@ token and/or live Keycloak session cookies (`AUTH_SESSION_ID`, `KEYCLOAK_IDENTIT
   message.
 - **Never** commit anything under `e2e/.auth/` (gitignored — do not force-add it).
 - This is a real, unmitigated-by-redaction risk. It is bounded, not eliminated, by three facts: (1)
-  `.github/workflows/e2e-ci.yml` does run this suite in CI now (non-blocking, reduced mode), but it
+  `.github/workflows/e2e-ci.yml` runs this suite in CI (the critical set is blocking, see below), but it
   deliberately does not upload `playwright-report/` or `test-results/` as a workflow artifact — those
   are discarded with the ephemeral runner when the job ends; (2) nothing
   is committed — `e2e/.auth/`, `e2e/test-results/`, `e2e/playwright-report/`, and
   `e2e/blob-report/` are all gitignored; (3) the `e2e` identity is local-only and worthless off this
   machine — its token's issuer and audience are both `localhost`.
-- If this CI leg is ever made blocking or its artifacts are ever uploaded (both stated follow-ups,
-  not yet in scope), artefact retention and visibility must be resolved, and this token-exposure risk
-  must be re-reviewed first.
+- The critical set (`npm run e2e:critical`) is now a blocking part of `ci-summary`; artefacts are still
+  never uploaded. If artefacts are ever uploaded, retention and visibility must be resolved and this
+  token-exposure risk re-reviewed first.
 
 The LiteLLM master key deserves a specific callout here: it is used only via raw `fetch` calls in
 `support/litellm.ts`, never via Playwright's `request` fixture, and therefore never enters a
@@ -216,7 +216,9 @@ execution model.
 
 ### Role/permission (403) coverage (AC-14) — partially closed
 
-The realm defines one realm role, `openjcockpit-admin`, held only by `tony`.
+The realm defines four roles (viewer, operator, approver, admin; see
+`docs/readme/governance/authorization-model.md`). `tony` is the only admin; the `e2e` user is operator +
+approver and is refused admin routes, which `specs/critical-authorization.spec.ts` asserts.
 
 - **Covered:** the non-admin `e2e` user's `PUT /api/projects/{id}/spec-queue/settings` returns 403
   and leaves the setting unchanged, and the dashboard shows the auto-merge toggle read-only.

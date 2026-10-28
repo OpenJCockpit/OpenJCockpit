@@ -1,0 +1,108 @@
+# dashboard: static SPA + /api proxy (nginx-unprivileged, UID 101).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  labels:
+    app.kubernetes.io/name: dashboard
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dashboard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dashboard
+        app.kubernetes.io/part-of: openjcockpit
+      annotations:
+        prometheus.io/scrape: 'false'
+        prometheus.io/port: '9090'
+        prometheus.io/path: /actuator/prometheus
+    spec:
+      serviceAccountName: openjcockpit
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: dashboard
+        image: openjcockpit/dashboard
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8080
+        env:
+        - name: API_UPSTREAM
+          value: http://ai-control-service:8080
+        - name: KEYCLOAK_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: openjcockpit-settings
+              key: KEYCLOAK_HOST
+        - name: KEYCLOAK_URL
+          value: https://$(KEYCLOAK_HOST)
+        - name: KEYCLOAK_REALM
+          value: openjcockpit
+        - name: KEYCLOAK_CLIENT_ID
+          value: openjcockpit
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: conf
+          mountPath: /etc/nginx/conf.d
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          periodSeconds: 10
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 256Mi
+      - name: conf
+        emptyDir:
+          sizeLimit: 1Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+  labels:
+    app.kubernetes.io/name: dashboard
+spec:
+  selector:
+    app.kubernetes.io/name: dashboard
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http

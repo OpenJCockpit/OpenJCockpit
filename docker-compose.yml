@@ -244,6 +244,20 @@ services:
     entrypoint: ["/bin/sh", "/local-seed/seed-local.sh"]
     restart: "no"
 
+  # One-shot: the service images run as UID 10001. Named volumes created by an older stack (when the
+  # services ran as root) are handed over once; fresh volumes already inherit the image's ownership.
+  volume-permissions:
+    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+    user: "0:0"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - for d in /v/*; do [ "$$(stat -c %u "$$d")" = 10001 ] || chown -R 10001:10001 "$$d"; done
+    volumes:
+      - workflow-workspaces:/v/workflow-workspaces
+      - workflow-definitions:/v/workflow-definitions
+      - git-mcp-workspaces:/v/git-mcp-workspaces
+    restart: "no"
+
   dashboard:
     build:
       context: frontend
@@ -260,10 +274,13 @@ services:
   # Proxied access to the Docker daemon for services within the compose network.
   # SECURITY NOTE: this exposes the Docker daemon without TLS on the internal
   # Docker network (port 2375, not published to the host). Every container in this
-  # network therefore gets full control over the host — local dev only.
+  # network therefore gets full control over the host — local dev only, and opt-in:
+  #   AGENTIC_CONTAINER_ENABLED=true docker compose --profile docker-jobs up
+  # Nothing executes in the job container yet, so the default stack runs without it.
   docker-socat:
     image: alpine/socat@sha256:fb3862c949af7c79996d0e514ee96128644d840835ed5368eeecb14a869de361
     container_name: openjcockpit-docker-socat
+    profiles: ["docker-jobs"]
     restart: unless-stopped
     command: tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock
     volumes:
@@ -278,6 +295,8 @@ services:
     ports:
       - "9080:8080"
     environment:
+      # Spring profile `local` (application-local.yml): adds the demo projects (db/seed-local).
+      SPRING_PROFILES_ACTIVE: local
       EMBABEL_AGENT_SERVICE_BASE_URL: http://embabel-agent-service:8081
       SPEC_REPOSITORY_PATH: /spec-repository
       OPENAI_API_KEY: ${OPENAI_API_KEY}
@@ -294,7 +313,7 @@ services:
       # works on macOS, where a unix-socket mount from inside a container is not reliable.
       AGENTIC_DOCKER_HOST: ${AGENTIC_DOCKER_HOST:-tcp://docker-socat:2375}
       WORKFLOW_WORKSPACE_BASE: /workflow-workspaces
-      AGENTIC_CONTAINER_ENABLED: ${AGENTIC_CONTAINER_ENABLED:-true}
+      AGENTIC_CONTAINER_ENABLED: ${AGENTIC_CONTAINER_ENABLED:-false}
       AGENTIC_CONTAINER_IMAGE: ${AGENTIC_CONTAINER_IMAGE:-eclipse-temurin:25-jre}
       SPEC_QUEUE_RUNNER_ENABLED: ${SPEC_QUEUE_RUNNER_ENABLED:-true}
       SPEC_QUEUE_POLL_INTERVAL: ${SPEC_QUEUE_POLL_INTERVAL:-PT20S}
@@ -316,6 +335,9 @@ services:
         condition: service_completed_successfully
       docker-socat:
         condition: service_started
+        required: false        # only with the opt-in profile `docker-jobs`
+      volume-permissions:
+        condition: service_completed_successfully
       local-seed:
         condition: service_completed_successfully
     volumes:
@@ -379,6 +401,8 @@ services:
         condition: service_started
       git-mcp-server:
         condition: service_started
+      volume-permissions:
+        condition: service_completed_successfully
       litellm:
         condition: service_healthy                    # BR-16
       local-seed:
@@ -457,6 +481,9 @@ services:
       dockerfile: services/git-mcp-server/Dockerfile
     container_name: openjcockpit-git-mcp
     restart: unless-stopped
+    depends_on:
+      volume-permissions:
+        condition: service_completed_successfully
     # Not published on the host: it has no authentication of its own and resolves job credentials
     # server-side, so the only way in is LiteLLM (key + object_permission.mcp_servers).
     expose:

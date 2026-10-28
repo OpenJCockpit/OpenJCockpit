@@ -64,6 +64,7 @@ helps you find them.
 | `WORKFLOW_TRIGGER_ENABLED` | `true` | [Workflow chaining](../workflows/agents-and-workflows.md#workflow-chaining-workflow-orbs) |
 | `WORKFLOW_AGENT_TIMEOUT` | `3600` (seconds; service default 600) | [Git integration](../workflows/git-integration.md#known-limitations-of-workspace-runs) |
 | `WORKFLOW_DEFINITIONS_PATH` | container path on the `workflow-definitions` volume (application default `/tmp/embabel-workflow-definitions`) | [Runbooks](../operations/runbooks.md#local-non-docker-runs-use-a-different-storage-path) |
+| `SPEC_WORKFLOW_BASE` | `/tmp/spec-workflow` in the container image (application default `.`); must be writable by UID 10001 | [Spec-driven development](../workflows/spec-driven-development.md#initialize-the-spec-workflow) |
 | `SPEC_WORKFLOW_INIT_ENABLED` | `true` (application default) | [Spec-driven development](../workflows/spec-driven-development.md#initialize-the-spec-workflow) |
 
 Application properties without a Compose variable:
@@ -86,6 +87,7 @@ Application properties without a Compose variable:
 | Variable | Default | Docs |
 | --- | --- | --- |
 | `OPA_ENABLED` | Compose `true` (application default `false`) | [Policy enforcement](../governance/policy-enforcement.md#policy-client-configuration-openjcockpitopa) |
+| `OPA_CONFIG_LOCKED` | `false` (`prod`: always `true`) | Refuses runtime changes through `PUT /api/opa-config`. [Policy enforcement](../governance/policy-enforcement.md#locking-the-policy-client-in-production) |
 | `OPA_BASE_URL`, `OPA_POLICY_PATH`, `OPA_HEALTH_PATH`, `OPA_TIMEOUT_SECONDS`, `OPA_FAIL_MODE`, `OPA_DECISION_LOGGING_ENABLED`, `OPA_DECISION_LOG_EXPORT_ENABLED` | see docs | [Policy enforcement](../governance/policy-enforcement.md#policy-client-configuration-openjcockpitopa) |
 | `MCP_CLIENT_ENABLED` | Compose `true` (application default `false`) | [MCP tools](../integrations/mcp-tools.md#central-mcp-client-remotemcptoolexecutor) |
 | `GIT_MCP_RUN_WORKSPACE_RETENTION` | `PT24H` | [MCP tools](../integrations/mcp-tools.md#per-run-workspace-isolation-workspacekey) |
@@ -95,9 +97,24 @@ Application properties without a Compose variable:
 
 | Variable | Compose default | Notes |
 | --- | --- | --- |
-| `AGENTIC_DOCKER_HOST` | `tcp://docker-socat:2375` | Docker daemon used by `ai-control-service`. See [Security considerations](../governance/security-considerations.md#high-impact-local-development-postures). |
-| `AGENTIC_CONTAINER_ENABLED` | `true` | Enables workflow containers. |
+| `AGENTIC_DOCKER_HOST` | `tcp://docker-socat:2375` | Docker daemon used by `ai-control-service` (compose profile `docker-jobs` only). See [Security considerations](../governance/security-considerations.md#high-impact-local-development-postures). |
+| `AGENTIC_CONTAINER_ENABLED` | `false` (`prod`: always off) | Enables workflow containers. Requires the `docker-jobs` profile locally. |
+| `AGENTIC_CONTAINER_NETWORK` | `none` | Job container network; `host` and `container:*` are refused. |
+| `AGENTIC_CONTAINER_MEMORY_MB`, `AGENTIC_CONTAINER_CPUS`, `AGENTIC_CONTAINER_PIDS_LIMIT` | `512`, `1.0`, `256` | Job container resource limits (no swap beyond memory). |
 | `AGENTIC_CONTAINER_IMAGE` | `eclipse-temurin:25-jre` | Not pulled automatically. |
+
+## Production profile
+
+Set by `deploy/` (Spring profile `prod`); see the [Production runbook](../operations/production-runbook.md)
+and [`deploy/compose/.env.prod.example`](../../../deploy/compose/.env.prod.example) for the full list.
+
+| Variable | Notes |
+| --- | --- |
+| `SPRING_PROFILES_ACTIVE=prod` | No fallback values; `ProductionConfigGuard` rejects placeholders, `local` and a non-HTTPS issuer. |
+| `MANAGEMENT_PORT` | Actuator port (default `9090` under `prod`); never routed publicly. |
+| `KEYCLOAK_ISSUER`, `KEYCLOAK_JWK_SET_URI`, `KEYCLOAK_TOKEN_URL` | Public HTTPS issuer; internal JWKS/token URLs. |
+| `AGENT_WORKFLOWS_TENANT` | Tenant of the deployment; seeds its agent bindings (`db/seed-tenant`). |
+| `CORS_ALLOWED_ORIGINS` | Empty in production (the dashboard proxies `/api` on its own origin). Locally `http://localhost:5173,http://localhost:4000`. |
 
 ## Skills Marketplace
 

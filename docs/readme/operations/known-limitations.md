@@ -8,17 +8,17 @@ together with [Security considerations](../governance/security-considerations.md
 
 | Area | Current state |
 | --- | --- |
-| Deployment | Local Docker Compose development stack only. No production deployment artefacts, image publishing or hardening guide. |
-| Authentication | Keycloak with seeded local users and secrets. |
-| Authorization | No fine-grained roles beyond `openjcockpit-admin` (spec queue auto-merge setting). Any authenticated user can approve gates. |
+| Deployment | Local Docker Compose stack for development; production profiles for Kubernetes and VM/VPS (`deploy/`, [Production runbook](production-runbook.md)), images published per release tag. `embabel-agent-service` and `ai-control-service` run as single replicas. |
+| Authentication | Keycloak. The local stack seeds users and public secrets; the production realm has no users and all secrets come from the environment. |
+| Authorization | Roles viewer / operator / approver / admin, deny by default ([Authorization model](../governance/authorization-model.md)). No per-project membership: roles apply to every project of a deployment. |
 | Multi-tenancy | Tenant claim only for the local service client (`tenant_id=local`). |
 | LLM providers | Local Ollama via LiteLLM plus OpenAI; `OPENAI_API_KEY` required to boot. No automatic provider fallback. |
-| Approval persistence | Paused runs live in memory and do not survive a restart; decisions already made are persisted. |
-| Tool security | `git-mcp-server` has no authentication of its own; reachable only via LiteLLM on the Compose network. |
-| Policy | The default OPA policy is a permissive starting point. |
+| Approval persistence | Runs paused at an approval gate and all decisions are persisted and survive a restart; runs executing an agent or waiting for a child workflow do not. |
+| Tool security | `git-mcp-server` has no authentication of its own; reachable only via LiteLLM and embabel-agent-service (internal network / NetworkPolicy). |
+| Policy | The default OPA policy allows identified workflow actions and denies destructive and unknown tool operations; extend it with your organization's rules. Production locks the policy client configuration. |
 | Pull requests | Workflow runs push a branch; no default workflow opens a PR automatically. |
 | Language focus | Java projects are the primary focus; other languages are not yet a verified target. |
-| Testing | Unit/integration tests gate CI. The Playwright E2E suite runs in a non-blocking CI leg only. |
+| Testing | Unit/integration tests and a critical Playwright E2E set gate CI (`ci-summary`). The rest of the E2E suite is informational. |
 
 ## Platform and integration limitations
 
@@ -105,8 +105,10 @@ together with [Security considerations](../governance/security-considerations.md
 
 ## Workflow and approval limitations
 
-- **Paused runs do not survive a restart** of `embabel-agent-service`; in-memory git-workspace tickets and
-  run scopes are lost too. See [Approval gates](../governance/approval-gates.md#in-flight-paused-runs-do-not-survive-a-restart-or-redeploy).
+- **Only runs paused at an approval gate survive a restart** of `embabel-agent-service` (with their run
+  scope and git workspace binding). Runs executing an agent, runs waiting for a child workflow, and
+  unredeemed git-workspace tickets are lost; a child workflow started by an orb after a resumed gate gets no
+  git token. See [Approval gates](../governance/approval-gates.md#paused-runs-survive-a-restart-or-redeploy).
 - **A job stops its run after `WORKFLOW_AGENT_TIMEOUT`**, even while an approval gate is waiting.
 - **Orb-child workflows do not inherit the Git workspace.**
 - **A job running during an `ai-control-service` restart stays at `AGENTS_RUNNING`.**
@@ -120,11 +122,12 @@ together with [Security considerations](../governance/security-considerations.md
 
 ## Testing and CI limitations
 
-- **The Playwright E2E suite is not a blocking CI gate.** `frontend/e2e/` (see
-  [Testing](../development/testing.md)) is a local and QA-agent-run gate. A separate `e2e-ci.yml` workflow
-  runs the suite in reduced mode as a **non-blocking, informational** leg that is deliberately not wired
-  into the required `ci-summary` check and does not upload artefacts (they can contain live tokens).
-  Making E2E a blocking CI gate is a stated follow-up.
+- **Only the critical E2E set blocks merges.** `e2e-ci.yml`, called by the required `ci-summary` check on
+  every pull request and push to `main`, runs `npm run e2e:critical` (login, unauthenticated rejection,
+  session handling, API authorization) against the reduced stack and fails the gate on any failure. The
+  rest of the reduced suite runs after it as information only: several specs need `embabel-agent-service`,
+  which the reduced stack does not start (they fail with 502 there). No artefacts are uploaded (they can
+  contain live tokens). Full-stack E2E with an LLM remains a local / staging activity.
 - E2E coverage gaps (spec queue, positive admin-role coverage, `WorkflowPromptDialog` dialog semantics,
   wrong-password scenario, no ESLint in `e2e/`) are listed in
   [`frontend/e2e/README.md`](../../../frontend/e2e/README.md#what-is-deliberately-excluded-and-why).

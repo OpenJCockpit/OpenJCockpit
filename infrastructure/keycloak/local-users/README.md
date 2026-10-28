@@ -91,11 +91,13 @@ Example:
 
 `realmRoles` entries must already exist as realm roles in the `openjcockpit`
 realm — the seed script fails loudly (naming the missing role) rather than
-silently skipping it. The realm defines exactly one custom realm role,
-`openjcockpit-admin`, which guards the admin-only spec-queue setting
-`autoMergeAllowed`. Do not give local users that role unless you are testing
-spec-queue settings; otherwise leave `realmRoles` as an empty array (`[]`).
-There is deliberately no default role.
+silently skipping it. Authorization is deny by default
+([Authorization model](../../../docs/readme/governance/authorization-model.md)):
+a user without a role can sign in but every API call is refused. Give a local
+user at least `openjcockpit-viewer`; typical developer accounts get
+`["openjcockpit-operator", "openjcockpit-approver"]`. Add `openjcockpit-admin`
+only when you test admin features (projects, Git credentials, OPA and spec-queue
+settings). There is deliberately no default role.
 
 ## Seeded admin role
 

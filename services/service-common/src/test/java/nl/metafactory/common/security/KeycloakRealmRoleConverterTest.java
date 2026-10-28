@@ -1,4 +1,4 @@
-package nl.metafactory.aicontrol.config;
+package nl.metafactory.common.security;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;

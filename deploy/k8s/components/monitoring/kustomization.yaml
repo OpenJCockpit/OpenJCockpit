@@ -1,0 +1,7 @@
+# Optional: scrape configuration and alert rules for clusters running the prometheus-operator
+# (kube-prometheus-stack). Add to an overlay's `components:` list.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+resources:
+  - prometheusrule.yaml
+  - podmonitor.yaml

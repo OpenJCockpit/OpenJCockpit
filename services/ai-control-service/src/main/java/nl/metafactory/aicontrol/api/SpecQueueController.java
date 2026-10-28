@@ -11,8 +11,8 @@ import nl.metafactory.aicontrol.model.SpecQueueSettingsDto;
 import nl.metafactory.aicontrol.model.SpecQueueSettingsRequest;
 import nl.metafactory.aicontrol.specqueue.app.CurrentActor;
 import nl.metafactory.aicontrol.specqueue.app.SpecQueueException;
-import nl.metafactory.aicontrol.specqueue.app.SpecQueueRoles;
 import nl.metafactory.aicontrol.specqueue.app.SpecQueueService;
+import nl.metafactory.common.security.OpenJCockpitRoles;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -96,7 +96,7 @@ public class SpecQueueController implements SpecQueueApi {
     }
 
     @Override
-    @PreAuthorize("hasRole('" + SpecQueueRoles.ADMIN + "')")
+    @PreAuthorize("hasRole('" + OpenJCockpitRoles.ADMIN + "')")
     public ResponseEntity<SpecQueueSettingsDto> updateSpecQueueSettings(UUID projectId,
                                                                         SpecQueueSettingsRequest request) {
         return ResponseEntity.ok(service.updateSettings(

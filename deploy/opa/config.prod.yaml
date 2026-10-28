@@ -1,0 +1,16 @@
+# OPA server configuration for production (deploy/compose, deploy/k8s). Policies are the reviewed files
+# from infrastructure/opa/policies (mounted read-only / shipped in a ConfigMap); the decision endpoint is
+# reachable from embabel-agent-service only (internal network / NetworkPolicy).
+services: {}
+bundles: {}
+
+# Every decision as one JSON line on stdout, collected with the other container logs (audit trail in
+# addition to embabel-agent-service's own decision log).
+decision_logs:
+  console: true
+
+default_decision: /openjcockpit/workflow/decision
+
+labels:
+  app: openjcockpit-opa
+  environment: production

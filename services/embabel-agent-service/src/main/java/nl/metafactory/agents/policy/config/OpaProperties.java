@@ -27,6 +27,8 @@ public class OpaProperties {
     private String customerLabel = "";
     private String projectLabel = "";
     private String authToken = "";
+    /** True = PUT /api/opa-config is refused: the policy client is configured by the deployment only. */
+    private boolean configLocked = false;
 
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
@@ -63,4 +65,12 @@ public class OpaProperties {
 
     public String getAuthToken() { return authToken; }
     public void setAuthToken(String authToken) { this.authToken = authToken; }
+
+    public boolean isConfigLocked() {
+        return configLocked;
+    }
+
+    public void setConfigLocked(boolean configLocked) {
+        this.configLocked = configLocked;
+    }
 }

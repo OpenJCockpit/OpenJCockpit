@@ -1,0 +1,107 @@
+{
+  "realm": "openjcockpit",
+  "displayName": "OpenJCockpit",
+  "enabled": true,
+  "sslRequired": "all",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "openjcockpit-admin",
+        "description": "OpenJCockpit administrator: everything, including project, git-credential, OPA, integration, skills-marketplace and A2A configuration. Implies operator, approver and viewer."
+      },
+      {
+        "name": "openjcockpit-operator",
+        "description": "OpenJCockpit operator: start/stop workflow runs; manage workflows, definitions, specs and spec queues. Implies viewer."
+      },
+      {
+        "name": "openjcockpit-approver",
+        "description": "OpenJCockpit approver: decide workflow approval gates. Implies viewer."
+      },
+      {
+        "name": "openjcockpit-viewer",
+        "description": "OpenJCockpit viewer: read-only access to the dashboard API."
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "openjcockpit",
+      "name": "openjcockpit",
+      "description": "OpenJCockpit dashboard SPA (hub and dashboard)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "rootUrl": "${OPENJCOCKPIT_PUBLIC_URL}",
+      "baseUrl": "/",
+      "adminUrl": "${OPENJCOCKPIT_PUBLIC_URL}",
+      "redirectUris": [
+        "${OPENJCOCKPIT_PUBLIC_URL}/*"
+      ],
+      "webOrigins": [
+        "${OPENJCOCKPIT_PUBLIC_URL}"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "${OPENJCOCKPIT_PUBLIC_URL}/*"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    }
+  ],
+  "loginTheme": "openjcockpit",
+  "internationalizationEnabled": true,
+  "defaultLocale": "nl",
+  "supportedLocales": [
+    "nl",
+    "en"
+  ],
+  "permanentLockout": false,
+  "failureFactor": 5,
+  "maxFailureWaitSeconds": 900,
+  "passwordPolicy": "length(14) and notUsername and notEmail and passwordHistory(5)",
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "eventsEnabled": true,
+  "eventsExpiration": 7776000,
+  "enabledEventTypes": [
+    "LOGIN",
+    "LOGIN_ERROR",
+    "LOGOUT",
+    "LOGOUT_ERROR",
+    "CODE_TO_TOKEN_ERROR",
+    "CLIENT_LOGIN",
+    "CLIENT_LOGIN_ERROR",
+    "REFRESH_TOKEN_ERROR",
+    "UPDATE_PASSWORD",
+    "UPDATE_TOTP",
+    "REMOVE_TOTP",
+    "UPDATE_CREDENTIAL"
+  ],
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": false
+}

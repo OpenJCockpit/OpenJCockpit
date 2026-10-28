@@ -76,7 +76,7 @@ jobs:
           if echo "$changed_files" | grep -Eq '^(frontend/|\.github/workflows/(frontend-ci|ci-summary)\.yml$)'; then
             frontend=true
           fi
-          if echo "$changed_files" | grep -Eq '^(docker-compose\.yml$|infrastructure/|\.env\.example$|\.github/workflows/(infra-ci|ci-summary)\.yml$)'; then
+          if echo "$changed_files" | grep -Eq '^(docker-compose\.yml$|infrastructure/|deploy/|\.env\.example$|\.github/workflows/(infra-ci|ci-summary)\.yml$)'; then
             infra=true
           fi
 
@@ -110,15 +110,22 @@ jobs:
     permissions:
       contents: read
 
+  # Critical end-to-end checks run on EVERY pull request and push to main, whatever changed: they are the
+  # merge gate for auth, authorization and the core stack (see e2e-ci.yml).
+  e2e:
+    uses: ./.github/workflows/e2e-ci.yml
+    permissions:
+      contents: read
+
   gate:
     name: ci-summary
-    needs: [changes, backend, frontend, infra]
+    needs: [changes, backend, frontend, infra, e2e]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Check CI leg results
         env:
-          RESULTS: "changes=${{ needs.changes.result }} backend=${{ needs.backend.result }} frontend=${{ needs.frontend.result }} infra=${{ needs.infra.result }}"
+          RESULTS: "changes=${{ needs.changes.result }} backend=${{ needs.backend.result }} frontend=${{ needs.frontend.result }} infra=${{ needs.infra.result }} e2e=${{ needs.e2e.result }}"
         run: |
           set -euo pipefail
           echo "$RESULTS"

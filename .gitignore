@@ -32,6 +32,10 @@ frontend/e2e/.auth/
 frontend/e2e/test-results/
 frontend/e2e/playwright-report/
 frontend/e2e/blob-report/
+# Same artefacts when Playwright is run from the repository root.
+/e2e/.auth/
+/e2e/playwright-report/
+/e2e/test-results/
 
 # Nx local cache and workspace data
 frontend/.nx/cache
@@ -52,3 +56,11 @@ PR_*.md
 
 # Test coverage reports
 coverage/
+
+# Production deployment: filled-in environment files, rendered secrets, backups and deploy history
+deploy/**/.env
+deploy/**/*.env
+!deploy/**/*.env.example
+deploy/k8s/**/secret.yaml
+deploy/compose/.deploy-history
+*.dump

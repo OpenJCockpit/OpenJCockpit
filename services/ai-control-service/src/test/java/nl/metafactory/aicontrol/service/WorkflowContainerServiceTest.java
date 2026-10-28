@@ -23,6 +23,7 @@ class WorkflowContainerServiceTest {
     void setUp() {
         runtime = mock(ContainerRuntime.class);
         properties = new AgenticWorkflowProperties();
+        properties.getContainer().setEnabled(true); // opt-in (default off since the production-readiness hardening)
         properties.setCleanupEnabled(true);
         service = new WorkflowContainerService(runtime, properties);
     }

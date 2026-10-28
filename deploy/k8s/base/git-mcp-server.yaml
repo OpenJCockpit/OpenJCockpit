@@ -1,0 +1,131 @@
+# git-mcp-server: unauthenticated MCP server, reachable only from LiteLLM and embabel-agent-service (NetworkPolicy).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: git-mcp-server
+  labels:
+    app.kubernetes.io/name: git-mcp-server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: git-mcp-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: git-mcp-server
+        app.kubernetes.io/part-of: openjcockpit
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9090'
+        prometheus.io/path: /actuator/prometheus
+    spec:
+      serviceAccountName: openjcockpit
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: git-mcp-server
+        image: openjcockpit/git-mcp-server
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8093
+        - name: management
+          containerPort: 9090
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: prod
+        - name: MANAGEMENT_PORT
+          value: '9090'
+        - name: GIT_MCP_WORKSPACE_BASE
+          value: /git-mcp-workspaces
+        - name: GIT_MCP_AI_CONTROL_URL
+          value: http://ai-control-service:8080
+        - name: KEYCLOAK_TOKEN_URL
+          value: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
+        - name: GIT_MCP_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: GIT_MCP_CLIENT_SECRET
+        resources:
+          requests:
+            cpu: 100m
+            memory: 1Gi
+          limits:
+            cpu: '1'
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: workspaces
+          mountPath: /git-mcp-workspaces
+        startupProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+          periodSeconds: 5
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+          periodSeconds: 15
+          failureThreshold: 4
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+          periodSeconds: 10
+          failureThreshold: 3
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 256Mi
+      - name: workspaces
+        persistentVolumeClaim:
+          claimName: git-mcp-workspaces
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: git-mcp-server
+  labels:
+    app.kubernetes.io/name: git-mcp-server
+spec:
+  selector:
+    app.kubernetes.io/name: git-mcp-server
+  ports:
+  - name: http
+    port: 8093
+    targetPort: http
+  - name: management
+    port: 9090
+    targetPort: management
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: git-mcp-workspaces
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi

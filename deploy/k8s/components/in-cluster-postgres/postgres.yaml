@@ -1,0 +1,159 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  labels: {app.kubernetes.io/name: postgres}
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector: {matchLabels: {app.kubernetes.io/name: postgres}}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: postgres, app.kubernetes.io/part-of: openjcockpit}
+    spec:
+      serviceAccountName: openjcockpit
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 70          # postgres user of the alpine image
+        runAsGroup: 70
+        fsGroup: 70
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: postgres
+          image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+          ports: [{name: postgres, containerPort: 5432}]
+          env:
+            - {name: PGDATA, value: /var/lib/postgresql/data/pgdata}
+            - {name: POSTGRES_DB, value: postgres}
+            - {name: POSTGRES_USER, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: POSTGRES_SUPERUSER}}}
+            - {name: POSTGRES_PASSWORD, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: POSTGRES_SUPERUSER_PASSWORD}}}
+            - {name: KEYCLOAK_DB_PASSWORD, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: KEYCLOAK_DB_PASSWORD}}}
+            - {name: OPENJCOCKPIT_DB_PASSWORD, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: OPENJCOCKPIT_DB_PASSWORD}}}
+            - {name: EMBABEL_DB_PASSWORD, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: EMBABEL_DB_PASSWORD}}}
+            - {name: LITELLM_DB_PASSWORD, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: LITELLM_DB_PASSWORD}}}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          resources:
+            requests: {cpu: 250m, memory: 1Gi}
+            limits: {cpu: "2", memory: 2Gi}
+          readinessProbe:
+            exec: {command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d postgres"]}
+            periodSeconds: 10
+          livenessProbe:
+            exec: {command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d postgres"]}
+            periodSeconds: 30
+          volumeMounts:
+            - {name: data, mountPath: /var/lib/postgresql/data}
+            - {name: run, mountPath: /var/run/postgresql}
+            - {name: tmp, mountPath: /tmp}
+            - {name: init, mountPath: /docker-entrypoint-initdb.d, readOnly: true}
+      volumes:
+        - {name: run, emptyDir: {}}
+        - {name: tmp, emptyDir: {sizeLimit: 256Mi}}
+        - {name: init, configMap: {name: postgres-init}}
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources: {requests: {storage: 50Gi}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels: {app.kubernetes.io/name: postgres}
+spec:
+  selector: {app.kubernetes.io/name: postgres}
+  ports: [{name: postgres, port: 5432, targetPort: postgres}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: postgres}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: postgres}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - {key: app.kubernetes.io/name, operator: In,
+                 values: [ai-control-service, embabel-agent-service, keycloak, litellm, openjcockpit-backup]}
+      ports: [{port: 5432}]
+  egress: []
+---
+# Nightly logical backup (pg_dump per database) to a dedicated volume; copy it off-cluster with your
+# storage tooling. Failures surface as the OpenJCockpitBackupFailed / BackupTooOld alerts.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: openjcockpit-backup
+spec:
+  schedule: "15 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels: {app.kubernetes.io/name: openjcockpit-backup, app.kubernetes.io/part-of: openjcockpit}
+        spec:
+          restartPolicy: Never
+          serviceAccountName: openjcockpit
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 70
+            fsGroup: 70
+            seccompProfile: {type: RuntimeDefault}
+          containers:
+            - name: backup
+              image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+              command:
+                - sh
+                - -ec
+                - |
+                  out="/backups/$(date -u +%Y%m%dT%H%M%SZ)"; mkdir -p "$out"
+                  pg_dumpall -h postgres --globals-only > "$out/globals.sql"
+                  for db in keycloak openjcockpit embabel litellm; do
+                    pg_dump -h postgres -Fc --no-owner "$db" > "$out/$db.dump"
+                    pg_restore --list "$out/$db.dump" > /dev/null
+                  done
+                  (cd "$out" && sha256sum ./* > MANIFEST)
+                  find /backups -mindepth 1 -maxdepth 1 -type d -mtime +14 -exec rm -rf {} +
+                  echo "backup: $out"
+              env:
+                - {name: PGUSER, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: POSTGRES_SUPERUSER}}}
+                - {name: PGPASSWORD, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: POSTGRES_SUPERUSER_PASSWORD}}}
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities: {drop: [ALL]}
+              resources:
+                requests: {cpu: 50m, memory: 128Mi}
+                limits: {cpu: "1", memory: 512Mi}
+              volumeMounts: [{name: backups, mountPath: /backups}]
+          volumes:
+            - name: backups
+              persistentVolumeClaim: {claimName: openjcockpit-backups}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: openjcockpit-backups}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: {requests: {storage: 50Gi}}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: backup}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: openjcockpit-backup}}
+  policyTypes: [Egress]
+  egress:
+    - to: [{podSelector: {matchLabels: {app.kubernetes.io/name: postgres}}}]
+      ports: [{port: 5432}]

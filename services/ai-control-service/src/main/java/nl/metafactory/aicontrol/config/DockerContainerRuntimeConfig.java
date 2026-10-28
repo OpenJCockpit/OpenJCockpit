@@ -38,11 +38,12 @@ public class DockerContainerRuntimeConfig {
     @Bean
     @ConditionalOnProperty(name = "agentic.workflow.container.enabled", havingValue = "true", matchIfMissing = true)
     public ContainerRuntime dockerContainerRuntime(AgenticWorkflowProperties properties) {
-        return new DockerContainerRuntime(buildDockerClient(properties.getContainer().getDockerHost()));
+        return new DockerContainerRuntime(buildDockerClient(properties.getContainer().getDockerHost()),
+                properties.getContainer());
     }
 
     @Bean
-    @ConditionalOnProperty(name = "agentic.workflow.container.enabled", havingValue = "false")
+    @ConditionalOnProperty(name = "agentic.workflow.container.enabled", havingValue = "false", matchIfMissing = true)
     public ContainerRuntime noOpContainerRuntime() {
         return new NoOpContainerRuntime();
     }
@@ -69,8 +70,12 @@ public class DockerContainerRuntimeConfig {
     static class DockerContainerRuntime implements ContainerRuntime {
 
         private final DockerClient docker;
+        private final AgenticWorkflowProperties.Container limits;
 
-        DockerContainerRuntime(DockerClient docker) { this.docker = (DockerClient) docker; }
+        DockerContainerRuntime(DockerClient docker, AgenticWorkflowProperties.Container limits) {
+            this.docker = docker;
+            this.limits = limits;
+        }
 
         @Override
         public void checkAvailability(String image, int timeoutSeconds) throws Exception {
@@ -110,20 +115,44 @@ public class DockerContainerRuntimeConfig {
         @Override
         public String createContainer(String image, UUID jobId, UUID projectId,
                                       long tmpfsSizeMb, long memoryBytes, Map<String, String> labels) {
-            var hostConfig = HostConfig.newHostConfig()
-                    .withTmpFs(Map.of("/workspace", "rw,size=" + tmpfsSizeMb + "m"))
-                    .withMemory(memoryBytes)
-                    .withCapDrop(Capability.ALL)
-                    .withNetworkMode("bridge");
-
             var response = docker.createContainerCmd(image)
                     .withName("workflow-" + jobId)
                     .withLabels(labels)
-                    .withHostConfig(hostConfig)
+                    .withHostConfig(hardenedHostConfig(limits, tmpfsSizeMb, memoryBytes))
                     .withCmd("sleep", "infinity")
                     .withUser("1000:1000")
                     .exec();
             return response.getId();
+        }
+
+        /**
+         * Least privilege for a job container: no capabilities, no privilege escalation, read-only root
+         * filesystem (only a size-capped, noexec tmpfs workspace and /tmp are writable), no host mounts, no
+         * swap beyond the memory limit, bounded CPU and process count, and no network unless an operator
+         * configured a dedicated one.
+         */
+        static HostConfig hardenedHostConfig(AgenticWorkflowProperties.Container limits, long tmpfsSizeMb, long memoryBytes) {
+            String network = limits.getNetworkMode() == null || limits.getNetworkMode().isBlank()
+                    ? "none" : limits.getNetworkMode().trim();
+            // Sharing the host's or another container's network namespace would defeat the isolation.
+            if (network.equals("host") || network.startsWith("container:")) {
+                throw new IllegalStateException("Job container network mode '" + network + "' is not allowed");
+            }
+            return HostConfig.newHostConfig()
+                    .withTmpFs(Map.of(
+                            "/workspace", "rw,noexec,nosuid,nodev,size=" + tmpfsSizeMb + "m",
+                            "/tmp", "rw,noexec,nosuid,nodev,size=64m"))
+                    .withReadonlyRootfs(true)
+                    .withPrivileged(false)
+                    .withCapDrop(Capability.ALL)
+                    .withSecurityOpts(List.of("no-new-privileges:true"))
+                    .withMemory(memoryBytes)
+                    .withMemorySwap(memoryBytes)
+                    .withNanoCPUs((long) (limits.getCpus() * 1_000_000_000L))
+                    .withPidsLimit(limits.getPidsLimit())
+                    .withIpcMode("private")
+                    .withInit(true)
+                    .withNetworkMode(network);
         }
 
         @Override

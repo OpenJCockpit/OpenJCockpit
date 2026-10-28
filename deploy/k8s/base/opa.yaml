@@ -1,0 +1,110 @@
+# opa: policy decision point; reachable from embabel-agent-service only. Policies come from the
+# reviewed infrastructure/opa/policies files (ConfigMap, rolled out with the release).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opa
+  labels:
+    app.kubernetes.io/name: opa
+spec:
+  replicas: 2
+  revisionHistoryLimit: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: opa
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: opa
+        app.kubernetes.io/part-of: openjcockpit
+      annotations:
+        prometheus.io/scrape: 'false'
+        prometheus.io/port: '9090'
+        prometheus.io/path: /actuator/prometheus
+    spec:
+      serviceAccountName: openjcockpit
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: opa
+        image: openpolicyagent/opa:0.70.0@sha256:2b1c4b231f6dfa6a2baea4af4109203b10cd4b65e836d72f03bfe5d8dfce7095
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8181
+        env: []
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            cpu: '1'
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: policies
+          mountPath: /policies
+          readOnly: true
+        - name: config
+          mountPath: /config
+          readOnly: true
+        args:
+        - run
+        - --server
+        - --addr=0.0.0.0:8181
+        - --config-file=/config/config.yaml
+        - --log-format=json
+        - /policies
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /health?bundles
+            port: http
+          periodSeconds: 10
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 256Mi
+      - name: policies
+        configMap:
+          name: opa-policies
+      - name: config
+        configMap:
+          name: opa-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opa
+  labels:
+    app.kubernetes.io/name: opa
+spec:
+  selector:
+    app.kubernetes.io/name: opa
+  ports:
+  - name: http
+    port: 8181
+    targetPort: http

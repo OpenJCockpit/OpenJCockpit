@@ -143,24 +143,63 @@ warning:**
   version that predates the whole feature, i.e. one whose code has never heard
   of the `approvalGate:` field.
 
-### In-flight paused runs do not survive a restart or redeploy
+### Paused runs survive a restart or redeploy
 
-A run that is currently sitting at an approval gate, waiting for a human
-decision, is held in memory only. It does **not** survive a restart or
-redeploy of `embabel-agent-service`. After such a restart, polling that run's
-id will show the "run state lost" outcome described above, and the workflow
-must be started over from scratch. There is no way to resume a paused run
-across a restart.
+A run that is sitting at an approval gate, waiting for a human decision, is
+stored in the database (table `agent_parked_runs`, Flyway `V7`) at the moment
+the gate opens, in the same transaction that records the run as
+`AWAITING_APPROVAL`. It survives a restart or redeploy of
+`embabel-agent-service`:
 
-Approval decisions that were **already made** before the restart are not lost:
-they are recorded durably (under the same `workflow-definitions` volume the
-audit trail already uses) and remain readable afterwards. Only the in-progress,
-not-yet-decided run state is lost, never the historical decision record.
+- **Startup.** The reconciler marks only runs that were genuinely in flight
+  (non-terminal and **not** parked at a gate) as "run state lost". The
+  rehydrator then re-adopts every parked run: the run is live again with status
+  `AWAITING_APPROVAL`, the gate context can be opened, and Accept, Accept with
+  comments, Deny and Stop work exactly as before the restart.
+- **What is restored.** Everything the resumed run reads: the start request,
+  the workflow input, which agents already ran and their outputs, started
+  workflow orbs, and the full gate state (iteration, decided iterations,
+  comment history, last change report, retained branch and pull-request URL).
+  The run's scope is registered again (workflow id, run id and, for runs on a
+  project, the git workspace binding: workspace key, repository and branch),
+  so the agents of the resumed run are attributed to the run for tool-call
+  policy and use the same git workspace as before.
+- **Exactly one decision wins.** A decision claims the parked run with a
+  row-count-checked database delete (run id + gate iteration + version). Of
+  any number of simultaneous decisions, in one instance or several instances
+  over the same database, exactly one resumes the run; the others get `409`.
+- **A gate that cannot be restored fails, it never hangs.** If a stored
+  snapshot cannot be read (corrupt, or written in an unsupported format), the
+  run is marked `FAILED` with the persisted reason "Approval gate state could
+  not be restored after a restart; the run cannot be resumed" (also recorded
+  as a run event). A stored gate for a run that already finished is discarded.
 
-**Operational guidance:** before restarting or redeploying
-`embabel-agent-service`, check whether any runs are currently sitting at an
-approval gate awaiting a decision, and let operators know those runs will need
-to be restarted from scratch. The `approval_gate_paused_runs` metric reports paused runs.
+Limits:
+
+- **Runs that were executing** an agent (not waiting at a gate) when the
+  service stopped are not resumed; they show "run state lost" and must be
+  started again. The same applies to a run waiting for a child workflow
+  (`AWAITING_CHILD_WORKFLOW`): that wait is still held in memory only.
+- **The git token of the start request is not stored.** The engine does not
+  use it (the git MCP server resolves its own credentials for the workspace),
+  but a child workflow started by a workflow orb *after* a resumed gate gets no
+  git token.
+- **The git workspace itself lives in `git-mcp-server`.** Only its binding is
+  stored. If that workspace no longer exists when the run resumes (for example
+  `git-mcp-server` lost its volume), the checkpoint after each agent is
+  recorded as failed ("git workspace unavailable") and the agents' git tools
+  return errors; nothing waits for the missing workspace.
+- **Git-workspace tickets** are single-use and consumed when the run starts;
+  a resumed run does not need them. An *unredeemed* ticket is still lost on
+  restart, and that start must be retried.
+- The startup reconciler assumes a single `embabel-agent-service` instance: it
+  marks every non-parked, non-terminal run as lost, including runs another
+  live instance would still be executing.
+
+Approval decisions themselves were already recorded durably (under the same
+`workflow-definitions` volume the audit trail uses) and remain readable
+afterwards. The parked-run count behind the `approval_gate_paused_runs` metric is read
+from the database, so it is correct across restarts.
 
 Also note that a git-workspace job follows its run for at most `WORKFLOW_AGENT_TIMEOUT` (locally
 3600 s), **including while a gate is waiting**, and then stops the run. See

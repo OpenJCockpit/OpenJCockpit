@@ -18,6 +18,24 @@ decision = result {
 		"auditTags": ["missing-identifier"],
 	}
 } else = result {
+	forbidden_tool
+	result := {
+		"allowed": false,
+		"reason": sprintf("Tool operation '%v' is forbidden by policy.", [tool_label]),
+		"requiredApproval": false,
+		"riskLevel": "critical",
+		"auditTags": ["guardrail", "forbidden-operation"],
+	}
+} else = result {
+	unknown_tool
+	result := {
+		"allowed": false,
+		"reason": sprintf("Tool '%v' is not a known tool family; tools are denied by default.", [tool_label]),
+		"requiredApproval": false,
+		"riskLevel": "high",
+		"auditTags": ["guardrail", "unknown-tool"],
+	}
+} else = result {
 	input.projectClassification == "restricted"
 	not input.humanApproval
 	result := {
@@ -59,4 +77,59 @@ missing_identifier {
 
 missing_identifier {
 	input.customerId == ""
+}
+
+# ── Tool guardrails ──────────────────────────────────────────────────────────────────────────────
+# Agents' tools (embabel-agent-runtime) are `git.<op>`; the MCP gateway uses `git_<op>`. Anything
+# else is unknown and denied; destructive or history-rewriting operations are denied explicitly.
+
+tool_call {
+	input.action == "mcp.tool.invoke"
+}
+
+known_tool_prefixes := {"git.", "git_"}
+
+# Never undefined: a reason built from an undefined value would make a deny branch fall through to allow.
+default tool_label := "<none>"
+
+tool_label := input.mcpToolName {
+	is_string(input.mcpToolName)
+}
+
+forbidden_tool_operations := {
+	"force_push", "push_force", "reset_hard", "reset", "rebase", "delete_branch",
+	"delete_repository", "exec", "shell", "run_command",
+}
+
+tool_operation := op {
+	startswith(input.mcpToolName, "git.")
+	op := substring(input.mcpToolName, 4, -1)
+} else := op {
+	startswith(input.mcpToolName, "git_")
+	op := substring(input.mcpToolName, 4, -1)
+} else := lower(input.mcpToolName)
+
+forbidden_tool {
+	tool_call
+	forbidden_tool_operations[tool_operation]
+}
+
+forbidden_tool {
+	tool_call
+	lower(input.mcpToolOperation) == forbidden_tool_operations[_]
+}
+
+unknown_tool {
+	tool_call
+	not input.mcpToolName
+}
+
+unknown_tool {
+	tool_call
+	is_string(input.mcpToolName)
+	not has_known_prefix(input.mcpToolName)
+}
+
+has_known_prefix(name) {
+	startswith(name, known_tool_prefixes[_])
 }

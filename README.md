@@ -34,8 +34,10 @@ built, which agents may do what, and where a human must approve. The agents do t
 review.
 
 > **Status:** active development. Java application development is the primary focus. The repository
-> ships a local Docker Compose stack for evaluation and development. It is not yet production-hardened;
-> see [Known limitations](docs/readme/operations/known-limitations.md).
+> ships a local Docker Compose stack for development and production profiles for Kubernetes and VM/VPS
+> ([Production runbook](docs/readme/operations/production-runbook.md),
+> [Security review](docs/readme/governance/security-review.md)). Read the
+> [Known limitations](docs/readme/operations/known-limitations.md) before deploying.
 
 ## Why OpenJCockpit?
 
