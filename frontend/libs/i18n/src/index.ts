@@ -1,3 +1,4 @@
+export type { Resources } from './resources';
 export { createI18n, DEFAULT_NAMESPACE, type CreateI18nOptions } from './createI18n';
 export { I18nProvider } from './I18nProvider';
 export { useLocale, type LocaleContextValue } from './LocaleContext';

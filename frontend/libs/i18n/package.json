@@ -10,7 +10,8 @@
     "./testing": "./src/testing/index.ts"
   },
   "scripts": {
-    "format:check": "prettier --check . --ignore-path ../../.prettierignore"
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore",
+    "check:i18n": "node scripts/check-i18n.mjs"
   },
   "dependencies": {
     "i18next": "26.5.11",

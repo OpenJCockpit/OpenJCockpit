@@ -9,7 +9,9 @@ import { renderWithI18n } from './testing';
 
 function Greeting() {
   const { t } = useTranslation();
-  return <p>{t('greeting')}</p>;
+  // Injected at runtime, so the typed key set (en.json) does not know it.
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- the rule misreads the empty (`never`) key union
+  return <p>{t('greeting' as never)}</p>;
 }
 
 describe('I18nProvider', () => {

@@ -17,6 +17,12 @@
         "command": "vitest run --coverage",
         "cwd": "{projectRoot}"
       }
+    },
+    "check-i18n": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "check:i18n"
+      }
     }
   }
 }

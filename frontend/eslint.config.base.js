@@ -4,6 +4,7 @@ import tseslint from 'typescript-eslint';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
 import eslintComments from '@eslint-community/eslint-plugin-eslint-comments';
+import i18next from 'eslint-plugin-i18next';
 import prettierConfig from 'eslint-config-prettier/flat';
 import globals from 'globals';
 import nx from '@nx/eslint-plugin';
@@ -154,6 +155,23 @@ export function createConfig(tsconfigRootDir) {
       extends: [js.configs.recommended],
       languageOptions: {
         globals: globals.node,
+      },
+    },
+
+    // User-facing copy must go through `t()` (docs/i18n-plan.md). Warn while the migration is
+    // in flight; raise to 'error' once phase 4 has finished. Tests and stories keep literals.
+    {
+      files: ['src/**/*.tsx'],
+      ignores: ['src/**/*.test.tsx', 'src/**/testing/**'],
+      ...i18next.configs['flat/recommended'],
+      rules: {
+        'i18next/no-literal-string': [
+          'warn',
+          {
+            mode: 'jsx-only',
+            'jsx-attributes': { include: ['aria-label', 'placeholder', 'title', 'alt'] },
+          },
+        ],
       },
     },
 

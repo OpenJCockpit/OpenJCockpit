@@ -54,6 +54,18 @@ See the [Quickstart](docs/readme/getting-started/quickstart.md) for the full sta
 - Never commit secrets, tokens or client secrets in code, configuration or the frontend bundle.
 - Avoid introducing unrelated refactors in the same change.
 
+## Frontend translations
+
+User-facing dashboard copy goes through `t()` from `@openjcockpit/i18n` (see [docs/i18n-plan.md](docs/i18n-plan.md)). Backend, docs and agent/workflow output are not translated.
+
+- Strings live in `<lib>/src/locales/<locale>.json`, one namespace per lib. English (`en.json`) is the source; other locales must match its keys and `{{placeholders}}`.
+- Name keys `feature.component.element`, e.g. `queue.header.title`.
+- No string concatenation: use interpolation (`t('queue.count', { count })`), never `t('a') + name`.
+- Plurals use `_one` / `_other` suffixes, not hand-written `count === 1 ? ... : ...`.
+- Translate `aria-label`, `placeholder`, `title` and `alt` too. Never translate enum values sent to or received from the API; map them to keys in the presentation layer.
+- Format dates and numbers with the helpers from `@openjcockpit/i18n`, not `toLocaleString()`.
+- Keys must be literal (or a static prefix plus a template) so `npm run check:i18n` can trace them. `i18next/no-literal-string` warns on hard-coded JSX text and will become an error once the migration is finished.
+
 ## Pull requests
 
 1. Fork or branch from the repository's default branch.
