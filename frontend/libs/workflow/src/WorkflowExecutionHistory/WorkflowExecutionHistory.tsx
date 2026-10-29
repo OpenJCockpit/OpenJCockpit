@@ -1,5 +1,6 @@
 import { formatRunDuration, runStatusKind, runStatusLabel } from '@openjcockpit/api';
 import type { WorkflowExecutionPage } from '@openjcockpit/api';
+import { useFormatters, useTranslation } from '@openjcockpit/i18n';
 import { StatusChip, Button, cx } from '@openjcockpit/ui';
 import styles from './WorkflowExecutionHistory.module.scss';
 
@@ -25,6 +26,8 @@ export function WorkflowExecutionHistory({
   selectedRunId,
   className,
 }: Props) {
+  const { t } = useTranslation('api');
+  const { formatDateTime } = useFormatters();
   return (
     <section className={cx(styles.workflowExecutionHistory, className)}>
       <h3>Execution history</h3>
@@ -82,16 +85,16 @@ export function WorkflowExecutionHistory({
                       {item.runId}
                     </button>
                   </td>
-                  <td>{new Date(item.startedAt).toLocaleString()}</td>
-                  <td>{item.completedAt ? new Date(item.completedAt).toLocaleString() : 'n/a'}</td>
-                  <td>{formatRunDuration(item.startedAt, item.completedAt)}</td>
+                  <td>{formatDateTime(item.startedAt)}</td>
+                  <td>{item.completedAt ? formatDateTime(item.completedAt) : t('notAvailable')}</td>
+                  <td>{formatRunDuration(item.startedAt, item.completedAt, t)}</td>
                   <td>
                     <StatusChip
-                      label={runStatusLabel(item.status)}
+                      label={runStatusLabel(item.status, t)}
                       kind={runStatusKind(item.status)}
                     />
                   </td>
-                  <td>{item.startedBy ?? 'n/a'}</td>
+                  <td>{item.startedBy ?? t('notAvailable')}</td>
                 </tr>
               ))}
             </tbody>

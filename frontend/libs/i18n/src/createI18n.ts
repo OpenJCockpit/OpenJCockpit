@@ -28,7 +28,7 @@ export function createI18n({
     fallbackLng: FALLBACK_LOCALE,
     defaultNS: DEFAULT_NAMESPACE,
     ns: [DEFAULT_NAMESPACE],
-    resources: { en: { ...en, ...resources.en }, ...resources },
+    resources: { ...resources, en: { ...en, ...resources.en } },
     interpolation: { escapeValue: false },
   });
   return instance;

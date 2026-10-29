@@ -1,3 +1,4 @@
+import type { TFunction } from '@openjcockpit/i18n';
 import { referenceLabel } from './referenceLabel';
 import type {
   AgentCard,
@@ -61,23 +62,26 @@ export function runStatusKind(status: string): StatusKind {
   }
 }
 
-export function runStatusLabel(status: string): string {
-  if (status === 'AWAITING_APPROVAL') return 'Awaiting approval';
-  if (status === 'AWAITING_CHILD_WORKFLOW') return 'Waiting for child workflow';
-  if (status === 'TIMED_OUT') return 'Timed out';
-  if (status === 'BLOCKED') return 'Blocked';
+// The status is an API enum and stays the identifier; only its presentation is translated.
+// Statuses without a label are shown as received.
+export function runStatusLabel(status: string, t: TFunction<'api'>): string {
+  if (status === 'AWAITING_APPROVAL') return t('runStatus.AWAITING_APPROVAL');
+  if (status === 'AWAITING_CHILD_WORKFLOW') return t('runStatus.AWAITING_CHILD_WORKFLOW');
+  if (status === 'TIMED_OUT') return t('runStatus.TIMED_OUT');
+  if (status === 'BLOCKED') return t('runStatus.BLOCKED');
   return status;
 }
 
-// Renders 'n/a' (matching this codebase's existing "n/a" placeholder convention
+// Renders the translated "n/a" (matching this codebase's existing "n/a" placeholder convention
 // for missing optional values) when the run is still in progress. Never derives
 // a fake elapsed time from `now` for a still-running execution — a running
 // execution's duration must never look like a completed duration.
 export function formatRunDuration(
   startedAt: string | Date,
   completedAt: string | Date | null | undefined,
+  t: TFunction<'api'>,
 ): string {
-  if (completedAt === null || completedAt === undefined) return 'n/a';
+  if (completedAt === null || completedAt === undefined) return t('notAvailable');
   const start = new Date(startedAt).getTime();
   const end = new Date(completedAt).getTime();
   const totalMs = Math.max(0, end - start);
@@ -94,6 +98,7 @@ export function buildAgentCards(
   workflow: WorkflowDefinition | null,
   definitions: AgentDefinition[],
   latestEvents: Record<string, AgentEvent>,
+  t: TFunction<'api'>,
 ): AgentCard[] {
   if (!workflow) return [];
   return workflow.agentIds.map((id) => {
@@ -104,9 +109,13 @@ export function buildAgentCards(
     return {
       kind: 'agent',
       id,
-      name: definition?.name ?? referenceLabel(id),
+      name: definition?.name ?? referenceLabel(id, t),
       description: definition?.description ?? '',
-      status: isActive ? 'Active' : isDone ? 'Done' : 'Waiting',
+      status: isActive
+        ? t('agentCard.active')
+        : isDone
+          ? t('agentCard.done')
+          : t('agentCard.waiting'),
       statusKind: isActive ? 'active' : isDone ? 'done' : 'waiting',
     };
   });
@@ -118,6 +127,7 @@ export function buildSequencerNodes(
   runEvents: AgentEvent[],
   runStatus: string | null,
   workflowNameById: Map<string, string>,
+  t: TFunction<'api'>,
 ): SequencerNode[] {
   if (!workflow || !workflow.workflowOrbs || workflow.workflowOrbs.length === 0) {
     return agentCards;
@@ -163,19 +173,19 @@ export function buildSequencerNodes(
   const orbCards: (OrbCard & { placementStage?: string })[] = orbs.map((orb, i) => {
     const referencedWorkflowName = workflowNameById.get(orb.workflowId) ?? orb.workflowId;
     const match = matches.get(i);
-    let status = 'Waiting';
+    let status = t('agentCard.waiting');
     let statusKind: StatusKind = 'waiting';
     let childRunId: string | undefined;
     if (match?.kind === 'failed' || match?.kind === 'refused') {
-      status = 'Blocked';
+      status = t('agentCard.blocked');
       statusKind = 'changes';
     } else if (match?.kind === 'started') {
       childRunId = match.event.evidenceRef.slice('run://'.length);
       if (orb.mode === 'SEQUENTIAL' && runStatus === 'AWAITING_CHILD_WORKFLOW') {
-        status = 'Running';
+        status = t('agentCard.running');
         statusKind = 'active';
       } else {
-        status = 'Done';
+        status = t('agentCard.done');
         statusKind = 'done';
       }
     }
@@ -206,7 +216,7 @@ export function buildSequencerNodes(
   const unanchoredOrbs = orbCards.filter((o) => !o.placementStage);
   const orphanedOrbs = orbCards
     .filter((o) => o.placementStage && !agentIdSet.has(o.placementStage))
-    .map((o) => ({ ...o, status: `${o.status} (anchor stage removed)` }));
+    .map((o) => ({ ...o, status: t('agentCard.orphanedAnchor', { status: o.status }) }));
   const anchoredOrbs = new Map<string, OrbCard[]>();
   for (const o of orbCards) {
     if (o.placementStage && agentIdSet.has(o.placementStage)) {

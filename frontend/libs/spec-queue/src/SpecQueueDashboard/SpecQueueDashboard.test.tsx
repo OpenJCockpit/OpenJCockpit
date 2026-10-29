@@ -24,6 +24,8 @@ vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
 import type { Project, SpecQueue, SpecQueueItem } from '@openjcockpit/api';
 import * as api from '@openjcockpit/api';
 import { isOpenJCockpitAdmin } from '@openjcockpit/auth';
+import { withI18n } from '@openjcockpit/i18n/testing';
+import { specQueueResources } from '../i18n';
 import { withQueryClient } from '../testQueryClient';
 import { SpecQueueDashboard } from './SpecQueueDashboard';
 
@@ -235,11 +237,13 @@ describe('SpecQueueDashboard', () => {
       const other = { id: 'p2', name: 'Other' } as Project;
       // One client across both renders, so the project switch is a key change, not a new cache.
       const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
-      const dashboard = (project: Project) => (
-        <QueryClientProvider client={client}>
-          <SpecQueueDashboard project={project} onBack={vi.fn()} />
-        </QueryClientProvider>
-      );
+      const dashboard = (project: Project) =>
+        withI18n(
+          <QueryClientProvider client={client}>
+            <SpecQueueDashboard project={project} onBack={vi.fn()} />
+          </QueryClientProvider>,
+          specQueueResources,
+        );
       const { rerender } = render(dashboard(PROJECT));
       vi.mocked(api.getSpecQueue).mockResolvedValue(queue({ projectId: 'p2', items: [item('z')] }));
       rerender(dashboard(other));
@@ -591,9 +595,12 @@ describe('SpecQueueDashboard', () => {
         return { autoMergeAllowed: true };
       });
       render(
-        <QueryClientProvider client={client}>
-          <SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />
-        </QueryClientProvider>,
+        withI18n(
+          <QueryClientProvider client={client}>
+            <SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />
+          </QueryClientProvider>,
+          specQueueResources,
+        ),
       );
       fireEvent.click(await screen.findByTestId('auto-merge-setting-toggle'));
       fireEvent.click(screen.getByTestId('confirm-action-confirm'));

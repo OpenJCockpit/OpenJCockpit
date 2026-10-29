@@ -7,10 +7,11 @@ import { ErrorBoundary } from '@openjcockpit/ui';
 import { loadKeycloakConfig } from '@openjcockpit/auth';
 import { createI18n, detectLocale, I18nProvider } from '@openjcockpit/i18n';
 import App from './App';
+import { appResources } from './i18nResources';
 import { createQueryClient } from './queryClient';
 
 const queryClient = createQueryClient();
-const i18n = createI18n({ locale: detectLocale() });
+const i18n = createI18n({ locale: detectLocale(), resources: appResources });
 
 // Keycloak settings come from the container at runtime; they must be loaded before the first login.
 void loadKeycloakConfig().then(() => {

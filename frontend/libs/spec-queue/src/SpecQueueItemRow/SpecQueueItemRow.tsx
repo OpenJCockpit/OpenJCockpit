@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import { StatusChip, Button } from '@openjcockpit/ui';
 import { failureReasonText, itemActions, itemPresentation, safeHttpUrl } from '../queueStatus';
 import type { SpecQueueItem } from '@openjcockpit/api';
@@ -42,9 +43,10 @@ export function SpecQueueItemRow({
   onSkip,
   onOpenRun,
 }: Props) {
+  const { t } = useTranslation('specQueue');
   const noteId = useId();
   const actions = itemActions(item.status);
-  const presentation = itemPresentation(item);
+  const presentation = itemPresentation(item, t);
   const spec = item.specFile;
   const runId = item.workflowRunId;
   const prUrls = item.pullRequestUrls.map(safeHttpUrl).filter((url): url is string => url !== null);
@@ -78,7 +80,7 @@ export function SpecQueueItemRow({
 
       {item.status === 'FAILED' && item.failureReason && (
         <p className={styles.queueItemFailure} data-testid="queue-item-failure">
-          {failureReasonText(item.failureReason)}
+          {failureReasonText(item.failureReason, t)}
         </p>
       )}
       {item.status === 'MERGING' && item.mergeState && (

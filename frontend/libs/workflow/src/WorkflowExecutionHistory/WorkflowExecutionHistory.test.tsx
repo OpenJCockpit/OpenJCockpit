@@ -1,7 +1,12 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithI18n } from '@openjcockpit/i18n/testing';
+import { apiResources } from '@openjcockpit/api';
 import { describe, expect, it, vi } from 'vitest';
 import { WorkflowExecutionHistory } from './WorkflowExecutionHistory';
 import type { WorkflowExecutionPage, WorkflowExecutionSummary } from '@openjcockpit/api';
+
+const render = (ui: ReactElement) => renderWithI18n(ui, { resources: apiResources });
 
 function item(overrides: Partial<WorkflowExecutionSummary> = {}): WorkflowExecutionSummary {
   return {

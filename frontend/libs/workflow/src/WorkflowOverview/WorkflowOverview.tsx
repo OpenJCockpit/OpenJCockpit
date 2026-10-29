@@ -1,5 +1,6 @@
 import { referenceLabel, runStatusKind } from '@openjcockpit/api';
 import type { AgentDefinition, Project, WorkflowDefinition } from '@openjcockpit/api';
+import { useFormatters, useTranslation, type TFunction } from '@openjcockpit/i18n';
 import {
   StatusChip,
   Eyebrow,
@@ -33,6 +34,7 @@ function agentSummary(
   agentIds: string[],
   index: Map<string, AgentDefinition>,
   degraded: boolean,
+  t: TFunction<'api'>,
 ): string {
   if (agentIds.length === 0) return 'None';
   if (degraded) {
@@ -41,12 +43,14 @@ function agentSummary(
   // in the workflow's execution order; references missing from the catalog stay visible
   const parts = agentIds.map((id) => {
     const agent = index.get(id);
-    return agent ? agent.name : `${referenceLabel(id)} (unrecognised)`;
+    return agent ? agent.name : `${referenceLabel(id, t)} (unrecognised)`;
   });
   return parts.join(', ');
 }
 
 export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTab }: Props) {
+  const { t } = useTranslation('api');
+  const { formatDateTime } = useFormatters();
   const {
     loaded,
     visibleWorkflows,
@@ -118,7 +122,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
               </div>
               <div>
                 <dt>Agents</dt>
-                <dd>{agentSummary(workflow.agentIds, agentIndex, catalogueError !== null)}</dd>
+                <dd>{agentSummary(workflow.agentIds, agentIndex, catalogueError !== null, t)}</dd>
               </div>
               <div>
                 <dt>Subagents</dt>
@@ -142,9 +146,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
                 <dt>Last execution</dt>
                 <dd>
                   {workflow.lastExecutionStatus ?? 'Never run'}
-                  {workflow.lastExecutionAt
-                    ? ` — ${new Date(workflow.lastExecutionAt).toLocaleString()}`
-                    : ''}
+                  {workflow.lastExecutionAt ? ` — ${formatDateTime(workflow.lastExecutionAt)}` : ''}
                 </dd>
               </div>
               <div>
@@ -155,7 +157,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
                     kind={opaEnabled ? 'ok' : 'waiting'}
                   />{' '}
                   {decisionSummaries[workflow.id]?.lastResult
-                    ? `Last decision: ${decisionSummaries[workflow.id]?.lastResult} (${decisionSummaries[workflow.id]?.lastDecisionId ?? 'n/a'})`
+                    ? `Last decision: ${decisionSummaries[workflow.id]?.lastResult} (${decisionSummaries[workflow.id]?.lastDecisionId ?? t('notAvailable')})`
                     : 'No decisions recorded yet'}
                 </dd>
               </div>

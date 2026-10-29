@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from '@openjcockpit/i18n';
 import {
   buildAgentCards,
   buildSequencerNodes,
@@ -66,6 +67,7 @@ export function WorkflowExecution({
   onRestartRequested,
   showHistory = true,
 }: Props) {
+  const { t } = useTranslation('api');
   // Container state: which run is currently selected (seeded from the runId prop when
   // a "just started" flow hands one in).
   const [selectedRunId, setSelectedRunId] = useState<string | null>(runId);
@@ -130,8 +132,8 @@ export function WorkflowExecution({
   }
 
   const agentCards = useMemo(
-    () => buildAgentCards(workflow, definitions, latestEvents),
-    [workflow, definitions, latestEvents],
+    () => buildAgentCards(workflow, definitions, latestEvents, t),
+    [workflow, definitions, latestEvents, t],
   );
 
   const workflowNameById = useMemo(
@@ -140,8 +142,8 @@ export function WorkflowExecution({
   );
 
   const sequencerNodes = useMemo(
-    () => buildSequencerNodes(workflow, agentCards, runEvents, runStatus, workflowNameById),
-    [workflow, agentCards, runEvents, runStatus, workflowNameById],
+    () => buildSequencerNodes(workflow, agentCards, runEvents, runStatus, workflowNameById, t),
+    [workflow, agentCards, runEvents, runStatus, workflowNameById, t],
   );
 
   const activeAgent = useMemo(
@@ -220,7 +222,7 @@ export function WorkflowExecution({
         </div>
         <div className={styles.workflowExecutionActions}>
           {runStatus && (
-            <StatusChip label={runStatusLabel(runStatus)} kind={runStatusKind(runStatus)} />
+            <StatusChip label={runStatusLabel(runStatus, t)} kind={runStatusKind(runStatus)} />
           )}
           {selectedRunId && !isTerminalRunStatus(runStatus ?? '') && (
             <Button variant="danger" onClick={() => handleStop(selectedRunId)} disabled={stopping}>

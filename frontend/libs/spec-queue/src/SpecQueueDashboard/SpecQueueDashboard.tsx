@@ -1,5 +1,6 @@
 import { useRef, useState, type ReactNode } from 'react';
 import type { Project, SpecQueueItem } from '@openjcockpit/api';
+import { useFormatters, useTranslation } from '@openjcockpit/i18n';
 import { AddToQueueDialog } from '../AddToQueueDialog/AddToQueueDialog';
 import { AutoMergeSettingToggle } from '../AutoMergeSettingToggle/AutoMergeSettingToggle';
 import { ConfirmActionDialog } from '../ConfirmActionDialog/ConfirmActionDialog';
@@ -27,11 +28,9 @@ interface Props {
   header?: ReactNode;
 }
 
-function localized(iso: string): string {
-  return new Date(iso).toLocaleString();
-}
-
 export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props) {
+  const { t } = useTranslation('specQueue');
+  const { formatDateTime } = useFormatters();
   const projectId = project?.id ?? null;
   const { queue, loadError, applyQueue, refresh, applyAutoMergeAllowed } = useSpecQueue(projectId);
   const [announcement, setAnnouncement] = useState('');
@@ -85,7 +84,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
           </div>
           {project && queue && (
             <div className={styles.specQueueControls}>
-              <span data-testid="queue-state">State: {queueStateText(queue.state)}</span>
+              <span data-testid="queue-state">State: {queueStateText(queue.state, t)}</span>
               {queue.state === 'ACTIVE' ? (
                 <Button
                   type="button"
@@ -186,8 +185,8 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                 role="status"
                 data-testid="queue-banner-poll-error"
               >
-                The last queue check failed: {pollErrorText(queue.lastPollError.code)} (
-                {localized(queue.lastPollError.at)}).
+                The last queue check failed: {pollErrorText(queue.lastPollError.code, t)} (
+                {formatDateTime(queue.lastPollError.at)}).
               </p>
             )}
             {loadError && (
@@ -226,7 +225,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
               )}
               {queue.lastPolledAt && (
                 <p className={styles.specQueuePolled} data-testid="queue-last-polled">
-                  Runner last checked: {localized(queue.lastPolledAt)}
+                  Runner last checked: {formatDateTime(queue.lastPolledAt)}
                 </p>
               )}
             </Panel>

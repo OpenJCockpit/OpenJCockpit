@@ -1,5 +1,6 @@
 import type { AgentDefinition } from '@openjcockpit/api';
 import { referenceLabel } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { Button, fieldHintClass } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
@@ -17,6 +18,7 @@ interface AgentPickerProps {
  * agents run one after another, each receiving the workflow input and the previous outputs.
  */
 export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPickerProps) {
+  const { t } = useTranslation('api');
   function toggle(id: string, checked: boolean) {
     onChange(checked ? [...agentIds, id] : agentIds.filter((existing) => existing !== id));
   }
@@ -69,7 +71,7 @@ export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPicker
             return (
               <li key={id}>
                 <span>
-                  {agent ? `${agent.name} (${agent.role})` : referenceLabel(id)}
+                  {agent ? `${agent.name} (${agent.role})` : referenceLabel(id, t)}
                   {!agent && <span className={fieldHintClass}> — not in the catalog</span>}
                 </span>
                 <Button

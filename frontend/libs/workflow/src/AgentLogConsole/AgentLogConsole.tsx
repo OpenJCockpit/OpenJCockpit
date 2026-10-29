@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { AgentEvent } from '@openjcockpit/api';
+import { useFormatters } from '@openjcockpit/i18n';
 import styles from './AgentLogConsole.module.scss';
 
 interface Props {
@@ -8,18 +9,26 @@ interface Props {
   isActive: boolean;
 }
 
-function formatTimestamp(timestamp: string): string {
-  const date = new Date(timestamp);
-  if (Number.isNaN(date.getTime())) return timestamp;
-  return date.toLocaleTimeString('en-GB', { hour12: false });
-}
-
-function formatLine(event: AgentEvent): string {
-  return `[${formatTimestamp(event.timestamp)}] ${event.status} — ${event.title}`;
-}
+// The console stays on a 24-hour clock whatever the locale; h23 avoids a "24:00:00" midnight.
+const LOG_TIME_FORMAT: Intl.DateTimeFormatOptions = {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+};
 
 export function AgentLogConsole({ events, agentName, isActive }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { formatTime } = useFormatters();
+
+  function formatTimestamp(timestamp: string): string {
+    if (Number.isNaN(new Date(timestamp).getTime())) return timestamp;
+    return formatTime(timestamp, LOG_TIME_FORMAT);
+  }
+
+  function formatLine(event: AgentEvent): string {
+    return `[${formatTimestamp(event.timestamp)}] ${event.status} — ${event.title}`;
+  }
 
   const content =
     events.length > 0 ? events.map(formatLine).join('\n') : '// waiting for agent output…';

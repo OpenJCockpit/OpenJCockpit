@@ -1,0 +1,23 @@
+{
+  "api": {
+    "runStatus": {
+      "AWAITING_APPROVAL": "Awaiting approval",
+      "AWAITING_CHILD_WORKFLOW": "Waiting for child workflow",
+      "TIMED_OUT": "Timed out",
+      "BLOCKED": "Blocked"
+    },
+    "agentCard": {
+      "active": "Active",
+      "done": "Done",
+      "waiting": "Waiting",
+      "blocked": "Blocked",
+      "running": "Running",
+      "orphanedAnchor": "{{status}} (anchor stage removed)"
+    },
+    "reference": {
+      "local": "{{name}} (Local)",
+      "a2a": "{{name}} ({{provider}})"
+    },
+    "notAvailable": "n/a"
+  }
+}

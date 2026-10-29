@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { fixedT } from '@openjcockpit/i18n/testing';
+import { apiResources } from '../i18n';
 
 import type { AgentEvent } from '../types/types';
 import {
@@ -10,6 +12,8 @@ import {
   runStatusLabel,
 } from './runStatus';
 import type { WorkflowDefinition } from './workflowTypes';
+
+const t = fixedT('api', apiResources);
 
 describe('runStatusKind', () => {
   it('returns ok for COMPLETED', () => {
@@ -52,24 +56,24 @@ describe('runStatusKind', () => {
 
 describe('runStatusLabel', () => {
   it('labels child-workflow, timeout and blocked states', () => {
-    expect(runStatusLabel('AWAITING_CHILD_WORKFLOW')).toBe('Waiting for child workflow');
-    expect(runStatusLabel('TIMED_OUT')).toBe('Timed out');
-    expect(runStatusLabel('BLOCKED')).toBe('Blocked');
+    expect(runStatusLabel('AWAITING_CHILD_WORKFLOW', t)).toBe('Waiting for child workflow');
+    expect(runStatusLabel('TIMED_OUT', t)).toBe('Timed out');
+    expect(runStatusLabel('BLOCKED', t)).toBe('Blocked');
   });
 
   it('returns Awaiting approval for AWAITING_APPROVAL', () => {
-    expect(runStatusLabel('AWAITING_APPROVAL')).toBe('Awaiting approval');
+    expect(runStatusLabel('AWAITING_APPROVAL', t)).toBe('Awaiting approval');
   });
 
   it('returns the raw status string unchanged for every other status', () => {
-    expect(runStatusLabel('COMPLETED')).toBe('COMPLETED');
-    expect(runStatusLabel('FAILED')).toBe('FAILED');
-    expect(runStatusLabel('CANCELLED')).toBe('CANCELLED');
-    expect(runStatusLabel('DENIED')).toBe('DENIED');
-    expect(runStatusLabel('RUN_STATE_LOST')).toBe('RUN_STATE_LOST');
-    expect(runStatusLabel('NOT_FOUND')).toBe('NOT_FOUND');
-    expect(runStatusLabel('RUNNING')).toBe('RUNNING');
-    expect(runStatusLabel('SOMETHING_UNKNOWN')).toBe('SOMETHING_UNKNOWN');
+    expect(runStatusLabel('COMPLETED', t)).toBe('COMPLETED');
+    expect(runStatusLabel('FAILED', t)).toBe('FAILED');
+    expect(runStatusLabel('CANCELLED', t)).toBe('CANCELLED');
+    expect(runStatusLabel('DENIED', t)).toBe('DENIED');
+    expect(runStatusLabel('RUN_STATE_LOST', t)).toBe('RUN_STATE_LOST');
+    expect(runStatusLabel('NOT_FOUND', t)).toBe('NOT_FOUND');
+    expect(runStatusLabel('RUNNING', t)).toBe('RUNNING');
+    expect(runStatusLabel('SOMETHING_UNKNOWN', t)).toBe('SOMETHING_UNKNOWN');
   });
 });
 
@@ -103,28 +107,30 @@ describe('isTerminalRunStatus', () => {
 
 describe('formatRunDuration', () => {
   it('formats a 2m 15s duration', () => {
-    expect(formatRunDuration('2024-01-01T00:00:00.000Z', '2024-01-01T00:02:15.000Z')).toBe(
+    expect(formatRunDuration('2024-01-01T00:00:00.000Z', '2024-01-01T00:02:15.000Z', t)).toBe(
       '2m 15s',
     );
   });
 
   it('returns n/a when completedAt is null', () => {
-    expect(formatRunDuration('2024-01-01T00:00:00.000Z', null)).toBe('n/a');
+    expect(formatRunDuration('2024-01-01T00:00:00.000Z', null, t)).toBe('n/a');
   });
 
   it('returns n/a when completedAt is undefined', () => {
-    expect(formatRunDuration('2024-01-01T00:00:00.000Z', undefined)).toBe('n/a');
+    expect(formatRunDuration('2024-01-01T00:00:00.000Z', undefined, t)).toBe('n/a');
   });
 
   it('returns 0s for a near-zero boundary case without throwing', () => {
     expect(() =>
-      formatRunDuration('2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.400Z'),
+      formatRunDuration('2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.400Z', t),
     ).not.toThrow();
-    expect(formatRunDuration('2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.400Z')).toBe('0s');
+    expect(formatRunDuration('2024-01-01T00:00:00.000Z', '2024-01-01T00:00:00.400Z', t)).toBe('0s');
   });
 
   it('formats an hour-scale duration', () => {
-    expect(formatRunDuration('2024-01-01T00:00:00.000Z', '2024-01-01T01:03:00.000Z')).toBe('1h 3m');
+    expect(formatRunDuration('2024-01-01T00:00:00.000Z', '2024-01-01T01:03:00.000Z', t)).toBe(
+      '1h 3m',
+    );
   });
 });
 
@@ -137,12 +143,17 @@ describe('buildAgentCards / buildSequencerNodes', () => {
   const event = (agentId: string, status: string) => ({ agentId, status }) as AgentEvent;
 
   it('derives agent card status from the latest events', () => {
-    const cards = buildAgentCards(workflow, [], {
-      a: event('a', 'DONE'),
-      b: event('b', 'RUNNING'),
-    });
+    const cards = buildAgentCards(
+      workflow,
+      [],
+      {
+        a: event('a', 'DONE'),
+        b: event('b', 'RUNNING'),
+      },
+      t,
+    );
     expect(cards.map((c) => c.statusKind)).toEqual(['done', 'active']);
-    expect(buildAgentCards(null, [], {})).toEqual([]);
+    expect(buildAgentCards(null, [], {}, t)).toEqual([]);
   });
 
   it('names agent cards from their definitions', () => {
@@ -150,16 +161,17 @@ describe('buildAgentCards / buildSequencerNodes', () => {
       workflow,
       [{ id: 'a', name: 'Alpha', description: 'First' } as never],
       {},
+      t,
     );
     expect(cards[0]).toMatchObject({ name: 'Alpha', description: 'First' });
   });
 
   it('returns the agent cards untouched without a workflow or without orbs', () => {
-    const cards = buildAgentCards(workflow, [], {});
-    expect(buildSequencerNodes(null, cards, [], null, new Map())).toBe(cards);
-    expect(buildSequencerNodes(workflow, cards, [], null, new Map())).toBe(cards);
+    const cards = buildAgentCards(workflow, [], {}, t);
+    expect(buildSequencerNodes(null, cards, [], null, new Map(), t)).toBe(cards);
+    expect(buildSequencerNodes(workflow, cards, [], null, new Map(), t)).toBe(cards);
     const empty = { ...workflow, workflowOrbs: [] } as unknown as WorkflowDefinition;
-    expect(buildSequencerNodes(empty, cards, [], null, new Map())).toBe(cards);
+    expect(buildSequencerNodes(empty, cards, [], null, new Map(), t)).toBe(cards);
   });
 
   it('places orbs: unanchored first, anchored after their stage, orphaned last', () => {
@@ -171,8 +183,8 @@ describe('buildAgentCards / buildSequencerNodes', () => {
         { workflowId: 'z', mode: 'PARALLEL', placementStage: 'gone' },
       ],
     } as WorkflowDefinition;
-    const cards = buildAgentCards(wf, [], {});
-    const nodes = buildSequencerNodes(wf, cards, [], null, new Map());
+    const cards = buildAgentCards(wf, [], {}, t);
+    const nodes = buildSequencerNodes(wf, cards, [], null, new Map(), t);
     expect(nodes.map((n) => n.id)).toEqual(['orb:1', 'a', 'orb:0', 'b', 'orb:2']);
     expect(nodes[4]?.status).toBe('Waiting (anchor stage removed)');
   });
@@ -187,7 +199,7 @@ describe('buildAgentCards / buildSequencerNodes', () => {
         agentIds: [],
         workflowOrbs: [{ workflowId: 'child', mode }],
       } as unknown as WorkflowDefinition;
-      return buildSequencerNodes(wf, [], events, runStatus, names)[0] as {
+      return buildSequencerNodes(wf, [], events, runStatus, names, t)[0] as {
         status: string;
         statusKind: string;
         childRunId?: string;
@@ -232,7 +244,7 @@ describe('buildAgentCards / buildSequencerNodes', () => {
         agentIds: [],
         workflowOrbs: [{ workflowId: 'mystery', mode: 'PARALLEL' }],
       } as unknown as WorkflowDefinition;
-      const [node] = buildSequencerNodes(wf, [], [], null, new Map());
+      const [node] = buildSequencerNodes(wf, [], [], null, new Map(), t);
       expect(node).toMatchObject({ referencedWorkflowName: 'mystery', status: 'Waiting' });
     });
 
@@ -253,7 +265,7 @@ describe('buildAgentCards / buildSequencerNodes', () => {
         orbEvent('Workflow orb refused: cycle'),
         orbEvent('Workflow orb refused: again'),
       ];
-      const nodes = buildSequencerNodes(wf, [], events, null, names) as {
+      const nodes = buildSequencerNodes(wf, [], events, null, names, t) as {
         status: string;
         childRunId?: string;
       }[];
@@ -271,7 +283,7 @@ describe('buildAgentCards / buildSequencerNodes', () => {
         ],
       } as unknown as WorkflowDefinition;
       const events = [orbEvent('Workflow orb refused: one'), orbEvent('Workflow orb refused: two')];
-      const nodes = buildSequencerNodes(wf, [], events, null, names);
+      const nodes = buildSequencerNodes(wf, [], events, null, names, t);
       expect(nodes.map((n) => n.status)).toEqual(['Blocked', 'Blocked']);
     });
   });

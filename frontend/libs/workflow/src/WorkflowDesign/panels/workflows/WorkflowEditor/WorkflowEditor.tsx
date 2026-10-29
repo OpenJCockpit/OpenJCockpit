@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { candidateOrbTargets } from '@openjcockpit/api';
 import type { AgentDefinition, WorkflowDefinition, WorkflowGroup } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { selectedStagesInOrder } from '../../../utils';
 import { AgentPicker } from './AgentPicker';
 import { SelectField, TextAreaField, TextField, fieldHintClass, cx } from '@openjcockpit/ui';
@@ -36,8 +37,9 @@ export function WorkflowEditor({
   orbError,
   saveError,
 }: WorkflowEditorProps) {
+  const { t } = useTranslation('api');
   function defaultGatePlacement(agentIds: string[]): string {
-    const ordered = selectedStagesInOrder(availableAgents, agentIds);
+    const ordered = selectedStagesInOrder(availableAgents, agentIds, t);
     return ordered[ordered.length - 1]?.id ?? '';
   }
 
@@ -143,7 +145,7 @@ export function WorkflowEditor({
               }))
             }
           >
-            {selectedStagesInOrder(availableAgents, form.agentIds).map((agent) => (
+            {selectedStagesInOrder(availableAgents, form.agentIds, t).map((agent) => (
               <option key={agent.id} value={agent.id}>
                 {agent.name}
               </option>
@@ -161,7 +163,7 @@ export function WorkflowEditor({
       <OrbEditor
         orbs={form.workflowOrbs ?? []}
         candidates={orbCandidates}
-        stages={selectedStagesInOrder(availableAgents, form.agentIds)}
+        stages={selectedStagesInOrder(availableAgents, form.agentIds, t)}
         error={orbError}
         onChange={(workflowOrbs) => setForm((f) => ({ ...f, workflowOrbs }))}
       />
