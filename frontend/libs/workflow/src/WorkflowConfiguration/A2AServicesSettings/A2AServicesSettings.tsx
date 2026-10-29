@@ -1,3 +1,4 @@
+import { useTranslation } from '@openjcockpit/i18n';
 import {
   StatusChip,
   SecretField,
@@ -24,6 +25,7 @@ import WorkflowConfigurationStyles from '../WorkflowConfiguration.module.scss';
  * it applies to every project.
  */
 export function A2AServicesSettings() {
+  const { t } = useTranslation('workflow');
   const {
     services,
     loaded,
@@ -45,12 +47,8 @@ export function A2AServicesSettings() {
 
   return (
     <div className={formClass}>
-      <h2 className={formTitleClass}>A2A services</h2>
-      <StatusMessage>
-        Gateways that host the A2A agents workflows can use. Their agents appear in Workflow design
-        → Agents. Services from the agent service&apos;s configuration are read-only. This
-        configuration is global — it applies to every project.
-      </StatusMessage>
+      <h2 className={formTitleClass}>{t('a2aServices.title')}</h2>
+      <StatusMessage>{t('a2aServices.intro')}</StatusMessage>
       {error && (
         <StatusMessage variant="error" role="alert">
           {error}
@@ -61,17 +59,17 @@ export function A2AServicesSettings() {
       )}
 
       {!loaded ? (
-        <StatusMessage role="status">Loading A2A services...</StatusMessage>
+        <StatusMessage role="status">{t('a2aServices.loading')}</StatusMessage>
       ) : (
         <div className={WorkflowConfigurationStyles.servicesTableWrap}>
           <DataTable>
             <thead>
               <tr>
-                <th>Service</th>
-                <th>Base URL</th>
-                <th>Credentials</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{t('a2aServices.columns.service')}</th>
+                <th>{t('a2aServices.columns.baseUrl')}</th>
+                <th>{t('a2aServices.columns.credentials')}</th>
+                <th>{t('a2aServices.columns.status')}</th>
+                <th>{t('a2aServices.columns.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -83,21 +81,25 @@ export function A2AServicesSettings() {
                       <strong>{service.name}</strong>
                       <span className={fieldHintClass}>
                         {service.id} ·{' '}
-                        {service.source === 'CONFIGURATION' ? 'from configuration' : 'added here'}
+                        {service.source === 'CONFIGURATION'
+                          ? t('a2aServices.source.CONFIGURATION')
+                          : t('a2aServices.source.ADDED')}
                       </span>
                     </td>
                     <td className={WorkflowConfigurationStyles.servicesUrl}>
                       {service.baseUrl}
                       {service.publicUrl && service.publicUrl !== service.baseUrl && (
-                        <span className={fieldHintClass}>public: {service.publicUrl}</span>
+                        <span className={fieldHintClass}>
+                          {t('a2aServices.publicUrl', { url: service.publicUrl })}
+                        </span>
                       )}
                     </td>
                     <td>
-                      {service.hasApiKey ? 'API key set' : 'No API key'}
+                      {service.hasApiKey ? t('a2aServices.apiKeySet') : t('a2aServices.noApiKey')}
                       <span className={fieldHintClass}>
                         {service.callerClientId
-                          ? `Caller identity: ${service.callerClientId}`
-                          : 'No caller identity'}
+                          ? t('a2aServices.callerIdentity', { id: service.callerClientId })
+                          : t('a2aServices.noCallerIdentity')}
                       </span>
                     </td>
                     <td>
@@ -113,28 +115,28 @@ export function A2AServicesSettings() {
                                 variant="secondary"
                                 onClick={() => void handleDelete(service)}
                               >
-                                Confirm remove
+                                {t('a2aServices.confirmRemove')}
                               </Button>
                               <Button variant="secondary" onClick={() => setConfirmDelete(null)}>
-                                Keep
+                                {t('a2aServices.keep')}
                               </Button>
                             </>
                           ) : (
                             <>
                               <Button variant="secondary" onClick={() => startEdit(service)}>
-                                Edit
+                                {t('shared.edit')}
                               </Button>
                               <Button
                                 variant="secondary"
                                 onClick={() => setConfirmDelete(service.id)}
                               >
-                                Remove
+                                {t('shared.remove')}
                               </Button>
                             </>
                           )}
                         </Actions>
                       ) : (
-                        <span className={fieldHintClass}>Read-only</span>
+                        <span className={fieldHintClass}>{t('shared.readOnly')}</span>
                       )}
                     </td>
                   </tr>
@@ -143,7 +145,7 @@ export function A2AServicesSettings() {
               {services.length === 0 && !error && (
                 <tr>
                   <td colSpan={5} className={fieldHintClass}>
-                    No A2A services configured yet.
+                    {t('a2aServices.empty')}
                   </td>
                 </tr>
               )}
@@ -155,66 +157,69 @@ export function A2AServicesSettings() {
       {editing ? (
         <div className={WorkflowConfigurationStyles.servicesForm}>
           <h3 className={WorkflowConfigurationStyles.servicesFormTitle}>
-            {editingService ? `Edit ${editingService.name}` : 'Add A2A service'}
+            {editingService
+              ? t('a2aServices.formTitleEdit', { name: editingService.name })
+              : t('a2aServices.formTitleAdd')}
           </h3>
-          <p className={fieldHintClass}>
-            A LiteLLM-compatible A2A gateway (agent registry at /v1/agents, agents at
-            /a2a/&lt;name&gt;).
-          </p>
+          <p className={fieldHintClass}>{t('a2aServices.formHint')}</p>
           <div className={cx(formGridClass, WorkflowConfigurationStyles.servicesFormGrid)}>
             <TextField
-              label="Id *"
+              label={t('a2aServices.fields.id')}
               value={form.id}
               onChange={(v) => setForm((f) => ({ ...f, id: v }))}
-              placeholder="acme-gateway"
+              placeholder={t('a2aServices.fields.idPlaceholder')}
               disabled={editingService !== null}
               hint={
                 editingService
-                  ? 'Workflows reference agents as a2a:<id>:<agent>, so the id cannot change.'
-                  : 'Lowercase letters, digits and hyphens; workflows reference agents as a2a:<id>:<agent>.'
+                  ? t('a2aServices.fields.idHintEdit')
+                  : t('a2aServices.fields.idHintAdd')
               }
             />
             <TextField
-              label="Name *"
+              label={t('a2aServices.fields.name')}
               value={form.name}
               onChange={(v) => setForm((f) => ({ ...f, name: v }))}
-              placeholder="Acme gateway"
+              placeholder={t('a2aServices.fields.namePlaceholder')}
             />
             <TextField
-              label="Base URL *"
+              label={t('a2aServices.fields.baseUrl')}
               value={form.baseUrl}
               onChange={(v) => setForm((f) => ({ ...f, baseUrl: v }))}
-              placeholder="http://litellm:4000"
-              hint="The address the agent service uses."
+              placeholder={t('a2aServices.fields.baseUrlPlaceholder')}
+              hint={t('a2aServices.fields.baseUrlHint')}
             />
             <TextField
-              label="Public URL"
+              label={t('a2aServices.fields.publicUrl')}
               value={form.publicUrl}
               onChange={(v) => setForm((f) => ({ ...f, publicUrl: v }))}
-              placeholder="https://a2a.example.com"
-              hint="The address users see in agent cards; defaults to the base URL."
+              placeholder={t('a2aServices.fields.publicUrlPlaceholder')}
+              hint={t('a2aServices.fields.publicUrlHint')}
             />
             <SecretField
-              label={editingService ? 'API key' : 'API key *'}
+              label={
+                editingService
+                  ? t('a2aServices.fields.apiKeyEdit')
+                  : t('a2aServices.fields.apiKeyAdd')
+              }
               hasValue={editingService?.hasApiKey ?? false}
               value={form.apiKey}
               onChange={(v) => setForm((f) => ({ ...f, apiKey: v }))}
             />
             <TextField
-              label="Caller token URL"
+              label={t('a2aServices.fields.callerTokenUrl')}
               value={form.callerTokenUrl}
               onChange={(v) => setForm((f) => ({ ...f, callerTokenUrl: v }))}
-              placeholder="https://idp.example.com/realms/x/protocol/openid-connect/token"
-              hint="Optional OAuth2 client-credentials identity the gateway forwards to its agents. Leave the URL and client id empty for none."
+              placeholder={t('a2aServices.fields.callerTokenUrlPlaceholder')}
+              hint={t('a2aServices.fields.callerTokenUrlHint')}
             />
             <TextField
-              label="Caller client id"
+              label={t('a2aServices.fields.callerClientId')}
               value={form.callerClientId}
               onChange={(v) => setForm((f) => ({ ...f, callerClientId: v }))}
-              placeholder="openjcockpit-a2a"
+              placeholder={t('a2aServices.fields.callerClientIdPlaceholder')}
             />
             <SecretField
-              label="Caller client secret"
+              label={t('a2aServices.fields.callerClientSecret')}
               hasValue={editingService?.hasCallerClientSecret ?? false}
               value={form.callerClientSecret}
               onChange={(v) => setForm((f) => ({ ...f, callerClientSecret: v }))}
@@ -222,15 +227,19 @@ export function A2AServicesSettings() {
           </div>
           <div className={formActionsClass}>
             <ToolbarButton onClick={() => void handleSave(editing)} disabled={saving}>
-              {saving ? '⟳ Saving…' : editingService ? 'Save A2A service' : 'Add A2A service'}
+              {saving
+                ? t('shared.saving')
+                : editingService
+                  ? t('a2aServices.saveService')
+                  : t('a2aServices.addService')}
             </ToolbarButton>
             <Button variant="secondary" onClick={closeForm} disabled={saving}>
-              Cancel
+              {t('shared.cancel')}
             </Button>
           </div>
         </div>
       ) : (
-        loaded && <ToolbarButton onClick={startAdd}>+ Add A2A service</ToolbarButton>
+        loaded && <ToolbarButton onClick={startAdd}>{t('a2aServices.addButton')}</ToolbarButton>
       )}
     </div>
   );

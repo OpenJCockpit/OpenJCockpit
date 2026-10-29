@@ -1,6 +1,7 @@
 import { useId, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
+import { useTranslation, type TFunction } from '@openjcockpit/i18n';
 import {
   enqueueSpecQueueItem,
   getSpecQueueSettings,
@@ -32,28 +33,31 @@ interface Props {
 
 type Loadable<T> = { loading: true } | { loading: false; error: string | null; data: T };
 
-function messageOf(e: unknown): string {
-  return e instanceof Error ? e.message : 'Unknown error';
+function messageOf(e: unknown, t: TFunction<'specQueue'>): string {
+  return e instanceof Error ? e.message : t('unknownError');
 }
 
 function loadableMap<Q, T>(
+  t: TFunction<'specQueue'>,
   query: UseQueryResult<Q>,
   fallback: T,
   pick: (data: Q) => T,
 ): Loadable<T> {
   if (query.data !== undefined) return { loading: false, error: null, data: pick(query.data) };
-  if (query.isError) return { loading: false, error: messageOf(query.error), data: fallback };
+  if (query.isError) return { loading: false, error: messageOf(query.error, t), data: fallback };
   return { loading: true };
 }
 
-function loadable<Q>(query: UseQueryResult<Q>, fallback: Q): Loadable<Q> {
-  return loadableMap(query, fallback, (data) => data);
+function loadable<Q>(
+  t: TFunction<'specQueue'>,
+  query: UseQueryResult<Q>,
+  fallback: Q,
+): Loadable<Q> {
+  return loadableMap(t, query, fallback, (data) => data);
 }
 
-const AUTO_MERGE_NOTE =
-  'The pull request is merged without human review unless the workflow has an approval gate.';
-
 export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: Props) {
+  const { t } = useTranslation('specQueue');
   const specsQuery = useQuery({
     queryKey: queryKeys.specQueueSpecFiles(project.id),
     queryFn: () => listSpecFilesStrict(project.id),
@@ -88,18 +92,23 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
   // Three independent loads: one failing must never hide the others.
   const specs: Loadable<SpecFile[]> = fixedSpecFile
     ? { loading: false, error: null, data: [] }
-    : loadable(specsQuery, []);
+    : loadable(t, specsQuery, []);
   const workflowsFailure = allWorkflowsQuery.error ?? groupsQuery.error;
   let workflows: Loadable<WorkflowDefinition[]>;
   if (workflowsFailure) {
-    workflows = { loading: false, error: messageOf(workflowsFailure), data: [] };
+    workflows = { loading: false, error: messageOf(workflowsFailure, t), data: [] };
   } else if (allWorkflowsQuery.data && groupsQuery.data) {
     const usable = workflowsForProject(allWorkflowsQuery.data, groupsQuery.data, project.name);
     workflows = { loading: false, error: null, data: usable.filter((w) => !w.promptRequired) };
   } else {
     workflows = { loading: true };
   }
-  const settings: Loadable<boolean> = loadableMap(settingsQuery, false, (s) => s.autoMergeAllowed);
+  const settings: Loadable<boolean> = loadableMap(
+    t,
+    settingsQuery,
+    false,
+    (s) => s.autoMergeAllowed,
+  );
 
   const specList = specs.loading ? [] : specs.data;
   const specFile =
@@ -112,24 +121,23 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
   const allowAutoMerge = !settings.loading && settings.data;
 
   function submitBlocker(): string | null {
-    if (specs.loading || workflows.loading) return 'Loading specs and workflows…';
-    if (specs.error) return 'Spec files could not be loaded, so none can be selected.';
-    if (workflows.error) return 'Workflows could not be loaded, so none can be selected.';
-    if (!specFile) return 'Select a spec file.';
+    if (specs.loading || workflows.loading) return t('addDialog.blockerLoading');
+    if (specs.error) return t('addDialog.blockerSpecsError');
+    if (workflows.error) return t('addDialog.blockerWorkflowsError');
+    if (!specFile) return t('addDialog.blockerNoSpec');
     if (workflowList.length === 0) {
-      return 'No workflow without a required prompt is available for this project.';
+      return t('addDialog.blockerNoWorkflow');
     }
     return null;
   }
   const reason = submitBlocker();
 
-  let autoMergeNote = AUTO_MERGE_NOTE;
-  if (settings.loading) autoMergeNote += ' Checking whether auto-merge is allowed…';
+  let autoMergeNote = t('addDialog.autoMergeNote');
+  if (settings.loading) autoMergeNote += ` ${t('addDialog.autoMergeChecking')}`;
   else if (settings.error) {
-    autoMergeNote += ' Auto-merge is unavailable because the queue settings could not be loaded.';
+    autoMergeNote += ` ${t('addDialog.autoMergeUnavailable')}`;
   } else if (!settings.data) {
-    autoMergeNote +=
-      ' Auto-merge is not allowed for this project; an administrator can allow it in the queue settings.';
+    autoMergeNote += ` ${t('addDialog.autoMergeNotAllowed')}`;
   }
 
   async function handleSubmit() {
@@ -143,7 +151,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
       });
       onAdded(item);
     } catch (e) {
-      setSubmitError(messageOf(e));
+      setSubmitError(messageOf(e, t));
       setSubmitting(false);
     }
   }
@@ -154,18 +162,18 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
       onDismiss={submitting ? () => undefined : onCancel}
       className={cx(styles.addToQueueDialog, panelClassName)}
     >
-      <Eyebrow>Spec queue</Eyebrow>
-      <h2 id={titleId}>Add to queue</h2>
+      <Eyebrow>{t('addDialog.eyebrow')}</Eyebrow>
+      <h2 id={titleId}>{t('addDialog.title')}</h2>
 
       {fixedSpecFile ? (
         <p className={styles.addToQueueDialogField}>
-          <span className={styles.addToQueueDialogLabel}>Spec file</span>
+          <span className={styles.addToQueueDialogLabel}>{t('addDialog.specFile')}</span>
           <strong data-testid="add-to-queue-spec-fixed">{fixedSpecFile}</strong>
         </p>
       ) : (
         <div className={styles.addToQueueDialogField}>
           <label htmlFor={specId} className={styles.addToQueueDialogLabel}>
-            Spec file
+            {t('addDialog.specFile')}
           </label>
           <select
             id={specId}
@@ -175,7 +183,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
             disabled={specs.loading || specList.length === 0 || submitting}
             onChange={(e) => setSpecChoice(e.target.value)}
           >
-            {specList.length === 0 && <option value="">No spec files available</option>}
+            {specList.length === 0 && <option value="">{t('addDialog.noSpecFiles')}</option>}
             {specList.map((s) => (
               <option key={s.id} value={s.fileName}>
                 {s.fileName}
@@ -184,7 +192,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
           </select>
           {!specs.loading && specs.error && (
             <p className={feedbackErrorClass} role="alert" data-testid="add-to-queue-spec-error">
-              Spec files could not be loaded — {specs.error}
+              {t('addDialog.specsLoadError', { error: specs.error })}
             </p>
           )}
         </div>
@@ -192,7 +200,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
 
       <div className={styles.addToQueueDialogField}>
         <label htmlFor={workflowSelectId} className={styles.addToQueueDialogLabel}>
-          Workflow
+          {t('addDialog.workflow')}
         </label>
         <select
           id={workflowSelectId}
@@ -202,7 +210,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
           disabled={workflows.loading || workflowList.length === 0 || submitting}
           onChange={(e) => setWorkflowChoice(e.target.value)}
         >
-          {workflowList.length === 0 && <option value="">No workflows available</option>}
+          {workflowList.length === 0 && <option value="">{t('addDialog.noWorkflows')}</option>}
           {workflowList.map((w) => (
             <option key={w.id} value={w.id}>
               {w.name}
@@ -211,7 +219,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
         </select>
         {!workflows.loading && workflows.error && (
           <p className={feedbackErrorClass} role="alert" data-testid="add-to-queue-workflow-error">
-            Workflows could not be loaded — {workflows.error}
+            {t('addDialog.workflowsLoadError', { error: workflows.error })}
           </p>
         )}
       </div>
@@ -226,7 +234,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
             aria-describedby={autoMergeNoteId}
             onChange={(e) => setAutoMerge(e.target.checked)}
           />
-          <span>Auto-merge the pull request</span>
+          <span>{t('addDialog.autoMerge')}</span>
         </label>
         <p
           id={autoMergeNoteId}
@@ -256,7 +264,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
           onClick={onCancel}
           disabled={submitting}
         >
-          Cancel
+          {t('cancel')}
         </Button>
         <Button
           type="button"
@@ -266,7 +274,7 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
           disabled={reason !== null || submitting}
           aria-describedby={reason ? reasonId : undefined}
         >
-          {submitting ? '⟳ Adding…' : 'Add to queue'}
+          {submitting ? t('addDialog.adding') : t('addDialog.title')}
         </Button>
       </div>
     </ModalShell>

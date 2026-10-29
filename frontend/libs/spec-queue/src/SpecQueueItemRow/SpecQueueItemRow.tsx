@@ -24,11 +24,6 @@ interface Props {
   onOpenRun?: (workflowId: string, runId: string) => void;
 }
 
-const MERGE_STATE_TEXT = {
-  WAITING_FOR_MERGEABILITY: 'Waiting until the pull request can be merged',
-  MERGE_IN_PROGRESS: 'Merge in progress',
-} as const;
-
 export function SpecQueueItemRow({
   item,
   queuedIndex,
@@ -85,7 +80,7 @@ export function SpecQueueItemRow({
       )}
       {item.status === 'MERGING' && item.mergeState && (
         <p className={styles.queueItemNote} data-testid="queue-item-merge-state">
-          {MERGE_STATE_TEXT[item.mergeState]}
+          {t(`row.mergeState.${item.mergeState}`)}
         </p>
       )}
 
@@ -94,31 +89,31 @@ export function SpecQueueItemRow({
           <>
             <label
               className={styles.queueItemAutoMerge}
-              title={autoMergeAllowed ? undefined : 'Auto-merge is not allowed for this project'}
+              title={autoMergeAllowed ? undefined : t('row.autoMergeNotAllowed')}
             >
               <input
                 type="checkbox"
                 data-testid="queue-item-auto-merge"
-                aria-label={`Auto-merge ${spec}`}
+                aria-label={t('row.autoMergeAria', { spec })}
                 aria-describedby={noteId}
                 checked={item.autoMerge}
                 disabled={busy || !autoMergeAllowed}
                 onChange={(e) => onAutoMergeChange(item, e.target.checked)}
               />
-              <span aria-hidden="true">Auto-merge</span>
+              <span aria-hidden="true">{t('row.autoMerge')}</span>
             </label>
             <span
               id={noteId}
               className={styles.queueItemAutoMergeNote}
               data-testid="queue-item-auto-merge-note"
             >
-              Merged without human review unless the workflow has an approval gate.
-              {!autoMergeAllowed && ' Auto-merge is not allowed for this project.'}
+              {t('row.autoMergeNote')}
+              {!autoMergeAllowed && ` ${t('row.autoMergeNoteNotAllowed')}`}
             </span>
           </>
         ) : (
           <span data-testid="queue-item-auto-merge-indicator">
-            Auto-merge: {item.autoMerge ? 'on' : 'off'}
+            {item.autoMerge ? t('row.autoMergeIndicatorOn') : t('row.autoMergeIndicatorOff')}
           </span>
         )}
         {prUrls.map((url, index) => (
@@ -129,7 +124,7 @@ export function SpecQueueItemRow({
             rel="noopener noreferrer"
             data-testid="queue-item-pr-link"
           >
-            {prUrls.length > 1 ? `Pull request ${index + 1} ↗` : 'Pull request ↗'}
+            {prUrls.length > 1 ? t('row.pullRequestN', { n: index + 1 }) : t('row.pullRequest')}
           </a>
         ))}
         {runId && onOpenRun && (
@@ -137,10 +132,10 @@ export function SpecQueueItemRow({
             type="button"
             variant="link"
             data-testid="queue-item-run-link"
-            aria-label={`View the run of ${spec}`}
+            aria-label={t('row.viewRunAria', { spec })}
             onClick={() => onOpenRun(item.workflowId, runId)}
           >
-            View run →
+            {t('row.viewRun')}
           </Button>
         )}
       </div>
@@ -152,7 +147,7 @@ export function SpecQueueItemRow({
               type="button"
               size="sm"
               data-testid="queue-item-move-up"
-              aria-label={`Move ${spec} up`}
+              aria-label={t('row.moveUpAria', { spec })}
               disabled={busy || queuedIndex === 0}
               onClick={() => onMove(item, 'up')}
             >
@@ -162,7 +157,7 @@ export function SpecQueueItemRow({
               type="button"
               size="sm"
               data-testid="queue-item-move-down"
-              aria-label={`Move ${spec} down`}
+              aria-label={t('row.moveDownAria', { spec })}
               disabled={busy || queuedIndex === queuedCount - 1}
               onClick={() => onMove(item, 'down')}
             >
@@ -175,11 +170,11 @@ export function SpecQueueItemRow({
             type="button"
             size="sm"
             data-testid="queue-item-remove"
-            aria-label={`Remove ${spec} from the queue`}
+            aria-label={t('row.removeAria', { spec })}
             disabled={busy}
             onClick={() => onRemove(item)}
           >
-            Remove
+            {t('row.remove')}
           </Button>
         )}
         {actions.canCancel && (
@@ -187,11 +182,11 @@ export function SpecQueueItemRow({
             type="button"
             size="sm"
             data-testid="queue-item-cancel"
-            aria-label={`Cancel ${spec}`}
+            aria-label={t('row.cancelAria', { spec })}
             disabled={busy}
             onClick={() => onCancelRun(item)}
           >
-            Cancel
+            {t('row.cancel')}
           </Button>
         )}
         {actions.canRetry && (
@@ -199,11 +194,11 @@ export function SpecQueueItemRow({
             type="button"
             size="sm"
             data-testid="queue-item-retry"
-            aria-label={`Retry ${spec}`}
+            aria-label={t('row.retryAria', { spec })}
             disabled={busy}
             onClick={() => onRetry(item)}
           >
-            Retry
+            {t('row.retry')}
           </Button>
         )}
         {actions.canSkip && (
@@ -211,11 +206,11 @@ export function SpecQueueItemRow({
             type="button"
             size="sm"
             data-testid="queue-item-skip"
-            aria-label={`Skip ${spec}`}
+            aria-label={t('row.skipAria', { spec })}
             disabled={busy}
             onClick={() => onSkip(item)}
           >
-            Skip
+            {t('row.skip')}
           </Button>
         )}
       </div>

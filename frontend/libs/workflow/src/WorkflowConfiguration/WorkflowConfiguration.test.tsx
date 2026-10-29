@@ -1,4 +1,5 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import { render } from '../testUtils/render';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { withQueryClient } from '../testUtils/queryClient';
 import { WorkflowConfiguration } from './WorkflowConfiguration';

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import { PuffsBackground, Reveal, RevealGroup } from '@openjcockpit/ui';
 import { AmbientBackdrop } from '../AmbientBackdrop/AmbientBackdrop';
 import { AppShell } from '../AppShell/AppShell';
@@ -28,21 +29,6 @@ function markIntroSeen() {
   }
 }
 
-const portals: Portal[] = [
-  {
-    id: 'business',
-    title: 'Business',
-    subtitle: 'Strategy, dashboarding and decision-making',
-    side: 'left',
-  },
-  {
-    id: 'implementation',
-    title: 'Implementation',
-    subtitle: 'Rollout, configuration and operational actions',
-    side: 'right',
-  },
-];
-
 type LandingPageProps = {
   user: HubUser;
   onSelectPortal: (portal: PortalId) => void;
@@ -50,6 +36,21 @@ type LandingPageProps = {
 };
 
 export function LandingPage({ user, onSelectPortal, onLogout }: LandingPageProps) {
+  const { t } = useTranslation('landing');
+  const portals: Portal[] = [
+    {
+      id: 'business',
+      title: t('portals.business.title'),
+      subtitle: t('portals.business.subtitle'),
+      side: 'left',
+    },
+    {
+      id: 'implementation',
+      title: t('portals.implementation.title'),
+      subtitle: t('portals.implementation.subtitle'),
+      side: 'right',
+    },
+  ];
   const [introVisible, setIntroVisible] = useState(() => !wasIntroSeen());
 
   useEffect(markIntroSeen, []);
@@ -79,12 +80,9 @@ export function LandingPage({ user, onSelectPortal, onLogout }: LandingPageProps
         data-testid="landing-hero"
       >
         <Reveal as="div" className={styles.heroCopy} duration={0.55} index={0} from={{ y: 24 }}>
-          <Eyebrow>Authenticated destination</Eyebrow>
-          <h2 id="landing-title">Choose your workspace</h2>
-          <p>
-            Welcome back, {firstName}. Your token is valid and this hub is now unlocked. Navigate
-            directly to Business or Implementation.
-          </p>
+          <Eyebrow>{t('hero.eyebrow')}</Eyebrow>
+          <h2 id="landing-title">{t('hero.title')}</h2>
+          <p>{t('hero.welcome', { firstName })}</p>
         </Reveal>
 
         <div className={styles.orbStage}>

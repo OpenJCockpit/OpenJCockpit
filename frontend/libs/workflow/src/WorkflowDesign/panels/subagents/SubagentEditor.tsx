@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import { TextAreaField, TextField } from '@openjcockpit/ui';
 import type { SubagentSpec } from '@openjcockpit/api';
 import { toList } from '../../utils';
@@ -21,9 +22,10 @@ export function SubagentEditor({
   onSave,
   onCancel,
 }: SubagentEditorProps) {
+  const { t } = useTranslation('workflow');
   return (
     <EditorForm
-      title={isNew ? 'New subagent' : 'Edit subagent'}
+      title={isNew ? t('subagents.new') : t('subagents.edit')}
       saving={saving}
       onSave={onSave}
       onCancel={onCancel}

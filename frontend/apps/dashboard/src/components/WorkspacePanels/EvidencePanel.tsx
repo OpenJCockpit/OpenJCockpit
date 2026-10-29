@@ -1,16 +1,21 @@
 import type { EvidenceEvent } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { IconBox, Panel, PanelHeader, PanelTitle } from '@openjcockpit/ui';
 import styles from './WorkspacePanels.module.scss';
 
+/** Decorative glyph, not translatable copy. */
+const CHECK_MARK = '\u2713';
+
 export function EvidencePanel({ events }: { events: EvidenceEvent[] }) {
+  const { t } = useTranslation('dashboard');
   return (
     <Panel as="section" className={styles.evidencePanel}>
       <PanelHeader simple>
         <PanelTitle>
-          <IconBox label="⌁" compact /> <h2>Execution evidence</h2>
+          <IconBox label="⌁" compact /> <h2>{t('evidence.title')}</h2>
         </PanelTitle>
         <button className={styles.smallLink}>
-          View evidence <span>→</span>
+          {t('evidence.view')} <span>→</span>
         </button>
       </PanelHeader>
 
@@ -23,9 +28,9 @@ export function EvidencePanel({ events }: { events: EvidenceEvent[] }) {
               <time>{event.time}</time>
               <div>
                 <strong>{event.title}</strong>
-                <span>By: {event.actor}</span>
+                <span>{t('evidence.by', { actor: event.actor })}</span>
               </div>
-              <span className={styles.check}>✓</span>
+              <span className={styles.check}>{CHECK_MARK}</span>
             </article>
           ))}
       </div>

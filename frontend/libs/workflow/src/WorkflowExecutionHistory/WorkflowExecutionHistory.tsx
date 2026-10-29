@@ -26,43 +26,42 @@ export function WorkflowExecutionHistory({
   selectedRunId,
   className,
 }: Props) {
-  const { t } = useTranslation('api');
+  const { t } = useTranslation('workflow');
+  const { t: tApi } = useTranslation('api');
   const { formatDateTime } = useFormatters();
   return (
     <section className={cx(styles.workflowExecutionHistory, className)}>
-      <h3>Execution history</h3>
+      <h3>{t('history.title')}</h3>
 
       {error && (
         <div className={styles.workflowExecutionHistoryError} role="alert">
           <p>{error}</p>
           <Button type="button" onClick={onRetry}>
-            Retry
+            {t('shared.retry')}
           </Button>
         </div>
       )}
 
       {!error && loading && page === null && (
-        <p className={styles.workflowExecutionHistoryLoading}>Loading executions…</p>
+        <p className={styles.workflowExecutionHistoryLoading}>{t('history.loading')}</p>
       )}
 
       {!error && !loading && page !== null && page.items.length === 0 && (
-        <p className={styles.workflowExecutionHistoryEmpty}>
-          This workflow has not been executed yet.
-        </p>
+        <p className={styles.workflowExecutionHistoryEmpty}>{t('history.empty')}</p>
       )}
 
       {!error && page !== null && page.items.length > 0 && (
         <>
           <table className={styles.workflowExecutionHistoryTable}>
-            <caption>Executions for this workflow</caption>
+            <caption>{t('history.caption')}</caption>
             <thead>
               <tr>
-                <th scope="col">Run ID</th>
-                <th scope="col">Started</th>
-                <th scope="col">Completed</th>
-                <th scope="col">Duration</th>
-                <th scope="col">Status</th>
-                <th scope="col">Started by</th>
+                <th scope="col">{t('history.runId')}</th>
+                <th scope="col">{t('history.started')}</th>
+                <th scope="col">{t('history.completed')}</th>
+                <th scope="col">{t('history.duration')}</th>
+                <th scope="col">{t('history.status')}</th>
+                <th scope="col">{t('history.startedBy')}</th>
               </tr>
             </thead>
             <tbody>
@@ -86,15 +85,17 @@ export function WorkflowExecutionHistory({
                     </button>
                   </td>
                   <td>{formatDateTime(item.startedAt)}</td>
-                  <td>{item.completedAt ? formatDateTime(item.completedAt) : t('notAvailable')}</td>
-                  <td>{formatRunDuration(item.startedAt, item.completedAt, t)}</td>
+                  <td>
+                    {item.completedAt ? formatDateTime(item.completedAt) : tApi('notAvailable')}
+                  </td>
+                  <td>{formatRunDuration(item.startedAt, item.completedAt, tApi)}</td>
                   <td>
                     <StatusChip
-                      label={runStatusLabel(item.status, t)}
+                      label={runStatusLabel(item.status, tApi)}
                       kind={runStatusKind(item.status)}
                     />
                   </td>
-                  <td>{item.startedBy ?? t('notAvailable')}</td>
+                  <td>{item.startedBy ?? tApi('notAvailable')}</td>
                 </tr>
               ))}
             </tbody>
@@ -106,7 +107,7 @@ export function WorkflowExecutionHistory({
               className={styles.workflowExecutionHistoryLoadMore}
               onClick={onLoadMore}
             >
-              Load more
+              {t('history.loadMore')}
             </Button>
           )}
         </>

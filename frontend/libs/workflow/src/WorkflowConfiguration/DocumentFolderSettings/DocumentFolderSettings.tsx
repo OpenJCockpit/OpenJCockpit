@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getDocumentFolderConfig, queryKeys, saveDocumentFolderConfig } from '@openjcockpit/api';
 import type { DocumentFolderConfigRequest, Project } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { CheckboxField, TextField, StatusMessage } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
 import {
@@ -25,6 +26,7 @@ interface Props {
 const noop = () => {};
 
 export function DocumentFolderSettings({ project }: Props) {
+  const { t } = useTranslation('workflow');
   const queryClient = useQueryClient();
   const queryKey = queryKeys.documentFolderConfig(project.id);
   const configQuery = useQuery({
@@ -80,57 +82,58 @@ export function DocumentFolderSettings({ project }: Props) {
   }
 
   if (loadError) {
-    return (
-      <StatusMessage variant="error">
-        Failed to load the document folder configuration.
-      </StatusMessage>
-    );
+    return <StatusMessage variant="error">{t('documentFolder.loadFailed')}</StatusMessage>;
   }
 
-  if (!loaded) return <StatusMessage variant="loading">Loading configuration...</StatusMessage>;
+  if (!loaded) return <StatusMessage variant="loading">{t('config.loading')}</StatusMessage>;
 
   return (
     <IntegrationConfigForm
-      title="Project document folder"
-      saveLabel="Save document folder config"
+      title={t('documentFolder.title')}
+      saveLabel={t('documentFolder.save')}
       saving={saving}
       error={error}
       savedMessage={savedMessage}
       onSave={() => void handleSave()}
     >
-      <TextField label="Project name" value={project.name} onChange={noop} disabled />
       <TextField
-        label="Folder name (CamelCase, no spaces — derived from the project name)"
+        label={t('documentFolder.projectName')}
+        value={project.name}
+        onChange={noop}
+        disabled
+      />
+      <TextField
+        label={t('documentFolder.folderName')}
         value={folderName}
         onChange={noop}
         disabled
       />
       <TextField
-        label="Folder base location"
+        label={t('documentFolder.basePath')}
         value={form.folderBasePath}
         onChange={(v) => update({ folderBasePath: v })}
-        placeholder="/documents"
+        placeholder={t('documentFolder.basePathPlaceholder')}
       />
       <TextField
-        label="Folder location (folder name is always appended automatically)"
+        label={t('documentFolder.folderPath')}
         value={folderPath}
         onChange={noop}
         disabled
       />
       <TextField
-        label="Allowed document types"
+        label={t('documentFolder.types')}
         value={form.allowedDocumentTypes}
         onChange={(v) => update({ allowedDocumentTypes: v })}
-        placeholder="pdf,docx,md"
+        placeholder={t('documentFolder.typesPlaceholder')}
       />
       <TextField
-        label="Workflow ID to start on new file"
+        label={t('documentFolder.workflowId')}
         value={form.workflowId}
         onChange={(v) => update({ workflowId: v })}
-        placeholder="wf-onboarding"
+        placeholder={t('config.workflowIdPlaceholder')}
       />
       <CheckboxField
-        label="File trigger enabled"
+        label={t('documentFolder.trigger')}
         checked={form.fileTriggerEnabled}
         onChange={(v) => update({ fileTriggerEnabled: v })}
       />

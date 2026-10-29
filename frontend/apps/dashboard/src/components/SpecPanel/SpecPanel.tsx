@@ -1,4 +1,5 @@
 import type { SpecFile } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { IconBox, Panel, PanelHeader, PanelTitle, Button, specStyles } from '@openjcockpit/ui';
 import { NoSpecsFound } from './NoSpecsFound';
 import { SpecCardButton } from './SpecCardButton';
@@ -23,6 +24,7 @@ export function SpecPanel({
   onGoToWorkflow,
   onViewAll,
 }: Props) {
+  const { t } = useTranslation('dashboard');
   const visibleSpecs = specs.slice(0, 4);
   const hasSpecs = !loading && specs.length > 0;
 
@@ -30,12 +32,12 @@ export function SpecPanel({
     <Panel as="aside" className={specStyles.specPanel}>
       <PanelHeader simple>
         <PanelTitle>
-          <IconBox label="📄" compact /> <h2>Spec</h2>
+          <IconBox label="📄" compact /> <h2>{t('specPanel.title')}</h2>
         </PanelTitle>
       </PanelHeader>
 
       <div className={specStyles.specList}>
-        {loading && <p className={specStyles.specListLoading}>Loading specs…</p>}
+        {loading && <p className={specStyles.specListLoading}>{t('specPanel.loading')}</p>}
         {!loading && specs.length === 0 && <NoSpecsFound onGoToWorkflow={onGoToWorkflow} />}
         {visibleSpecs.map((spec) => (
           <SpecCardButton
@@ -55,7 +57,7 @@ export function SpecPanel({
 
       {hasSpecs && (
         <Button variant="link" onClick={onViewAll}>
-          View all specs <span>→</span>
+          {t('specPanel.viewAll')} <span>→</span>
         </Button>
       )}
     </Panel>

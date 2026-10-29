@@ -37,9 +37,10 @@ export function WorkflowEditor({
   orbError,
   saveError,
 }: WorkflowEditorProps) {
-  const { t } = useTranslation('api');
+  const { t } = useTranslation('workflow');
+  const { t: tApi } = useTranslation('api');
   function defaultGatePlacement(agentIds: string[]): string {
-    const ordered = selectedStagesInOrder(availableAgents, agentIds, t);
+    const ordered = selectedStagesInOrder(availableAgents, agentIds, tApi);
     return ordered[ordered.length - 1]?.id ?? '';
   }
 
@@ -47,43 +48,39 @@ export function WorkflowEditor({
 
   return (
     <EditorForm
-      title={isNew ? 'New workflow' : 'Edit workflow'}
+      title={isNew ? t('workflowEditor.new') : t('workflowEditor.edit')}
       saving={saving}
       onSave={onSave}
       onCancel={onCancel}
       saveDescribedBy={saveError ? 'workflow-save-error' : undefined}
     >
       <TextField
-        label="Workflow ID"
+        label={t('workflowEditor.id')}
         value={form.id}
         disabled={!isNew}
         onChange={(v) => setForm((f) => ({ ...f, id: v }))}
-        placeholder="Auto-generated if left blank"
-        hint={
-          isNew
-            ? 'Optional — a unique ID is generated automatically if you leave this blank.'
-            : undefined
-        }
+        placeholder={t('workflowEditor.idPlaceholder')}
+        hint={isNew ? t('workflowEditor.idHint') : undefined}
       />
       <TextField
-        label="Workflow name"
+        label={t('workflowEditor.name')}
         value={form.name}
         onChange={(v) => setForm((f) => ({ ...f, name: v }))}
-        placeholder="Customer Onboarding"
+        placeholder={t('workflowEditor.namePlaceholder')}
       />
       <TextField
-        label="Project name"
+        label={t('workflowEditor.projectName')}
         value={form.projectName}
         onChange={(v) => setForm((f) => ({ ...f, projectName: v }))}
-        hint="Optional when the workflow is in a group; required without one."
+        hint={t('workflowEditor.projectHint')}
       />
       <SelectField
-        label="Group"
+        label={t('workflowEditor.group')}
         value={form.groupId ?? ''}
         onChange={(v) => setForm((f) => ({ ...f, groupId: v }))}
-        hint="Bundle workflows with a shared meaning. Manage groups in the Groups tab."
+        hint={t('workflowEditor.groupHint')}
       >
-        <option value="">No group</option>
+        <option value="">{t('workflowEditor.noGroup')}</option>
         {groups.map((g) => (
           <option key={g.id} value={g.id}>
             {g.name}
@@ -91,13 +88,13 @@ export function WorkflowEditor({
         ))}
       </SelectField>
       <TextField
-        label="Status"
+        label={t('workflowEditor.status')}
         value={form.status}
         onChange={(v) => setForm((f) => ({ ...f, status: v }))}
         placeholder="ACTIVE"
       />
       <TextAreaField
-        label="Description"
+        label={t('workflowEditor.description')}
         wide
         rows={2}
         value={form.description}
@@ -109,7 +106,7 @@ export function WorkflowEditor({
         onChange={(agentIds) => setForm((f) => ({ ...f, agentIds }))}
       />
       <label>
-        Human approval gate
+        {t('workflowEditor.approvalGate')}
         <input
           type="checkbox"
           checked={form.approvalGate?.enabled ?? false}
@@ -126,16 +123,13 @@ export function WorkflowEditor({
             }));
           }}
         />
-        <span className={fieldHintClass}>
-          Pauses the run after the chosen agent for a human decision: Accept, Deny, or Accept with
-          comments to re-run that agent with the feedback.
-        </span>
+        <span className={fieldHintClass}>{t('workflowEditor.approvalGateHint')}</span>
       </label>
       {form.approvalGate?.enabled && (
         <div className={WorkflowDesignStyles.workflowDesignFieldFull}>
           <SelectField
             id="approval-gate-placement"
-            label="Gate placement"
+            label={t('workflowEditor.gatePlacement')}
             aria-describedby="approval-gate-note"
             value={form.approvalGate.placementStage}
             onChange={(v) =>
@@ -145,7 +139,7 @@ export function WorkflowEditor({
               }))
             }
           >
-            {selectedStagesInOrder(availableAgents, form.agentIds, t).map((agent) => (
+            {selectedStagesInOrder(availableAgents, form.agentIds, tApi).map((agent) => (
               <option key={agent.id} value={agent.id}>
                 {agent.name}
               </option>
@@ -155,41 +149,37 @@ export function WorkflowEditor({
             id="approval-gate-note"
             className={cx(fieldHintClass, WorkflowDesignStyles.approvalGateNote)}
           >
-            Up to 3 feedback iterations are available at this gate: the chosen agent re-runs with
-            the reviewer's comments and its previous output.
+            {t('workflowEditor.gateNote')}
           </p>
         </div>
       )}
       <OrbEditor
         orbs={form.workflowOrbs ?? []}
         candidates={orbCandidates}
-        stages={selectedStagesInOrder(availableAgents, form.agentIds, t)}
+        stages={selectedStagesInOrder(availableAgents, form.agentIds, tApi)}
         error={orbError}
         onChange={(workflowOrbs) => setForm((f) => ({ ...f, workflowOrbs }))}
       />
       <label>
-        Ask for prompt on start
+        {t('workflowEditor.promptRequired')}
         <input
           type="checkbox"
           checked={form.promptRequired ?? false}
           onChange={(e) => setForm((f) => ({ ...f, promptRequired: e.target.checked }))}
         />
-        <span className={fieldHintClass}>
-          Shows a themed prompt dialog when this workflow is started (e.g. spec creation from prompt
-          + RAG).
-        </span>
+        <span className={fieldHintClass}>{t('workflowEditor.promptRequiredHint')}</span>
       </label>
       <TextAreaField
-        label="Prompt instructions (prefix)"
+        label={t('workflowEditor.promptInstructions')}
         wide
         rows={3}
         value={form.promptInstructions ?? ''}
         onChange={(v) => setForm((f) => ({ ...f, promptInstructions: v }))}
-        placeholder="Instructions prepended to the user's prompt, e.g. create a branch, create the spec from the template and push it for a pull request."
-        hint="Prepended to the user's prompt when the workflow starts."
+        placeholder={t('workflowEditor.promptInstructionsPlaceholder')}
+        hint={t('workflowEditor.promptInstructionsHint')}
       />
       <label>
-        Dashboard button trigger
+        {t('workflowEditor.dashboardTrigger')}
         <input
           type="checkbox"
           checked={form.trigger?.dashboardButtonEnabled ?? false}
@@ -209,7 +199,7 @@ export function WorkflowEditor({
         />
       </label>
       <TextField
-        label="Customer ID (execution)"
+        label={t('workflowEditor.customerId')}
         value={form.execution?.customerId ?? ''}
         onChange={(v) =>
           setForm((f) => ({

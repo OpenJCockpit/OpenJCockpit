@@ -1,4 +1,6 @@
 import type { LauncherButtonState } from '../../useRunLauncher';
+import { useTranslation } from '@openjcockpit/i18n';
+import type { TFunction } from '@openjcockpit/i18n';
 import { ToolbarButton } from '@openjcockpit/ui';
 
 interface Props {
@@ -7,25 +9,26 @@ interface Props {
   disabled?: boolean;
 }
 
-function getLabel(state: LauncherButtonState): string {
+function getLabel(state: LauncherButtonState, t: TFunction<'dashboard'>): string {
   switch (state) {
     case 'preflight':
-      return '⟳ Running pre-flight checks…';
+      return t('flow.start.preflight');
     case 'starting':
-      return '⟳ Starting…';
+      return t('flow.start.starting');
     case 'error':
-      return '✕ Error';
+      return t('flow.start.error');
     default:
-      return '▶ Start';
+      return t('flow.start.idle');
   }
 }
 
 /** The "▶ Start" button; its label follows the launcher state. */
 export function StartButton({ state, onClick, disabled = false }: Props) {
+  const { t } = useTranslation('dashboard');
   const busy = state === 'preflight' || state === 'starting';
   return (
     <ToolbarButton onClick={onClick} disabled={busy || disabled}>
-      {getLabel(state)}
+      {getLabel(state, t)}
     </ToolbarButton>
   );
 }

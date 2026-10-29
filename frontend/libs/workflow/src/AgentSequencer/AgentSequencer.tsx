@@ -6,8 +6,11 @@ import type {
   SequencerNode,
   StatusKind,
 } from '@openjcockpit/api';
+import { useTranslation, type TFunction } from '@openjcockpit/i18n';
 import { StatusChip, Tooltip, cx } from '@openjcockpit/ui';
 import styles from './AgentSequencer.module.scss';
+
+const DEFAULT_AGENT_ICON = '⬡';
 
 const AGENT_ICON: Record<string, string> = {
   requirement: '▣',
@@ -18,12 +21,17 @@ const AGENT_ICON: Record<string, string> = {
   evidence: '▤',
 };
 
-function compactStatus(agent: AgentCard): { label: string; kind: StatusKind } {
-  if (agent.statusKind === 'active') return { label: 'Active', kind: 'active' };
-  if (agent.statusKind === 'done' || agent.statusKind === 'review') {
-    return { label: 'Ready', kind: 'done' };
+function compactStatus(
+  agent: AgentCard,
+  t: TFunction<'workflow'>,
+): { label: string; kind: StatusKind } {
+  if (agent.statusKind === 'active') {
+    return { label: t('agentSequencer.status.active'), kind: 'active' };
   }
-  return { label: 'Waiting', kind: 'waiting' };
+  if (agent.statusKind === 'done' || agent.statusKind === 'review') {
+    return { label: t('agentSequencer.status.ready'), kind: 'done' };
+  }
+  return { label: t('agentSequencer.status.waiting'), kind: 'waiting' };
 }
 
 interface Props {
@@ -33,6 +41,7 @@ interface Props {
 }
 
 export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props) {
+  const { t } = useTranslation('workflow');
   const [userOrder, setUserOrder] = useState<string[] | null>(null);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const dragFromRef = useRef<number | null>(null);
@@ -77,18 +86,23 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
   }
 
   return (
-    <div className={styles.agentSequencer} aria-label="Agent pipeline sequence">
+    <div className={styles.agentSequencer} aria-label={t('agentSequencer.ariaLabel')}>
       {sequence.map((node, index) => {
         const isActive = node.statusKind === 'active';
         // `is-dragging` carries no styles: the old rule keyed off a `.sequencer-item` wrapper that never existed.
         const stateClass = cx(
           styles.sequencerNode,
+          // eslint-disable-next-line i18next/no-literal-string -- CSS class, not copy
           dragIdx === index && 'is-dragging',
           isActive && styles.sequencerNodeActive,
         );
 
         if (node.kind === 'orb') {
-          const orbLabel = `Workflow orb: ${node.referencedWorkflowName}, ${node.mode === 'SEQUENTIAL' ? 'sequential' : 'parallel'}`;
+          const orbMode = t(`agentSequencer.mode.${node.mode}`);
+          const orbLabel = t('agentSequencer.orbLabel', {
+            name: node.referencedWorkflowName,
+            mode: orbMode,
+          });
           return (
             <React.Fragment key={node.id}>
               {index > 0 && <div className={styles.sequencerConnector} aria-hidden="true" />}
@@ -97,7 +111,10 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
                   <>
                     <span className={styles.sequencerTooltipStatus}>{node.status}</span>
                     <span className={styles.sequencerTooltipText}>
-                      {node.mode} · workflow: {node.referencedWorkflowName}
+                      {t('agentSequencer.orbTooltip', {
+                        mode: node.mode,
+                        name: node.referencedWorkflowName,
+                      })}
                     </span>
                   </>
                 }
@@ -107,12 +124,11 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
                   role="status"
                   aria-label={orbLabel}
                 >
+                  {/* eslint-disable-next-line i18next/no-literal-string -- decorative glyph */}
                   <div className={styles.sequencerIcon}>⬢</div>
                   <div className={styles.sequencerMeta}>
                     <strong>{node.referencedWorkflowName}</strong>
-                    <span className={styles.sequencerOrbMode}>
-                      {node.mode === 'SEQUENTIAL' ? 'sequential' : 'parallel'}
-                    </span>
+                    <span className={styles.sequencerOrbMode}>{orbMode}</span>
                   </div>
                   <StatusChip label={node.status} kind={node.statusKind} />
                 </div>
@@ -122,7 +138,7 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
         }
 
         const agent = node;
-        const { label, kind } = compactStatus(agent);
+        const { label, kind } = compactStatus(agent, t);
         const event = latestEvents[agent.id];
         return (
           <React.Fragment key={agent.id}>
@@ -146,7 +162,9 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragEnd={handleDragEnd}
               >
-                <div className={styles.sequencerIcon}>{AGENT_ICON[agent.id] ?? '⬡'}</div>
+                <div className={styles.sequencerIcon}>
+                  {AGENT_ICON[agent.id] ?? DEFAULT_AGENT_ICON}
+                </div>
                 <div className={styles.sequencerMeta}>
                   <strong>{agent.name}</strong>
                 </div>

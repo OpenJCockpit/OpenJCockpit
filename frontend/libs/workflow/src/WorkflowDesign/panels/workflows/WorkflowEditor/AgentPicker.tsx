@@ -4,6 +4,8 @@ import { useTranslation } from '@openjcockpit/i18n';
 import { Button, fieldHintClass } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
+const REMOVE_GLYPH = '✕';
+
 interface AgentPickerProps {
   /** Linkable catalog agents (id = agent reference key, role = catalog section). */
   availableAgents: AgentDefinition[];
@@ -18,7 +20,8 @@ interface AgentPickerProps {
  * agents run one after another, each receiving the workflow input and the previous outputs.
  */
 export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPickerProps) {
-  const { t } = useTranslation('api');
+  const { t } = useTranslation('workflow');
+  const { t: tApi } = useTranslation('api');
   function toggle(id: string, checked: boolean) {
     onChange(checked ? [...agentIds, id] : agentIds.filter((existing) => existing !== id));
   }
@@ -35,13 +38,8 @@ export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPicker
 
   return (
     <div className={WorkflowDesignStyles.workflowDesignFieldFull}>
-      <span>Agents</span>
-      {availableAgents.length === 0 && (
-        <p className={fieldHintClass}>
-          No agents available. Add agents to the /agents folder or register them at an A2A provider
-          — see Workflow design → Agents.
-        </p>
-      )}
+      <span>{t('agentPicker.agents')}</span>
+      {availableAgents.length === 0 && <p className={fieldHintClass}>{t('agentPicker.empty')}</p>}
       {sections.map((section) => (
         <fieldset
           key={section}
@@ -65,19 +63,19 @@ export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPicker
         </fieldset>
       ))}
       {agentIds.length > 0 && (
-        <ol className={WorkflowDesignStyles.workflowAgentOrder} aria-label="Execution order">
+        <ol className={WorkflowDesignStyles.workflowAgentOrder} aria-label={t('agentPicker.order')}>
           {agentIds.map((id, index) => {
             const agent = byId.get(id);
             return (
               <li key={id}>
                 <span>
-                  {agent ? `${agent.name} (${agent.role})` : referenceLabel(id, t)}
-                  {!agent && <span className={fieldHintClass}> — not in the catalog</span>}
+                  {agent ? `${agent.name} (${agent.role})` : referenceLabel(id, tApi)}
+                  {!agent && <span className={fieldHintClass}>{t('agentPicker.missing')}</span>}
                 </span>
                 <Button
                   type="button"
                   variant="secondary"
-                  aria-label={`Move ${agent?.name ?? id} up`}
+                  aria-label={t('agentPicker.moveUp', { name: agent?.name ?? id })}
                   disabled={index === 0}
                   onClick={() => move(index, -1)}
                 >
@@ -86,7 +84,7 @@ export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPicker
                 <Button
                   type="button"
                   variant="secondary"
-                  aria-label={`Move ${agent?.name ?? id} down`}
+                  aria-label={t('agentPicker.moveDown', { name: agent?.name ?? id })}
                   disabled={index === agentIds.length - 1}
                   onClick={() => move(index, 1)}
                 >
@@ -95,20 +93,17 @@ export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPicker
                 <Button
                   type="button"
                   variant="secondary"
-                  aria-label={`Remove ${agent?.name ?? id}`}
+                  aria-label={t('agentPicker.removeAgent', { name: agent?.name ?? id })}
                   onClick={() => toggle(id, false)}
                 >
-                  ✕
+                  {REMOVE_GLYPH}
                 </Button>
               </li>
             );
           })}
         </ol>
       )}
-      <span className={fieldHintClass}>
-        The workflow runs the linked agents in this order; each agent receives the workflow input
-        and the outputs of the agents before it.
-      </span>
+      <span className={fieldHintClass}>{t('agentPicker.hint')}</span>
     </div>
   );
 }

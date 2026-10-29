@@ -70,21 +70,23 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
     );
   }
 
-  const copy = confirmation ? confirmationCopy(confirmation) : null;
+  const copy = confirmation ? confirmationCopy(confirmation, t) : null;
 
   return (
     <AppShell>
-      {header ?? <AppHeader onBack={onBack} backTitle="Back to dashboard" />}
+      {header ?? <AppHeader onBack={onBack} backTitle={t('backToDashboard')} />}
 
       <main className={styles.specQueue}>
         <div className={styles.specQueueHeader}>
           <div>
-            <Eyebrow>Spec Queue</Eyebrow>
-            <h1>{project ? project.name : 'No project selected'}</h1>
+            <Eyebrow>{t('dashboard.eyebrow')}</Eyebrow>
+            <h1>{project ? project.name : t('noProject')}</h1>
           </div>
           {project && queue && (
             <div className={styles.specQueueControls}>
-              <span data-testid="queue-state">State: {queueStateText(queue.state, t)}</span>
+              <span data-testid="queue-state">
+                {t('dashboard.state', { state: queueStateText(queue.state, t) })}
+              </span>
               {queue.state === 'ACTIVE' ? (
                 <Button
                   type="button"
@@ -93,7 +95,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                   disabled={busy}
                   onClick={() => actions.pauseResume(true)}
                 >
-                  Pause queue
+                  {t('dashboard.pause')}
                 </Button>
               ) : (
                 <Button
@@ -103,7 +105,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                   disabled={busy}
                   onClick={() => actions.pauseResume(false)}
                 >
-                  Resume queue
+                  {t('dashboard.resume')}
                 </Button>
               )}
               <Button
@@ -113,7 +115,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                 data-testid="queue-add"
                 onClick={() => setAdding(true)}
               >
-                Add to queue
+                {t('dashboard.add')}
               </Button>
             </div>
           )}
@@ -129,17 +131,15 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
           {announcement}
         </div>
 
-        {!project && (
-          <p className={fieldHintClass}>Select a project first to manage its spec queue.</p>
-        )}
+        {!project && <p className={fieldHintClass}>{t('dashboard.selectProject')}</p>}
         {project && !queue && !loadError && (
           <p className={fieldHintClass} data-testid="queue-loading">
-            Loading the queue…
+            {t('dashboard.loading')}
           </p>
         )}
         {project && !queue && loadError && (
           <p className={feedbackErrorClass} role="alert" data-testid="queue-load-error">
-            The queue could not be loaded — {loadError}
+            {t('dashboard.loadError', { error: loadError })}
           </p>
         )}
 
@@ -147,7 +147,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
           <>
             {queue.state === 'PAUSED' && (
               <p className={styles.specQueueBanner} role="status" data-testid="queue-banner-paused">
-                The queue is paused. Queued items wait until you resume it.
+                {t('dashboard.bannerPaused')}
               </p>
             )}
             {queue.state === 'HALTED' && (
@@ -156,8 +156,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                 role="status"
                 data-testid="queue-banner-halted"
               >
-                The queue is halted because an item failed. Retry or skip the failed item, then
-                resume the queue.
+                {t('dashboard.bannerHalted')}
               </p>
             )}
             {!queue.runner.enabled && (
@@ -166,7 +165,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                 role="status"
                 data-testid="queue-banner-runner-disabled"
               >
-                The queue runner is disabled. Queued items are not started automatically.
+                {t('dashboard.bannerRunnerDisabled')}
               </p>
             )}
             {queue.runner.enabled && !queue.runner.configured && (
@@ -175,8 +174,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                 role="status"
                 data-testid="queue-banner-runner-not-configured"
               >
-                The queue runner has no identity configured. Queued items are not started
-                automatically.
+                {t('dashboard.bannerRunnerNotConfigured')}
               </p>
             )}
             {queue.lastPollError && (
@@ -185,13 +183,15 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                 role="status"
                 data-testid="queue-banner-poll-error"
               >
-                The last queue check failed: {pollErrorText(queue.lastPollError.code, t)} (
-                {formatDateTime(queue.lastPollError.at)}).
+                {t('dashboard.bannerPollError', {
+                  reason: pollErrorText(queue.lastPollError.code, t),
+                  at: formatDateTime(queue.lastPollError.at),
+                })}
               </p>
             )}
             {loadError && (
               <p className={feedbackErrorClass} role="alert" data-testid="queue-refresh-error">
-                The queue could not be refreshed — {loadError}
+                {t('dashboard.refreshError', { error: loadError })}
               </p>
             )}
             {actions.actionError && (
@@ -201,7 +201,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
             )}
 
             <Panel className={styles.specQueuePanel}>
-              <h2>Queue settings</h2>
+              <h2>{t('dashboard.settings')}</h2>
               <AutoMergeSettingToggle
                 projectId={project.id}
                 autoMergeAllowed={queue.autoMergeAllowed}
@@ -210,10 +210,10 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
             </Panel>
 
             <Panel className={styles.specQueuePanel}>
-              <h2>Queue</h2>
+              <h2>{t('dashboard.queue')}</h2>
               {queue.items.length === 0 ? (
                 <p className={fieldHintClass} data-testid="queue-empty">
-                  The queue is empty. Use “Add to queue” to queue a spec file.
+                  {t('dashboard.empty')}
                 </p>
               ) : (
                 <ol className={styles.specQueueItems} data-testid="queue-items" ref={listRef}>
@@ -225,14 +225,14 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
               )}
               {queue.lastPolledAt && (
                 <p className={styles.specQueuePolled} data-testid="queue-last-polled">
-                  Runner last checked: {formatDateTime(queue.lastPolledAt)}
+                  {t('dashboard.lastPolled', { at: formatDateTime(queue.lastPolledAt) })}
                 </p>
               )}
             </Panel>
 
             {queue.recentlyFinished.length > 0 && (
               <Panel className={styles.specQueuePanel}>
-                <h2>Recently finished</h2>
+                <h2>{t('dashboard.recentlyFinished')}</h2>
                 <ul className={styles.specQueueItems} data-testid="queue-recent">
                   {queue.recentlyFinished.map((item) => renderRow(item))}
                 </ul>
@@ -259,7 +259,7 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
           onCancel={() => setAdding(false)}
           onAdded={(item) => {
             setAdding(false);
-            setAnnouncement(`${item.specFile} added to the queue`);
+            setAnnouncement(t('dashboard.added', { specFile: item.specFile }));
             void refresh();
           }}
         />

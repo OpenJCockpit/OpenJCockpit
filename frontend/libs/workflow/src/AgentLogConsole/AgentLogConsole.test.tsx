@@ -1,5 +1,5 @@
 import { screen } from '@testing-library/react';
-import { renderWithI18n as render } from '@openjcockpit/i18n/testing';
+import { render } from '../testUtils/render';
 import { describe, expect, it } from 'vitest';
 import type { AgentEvent } from '@openjcockpit/api';
 import { AgentLogConsole } from './AgentLogConsole';

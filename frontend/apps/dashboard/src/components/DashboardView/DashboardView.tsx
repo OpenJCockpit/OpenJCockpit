@@ -1,5 +1,6 @@
 import { Suspense, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from '@openjcockpit/i18n';
 import { AppShell, StatusMessage } from '@openjcockpit/ui';
 import { useProjectWorkflows } from '@openjcockpit/workflow/queries';
 import type { Project } from '@openjcockpit/api';
@@ -25,6 +26,7 @@ interface Props {
 
 /** The project dashboard. Mounted with `key={project.id}` so all local state resets per project. */
 export function DashboardView({ projects, project, onProjectChange, onLogout }: Props) {
+  const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
   const workspaceQuery = useWorkspaceQuery(project);
   const specsQuery = useProjectSpecsQuery(project.id);
@@ -84,7 +86,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
             variant={workspaceQuery.isError ? 'error' : 'loading'}
             data-testid="workspace-status"
           >
-            {workspaceQuery.isError ? 'Failed to load the workspace.' : 'Loading workspace...'}
+            {workspaceQuery.isError ? t('workspace.failed') : t('workspace.loading')}
           </StatusMessage>
         )}
 

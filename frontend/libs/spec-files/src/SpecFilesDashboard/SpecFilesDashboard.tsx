@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from '@openjcockpit/i18n';
 import { loadProjectSpecs, queryKeys, saveSpecFile } from '@openjcockpit/api';
 import type { Project, SpecFile, SpecInitResult } from '@openjcockpit/api';
 import {
@@ -46,6 +47,7 @@ interface Selection {
 }
 
 export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }: Props) {
+  const { t } = useTranslation('specFiles');
   const queryClient = useQueryClient();
   const projectId = project?.id ?? null;
   const specsQuery = useQuery({
@@ -102,43 +104,41 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
         content: draftContent,
       });
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Saving the spec failed');
+      setSaveError(err instanceof Error ? err.message : t('saveFailed'));
     }
   }
 
   return (
     <AppShell>
-      {header ?? <AppHeader onBack={onBack} backTitle="Back to dashboard" />}
+      {header ?? <AppHeader onBack={onBack} backTitle={t('backToDashboard')} />}
 
       <main className={pageClass}>
         <div className={pageHeaderClass}>
           <div>
-            <Eyebrow>Spec Files</Eyebrow>
-            <h1>{project ? project.name : 'No project selected'}</h1>
+            <Eyebrow>{t('eyebrow')}</Eyebrow>
+            <h1>{project ? project.name : t('noProject')}</h1>
           </div>
         </div>
 
-        {!project && (
-          <p className={fieldHintClass}>Select a project first to manage the spec files.</p>
-        )}
+        {!project && <p className={fieldHintClass}>{t('selectProjectFirst')}</p>}
 
         {project && (
           <div className={styles.specFilesBody}>
             <Panel as="aside" className={cx(specStyles.specPanel, styles.specFilesPanel)}>
               <PanelHeader simple>
                 <PanelTitle>
-                  <IconBox label="📄" compact /> <h2>Specs</h2>
+                  <IconBox label="📄" compact /> <h2>{t('specs')}</h2>
                 </PanelTitle>
               </PanelHeader>
 
               <div className={cx(specStyles.specList, styles.specFilesList)}>
-                {loading && <p className={specStyles.specListLoading}>Loading specs…</p>}
+                {loading && <p className={specStyles.specListLoading}>{t('loadingSpecs')}</p>}
                 {!loading && specs.length === 0 && (
                   <article className={cx(specStyles.specCard, specStyles.specCardEmpty)}>
                     <IconBox label="📄" compact className={specStyles.icon} />
                     <div>
-                      <strong>No Specs Found</strong>
-                      <span>No specs/ folder with specifications in the repository</span>
+                      <strong>{t('noSpecsFound')}</strong>
+                      <span>{t('noSpecsFolder')}</span>
                     </div>
                   </article>
                 )}
@@ -155,7 +155,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                     <IconBox label="📄" compact className={specStyles.icon} />
                     <div>
                       <strong>{spec.fileName}</strong>
-                      <span>Last modified: {spec.lastChanged}</span>
+                      <span>{t('lastModified', { date: spec.lastChanged })}</span>
                     </div>
                     {spec.id === selectedId && (
                       <span className={specStyles.activeRail} aria-hidden="true" />
@@ -178,7 +178,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                         onClick={() => void handleSave(project.id, selected)}
                         disabled={!isDirty || saving}
                       >
-                        {saving ? '⟳ Saving…' : '💾 Save'}
+                        {saving ? t('saving') : t('save')}
                       </Button>
                       {renderAddToQueue && (
                         <Button
@@ -188,7 +188,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                           disabled={isDirty || saving}
                           aria-describedby={isDirty ? 'add-to-queue-hint' : undefined}
                         >
-                          ➕ Add to queue
+                          {t('addToQueue')}
                         </Button>
                       )}
                     </div>
@@ -199,9 +199,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                       className={fieldHintClass}
                       data-testid={saveResult ? 'spec-add-to-queue-unmerged' : undefined}
                     >
-                      {saveResult
-                        ? 'Your changes are saved on a branch and not merged yet. The queue runs the version on the default branch, so merge the pull request first.'
-                        : "Save the spec first. The queue only runs the version on the repository's default branch, so merge the pull request from saving before it runs."}
+                      {saveResult ? t('unmergedHint') : t('saveFirstHint')}
                     </p>
                   )}
                   {queuedNotice && (
@@ -214,7 +212,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                     value={draftContent}
                     onChange={(e) => setDraftContent(project.id, e.target.value)}
                     spellCheck={false}
-                    aria-label={`Contents of ${selected.fileName}`}
+                    aria-label={t('contentsOf', { fileName: selected.fileName })}
                   />
                   {saveError && <p className={feedbackErrorClass}>{saveError}</p>}
                   {saveResult && (
@@ -227,14 +225,14 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                           target="_blank"
                           rel="noreferrer"
                         >
-                          Open pull request <span>→</span>
+                          {t('openPullRequest')} <span>→</span>
                         </a>
                       )}
                     </div>
                   )}
                 </>
               ) : (
-                !loading && <p className={fieldHintClass}>No spec selected.</p>
+                !loading && <p className={fieldHintClass}>{t('noSpecSelected')}</p>
               )}
             </Panel>
           </div>
@@ -250,7 +248,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
           onCancel: () => setQueueDialogOpen(false),
           onAdded: () => {
             setQueueDialogOpen(false);
-            setQueuedNotice(`${selected.fileName} was added to the queue.`);
+            setQueuedNotice(t('addedToQueue', { fileName: selected.fileName }));
           },
         })}
     </AppShell>

@@ -20,36 +20,42 @@ interface Props {
   onViewExecutionTab?: (workflow: WorkflowDefinition) => void;
 }
 
-function triggerSummary(workflow: WorkflowDefinition): string {
+function triggerSummary(workflow: WorkflowDefinition, t: TFunction<'workflow'>): string {
   const triggers: string[] = [];
-  if (workflow.trigger?.dashboardButtonEnabled) triggers.push('Dashboard button');
+  if (workflow.trigger?.dashboardButtonEnabled) triggers.push(t('overview.triggerDashboard'));
   if (workflow.trigger?.hermesSignalEnabled) {
-    triggers.push(`Hermes signal (${workflow.trigger.hermesSignalType ?? 'any'})`);
+    triggers.push(
+      t('overview.triggerHermes', {
+        type: workflow.trigger.hermesSignalType ?? t('overview.triggerHermesAny'),
+      }),
+    );
   }
-  if (workflow.trigger?.fileDeliveryEnabled) triggers.push('File delivery');
-  return triggers.length > 0 ? triggers.join(', ') : 'None configured';
+  if (workflow.trigger?.fileDeliveryEnabled) triggers.push(t('overview.triggerFile'));
+  return triggers.length > 0 ? triggers.join(', ') : t('overview.noneConfigured');
 }
 
 function agentSummary(
   agentIds: string[],
   index: Map<string, AgentDefinition>,
   degraded: boolean,
-  t: TFunction<'api'>,
+  t: TFunction<'workflow'>,
+  tApi: TFunction<'api'>,
 ): string {
-  if (agentIds.length === 0) return 'None';
+  if (agentIds.length === 0) return t('overview.none');
   if (degraded) {
     return agentIds.join(', ');
   }
   // in the workflow's execution order; references missing from the catalog stay visible
   const parts = agentIds.map((id) => {
     const agent = index.get(id);
-    return agent ? agent.name : `${referenceLabel(id, t)} (unrecognised)`;
+    return agent ? agent.name : t('overview.unrecognised', { label: referenceLabel(id, tApi) });
   });
   return parts.join(', ');
 }
 
 export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTab }: Props) {
-  const { t } = useTranslation('api');
+  const { t } = useTranslation('workflow');
+  const { t: tApi } = useTranslation('api');
   const { formatDateTime } = useFormatters();
   const {
     loaded,
@@ -70,7 +76,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
   } = useWorkflowOverview(project, onWorkflowStarted);
 
   if (!loaded) {
-    return <StatusMessage variant="loading">Loading workflows...</StatusMessage>;
+    return <StatusMessage variant="loading">{t('overview.loading')}</StatusMessage>;
   }
 
   return (
@@ -86,12 +92,12 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
 
       {listError && (
         <p className={fieldErrorClass} role="alert">
-          Workflows could not be loaded — {listError}
+          {t('overview.loadFailed', { error: listError })}
         </p>
       )}
 
       {!listError && visibleWorkflows.length === 0 && (
-        <p className={fieldHintClass}>No workflows defined yet. Create one in the Design tab.</p>
+        <p className={fieldHintClass}>{t('overview.empty')}</p>
       )}
 
       {catalogueError && (
@@ -113,60 +119,73 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
 
             <dl className={styles.workflowCardMeta}>
               <div>
-                <dt>Project</dt>
+                <dt>{t('overview.project')}</dt>
                 <dd>{workflow.projectName}</dd>
               </div>
               <div>
-                <dt>Triggers</dt>
-                <dd>{triggerSummary(workflow)}</dd>
+                <dt>{t('overview.triggers')}</dt>
+                <dd>{triggerSummary(workflow, t)}</dd>
               </div>
               <div>
-                <dt>Agents</dt>
-                <dd>{agentSummary(workflow.agentIds, agentIndex, catalogueError !== null, t)}</dd>
-              </div>
-              <div>
-                <dt>Subagents</dt>
+                <dt>{t('overview.agents')}</dt>
                 <dd>
-                  {workflow.subagentNames.length > 0 ? workflow.subagentNames.join(', ') : 'None'}
+                  {agentSummary(workflow.agentIds, agentIndex, catalogueError !== null, t, tApi)}
                 </dd>
               </div>
               <div>
-                <dt>Skills</dt>
-                <dd>{workflow.skillNames.length > 0 ? workflow.skillNames.join(', ') : 'None'}</dd>
+                <dt>{t('overview.subagents')}</dt>
+                <dd>
+                  {workflow.subagentNames.length > 0
+                    ? workflow.subagentNames.join(', ')
+                    : t('overview.none')}
+                </dd>
               </div>
               <div>
-                <dt>MCP tools</dt>
+                <dt>{t('overview.skills')}</dt>
+                <dd>
+                  {workflow.skillNames.length > 0
+                    ? workflow.skillNames.join(', ')
+                    : t('overview.none')}
+                </dd>
+              </div>
+              <div>
+                <dt>{t('overview.mcpTools')}</dt>
                 <dd>
                   {workflow.mcpTools.length > 0
-                    ? workflow.mcpTools.map((t) => t.name).join(', ')
-                    : 'None'}
+                    ? workflow.mcpTools.map((tool) => tool.name).join(', ')
+                    : t('overview.none')}
                 </dd>
               </div>
               <div>
-                <dt>Last execution</dt>
+                <dt>{t('overview.lastExecution')}</dt>
                 <dd>
-                  {workflow.lastExecutionStatus ?? 'Never run'}
+                  {workflow.lastExecutionStatus ?? t('overview.neverRun')}
                   {workflow.lastExecutionAt ? ` — ${formatDateTime(workflow.lastExecutionAt)}` : ''}
                 </dd>
               </div>
               <div>
-                <dt>OPA enforcement</dt>
+                <dt>{t('overview.opa')}</dt>
                 <dd>
                   <StatusChip
-                    label={opaEnabled ? 'Enabled' : 'Disabled'}
+                    label={opaEnabled ? t('overview.enabled') : t('overview.disabled')}
                     kind={opaEnabled ? 'ok' : 'waiting'}
                   />{' '}
                   {decisionSummaries[workflow.id]?.lastResult
-                    ? `Last decision: ${decisionSummaries[workflow.id]?.lastResult} (${decisionSummaries[workflow.id]?.lastDecisionId ?? t('notAvailable')})`
-                    : 'No decisions recorded yet'}
+                    ? t('overview.lastDecision', {
+                        result: decisionSummaries[workflow.id]?.lastResult,
+                        id: decisionSummaries[workflow.id]?.lastDecisionId ?? tApi('notAvailable'),
+                      })
+                    : t('overview.noDecisions')}
                 </dd>
               </div>
               <div>
-                <dt>Decisions</dt>
+                <dt>{t('overview.decisions')}</dt>
                 <dd>
-                  Allowed {decisionSummaries[workflow.id]?.allowed ?? 0} · Denied{' '}
-                  {decisionSummaries[workflow.id]?.denied ?? 0} · Requires approval{' '}
-                  {decisionSummaries[workflow.id]?.requiresApproval ?? 0}
+                  {t('overview.decisionCounts', {
+                    allowed: decisionSummaries[workflow.id]?.allowed ?? 0,
+                    denied: decisionSummaries[workflow.id]?.denied ?? 0,
+                    requiresApproval: decisionSummaries[workflow.id]?.requiresApproval ?? 0,
+                  })}
                 </dd>
               </div>
             </dl>
@@ -177,17 +196,17 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
                 onClick={() => void handleStart(workflow)}
                 disabled={startingId === workflow.id}
               >
-                {startingId === workflow.id ? '⟳ Starting…' : '▶ Start'}
+                {startingId === workflow.id ? t('overview.starting') : t('overview.start')}
               </Button>
               <Button
                 onClick={() => void handleExportDecisionLogs(workflow)}
                 disabled={exportingId === workflow.id}
               >
-                {exportingId === workflow.id ? '⟳ Exporting…' : '⬇ Export decision logs'}
+                {exportingId === workflow.id ? t('overview.exporting') : t('overview.export')}
               </Button>
               {onViewExecutionTab && (
                 <Button variant="link" onClick={() => onViewExecutionTab(workflow)}>
-                  Open Workflow Execution <span>→</span>
+                  {t('overview.openExecution')} <span>→</span>
                 </Button>
               )}
               {feedback[workflow.id] && (

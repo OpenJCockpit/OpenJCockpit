@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import { StatusMessage, Button } from '@openjcockpit/ui';
 import type { AgentCatalogStatus } from '@openjcockpit/api';
 import { useAgentCatalog } from './useAgentCatalog';
@@ -6,38 +7,32 @@ import { LocalAgentsTree } from './LocalAgentsTree';
 import { ProviderAgentsTable } from './ProviderAgentsTable';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
-const STATUS_TEXT: Record<Exclude<AgentCatalogStatus, 'OK'>, string> = {
-  NOT_CONFIGURED: 'Not configured',
-  UNAVAILABLE: 'Unavailable',
-  UNAUTHORIZED: 'Access denied',
-  INVALID: 'Invalid response',
-};
-
 /**
  * Read-only agent catalog: the repository's /agents folder ("Local", grouped by subfolder) and
  * one section per A2A provider, headed by the provider's name (e.g. "LiteLLM").
  */
 export function AgentsPanel() {
+  const { t } = useTranslation('workflow');
   const { data: catalog, isError, refetch } = useAgentCatalog();
 
   if (isError) {
     return (
       <div>
-        <StatusMessage variant="error">Failed to load the agent catalog.</StatusMessage>
+        <StatusMessage variant="error">{t('agentsPanel.loadFailed')}</StatusMessage>
         <Button variant="secondary" onClick={() => void refetch()}>
-          Retry
+          {t('shared.retry')}
         </Button>
       </div>
     );
   }
-  if (!catalog) return <StatusMessage variant="loading">Loading agents...</StatusMessage>;
+  if (!catalog) return <StatusMessage variant="loading">{t('agentsPanel.loading')}</StatusMessage>;
 
   return (
     <div>
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
         <span className={WorkflowDesignStyles.workflowDesignToolbarSpacer} />
         <Button variant="secondary" onClick={() => void refetch()}>
-          ↻ Refresh
+          {t('agentsPanel.refresh')}
         </Button>
       </div>
 
@@ -46,7 +41,7 @@ export function AgentsPanel() {
         count={catalog.local.agents.length}
         status={catalog.local.status}
         message={catalog.local.message}
-        empty="No agents in the /agents folder yet."
+        empty={t('agentsPanel.emptyLocal')}
       >
         <LocalAgentsTree agents={catalog.local.agents} />
       </CatalogSection>
@@ -58,7 +53,7 @@ export function AgentsPanel() {
           count={provider.agents.length}
           status={provider.status}
           message={provider.message}
-          empty={`No agents registered at ${provider.name}.`}
+          empty={t('agentsPanel.emptyProvider', { name: provider.name })}
         >
           <ProviderAgentsTable provider={provider} agents={provider.agents} />
         </CatalogSection>
@@ -77,6 +72,7 @@ interface CatalogSectionProps {
 }
 
 function CatalogSection({ title, count, status, message, empty, children }: CatalogSectionProps) {
+  const { t } = useTranslation('workflow');
   const ok = status === 'OK';
   return (
     <section className={WorkflowDesignStyles.agentCatalogSection} aria-label={title}>
@@ -84,7 +80,9 @@ function CatalogSection({ title, count, status, message, empty, children }: Cata
         {title}
         <span className={WorkflowDesignStyles.agentCatalogCount}>{count}</span>
         {!ok && (
-          <span className={WorkflowDesignStyles.agentCatalogStatus}>{STATUS_TEXT[status]}</span>
+          <span className={WorkflowDesignStyles.agentCatalogStatus}>
+            {t(`agentsPanel.status.${status}`)}
+          </span>
         )}
       </h3>
       {message && <StatusMessage variant={ok ? 'info' : 'error'}>{message}</StatusMessage>}

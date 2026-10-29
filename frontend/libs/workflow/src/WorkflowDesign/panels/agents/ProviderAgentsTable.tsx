@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react';
 import { getProviderAgentCard } from '@openjcockpit/api';
 import type { A2AAgentCard, ProviderCatalogAgent } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { StatusMessage, Button, DataTable } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
@@ -12,6 +13,7 @@ interface ProviderAgentsTableProps {
 type CardState = { loading: true } | { card: A2AAgentCard } | { error: string };
 
 export function ProviderAgentsTable({ provider, agents }: ProviderAgentsTableProps) {
+  const { t } = useTranslation('workflow');
   const [open, setOpen] = useState<string | null>(null);
   const [cards, setCards] = useState<Record<string, CardState>>({});
 
@@ -28,7 +30,7 @@ export function ProviderAgentsTable({ provider, agents }: ProviderAgentsTablePro
         console.warn(err);
         setCards((prev) => ({
           ...prev,
-          [agent.name]: { error: `Could not retrieve the agent card from ${provider.name}.` },
+          [agent.name]: { error: t('providerAgents.cardFailed', { name: provider.name }) },
         }));
       });
   }
@@ -37,11 +39,11 @@ export function ProviderAgentsTable({ provider, agents }: ProviderAgentsTablePro
     <DataTable>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Version</th>
-          <th>A2A</th>
-          <th>Endpoint</th>
+          <th>{t('shared.name')}</th>
+          <th>{t('shared.description')}</th>
+          <th>{t('shared.version')}</th>
+          <th>{t('providerAgents.a2a')}</th>
+          <th>{t('providerAgents.endpoint')}</th>
           <th></th>
         </tr>
       </thead>
@@ -54,11 +56,13 @@ export function ProviderAgentsTable({ provider, agents }: ProviderAgentsTablePro
               <td>{agent.version}</td>
               <td>
                 {agent.protocolVersion}
-                {agent.streaming && ' · streaming'}
+                {agent.streaming && t('providerAgents.streaming')}
               </td>
               <td className={WorkflowDesignStyles.agentCatalogPath}>
                 {agent.url}
-                {agent.backendUrl && <div>routes to {agent.backendUrl}</div>}
+                {agent.backendUrl && (
+                  <div>{t('providerAgents.routesTo', { url: agent.backendUrl })}</div>
+                )}
               </td>
               <td>
                 <Button
@@ -66,7 +70,7 @@ export function ProviderAgentsTable({ provider, agents }: ProviderAgentsTablePro
                   aria-expanded={open === agent.name}
                   onClick={() => toggle(agent)}
                 >
-                  {open === agent.name ? 'Hide' : 'Details'}
+                  {open === agent.name ? t('providerAgents.hide') : t('providerAgents.details')}
                 </Button>
               </td>
             </tr>
@@ -85,8 +89,9 @@ export function ProviderAgentsTable({ provider, agents }: ProviderAgentsTablePro
 }
 
 function AgentCardDetails({ state, cardUrl }: { state?: CardState; cardUrl?: string | null }) {
+  const { t } = useTranslation('workflow');
   if (!state || 'loading' in state) {
-    return <StatusMessage role="status">Loading agent card...</StatusMessage>;
+    return <StatusMessage role="status">{t('providerAgents.cardLoading')}</StatusMessage>;
   }
   if ('error' in state) return <StatusMessage variant="error">{state.error}</StatusMessage>;
   const { card } = state;
@@ -94,27 +99,36 @@ function AgentCardDetails({ state, cardUrl }: { state?: CardState; cardUrl?: str
   return (
     <div
       className={WorkflowDesignStyles.agentCatalogDetails}
-      aria-label={`Agent card ${card.name}`}
+      aria-label={t('providerAgents.cardLabel', { name: card.name })}
     >
       <dl>
-        <dt>Endpoint</dt>
+        <dt>{t('providerAgents.endpoint')}</dt>
         <dd>{card.url}</dd>
-        <dt>Agent card</dt>
+        <dt>{t('providerAgents.agentCard')}</dt>
         <dd>
           {cardUrl}{' '}
-          <span className={WorkflowDesignStyles.agentCatalogId}>(provider key required)</span>
+          <span className={WorkflowDesignStyles.agentCatalogId}>
+            {t('providerAgents.providerKeyRequired')}
+          </span>
         </dd>
-        <dt>Protocol</dt>
+        <dt>{t('providerAgents.protocol')}</dt>
         <dd>
-          A2A {card.protocolVersion}
-          {card.preferredTransport && ` · ${card.preferredTransport}`}
+          {t('providerAgents.protocolValue', { version: card.protocolVersion })}
+          {card.preferredTransport &&
+            t('providerAgents.transport', { transport: card.preferredTransport })}
         </dd>
-        <dt>Capabilities</dt>
+        <dt>{t('providerAgents.capabilities')}</dt>
         <dd>
-          streaming {card.capabilities?.streaming ? 'yes' : 'no'} · push notifications{' '}
-          {card.capabilities?.pushNotifications ? 'yes' : 'no'}
+          {t('providerAgents.capabilitiesValue', {
+            streaming: card.capabilities?.streaming
+              ? t('providerAgents.yes')
+              : t('providerAgents.no'),
+            push: card.capabilities?.pushNotifications
+              ? t('providerAgents.yes')
+              : t('providerAgents.no'),
+          })}
         </dd>
-        <dt>Input / output</dt>
+        <dt>{t('providerAgents.io')}</dt>
         <dd>
           {(card.defaultInputModes ?? []).join(', ')} → {(card.defaultOutputModes ?? []).join(', ')}
         </dd>

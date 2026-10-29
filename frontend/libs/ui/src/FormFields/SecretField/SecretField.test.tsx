@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithI18n as render } from '@openjcockpit/i18n/testing';
 import { describe, expect, it, vi } from 'vitest';
 import { SecretField } from './SecretField';
 

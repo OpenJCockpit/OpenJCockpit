@@ -1,4 +1,5 @@
 import type { WorkflowGroup } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { DataTable, Button } from '@openjcockpit/ui';
 
 interface GroupsTableProps {
@@ -8,14 +9,15 @@ interface GroupsTableProps {
 }
 
 export function GroupsTable({ items, onEdit, onDelete }: GroupsTableProps) {
+  const { t } = useTranslation('workflow');
   return (
     <DataTable>
       <thead>
         <tr>
           <th>ID</th>
-          <th>Name</th>
-          <th>Project</th>
-          <th>Description</th>
+          <th>{t('shared.name')}</th>
+          <th>{t('shared.project')}</th>
+          <th>{t('shared.description')}</th>
           <th></th>
         </tr>
       </thead>
@@ -24,14 +26,14 @@ export function GroupsTable({ items, onEdit, onDelete }: GroupsTableProps) {
           <tr key={item.id}>
             <td>{item.id}</td>
             <td>{item.name}</td>
-            <td>{item.projectName || 'Global (all projects)'}</td>
+            <td>{item.projectName || t('groups.global')}</td>
             <td>{item.description}</td>
             <td>
               <Button variant="secondary" onClick={() => onEdit(item)}>
-                Edit
+                {t('shared.edit')}
               </Button>
               <Button variant="secondary" onClick={() => onDelete(item.id)}>
-                Delete
+                {t('shared.delete')}
               </Button>
             </td>
           </tr>

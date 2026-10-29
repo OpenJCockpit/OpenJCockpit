@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getHermesConfig, queryKeys, saveHermesConfig } from '@openjcockpit/api';
 import type { HermesConfig, HermesConfigRequest } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { CheckboxField, SecretField, TextField, StatusMessage } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
 
@@ -36,6 +37,7 @@ function toFormState(hermes: HermesConfig): HermesFormState {
 }
 
 export function HermesSettings({ projectId }: Props) {
+  const { t } = useTranslation('workflow');
   const queryClient = useQueryClient();
   const queryKey = queryKeys.hermesConfig(projectId);
   const configQuery = useQuery({ queryKey, queryFn: () => getHermesConfig(projectId) });
@@ -78,45 +80,45 @@ export function HermesSettings({ projectId }: Props) {
   }
 
   if (loadError) {
-    return <StatusMessage variant="error">Failed to load the Hermes configuration.</StatusMessage>;
+    return <StatusMessage variant="error">{t('hermes.loadFailed')}</StatusMessage>;
   }
 
-  if (!loaded) return <StatusMessage variant="loading">Loading configuration...</StatusMessage>;
+  if (!loaded) return <StatusMessage variant="loading">{t('config.loading')}</StatusMessage>;
 
   return (
     <IntegrationConfigForm
-      title="Hermes Agent integration"
-      saveLabel="Save Hermes config"
+      title={t('hermes.title')}
+      saveLabel={t('hermes.save')}
       saving={saving}
       error={error}
       savedMessage={savedMessage}
       onSave={() => void handleSave()}
     >
       <CheckboxField
-        label="Enabled"
+        label={t('config.enabled')}
         checked={form.enabled}
         onChange={(v) => update({ enabled: v })}
       />
       <TextField
-        label="Signal source / endpoint"
+        label={t('hermes.endpoint')}
         value={form.endpointUrl}
         onChange={(v) => update({ endpointUrl: v })}
-        placeholder="https://hermes.example.com/signals"
+        placeholder={t('hermes.endpointPlaceholder')}
       />
       <TextField
-        label="Signal type"
+        label={t('hermes.signalType')}
         value={form.signalType}
         onChange={(v) => update({ signalType: v })}
-        placeholder="issue.created"
+        placeholder={t('hermes.signalTypePlaceholder')}
       />
       <TextField
-        label="Workflow ID to start"
+        label={t('config.workflowIdToStart')}
         value={form.workflowId}
         onChange={(v) => update({ workflowId: v })}
-        placeholder="wf-onboarding"
+        placeholder={t('config.workflowIdPlaceholder')}
       />
       <SecretField
-        label="Auth token"
+        label={t('config.authToken')}
         hasValue={hasAuthToken}
         value={form.authToken}
         onChange={(v) => update({ authToken: v })}

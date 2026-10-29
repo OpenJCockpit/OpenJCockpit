@@ -15,6 +15,7 @@ import {
   pageClass,
   pageHeaderClass,
 } from '@openjcockpit/ui';
+import { useTranslation } from '@openjcockpit/i18n';
 import type { StatusKind } from '@openjcockpit/api';
 import styles from './SkillsHubDashboard.module.scss';
 
@@ -25,55 +26,51 @@ interface Props {
   header?: ReactNode;
 }
 
-interface SkillCategory {
-  label: string;
-  kind: StatusKind;
-}
+type CategoryId = 'dev' | 'ops' | 'security';
+type SkillId = 'grill-me' | 'software-quality';
 
-interface SkillEntry {
-  id: string;
-  icon: string;
-  name: string;
-  description: string;
-  categories: SkillCategory[];
-}
+const CATEGORY_KINDS: Record<CategoryId, StatusKind> = {
+  dev: 'done',
+  ops: 'waiting',
+  security: 'active',
+};
 
-const CATEGORY_DEV: SkillCategory = { label: 'Dev', kind: 'done' };
-const CATEGORY_OPS: SkillCategory = { label: 'Ops', kind: 'waiting' };
-const CATEGORY_SECURITY: SkillCategory = { label: 'Security', kind: 'active' };
-
-const SKILLS: SkillEntry[] = [
-  {
-    id: 'grill-me',
-    icon: '🔥',
-    name: 'Grill Me',
-    description: 'Adversarial review that stress-tests code and design decisions before they ship.',
-    categories: [CATEGORY_SECURITY],
-  },
-  {
-    id: 'software-quality',
-    icon: '✅',
-    name: 'Software Quality',
-    description:
-      'Automated linting, test coverage, and quality-gate checks across the delivery pipeline.',
-    categories: [CATEGORY_DEV, CATEGORY_OPS],
-  },
+const SKILL_CATALOG: { id: SkillId; icon: string; categories: CategoryId[] }[] = [
+  { id: 'grill-me', icon: '🔥', categories: ['security'] },
+  { id: 'software-quality', icon: '✅', categories: ['dev', 'ops'] },
 ];
 
 export function SkillsHubDashboard({ onBack, onSettings, header }: Props) {
   const [query, setQuery] = useState('');
   const [term, setTerm] = useState('');
+  const { t } = useTranslation('skillsHub');
+
+  const skills = useMemo(
+    () =>
+      SKILL_CATALOG.map((skill) => ({
+        id: skill.id,
+        icon: skill.icon,
+        name: t(`dashboard.skills.${skill.id}.name`),
+        description: t(`dashboard.skills.${skill.id}.description`),
+        categories: skill.categories.map((category) => ({
+          id: category,
+          label: t(`dashboard.category.${category}`),
+          kind: CATEGORY_KINDS[category],
+        })),
+      })),
+    [t],
+  );
 
   const visibleSkills = useMemo(() => {
     const needle = term.trim().toLowerCase();
-    if (!needle) return SKILLS;
-    return SKILLS.filter(
+    if (!needle) return skills;
+    return skills.filter(
       (skill) =>
         skill.name.toLowerCase().includes(needle) ||
         skill.description.toLowerCase().includes(needle) ||
         skill.categories.some((category) => category.label.toLowerCase().includes(needle)),
     );
-  }, [term]);
+  }, [skills, term]);
 
   function handleSearch(e: FormEvent) {
     e.preventDefault();
@@ -82,16 +79,16 @@ export function SkillsHubDashboard({ onBack, onSettings, header }: Props) {
 
   return (
     <AppShell>
-      {header ?? <AppHeader onBack={onBack} backTitle="Back to dashboard" />}
+      {header ?? <AppHeader onBack={onBack} backTitle={t('dashboard.backTitle')} />}
 
       <main className={pageClass}>
         <div className={cx(pageHeaderClass, styles.skillsHubHeader)}>
           <div>
-            <Eyebrow>Skills Hub</Eyebrow>
-            <h1>Available skills</h1>
+            <Eyebrow>{t('eyebrow')}</Eyebrow>
+            <h1>{t('dashboard.title')}</h1>
           </div>
-          <Button variant="secondary" onClick={onSettings} title="Skills Hub settings">
-            ⚙ Settings
+          <Button variant="secondary" onClick={onSettings} title={t('dashboard.settingsTitle')}>
+            {t('dashboard.settings')}
           </Button>
         </div>
 
@@ -101,11 +98,11 @@ export function SkillsHubDashboard({ onBack, onSettings, header }: Props) {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search for a skill..."
-            aria-label="Search for a skill"
+            placeholder={t('dashboard.searchPlaceholder')}
+            aria-label={t('dashboard.searchLabel')}
           />
           <Button type="submit" size="sm">
-            ⌕ Search
+            {t('dashboard.search')}
           </Button>
         </form>
 
@@ -113,8 +110,8 @@ export function SkillsHubDashboard({ onBack, onSettings, header }: Props) {
           <DataTable className={styles.skillsHubTable}>
             <thead>
               <tr>
-                <th>Category</th>
-                <th>Skill</th>
+                <th>{t('dashboard.columnCategory')}</th>
+                <th>{t('dashboard.columnSkill')}</th>
               </tr>
             </thead>
             <tbody>
@@ -123,11 +120,7 @@ export function SkillsHubDashboard({ onBack, onSettings, header }: Props) {
                   <td>
                     <div className={styles.skillCategoryTags}>
                       {skill.categories.map((category) => (
-                        <StatusChip
-                          key={category.label}
-                          label={category.label}
-                          kind={category.kind}
-                        />
+                        <StatusChip key={category.id} label={category.label} kind={category.kind} />
                       ))}
                     </div>
                   </td>
@@ -145,7 +138,7 @@ export function SkillsHubDashboard({ onBack, onSettings, header }: Props) {
               {visibleSkills.length === 0 && (
                 <tr>
                   <td colSpan={2} className={fieldHintClass}>
-                    No skills found for &quot;{term}&quot;.
+                    {t('dashboard.noResults', { term })}
                   </td>
                 </tr>
               )}

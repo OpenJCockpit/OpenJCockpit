@@ -1,0 +1,103 @@
+{
+  "project": {
+    "gitStatus": {
+      "reachable": "Reachable",
+      "notReachable": "Not reachable",
+      "checkFailed": "Check failed",
+      "unknown": "Unknown",
+      "compactReachable": "Git reachable",
+      "compactNotReachable": "Git not reachable"
+    },
+    "selection": {
+      "repoReachable": "Git repository reachable",
+      "repoNotReachable": "Git repository not reachable",
+      "statusUnknown": "Git status unknown",
+      "title": "Select a project",
+      "subtitle": "Choose the project you want to work on",
+      "empty": "No active projects available.",
+      "manageArrow": "Manage projects →",
+      "manageGear": "⚙ Manage projects",
+      "owner": "Owner: {{owner}}",
+      "branch": "Branch: {{branch}}",
+      "notReachableNotice": "Repository not reachable. Update the project via ⚙ Manage projects."
+    },
+    "settings": {
+      "loading": "Loading projects...",
+      "back": "← Projects",
+      "title": "Project management",
+      "newProject": "+ New project",
+      "errors": {
+        "nameRequired": "Name is required",
+        "saveFailed": "Save failed. Please try again.",
+        "statusChangeFailed": "Status change failed.",
+        "gitCheckFailed": "Git check failed.",
+        "credentialsLoadFailed": "Failed to load existing credentials.",
+        "credentialsSaveFailed": "Failed to save credentials.",
+        "credentialsDeleteFailed": "Failed to delete credentials."
+      }
+    },
+    "form": {
+      "newTitle": "New project",
+      "editTitle": "Edit project",
+      "name": "Name *",
+      "namePlaceholder": "Project name",
+      "customerId": "Customer ID (stub)",
+      "customerIdPlaceholder": "e.g. noordzee-logistics",
+      "gitUrl": "Git URL",
+      "gitUrlPlaceholder": "https://github.com/org/repo",
+      "branch": "Branch",
+      "branchPlaceholder": "main",
+      "environment": "Environment",
+      "environmentPlaceholder": "prod / staging / dev",
+      "owner": "Owner",
+      "ownerPlaceholder": "Name or team",
+      "description": "Description",
+      "descriptionPlaceholder": "Short description",
+      "newProjectCheckbox": "New project (repository does not exist yet — skip Git check)",
+      "save": "Save",
+      "saving": "⟳ Saving…",
+      "cancel": "Cancel"
+    },
+    "credentials": {
+      "title": "Git credentials",
+      "loading": "Loading current credentials...",
+      "type": "Type",
+      "types": {
+        "NONE": "None",
+        "HTTPS_TOKEN": "HTTPS Token",
+        "GITHUB_PAT": "GitHub PAT",
+        "USERNAME_PASSWORD": "Username + password",
+        "GITHUB_APP": "GitHub App"
+      },
+      "username": "Username",
+      "usernamePlaceholder": "optional",
+      "secret": "Secret / token / password",
+      "secretKeepPlaceholder": "Leave empty to keep the current secret",
+      "secretRequiredPlaceholder": "Required — no secret set yet",
+      "githubApiUrl": "GitHub API URL (GitHub Enterprise)",
+      "githubApiUrlPlaceholder": "https://github.example.com/api/v3",
+      "hint": "On save, a Git check is first run with these credentials; they are only stored if the check succeeds.",
+      "save": "Save",
+      "saving": "⟳ Verifying and saving…",
+      "cancel": "Cancel"
+    },
+    "list": {
+      "name": "Name",
+      "gitStatus": "Git status",
+      "credentials": "Credentials",
+      "status": "Status",
+      "actions": "Actions",
+      "credentialsSet": "Credentials set",
+      "credentialsNone": "None",
+      "active": "Active",
+      "inactive": "Inactive",
+      "edit": "Edit",
+      "gitCheck": "Git check",
+      "updateCredentials": "Update credentials",
+      "addCredentials": "Add credentials",
+      "deleteCredentials": "Delete credentials",
+      "deactivate": "Deactivate",
+      "activate": "Activate"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import { ToolbarButton, StatusMessage, fieldHintClass } from '@openjcockpit/ui';
 import {
   createWorkflowGroup,
@@ -14,6 +15,7 @@ import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 const EMPTY_GROUP: WorkflowGroup = { id: '', name: '', description: '', projectName: '' };
 
 export function GroupsPanel() {
+  const { t } = useTranslation('workflow');
   const [items, setItems] = useState<WorkflowGroup[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -26,7 +28,7 @@ export function GroupsPanel() {
       setItems(g);
       setLoaded(true);
     });
-    return <StatusMessage variant="loading">Loading groups...</StatusMessage>;
+    return <StatusMessage variant="loading">{t('groups.loading')}</StatusMessage>;
   }
 
   function startCreate() {
@@ -73,12 +75,9 @@ export function GroupsPanel() {
   return (
     <div>
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>+ New group</ToolbarButton>
+        <ToolbarButton onClick={startCreate}>{t('groups.newButton')}</ToolbarButton>
       </div>
-      <p className={fieldHintClass}>
-        Groups bundle workflows designed for a specific meaning (for example onboarding, compliance
-        or reporting). Deleting a group unlinks its workflows; the workflows themselves are kept.
-      </p>
+      <p className={fieldHintClass}>{t('groups.intro')}</p>
       {error && <StatusMessage variant="error">{error}</StatusMessage>}
 
       {editingId && (

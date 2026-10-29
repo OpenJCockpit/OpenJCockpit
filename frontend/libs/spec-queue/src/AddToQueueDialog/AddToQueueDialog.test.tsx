@@ -1,4 +1,7 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { withI18n } from '@openjcockpit/i18n/testing';
+import { specQueueResources } from '../i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 
@@ -16,6 +19,8 @@ import {
 import type { Project, WorkflowDefinition } from '@openjcockpit/api';
 import { withQueryClient } from '../testQueryClient';
 import { AddToQueueDialog } from './AddToQueueDialog';
+
+const render = (ui: ReactElement) => rtlRender(withI18n(ui, specQueueResources));
 
 const PROJECT = { id: 'p1', name: 'Proj' } as Project;
 const SPECS = [

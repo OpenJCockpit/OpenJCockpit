@@ -1,5 +1,6 @@
 import { Suspense, useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
+import { useTranslation } from '@openjcockpit/i18n';
 import { ErrorBoundary, StatusMessage } from '@openjcockpit/ui';
 import {
   clearStoredProjectId,
@@ -28,6 +29,7 @@ import { useAuthSession } from './useAuthSession';
 const NO_PROJECTS: Project[] = [];
 
 function App() {
+  const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
   const location = useLocation();
   const { authenticated, user } = useAuthSession();
@@ -74,7 +76,7 @@ function App() {
   if (!authReady) {
     return (
       <StatusMessage variant="loading" data-testid="auth-loading">
-        Authenticating...
+        {t('authenticating')}
       </StatusMessage>
     );
   }
@@ -84,7 +86,7 @@ function App() {
       <Suspense
         fallback={
           <StatusMessage variant="loading" data-testid="view-loading">
-            Loading...
+            {t('loadingView')}
           </StatusMessage>
         }
       >

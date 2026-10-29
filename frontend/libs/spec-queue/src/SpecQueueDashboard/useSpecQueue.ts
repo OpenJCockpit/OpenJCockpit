@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from '@openjcockpit/i18n';
 import { getSpecQueue, queryKeys } from '@openjcockpit/api';
 import type { SpecQueue } from '@openjcockpit/api';
 
@@ -12,6 +13,7 @@ export function messageOf(e: unknown, fallback: string): string {
 
 /** Polls a project's spec queue (with exponential backoff while loads fail) and writes responses back into the cache. */
 export function useSpecQueue(projectId: string | null) {
+  const { t } = useTranslation('specQueue');
   const queryClient = useQueryClient();
   const queueKey = queryKeys.specQueue(projectId);
   // react-query resets its own failure counters on every fetch, so count consecutive failures here.
@@ -41,7 +43,7 @@ export function useSpecQueue(projectId: string | null) {
   });
   const queue = queueQuery.data ?? null;
   const loadError = queueQuery.isError
-    ? messageOf(queueQuery.error, 'Failed to load the spec queue')
+    ? messageOf(queueQuery.error, t('dashboard.loadFailed'))
     : null;
 
   /** Writes a queue response; an in-flight poll is cancelled so it cannot overwrite it. */

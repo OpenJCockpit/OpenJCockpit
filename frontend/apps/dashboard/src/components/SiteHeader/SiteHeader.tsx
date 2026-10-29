@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { useTranslation } from '@openjcockpit/i18n';
 import type { Project } from '@openjcockpit/api';
 import styles from './SiteHeader.module.scss';
 import { Button, BrandLogo, dropdownClass } from '@openjcockpit/ui';
@@ -6,17 +7,16 @@ import { ROUTES } from '../../routes';
 
 export type SiteSection = 'platform' | 'workflow' | 'specFiles' | 'specQueue' | 'skillsHub';
 
-const NAV_ITEMS: { section: SiteSection; label: string; path: string; testId: string }[] = [
-  { section: 'platform', label: 'Platform', path: ROUTES.dashboard, testId: 'nav-platform' },
+const NAV_ITEMS: { section: SiteSection; path: string; testId: string }[] = [
+  { section: 'platform', path: ROUTES.dashboard, testId: 'nav-platform' },
   {
     section: 'workflow',
-    label: 'Workflow Design & Execution',
     path: ROUTES.workflow,
     testId: 'nav-workflow',
   },
-  { section: 'specFiles', label: 'Spec Files', path: ROUTES.specFiles, testId: 'nav-spec-files' },
-  { section: 'specQueue', label: 'Spec Queue', path: ROUTES.specQueue, testId: 'nav-spec-queue' },
-  { section: 'skillsHub', label: 'Skills Hub', path: ROUTES.skillsHub, testId: 'nav-skills-hub' },
+  { section: 'specFiles', path: ROUTES.specFiles, testId: 'nav-spec-files' },
+  { section: 'specQueue', path: ROUTES.specQueue, testId: 'nav-spec-queue' },
+  { section: 'skillsHub', path: ROUTES.skillsHub, testId: 'nav-skills-hub' },
 ];
 
 interface Props {
@@ -36,6 +36,7 @@ export function SiteHeader({
   onProjectChange,
   onLogout,
 }: Props) {
+  const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
 
   return (
@@ -44,12 +45,12 @@ export function SiteHeader({
         type="button"
         className={styles.brand}
         onClick={() => void navigate(ROUTES.landing)}
-        title="Back to hub"
+        title={t('siteHeader.backToHub')}
       >
         <BrandLogo />
       </button>
 
-      <nav className={styles.mainNav} aria-label="Primary navigation">
+      <nav className={styles.mainNav} aria-label={t('siteHeader.primaryNavigation')}>
         {NAV_ITEMS.map((item) => (
           <button
             key={item.section}
@@ -59,7 +60,7 @@ export function SiteHeader({
             onClick={() => void navigate(item.path)}
             data-testid={item.testId}
           >
-            {item.label}
+            {t(`siteHeader.nav.${item.section}`)}
           </button>
         ))}
       </nav>
@@ -70,7 +71,7 @@ export function SiteHeader({
             className={dropdownClass}
             value={selectedProject?.id ?? ''}
             onChange={(e) => onProjectChange(e.target.value)}
-            title="Active project"
+            title={t('siteHeader.activeProject')}
           >
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
@@ -82,20 +83,25 @@ export function SiteHeader({
         <Button
           variant="secondary"
           onClick={() => void navigate(ROUTES.settings)}
-          title="Project management"
+          title={t('siteHeader.projectManagement')}
         >
           ⚙
         </Button>
         <Button
           variant="secondary"
           onClick={() => void navigate(ROUTES.landing)}
-          title="Back to hub"
+          title={t('siteHeader.backToHub')}
           data-testid="nav-hub"
         >
-          ← Hub
+          {t('siteHeader.hub')}
         </Button>
-        <Button variant="secondary" onClick={onLogout} title="Log out" data-testid="nav-logout">
-          Logout
+        <Button
+          variant="secondary"
+          onClick={onLogout}
+          title={t('siteHeader.logOut')}
+          data-testid="nav-logout"
+        >
+          {t('siteHeader.logout')}
         </Button>
         <span className={styles.notification}>3</span>
         <span className={styles.avatar}>D</span>

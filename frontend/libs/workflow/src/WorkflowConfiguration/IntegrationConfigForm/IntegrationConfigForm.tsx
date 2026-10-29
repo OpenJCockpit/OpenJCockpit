@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import {
   ToolbarButton,
   StatusMessage,
@@ -31,6 +32,7 @@ export function IntegrationConfigForm({
   savedMessage,
   children,
 }: IntegrationConfigFormProps) {
+  const { t } = useTranslation('workflow');
   return (
     <div className={formClass}>
       <h2 className={formTitleClass}>{title}</h2>
@@ -41,7 +43,7 @@ export function IntegrationConfigForm({
       )}
       <div className={formGridClass}>{children}</div>
       <ToolbarButton onClick={onSave} disabled={saving}>
-        {saving ? '⟳ Saving…' : saveLabel}
+        {saving ? t('shared.saving') : saveLabel}
       </ToolbarButton>
     </div>
   );

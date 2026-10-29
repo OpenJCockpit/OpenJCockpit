@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from '@openjcockpit/i18n';
 import { ToolbarButton, StatusMessage, fieldErrorClass, Button } from '@openjcockpit/ui';
 import {
   createSkillSpec,
@@ -27,6 +28,7 @@ const EMPTY_SKILL: SkillSpec = {
 };
 
 export function SkillsPanel() {
+  const { t } = useTranslation('workflow');
   const queryClient = useQueryClient();
   const query = useSkillCatalog();
   const [editingName, setEditingName] = useState<string | null>(null);
@@ -142,9 +144,9 @@ export function SkillsPanel() {
     <div>
       <PromptGenerator kind="skill" onGenerate={handleGenerate} />
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>+ New skill</ToolbarButton>
+        <ToolbarButton onClick={startCreate}>{t('skills.newButton')}</ToolbarButton>
         <Button variant="secondary" onClick={() => void query.refetch()}>
-          ⟳ Refresh
+          {t('skills.refresh')}
         </Button>
       </div>
       {error && <StatusMessage variant="error">{error}</StatusMessage>}
@@ -162,7 +164,7 @@ export function SkillsPanel() {
 
       <div role="status" aria-live="polite">
         {loading
-          ? 'Loading skills…'
+          ? t('skills.loading')
           : statusMessages.map((message, index) => <div key={index}>{message}</div>)}
       </div>
 

@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import {
   ModalShell,
   Button,
@@ -29,6 +30,7 @@ export function ConfirmActionDialog({
   onConfirm,
   onCancel,
 }: Props) {
+  const { t } = useTranslation('specQueue');
   const titleId = useId();
   return (
     <ModalShell
@@ -51,7 +53,7 @@ export function ConfirmActionDialog({
           onClick={onCancel}
           disabled={busy}
         >
-          Cancel
+          {t('cancel')}
         </Button>
         <Button
           type="button"
@@ -60,7 +62,7 @@ export function ConfirmActionDialog({
           onClick={onConfirm}
           disabled={busy}
         >
-          {busy ? '⟳ Working…' : confirmLabel}
+          {busy ? t('working') : confirmLabel}
         </Button>
       </div>
     </ModalShell>

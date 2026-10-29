@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { AgentEvent } from '@openjcockpit/api';
-import { useFormatters } from '@openjcockpit/i18n';
+import { useFormatters, useTranslation } from '@openjcockpit/i18n';
 import styles from './AgentLogConsole.module.scss';
 
 interface Props {
@@ -20,6 +20,7 @@ const LOG_TIME_FORMAT: Intl.DateTimeFormatOptions = {
 export function AgentLogConsole({ events, agentName, isActive }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { formatTime } = useFormatters();
+  const { t } = useTranslation('workflow');
 
   function formatTimestamp(timestamp: string): string {
     if (Number.isNaN(new Date(timestamp).getTime())) return timestamp;
@@ -31,7 +32,7 @@ export function AgentLogConsole({ events, agentName, isActive }: Props) {
   }
 
   const content =
-    events.length > 0 ? events.map(formatLine).join('\n') : '// waiting for agent output…';
+    events.length > 0 ? events.map(formatLine).join('\n') : t('agentLogConsole.waiting');
 
   useEffect(() => {
     const el = textareaRef.current!;
@@ -40,13 +41,15 @@ export function AgentLogConsole({ events, agentName, isActive }: Props) {
 
   return (
     <div className={styles.agentLogConsole} data-active={isActive ? '' : undefined}>
-      <span className={styles.agentLogConsoleLabel}>AGENT LOG // {agentName ?? 'IDLE'}</span>
+      <span className={styles.agentLogConsoleLabel}>
+        {t('agentLogConsole.label', { agent: agentName ?? t('agentLogConsole.idle') })}
+      </span>
       <textarea
         ref={textareaRef}
         className={styles.agentLogConsoleOutput}
         readOnly
         value={content}
-        aria-label="Agent execution log"
+        aria-label={t('agentLogConsole.ariaLabel')}
       />
     </div>
   );

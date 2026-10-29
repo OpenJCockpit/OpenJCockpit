@@ -1,4 +1,5 @@
 import type { SpecInitStatus, WorkflowDefinition } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { WorkflowExecution } from '@openjcockpit/workflow';
 import type { useRunLauncher } from '../../useRunLauncher';
 import { PreflightAlert } from '../PreflightAlert/PreflightAlert';
@@ -42,6 +43,7 @@ export function FlowPanel({
   onReloadSpecs,
   onOpenProjectSettings,
 }: Props) {
+  const { t } = useTranslation('dashboard');
   const {
     buttonState,
     preflightErrors,
@@ -54,8 +56,8 @@ export function FlowPanel({
   } = launcher;
 
   function renderTitle() {
-    if (specsLoading) return 'Loading specs…';
-    return hasSpecs ? selectedFileName : 'No specs found';
+    if (specsLoading) return t('flow.loadingSpecs');
+    return hasSpecs ? selectedFileName : t('flow.noSpecsFound');
   }
 
   function renderActiveRun(run: NonNullable<typeof activeRun>) {
@@ -69,7 +71,7 @@ export function FlowPanel({
         />
         {runEnded && (
           <Button className={styles.workflowLauncherReset} onClick={launcher.handleNewRun}>
-            ↺ Start new workflow
+            {t('flow.startNewWorkflow')}
           </Button>
         )}
       </>
@@ -123,11 +125,11 @@ export function FlowPanel({
     <Panel className={styles.flowPanel}>
       <PanelHeader className={styles.flowHeader}>
         <div>
-          <Eyebrow>{hasSpecs ? 'Current spec' : 'Spec folder'}</Eyebrow>
+          <Eyebrow>{hasSpecs ? t('flow.currentSpec') : t('flow.specFolder')}</Eyebrow>
           <h2>{renderTitle()}</h2>
         </div>
         <div className={styles.flowHeaderActions}>
-          {activeRun && !runEnded && <StatusChip label="Active" kind="active" />}
+          {activeRun && !runEnded && <StatusChip label={t('flow.active')} kind="active" />}
         </div>
       </PanelHeader>
 

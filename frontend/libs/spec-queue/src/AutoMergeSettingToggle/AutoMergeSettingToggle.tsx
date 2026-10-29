@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import { isOpenJCockpitAdmin } from '@openjcockpit/auth';
+import { useTranslation } from '@openjcockpit/i18n';
 import { feedbackErrorClass, fieldHintClass, cx } from '@openjcockpit/ui';
 import { ConfirmActionDialog } from '../ConfirmActionDialog/ConfirmActionDialog';
 import { updateSpecQueueSettings } from '@openjcockpit/api';
@@ -12,10 +13,8 @@ interface Props {
   onChanged: (settings: SpecQueueSettings) => void;
 }
 
-const ENABLE_WARNING =
-  'Queue items marked for auto-merge will have their pull requests merged without human review, unless the workflow has an approval gate.';
-
 export function AutoMergeSettingToggle({ projectId, autoMergeAllowed, onChanged }: Props) {
+  const { t } = useTranslation('specQueue');
   const canChange = isOpenJCockpitAdmin();
   const [busy, setBusy] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -30,7 +29,7 @@ export function AutoMergeSettingToggle({ projectId, autoMergeAllowed, onChanged 
       onChanged(result);
       setConfirming(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to update the queue settings');
+      setError(e instanceof Error ? e.message : t('autoMergeSetting.updateFailed'));
     } finally {
       setBusy(false);
     }
@@ -61,7 +60,7 @@ export function AutoMergeSettingToggle({ projectId, autoMergeAllowed, onChanged 
           aria-describedby={descriptionId}
           onChange={(e) => handleChange(e.target.checked)}
         />
-        <span>Allow auto-merge for this project</span>
+        <span>{t('autoMergeSetting.label')}</span>
       </label>
       <p
         id={descriptionId}
@@ -69,8 +68,8 @@ export function AutoMergeSettingToggle({ projectId, autoMergeAllowed, onChanged 
         data-testid="auto-merge-setting-description"
       >
         {canChange
-          ? 'Queue items marked for auto-merge are then merged without human review, unless the workflow has an approval gate.'
-          : 'Only administrators (role openjcockpit-admin) can change this setting. The server enforces this.'}
+          ? t('autoMergeSetting.descriptionAdmin')
+          : t('autoMergeSetting.descriptionReadOnly')}
       </p>
       {error && !confirming && (
         <p className={feedbackErrorClass} role="alert" data-testid="auto-merge-setting-error">
@@ -79,9 +78,9 @@ export function AutoMergeSettingToggle({ projectId, autoMergeAllowed, onChanged 
       )}
       {confirming && (
         <ConfirmActionDialog
-          title="Allow auto-merge?"
-          message={ENABLE_WARNING}
-          confirmLabel="Allow auto-merge"
+          title={t('autoMergeSetting.confirmTitle')}
+          message={t('autoMergeSetting.confirmWarning')}
+          confirmLabel={t('autoMergeSetting.confirmLabel')}
           busy={busy}
           error={error}
           onConfirm={() => void apply(true)}

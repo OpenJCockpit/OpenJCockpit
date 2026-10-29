@@ -1,5 +1,6 @@
 import type { Project, Workspace } from '@openjcockpit/api';
 import { GitStatusBadge } from '@openjcockpit/project';
+import { useTranslation } from '@openjcockpit/i18n';
 import { IconBox } from '@openjcockpit/ui';
 import styles from './CustomerHero.module.scss';
 
@@ -48,6 +49,7 @@ function GitHubIcon() {
 }
 
 export function CustomerHero({ selectedProject, workspace }: Props) {
+  const { t } = useTranslation('dashboard');
   const repositoryUrl = toRepositoryPageUrl(selectedProject?.gitUrl);
 
   return (
@@ -57,7 +59,9 @@ export function CustomerHero({ selectedProject, workspace }: Props) {
           <IconBox label="◇" variant="hero" />
           <div>
             <h1>
-              Customer: {selectedProject?.name ?? workspace.customer.name}
+              {t('customerHero.customer', {
+                name: selectedProject?.name ?? workspace.customer.name,
+              })}
               {selectedProject && <GitStatusBadge status={selectedProject.gitStatus} compact />}
             </h1>
             {repositoryUrl && (

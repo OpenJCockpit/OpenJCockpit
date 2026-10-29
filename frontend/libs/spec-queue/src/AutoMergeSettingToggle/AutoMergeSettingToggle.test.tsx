@@ -1,4 +1,7 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { withI18n } from '@openjcockpit/i18n/testing';
+import { specQueueResources } from '../i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@openjcockpit/auth', () => ({ isOpenJCockpitAdmin: vi.fn() }));
@@ -7,6 +10,8 @@ vi.mock('@openjcockpit/api', () => ({ updateSpecQueueSettings: vi.fn() }));
 import { isOpenJCockpitAdmin } from '@openjcockpit/auth';
 import { updateSpecQueueSettings } from '@openjcockpit/api';
 import { AutoMergeSettingToggle } from './AutoMergeSettingToggle';
+
+const render = (ui: ReactElement) => rtlRender(withI18n(ui, specQueueResources));
 
 function setup(autoMergeAllowed: boolean) {
   const onChanged = vi.fn();

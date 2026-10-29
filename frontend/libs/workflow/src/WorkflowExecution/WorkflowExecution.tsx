@@ -67,7 +67,8 @@ export function WorkflowExecution({
   onRestartRequested,
   showHistory = true,
 }: Props) {
-  const { t } = useTranslation('api');
+  const { t } = useTranslation('workflow');
+  const { t: tApi } = useTranslation('api');
   // Container state: which run is currently selected (seeded from the runId prop when
   // a "just started" flow hands one in).
   const [selectedRunId, setSelectedRunId] = useState<string | null>(runId);
@@ -132,8 +133,8 @@ export function WorkflowExecution({
   }
 
   const agentCards = useMemo(
-    () => buildAgentCards(workflow, definitions, latestEvents, t),
-    [workflow, definitions, latestEvents, t],
+    () => buildAgentCards(workflow, definitions, latestEvents, tApi),
+    [workflow, definitions, latestEvents, tApi],
   );
 
   const workflowNameById = useMemo(
@@ -142,8 +143,8 @@ export function WorkflowExecution({
   );
 
   const sequencerNodes = useMemo(
-    () => buildSequencerNodes(workflow, agentCards, runEvents, runStatus, workflowNameById, t),
-    [workflow, agentCards, runEvents, runStatus, workflowNameById, t],
+    () => buildSequencerNodes(workflow, agentCards, runEvents, runStatus, workflowNameById, tApi),
+    [workflow, agentCards, runEvents, runStatus, workflowNameById, tApi],
   );
 
   const activeAgent = useMemo(
@@ -208,7 +209,7 @@ export function WorkflowExecution({
   if (!workflow) {
     return (
       <p className={cx(fieldHintClass, styles.workflowExecutionEmpty)}>
-        Start a workflow from the Overview tab to see it running here.
+        {t('workflowExecution.empty')}
       </p>
     );
   }
@@ -222,11 +223,11 @@ export function WorkflowExecution({
         </div>
         <div className={styles.workflowExecutionActions}>
           {runStatus && (
-            <StatusChip label={runStatusLabel(runStatus, t)} kind={runStatusKind(runStatus)} />
+            <StatusChip label={runStatusLabel(runStatus, tApi)} kind={runStatusKind(runStatus)} />
           )}
           {selectedRunId && !isTerminalRunStatus(runStatus ?? '') && (
             <Button variant="danger" onClick={() => handleStop(selectedRunId)} disabled={stopping}>
-              {stopping ? '⟳ Stopping…' : '◼ Stop'}
+              {stopping ? t('workflowExecution.stopping') : t('workflowExecution.stop')}
             </Button>
           )}
         </div>
@@ -247,8 +248,7 @@ export function WorkflowExecution({
 
       {!selectedRunId && (
         <p className={cx(fieldHintClass, styles.workflowExecutionEmpty)}>
-          No active execution for this workflow. Start it from the Overview tab or select one from
-          the history above to watch it here.
+          {t('workflowExecution.noRun')}
         </p>
       )}
 
@@ -260,7 +260,7 @@ export function WorkflowExecution({
         <p className="workflow-child-info">
           {latestChildWorkflowEvent.title}
           {' — '}
-          Child run: <code>{childRunId}</code>
+          {t('workflowExecution.childRun')} <code>{childRunId}</code>
         </p>
       )}
 
@@ -285,7 +285,7 @@ export function WorkflowExecution({
         approvalContext &&
         !approvalModalVisible && (
           <Button variant="workflow" onClick={() => setApprovalModalVisible(true)}>
-            Review pending approval
+            {t('workflowExecution.reviewApproval')}
           </Button>
         )}
 

@@ -1,7 +1,13 @@
 import type { GitStatus, Project } from '@openjcockpit/api';
 import styles from './ProjectSelection.module.scss';
 import { Button, cx, Backdrop, BrandLogo } from '@openjcockpit/ui';
+import { useTranslation } from '@openjcockpit/i18n';
 import gitStyles from '../GitStatusBadge/GitStatusBadge.module.scss';
+
+const PROJECT_ICON = '◇';
+const ICON_OK = '✓';
+const ICON_ERROR = '✗';
+const ICON_UNKNOWN = '…';
 
 interface Props {
   projects: Project[];
@@ -10,26 +16,27 @@ interface Props {
 }
 
 function GitStatusIndicator({ status }: { status: GitStatus }) {
+  const { t } = useTranslation('project');
   if (status === 'ACCESSIBLE') {
     return (
-      <span className={gitStyles.ok} aria-label="Git repository reachable">
+      <span className={gitStyles.ok} aria-label={t('selection.repoReachable')}>
         {' '}
-        ✓
+        {ICON_OK}
       </span>
     );
   }
   if (status === 'NOT_ACCESSIBLE' || status === 'CHECK_FAILED') {
     return (
-      <span className={gitStyles.error} aria-label="Git repository not reachable">
+      <span className={gitStyles.error} aria-label={t('selection.repoNotReachable')}>
         {' '}
-        ✗
+        {ICON_ERROR}
       </span>
     );
   }
   return (
-    <span className={gitStyles.unknown} aria-label="Git status unknown">
+    <span className={gitStyles.unknown} aria-label={t('selection.statusUnknown')}>
       {' '}
-      …
+      {ICON_UNKNOWN}
     </span>
   );
 }
@@ -44,6 +51,7 @@ function canSelect(project: Project): boolean {
 }
 
 export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
+  const { t } = useTranslation('project');
   const displayProjects = projects;
 
   return (
@@ -53,15 +61,15 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
       <div className={styles.projectSelectionContent}>
         <div className={styles.projectSelectionHeader}>
           <BrandLogo className={styles.projectSelectionLogo} />
-          <h1 className={styles.projectSelectionTitle}>Select a project</h1>
-          <p className={styles.projectSelectionSubtitle}>Choose the project you want to work on</p>
+          <h1 className={styles.projectSelectionTitle}>{t('selection.title')}</h1>
+          <p className={styles.projectSelectionSubtitle}>{t('selection.subtitle')}</p>
         </div>
 
         {displayProjects.length === 0 ? (
           <div className={styles.projectEmpty}>
-            <p data-testid="project-selection-empty">No active projects available.</p>
+            <p data-testid="project-selection-empty">{t('selection.empty')}</p>
             <Button variant="secondary" onClick={onSettings}>
-              Manage projects →
+              {t('selection.manageArrow')}
             </Button>
           </div>
         ) : (
@@ -79,7 +87,7 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
                   onKeyDown={(e) => e.key === 'Enter' && selectable && onSelect(project)}
                   data-testid="project-card"
                 >
-                  <div className={styles.projectCardIcon}>◇</div>
+                  <div className={styles.projectCardIcon}>{PROJECT_ICON}</div>
                   <div className={styles.projectCardBody}>
                     <h2 className={styles.projectCardName}>
                       {project.name}
@@ -90,12 +98,16 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
                     )}
                     <div className={styles.projectCardMeta}>
                       {project.environment && <span>{project.environment}</span>}
-                      {project.owner && <span>Owner: {project.owner}</span>}
-                      {project.defaultBranch && <span>Branch: {project.defaultBranch}</span>}
+                      {project.owner && (
+                        <span>{t('selection.owner', { owner: project.owner })}</span>
+                      )}
+                      {project.defaultBranch && (
+                        <span>{t('selection.branch', { branch: project.defaultBranch })}</span>
+                      )}
                     </div>
                     {showNotAccessible && project.newProject === 0 && (
                       <p className={styles.projectCardNotice}>
-                        Repository not reachable. Update the project via ⚙ Manage projects.
+                        {t('selection.notReachableNotice')}
                       </p>
                     )}
                   </div>
@@ -110,7 +122,7 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
 
         <div className={styles.projectSelectionFooter}>
           <Button variant="secondary" onClick={onSettings}>
-            ⚙ Manage projects
+            {t('selection.manageGear')}
           </Button>
         </div>
       </div>

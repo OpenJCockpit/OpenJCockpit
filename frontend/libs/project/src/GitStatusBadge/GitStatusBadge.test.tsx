@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { render } from '../testRender';
 import { describe, expect, it } from 'vitest';
 import type { GitStatus } from '@openjcockpit/api';
 import { GitStatusBadge } from './GitStatusBadge';

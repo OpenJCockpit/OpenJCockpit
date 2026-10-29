@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import { formClass, formGridClass, formTitleClass, Button } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
@@ -19,6 +20,7 @@ export function EditorForm({
   saveDescribedBy,
   children,
 }: EditorFormProps) {
+  const { t } = useTranslation('workflow');
   return (
     <div className={formClass}>
       <h2 className={formTitleClass}>{title}</h2>
@@ -30,10 +32,10 @@ export function EditorForm({
           disabled={saving}
           aria-describedby={saveDescribedBy}
         >
-          {saving ? '⟳ Saving…' : 'Save'}
+          {saving ? t('shared.saving') : t('shared.save')}
         </Button>
         <Button variant="secondary" onClick={onCancel}>
-          Cancel
+          {t('shared.cancel')}
         </Button>
       </div>
     </div>
