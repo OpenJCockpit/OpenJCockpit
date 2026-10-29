@@ -64,6 +64,8 @@ User-facing dashboard copy goes through `t()` from `@openjcockpit/i18n` (see [do
 - Plurals use `_one` / `_other` suffixes, not hand-written `count === 1 ? ... : ...`.
 - Translate `aria-label`, `placeholder`, `title` and `alt` too. Never translate enum values sent to or received from the API; map them to keys in the presentation layer.
 - Format dates and numbers with the helpers from `@openjcockpit/i18n`, not `toLocaleString()`.
+- To add a language, add it to `SUPPORTED_LOCALES` and `LOCALE_NAMES` in `libs/i18n/src/locale.ts` and put a `<locale>.json` next to each `en.json`; the app lazy-loads those files and the language selector in the site header lists the new locale. `npm run check:i18n` fails when a locale file lacks keys that `en.json` has.
+- In dev builds the `en-XA` pseudo-locale (accented, padded English) appears in the selector; use it to spot un-externalised strings and layouts that overflow with longer text.
 - Keys must be literal (or a static prefix plus a template) so `npm run check:i18n` can trace them. `i18next/no-literal-string` warns on hard-coded JSX text and will become an error once the migration is finished.
 
 ## Pull requests

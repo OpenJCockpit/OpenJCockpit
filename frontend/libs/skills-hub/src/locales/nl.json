@@ -1,0 +1,78 @@
+{
+  "skillsHub": {
+    "eyebrow": "Skills Hub",
+    "dashboard": {
+      "backTitle": "Terug naar dashboard",
+      "title": "Beschikbare skills",
+      "settingsTitle": "Instellingen van Skills Hub",
+      "settings": "⚙ Instellingen",
+      "searchPlaceholder": "Zoek een skill...",
+      "searchLabel": "Zoek een skill",
+      "search": "⌕ Zoeken",
+      "columnCategory": "Categorie",
+      "columnSkill": "Skill",
+      "noResults": "Geen skills gevonden voor \"{{term}}\".",
+      "category": {
+        "dev": "Dev",
+        "ops": "Ops",
+        "security": "Beveiliging"
+      },
+      "skills": {
+        "grill-me": {
+          "name": "Grill Me",
+          "description": "Kritische review die code en ontwerpbeslissingen op de proef stelt voordat ze live gaan."
+        },
+        "software-quality": {
+          "name": "Softwarekwaliteit",
+          "description": "Geautomatiseerde linting, testdekking en quality-gate-controles in de hele leveringspijplijn."
+        }
+      }
+    },
+    "settings": {
+      "backTitle": "Terug naar Skills Hub",
+      "loading": "Marketplaces laden...",
+      "title": "Marketplace-koppelingen",
+      "formNew": "Nieuwe marketplace",
+      "formEdit": "Marketplace bewerken",
+      "name": "Naam *",
+      "namePlaceholder": "bijv. Acme Skills",
+      "marketplaceUrl": "Marketplace-URL *",
+      "marketplaceUrlPlaceholder": "https://marketplace.example.com/api",
+      "apiKey": "API-sleutel",
+      "apiKeyRequired": "API-sleutel *",
+      "apiKeyKeepPlaceholder": "Leeg laten om de huidige API-sleutel te behouden",
+      "apiKeyRequiredPlaceholder": "Verplicht — nog geen API-sleutel ingesteld",
+      "description": "Beschrijving",
+      "descriptionPlaceholder": "Optionele beschrijving",
+      "enabledField": "Ingeschakeld voor toekomstige skill-import (heeft nog geen effect)",
+      "save": "Opslaan",
+      "saving": "⟳ Opslaan…",
+      "cancel": "Annuleren",
+      "columnName": "Naam",
+      "columnUrl": "Marketplace-URL",
+      "columnApiKey": "API-sleutel",
+      "columnStatus": "Status",
+      "columnCreated": "Aangemaakt",
+      "columnActions": "Acties",
+      "apiKeySet": "API-sleutel ingesteld",
+      "noApiKey": "Geen API-sleutel",
+      "enabled": "Ingeschakeld",
+      "disabled": "Uitgeschakeld",
+      "edit": "Bewerken",
+      "delete": "Verwijderen",
+      "empty": "Nog geen marketplaces gekoppeld.",
+      "error": {
+        "loadFailed": "Marketplaces laden is mislukt.",
+        "nameRequired": "Naam is verplicht.",
+        "urlRequired": "Marketplace-URL is verplicht.",
+        "saveFailed": "Opslaan is mislukt.",
+        "deleteFailed": "Verwijderen is mislukt."
+      },
+      "status": {
+        "added": "Marketplace \"{{name}}\" is toegevoegd.",
+        "updated": "Marketplace \"{{name}}\" is bijgewerkt.",
+        "deleted": "Marketplace \"{{name}}\" is verwijderd."
+      }
+    }
+  }
+}

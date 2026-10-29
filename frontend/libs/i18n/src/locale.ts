@@ -1,5 +1,19 @@
-export const SUPPORTED_LOCALES = ['en'] as const;
-export type Locale = (typeof SUPPORTED_LOCALES)[number];
+/** Pseudo-locale (accented, padded English) for spotting un-externalised strings and overflow; dev builds only. */
+export const PSEUDO_LOCALE = 'en-XA';
+
+const REAL_LOCALES = ['en', 'nl'] as const;
+export type Locale = (typeof REAL_LOCALES)[number] | typeof PSEUDO_LOCALE;
+
+export const SUPPORTED_LOCALES: readonly Locale[] = import.meta.env.DEV
+  ? [...REAL_LOCALES, PSEUDO_LOCALE]
+  : REAL_LOCALES;
+
+/** Name of each locale in its own language, as shown in the language selector. */
+export const LOCALE_NAMES: Record<Locale, string> = {
+  en: 'English',
+  nl: 'Nederlands',
+  [PSEUDO_LOCALE]: 'Pseudo (dev)',
+};
 
 export const FALLBACK_LOCALE: Locale = 'en';
 export const LOCALE_STORAGE_KEY = 'openjcockpit.locale';
@@ -11,7 +25,7 @@ export function isLocale(value: unknown): value is Locale {
 /** Maps a BCP 47 tag such as `nl-BE` to a supported locale, or undefined. */
 function matchLocale(tag: string): Locale | undefined {
   const language = tag.toLowerCase().split('-')[0];
-  return SUPPORTED_LOCALES.find((locale) => locale === language);
+  return SUPPORTED_LOCALES.find((locale) => locale.toLowerCase() === language);
 }
 
 function readStoredLocale(): Locale | undefined {

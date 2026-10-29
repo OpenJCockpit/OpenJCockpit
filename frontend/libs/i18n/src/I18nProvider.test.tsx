@@ -1,5 +1,5 @@
 import { act, render, renderHook, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createI18n } from './createI18n';
 import { I18nProvider } from './I18nProvider';
 import { useLocale } from './LocaleContext';
@@ -55,6 +55,43 @@ describe('I18nProvider', () => {
     });
     expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('en');
     expect(document.documentElement.lang).toBe('en');
+  });
+
+  it('loads a locale on first selection and translates with it', async () => {
+    const i18n = createI18n({ resources: { en: { common: { greeting: 'Hello' } } } });
+    const loader = vi.fn().mockResolvedValue({ nl: { common: { greeting: 'Hallo' } } });
+    const { result } = renderHook(() => ({ locale: useLocale(), t: useTranslation().t }), {
+      wrapper: ({ children }) => (
+        <I18nProvider i18n={i18n} loader={loader}>
+          {children}
+        </I18nProvider>
+      ),
+    });
+    await act(async () => {
+      await result.current.locale.setLocale('nl');
+    });
+    expect(result.current.locale.locale).toBe('nl');
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- the rule misreads the empty (`never`) key union
+    expect(result.current.t('greeting' as never)).toBe('Hallo');
+    expect(document.documentElement.lang).toBe('nl');
+    expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('nl');
+  });
+
+  it('keeps the current language when the locale fails to load', async () => {
+    const i18n = createI18n();
+    const loader = vi.fn().mockRejectedValue(new Error('offline'));
+    const { result } = renderHook(() => useLocale(), {
+      wrapper: ({ children }) => (
+        <I18nProvider i18n={i18n} loader={loader}>
+          {children}
+        </I18nProvider>
+      ),
+    });
+    await act(async () => {
+      await expect(result.current.setLocale('nl')).rejects.toThrow('offline');
+    });
+    expect(result.current.locale).toBe('en');
+    expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBeNull();
   });
 
   it('useLocale throws outside the provider', () => {

@@ -13,8 +13,8 @@ export interface CreateI18nOptions {
 
 /**
  * Builds an isolated i18next instance; each call is independent so tests never share state.
- * English is bundled as the source and fallback locale. Further locales will be lazy-loaded
- * (see docs/i18n-plan.md, phase 5).
+ * English is bundled as the source and fallback locale. Other locales are lazy-loaded
+ * with `loadLocale`.
  */
 export function createI18n({
   locale = FALLBACK_LOCALE,

@@ -1,5 +1,5 @@
 import { apiResources } from '@openjcockpit/api';
-import { mergeResources } from '@openjcockpit/i18n';
+import { mergeResources, type LocaleLoader } from '@openjcockpit/i18n';
 import { landingResources } from '@openjcockpit/landing-hub';
 import { projectResources } from '@openjcockpit/project';
 import { skillsHubResources } from '@openjcockpit/skills-hub';
@@ -19,3 +19,20 @@ export const appResources = mergeResources(
   dashboardResources,
   workflowResources,
 );
+
+// One lazy chunk per lib and locale; English is bundled above, everything else loads on demand.
+const localeBundles = import.meta.glob<{ default: Record<string, unknown> }>([
+  '../../../libs/*/src/locales/*.json',
+  './locales/*.json',
+  '!**/en.json',
+]);
+
+/** Loads and merges every lib's translations for one non-English locale. */
+export const loadAppLocale: LocaleLoader = async (locale) => {
+  const modules = await Promise.all(
+    Object.entries(localeBundles)
+      .filter(([path]) => path.endsWith(`/${locale}.json`))
+      .map(([, load]) => load()),
+  );
+  return { [locale]: Object.assign({}, ...modules.map((module) => module.default)) };
+};

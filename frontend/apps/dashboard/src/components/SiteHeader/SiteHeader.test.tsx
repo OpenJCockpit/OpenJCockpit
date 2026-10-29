@@ -1,7 +1,15 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, render as rtlRender, screen, waitFor, within } from '@testing-library/react';
+import {
+  createI18n,
+  I18nProvider,
+  LOCALE_STORAGE_KEY,
+  type LocaleLoader,
+} from '@openjcockpit/i18n';
 import { render } from '../../testUtils/render';
 import { MemoryRouter, useLocation } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
+import { dashboardResources } from '../../i18n';
+import nl from '../../locales/nl.json';
 import type { Project } from '@openjcockpit/api';
 import { ROUTES } from '../../routes';
 import { SiteHeader } from './SiteHeader';
@@ -37,6 +45,22 @@ function setup(
     </MemoryRouter>,
   );
   return { onProjectChange, onLogout };
+}
+
+function renderWithI18nInstance(i18n: ReturnType<typeof createI18n>, loader: LocaleLoader) {
+  rtlRender(
+    <I18nProvider i18n={i18n} loader={loader}>
+      <MemoryRouter>
+        <SiteHeader
+          active="platform"
+          projects={[]}
+          selectedProject={null}
+          onProjectChange={vi.fn()}
+          onLogout={vi.fn()}
+        />
+      </MemoryRouter>
+    </I18nProvider>,
+  );
 }
 
 const path = () => screen.getByTestId('location').textContent;
@@ -82,6 +106,34 @@ describe('SiteHeader', () => {
   it('hides the project picker when there are no projects', () => {
     setup();
     expect(screen.queryByTitle('Active project')).not.toBeInTheDocument();
+  });
+
+  it('offers every supported language by its own name', () => {
+    setup();
+    const select = screen.getByLabelText('Language');
+    expect(select).toHaveValue('en');
+    expect(within(select).getByRole('option', { name: 'Nederlands' })).toHaveValue('nl');
+  });
+
+  it('switches the language, translating the header and remembering the choice', async () => {
+    window.localStorage.clear();
+    const i18n = createI18n({ resources: dashboardResources });
+    const loader = vi.fn().mockResolvedValue({ nl });
+    renderWithI18nInstance(i18n, loader);
+    fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'nl' } });
+    expect(await screen.findByRole('navigation', { name: 'Hoofdnavigatie' })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByTestId('locale-select')).toHaveValue('nl'));
+    expect(document.documentElement.lang).toBe('nl');
+    expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('nl');
+  });
+
+  it('stays on the current language when the translations cannot be downloaded', async () => {
+    const i18n = createI18n({ resources: dashboardResources });
+    const loader = vi.fn().mockRejectedValue(new Error('offline'));
+    renderWithI18nInstance(i18n, loader);
+    fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'nl' } });
+    await waitFor(() => expect(loader).toHaveBeenCalled());
+    expect(screen.getByLabelText('Language')).toHaveValue('en');
   });
 
   it('shows the selected project and reports changes', () => {

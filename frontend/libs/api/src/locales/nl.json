@@ -1,0 +1,23 @@
+{
+  "api": {
+    "runStatus": {
+      "AWAITING_APPROVAL": "Wacht op goedkeuring",
+      "AWAITING_CHILD_WORKFLOW": "Wacht op onderliggende workflow",
+      "TIMED_OUT": "Time-out",
+      "BLOCKED": "Geblokkeerd"
+    },
+    "agentCard": {
+      "active": "Actief",
+      "done": "Klaar",
+      "waiting": "Wachtend",
+      "blocked": "Geblokkeerd",
+      "running": "Bezig",
+      "orphanedAnchor": "{{status}} (ankerfase verwijderd)"
+    },
+    "reference": {
+      "local": "{{name}} (lokaal)",
+      "a2a": "{{name}} ({{provider}})"
+    },
+    "notAvailable": "n.v.t."
+  }
+}

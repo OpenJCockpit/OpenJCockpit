@@ -1,5 +1,11 @@
 import { useNavigate } from 'react-router';
-import { useTranslation } from '@openjcockpit/i18n';
+import {
+  LOCALE_NAMES,
+  type Locale,
+  SUPPORTED_LOCALES,
+  useLocale,
+  useTranslation,
+} from '@openjcockpit/i18n';
 import type { Project } from '@openjcockpit/api';
 import styles from './SiteHeader.module.scss';
 import { Button, BrandLogo, dropdownClass } from '@openjcockpit/ui';
@@ -37,6 +43,7 @@ export function SiteHeader({
   onLogout,
 }: Props) {
   const { t } = useTranslation('dashboard');
+  const { locale, setLocale } = useLocale();
   const navigate = useNavigate();
 
   return (
@@ -80,6 +87,20 @@ export function SiteHeader({
             ))}
           </select>
         )}
+        <select
+          className={dropdownClass}
+          value={locale}
+          // A failed locale download keeps the current language; the select stays on it.
+          onChange={(e) => void setLocale(e.target.value as Locale).catch(() => undefined)}
+          aria-label={t('siteHeader.language')}
+          data-testid="locale-select"
+        >
+          {SUPPORTED_LOCALES.map((code) => (
+            <option key={code} value={code} lang={code}>
+              {LOCALE_NAMES[code]}
+            </option>
+          ))}
+        </select>
         <Button
           variant="secondary"
           onClick={() => void navigate(ROUTES.settings)}

@@ -1,0 +1,111 @@
+{
+  "dashboard": {
+    "authenticating": "Authenticeren...",
+    "loadingView": "Laden...",
+    "siteHeader": {
+      "backToHub": "Terug naar de hub",
+      "primaryNavigation": "Hoofdnavigatie",
+      "activeProject": "Actief project",
+      "language": "Taal",
+      "projectManagement": "Projectbeheer",
+      "hub": "← Hub",
+      "logOut": "Uitloggen",
+      "logout": "Uitloggen",
+      "nav": {
+        "platform": "Platform",
+        "workflow": "Workflowontwerp en -uitvoering",
+        "specFiles": "Spec-bestanden",
+        "specQueue": "Spec-wachtrij",
+        "skillsHub": "Skills Hub"
+      }
+    },
+    "statusBar": {
+      "environment": "● Omgeving: {{value}}",
+      "region": "☁ Regio: {{value}}",
+      "classification": "⬡ Classificatie: {{value}}",
+      "embabelVersion": "Embabel-versie: {{value}}",
+      "springAiControlVersion": "Spring AI Control Service: {{value}}",
+      "copyright": "© 2026 Metafactory B.V."
+    },
+    "customerHero": {
+      "customer": "Klant: {{name}}"
+    },
+    "workspace": {
+      "failed": "De werkruimte laden is mislukt.",
+      "loading": "Werkruimte laden..."
+    },
+    "preflight": {
+      "title": "Pre-flight-controle mislukt",
+      "checkGitSettings": "Git-instellingen controleren",
+      "dismiss": "Sluiten",
+      "unknown": "Pre-flight-controle mislukt: {{message}}",
+      "errors": {
+        "DOCKER_UNAVAILABLE": "Docker is niet beschikbaar. Zorg dat Docker draait en dat de applicatie containers mag starten.",
+        "GIT_REPOSITORY_UNAVAILABLE": "De Git-repository is niet bereikbaar. Controleer de Git-URL of de inloggegevens van het project.",
+        "NO_SELECTED_PROJECT": "Er is geen project geselecteerd. Kies een project voordat je de workflow start.",
+        "PROJECT_INACTIVE": "Het geselecteerde project is inactief en kan niet worden gebruikt om een workflow te starten.",
+        "GIT_AUTH_FAILED": "Git-authenticatie is mislukt. Werk de inloggegevens van het project bij.",
+        "GIT_URL_MISSING": "Voor het geselecteerde project is geen Git-URL ingesteld.",
+        "GIT_REPOSITORY_NOT_FOUND": "De Git-repository kon niet worden gevonden.",
+        "TIMEOUT": "De pre-flight-controle heeft de time-out bereikt. Probeer het opnieuw of controleer de infrastructuur."
+      }
+    },
+    "flow": {
+      "startNewWorkflow": "↺ Nieuwe workflow starten",
+      "currentSpec": "Huidige spec",
+      "specFolder": "Spec-map",
+      "loadingSpecs": "Specs laden…",
+      "noSpecsFound": "Geen specs gevonden",
+      "active": "Actief",
+      "workflow": "Workflow",
+      "reloadSpecs": "⟳ Specs opnieuw laden",
+      "openPullRequest": "Pull request openen",
+      "start": {
+        "preflight": "⟳ Pre-flight-controles uitvoeren…",
+        "starting": "⟳ Starten…",
+        "error": "✕ Fout",
+        "idle": "▶ Starten"
+      },
+      "specInit": {
+        "option": "Initialisatie van de spec-map — spec-template via pull request",
+        "hint": "Deze workflow maakt een .specify-map met de spec-template en biedt die aan als pull request op de repository.",
+        "offered": "Pull request aangeboden",
+        "pending": "Pull request open",
+        "pendingText": "Er staat al een branch met de spec-template klaar{{branch}}. Voeg de bijbehorende pull request samen om de .specify-map toe te voegen.",
+        "viewBranch": "⎇ Branch bekijken in de repository"
+      },
+      "template": {
+        "present": "Spec-structuur aanwezig",
+        "text": "De repository heeft al een .specify-map, maar nog geen specs in de map specs/. Maak de eerste spec met een prompt — de workflow combineert je prompt met de inhoud van de repository (RAG) tot een klein, uitvoerbaar spec-bestand.",
+        "createSpec": "✨ Spec maken met prompt",
+        "unavailable": "De workflow \"Create spec from prompt (RAG)\" is niet beschikbaar voor dit project."
+      },
+      "launcher": {
+        "none": "Geen workflows beschikbaar",
+        "noneHint": "Geen workflows voor dit project. Maak er een aan via Workflowontwerp en -uitvoering."
+      }
+    },
+    "specPanel": {
+      "title": "Spec",
+      "loading": "Specs laden…",
+      "viewAll": "Alle specs bekijken",
+      "lastModified": "Laatst gewijzigd: {{value}}",
+      "empty": {
+        "title": "Geen specs gevonden",
+        "text": "Geen specs/-map met specificaties in de repository",
+        "goToWorkflow": "⚡ Naar Workflowontwerp en -uitvoering",
+        "hint": "Ontwerp of selecteer daar een workflow om spec-bestanden te maken."
+      }
+    },
+    "evidence": {
+      "title": "Uitvoeringsbewijs",
+      "view": "Bewijs bekijken",
+      "by": "Door: {{actor}}"
+    },
+    "quality": {
+      "title": "Kwaliteitsstatus",
+      "open": "Kwaliteitsdashboard openen ↗",
+      "viewAll": "Alle kwaliteitsregels bekijken"
+    }
+  }
+}
