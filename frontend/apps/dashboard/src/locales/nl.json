@@ -21,8 +21,15 @@
         "workflow": "Workflowontwerp en -uitvoering",
         "specFiles": "Spec-bestanden",
         "specQueue": "Spec-wachtrij",
-        "skillsHub": "Skills Hub"
-      }
+        "skillsHub": "Skills Hub",
+        "hub": "Hub"
+      },
+      "groups": {
+        "work": "Werk",
+        "account": "Account"
+      },
+      "collapse": "Inklappen",
+      "expand": "Uitklappen"
     },
     "sampleData": "Voorbeelddata",
     "statusBar": {

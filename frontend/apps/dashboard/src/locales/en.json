@@ -21,8 +21,15 @@
         "workflow": "Workflow Design & Execution",
         "specFiles": "Spec Files",
         "specQueue": "Spec Queue",
-        "skillsHub": "Skills Hub"
-      }
+        "skillsHub": "Skills Hub",
+        "hub": "Hub"
+      },
+      "groups": {
+        "work": "Work",
+        "account": "Account"
+      },
+      "collapse": "Collapse",
+      "expand": "Expand"
     },
     "sampleData": "Sample data",
     "statusBar": {

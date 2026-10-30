@@ -21,8 +21,15 @@
         "workflow": "Workflow-Design & -Ausführung",
         "specFiles": "Spec-Dateien",
         "specQueue": "Spec-Warteschlange",
-        "skillsHub": "Skills-Hub"
-      }
+        "skillsHub": "Skills-Hub",
+        "hub": "Hub"
+      },
+      "groups": {
+        "work": "Arbeit",
+        "account": "Konto"
+      },
+      "collapse": "Einklappen",
+      "expand": "Ausklappen"
     },
     "sampleData": "Beispieldaten",
     "statusBar": {

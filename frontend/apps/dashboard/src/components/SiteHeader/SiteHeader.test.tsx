@@ -102,6 +102,19 @@ describe('SiteHeader', () => {
     expect(screen.getByTestId('nav-platform')).not.toHaveAttribute('aria-current');
   });
 
+  it('collapses to icons only and remembers the choice', () => {
+    window.localStorage.clear();
+    setup({ projects: [project('a', 'Alpha')] });
+    expect(screen.getByRole('combobox', { name: 'Active project' })).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('nav-collapse'));
+    expect(screen.getByTestId('nav-collapse')).toHaveAttribute('aria-label', 'Expand');
+    expect(screen.queryByRole('combobox', { name: 'Active project' })).not.toBeInTheDocument();
+    expect(screen.getByTestId('nav-platform')).toHaveAttribute('title', 'Platform');
+    expect(window.localStorage.getItem('openjcockpit.sidebarCollapsed')).toBe('1');
+    fireEvent.click(screen.getByTestId('nav-collapse'));
+    expect(screen.getByRole('combobox', { name: 'Active project' })).toBeInTheDocument();
+  });
+
   it('logs out', () => {
     const { onLogout } = setup();
     fireEvent.click(screen.getByTestId('nav-logout'));

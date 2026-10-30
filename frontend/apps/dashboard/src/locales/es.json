@@ -21,8 +21,15 @@
         "workflow": "Diseño y ejecución de workflows",
         "specFiles": "Archivos de especificación",
         "specQueue": "Cola de especificaciones",
-        "skillsHub": "Skills Hub"
-      }
+        "skillsHub": "Skills Hub",
+        "hub": "Hub"
+      },
+      "groups": {
+        "work": "Trabajo",
+        "account": "Cuenta"
+      },
+      "collapse": "Contraer",
+      "expand": "Expandir"
     },
     "sampleData": "Datos de ejemplo",
     "statusBar": {
