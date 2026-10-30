@@ -41,7 +41,7 @@ function Registry({ apps = [], children }: { apps?: AppDefinition[]; children: R
 function remoteApp(over: Partial<AppDefinition> = {}): AppDefinition {
   return {
     id: 'pulse',
-    labelKey: 'apps.pulse.label',
+    labelKey: 'home.eyebrow',
     icon: 'pulse',
     route: '/pulse',
     order: 1,
@@ -209,7 +209,7 @@ describe('SiteHeader', () => {
     const app = remoteApp({ useBadge: () => 4 });
     setup({ apps: [app] });
     const item = screen.getByTestId('nav-app-pulse');
-    expect(item).toHaveTextContent('Pulse');
+    expect(item).toHaveTextContent('Home');
     expect(item).toHaveTextContent('4');
     fireEvent.click(item);
     expect(path()).toBe('/pulse');
@@ -255,6 +255,6 @@ describe('SiteHeader', () => {
     setup({ apps: [remoteApp()] });
     expect(screen.getByTestId('nav-app-pulse')).not.toHaveAttribute('title');
     fireEvent.click(screen.getByTestId('nav-collapse'));
-    expect(screen.getByTestId('nav-app-pulse')).toHaveAttribute('title', 'Pulse');
+    expect(screen.getByTestId('nav-app-pulse')).toHaveAttribute('title', 'Home');
   });
 });

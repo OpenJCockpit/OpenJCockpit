@@ -15,8 +15,8 @@
     "build": "nx run dashboard:build",
     "check": "nx run-many -t lint typecheck test format-check check-styles check-i18n",
     "affected": "nx affected -t lint typecheck test build",
-    "start:hub": "nx run-many -t dev -p dashboard,remote-hello,remote-pulse,remote-skills-hub,remote-specs --parallel=5",
-    "build:hub": "nx run-many -t build -p remote-hello,remote-pulse,remote-skills-hub,remote-specs,dashboard"
+    "start:hub": "nx run-many -t dev -p dashboard,remote-hello,remote-skills-hub,remote-specs --parallel=4",
+    "build:hub": "nx run-many -t build -p remote-hello,remote-skills-hub,remote-specs,dashboard"
   },
   "nx": {
     "includedScripts": [

@@ -148,15 +148,6 @@
     "apps": {
       "hello": {
         "label": "Hallo"
-      },
-      "pulse": {
-        "label": "Pols",
-        "widget": {
-          "title": "Pols"
-        },
-        "quickAction": {
-          "open": "Pols"
-        }
       }
     }
   }

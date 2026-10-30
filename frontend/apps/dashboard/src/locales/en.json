@@ -148,15 +148,6 @@
     "apps": {
       "hello": {
         "label": "Hello"
-      },
-      "pulse": {
-        "label": "Pulse",
-        "widget": {
-          "title": "Pulse"
-        },
-        "quickAction": {
-          "open": "Pulse"
-        }
       }
     }
   }

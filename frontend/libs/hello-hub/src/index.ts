@@ -7,5 +7,6 @@ export const helloApp: AppDefinition = {
   route: '/hello',
   order: 100,
   requiredPermissions: [],
+  showInNav: false,
   loadRoutes: () => import('./helloRoutes').then((m) => m.helloRoutes),
 };
