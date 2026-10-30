@@ -1,0 +1,51 @@
+{
+  "api": {
+    "runStatus": {
+      "AWAITING_APPROVAL": "Wartet auf Freigabe",
+      "AWAITING_CHILD_WORKFLOW": "Wartet auf untergeordneten Workflow",
+      "TIMED_OUT": "Zeitüberschreitung",
+      "BLOCKED": "Blockiert"
+    },
+    "agentCard": {
+      "active": "Aktiv",
+      "done": "Erledigt",
+      "waiting": "Wartend",
+      "blocked": "Blockiert",
+      "running": "Läuft",
+      "orphanedAnchor": "{{status}} (Ankerphase entfernt)"
+    },
+    "reference": {
+      "local": "{{name}} (Lokal)",
+      "a2a": "{{name}} ({{provider}})"
+    },
+    "notAvailable": "k. A.",
+    "errors": {
+      "AUTO_MERGE_NOT_ALLOWED": "Automatisches Zusammenführen ist für dieses Element nicht erlaubt",
+      "WORKFLOW_PROMPT_REQUIRED": "Dieser Workflow erfordert einen Prompt",
+      "WORKFLOW_NOT_ALLOWED_FOR_PROJECT": "Dieser Workflow ist für das Projekt nicht erlaubt",
+      "PROJECT_NOT_FOUND": "Projekt nicht gefunden",
+      "SPEC_FILE_NOT_FOUND": "Spec-Datei im Projekt nicht gefunden",
+      "WORKFLOW_NOT_FOUND": "Workflow nicht gefunden",
+      "ITEM_NOT_FOUND": "Warteschlangeneintrag nicht gefunden",
+      "DUPLICATE_SPEC_FILE": "Diese Spec-Datei befindet sich bereits in der Warteschlange",
+      "PROJECT_INACTIVE": "Das Projekt ist inaktiv",
+      "GIT_URL_MISSING": "Das Projekt hat keine Git-URL",
+      "GIT_AUTH_FAILED": "Git-Authentifizierung fehlgeschlagen",
+      "QUEUE_FULL": "Die Spec-Warteschlange ist voll",
+      "QUEUE_BUSY": "Die Warteschlange ist ausgelastet; versuchen Sie es erneut",
+      "ITEM_NOT_EDITABLE": "Nur eingereihte Einträge können bearbeitet werden",
+      "ITEM_NOT_REMOVABLE": "Der Eintrag ist bereits abgeschlossen",
+      "ITEM_BUSY": "Der Eintrag wird gerade verarbeitet",
+      "STALE_ORDER": "Die Warteschlange hat sich geändert; laden Sie neu und versuchen Sie es erneut",
+      "QUEUE_HALTED": "Die Warteschlange ist angehalten",
+      "UNRESOLVED_FAILED_ITEM": "Beheben Sie zuerst den fehlgeschlagenen Eintrag",
+      "ITEM_NOT_FAILED": "Der Eintrag ist nicht fehlgeschlagen",
+      "SPEC_QUEUE_ITEM_ACTIVE": "Diese Spec-Datei befindet sich in der Warteschlange und kann nicht geändert werden",
+      "SPEC_LISTING_FAILED": "Spec-Dateien konnten nicht aufgelistet werden",
+      "EMBABEL_UNAVAILABLE": "Der Agentendienst ist nicht verfügbar",
+      "NOT_FOUND": "Verbindung nicht gefunden",
+      "NAME_CONFLICT": "Eine Verbindung mit diesem Namen existiert bereits",
+      "API_KEY_REQUIRED": "Ein API-Schlüssel ist erforderlich"
+    }
+  }
+}

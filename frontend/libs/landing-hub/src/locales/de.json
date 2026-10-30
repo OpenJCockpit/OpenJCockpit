@@ -1,0 +1,41 @@
+{
+  "landing": {
+    "intro": {
+      "greeting": "Hallo {{firstName}}!"
+    },
+    "hero": {
+      "eyebrow": "Authentifiziertes Ziel",
+      "title": "Wählen Sie Ihren Arbeitsbereich",
+      "welcome": "Willkommen zurück, {{firstName}}. Ihr Token ist gültig und dieser Hub ist jetzt freigeschaltet. Navigieren Sie direkt zu Business oder Implementation."
+    },
+    "portals": {
+      "business": {
+        "title": "Business",
+        "subtitle": "Strategie, Dashboards und Entscheidungsfindung"
+      },
+      "implementation": {
+        "title": "Implementation",
+        "subtitle": "Rollout, Konfiguration und operative Aktionen"
+      }
+    },
+    "topBar": {
+      "brand": "NEXUS PORTAL",
+      "fallbackIdentity": "Authentifizierter Start-Hub",
+      "userActions": "Benutzeraktionen",
+      "logout": "Abmelden",
+      "actions": {
+        "profile": "Profil",
+        "notifications": "Benachrichtigungen",
+        "messages": "Nachrichten"
+      },
+      "panels": {
+        "profile": "Profil",
+        "notifications": "Benachrichtigungen",
+        "messages": "Nachrichten"
+      },
+      "profileSummary": "Angemeldet als {{firstName}} ({{username}}). Token gültig bis zur Sitzungsaktualisierung oder Abmeldung.",
+      "noNotifications": "Keine neuen Benachrichtigungen.",
+      "noMessages": "Keine neuen Nachrichten."
+    }
+  }
+}

@@ -51,13 +51,18 @@ describe('locale', () => {
       expect(detectLocale()).toBe('en');
     });
 
+    it('matches a regional German tag', () => {
+      stubLanguages(['de-AT', 'en']);
+      expect(detectLocale()).toBe('de');
+    });
+
     it('takes the first supported entry of the browser preferences', () => {
       stubLanguages(['fr-FR', 'en-US']);
       expect(detectLocale()).toBe('en');
     });
 
     it('falls back to en when nothing matches', () => {
-      stubLanguages(['fr-FR', 'de']);
+      stubLanguages(['fr-FR', 'es']);
       expect(detectLocale()).toBe('en');
     });
 
@@ -92,7 +97,7 @@ describe('locale', () => {
     vi.stubEnv('DEV', false);
     vi.resetModules();
     const production = await import('./locale');
-    expect(production.SUPPORTED_LOCALES).toEqual(['en', 'nl']);
+    expect(production.SUPPORTED_LOCALES).toEqual(['en', 'nl', 'de']);
     vi.unstubAllEnvs();
     vi.resetModules();
   });

@@ -1,0 +1,103 @@
+{
+  "project": {
+    "gitStatus": {
+      "reachable": "Erreichbar",
+      "notReachable": "Nicht erreichbar",
+      "checkFailed": "Prüfung fehlgeschlagen",
+      "unknown": "Unbekannt",
+      "compactReachable": "Git erreichbar",
+      "compactNotReachable": "Git nicht erreichbar"
+    },
+    "selection": {
+      "repoReachable": "Git-Repository erreichbar",
+      "repoNotReachable": "Git-Repository nicht erreichbar",
+      "statusUnknown": "Git-Status unbekannt",
+      "title": "Projekt auswählen",
+      "subtitle": "Wählen Sie das Projekt, an dem Sie arbeiten möchten",
+      "empty": "Keine aktiven Projekte verfügbar.",
+      "manageArrow": "Projekte verwalten →",
+      "manageGear": "⚙ Projekte verwalten",
+      "owner": "Eigentümer: {{owner}}",
+      "branch": "Branch: {{branch}}",
+      "notReachableNotice": "Repository nicht erreichbar. Aktualisieren Sie das Projekt über ⚙ Projekte verwalten."
+    },
+    "settings": {
+      "loading": "Projekte werden geladen...",
+      "back": "← Projekte",
+      "title": "Projektverwaltung",
+      "newProject": "+ Neues Projekt",
+      "errors": {
+        "nameRequired": "Name ist erforderlich",
+        "saveFailed": "Speichern fehlgeschlagen. Bitte versuchen Sie es erneut.",
+        "statusChangeFailed": "Statusänderung fehlgeschlagen.",
+        "gitCheckFailed": "Git-Prüfung fehlgeschlagen.",
+        "credentialsLoadFailed": "Vorhandene Zugangsdaten konnten nicht geladen werden.",
+        "credentialsSaveFailed": "Zugangsdaten konnten nicht gespeichert werden.",
+        "credentialsDeleteFailed": "Zugangsdaten konnten nicht gelöscht werden."
+      }
+    },
+    "form": {
+      "newTitle": "Neues Projekt",
+      "editTitle": "Projekt bearbeiten",
+      "name": "Name *",
+      "namePlaceholder": "Projektname",
+      "customerId": "Kunden-ID (Stub)",
+      "customerIdPlaceholder": "z. B. noordzee-logistics",
+      "gitUrl": "Git-URL",
+      "gitUrlPlaceholder": "https://github.com/org/repo",
+      "branch": "Branch",
+      "branchPlaceholder": "main",
+      "environment": "Umgebung",
+      "environmentPlaceholder": "prod / staging / dev",
+      "owner": "Eigentümer",
+      "ownerPlaceholder": "Name oder Team",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Kurze Beschreibung",
+      "newProjectCheckbox": "Neues Projekt (Repository existiert noch nicht — Git-Prüfung überspringen)",
+      "save": "Speichern",
+      "saving": "⟳ Wird gespeichert…",
+      "cancel": "Abbrechen"
+    },
+    "credentials": {
+      "title": "Git-Zugangsdaten",
+      "loading": "Aktuelle Zugangsdaten werden geladen...",
+      "type": "Typ",
+      "types": {
+        "NONE": "Keine",
+        "HTTPS_TOKEN": "HTTPS-Token",
+        "GITHUB_PAT": "GitHub-PAT",
+        "USERNAME_PASSWORD": "Benutzername + Passwort",
+        "GITHUB_APP": "GitHub App"
+      },
+      "username": "Benutzername",
+      "usernamePlaceholder": "optional",
+      "secret": "Geheimnis / Token / Passwort",
+      "secretKeepPlaceholder": "Leer lassen, um das aktuelle Geheimnis zu behalten",
+      "secretRequiredPlaceholder": "Erforderlich — noch kein Geheimnis gesetzt",
+      "githubApiUrl": "GitHub-API-URL (GitHub Enterprise)",
+      "githubApiUrlPlaceholder": "https://github.example.com/api/v3",
+      "hint": "Beim Speichern wird zuerst eine Git-Prüfung mit diesen Zugangsdaten ausgeführt; sie werden nur gespeichert, wenn die Prüfung erfolgreich ist.",
+      "save": "Speichern",
+      "saving": "⟳ Wird geprüft und gespeichert…",
+      "cancel": "Abbrechen"
+    },
+    "list": {
+      "name": "Name",
+      "gitStatus": "Git-Status",
+      "credentials": "Zugangsdaten",
+      "status": "Status",
+      "actions": "Aktionen",
+      "credentialsSet": "Zugangsdaten gesetzt",
+      "credentialsNone": "Keine",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "edit": "Bearbeiten",
+      "gitCheck": "Git-Prüfung",
+      "updateCredentials": "Zugangsdaten aktualisieren",
+      "addCredentials": "Zugangsdaten hinzufügen",
+      "deleteCredentials": "Zugangsdaten löschen",
+      "deactivate": "Deaktivieren",
+      "activate": "Aktivieren"
+    }
+  }
+}

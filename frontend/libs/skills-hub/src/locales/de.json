@@ -1,0 +1,78 @@
+{
+  "skillsHub": {
+    "eyebrow": "Skills-Hub",
+    "dashboard": {
+      "backTitle": "Zurück zum Dashboard",
+      "title": "Verfügbare Skills",
+      "settingsTitle": "Skills-Hub-Einstellungen",
+      "settings": "⚙ Einstellungen",
+      "searchPlaceholder": "Nach einem Skill suchen...",
+      "searchLabel": "Nach einem Skill suchen",
+      "search": "⌕ Suchen",
+      "columnCategory": "Kategorie",
+      "columnSkill": "Skill",
+      "noResults": "Keine Skills für „{{term}}“ gefunden.",
+      "category": {
+        "dev": "Dev",
+        "ops": "Ops",
+        "security": "Sicherheit"
+      },
+      "skills": {
+        "grill-me": {
+          "name": "Grill Me",
+          "description": "Kritische Überprüfung, die Code und Designentscheidungen vor der Auslieferung auf die Probe stellt."
+        },
+        "software-quality": {
+          "name": "Softwarequalität",
+          "description": "Automatisiertes Linting, Testabdeckung und Quality-Gate-Prüfungen in der gesamten Delivery-Pipeline."
+        }
+      }
+    },
+    "settings": {
+      "backTitle": "Zurück zum Skills-Hub",
+      "loading": "Marktplätze werden geladen...",
+      "title": "Marktplatzverbindungen",
+      "formNew": "Neuer Marktplatz",
+      "formEdit": "Marktplatz bearbeiten",
+      "name": "Name *",
+      "namePlaceholder": "z. B. Acme Skills",
+      "marketplaceUrl": "Marktplatz-URL *",
+      "marketplaceUrlPlaceholder": "https://marketplace.example.com/api",
+      "apiKey": "API-Schlüssel",
+      "apiKeyRequired": "API-Schlüssel *",
+      "apiKeyKeepPlaceholder": "Leer lassen, um den aktuellen API-Schlüssel zu behalten",
+      "apiKeyRequiredPlaceholder": "Erforderlich — noch kein API-Schlüssel gesetzt",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Optionale Beschreibung",
+      "enabledField": "Für zukünftigen Skill-Import aktiviert (hat noch keine Wirkung)",
+      "save": "Speichern",
+      "saving": "⟳ Wird gespeichert…",
+      "cancel": "Abbrechen",
+      "columnName": "Name",
+      "columnUrl": "Marktplatz-URL",
+      "columnApiKey": "API-Schlüssel",
+      "columnStatus": "Status",
+      "columnCreated": "Erstellt",
+      "columnActions": "Aktionen",
+      "apiKeySet": "API-Schlüssel gesetzt",
+      "noApiKey": "Kein API-Schlüssel",
+      "enabled": "Aktiviert",
+      "disabled": "Deaktiviert",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "empty": "Noch keine Marktplätze verbunden.",
+      "error": {
+        "loadFailed": "Marktplätze konnten nicht geladen werden.",
+        "nameRequired": "Name ist erforderlich.",
+        "urlRequired": "Marktplatz-URL ist erforderlich.",
+        "saveFailed": "Speichern fehlgeschlagen.",
+        "deleteFailed": "Löschen fehlgeschlagen."
+      },
+      "status": {
+        "added": "Marktplatz „{{name}}“ wurde hinzugefügt.",
+        "updated": "Marktplatz „{{name}}“ wurde aktualisiert.",
+        "deleted": "Marktplatz „{{name}}“ wurde gelöscht."
+      }
+    }
+  }
+}

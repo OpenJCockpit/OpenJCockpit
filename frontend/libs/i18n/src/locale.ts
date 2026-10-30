@@ -1,7 +1,7 @@
 /** Pseudo-locale (accented, padded English) for spotting un-externalised strings and overflow; dev builds only. */
 export const PSEUDO_LOCALE = 'en-XA';
 
-const REAL_LOCALES = ['en', 'nl'] as const;
+const REAL_LOCALES = ['en', 'nl', 'de'] as const;
 export type Locale = (typeof REAL_LOCALES)[number] | typeof PSEUDO_LOCALE;
 
 export const SUPPORTED_LOCALES: readonly Locale[] = import.meta.env.DEV
@@ -12,6 +12,7 @@ export const SUPPORTED_LOCALES: readonly Locale[] = import.meta.env.DEV
 export const LOCALE_NAMES: Record<Locale, string> = {
   en: 'English',
   nl: 'Nederlands',
+  de: 'Deutsch',
   [PSEUDO_LOCALE]: 'Pseudo (dev)',
 };
 
