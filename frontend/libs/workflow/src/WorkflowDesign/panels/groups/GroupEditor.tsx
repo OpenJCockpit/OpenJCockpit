@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import { TextAreaField, TextField } from '@openjcockpit/ui';
 import type { WorkflowGroup } from '@openjcockpit/api';
 import { EditorForm } from '../shared/EditorForm';
@@ -13,35 +14,36 @@ interface GroupEditorProps {
 }
 
 export function GroupEditor({ isNew, form, setForm, saving, onSave, onCancel }: GroupEditorProps) {
+  const { t } = useTranslation('workflow');
   return (
     <EditorForm
-      title={isNew ? 'New group' : 'Edit group'}
+      title={isNew ? t('groups.new') : t('groups.edit')}
       saving={saving}
       onSave={onSave}
       onCancel={onCancel}
     >
       <TextField
-        label="Group ID"
+        label={t('groups.id')}
         value={form.id}
         disabled={!isNew}
         onChange={(v) => setForm((f) => ({ ...f, id: v }))}
-        placeholder="Auto-generated if left blank"
+        placeholder={t('groups.idPlaceholder')}
       />
       <TextField
-        label="Group name"
+        label={t('groups.name')}
         value={form.name}
         onChange={(v) => setForm((f) => ({ ...f, name: v }))}
-        placeholder="Onboarding flows"
+        placeholder={t('groups.namePlaceholder')}
       />
       <TextField
-        label="Project name"
+        label={t('groups.projectName')}
         value={form.projectName ?? ''}
         onChange={(v) => setForm((f) => ({ ...f, projectName: v }))}
-        placeholder="Leave empty for a global group"
-        hint="Empty = global: workflows in this group are available for every project."
+        placeholder={t('groups.projectPlaceholder')}
+        hint={t('groups.projectHint')}
       />
       <TextAreaField
-        label="Description"
+        label={t('shared.description')}
         wide
         rows={2}
         value={form.description}

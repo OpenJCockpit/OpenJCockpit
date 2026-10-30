@@ -1,4 +1,5 @@
 import type { Project } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { A2AServicesSettings } from './A2AServicesSettings/A2AServicesSettings';
 import { DocumentFolderSettings } from './DocumentFolderSettings/DocumentFolderSettings';
 import { HermesSettings } from './HermesSettings/HermesSettings';
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function WorkflowConfiguration({ project }: Props) {
+  const { t } = useTranslation('workflow');
   return (
     <section className="workflow-configuration">
       <OpaSettings />
@@ -22,9 +24,7 @@ export function WorkflowConfiguration({ project }: Props) {
           <DocumentFolderSettings key={`folder-${project.id}`} project={project} />
         </>
       ) : (
-        <p className={fieldHintClass}>
-          Select a project from the dashboard header to configure its workflow input sources.
-        </p>
+        <p className={fieldHintClass}>{t('config.selectProject')}</p>
       )}
     </section>
   );

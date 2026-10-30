@@ -1,0 +1,41 @@
+{
+  "landing": {
+    "intro": {
+      "greeting": "¡Hola, {{firstName}}!"
+    },
+    "hero": {
+      "eyebrow": "Destino autenticado",
+      "title": "Elige tu espacio de trabajo",
+      "welcome": "Bienvenido de nuevo, {{firstName}}. Tu token es válido y este hub ya está desbloqueado. Ve directamente a Negocio o Implementación."
+    },
+    "portals": {
+      "business": {
+        "title": "Negocio",
+        "subtitle": "Estrategia, paneles y toma de decisiones"
+      },
+      "implementation": {
+        "title": "Implementación",
+        "subtitle": "Despliegue, configuración y acciones operativas"
+      }
+    },
+    "topBar": {
+      "brand": "NEXUS PORTAL",
+      "fallbackIdentity": "Hub de acceso autenticado",
+      "userActions": "Acciones de usuario",
+      "logout": "Cerrar sesión",
+      "actions": {
+        "profile": "Perfil",
+        "notifications": "Notificaciones",
+        "messages": "Mensajes"
+      },
+      "panels": {
+        "profile": "perfil",
+        "notifications": "notificaciones",
+        "messages": "mensajes"
+      },
+      "profileSummary": "Sesión iniciada como {{firstName}} ({{username}}). El token es válido hasta que se actualice la sesión o se cierre sesión.",
+      "noNotifications": "No hay notificaciones nuevas.",
+      "noMessages": "No hay mensajes nuevos."
+    }
+  }
+}

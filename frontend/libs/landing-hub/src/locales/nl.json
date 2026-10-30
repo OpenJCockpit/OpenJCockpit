@@ -1,0 +1,41 @@
+{
+  "landing": {
+    "intro": {
+      "greeting": "Hoi {{firstName}}!"
+    },
+    "hero": {
+      "eyebrow": "Geauthenticeerde bestemming",
+      "title": "Kies je werkruimte",
+      "welcome": "Welkom terug, {{firstName}}. Je token is geldig en deze hub is nu ontgrendeld. Ga direct naar Business of Implementation."
+    },
+    "portals": {
+      "business": {
+        "title": "Business",
+        "subtitle": "Strategie, dashboards en besluitvorming"
+      },
+      "implementation": {
+        "title": "Implementation",
+        "subtitle": "Uitrol, configuratie en operationele acties"
+      }
+    },
+    "topBar": {
+      "brand": "NEXUS PORTAL",
+      "fallbackIdentity": "Geauthenticeerde startpagina",
+      "userActions": "Gebruikersacties",
+      "logout": "Uitloggen",
+      "actions": {
+        "profile": "Profiel",
+        "notifications": "Meldingen",
+        "messages": "Berichten"
+      },
+      "panels": {
+        "profile": "profiel",
+        "notifications": "meldingen",
+        "messages": "berichten"
+      },
+      "profileSummary": "Ingelogd als {{firstName}} ({{username}}). Token geldig tot de sessie wordt vernieuwd of je uitlogt.",
+      "noNotifications": "Geen nieuwe meldingen.",
+      "noMessages": "Geen nieuwe berichten."
+    }
+  }
+}

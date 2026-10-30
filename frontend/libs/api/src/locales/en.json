@@ -1,0 +1,51 @@
+{
+  "api": {
+    "runStatus": {
+      "AWAITING_APPROVAL": "Awaiting approval",
+      "AWAITING_CHILD_WORKFLOW": "Waiting for child workflow",
+      "TIMED_OUT": "Timed out",
+      "BLOCKED": "Blocked"
+    },
+    "agentCard": {
+      "active": "Active",
+      "done": "Done",
+      "waiting": "Waiting",
+      "blocked": "Blocked",
+      "running": "Running",
+      "orphanedAnchor": "{{status}} (anchor stage removed)"
+    },
+    "reference": {
+      "local": "{{name}} (Local)",
+      "a2a": "{{name}} ({{provider}})"
+    },
+    "notAvailable": "n/a",
+    "errors": {
+      "AUTO_MERGE_NOT_ALLOWED": "Auto-merge is not allowed for this item",
+      "WORKFLOW_PROMPT_REQUIRED": "This workflow requires a prompt",
+      "WORKFLOW_NOT_ALLOWED_FOR_PROJECT": "This workflow is not allowed for the project",
+      "PROJECT_NOT_FOUND": "Project not found",
+      "SPEC_FILE_NOT_FOUND": "Spec file not found in the project",
+      "WORKFLOW_NOT_FOUND": "Workflow not found",
+      "ITEM_NOT_FOUND": "Queue item not found",
+      "DUPLICATE_SPEC_FILE": "This spec file is already in the queue",
+      "PROJECT_INACTIVE": "The project is inactive",
+      "GIT_URL_MISSING": "The project has no git URL",
+      "GIT_AUTH_FAILED": "Git authentication failed",
+      "QUEUE_FULL": "The spec queue is full",
+      "QUEUE_BUSY": "The queue is busy; try again",
+      "ITEM_NOT_EDITABLE": "Only queued items can be edited",
+      "ITEM_NOT_REMOVABLE": "The item is already finished",
+      "ITEM_BUSY": "The item is being processed",
+      "STALE_ORDER": "The queue changed; reload and try again",
+      "QUEUE_HALTED": "The queue is halted",
+      "UNRESOLVED_FAILED_ITEM": "Resolve the failed item first",
+      "ITEM_NOT_FAILED": "The item has not failed",
+      "SPEC_QUEUE_ITEM_ACTIVE": "This spec file is in the queue and cannot be changed",
+      "SPEC_LISTING_FAILED": "Spec files could not be listed",
+      "EMBABEL_UNAVAILABLE": "The agent service is unavailable",
+      "NOT_FOUND": "Connection not found",
+      "NAME_CONFLICT": "A connection with this name already exists",
+      "API_KEY_REQUIRED": "An API key is required"
+    }
+  }
+}

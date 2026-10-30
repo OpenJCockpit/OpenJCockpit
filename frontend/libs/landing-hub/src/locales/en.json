@@ -1,0 +1,41 @@
+{
+  "landing": {
+    "intro": {
+      "greeting": "Hi {{firstName}}!"
+    },
+    "hero": {
+      "eyebrow": "Authenticated destination",
+      "title": "Choose your workspace",
+      "welcome": "Welcome back, {{firstName}}. Your token is valid and this hub is now unlocked. Navigate directly to Business or Implementation."
+    },
+    "portals": {
+      "business": {
+        "title": "Business",
+        "subtitle": "Strategy, dashboarding and decision-making"
+      },
+      "implementation": {
+        "title": "Implementation",
+        "subtitle": "Rollout, configuration and operational actions"
+      }
+    },
+    "topBar": {
+      "brand": "NEXUS PORTAL",
+      "fallbackIdentity": "Authenticated launch hub",
+      "userActions": "User actions",
+      "logout": "Logout",
+      "actions": {
+        "profile": "Profile",
+        "notifications": "Notifications",
+        "messages": "Messages"
+      },
+      "panels": {
+        "profile": "profile",
+        "notifications": "notifications",
+        "messages": "messages"
+      },
+      "profileSummary": "Logged in as {{firstName}} ({{username}}). Token valid until session refresh or logout.",
+      "noNotifications": "No new notifications.",
+      "noMessages": "No new messages."
+    }
+  }
+}

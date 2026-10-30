@@ -4,6 +4,7 @@ import type {
   WorkflowExportBundle,
 } from '@openjcockpit/api';
 import { referenceLabel } from '@openjcockpit/api';
+import type { TFunction } from '@openjcockpit/i18n';
 
 export function toList(value: string): string[] {
   return value
@@ -56,13 +57,14 @@ export function describeSourceOutcome(source: SkillCatalogSourceStatus): string 
 export function selectedStagesInOrder(
   availableAgents: AgentDefinition[],
   agentIds: string[],
+  t: TFunction<'api'>,
 ): AgentDefinition[] {
   const byId = new Map(availableAgents.map((agent) => [agent.id, agent]));
   return agentIds.map(
     (id, index) =>
       byId.get(id) ?? {
         id,
-        name: referenceLabel(id),
+        name: referenceLabel(id, t),
         description: '',
         role: '',
         sequenceOrder: index,

@@ -1,0 +1,111 @@
+{
+  "dashboard": {
+    "authenticating": "Authentifizierung läuft...",
+    "loadingView": "Wird geladen...",
+    "siteHeader": {
+      "backToHub": "Zurück zum Hub",
+      "primaryNavigation": "Hauptnavigation",
+      "activeProject": "Aktives Projekt",
+      "language": "Sprache",
+      "projectManagement": "Projektverwaltung",
+      "hub": "← Hub",
+      "logOut": "Abmelden",
+      "logout": "Abmelden",
+      "nav": {
+        "platform": "Plattform",
+        "workflow": "Workflow-Design & -Ausführung",
+        "specFiles": "Spec-Dateien",
+        "specQueue": "Spec-Warteschlange",
+        "skillsHub": "Skills-Hub"
+      }
+    },
+    "statusBar": {
+      "environment": "● Umgebung: {{value}}",
+      "region": "☁ Region: {{value}}",
+      "classification": "⬡ Klassifizierung: {{value}}",
+      "embabelVersion": "Embabel-Version: {{value}}",
+      "springAiControlVersion": "Spring AI Control Service: {{value}}",
+      "copyright": "© 2026 Metafactory B.V."
+    },
+    "customerHero": {
+      "customer": "Kunde: {{name}}"
+    },
+    "workspace": {
+      "failed": "Der Arbeitsbereich konnte nicht geladen werden.",
+      "loading": "Arbeitsbereich wird geladen..."
+    },
+    "preflight": {
+      "title": "Preflight-Prüfung fehlgeschlagen",
+      "checkGitSettings": "Git-Einstellungen prüfen",
+      "dismiss": "Schließen",
+      "unknown": "Preflight-Prüfung fehlgeschlagen: {{message}}",
+      "errors": {
+        "DOCKER_UNAVAILABLE": "Docker ist nicht verfügbar. Bitte stellen Sie sicher, dass Docker läuft und die Anwendung Container starten darf.",
+        "GIT_REPOSITORY_UNAVAILABLE": "Das Git-Repository ist nicht erreichbar. Bitte prüfen Sie die Git-URL oder die Zugangsdaten des Projekts.",
+        "NO_SELECTED_PROJECT": "Es ist kein Projekt ausgewählt. Bitte wählen Sie ein Projekt, bevor Sie den Workflow starten.",
+        "PROJECT_INACTIVE": "Das ausgewählte Projekt ist inaktiv und kann nicht zum Starten eines Workflows verwendet werden.",
+        "GIT_AUTH_FAILED": "Git-Authentifizierung fehlgeschlagen. Bitte aktualisieren Sie die Zugangsdaten des Projekts.",
+        "GIT_URL_MISSING": "Für das ausgewählte Projekt ist keine Git-URL konfiguriert.",
+        "GIT_REPOSITORY_NOT_FOUND": "Das Git-Repository wurde nicht gefunden.",
+        "TIMEOUT": "Bei der Preflight-Prüfung ist eine Zeitüberschreitung aufgetreten. Bitte versuchen Sie es erneut oder prüfen Sie die Infrastruktur."
+      }
+    },
+    "flow": {
+      "startNewWorkflow": "↺ Neuen Workflow starten",
+      "currentSpec": "Aktuelle Spec",
+      "specFolder": "Spec-Ordner",
+      "loadingSpecs": "Specs werden geladen…",
+      "noSpecsFound": "Keine Specs gefunden",
+      "active": "Aktiv",
+      "workflow": "Workflow",
+      "reloadSpecs": "⟳ Specs neu laden",
+      "openPullRequest": "Pull Request öffnen",
+      "start": {
+        "preflight": "⟳ Preflight-Prüfungen laufen…",
+        "starting": "⟳ Wird gestartet…",
+        "error": "✕ Fehler",
+        "idle": "▶ Starten"
+      },
+      "specInit": {
+        "option": "Initialisierung des Spec-Ordners — Spec-Vorlage per Pull Request",
+        "hint": "Dieser Workflow erstellt einen .specify-Ordner mit der Spec-Vorlage und bietet ihn als Pull Request im Repository an.",
+        "offered": "Pull Request angeboten",
+        "pending": "Pull Request offen",
+        "pendingText": "Ein Branch mit der Spec-Vorlage ist bereits vorbereitet{{branch}}. Führen Sie den zugehörigen Pull Request zusammen, um den .specify-Ordner hinzuzufügen.",
+        "viewBranch": "⎇ Branch im Repository ansehen"
+      },
+      "template": {
+        "present": "Spec-Struktur vorhanden",
+        "text": "Das Repository hat bereits einen .specify-Ordner, aber noch keine Specs im Ordner specs/. Erstellen Sie die erste Spec mit einem Prompt — der Workflow kombiniert Ihren Prompt mit dem Repository-Inhalt (RAG) zu einer kleinen, ausführbaren Spec-Datei.",
+        "createSpec": "✨ Spec mit Prompt erstellen",
+        "unavailable": "Der Workflow „Spec aus Prompt erstellen (RAG)“ ist für dieses Projekt nicht verfügbar."
+      },
+      "launcher": {
+        "none": "Keine Workflows verfügbar",
+        "noneHint": "Keine Workflows für dieses Projekt. Erstellen Sie einen über Workflow-Design & -Ausführung."
+      }
+    },
+    "specPanel": {
+      "title": "Spec",
+      "loading": "Specs werden geladen…",
+      "viewAll": "Alle Specs anzeigen",
+      "lastModified": "Zuletzt geändert: {{value}}",
+      "empty": {
+        "title": "Keine Specs gefunden",
+        "text": "Kein specs/-Ordner mit Spezifikationen im Repository",
+        "goToWorkflow": "⚡ Zu Workflow-Design & -Ausführung",
+        "hint": "Entwerfen oder wählen Sie dort einen Workflow, um Spec-Dateien zu erstellen."
+      }
+    },
+    "evidence": {
+      "title": "Ausführungsnachweis",
+      "view": "Nachweis anzeigen",
+      "by": "Von: {{actor}}"
+    },
+    "quality": {
+      "title": "Qualitätsstatus",
+      "open": "Qualitäts-Dashboard öffnen ↗",
+      "viewAll": "Alle Qualitätsregeln anzeigen"
+    }
+  }
+}

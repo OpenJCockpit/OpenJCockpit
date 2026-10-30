@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import { fieldHintClass, formInputClass } from '../../Form/Form';
 import FormFieldsStyles from '../FormFields.module.scss';
 
@@ -12,12 +13,11 @@ interface SecretFieldProps {
 
 /** Password input for a write-only secret: blank means "keep the stored value". */
 export function SecretField({ label, hasValue, value, onChange }: SecretFieldProps) {
+  const { t } = useTranslation();
   return (
     <label className={FormFieldsStyles.formFieldWide}>
       {label}{' '}
-      {hasValue && (
-        <span className={fieldHintClass}>(already configured — leave blank to keep)</span>
-      )}
+      {hasValue && <span className={fieldHintClass}>{t('secretField.configuredHint')}</span>}
       <input
         className={formInputClass}
         type="password"

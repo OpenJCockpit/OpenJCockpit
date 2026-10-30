@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getJiraConfig, queryKeys, saveJiraConfig } from '@openjcockpit/api';
 import type { JiraConfig, JiraConfigRequest } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { CheckboxField, SecretField, TextField, StatusMessage } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
 
@@ -39,6 +40,7 @@ function toFormState(jira: JiraConfig): JiraFormState {
 }
 
 export function JiraSettings({ projectId }: Props) {
+  const { t } = useTranslation('workflow');
   const queryClient = useQueryClient();
   const queryKey = queryKeys.jiraConfig(projectId);
   const configQuery = useQuery({ queryKey, queryFn: () => getJiraConfig(projectId) });
@@ -82,51 +84,51 @@ export function JiraSettings({ projectId }: Props) {
   }
 
   if (loadError) {
-    return <StatusMessage variant="error">Failed to load the Jira configuration.</StatusMessage>;
+    return <StatusMessage variant="error">{t('jira.loadFailed')}</StatusMessage>;
   }
 
-  if (!loaded) return <StatusMessage variant="loading">Loading configuration...</StatusMessage>;
+  if (!loaded) return <StatusMessage variant="loading">{t('config.loading')}</StatusMessage>;
 
   return (
     <IntegrationConfigForm
-      title="Jira connector"
-      saveLabel="Save Jira config"
+      title={t('jira.title')}
+      saveLabel={t('jira.save')}
       saving={saving}
       error={error}
       savedMessage={savedMessage}
       onSave={() => void handleSave()}
     >
       <CheckboxField
-        label="Enabled"
+        label={t('config.enabled')}
         checked={form.enabled}
         onChange={(v) => update({ enabled: v })}
       />
       <TextField
-        label="Jira base URL"
+        label={t('jira.baseUrl')}
         value={form.baseUrl}
         onChange={(v) => update({ baseUrl: v })}
-        placeholder="https://your-org.atlassian.net"
+        placeholder={t('jira.baseUrlPlaceholder')}
       />
       <TextField
-        label="Project key"
+        label={t('jira.projectKey')}
         value={form.projectKey}
         onChange={(v) => update({ projectKey: v })}
         placeholder="NL"
       />
       <TextField
-        label="Issue type mapping"
+        label={t('jira.issueTypeMapping')}
         value={form.issueTypeMapping}
         onChange={(v) => update({ issueTypeMapping: v })}
-        placeholder="Bug=bugfix-workflow"
+        placeholder={t('jira.issueTypeMappingPlaceholder')}
       />
       <TextField
-        label="Workflow ID to start"
+        label={t('config.workflowIdToStart')}
         value={form.workflowId}
         onChange={(v) => update({ workflowId: v })}
-        placeholder="wf-onboarding"
+        placeholder={t('config.workflowIdPlaceholder')}
       />
       <SecretField
-        label="Auth token"
+        label={t('config.authToken')}
         hasValue={hasAuthToken}
         value={form.authToken}
         onChange={(v) => update({ authToken: v })}

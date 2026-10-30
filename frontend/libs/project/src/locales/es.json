@@ -1,0 +1,103 @@
+{
+  "project": {
+    "gitStatus": {
+      "reachable": "Accesible",
+      "notReachable": "No accesible",
+      "checkFailed": "Falló la comprobación",
+      "unknown": "Desconocido",
+      "compactReachable": "Git accesible",
+      "compactNotReachable": "Git no accesible"
+    },
+    "selection": {
+      "repoReachable": "Repositorio Git accesible",
+      "repoNotReachable": "Repositorio Git no accesible",
+      "statusUnknown": "Estado de Git desconocido",
+      "title": "Selecciona un proyecto",
+      "subtitle": "Elige el proyecto en el que quieres trabajar",
+      "empty": "No hay proyectos activos disponibles.",
+      "manageArrow": "Gestionar proyectos →",
+      "manageGear": "⚙ Gestionar proyectos",
+      "owner": "Responsable: {{owner}}",
+      "branch": "Rama: {{branch}}",
+      "notReachableNotice": "Repositorio no accesible. Actualiza el proyecto en ⚙ Gestionar proyectos."
+    },
+    "settings": {
+      "loading": "Cargando proyectos...",
+      "back": "← Proyectos",
+      "title": "Gestión de proyectos",
+      "newProject": "+ Nuevo proyecto",
+      "errors": {
+        "nameRequired": "El nombre es obligatorio",
+        "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+        "statusChangeFailed": "No se pudo cambiar el estado.",
+        "gitCheckFailed": "Falló la comprobación de Git.",
+        "credentialsLoadFailed": "No se pudieron cargar las credenciales existentes.",
+        "credentialsSaveFailed": "No se pudieron guardar las credenciales.",
+        "credentialsDeleteFailed": "No se pudieron eliminar las credenciales."
+      }
+    },
+    "form": {
+      "newTitle": "Nuevo proyecto",
+      "editTitle": "Editar proyecto",
+      "name": "Nombre *",
+      "namePlaceholder": "Nombre del proyecto",
+      "customerId": "ID de cliente (stub)",
+      "customerIdPlaceholder": "p. ej. noordzee-logistics",
+      "gitUrl": "URL de Git",
+      "gitUrlPlaceholder": "https://github.com/org/repo",
+      "branch": "Rama",
+      "branchPlaceholder": "main",
+      "environment": "Entorno",
+      "environmentPlaceholder": "prod / staging / dev",
+      "owner": "Responsable",
+      "ownerPlaceholder": "Nombre o equipo",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción breve",
+      "newProjectCheckbox": "Proyecto nuevo (el repositorio aún no existe — omitir comprobación de Git)",
+      "save": "Guardar",
+      "saving": "⟳ Guardando…",
+      "cancel": "Cancelar"
+    },
+    "credentials": {
+      "title": "Credenciales de Git",
+      "loading": "Cargando credenciales actuales...",
+      "type": "Tipo",
+      "types": {
+        "NONE": "Ninguna",
+        "HTTPS_TOKEN": "Token HTTPS",
+        "GITHUB_PAT": "GitHub PAT",
+        "USERNAME_PASSWORD": "Usuario + contraseña",
+        "GITHUB_APP": "GitHub App"
+      },
+      "username": "Usuario",
+      "usernamePlaceholder": "opcional",
+      "secret": "Secreto / token / contraseña",
+      "secretKeepPlaceholder": "Déjalo vacío para conservar el secreto actual",
+      "secretRequiredPlaceholder": "Obligatorio — aún no hay ningún secreto",
+      "githubApiUrl": "URL de la API de GitHub (GitHub Enterprise)",
+      "githubApiUrlPlaceholder": "https://github.example.com/api/v3",
+      "hint": "Al guardar, primero se ejecuta una comprobación de Git con estas credenciales; solo se almacenan si la comprobación tiene éxito.",
+      "save": "Guardar",
+      "saving": "⟳ Verificando y guardando…",
+      "cancel": "Cancelar"
+    },
+    "list": {
+      "name": "Nombre",
+      "gitStatus": "Estado de Git",
+      "credentials": "Credenciales",
+      "status": "Estado",
+      "actions": "Acciones",
+      "credentialsSet": "Credenciales configuradas",
+      "credentialsNone": "Ninguna",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "edit": "Editar",
+      "gitCheck": "Comprobar Git",
+      "updateCredentials": "Actualizar credenciales",
+      "addCredentials": "Añadir credenciales",
+      "deleteCredentials": "Eliminar credenciales",
+      "deactivate": "Desactivar",
+      "activate": "Activar"
+    }
+  }
+}

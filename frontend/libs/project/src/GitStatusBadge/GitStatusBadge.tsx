@@ -1,5 +1,6 @@
 import type { GitStatus } from '@openjcockpit/api';
 import styles from './GitStatusBadge.module.scss';
+import { useTranslation } from '@openjcockpit/i18n';
 import { cx } from '@openjcockpit/ui';
 
 interface Props {
@@ -11,44 +12,49 @@ interface Props {
 interface BadgeConfig {
   className: string;
   icon: string;
-  label: string;
+  labelKey: 'reachable' | 'notReachable' | 'checkFailed' | 'unknown';
   /** Aria label for the compact variant. Omitted for statuses it does not render. */
-  compactAriaLabel?: string;
+  compactAriaLabelKey?: 'compactReachable' | 'compactNotReachable';
 }
 
 const BADGES: Record<GitStatus, BadgeConfig> = {
   ACCESSIBLE: {
     className: styles.ok,
     icon: '✓',
-    label: 'Reachable',
-    compactAriaLabel: 'Git reachable',
+    labelKey: 'reachable',
+    compactAriaLabelKey: 'compactReachable',
   },
   NOT_ACCESSIBLE: {
     className: styles.error,
     icon: '✗',
-    label: 'Not reachable',
-    compactAriaLabel: 'Git not reachable',
+    labelKey: 'notReachable',
+    compactAriaLabelKey: 'compactNotReachable',
   },
   CHECK_FAILED: {
     className: styles.error,
     icon: '✗',
-    label: 'Check failed',
-    compactAriaLabel: 'Git not reachable',
+    labelKey: 'checkFailed',
+    compactAriaLabelKey: 'compactNotReachable',
   },
   UNKNOWN: {
     className: styles.unknown,
     icon: '…',
-    label: 'Unknown',
+    labelKey: 'unknown',
   },
 };
 
 export function GitStatusBadge({ status, compact = false }: Props) {
-  const { className, icon, label, compactAriaLabel } = BADGES[status];
+  const { t } = useTranslation('project');
+  const { className, icon, labelKey, compactAriaLabelKey } = BADGES[status];
+  const label = t(`gitStatus.${labelKey}`);
 
   if (compact) {
-    if (!compactAriaLabel) return null;
+    if (!compactAriaLabelKey) return null;
     return (
-      <span className={cx(className, styles.compact)} aria-label={compactAriaLabel}>
+      <span
+        className={cx(className, styles.compact)}
+        aria-label={t(`gitStatus.${compactAriaLabelKey}`)}
+      >
         {' '}
         {icon}
       </span>

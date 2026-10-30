@@ -12,6 +12,7 @@ import {
   triggerGitCheck,
   updateProject,
 } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import type { Project, ProjectGitCredentialRequest, ProjectRequest } from '@openjcockpit/api';
 
 const EMPTY_FORM: ProjectRequest = {
@@ -57,6 +58,7 @@ export function useProjectSettings() {
     // The dashboard's list of active projects is cached under ['projects'].
     void queryClient.invalidateQueries({ queryKey: ['projects'], exact: true });
   }
+  const { t } = useTranslation('project');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ProjectRequest>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
@@ -107,7 +109,7 @@ export function useProjectSettings() {
 
   async function handleSave(editingId: string) {
     if (!form.name.trim()) {
-      setError('Name is required');
+      setError(t('settings.errors.nameRequired'));
       setNameInvalid(true);
       nameInputRef.current?.focus();
       return;
@@ -125,7 +127,7 @@ export function useProjectSettings() {
       }
       setEditingId(null);
     } catch {
-      setError('Save failed. Please try again.');
+      setError(t('settings.errors.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -141,7 +143,7 @@ export function useProjectSettings() {
         setProjects((prev) => prev.map((p) => (p.id === project.id ? { ...p, active: 1 } : p)));
       }
     } catch {
-      setError('Status change failed.');
+      setError(t('settings.errors.statusChangeFailed'));
       setNameInvalid(false);
     }
   }
@@ -164,7 +166,7 @@ export function useProjectSettings() {
         ),
       );
     } catch {
-      setError('Git check failed.');
+      setError(t('settings.errors.gitCheckFailed'));
       setNameInvalid(false);
     } finally {
       setCheckingId(null);
@@ -188,7 +190,7 @@ export function useProjectSettings() {
       });
       setCredHasSecret(existing.hasSecret);
     } catch {
-      setError('Failed to load existing credentials.');
+      setError(t('settings.errors.credentialsLoadFailed'));
     } finally {
       setCredLoading(false);
     }
@@ -213,7 +215,7 @@ export function useProjectSettings() {
       );
       setCredEditingId(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save credentials.');
+      setError(err instanceof Error ? err.message : t('settings.errors.credentialsSaveFailed'));
     } finally {
       setSaving(false);
     }
@@ -227,7 +229,7 @@ export function useProjectSettings() {
         prev.map((p) => (p.id === projectId ? { ...p, hasCredentials: false } : p)),
       );
     } catch {
-      setError('Failed to delete credentials.');
+      setError(t('settings.errors.credentialsDeleteFailed'));
       setNameInvalid(false);
     }
   }

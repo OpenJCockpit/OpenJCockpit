@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from '@openjcockpit/i18n';
 import {
   createWorkflow,
   deleteWorkflow,
@@ -55,6 +56,7 @@ const NO_GROUPS: WorkflowGroup[] = [];
 const NO_AGENTS: AgentDefinition[] = [];
 
 export function WorkflowsPanel() {
+  const { t } = useTranslation('workflow');
   const queryClient = useQueryClient();
   const data = useWorkflowsPanelData();
   const items = data.items ?? NO_WORKFLOWS;
@@ -71,7 +73,7 @@ export function WorkflowsPanel() {
   const [importViolations, setImportViolations] = useState<string[]>([]);
 
   if (!loaded) {
-    return <StatusMessage variant="loading">Loading workflows...</StatusMessage>;
+    return <StatusMessage variant="loading">{t('workflows.loading')}</StatusMessage>;
   }
 
   function updateItems(update: (prev: WorkflowDefinition[]) => WorkflowDefinition[]) {
@@ -203,16 +205,16 @@ export function WorkflowsPanel() {
   return (
     <div>
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>+ New workflow</ToolbarButton>
+        <ToolbarButton onClick={startCreate}>{t('workflows.newButton')}</ToolbarButton>
         <label className={WorkflowDesignStyles.workflowGroupFilter}>
-          Group
+          {t('workflows.group')}
           <select
             className={cx(formInputClass, WorkflowDesignStyles.workflowGroupFilterSelect)}
             value={groupFilter}
             onChange={(e) => setGroupFilter(e.target.value)}
           >
-            <option value="all">All groups</option>
-            <option value="none">No group</option>
+            <option value="all">{t('workflows.allGroups')}</option>
+            <option value="none">{t('workflows.noGroup')}</option>
             {groups.map((g) => (
               <option key={g.id} value={g.id}>
                 {g.name}
@@ -222,14 +224,14 @@ export function WorkflowsPanel() {
         </label>
         <div className={WorkflowDesignStyles.workflowDesignToolbarSpacer} />
         <ToolbarButton variant="small" onClick={() => void handleExport()}>
-          ⬇ Export JSON
+          {t('workflows.export')}
         </ToolbarButton>
         <FileImportButton
           accept="application/json,.json"
-          inputLabel="Import workflows JSON"
+          inputLabel={t('workflows.importLabel')}
           onFile={(file) => void handleImportFile(file)}
         >
-          ⬆ Import JSON
+          {t('workflows.import')}
         </FileImportButton>
       </div>
       {error && (
@@ -240,7 +242,7 @@ export function WorkflowsPanel() {
       {info && <StatusMessage>{info}</StatusMessage>}
       {importViolations.length > 0 && (
         <div className={cx(fieldHintClass, 'workflow-import-violations')} role="status">
-          <p>{importViolations.length} reference(s) could not be resolved:</p>
+          <p>{t('workflows.unresolved', { count: importViolations.length })}</p>
           <ul>
             {importViolations.map((violation) => (
               <li key={violation}>{violation}</li>

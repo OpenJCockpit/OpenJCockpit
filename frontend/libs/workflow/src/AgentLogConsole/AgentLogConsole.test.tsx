@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { render } from '../testUtils/render';
 import { describe, expect, it } from 'vitest';
 import type { AgentEvent } from '@openjcockpit/api';
 import { AgentLogConsole } from './AgentLogConsole';

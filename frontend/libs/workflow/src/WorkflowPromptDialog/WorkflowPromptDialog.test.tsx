@@ -1,4 +1,5 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
+import { render } from '../testUtils/render';
 import { describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 import { WorkflowPromptDialog } from './WorkflowPromptDialog';

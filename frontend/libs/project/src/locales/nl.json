@@ -1,0 +1,103 @@
+{
+  "project": {
+    "gitStatus": {
+      "reachable": "Bereikbaar",
+      "notReachable": "Niet bereikbaar",
+      "checkFailed": "Controle mislukt",
+      "unknown": "Onbekend",
+      "compactReachable": "Git bereikbaar",
+      "compactNotReachable": "Git niet bereikbaar"
+    },
+    "selection": {
+      "repoReachable": "Git-repository bereikbaar",
+      "repoNotReachable": "Git-repository niet bereikbaar",
+      "statusUnknown": "Git-status onbekend",
+      "title": "Selecteer een project",
+      "subtitle": "Kies het project waaraan je wilt werken",
+      "empty": "Geen actieve projecten beschikbaar.",
+      "manageArrow": "Projecten beheren →",
+      "manageGear": "⚙ Projecten beheren",
+      "owner": "Eigenaar: {{owner}}",
+      "branch": "Branch: {{branch}}",
+      "notReachableNotice": "Repository niet bereikbaar. Pas het project aan via ⚙ Projecten beheren."
+    },
+    "settings": {
+      "loading": "Projecten laden...",
+      "back": "← Projecten",
+      "title": "Projectbeheer",
+      "newProject": "+ Nieuw project",
+      "errors": {
+        "nameRequired": "Naam is verplicht",
+        "saveFailed": "Opslaan is mislukt. Probeer het opnieuw.",
+        "statusChangeFailed": "Statuswijziging is mislukt.",
+        "gitCheckFailed": "Git-controle is mislukt.",
+        "credentialsLoadFailed": "Bestaande inloggegevens laden is mislukt.",
+        "credentialsSaveFailed": "Inloggegevens opslaan is mislukt.",
+        "credentialsDeleteFailed": "Inloggegevens verwijderen is mislukt."
+      }
+    },
+    "form": {
+      "newTitle": "Nieuw project",
+      "editTitle": "Project bewerken",
+      "name": "Naam *",
+      "namePlaceholder": "Projectnaam",
+      "customerId": "Klant-ID (stub)",
+      "customerIdPlaceholder": "bijv. noordzee-logistics",
+      "gitUrl": "Git-URL",
+      "gitUrlPlaceholder": "https://github.com/org/repo",
+      "branch": "Branch",
+      "branchPlaceholder": "main",
+      "environment": "Omgeving",
+      "environmentPlaceholder": "prod / staging / dev",
+      "owner": "Eigenaar",
+      "ownerPlaceholder": "Naam of team",
+      "description": "Beschrijving",
+      "descriptionPlaceholder": "Korte beschrijving",
+      "newProjectCheckbox": "Nieuw project (repository bestaat nog niet — Git-controle overslaan)",
+      "save": "Opslaan",
+      "saving": "⟳ Opslaan…",
+      "cancel": "Annuleren"
+    },
+    "credentials": {
+      "title": "Git-inloggegevens",
+      "loading": "Huidige inloggegevens laden...",
+      "type": "Type",
+      "types": {
+        "NONE": "Geen",
+        "HTTPS_TOKEN": "HTTPS-token",
+        "GITHUB_PAT": "GitHub PAT",
+        "USERNAME_PASSWORD": "Gebruikersnaam + wachtwoord",
+        "GITHUB_APP": "GitHub App"
+      },
+      "username": "Gebruikersnaam",
+      "usernamePlaceholder": "optioneel",
+      "secret": "Geheim / token / wachtwoord",
+      "secretKeepPlaceholder": "Leeg laten om het huidige geheim te behouden",
+      "secretRequiredPlaceholder": "Verplicht — nog geen geheim ingesteld",
+      "githubApiUrl": "GitHub API-URL (GitHub Enterprise)",
+      "githubApiUrlPlaceholder": "https://github.example.com/api/v3",
+      "hint": "Bij het opslaan wordt eerst een Git-controle met deze inloggegevens uitgevoerd; ze worden alleen opgeslagen als de controle slaagt.",
+      "save": "Opslaan",
+      "saving": "⟳ Controleren en opslaan…",
+      "cancel": "Annuleren"
+    },
+    "list": {
+      "name": "Naam",
+      "gitStatus": "Git-status",
+      "credentials": "Inloggegevens",
+      "status": "Status",
+      "actions": "Acties",
+      "credentialsSet": "Inloggegevens ingesteld",
+      "credentialsNone": "Geen",
+      "active": "Actief",
+      "inactive": "Inactief",
+      "edit": "Bewerken",
+      "gitCheck": "Git-controle",
+      "updateCredentials": "Inloggegevens bijwerken",
+      "addCredentials": "Inloggegevens toevoegen",
+      "deleteCredentials": "Inloggegevens verwijderen",
+      "deactivate": "Deactiveren",
+      "activate": "Activeren"
+    }
+  }
+}

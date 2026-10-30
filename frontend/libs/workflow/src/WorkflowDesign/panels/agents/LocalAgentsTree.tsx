@@ -1,4 +1,5 @@
 import type { LocalCatalogAgent } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { DataTable, fieldErrorClass } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
@@ -48,16 +49,17 @@ function FolderView({ node, depth }: { node: FolderNode; depth: number }) {
 }
 
 function LocalAgentsTable({ agents }: { agents: LocalCatalogAgent[] }) {
+  const { t } = useTranslation('workflow');
   return (
     <DataTable>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Version</th>
-          <th>Model</th>
-          <th>Skills</th>
-          <th>File</th>
+          <th>{t('shared.name')}</th>
+          <th>{t('shared.description')}</th>
+          <th>{t('shared.version')}</th>
+          <th>{t('localAgents.model')}</th>
+          <th>{t('shared.skills')}</th>
+          <th>{t('localAgents.file')}</th>
         </tr>
       </thead>
       <tbody>
@@ -82,7 +84,7 @@ function LocalAgentsTable({ agents }: { agents: LocalCatalogAgent[] }) {
             <td>{agent.version}</td>
             <td>{agent.model}</td>
             <td>{agent.skills.join(', ')}</td>
-            <td className={WorkflowDesignStyles.agentCatalogPath}>agents/{agent.path}</td>
+            <td className={WorkflowDesignStyles.agentCatalogPath}>{`agents/${agent.path}`}</td>
           </tr>
         ))}
       </tbody>

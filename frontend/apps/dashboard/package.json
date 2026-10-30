@@ -15,6 +15,7 @@
   "dependencies": {
     "@openjcockpit/api": "*",
     "@openjcockpit/auth": "*",
+    "@openjcockpit/i18n": "*",
     "@openjcockpit/landing-hub": "*",
     "@openjcockpit/project": "*",
     "@openjcockpit/skills-hub": "*",

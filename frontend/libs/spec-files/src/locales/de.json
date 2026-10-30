@@ -1,0 +1,23 @@
+{
+  "specFiles": {
+    "backToDashboard": "Zurück zum Dashboard",
+    "eyebrow": "Spec-Dateien",
+    "noProject": "Kein Projekt ausgewählt",
+    "selectProjectFirst": "Wählen Sie zuerst ein Projekt aus, um die Spec-Dateien zu verwalten.",
+    "specs": "Specs",
+    "loadingSpecs": "Specs werden geladen…",
+    "noSpecsFound": "Keine Specs gefunden",
+    "noSpecsFolder": "Kein specs/-Ordner mit Spezifikationen im Repository",
+    "lastModified": "Zuletzt geändert: {{date}}",
+    "saving": "⟳ Wird gespeichert…",
+    "save": "💾 Speichern",
+    "addToQueue": "➕ Zur Warteschlange hinzufügen",
+    "unmergedHint": "Ihre Änderungen sind auf einem Branch gespeichert und noch nicht zusammengeführt. Die Warteschlange führt die Version im Standard-Branch aus, führen Sie daher zuerst den Pull Request zusammen.",
+    "saveFirstHint": "Speichern Sie die Spec zuerst. Die Warteschlange führt nur die Version im Standard-Branch des Repositorys aus, führen Sie daher den Pull Request vom Speichern zusammen, bevor sie läuft.",
+    "contentsOf": "Inhalt von {{fileName}}",
+    "openPullRequest": "Pull Request öffnen",
+    "noSpecSelected": "Keine Spec ausgewählt.",
+    "saveFailed": "Speichern der Spec fehlgeschlagen",
+    "addedToQueue": "{{fileName}} wurde zur Warteschlange hinzugefügt."
+  }
+}

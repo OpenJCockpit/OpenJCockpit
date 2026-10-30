@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from '@openjcockpit/i18n';
 import { ToolbarButton, StatusMessage } from '@openjcockpit/ui';
 import {
   createSubagentSpec,
@@ -27,6 +28,7 @@ const EMPTY_SUBAGENT: SubagentSpec = {
 const NO_ITEMS: SubagentSpec[] = [];
 
 export function SubagentsPanel() {
+  const { t } = useTranslation('workflow');
   const queryClient = useQueryClient();
   const query = useSubagentSpecs();
   const items = query.data ?? NO_ITEMS;
@@ -47,7 +49,7 @@ export function SubagentsPanel() {
   }
 
   if (!loaded) {
-    return <StatusMessage variant="loading">Loading subagents...</StatusMessage>;
+    return <StatusMessage variant="loading">{t('subagents.loading')}</StatusMessage>;
   }
 
   function startCreate() {
@@ -108,7 +110,7 @@ export function SubagentsPanel() {
     <div>
       <PromptGenerator kind="subagent" onGenerate={handleGenerate} />
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>+ New subagent</ToolbarButton>
+        <ToolbarButton onClick={startCreate}>{t('subagents.newButton')}</ToolbarButton>
       </div>
       {error && <StatusMessage variant="error">{error}</StatusMessage>}
 

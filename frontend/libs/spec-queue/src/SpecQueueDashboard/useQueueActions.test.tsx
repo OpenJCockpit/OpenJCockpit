@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import type { SpecQueueItem } from '@openjcockpit/api';
+import { withI18n } from '@openjcockpit/i18n/testing';
+import { specQueueResources } from '../i18n';
 import { useQueueActions } from './useQueueActions';
 
 const api = vi.hoisted(() => ({
@@ -20,9 +22,11 @@ const item = { id: 'a', specFile: 'a.md', workflowId: 'w1' } as SpecQueueItem;
 
 function setup() {
   const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={client}>{children}</QueryClientProvider>
-  );
+  const wrapper = ({ children }: { children: ReactNode }) =>
+    withI18n(
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>,
+      specQueueResources,
+    );
   const refresh = vi.fn().mockResolvedValue(undefined);
   const announce = vi.fn();
   const hook = renderHook(

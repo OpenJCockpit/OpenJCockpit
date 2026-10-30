@@ -1,3 +1,4 @@
+import { useTranslation } from '@openjcockpit/i18n';
 import type { SpecInitStatus } from '@openjcockpit/api';
 import { StatusChip, ToolbarButton, buttonClass, feedbackResultClass } from '@openjcockpit/ui';
 
@@ -8,17 +9,14 @@ interface Props {
 
 /** A spec-init branch / pull request is already open on the repository. */
 export function SpecInitPending({ status, onReload }: Props) {
+  const { t } = useTranslation('dashboard');
   return (
     <div className={feedbackResultClass}>
-      <StatusChip label="Pull request open" kind="open" />
-      <p>
-        A branch with the spec template is already prepared
-        {status.branch ? `: ${status.branch}` : ''}. Merge the corresponding pull request to add the
-        .specify folder.
-      </p>
+      <StatusChip label={t('flow.specInit.pending')} kind="open" />
+      <p>{t('flow.specInit.pendingText', { branch: status.branch ? `: ${status.branch}` : '' })}</p>
       {status.branchUrl && (
         <a className={buttonClass()} href={status.branchUrl} target="_blank" rel="noreferrer">
-          ⎇ View branch on the repository
+          {t('flow.specInit.viewBranch')}
         </a>
       )}
       {status.pullRequestUrl && (
@@ -28,11 +26,11 @@ export function SpecInitPending({ status, onReload }: Props) {
           target="_blank"
           rel="noreferrer"
         >
-          Open pull request <span>→</span>
+          {t('flow.openPullRequest')} <span>→</span>
         </a>
       )}
       <ToolbarButton variant="small" onClick={onReload}>
-        ⟳ Reload specs
+        {t('flow.reloadSpecs')}
       </ToolbarButton>
     </div>
   );

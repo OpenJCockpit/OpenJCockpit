@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { fixedT } from '@openjcockpit/i18n/testing';
+import { specQueueResources } from './i18n';
 import {
   failureReasonText,
   isOpenItem,
@@ -10,6 +12,8 @@ import {
   safeHttpUrl,
 } from './queueStatus';
 import type { SpecQueueFailureReason, SpecQueueItemStatus } from '@openjcockpit/api';
+
+const t = fixedT('specQueue', specQueueResources);
 
 const STATUSES: SpecQueueItemStatus[] = [
   'QUEUED',
@@ -51,33 +55,33 @@ const REASONS: SpecQueueFailureReason[] = [
 describe('queueStatus', () => {
   it('gives every status a label and icon', () => {
     for (const status of STATUSES) {
-      const p = itemStatusPresentation(status);
+      const p = itemStatusPresentation(status, t);
       expect(p.label).not.toBe('');
       expect(p.icon).not.toBe('');
     }
   });
 
   it('shows "Awaiting approval" only for RUNNING at an approval gate', () => {
-    expect(itemPresentation({ status: 'RUNNING', runStatus: 'AWAITING_APPROVAL' }).label).toBe(
+    expect(itemPresentation({ status: 'RUNNING', runStatus: 'AWAITING_APPROVAL' }, t).label).toBe(
       'Awaiting approval',
     );
-    expect(itemPresentation({ status: 'RUNNING', runStatus: 'RUNNING' }).label).toBe('Running');
-    expect(itemPresentation({ status: 'QUEUED', runStatus: 'AWAITING_APPROVAL' }).label).toBe(
+    expect(itemPresentation({ status: 'RUNNING', runStatus: 'RUNNING' }, t).label).toBe('Running');
+    expect(itemPresentation({ status: 'QUEUED', runStatus: 'AWAITING_APPROVAL' }, t).label).toBe(
       'Queued',
     );
   });
 
   it('has 20 distinct failure texts', () => {
-    const texts = REASONS.map(failureReasonText);
+    const texts = REASONS.map((reason) => failureReasonText(reason, t));
     expect(texts.every(Boolean)).toBe(true);
     expect(new Set(texts).size).toBe(20);
   });
 
   it('has poll-error and state texts', () => {
-    expect(pollErrorText('GITHUB_RATE_LIMITED')).toBe('GitHub rate limit reached');
-    expect(queueStateText('ACTIVE')).toBe('Active');
-    expect(queueStateText('PAUSED')).toBe('Paused');
-    expect(queueStateText('HALTED')).toBe('Halted');
+    expect(pollErrorText('GITHUB_RATE_LIMITED', t)).toBe('GitHub rate limit reached');
+    expect(queueStateText('ACTIVE', t)).toBe('Active');
+    expect(queueStateText('PAUSED', t)).toBe('Paused');
+    expect(queueStateText('HALTED', t)).toBe('Halted');
   });
 
   it('derives the action matrix per status', () => {

@@ -1,0 +1,51 @@
+{
+  "api": {
+    "runStatus": {
+      "AWAITING_APPROVAL": "Wacht op goedkeuring",
+      "AWAITING_CHILD_WORKFLOW": "Wacht op onderliggende workflow",
+      "TIMED_OUT": "Time-out",
+      "BLOCKED": "Geblokkeerd"
+    },
+    "agentCard": {
+      "active": "Actief",
+      "done": "Klaar",
+      "waiting": "Wachtend",
+      "blocked": "Geblokkeerd",
+      "running": "Bezig",
+      "orphanedAnchor": "{{status}} (ankerfase verwijderd)"
+    },
+    "reference": {
+      "local": "{{name}} (lokaal)",
+      "a2a": "{{name}} ({{provider}})"
+    },
+    "notAvailable": "n.v.t.",
+    "errors": {
+      "AUTO_MERGE_NOT_ALLOWED": "Automatisch samenvoegen is niet toegestaan voor dit item",
+      "WORKFLOW_PROMPT_REQUIRED": "Deze workflow vereist een prompt",
+      "WORKFLOW_NOT_ALLOWED_FOR_PROJECT": "Deze workflow is niet toegestaan voor het project",
+      "PROJECT_NOT_FOUND": "Project niet gevonden",
+      "SPEC_FILE_NOT_FOUND": "Specbestand niet gevonden in het project",
+      "WORKFLOW_NOT_FOUND": "Workflow niet gevonden",
+      "ITEM_NOT_FOUND": "Wachtrij-item niet gevonden",
+      "DUPLICATE_SPEC_FILE": "Dit specbestand staat al in de wachtrij",
+      "PROJECT_INACTIVE": "Het project is inactief",
+      "GIT_URL_MISSING": "Het project heeft geen git-URL",
+      "GIT_AUTH_FAILED": "Git-authenticatie mislukt",
+      "QUEUE_FULL": "De specwachtrij is vol",
+      "QUEUE_BUSY": "De wachtrij is bezig; probeer het opnieuw",
+      "ITEM_NOT_EDITABLE": "Alleen items in de wachtrij kunnen worden bewerkt",
+      "ITEM_NOT_REMOVABLE": "Het item is al afgerond",
+      "ITEM_BUSY": "Het item wordt verwerkt",
+      "STALE_ORDER": "De wachtrij is gewijzigd; laad opnieuw en probeer het nogmaals",
+      "QUEUE_HALTED": "De wachtrij is gepauzeerd",
+      "UNRESOLVED_FAILED_ITEM": "Los eerst het mislukte item op",
+      "ITEM_NOT_FAILED": "Het item is niet mislukt",
+      "SPEC_QUEUE_ITEM_ACTIVE": "Dit specbestand staat in de wachtrij en kan niet worden gewijzigd",
+      "SPEC_LISTING_FAILED": "Specbestanden konden niet worden opgehaald",
+      "EMBABEL_UNAVAILABLE": "De agentservice is niet beschikbaar",
+      "NOT_FOUND": "Verbinding niet gevonden",
+      "NAME_CONFLICT": "Er bestaat al een verbinding met deze naam",
+      "API_KEY_REQUIRED": "Een API-sleutel is verplicht"
+    }
+  }
+}

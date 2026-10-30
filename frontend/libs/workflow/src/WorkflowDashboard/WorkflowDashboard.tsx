@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getWorkflow, queryKeys } from '@openjcockpit/api';
 import type { Project, WorkflowDefinition } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { WorkflowOverview } from '../WorkflowOverview/WorkflowOverview';
 import { WorkflowConfiguration } from '../WorkflowConfiguration/WorkflowConfiguration';
 import { WorkflowDesign } from '../WorkflowDesign/WorkflowDesign';
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function WorkflowDashboard({ project, onBack, initialExecution, header }: Props) {
+  const { t } = useTranslation('workflow');
   const [tab, setTab] = useState<WorkflowTab>(initialExecution ? 'execution' : 'overview');
   const [pickedWorkflow, setPickedWorkflow] = useState<WorkflowDefinition | null>(null);
   const [executionRunId, setExecutionRunId] = useState<string | null>(
@@ -54,26 +56,26 @@ export function WorkflowDashboard({ project, onBack, initialExecution, header }:
 
   return (
     <AppShell>
-      {header ?? <AppHeader onBack={onBack} backTitle="Back to dashboard" />}
+      {header ?? <AppHeader onBack={onBack} backTitle={t('dashboard.backTitle')} />}
 
       <main className={styles.workflowDashboard}>
         <div className={styles.workflowDashboardHeader}>
           <div>
-            <Eyebrow>Workflow Design &amp; Execution</Eyebrow>
-            <h1>{project ? project.name : 'All projects'}</h1>
+            <Eyebrow>{t('dashboard.eyebrow')}</Eyebrow>
+            <h1>{project ? project.name : t('dashboard.allProjects')}</h1>
           </div>
-          <TabNav aria-label="Workflow secties">
+          <TabNav aria-label={t('dashboard.tabsLabel')}>
             <Tab active={tab === 'overview'} onClick={() => setTab('overview')}>
-              Overview
+              {t('dashboard.tabs.overview')}
             </Tab>
             <Tab active={tab === 'configuration'} onClick={() => setTab('configuration')}>
-              Configuration
+              {t('dashboard.tabs.configuration')}
             </Tab>
             <Tab active={tab === 'design'} onClick={() => setTab('design')}>
-              Design
+              {t('dashboard.tabs.design')}
             </Tab>
             <Tab active={tab === 'execution'} onClick={() => setTab('execution')}>
-              Workflow Execution
+              {t('dashboard.tabs.execution')}
             </Tab>
           </TabNav>
         </div>
@@ -89,7 +91,7 @@ export function WorkflowDashboard({ project, onBack, initialExecution, header }:
         {tab === 'design' && <WorkflowDesign />}
         {tab === 'execution' && initialError && !executionWorkflow && (
           <p className={feedbackErrorClass} role="alert">
-            The workflow of this run could not be loaded — {initialError}
+            {t('dashboard.runLoadFailed', { error: initialError })}
           </p>
         )}
         {tab === 'execution' && (

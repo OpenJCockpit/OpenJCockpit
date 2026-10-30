@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { render } from './testRender';
 import { Suspense } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { LandingHub } from './index';

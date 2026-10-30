@@ -49,6 +49,8 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         baseURL: env.dashboardBaseUrl,
+        // Text selectors assume English; the language selector spec switches explicitly.
+        locale: 'en-US',
         storageState: AUTH_STATE_PATH,
       },
     },

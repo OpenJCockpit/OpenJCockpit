@@ -1,4 +1,5 @@
 import type { SubagentSpec } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { DataTable, Button } from '@openjcockpit/ui';
 
 interface SubagentsTableProps {
@@ -8,13 +9,14 @@ interface SubagentsTableProps {
 }
 
 export function SubagentsTable({ items, onEdit, onDelete }: SubagentsTableProps) {
+  const { t } = useTranslation('workflow');
   return (
     <DataTable>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Parent agent</th>
-          <th>Skills</th>
+          <th>{t('shared.name')}</th>
+          <th>{t('subagents.parentAgent')}</th>
+          <th>{t('shared.skills')}</th>
           <th></th>
         </tr>
       </thead>
@@ -26,10 +28,10 @@ export function SubagentsTable({ items, onEdit, onDelete }: SubagentsTableProps)
             <td>{item.skillNames.join(', ')}</td>
             <td>
               <Button variant="secondary" onClick={() => onEdit(item)}>
-                Edit
+                {t('shared.edit')}
               </Button>
               <Button variant="secondary" onClick={() => onDelete(item.name)}>
-                Delete
+                {t('shared.delete')}
               </Button>
             </td>
           </tr>

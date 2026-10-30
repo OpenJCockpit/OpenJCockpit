@@ -1,7 +1,10 @@
 import type { Project } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
 import { Actions, DataTable, DataTableRow, fieldHintClass, Button, cx } from '@openjcockpit/ui';
 import styles from './ProjectList.module.scss';
+
+const BUSY_ICON = '⟳';
 
 interface Props {
   projects: Project[];
@@ -22,15 +25,16 @@ export function ProjectList({
   onDeleteCredentials,
   onToggleActive,
 }: Props) {
+  const { t } = useTranslation('project');
   return (
     <DataTable>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Git status</th>
-          <th>Credentials</th>
-          <th>Status</th>
-          <th>Actions</th>
+          <th>{t('list.name')}</th>
+          <th>{t('list.gitStatus')}</th>
+          <th>{t('list.credentials')}</th>
+          <th>{t('list.status')}</th>
+          <th>{t('list.actions')}</th>
         </tr>
       </thead>
       <tbody>
@@ -53,9 +57,9 @@ export function ProjectList({
             </td>
             <td>
               {project.hasCredentials ? (
-                <span className={styles.credentialsSet}>Credentials set</span>
+                <span className={styles.credentialsSet}>{t('list.credentialsSet')}</span>
               ) : (
-                <span className={styles.credentialsNone}>None</span>
+                <span className={styles.credentialsNone}>{t('list.credentialsNone')}</span>
               )}
             </td>
             <td>
@@ -65,22 +69,22 @@ export function ProjectList({
                   project.active === 1 ? styles.statusBadgeActive : styles.statusBadgeInactive,
                 )}
               >
-                {project.active === 1 ? 'Active' : 'Inactive'}
+                {project.active === 1 ? t('list.active') : t('list.inactive')}
               </span>
             </td>
             <Actions as="td">
               <Button variant="secondary" onClick={() => onEdit(project)}>
-                Edit
+                {t('list.edit')}
               </Button>
               <Button
                 variant="secondary"
                 onClick={() => onGitCheck(project.id)}
                 disabled={checkingId === project.id}
               >
-                {checkingId === project.id ? '⟳' : 'Git check'}
+                {checkingId === project.id ? BUSY_ICON : t('list.gitCheck')}
               </Button>
               <Button variant="secondary" onClick={() => onEditCredentials(project.id)}>
-                {project.hasCredentials ? 'Update credentials' : 'Add credentials'}
+                {project.hasCredentials ? t('list.updateCredentials') : t('list.addCredentials')}
               </Button>
               {project.hasCredentials && (
                 <Button
@@ -88,7 +92,7 @@ export function ProjectList({
                   className={styles.danger}
                   onClick={() => onDeleteCredentials(project.id)}
                 >
-                  Delete credentials
+                  {t('list.deleteCredentials')}
                 </Button>
               )}
               <Button
@@ -96,7 +100,7 @@ export function ProjectList({
                 onClick={() => onToggleActive(project)}
                 className={project.active === 1 ? styles.danger : styles.activate}
               >
-                {project.active === 1 ? 'Deactivate' : 'Activate'}
+                {project.active === 1 ? t('list.deactivate') : t('list.activate')}
               </Button>
             </Actions>
           </DataTableRow>

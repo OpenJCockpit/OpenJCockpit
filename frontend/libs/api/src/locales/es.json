@@ -1,0 +1,51 @@
+{
+  "api": {
+    "runStatus": {
+      "AWAITING_APPROVAL": "Pendiente de aprobación",
+      "AWAITING_CHILD_WORKFLOW": "Esperando al workflow hijo",
+      "TIMED_OUT": "Tiempo de espera agotado",
+      "BLOCKED": "Bloqueado"
+    },
+    "agentCard": {
+      "active": "Activo",
+      "done": "Hecho",
+      "waiting": "En espera",
+      "blocked": "Bloqueado",
+      "running": "En ejecución",
+      "orphanedAnchor": "{{status}} (etapa ancla eliminada)"
+    },
+    "reference": {
+      "local": "{{name}} (Local)",
+      "a2a": "{{name}} ({{provider}})"
+    },
+    "notAvailable": "n/d",
+    "errors": {
+      "AUTO_MERGE_NOT_ALLOWED": "No se permite la fusión automática para este elemento",
+      "WORKFLOW_PROMPT_REQUIRED": "Este workflow requiere un prompt",
+      "WORKFLOW_NOT_ALLOWED_FOR_PROJECT": "Este workflow no está permitido para el proyecto",
+      "PROJECT_NOT_FOUND": "Proyecto no encontrado",
+      "SPEC_FILE_NOT_FOUND": "Archivo de especificación no encontrado en el proyecto",
+      "WORKFLOW_NOT_FOUND": "Workflow no encontrado",
+      "ITEM_NOT_FOUND": "Elemento de la cola no encontrado",
+      "DUPLICATE_SPEC_FILE": "Este archivo de especificación ya está en la cola",
+      "PROJECT_INACTIVE": "El proyecto está inactivo",
+      "GIT_URL_MISSING": "El proyecto no tiene URL de Git",
+      "GIT_AUTH_FAILED": "Falló la autenticación de Git",
+      "QUEUE_FULL": "La cola de especificaciones está llena",
+      "QUEUE_BUSY": "La cola está ocupada; inténtalo de nuevo",
+      "ITEM_NOT_EDITABLE": "Solo se pueden editar los elementos en cola",
+      "ITEM_NOT_REMOVABLE": "El elemento ya ha finalizado",
+      "ITEM_BUSY": "El elemento se está procesando",
+      "STALE_ORDER": "La cola ha cambiado; recarga e inténtalo de nuevo",
+      "QUEUE_HALTED": "La cola está detenida",
+      "UNRESOLVED_FAILED_ITEM": "Resuelve primero el elemento fallido",
+      "ITEM_NOT_FAILED": "El elemento no ha fallado",
+      "SPEC_QUEUE_ITEM_ACTIVE": "Este archivo de especificación está en la cola y no se puede modificar",
+      "SPEC_LISTING_FAILED": "No se pudieron listar los archivos de especificación",
+      "EMBABEL_UNAVAILABLE": "El servicio de agentes no está disponible",
+      "NOT_FOUND": "Conexión no encontrada",
+      "NAME_CONFLICT": "Ya existe una conexión con este nombre",
+      "API_KEY_REQUIRED": "Se requiere una clave de API"
+    }
+  }
+}

@@ -6,5 +6,6 @@ export const LandingHub = lazy(() =>
   import('./LandingPage/LandingPage').then((m) => ({ default: m.LandingPage })),
 );
 
+export { landingResources } from './i18n';
 export type { PortalId } from './PortalOrb/PortalOrb';
 export type { HubUser } from './types';

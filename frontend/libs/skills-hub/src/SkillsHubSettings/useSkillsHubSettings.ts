@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from '@openjcockpit/i18n';
 import {
   createSkillsMarketplace,
   deleteSkillsMarketplace,
@@ -22,6 +23,7 @@ const EMPTY_FORM: SkillsMarketplaceConnectionRequest = {
 const MARKETPLACES_KEY = ['skills-marketplaces'];
 /** Marketplace connections list, form state and save / delete actions. */
 export function useSkillsHubSettings() {
+  const { t } = useTranslation('skillsHub');
   const queryClient = useQueryClient();
   const connectionsQuery = useQuery({
     queryKey: MARKETPLACES_KEY,
@@ -38,7 +40,7 @@ export function useSkillsHubSettings() {
   const loadError = connectionsQuery.error
     ? connectionsQuery.error instanceof Error
       ? connectionsQuery.error.message
-      : 'Failed to load marketplaces.'
+      : t('settings.error.loadFailed')
     : null;
   const error = errorOverride === undefined ? loadError : errorOverride;
   const [status, setStatus] = useState('');
@@ -84,11 +86,11 @@ export function useSkillsHubSettings() {
 
   async function handleSave() {
     if (!form.name.trim()) {
-      setError('Name is required.');
+      setError(t('settings.error.nameRequired'));
       return;
     }
     if (!form.marketplaceUrl.trim()) {
-      setError('Marketplace URL is required.');
+      setError(t('settings.error.urlRequired'));
       return;
     }
     setSaving(true);
@@ -99,7 +101,7 @@ export function useSkillsHubSettings() {
         updateConnections((prev) =>
           [...prev, created].sort((a, b) => a.name.localeCompare(b.name)),
         );
-        setStatus(`Marketplace "${created.name}" has been added.`);
+        setStatus(t('settings.status.added', { name: created.name }));
       } else {
         const updated = await updateSkillsMarketplace(editingId, form);
         updateConnections((prev) =>
@@ -107,12 +109,12 @@ export function useSkillsHubSettings() {
             .map((c) => (c.id === editingId ? updated : c))
             .sort((a, b) => a.name.localeCompare(b.name)),
         );
-        setStatus(`Marketplace "${updated.name}" has been updated.`);
+        setStatus(t('settings.status.updated', { name: updated.name }));
       }
       resetForm();
       focusName();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Save failed.');
+      setError(err instanceof Error ? err.message : t('settings.error.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -123,11 +125,11 @@ export function useSkillsHubSettings() {
     try {
       await deleteSkillsMarketplace(connection.id);
       updateConnections((prev) => prev.filter((c) => c.id !== connection.id));
-      setStatus(`Marketplace "${connection.name}" has been deleted.`);
+      setStatus(t('settings.status.deleted', { name: connection.name }));
       if (editingId === connection.id) resetForm();
       focusName();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Delete failed.');
+      setError(err instanceof Error ? err.message : t('settings.error.deleteFailed'));
     }
   }
 

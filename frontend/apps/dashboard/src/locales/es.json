@@ -1,0 +1,111 @@
+{
+  "dashboard": {
+    "authenticating": "Autenticando...",
+    "loadingView": "Cargando...",
+    "siteHeader": {
+      "backToHub": "Volver al hub",
+      "primaryNavigation": "Navegación principal",
+      "activeProject": "Proyecto activo",
+      "language": "Idioma",
+      "projectManagement": "Gestión de proyectos",
+      "hub": "← Hub",
+      "logOut": "Cerrar sesión",
+      "logout": "Cerrar sesión",
+      "nav": {
+        "platform": "Plataforma",
+        "workflow": "Diseño y ejecución de workflows",
+        "specFiles": "Archivos de especificación",
+        "specQueue": "Cola de especificaciones",
+        "skillsHub": "Skills Hub"
+      }
+    },
+    "statusBar": {
+      "environment": "● Entorno: {{value}}",
+      "region": "☁ Región: {{value}}",
+      "classification": "⬡ Clasificación: {{value}}",
+      "embabelVersion": "Versión de Embabel: {{value}}",
+      "springAiControlVersion": "Spring AI Control Service: {{value}}",
+      "copyright": "© 2026 Metafactory B.V."
+    },
+    "customerHero": {
+      "customer": "Cliente: {{name}}"
+    },
+    "workspace": {
+      "failed": "No se pudo cargar el espacio de trabajo.",
+      "loading": "Cargando espacio de trabajo..."
+    },
+    "preflight": {
+      "title": "Falló la comprobación previa",
+      "checkGitSettings": "Revisar la configuración de Git",
+      "dismiss": "Descartar",
+      "unknown": "Falló la comprobación previa: {{message}}",
+      "errors": {
+        "DOCKER_UNAVAILABLE": "Docker no está disponible. Asegúrate de que Docker esté en ejecución y de que la aplicación pueda iniciar contenedores.",
+        "GIT_REPOSITORY_UNAVAILABLE": "No se puede acceder al repositorio Git. Comprueba la URL de Git o las credenciales del proyecto.",
+        "NO_SELECTED_PROJECT": "No hay ningún proyecto seleccionado. Elige un proyecto antes de iniciar el workflow.",
+        "PROJECT_INACTIVE": "El proyecto seleccionado está inactivo y no se puede usar para iniciar un workflow.",
+        "GIT_AUTH_FAILED": "Falló la autenticación de Git. Actualiza las credenciales del proyecto.",
+        "GIT_URL_MISSING": "El proyecto seleccionado no tiene una URL de Git configurada.",
+        "GIT_REPOSITORY_NOT_FOUND": "No se encontró el repositorio Git.",
+        "TIMEOUT": "La comprobación previa agotó el tiempo de espera. Inténtalo de nuevo o revisa la infraestructura."
+      }
+    },
+    "flow": {
+      "startNewWorkflow": "↺ Iniciar nuevo workflow",
+      "currentSpec": "Especificación actual",
+      "specFolder": "Carpeta de especificaciones",
+      "loadingSpecs": "Cargando especificaciones…",
+      "noSpecsFound": "No se encontraron especificaciones",
+      "active": "Activo",
+      "workflow": "Workflow",
+      "reloadSpecs": "⟳ Recargar especificaciones",
+      "openPullRequest": "Abrir pull request",
+      "start": {
+        "preflight": "⟳ Ejecutando comprobaciones previas…",
+        "starting": "⟳ Iniciando…",
+        "error": "✕ Error",
+        "idle": "▶ Iniciar"
+      },
+      "specInit": {
+        "option": "Inicialización de la carpeta de especificaciones — plantilla de especificación mediante pull request",
+        "hint": "Este workflow crea una carpeta .specify con la plantilla de especificación y la ofrece como pull request en el repositorio.",
+        "offered": "Pull request ofrecido",
+        "pending": "Pull request abierto",
+        "pendingText": "Ya hay preparada una rama con la plantilla de especificación{{branch}}. Fusiona el pull request correspondiente para añadir la carpeta .specify.",
+        "viewBranch": "⎇ Ver rama en el repositorio"
+      },
+      "template": {
+        "present": "Estructura de especificaciones presente",
+        "text": "El repositorio ya tiene una carpeta .specify, pero todavía no hay especificaciones en la carpeta specs/. Crea la primera especificación con un prompt: el workflow combina tu prompt con el contenido del repositorio (RAG) en un archivo de especificación pequeño y ejecutable.",
+        "createSpec": "✨ Crear especificación con prompt",
+        "unavailable": "El workflow \"Crear especificación a partir de un prompt (RAG)\" no está disponible para este proyecto."
+      },
+      "launcher": {
+        "none": "No hay workflows disponibles",
+        "noneHint": "No hay workflows para este proyecto. Crea uno en Diseño y ejecución de workflows."
+      }
+    },
+    "specPanel": {
+      "title": "Especificación",
+      "loading": "Cargando especificaciones…",
+      "viewAll": "Ver todas las especificaciones",
+      "lastModified": "Última modificación: {{value}}",
+      "empty": {
+        "title": "No se encontraron especificaciones",
+        "text": "No hay carpeta specs/ con especificaciones en el repositorio",
+        "goToWorkflow": "⚡ Ir a Diseño y ejecución de workflows",
+        "hint": "Diseña o selecciona allí un workflow para crear archivos de especificación."
+      }
+    },
+    "evidence": {
+      "title": "Evidencia de ejecución",
+      "view": "Ver evidencia",
+      "by": "Por: {{actor}}"
+    },
+    "quality": {
+      "title": "Estado de calidad",
+      "open": "Abrir panel de calidad ↗",
+      "viewAll": "Ver todas las reglas de calidad"
+    }
+  }
+}

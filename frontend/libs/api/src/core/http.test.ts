@@ -5,6 +5,7 @@ import {
   authHeaders,
   isAbortError,
   setAuthToken,
+  setErrorTranslator,
   setSessionRefresher,
 } from './http';
 import { getSpecQueue } from '../spec-queue/specQueueApi';
@@ -223,6 +224,50 @@ describe('apiRequestVoid', () => {
     ).rejects.toMatchObject({
       message: 'Failed to delete: 500',
       status: 500,
+    });
+  });
+});
+
+describe('server error codes', () => {
+  const failWith = (body: unknown) =>
+    mockFetch.mockResolvedValue({ ok: false, status: 409, json: () => Promise.resolve(body) });
+
+  beforeEach(() => {
+    mockFetch.mockReset();
+    vi.stubGlobal('fetch', mockFetch);
+  });
+
+  afterEach(() => {
+    setErrorTranslator(null);
+    vi.unstubAllGlobals();
+  });
+
+  it('shows the translated message for a known code and keeps the code on the error', async () => {
+    setErrorTranslator((code) => (code === 'NAME_CONFLICT' ? 'Naam bestaat al' : undefined));
+    failWith({ code: 'NAME_CONFLICT', message: 'A connection with this name already exists' });
+
+    await expect(apiRequestVoid('/api/x', { errorMessage: 'Failed' })).rejects.toMatchObject({
+      message: 'Naam bestaat al',
+      code: 'NAME_CONFLICT',
+      status: 409,
+    });
+  });
+
+  it('keeps the server message for a code without a translation', async () => {
+    setErrorTranslator(() => undefined);
+    failWith({ code: 'VALIDATION_ERROR', message: 'name must not be blank' });
+
+    await expect(apiRequestVoid('/api/x', { errorMessage: 'Failed' })).rejects.toMatchObject({
+      message: 'name must not be blank',
+      code: 'VALIDATION_ERROR',
+    });
+  });
+
+  it('keeps the server message when no translator is registered', async () => {
+    failWith({ code: 'NAME_CONFLICT', message: 'A connection with this name already exists' });
+
+    await expect(apiRequestVoid('/api/x', { errorMessage: 'Failed' })).rejects.toMatchObject({
+      message: 'A connection with this name already exists',
     });
   });
 });

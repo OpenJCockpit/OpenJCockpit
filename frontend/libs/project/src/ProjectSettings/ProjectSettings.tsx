@@ -5,6 +5,7 @@ import {
   fieldErrorClass,
   StatusMessage,
 } from '@openjcockpit/ui';
+import { useTranslation } from '@openjcockpit/i18n';
 import { CredentialsForm } from './CredentialsForm';
 import { ProjectForm } from './ProjectForm';
 import { ProjectList } from './ProjectList';
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function ProjectSettings({ onBack }: Props) {
+  const { t } = useTranslation('project');
   const {
     projects,
     loaded,
@@ -45,17 +47,17 @@ export function ProjectSettings({ onBack }: Props) {
   } = useProjectSettings();
 
   if (!loaded) {
-    return <StatusMessage variant="loading">Loading projects...</StatusMessage>;
+    return <StatusMessage variant="loading">{t('settings.loading')}</StatusMessage>;
   }
 
   return (
     <AppShell>
-      <AppHeader onBack={onBack} backLabel="← Projects" />
+      <AppHeader onBack={onBack} backLabel={t('settings.back')} />
 
       <main className={styles.page}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Project management</h1>
-          <ToolbarButton onClick={startCreate}>+ New project</ToolbarButton>
+          <h1 className={styles.title}>{t('settings.title')}</h1>
+          <ToolbarButton onClick={startCreate}>{t('settings.newProject')}</ToolbarButton>
         </div>
 
         {error && (

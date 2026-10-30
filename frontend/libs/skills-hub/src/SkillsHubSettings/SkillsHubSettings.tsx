@@ -16,6 +16,7 @@ import {
   pageHeaderClass,
   StatusMessage,
 } from '@openjcockpit/ui';
+import { useTranslation } from '@openjcockpit/i18n';
 import styles from './SkillsHubSettings.module.scss';
 import { useSkillsHubSettings } from './useSkillsHubSettings';
 
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export function SkillsHubSettings({ onBack }: Props) {
+  const { t } = useTranslation('skillsHub');
   const {
     connections,
     loaded,
@@ -42,18 +44,18 @@ export function SkillsHubSettings({ onBack }: Props) {
   } = useSkillsHubSettings();
 
   if (!loaded) {
-    return <StatusMessage variant="loading">Loading marketplaces...</StatusMessage>;
+    return <StatusMessage variant="loading">{t('settings.loading')}</StatusMessage>;
   }
 
   return (
     <AppShell>
-      <AppHeader onBack={onBack} backTitle="Back to Skills Hub" />
+      <AppHeader onBack={onBack} backTitle={t('settings.backTitle')} />
 
       <main className={pageClass}>
         <div className={pageHeaderClass}>
           <div>
-            <Eyebrow>Skills Hub</Eyebrow>
-            <h1>Marketplace connections</h1>
+            <Eyebrow>{t('eyebrow')}</Eyebrow>
+            <h1>{t('settings.title')}</h1>
           </div>
         </div>
 
@@ -68,40 +70,40 @@ export function SkillsHubSettings({ onBack }: Props) {
 
         <div className={formClass}>
           <h2 className={formTitleClass}>
-            {editingId === null ? 'New marketplace' : 'Edit marketplace'}
+            {editingId === null ? t('settings.formNew') : t('settings.formEdit')}
           </h2>
           <div className={formGridClass}>
             <TextField
-              label="Name *"
+              label={t('settings.name')}
               ref={nameInputRef}
               value={form.name}
               onChange={(v) => setForm((f) => ({ ...f, name: v }))}
-              placeholder="e.g. Acme Skills"
+              placeholder={t('settings.namePlaceholder')}
             />
             <TextField
-              label="Marketplace URL *"
+              label={t('settings.marketplaceUrl')}
               value={form.marketplaceUrl}
               onChange={(v) => setForm((f) => ({ ...f, marketplaceUrl: v }))}
-              placeholder="https://marketplace.example.com/api"
+              placeholder={t('settings.marketplaceUrlPlaceholder')}
             />
             <TextField
-              label={`API key${editingId === null ? ' *' : ''}`}
+              label={editingId === null ? t('settings.apiKeyRequired') : t('settings.apiKey')}
               type="password"
               value={form.apiKey!}
               onChange={(v) => setForm((f) => ({ ...f, apiKey: v }))}
               placeholder={
                 editingId !== null && editingHasApiKey
-                  ? 'Leave empty to keep the current API key'
-                  : 'Required — no API key set yet'
+                  ? t('settings.apiKeyKeepPlaceholder')
+                  : t('settings.apiKeyRequiredPlaceholder')
               }
             />
             <TextAreaField
-              label="Description"
+              label={t('settings.description')}
               wide
               rows={3}
               value={form.description!}
               onChange={(v) => setForm((f) => ({ ...f, description: v }))}
-              placeholder="Optional description"
+              placeholder={t('settings.descriptionPlaceholder')}
             />
             <label className={styles.enabledField}>
               <input
@@ -109,15 +111,15 @@ export function SkillsHubSettings({ onBack }: Props) {
                 checked={form.enabled}
                 onChange={(e) => setForm((f) => ({ ...f, enabled: e.target.checked }))}
               />{' '}
-              Enabled for future skill import (has no effect yet)
+              {t('settings.enabledField')}
             </label>
           </div>
           <Actions className={styles.formActions}>
             <Button variant="primary" onClick={() => void handleSave()} disabled={saving}>
-              {saving ? '⟳ Saving…' : 'Save'}
+              {saving ? t('settings.saving') : t('settings.save')}
             </Button>
             <Button variant="secondary" onClick={cancelEdit}>
-              Cancel
+              {t('settings.cancel')}
             </Button>
           </Actions>
         </div>
@@ -125,12 +127,12 @@ export function SkillsHubSettings({ onBack }: Props) {
         <DataTable>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Marketplace URL</th>
-              <th>API key</th>
-              <th>Status</th>
-              <th>Created</th>
-              <th>Actions</th>
+              <th>{t('settings.columnName')}</th>
+              <th>{t('settings.columnUrl')}</th>
+              <th>{t('settings.columnApiKey')}</th>
+              <th>{t('settings.columnStatus')}</th>
+              <th>{t('settings.columnCreated')}</th>
+              <th>{t('settings.columnActions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -143,15 +145,15 @@ export function SkillsHubSettings({ onBack }: Props) {
                   )}
                 </td>
                 <td>{connection.marketplaceUrl}</td>
-                <td>{connection.hasApiKey ? 'API key set' : 'No API key'}</td>
-                <td>{connection.enabled ? 'Enabled' : 'Disabled'}</td>
+                <td>{connection.hasApiKey ? t('settings.apiKeySet') : t('settings.noApiKey')}</td>
+                <td>{connection.enabled ? t('settings.enabled') : t('settings.disabled')}</td>
                 <td>{connection.createdAt.slice(0, 10)}</td>
                 <Actions as="td">
                   <Button variant="secondary" onClick={() => startEdit(connection)}>
-                    Edit
+                    {t('settings.edit')}
                   </Button>
                   <Button variant="secondary" onClick={() => void handleDelete(connection)}>
-                    Delete
+                    {t('settings.delete')}
                   </Button>
                 </Actions>
               </tr>
@@ -159,7 +161,7 @@ export function SkillsHubSettings({ onBack }: Props) {
             {!error && connections.length === 0 && (
               <tr>
                 <td colSpan={6} className={fieldHintClass}>
-                  No marketplaces connected yet.
+                  {t('settings.empty')}
                 </td>
               </tr>
             )}

@@ -1,4 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { withI18n } from '@openjcockpit/i18n/testing';
+import { specQueueResources } from '../i18n';
 import { describe, expect, it, vi } from 'vitest';
 import { SpecQueueItemRow } from './SpecQueueItemRow';
 import type { SpecQueueItem } from '@openjcockpit/api';
@@ -30,17 +32,20 @@ function setup(item: SpecQueueItem, props: Partial<Parameters<typeof SpecQueueIt
     onOpenRun: vi.fn(),
   };
   render(
-    <ul>
-      <SpecQueueItemRow
-        item={item}
-        queuedIndex={item.status === 'QUEUED' ? 1 : undefined}
-        queuedCount={3}
-        autoMergeAllowed
-        busy={false}
-        {...handlers}
-        {...props}
-      />
-    </ul>,
+    withI18n(
+      <ul>
+        <SpecQueueItemRow
+          item={item}
+          queuedIndex={item.status === 'QUEUED' ? 1 : undefined}
+          queuedCount={3}
+          autoMergeAllowed
+          busy={false}
+          {...handlers}
+          {...props}
+        />
+      </ul>,
+      specQueueResources,
+    ),
   );
   return handlers;
 }

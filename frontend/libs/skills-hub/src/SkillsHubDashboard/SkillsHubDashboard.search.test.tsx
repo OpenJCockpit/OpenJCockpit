@@ -1,9 +1,13 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithI18n } from '@openjcockpit/i18n/testing';
+import { skillsHubResources } from '../i18n';
 import { describe, expect, it, vi } from 'vitest';
 import { SkillsHubDashboard } from './SkillsHubDashboard';
 
 function setup() {
-  render(<SkillsHubDashboard onBack={vi.fn()} onSettings={vi.fn()} />);
+  renderWithI18n(<SkillsHubDashboard onBack={vi.fn()} onSettings={vi.fn()} />, {
+    resources: skillsHubResources,
+  });
 }
 
 function search(term: string) {
@@ -62,8 +66,9 @@ describe('SkillsHubDashboard — search', () => {
 
 describe('SkillsHubDashboard — header', () => {
   it('replaces the default header with a custom one', () => {
-    render(
+    renderWithI18n(
       <SkillsHubDashboard onBack={vi.fn()} onSettings={vi.fn()} header={<p>Shared menu</p>} />,
+      { resources: skillsHubResources },
     );
     expect(screen.getByText('Shared menu')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '← Back' })).not.toBeInTheDocument();

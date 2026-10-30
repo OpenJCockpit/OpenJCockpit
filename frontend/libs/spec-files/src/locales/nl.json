@@ -1,0 +1,23 @@
+{
+  "specFiles": {
+    "backToDashboard": "Terug naar dashboard",
+    "eyebrow": "Spec-bestanden",
+    "noProject": "Geen project geselecteerd",
+    "selectProjectFirst": "Selecteer eerst een project om de spec-bestanden te beheren.",
+    "specs": "Specs",
+    "loadingSpecs": "Specs laden…",
+    "noSpecsFound": "Geen specs gevonden",
+    "noSpecsFolder": "Geen specs/-map met specificaties in de repository",
+    "lastModified": "Laatst gewijzigd: {{date}}",
+    "saving": "⟳ Opslaan…",
+    "save": "💾 Opslaan",
+    "addToQueue": "➕ Aan wachtrij toevoegen",
+    "unmergedHint": "Je wijzigingen zijn opgeslagen op een branch en nog niet samengevoegd. De wachtrij voert de versie op de standaardbranch uit, voeg dus eerst de pull request samen.",
+    "saveFirstHint": "Sla de spec eerst op. De wachtrij voert alleen de versie op de standaardbranch van de repository uit, voeg dus de pull request van het opslaan samen voordat deze draait.",
+    "contentsOf": "Inhoud van {{fileName}}",
+    "openPullRequest": "Pull request openen",
+    "noSpecSelected": "Geen spec geselecteerd.",
+    "saveFailed": "Opslaan van de spec is mislukt",
+    "addedToQueue": "{{fileName}} is aan de wachtrij toegevoegd."
+  }
+}
