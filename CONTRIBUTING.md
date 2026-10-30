@@ -56,7 +56,7 @@ See the [Quickstart](docs/readme/getting-started/quickstart.md) for the full sta
 
 ## Frontend translations
 
-User-facing dashboard copy goes through `t()` from `@openjcockpit/i18n` (see [docs/i18n-plan.md](docs/i18n-plan.md)). Backend, docs and agent/workflow output are not translated.
+User-facing dashboard copy goes through `t()` from `@openjcockpit/i18n`. Backend, docs and agent/workflow output are not translated.
 
 - Strings live in `<lib>/src/locales/<locale>.json`, one namespace per lib. English (`en.json`) is the source; other locales must match its keys and `{{placeholders}}`.
 - Name keys `feature.component.element`, e.g. `queue.header.title`.

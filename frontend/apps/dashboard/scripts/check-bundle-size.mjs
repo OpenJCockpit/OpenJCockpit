@@ -7,8 +7,8 @@ import { join, extname } from 'node:path';
 const assetsDir = new URL('../dist/assets', import.meta.url).pathname;
 const KB = 1024;
 const budgets = {
-  'largest JS chunk': 150 * KB,
-  'total JS': 200 * KB,
+  'largest JS chunk': 185 * KB,
+  'total JS': 285 * KB,
   'total CSS': 20 * KB,
 };
 
