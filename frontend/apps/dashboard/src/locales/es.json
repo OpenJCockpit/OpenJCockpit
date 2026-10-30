@@ -51,6 +51,8 @@
       }
     },
     "flow": {
+      "specsFailedTitle": "No se pudieron cargar las specs",
+      "specsFailed": "No se pudieron cargar las specs. El servidor no respondió correctamente.",
       "startNewWorkflow": "↺ Iniciar nuevo workflow",
       "currentSpec": "Especificación actual",
       "specFolder": "Carpeta de especificaciones",
@@ -86,6 +88,8 @@
       }
     },
     "specPanel": {
+      "error": "No se pudieron cargar las specs. El servidor no respondió correctamente.",
+      "retry": "Reintentar",
       "title": "Especificación",
       "loading": "Cargando especificaciones…",
       "viewAll": "Ver todas las especificaciones",

@@ -40,6 +40,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
   const specsLoading = specsQuery.isFetching;
   const selected =
     specs.find((s) => s.id === selectedSpecId) ?? specs.find((s) => s.selected) ?? specs[0];
+  const specsError = specsQuery.isError && !specsQuery.data;
   const hasSpecs = !specsLoading && specs.length > 0;
 
   // Falls back to the first workflow while the chosen one is unset or no longer in the project.
@@ -94,6 +95,8 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
           <SpecPanel
             specs={specs}
             loading={specsLoading}
+            error={specsError}
+            onRetry={() => void specsQuery.refetch()}
             selectedSpecId={selected?.id ?? ''}
             selected={selected}
             onSelect={setSelectedSpecId}
@@ -104,6 +107,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
           <FlowPanel
             launcher={launcher}
             specsLoading={specsLoading}
+            specsError={specsError}
             hasSpecs={hasSpecs}
             selectedFileName={selected?.fileName}
             projectWorkflows={projectWorkflows}

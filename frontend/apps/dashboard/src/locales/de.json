@@ -51,6 +51,8 @@
       }
     },
     "flow": {
+      "specsFailedTitle": "Specs konnten nicht geladen werden",
+      "specsFailed": "Die Specs konnten nicht geladen werden. Der Server hat nicht korrekt geantwortet.",
       "startNewWorkflow": "↺ Neuen Workflow starten",
       "currentSpec": "Aktuelle Spec",
       "specFolder": "Spec-Ordner",
@@ -86,6 +88,8 @@
       }
     },
     "specPanel": {
+      "error": "Die Specs konnten nicht geladen werden. Der Server hat nicht korrekt geantwortet.",
+      "retry": "Erneut versuchen",
       "title": "Spec",
       "loading": "Specs werden geladen…",
       "viewAll": "Alle Specs anzeigen",

@@ -6,6 +6,8 @@
     "selectProjectFirst": "Selecciona primero un proyecto para gestionar los archivos de especificación.",
     "specs": "Especificaciones",
     "loadingSpecs": "Cargando especificaciones…",
+    "loadFailed": "No se pudieron cargar las specs. El servidor no respondió correctamente.",
+    "retry": "Reintentar",
     "noSpecsFound": "No se encontraron especificaciones",
     "noSpecsFolder": "No hay carpeta specs/ con especificaciones en el repositorio",
     "lastModified": "Última modificación: {{date}}",

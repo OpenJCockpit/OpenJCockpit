@@ -60,6 +60,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
     [projectId, specsQuery.data],
   );
   const loading = projectId !== null && specsQuery.isPending;
+  const loadFailed = projectId !== null && specsQuery.isError;
   const [selection, setSelection] = useState<Selection | null>(null);
   const [saveResult, setSaveResult] = useState<SpecInitResult | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -133,7 +134,13 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
 
               <div className={cx(specStyles.specList, styles.specFilesList)}>
                 {loading && <p className={specStyles.specListLoading}>{t('loadingSpecs')}</p>}
-                {!loading && specs.length === 0 && (
+                {!loading && loadFailed && (
+                  <div role="alert" data-testid="specs-error">
+                    <p className={feedbackErrorClass}>{t('loadFailed')}</p>
+                    <Button onClick={() => void specsQuery.refetch()}>{t('retry')}</Button>
+                  </div>
+                )}
+                {!loading && !loadFailed && specs.length === 0 && (
                   <article className={cx(specStyles.specCard, specStyles.specCardEmpty)}>
                     <IconBox label="📄" compact className={specStyles.icon} />
                     <div>

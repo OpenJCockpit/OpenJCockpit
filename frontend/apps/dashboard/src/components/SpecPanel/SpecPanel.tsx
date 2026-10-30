@@ -1,6 +1,14 @@
 import type { SpecFile } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
-import { IconBox, Panel, PanelHeader, PanelTitle, Button, specStyles } from '@openjcockpit/ui';
+import {
+  IconBox,
+  Panel,
+  PanelHeader,
+  PanelTitle,
+  Button,
+  specStyles,
+  feedbackErrorClass,
+} from '@openjcockpit/ui';
 import { NoSpecsFound } from './NoSpecsFound';
 import { SpecCardButton } from './SpecCardButton';
 import styles from './SpecPanel.module.scss';
@@ -8,6 +16,8 @@ import styles from './SpecPanel.module.scss';
 interface Props {
   specs: SpecFile[];
   loading: boolean;
+  error?: boolean;
+  onRetry?: () => void;
   selectedSpecId: string;
   selected: SpecFile | undefined;
   onSelect: (id: string) => void;
@@ -18,6 +28,8 @@ interface Props {
 export function SpecPanel({
   specs,
   loading,
+  error = false,
+  onRetry,
   selectedSpecId,
   selected,
   onSelect,
@@ -38,7 +50,15 @@ export function SpecPanel({
 
       <div className={specStyles.specList}>
         {loading && <p className={specStyles.specListLoading}>{t('specPanel.loading')}</p>}
-        {!loading && specs.length === 0 && <NoSpecsFound onGoToWorkflow={onGoToWorkflow} />}
+        {!loading && error && (
+          <div role="alert" data-testid="specs-error">
+            <p className={feedbackErrorClass}>{t('specPanel.error')}</p>
+            {onRetry && <Button onClick={onRetry}>{t('specPanel.retry')}</Button>}
+          </div>
+        )}
+        {!loading && !error && specs.length === 0 && (
+          <NoSpecsFound onGoToWorkflow={onGoToWorkflow} />
+        )}
         {visibleSpecs.map((spec) => (
           <SpecCardButton
             key={spec.id}

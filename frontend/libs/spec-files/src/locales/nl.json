@@ -6,6 +6,8 @@
     "selectProjectFirst": "Selecteer eerst een project om de spec-bestanden te beheren.",
     "specs": "Specs",
     "loadingSpecs": "Specs laden…",
+    "loadFailed": "De specs konden niet worden geladen. De server antwoordde niet correct.",
+    "retry": "Opnieuw proberen",
     "noSpecsFound": "Geen specs gevonden",
     "noSpecsFolder": "Geen specs/-map met specificaties in de repository",
     "lastModified": "Laatst gewijzigd: {{date}}",

@@ -51,6 +51,8 @@
       }
     },
     "flow": {
+      "specsFailedTitle": "Specs konden niet worden geladen",
+      "specsFailed": "De specs konden niet worden geladen. De server antwoordde niet correct.",
       "startNewWorkflow": "↺ Nieuwe workflow starten",
       "currentSpec": "Huidige spec",
       "specFolder": "Spec-map",
@@ -86,6 +88,8 @@
       }
     },
     "specPanel": {
+      "error": "De specs konden niet worden geladen. De server antwoordde niet correct.",
+      "retry": "Opnieuw proberen",
       "title": "Spec",
       "loading": "Specs laden…",
       "viewAll": "Alle specs bekijken",

@@ -6,6 +6,8 @@
     "selectProjectFirst": "Select a project first to manage the spec files.",
     "specs": "Specs",
     "loadingSpecs": "Loading specs…",
+    "loadFailed": "Could not load the specs. The server did not respond correctly.",
+    "retry": "Retry",
     "noSpecsFound": "No Specs Found",
     "noSpecsFolder": "No specs/ folder with specifications in the repository",
     "lastModified": "Last modified: {{date}}",

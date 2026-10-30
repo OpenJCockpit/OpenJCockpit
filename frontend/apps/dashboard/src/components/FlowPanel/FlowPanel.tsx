@@ -21,6 +21,7 @@ import styles from './FlowPanel.module.scss';
 interface Props {
   launcher: ReturnType<typeof useRunLauncher>;
   specsLoading: boolean;
+  specsError?: boolean;
   hasSpecs: boolean;
   selectedFileName: string | undefined;
   projectWorkflows: WorkflowDefinition[];
@@ -34,6 +35,7 @@ interface Props {
 export function FlowPanel({
   launcher,
   specsLoading,
+  specsError = false,
   hasSpecs,
   selectedFileName,
   projectWorkflows,
@@ -57,6 +59,7 @@ export function FlowPanel({
 
   function renderTitle() {
     if (specsLoading) return t('flow.loadingSpecs');
+    if (specsError) return t('flow.specsFailedTitle');
     return hasSpecs ? selectedFileName : t('flow.noSpecsFound');
   }
 
@@ -107,6 +110,14 @@ export function FlowPanel({
   function renderBody() {
     if (activeRun) return renderActiveRun(activeRun);
     if (specsLoading) return null;
+    if (specsError) {
+      return (
+        <div role="alert" data-testid="flow-specs-error">
+          <p className={feedbackErrorClass}>{t('flow.specsFailed')}</p>
+          <Button onClick={onReloadSpecs}>{t('flow.reloadSpecs')}</Button>
+        </div>
+      );
+    }
     if (!hasSpecs) return renderSpecInit();
     return (
       <WorkflowLauncher

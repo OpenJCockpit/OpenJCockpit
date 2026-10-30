@@ -52,3 +52,4 @@ PR_*.md
 
 # Test coverage reports
 coverage/
+.playwright-mcp/
