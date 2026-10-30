@@ -1,5 +1,6 @@
 export * from './core/http';
 export * from './core/httpErrors';
+export * from './core/errorCodes';
 export * from './types/types';
 export * from './projects/projectsApi';
 export * from './specs/specsApi';
