@@ -54,7 +54,7 @@
     "typed-scss-modules": "8.1.1",
     "typescript": "5.9.3",
     "typescript-eslint": "8.69.0",
-    "vite": "6.4.4",
+    "vite": "6.4.5",
     "vitest": "4.1.11",
     "vitest-axe": "0.1.0"
   }
