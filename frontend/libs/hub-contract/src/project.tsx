@@ -1,11 +1,9 @@
 import { createContext, useContext, type ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router';
+import type { Project } from '@openjcockpit/api';
 
-/** The part of a project a remote may rely on; the host's own project type may carry more. */
-export interface HubProject {
-  id: string;
-  name: string;
-}
+/** The project the host works on; remotes get the same domain object the host holds. */
+export type HubProject = Project;
 
 /** The projects the signed-in user can work in and the one currently selected, owned by the host. */
 export interface HubProjects {
@@ -27,6 +25,13 @@ export function useHubProject(): HubProjects {
     );
   }
   return projects;
+}
+
+/** The selected project, for views mounted under `RequireProject`, which guarantees one exists. */
+export function useSelectedProject(): HubProject {
+  const { selected } = useHubProject();
+  if (!selected) throw new Error('useSelectedProject must be used within RequireProject');
+  return selected;
 }
 
 /**

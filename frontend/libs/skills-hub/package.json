@@ -12,13 +12,15 @@
     "format:check": "prettier --check . --ignore-path ../../.prettierignore"
   },
   "peerDependencies": {
-    "react": "^19.3.1"
+    "react": "^19.3.1",
+    "react-router": "7.18.4"
   },
   "nx": {
     "includedScripts": []
   },
   "dependencies": {
     "@openjcockpit/api": "*",
+    "@openjcockpit/hub-contract": "*",
     "@openjcockpit/i18n": "*",
     "@openjcockpit/ui": "*",
     "@tanstack/react-query": "5.104.5"

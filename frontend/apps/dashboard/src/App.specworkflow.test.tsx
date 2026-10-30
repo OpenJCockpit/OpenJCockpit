@@ -1,6 +1,7 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderRoutedApp } from './testUtils/renderRoutedApp';
+import { specsRemotes } from './testUtils/specsRemoteStubs';
 import * as api from '@openjcockpit/api';
 import * as workflowApi from '@openjcockpit/api';
 import { mockWorkspace } from '@openjcockpit/api/testing';
@@ -74,7 +75,7 @@ async function renderDashboard(specs: SpecFile[], workflows: WorkflowDefinition[
   });
   vi.mocked(api.getSpecInitStatus).mockResolvedValue({ pending: false });
 
-  renderRoutedApp();
+  renderRoutedApp('/', specsRemotes);
   await enterDashboard();
   await screen.findByText('▶ Start');
 }
@@ -120,7 +121,7 @@ describe('spec files in the left pane', () => {
     });
 
     await waitFor(() =>
-      expect(screen.getByTestId('nav-workflow')).toHaveAttribute('aria-current', 'page'),
+      expect(screen.getByTestId('nav-app-workflow')).toHaveAttribute('aria-current', 'page'),
     );
     expect(screen.queryByText('No Specs Found')).not.toBeInTheDocument();
   });
@@ -133,9 +134,9 @@ describe('spec files in the left pane', () => {
     });
 
     await waitFor(() =>
-      expect(screen.getByTestId('nav-spec-files')).toHaveAttribute('aria-current', 'page'),
+      expect(screen.getByTestId('nav-app-spec-files')).toHaveAttribute('aria-current', 'page'),
     );
-    expect(screen.getByRole('heading', { name: 'Test Project' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Specs' })).toBeInTheDocument();
   });
 });
 

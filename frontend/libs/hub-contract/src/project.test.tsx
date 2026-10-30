@@ -1,10 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
-import { PROJECTS_PATH, RequireProject, useHubProject } from './project';
+import {
+  PROJECTS_PATH,
+  RequireProject,
+  useHubProject,
+  useSelectedProject,
+  type HubProject,
+} from './project';
 import { FakeHubProjectProvider } from './testing';
 
-const alpha = { id: 'a', name: 'Alpha' };
+const alpha = { id: 'a', name: 'Alpha' } as HubProject;
 
 function Selection() {
   const state = useLocation().state as { from: string };
@@ -40,6 +46,32 @@ describe('RequireProject', () => {
   it('sends the user to project selection, remembering where they came from', () => {
     renderGuarded(null);
     expect(screen.getByText('pick (from /work?x=1)')).toBeInTheDocument();
+  });
+});
+
+describe('useSelectedProject', () => {
+  function Name() {
+    return <p>{useSelectedProject().name}</p>;
+  }
+
+  it('returns the selected project', () => {
+    render(
+      <FakeHubProjectProvider selected={alpha}>
+        <Name />
+      </FakeHubProjectProvider>,
+    );
+    expect(screen.getByText('Alpha')).toBeInTheDocument();
+  });
+
+  it('throws when no project is selected', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    expect(() =>
+      render(
+        <FakeHubProjectProvider>
+          <Name />
+        </FakeHubProjectProvider>,
+      ),
+    ).toThrow('RequireProject');
   });
 });
 

@@ -35,8 +35,9 @@ const typeConstraints = [
     sourceTag: 'type:feature',
     onlyDependOnLibsWithTags: ['type:ui', 'type:data', 'type:util', 'type:contract'],
   },
-  // The contract between independently deployed apps stays dependency-light.
-  { sourceTag: 'type:contract', onlyDependOnLibsWithTags: ['type:util'] },
+  // The contract between independently deployed apps stays dependency-light; it only reads the
+  // domain types (e.g. `Project`) from the data lib, which every bundle shares.
+  { sourceTag: 'type:contract', onlyDependOnLibsWithTags: ['type:util', 'type:data'] },
   { sourceTag: 'type:ui', onlyDependOnLibsWithTags: ['type:util'] },
   { sourceTag: 'type:data', onlyDependOnLibsWithTags: ['type:util'] },
   { sourceTag: 'type:util', onlyDependOnLibsWithTags: ['type:util'] },

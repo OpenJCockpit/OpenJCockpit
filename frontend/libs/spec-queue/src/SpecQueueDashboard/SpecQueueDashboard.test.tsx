@@ -5,7 +5,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@openjcockpit/api', async (importOriginal) =>
   (await import('../testUtils')).automockApiClients(await importOriginal()),
 );
-vi.mock('@openjcockpit/auth', () => ({ isOpenJCockpitAdmin: vi.fn(() => false) }));
+// The permission check is the only part of the contract these tests need to steer.
+vi.mock('@openjcockpit/hub-contract', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@openjcockpit/hub-contract')>()),
+  useCan: vi.fn(() => false),
+}));
 vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
   AddToQueueDialog: ({
     onAdded,
@@ -23,7 +27,7 @@ vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
 
 import type { Project, SpecQueue, SpecQueueItem } from '@openjcockpit/api';
 import * as api from '@openjcockpit/api';
-import { isOpenJCockpitAdmin } from '@openjcockpit/auth';
+import { useCan } from '@openjcockpit/hub-contract';
 import { withI18n } from '@openjcockpit/i18n/testing';
 import { specQueueResources } from '../i18n';
 import { withQueryClient } from '../testQueryClient';
@@ -575,7 +579,7 @@ describe('SpecQueueDashboard', () => {
 
   describe('project auto-merge setting', () => {
     const enable = async () => {
-      vi.mocked(isOpenJCockpitAdmin).mockReturnValue(true);
+      vi.mocked(useCan).mockReturnValue(true);
       vi.mocked(api.updateSpecQueueSettings).mockResolvedValue({ autoMergeAllowed: true });
       await renderDashboard();
       fireEvent.click(screen.getByTestId('auto-merge-setting-toggle'));
@@ -589,7 +593,7 @@ describe('SpecQueueDashboard', () => {
 
     it('leaves an evicted queue cache untouched', async () => {
       const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-      vi.mocked(isOpenJCockpitAdmin).mockReturnValue(true);
+      vi.mocked(useCan).mockReturnValue(true);
       vi.mocked(api.updateSpecQueueSettings).mockImplementation(async () => {
         client.removeQueries({ queryKey: ['spec-queue', 'p1', 'queue'] });
         return { autoMergeAllowed: true };

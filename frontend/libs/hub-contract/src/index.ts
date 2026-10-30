@@ -12,6 +12,13 @@ export { AppRegistryProvider, useAppRegistry, useBadgeFor } from './registry';
 export type { AppRegistry } from './registry';
 export { createHubHttp, HubHttpProvider, useHubHttp } from './http';
 export type { HubHttp } from './http';
-export { Can, FORBIDDEN_PATH, RequirePermission, useCan } from './permissions';
-export { HubProjectContext, PROJECTS_PATH, RequireProject, useHubProject } from './project';
+export { ADMIN_PERMISSION, Can, FORBIDDEN_PATH, RequirePermission, useCan } from './permissions';
+export {
+  HubProjectContext,
+  PROJECTS_PATH,
+  RequireProject,
+  useHubProject,
+  useSelectedProject,
+} from './project';
 export type { HubProject, HubProjects } from './project';
+export { DASHBOARD_PATH, HubHeaderContext, useHubHeader } from './header';

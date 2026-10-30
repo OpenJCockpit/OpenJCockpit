@@ -9,7 +9,3 @@ export const ROUTES = {
   skillsHub: '/skills-hub',
   skillsHubSettings: '/skills-hub/settings',
 } as const;
-
-export function workflowRunPath(workflowId: string, runId: string) {
-  return `${ROUTES.workflow}/${encodeURIComponent(workflowId)}/runs/${encodeURIComponent(runId)}`;
-}

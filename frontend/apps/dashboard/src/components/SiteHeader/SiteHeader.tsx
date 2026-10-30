@@ -15,17 +15,15 @@ import { SidebarIcon, toSidebarIconName, type SidebarIconName } from './SidebarI
 import { TopbarSlot } from '../../federation/TopbarSlot';
 import { ROUTES } from '../../routes';
 
-export type SiteSection = 'platform' | 'workflow' | 'specFiles' | 'specQueue' | 'skillsHub';
+/** Only the host's own page has a fixed menu entry; the apps remotes ship are matched by route. */
+export type SiteSection = 'platform';
 
-const NAV_ITEMS: { section: SiteSection; path: string; testId: string; icon: SidebarIconName }[] = [
-  { section: 'platform', path: ROUTES.dashboard, testId: 'nav-platform', icon: 'platform' },
-  { section: 'workflow', path: ROUTES.workflow, testId: 'nav-workflow', icon: 'workflow' },
-  { section: 'specFiles', path: ROUTES.specFiles, testId: 'nav-spec-files', icon: 'specFiles' },
-  { section: 'specQueue', path: ROUTES.specQueue, testId: 'nav-spec-queue', icon: 'specQueue' },
-  { section: 'skillsHub', path: ROUTES.skillsHub, testId: 'nav-skills-hub', icon: 'skillsHub' },
-];
-
-const [HOME_ITEM, ...WORK_ITEMS] = NAV_ITEMS as [(typeof NAV_ITEMS)[number], ...typeof NAV_ITEMS];
+const HOME_ITEM: { section: SiteSection; path: string; testId: string; icon: SidebarIconName } = {
+  section: 'platform',
+  path: ROUTES.dashboard,
+  testId: 'nav-platform',
+  icon: 'platform',
+};
 
 const COLLAPSED_KEY = 'openjcockpit.sidebarCollapsed';
 
@@ -72,8 +70,8 @@ function RemoteNavItem({ app, collapsed }: { app: AppDefinition; collapsed: bool
 }
 
 interface Props {
-  /** The menu item shown as selected: the section of the page being viewed. */
-  active: SiteSection;
+  /** The menu item shown as selected: the section of the page being viewed. Remote apps are matched by route. */
+  active?: SiteSection;
   projects: Project[];
   selectedProject: Project | null;
   onProjectChange: (projectId: string) => void;
@@ -101,7 +99,7 @@ export function SiteHeader({
     setCollapsed(!collapsed);
   }
 
-  function navItem(item: (typeof NAV_ITEMS)[number]) {
+  function navItem(item: typeof HOME_ITEM) {
     const label = t(`siteHeader.nav.${item.section}`);
     return (
       <button
@@ -169,7 +167,6 @@ export function SiteHeader({
       <nav className={styles.mainNav} aria-label={t('siteHeader.primaryNavigation')}>
         {navItem(HOME_ITEM)}
         <p className={styles.group}>{t('siteHeader.groups.work')}</p>
-        {WORK_ITEMS.map(navItem)}
         {navApps.map((app) => (
           <RemoteNavItem key={app.id} app={app} collapsed={collapsed} />
         ))}

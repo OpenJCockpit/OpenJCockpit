@@ -15,7 +15,9 @@ export interface RemoteApps {
 }
 
 export interface RemoteModule {
+  /** The remote's app. A remote that ships several apps exports `apps` instead. */
   app?: unknown;
+  apps?: unknown;
   contractVersion?: unknown;
 }
 
@@ -37,9 +39,10 @@ async function loadOne(
   name: string,
   load: RemoteLoader,
   timeoutMs: number,
-): Promise<AppDefinition> {
+): Promise<AppDefinition[]> {
   const module = await withTimeout(load(name), timeoutMs, name);
-  if (!module || !isAppDefinition(module.app)) {
+  const apps = module?.apps !== undefined ? module.apps : [module?.app];
+  if (!module || !Array.isArray(apps) || apps.length === 0 || !apps.every(isAppDefinition)) {
     throw new Error(`Remote "${name}" does not export a valid app`);
   }
   const version = module.contractVersion ?? 1;
@@ -48,7 +51,7 @@ async function loadOne(
       `Remote "${name}" needs contract version ${String(version)}, host has ${HUB_CONTRACT_VERSION}`,
     );
   }
-  return module.app;
+  return apps;
 }
 
 /** Loads every remote independently. A failing remote is reported and skipped; this never throws. */
@@ -61,7 +64,7 @@ export async function loadRemoteApps(
   const result: RemoteApps = { apps: [], failed: [] };
   settled.forEach((outcome, index) => {
     if (outcome.status === 'fulfilled') {
-      result.apps.push(outcome.value);
+      result.apps.push(...outcome.value);
     } else {
       result.failed.push(names[index] as string);
       console.error(`Remote "${names[index]}" failed to load`, outcome.reason);

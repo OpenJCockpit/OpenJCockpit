@@ -110,10 +110,6 @@ const path = () => screen.getByTestId('location').textContent;
 describe('SiteHeader', () => {
   it.each([
     ['nav-platform', ROUTES.dashboard],
-    ['nav-workflow', ROUTES.workflow],
-    ['nav-spec-files', ROUTES.specFiles],
-    ['nav-spec-queue', ROUTES.specQueue],
-    ['nav-skills-hub', ROUTES.skillsHub],
     ['nav-hub', ROUTES.landing],
   ])('%s navigates to %s', (testId, route) => {
     setup();
@@ -133,10 +129,10 @@ describe('SiteHeader', () => {
     expect(path()).toBe(ROUTES.landing);
   });
 
-  it('marks only the active section as the current page', () => {
-    setup({ active: 'specQueue' });
-    expect(screen.getByTestId('nav-spec-queue')).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByTestId('nav-platform')).not.toHaveAttribute('aria-current');
+  it('marks only the current page, whether host or remote', () => {
+    setup({ active: 'platform', apps: [remoteApp()] });
+    expect(screen.getByTestId('nav-platform')).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByTestId('nav-app-pulse')).not.toHaveAttribute('aria-current');
   });
 
   it('collapses to icons only and remembers the choice', () => {

@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { chooseOption } from '@openjcockpit/ui/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderRoutedApp } from './testUtils/renderRoutedApp';
+import { specsRemotes } from './testUtils/specsRemoteStubs';
 import { clickAsync } from './testUtils/dom';
 import { mockDashboardApis, PROJECT, WORKFLOW } from './testUtils/dashboardFixtures';
 import * as api from '@openjcockpit/api';
@@ -72,11 +73,6 @@ vi.mock('./lazyViews', async () => {
       </section>
     ),
     ProjectSettings: stub('settings', { 'Settings back': 'onBack' }),
-    SkillsHubDashboard: stub('skills-hub', {
-      'Skills back': 'onBack',
-      'Skills settings': 'onSettings',
-    }),
-    SkillsHubSettings: stub('skills-hub-settings', { 'Skills settings back': 'onBack' }),
     SpecFilesDashboard: (props: {
       header: React.ReactNode;
       onBack: () => void;
@@ -139,54 +135,6 @@ describe('App routing', () => {
     expect(await screen.findByTestId('landing-hero')).toBeInTheDocument();
   });
 
-  it('opens workflow runs from the deep link with the run identifiers', async () => {
-    renderRoutedApp('/workflow/wf-1/runs/run-9');
-    expect(await screen.findByTestId('initial-execution')).toHaveTextContent(
-      '{"workflowId":"wf-1","runId":"run-9"}',
-    );
-  });
-
-  it('goes back from workflow to the dashboard when a project is selected', async () => {
-    renderRoutedApp('/workflow');
-    await clickAsync(await screen.findByRole('button', { name: 'Workflow back' }));
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
-  });
-
-  it('goes back from spec files and renders the add-to-queue dialog', async () => {
-    renderRoutedApp('/spec-files');
-    expect(await screen.findByTestId('add-to-queue')).toHaveTextContent('a.md');
-    await clickAsync(screen.getByRole('button', { name: 'Spec files back' }));
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
-  });
-
-  it('opens a run from the spec queue with an encoded workflow path', async () => {
-    renderRoutedApp('/spec-queue');
-    await clickAsync(await screen.findByRole('button', { name: 'Open run' }));
-    expect(await screen.findByTestId('view-workflow')).toBeInTheDocument();
-  });
-
-  it('goes back from the spec queue to the dashboard', async () => {
-    renderRoutedApp('/spec-queue');
-    await clickAsync(await screen.findByRole('button', { name: 'Queue back' }));
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
-  });
-
-  it('navigates between the skills hub and its settings', async () => {
-    renderRoutedApp('/skills-hub');
-    await clickAsync(await screen.findByRole('button', { name: 'Skills settings' }));
-    await clickAsync(await screen.findByRole('button', { name: 'Skills settings back' }));
-    expect(await screen.findByTestId('view-skills-hub')).toBeInTheDocument();
-    await clickAsync(screen.getByRole('button', { name: 'Skills back' }));
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
-  });
-
-  it('sends the skills hub back to project selection when no project is chosen', async () => {
-    localStorage.clear();
-    renderRoutedApp('/skills-hub');
-    await clickAsync(await screen.findByRole('button', { name: 'Skills back' }));
-    expect(await screen.findByTestId('view-projects')).toBeInTheDocument();
-  });
-
   it('returns from project settings to project selection without a project', async () => {
     localStorage.clear();
     renderRoutedApp('/settings');
@@ -196,7 +144,7 @@ describe('App routing', () => {
 
   it('returns to the originally requested view after choosing a project', async () => {
     localStorage.clear();
-    renderRoutedApp('/spec-queue');
+    renderRoutedApp('/spec-queue', specsRemotes);
     await clickAsync(await screen.findByRole('button', { name: 'Select Test Project' }));
     expect(await screen.findByTestId('view-spec-queue')).toBeInTheDocument();
     await waitFor(() => expect(localStorage.getItem('openjcockpit_project_id')).toBe('project-1'));
@@ -226,7 +174,7 @@ describe('App routing', () => {
   it('switches the active project from the header dropdown', async () => {
     const other = { ...PROJECT, id: 'project-2', name: 'Other Project' };
     vi.mocked(api.loadProjects).mockResolvedValue([PROJECT, other]);
-    renderRoutedApp('/spec-queue');
+    renderRoutedApp('/spec-queue', specsRemotes);
     const select = await screen.findByRole('combobox', { name: 'Active project' });
     await clickAsync(select);
     await clickAsync(screen.getByRole('option', { name: 'Other Project' }));

@@ -1,6 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderRoutedApp } from './testUtils/renderRoutedApp';
+import { specsRemotes } from './testUtils/specsRemoteStubs';
 import * as api from '@openjcockpit/api';
 import { clickAsync } from './testUtils/dom';
 import { mockDashboardApis } from './testUtils/dashboardFixtures';
@@ -65,7 +66,7 @@ describe('landing hub entry view', () => {
   });
 
   it('opens spec files from the Business orb', async () => {
-    renderRoutedApp();
+    renderRoutedApp('/', specsRemotes);
     await clickAsync(await screen.findByTestId('portal-orb-business'));
 
     expect(await screen.findByRole('heading', { name: 'Specs' })).toBeInTheDocument();
@@ -81,7 +82,7 @@ describe('landing hub entry view', () => {
   });
 
   it('bypasses the hub on the spec-files deep link', async () => {
-    renderRoutedApp('/?view=spec-files');
+    renderRoutedApp('/?view=spec-files', specsRemotes);
 
     await waitFor(() => expect(api.loadProjects).toHaveBeenCalled());
     await screen.findByRole('heading', { name: 'Specs' });

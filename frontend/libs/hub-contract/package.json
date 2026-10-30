@@ -18,5 +18,8 @@
   },
   "nx": {
     "includedScripts": []
+  },
+  "dependencies": {
+    "@openjcockpit/api": "*"
   }
 }

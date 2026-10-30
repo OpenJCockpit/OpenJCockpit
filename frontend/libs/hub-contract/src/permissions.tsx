@@ -4,6 +4,9 @@ import { isAllowed, useHubSession } from './session';
 
 export const FORBIDDEN_PATH = '/403';
 
+/** The permission (the host's realm role of the same name) that platform administrators hold. */
+export const ADMIN_PERMISSION = 'openjcockpit-admin';
+
 /** Any-of permission check for conditional UI. */
 export function useCan(...permissions: string[]): boolean {
   return isAllowed(useHubSession(), permissions);

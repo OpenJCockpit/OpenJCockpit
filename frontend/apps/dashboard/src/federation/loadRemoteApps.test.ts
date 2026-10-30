@@ -39,6 +39,21 @@ describe('loadRemoteApps', () => {
     expect(console.error).toHaveBeenCalledTimes(3);
   });
 
+  it('loads every app of a remote that exports several, and rejects the whole remote if one is bad', async () => {
+    const load = vi.fn((name: string) =>
+      Promise.resolve(
+        name === 'many'
+          ? { apps: [app('one'), app('two')] }
+          : name === 'mixed'
+            ? { apps: [app('three'), { id: 1 }] }
+            : { apps: [] },
+      ),
+    );
+    const result = await loadRemoteApps(['many', 'mixed', 'none'], load);
+    expect(result.apps.map((a) => a.id)).toEqual(['one', 'two']);
+    expect(result.failed).toEqual(['mixed', 'none']);
+  });
+
   it('accepts a remote at or below the host contract version, rejects a higher one', async () => {
     const load = vi.fn((name: string) =>
       Promise.resolve({
