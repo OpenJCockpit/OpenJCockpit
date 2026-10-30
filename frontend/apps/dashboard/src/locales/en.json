@@ -19,6 +19,7 @@
         "skillsHub": "Skills Hub"
       }
     },
+    "sampleData": "Sample data",
     "statusBar": {
       "environment": "● Environment: {{value}}",
       "region": "☁ Region: {{value}}",
@@ -26,9 +27,6 @@
       "embabelVersion": "Embabel version: {{value}}",
       "springAiControlVersion": "Spring AI Control Service: {{value}}",
       "copyright": "© 2026 Metafactory B.V."
-    },
-    "customerHero": {
-      "customer": "Customer: {{name}}"
     },
     "workspace": {
       "failed": "Failed to load the workspace.",

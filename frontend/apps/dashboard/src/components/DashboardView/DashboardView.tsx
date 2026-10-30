@@ -22,10 +22,11 @@ interface Props {
   project: Project;
   onProjectChange: (projectId: string) => void;
   onLogout: () => void;
+  user?: { firstName: string; username: string } | null;
 }
 
 /** The project dashboard. Mounted with `key={project.id}` so all local state resets per project. */
-export function DashboardView({ projects, project, onProjectChange, onLogout }: Props) {
+export function DashboardView({ projects, project, onProjectChange, onLogout, user }: Props) {
   const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
   const workspaceQuery = useWorkspaceQuery(project);
@@ -77,6 +78,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
         selectedProject={project}
         onProjectChange={onProjectChange}
         onLogout={onLogout}
+        user={user}
       />
 
       <main className={styles.workspace}>

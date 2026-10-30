@@ -9,6 +9,7 @@
       "compactNotReachable": "Git not reachable"
     },
     "selection": {
+      "backToHub": "← Hub",
       "repoReachable": "Git repository reachable",
       "repoNotReachable": "Git repository not reachable",
       "statusUnknown": "Git status unknown",

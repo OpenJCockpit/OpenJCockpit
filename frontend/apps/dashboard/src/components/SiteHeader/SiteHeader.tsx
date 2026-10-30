@@ -32,6 +32,7 @@ interface Props {
   selectedProject: Project | null;
   onProjectChange: (projectId: string) => void;
   onLogout: () => void;
+  user?: { firstName: string; username: string } | null;
 }
 
 /** The top menu shared by the platform overview and the feature pages it links to. */
@@ -41,6 +42,7 @@ export function SiteHeader({
   selectedProject,
   onProjectChange,
   onLogout,
+  user,
 }: Props) {
   const { t } = useTranslation('dashboard');
   const { locale, setLocale } = useLocale();
@@ -105,6 +107,7 @@ export function SiteHeader({
           variant="secondary"
           onClick={() => void navigate(ROUTES.settings)}
           title={t('siteHeader.projectManagement')}
+          aria-label={t('siteHeader.projectManagement')}
         >
           ⚙
         </Button>
@@ -124,8 +127,11 @@ export function SiteHeader({
         >
           {t('siteHeader.logout')}
         </Button>
-        <span className={styles.notification}>3</span>
-        <span className={styles.avatar}>D</span>
+        {user && (
+          <span className={styles.avatar} title={user.firstName} aria-hidden="true">
+            {(user.firstName || user.username).charAt(0).toUpperCase()}
+          </span>
+        )}
       </div>
     </header>
   );

@@ -26,6 +26,7 @@ export function ProjectSelectionRoute({
         void navigate(from ?? ROUTES.dashboard, { replace: true });
       }}
       onSettings={() => void navigate(ROUTES.settings)}
+      onBack={() => void navigate(ROUTES.landing)}
     />
   );
 }

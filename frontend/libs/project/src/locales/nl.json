@@ -9,6 +9,7 @@
       "compactNotReachable": "Git niet bereikbaar"
     },
     "selection": {
+      "backToHub": "← Hub",
       "repoReachable": "Git-repository bereikbaar",
       "repoNotReachable": "Git-repository niet bereikbaar",
       "statusUnknown": "Git-status onbekend",

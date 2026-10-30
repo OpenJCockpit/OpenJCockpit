@@ -3,7 +3,6 @@ import type { AgentDefinition, Project, WorkflowDefinition } from '@openjcockpit
 import { useFormatters, useTranslation, type TFunction } from '@openjcockpit/i18n';
 import {
   StatusChip,
-  Eyebrow,
   Panel,
   fieldErrorClass,
   fieldHintClass,
@@ -110,17 +109,17 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
         {visibleWorkflows.map((workflow) => (
           <Panel as="article" className={styles.workflowCard} key={workflow.id}>
             <header className={styles.workflowCardHeader}>
-              <div>
-                <Eyebrow>{workflow.id}</Eyebrow>
-                <h2>{workflow.name}</h2>
-              </div>
-              <StatusChip label={workflow.status} kind={runStatusKind(workflow.status ?? '')} />
+              <h2>{workflow.name}</h2>
+              <StatusChip
+                label={workflow.status}
+                kind={workflow.status === 'ACTIVE' ? 'ok' : runStatusKind(workflow.status ?? '')}
+              />
             </header>
 
             <dl className={styles.workflowCardMeta}>
               <div>
                 <dt>{t('overview.project')}</dt>
-                <dd>{workflow.projectName}</dd>
+                <dd>{workflow.projectName || project?.name || tApi('notAvailable')}</dd>
               </div>
               <div>
                 <dt>{t('overview.triggers')}</dt>

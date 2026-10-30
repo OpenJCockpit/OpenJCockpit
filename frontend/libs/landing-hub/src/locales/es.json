@@ -19,7 +19,7 @@
       }
     },
     "topBar": {
-      "brand": "NEXUS PORTAL",
+      "brand": "OpenJCockpit",
       "fallbackIdentity": "Hub de acceso autenticado",
       "userActions": "Acciones de usuario",
       "logout": "Cerrar sesión",

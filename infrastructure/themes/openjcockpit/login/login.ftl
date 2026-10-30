@@ -43,14 +43,14 @@
         </div>
 
         <aside class="mf-orb-panel" aria-hidden="true">
-          <div class="mf-brand-mark">M</div>
+          <div class="mf-brand-mark">O</div>
           <div class="mf-orb">
             <span class="mf-orb-halo"></span>
             <span class="mf-orb-core"></span>
             <span class="mf-orb-grid"></span>
           </div>
           <p class="mf-orb-label">AUTHENTICATED ACCESS</p>
-          <p class="mf-orb-copy">Secure launch sequence for the OpenJCockpit portal.</p>
+          <p class="mf-orb-copy">Sign in to continue to OpenJCockpit.</p>
         </aside>
 
         <section class="mf-form-panel">
@@ -62,7 +62,7 @@
           <header class="mf-form-header">
             <p class="mf-eyebrow">Identity verification</p>
             <h1 id="mf-login-title">${msg("doLogIn")}</h1>
-            <p>Log in to open your futuristic workspace.</p>
+            <p>Log in to open your workspace.</p>
           </header>
 
           <#if message?has_content && (message.type != 'warning' || !isAppInitiatedAction??)>

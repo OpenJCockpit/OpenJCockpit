@@ -7,6 +7,7 @@ export interface ShellProps {
   selectedProject: Project | null;
   onProjectChange: (projectId: string) => void;
   onLogout: () => void;
+  user: { firstName: string; username: string } | null;
 }
 
 export function useGoBack(selectedProject: Project | null) {

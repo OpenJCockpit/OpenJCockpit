@@ -71,6 +71,7 @@ function App() {
     selectedProject,
     onProjectChange: handleProjectChange,
     onLogout: handleLogout,
+    user,
   };
 
   if (!authReady) {

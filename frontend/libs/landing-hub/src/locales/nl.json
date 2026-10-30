@@ -19,7 +19,7 @@
       }
     },
     "topBar": {
-      "brand": "NEXUS PORTAL",
+      "brand": "OpenJCockpit",
       "fallbackIdentity": "Geauthenticeerde startpagina",
       "userActions": "Gebruikersacties",
       "logout": "Uitloggen",

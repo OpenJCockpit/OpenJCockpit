@@ -36,6 +36,11 @@
     font-size: 13px;
     font-weight: 550;
   }
+  & small {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+  }
 }
 .check {
   width: 22px;

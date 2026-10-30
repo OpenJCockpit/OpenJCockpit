@@ -1,6 +1,6 @@
 import type { GitStatus, Project } from '@openjcockpit/api';
 import styles from './ProjectSelection.module.scss';
-import { Button, cx, Backdrop, BrandLogo } from '@openjcockpit/ui';
+import { AppHeader, AppShell, Button, cx } from '@openjcockpit/ui';
 import { useTranslation } from '@openjcockpit/i18n';
 import gitStyles from '../GitStatusBadge/GitStatusBadge.module.scss';
 
@@ -13,6 +13,7 @@ interface Props {
   projects: Project[];
   onSelect: (project: Project) => void;
   onSettings: () => void;
+  onBack?: () => void;
 }
 
 function GitStatusIndicator({ status }: { status: GitStatus }) {
@@ -50,17 +51,16 @@ function canSelect(project: Project): boolean {
   );
 }
 
-export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
+export function ProjectSelection({ projects, onSelect, onSettings, onBack }: Props) {
   const { t } = useTranslation('project');
   const displayProjects = projects;
 
   return (
-    <div className={styles.projectSelectionShell}>
-      <Backdrop />
+    <AppShell>
+      <AppHeader onBack={onBack} backLabel={t('selection.backToHub')} />
 
-      <div className={styles.projectSelectionContent}>
+      <main className={styles.projectSelectionContent}>
         <div className={styles.projectSelectionHeader}>
-          <BrandLogo className={styles.projectSelectionLogo} />
           <h1 className={styles.projectSelectionTitle}>{t('selection.title')}</h1>
           <p className={styles.projectSelectionSubtitle}>{t('selection.subtitle')}</p>
         </div>
@@ -125,7 +125,7 @@ export function ProjectSelection({ projects, onSelect, onSettings }: Props) {
             {t('selection.manageGear')}
           </Button>
         </div>
-      </div>
-    </div>
+      </main>
+    </AppShell>
   );
 }

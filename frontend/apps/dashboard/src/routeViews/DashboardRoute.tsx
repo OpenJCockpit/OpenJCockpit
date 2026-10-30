@@ -11,6 +11,7 @@ export function DashboardRoute({ shell }: { shell: ShellProps }) {
       project={project}
       onProjectChange={shell.onProjectChange}
       onLogout={shell.onLogout}
+      user={shell.user}
     />
   );
 }

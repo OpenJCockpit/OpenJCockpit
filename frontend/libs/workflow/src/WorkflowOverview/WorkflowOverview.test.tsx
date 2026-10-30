@@ -108,7 +108,7 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} />);
 
     expect(await screen.findByText('Customer Onboarding')).toBeInTheDocument();
-    expect(screen.getByText('wf-1')).toBeInTheDocument();
+    expect(screen.queryByText('wf-1')).not.toBeInTheDocument();
   });
 
   it('shows workflows from a global group for every project so they can be started manually', async () => {

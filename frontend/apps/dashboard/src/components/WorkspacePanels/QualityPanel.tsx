@@ -1,6 +1,6 @@
 import type { QualityControl } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
-import { IconBox, Panel, PanelHeader, PanelTitle, Button } from '@openjcockpit/ui';
+import { IconBox, Panel, PanelHeader, PanelTitle, Button, StatusChip } from '@openjcockpit/ui';
 import styles from './WorkspacePanels.module.scss';
 
 /** Decorative glyph, not translatable copy. */
@@ -13,6 +13,7 @@ export function QualityPanel({ controls }: { controls: QualityControl[] }) {
       <PanelHeader className={styles.panelHeaderQuality}>
         <PanelTitle>
           <IconBox label="✓" compact /> <h2>{t('quality.title')}</h2>
+          <StatusChip label={t('sampleData')} kind="waiting" />
         </PanelTitle>
         <button className={styles.smallLink}>{t('quality.open')}</button>
       </PanelHeader>
@@ -21,7 +22,10 @@ export function QualityPanel({ controls }: { controls: QualityControl[] }) {
         {controls.map((control) => (
           <article className={styles.qualityRow} key={control.name}>
             <IconBox label="⌬" compact />
-            <strong>{control.name}</strong>
+            <div>
+              <strong>{control.name}</strong>
+              {control.statusText && <small>{control.statusText}</small>}
+            </div>
             <span className={styles.check}>{CHECK_MARK}</span>
           </article>
         ))}
