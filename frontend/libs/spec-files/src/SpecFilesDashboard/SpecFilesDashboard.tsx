@@ -144,7 +144,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                   <article className={cx(specStyles.specCard, specStyles.specCardEmpty)}>
                     <IconBox label="📄" compact className={specStyles.icon} />
                     <div>
-                      <strong>{t('noSpecsFound')}</strong>
+                      <h3>{t('noSpecsFound')}</h3>
                       <span>{t('noSpecsFolder')}</span>
                     </div>
                   </article>

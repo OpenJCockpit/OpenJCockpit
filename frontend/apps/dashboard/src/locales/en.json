@@ -2,6 +2,11 @@
   "dashboard": {
     "authenticating": "Authenticating...",
     "loadingView": "Loading...",
+    "pageTitle": {
+      "landing": "Choose your workspace",
+      "projects": "Select project",
+      "settings": "Settings"
+    },
     "siteHeader": {
       "backToHub": "Back to hub",
       "primaryNavigation": "Primary navigation",

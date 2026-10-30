@@ -4,9 +4,8 @@
       "greeting": "Hallo {{firstName}}!"
     },
     "hero": {
-      "eyebrow": "Authentifiziertes Ziel",
       "title": "Wählen Sie Ihren Arbeitsbereich",
-      "welcome": "Willkommen zurück, {{firstName}}. Ihr Token ist gültig und dieser Hub ist jetzt freigeschaltet. Navigieren Sie direkt zu Business oder Implementation."
+      "welcome": "Willkommen zurück, {{firstName}}. Wählen Sie, wo Sie beginnen möchten: navigieren Sie direkt zu Business oder Implementation."
     },
     "portals": {
       "business": {

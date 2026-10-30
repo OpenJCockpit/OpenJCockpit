@@ -2,6 +2,11 @@
   "dashboard": {
     "authenticating": "Authentifizierung läuft...",
     "loadingView": "Wird geladen...",
+    "pageTitle": {
+      "landing": "Arbeitsbereich wählen",
+      "projects": "Projekt auswählen",
+      "settings": "Einstellungen"
+    },
     "siteHeader": {
       "backToHub": "Zurück zum Hub",
       "primaryNavigation": "Hauptnavigation",

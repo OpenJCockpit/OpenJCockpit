@@ -27,6 +27,27 @@ import { WorkflowRoute } from './routeViews/WorkflowRoute';
 import { useAuthSession } from './useAuthSession';
 
 const NO_PROJECTS: Project[] = [];
+const APP_TITLE = 'OpenJCockpit';
+
+const TITLE_KEYS = {
+  [ROUTES.landing]: 'pageTitle.landing',
+  [ROUTES.projects]: 'pageTitle.projects',
+  [ROUTES.settings]: 'pageTitle.settings',
+  [ROUTES.dashboard]: 'siteHeader.nav.platform',
+  [ROUTES.workflow]: 'siteHeader.nav.workflow',
+  [ROUTES.specFiles]: 'siteHeader.nav.specFiles',
+  [ROUTES.specQueue]: 'siteHeader.nav.specQueue',
+  [ROUTES.skillsHub]: 'siteHeader.nav.skillsHub',
+  [ROUTES.skillsHubSettings]: 'siteHeader.nav.skillsHub',
+} as const;
+
+function titleKeyFor(pathname: string) {
+  const routes = Object.keys(TITLE_KEYS) as (keyof typeof TITLE_KEYS)[];
+  const route =
+    routes.find((r) => r === pathname) ??
+    routes.find((r) => r !== ROUTES.landing && pathname.startsWith(`${r}/`));
+  return route ? TITLE_KEYS[route] : undefined;
+}
 
 function App() {
   const { t } = useTranslation('dashboard');
@@ -40,6 +61,12 @@ function App() {
   // A backend failure must not bounce the user back to the Keycloak login: a failed load
   // settles the query and the app continues with no projects.
   const authReady = authenticated && !projectsQuery.isPending;
+
+  const titleKey = titleKeyFor(location.pathname);
+  const pageTitle = titleKey ? t(titleKey) : null;
+  useEffect(() => {
+    document.title = pageTitle ? `${pageTitle} · ${APP_TITLE}` : APP_TITLE;
+  }, [pageTitle]);
 
   useEffect(() => {
     if (projectsQuery.isSuccess && selectedProjectId && !selectedProject) {

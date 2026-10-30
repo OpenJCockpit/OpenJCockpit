@@ -20,6 +20,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>${msg("loginTitle", (realm.displayName!'OpenJCockpit'))}</title>
+    <link rel="icon" href="${url.resourcesPath}/img/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
@@ -49,7 +50,6 @@
             <span class="mf-orb-core"></span>
             <span class="mf-orb-grid"></span>
           </div>
-          <p class="mf-orb-label">AUTHENTICATED ACCESS</p>
           <p class="mf-orb-copy">Sign in to continue to OpenJCockpit.</p>
         </aside>
 
@@ -60,7 +60,6 @@
           </div>
 
           <header class="mf-form-header">
-            <p class="mf-eyebrow">Identity verification</p>
             <h1 id="mf-login-title">${msg("doLogIn")}</h1>
             <p>Log in to open your workspace.</p>
           </header>

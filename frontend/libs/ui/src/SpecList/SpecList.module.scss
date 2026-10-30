@@ -32,9 +32,12 @@
     background: linear-gradient(90deg, var(--cyan-a12), rgba(6, 21, 34, 0.62));
     box-shadow: 0 0 26px var(--surface-glow);
   }
-  & strong {
+  & strong,
+  & h3 {
     display: block;
+    margin: 0;
     font-size: 13px;
+    font-weight: 700;
   }
   & span {
     display: block;

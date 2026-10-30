@@ -2,6 +2,11 @@
   "dashboard": {
     "authenticating": "Authenticeren...",
     "loadingView": "Laden...",
+    "pageTitle": {
+      "landing": "Kies je werkruimte",
+      "projects": "Project selecteren",
+      "settings": "Instellingen"
+    },
     "siteHeader": {
       "backToHub": "Terug naar de hub",
       "primaryNavigation": "Hoofdnavigatie",
