@@ -1,0 +1,7 @@
+{
+  "common": {
+    "secretField": {
+      "configuredHint": "(ya configurado — déjalo en blanco para conservarlo)"
+    }
+  }
+}

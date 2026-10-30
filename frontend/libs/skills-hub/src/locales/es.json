@@ -1,0 +1,78 @@
+{
+  "skillsHub": {
+    "eyebrow": "Skills Hub",
+    "dashboard": {
+      "backTitle": "Volver al panel",
+      "title": "Skills disponibles",
+      "settingsTitle": "Ajustes de Skills Hub",
+      "settings": "⚙ Ajustes",
+      "searchPlaceholder": "Buscar una skill...",
+      "searchLabel": "Buscar una skill",
+      "search": "⌕ Buscar",
+      "columnCategory": "Categoría",
+      "columnSkill": "Skill",
+      "noResults": "No se encontraron skills para \"{{term}}\".",
+      "category": {
+        "dev": "Dev",
+        "ops": "Ops",
+        "security": "Seguridad"
+      },
+      "skills": {
+        "grill-me": {
+          "name": "Grill Me",
+          "description": "Revisión adversarial que pone a prueba el código y las decisiones de diseño antes de su lanzamiento."
+        },
+        "software-quality": {
+          "name": "Calidad de software",
+          "description": "Linting automatizado, cobertura de pruebas y comprobaciones de quality gates a lo largo del pipeline de entrega."
+        }
+      }
+    },
+    "settings": {
+      "backTitle": "Volver a Skills Hub",
+      "loading": "Cargando marketplaces...",
+      "title": "Conexiones de marketplace",
+      "formNew": "Nuevo marketplace",
+      "formEdit": "Editar marketplace",
+      "name": "Nombre *",
+      "namePlaceholder": "p. ej. Acme Skills",
+      "marketplaceUrl": "URL del marketplace *",
+      "marketplaceUrlPlaceholder": "https://marketplace.example.com/api",
+      "apiKey": "Clave de API",
+      "apiKeyRequired": "Clave de API *",
+      "apiKeyKeepPlaceholder": "Déjalo vacío para conservar la clave de API actual",
+      "apiKeyRequiredPlaceholder": "Obligatorio — aún no hay ninguna clave de API",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción opcional",
+      "enabledField": "Habilitado para la futura importación de skills (aún no tiene efecto)",
+      "save": "Guardar",
+      "saving": "⟳ Guardando…",
+      "cancel": "Cancelar",
+      "columnName": "Nombre",
+      "columnUrl": "URL del marketplace",
+      "columnApiKey": "Clave de API",
+      "columnStatus": "Estado",
+      "columnCreated": "Creado",
+      "columnActions": "Acciones",
+      "apiKeySet": "Clave de API configurada",
+      "noApiKey": "Sin clave de API",
+      "enabled": "Habilitado",
+      "disabled": "Deshabilitado",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "empty": "Aún no hay marketplaces conectados.",
+      "error": {
+        "loadFailed": "No se pudieron cargar los marketplaces.",
+        "nameRequired": "El nombre es obligatorio.",
+        "urlRequired": "La URL del marketplace es obligatoria.",
+        "saveFailed": "No se pudo guardar.",
+        "deleteFailed": "No se pudo eliminar."
+      },
+      "status": {
+        "added": "Se ha añadido el marketplace \"{{name}}\".",
+        "updated": "Se ha actualizado el marketplace \"{{name}}\".",
+        "deleted": "Se ha eliminado el marketplace \"{{name}}\"."
+      }
+    }
+  }
+}
