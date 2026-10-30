@@ -1,0 +1,15 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "remote-pulse",
+  "projectType": "application",
+  "sourceRoot": "apps/remote-pulse/src",
+  "tags": ["type:remote"],
+  "targets": {
+    "format-check": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "format:check"
+      }
+    }
+  }
+}

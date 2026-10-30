@@ -12,12 +12,31 @@ import nx from '@nx/eslint-plugin';
 const typeConstraints = [
   {
     sourceTag: 'type:app',
-    onlyDependOnLibsWithTags: ['type:feature', 'type:ui', 'type:data', 'type:util'],
+    onlyDependOnLibsWithTags: [
+      'type:feature',
+      'type:ui',
+      'type:data',
+      'type:util',
+      'type:contract',
+    ],
+  },
+  // A remote only re-exports a feature lib's app definition; it ships as its own federated bundle.
+  {
+    sourceTag: 'type:remote',
+    onlyDependOnLibsWithTags: [
+      'type:feature',
+      'type:ui',
+      'type:data',
+      'type:util',
+      'type:contract',
+    ],
   },
   {
     sourceTag: 'type:feature',
-    onlyDependOnLibsWithTags: ['type:ui', 'type:data', 'type:util'],
+    onlyDependOnLibsWithTags: ['type:ui', 'type:data', 'type:util', 'type:contract'],
   },
+  // The contract between independently deployed apps stays dependency-light.
+  { sourceTag: 'type:contract', onlyDependOnLibsWithTags: ['type:util'] },
   { sourceTag: 'type:ui', onlyDependOnLibsWithTags: ['type:util'] },
   { sourceTag: 'type:data', onlyDependOnLibsWithTags: ['type:util'] },
   { sourceTag: 'type:util', onlyDependOnLibsWithTags: ['type:util'] },

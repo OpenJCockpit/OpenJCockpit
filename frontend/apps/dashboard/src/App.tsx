@@ -10,7 +10,13 @@ import {
 } from '@openjcockpit/project';
 import type { Project } from '@openjcockpit/api';
 import { getKeycloak } from '@openjcockpit/auth';
+import { AppRegistryProvider, FORBIDDEN_PATH, RequirePermission } from '@openjcockpit/hub-contract';
 import type { PortalId } from '@openjcockpit/landing-hub';
+import { Forbidden } from './federation/Forbidden';
+import { HubProjectProvider } from './federation/HubProjectProvider';
+import { HubSessionProvider } from './federation/HubSessionProvider';
+import { RemoteFailuresNotice, useRemoteApps } from './federation/RemoteApps';
+import { RemoteRoutes } from './federation/RemoteRoutes';
 import { ROUTES } from './routes';
 import { DashboardRoute } from './routeViews/DashboardRoute';
 import { LandingHubRoute } from './routeViews/LandingHubRoute';
@@ -54,6 +60,7 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const { authenticated, user } = useAuthSession();
+  const remoteApps = useRemoteApps();
   const projectsQuery = useProjectsQuery(authenticated);
   const projects = projectsQuery.data ?? NO_PROJECTS;
   const [selectedProjectId, setSelectedProjectId] = useState(getStoredProjectId);
@@ -110,76 +117,101 @@ function App() {
   }
 
   return (
-    <ErrorBoundary resetKeys={[location.pathname]}>
-      <Suspense
-        fallback={
-          <StatusMessage variant="loading" data-testid="view-loading">
-            {t('loadingView')}
-          </StatusMessage>
-        }
-      >
-        <Routes>
-          <Route
-            path={ROUTES.landing}
-            element={
-              <LandingRoute>
-                <LandingHubRoute
-                  user={user}
-                  onSelectPortal={handleSelectPortal}
-                  onLogout={handleLogout}
-                />
-              </LandingRoute>
-            }
-          />
-          <Route
-            path={ROUTES.projects}
-            element={<ProjectSelectionRoute projects={projects} onSelect={handleSelectProject} />}
-          />
-          <Route
-            path={ROUTES.dashboard}
-            element={
-              <RequireProject project={selectedProject}>
-                <DashboardRoute shell={shell} />
-              </RequireProject>
-            }
-          />
-          <Route
-            path={ROUTES.settings}
-            element={<SettingsRoute selectedProject={selectedProject} />}
-          />
-          {[ROUTES.workflow, `${ROUTES.workflow}/:workflowId/runs/:runId`].map((path) => (
-            <Route
-              key={path}
-              path={path}
-              element={
-                <RequireProject project={selectedProject}>
-                  <WorkflowRoute shell={shell} />
-                </RequireProject>
+    <HubSessionProvider user={user}>
+      <AppRegistryProvider apps={remoteApps}>
+        <HubProjectProvider
+          projects={projects}
+          selected={selectedProject}
+          onSelect={handleProjectChange}
+        >
+          <RemoteFailuresNotice />
+          <ErrorBoundary resetKeys={[location.pathname]}>
+            <Suspense
+              fallback={
+                <StatusMessage variant="loading" data-testid="view-loading">
+                  {t('loadingView')}
+                </StatusMessage>
               }
-            />
-          ))}
-          <Route
-            path={ROUTES.specQueue}
-            element={
-              <RequireProject project={selectedProject}>
-                <SpecQueueRoute shell={shell} />
-              </RequireProject>
-            }
-          />
-          <Route
-            path={ROUTES.specFiles}
-            element={
-              <RequireProject project={selectedProject}>
-                <SpecFilesRoute shell={shell} />
-              </RequireProject>
-            }
-          />
-          <Route path={ROUTES.skillsHub} element={<SkillsHubRoute shell={shell} />} />
-          <Route path={ROUTES.skillsHubSettings} element={<SkillsHubSettingsRoute />} />
-          <Route path="*" element={<Navigate to={ROUTES.landing} replace />} />
-        </Routes>
-      </Suspense>
-    </ErrorBoundary>
+            >
+              <Routes>
+                <Route
+                  path={ROUTES.landing}
+                  element={
+                    <LandingRoute>
+                      <LandingHubRoute
+                        user={user}
+                        onSelectPortal={handleSelectPortal}
+                        onLogout={handleLogout}
+                      />
+                    </LandingRoute>
+                  }
+                />
+                <Route
+                  path={ROUTES.projects}
+                  element={
+                    <ProjectSelectionRoute projects={projects} onSelect={handleSelectProject} />
+                  }
+                />
+                <Route
+                  path={ROUTES.dashboard}
+                  element={
+                    <RequireProject project={selectedProject}>
+                      <DashboardRoute shell={shell} />
+                    </RequireProject>
+                  }
+                />
+                <Route
+                  path={ROUTES.settings}
+                  element={<SettingsRoute selectedProject={selectedProject} />}
+                />
+                {[ROUTES.workflow, `${ROUTES.workflow}/:workflowId/runs/:runId`].map((path) => (
+                  <Route
+                    key={path}
+                    path={path}
+                    element={
+                      <RequireProject project={selectedProject}>
+                        <WorkflowRoute shell={shell} />
+                      </RequireProject>
+                    }
+                  />
+                ))}
+                <Route
+                  path={ROUTES.specQueue}
+                  element={
+                    <RequireProject project={selectedProject}>
+                      <SpecQueueRoute shell={shell} />
+                    </RequireProject>
+                  }
+                />
+                <Route
+                  path={ROUTES.specFiles}
+                  element={
+                    <RequireProject project={selectedProject}>
+                      <SpecFilesRoute shell={shell} />
+                    </RequireProject>
+                  }
+                />
+                <Route path={ROUTES.skillsHub} element={<SkillsHubRoute shell={shell} />} />
+                <Route path={ROUTES.skillsHubSettings} element={<SkillsHubSettingsRoute />} />
+                <Route path={FORBIDDEN_PATH} element={<Forbidden />} />
+                {remoteApps.map((app) => (
+                  <Route
+                    key={app.id}
+                    path={`${app.route}/*`}
+                    element={
+                      <RequirePermission any={app.requiredPermissions}>
+                        <RemoteRoutes app={app} />
+                      </RequirePermission>
+                    }
+                  />
+                ))}
+                <Route path="*" element={<Navigate to={ROUTES.landing} replace />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
+        </HubProjectProvider>
+      </AppRegistryProvider>
+    </HubSessionProvider>
   );
 }
 

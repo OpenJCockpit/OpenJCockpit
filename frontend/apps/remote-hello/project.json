@@ -1,0 +1,15 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "remote-hello",
+  "projectType": "application",
+  "sourceRoot": "apps/remote-hello/src",
+  "tags": ["type:remote"],
+  "targets": {
+    "format-check": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "format:check"
+      }
+    }
+  }
+}

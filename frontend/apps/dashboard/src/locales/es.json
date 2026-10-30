@@ -2,6 +2,8 @@
   "dashboard": {
     "authenticating": "Autenticando...",
     "loadingView": "Cargando...",
+    "forbidden": "No tienes acceso a esta página.",
+    "unavailableApps": "Algunas aplicaciones no están disponibles: {{names}}",
     "pageTitle": {
       "landing": "Elige tu espacio de trabajo",
       "projects": "Seleccionar proyecto",
@@ -120,6 +122,20 @@
       "title": "Estado de calidad",
       "open": "Abrir panel de calidad ↗",
       "viewAll": "Ver todas las reglas de calidad"
+    },
+    "apps": {
+      "hello": {
+        "label": "Hola"
+      },
+      "pulse": {
+        "label": "Pulso",
+        "widget": {
+          "title": "Pulso"
+        },
+        "quickAction": {
+          "open": "Pulso"
+        }
+      }
     }
   }
 }

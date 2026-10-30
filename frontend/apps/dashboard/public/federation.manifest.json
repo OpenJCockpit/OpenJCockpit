@@ -1,0 +1,4 @@
+{
+  "hello": "http://localhost:4401/mf-manifest.json",
+  "pulse": "http://localhost:4402/mf-manifest.json"
+}

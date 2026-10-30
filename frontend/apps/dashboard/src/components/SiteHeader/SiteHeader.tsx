@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import {
   LOCALE_NAMES,
   type Locale,
@@ -10,7 +10,9 @@ import {
 import type { Project } from '@openjcockpit/api';
 import styles from './SiteHeader.module.scss';
 import { BrandLogo, Select, cx } from '@openjcockpit/ui';
-import { SidebarIcon, type SidebarIconName } from './SidebarIcon';
+import { useAppRegistry, useBadgeFor, type AppDefinition } from '@openjcockpit/hub-contract';
+import { SidebarIcon, toSidebarIconName, type SidebarIconName } from './SidebarIcon';
+import { TopbarSlot } from '../../federation/TopbarSlot';
 import { ROUTES } from '../../routes';
 
 export type SiteSection = 'platform' | 'workflow' | 'specFiles' | 'specQueue' | 'skillsHub';
@@ -43,6 +45,32 @@ function storeCollapsed(collapsed: boolean) {
   }
 }
 
+/** A nav entry for an app a remote contributed; the badge re-renders only this entry. */
+function RemoteNavItem({ app, collapsed }: { app: AppDefinition; collapsed: boolean }) {
+  const { t } = useTranslation('dashboard');
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const badge = useBadgeFor(app.id);
+  // Remote label keys are not in the host's typed catalog.
+  const label = String(t(app.labelKey as never));
+  const active = pathname === app.route || pathname.startsWith(`${app.route}/`);
+  return (
+    <button
+      type="button"
+      className={cx(styles.item, active && styles.active)}
+      aria-current={active ? 'page' : undefined}
+      aria-label={label}
+      title={collapsed ? label : undefined}
+      onClick={() => void navigate(app.route)}
+      data-testid={`nav-app-${app.id}`}
+    >
+      <SidebarIcon name={toSidebarIconName(app.icon)} />
+      <span className={styles.label}>{label}</span>
+      {badge !== null && <span className={styles.badge}>{badge}</span>}
+    </button>
+  );
+}
+
 interface Props {
   /** The menu item shown as selected: the section of the page being viewed. */
   active: SiteSection;
@@ -66,6 +94,7 @@ export function SiteHeader({
   const { locale, setLocale } = useLocale();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(readCollapsed);
+  const { navApps, visibleTopbar } = useAppRegistry();
 
   function toggleCollapsed() {
     storeCollapsed(!collapsed);
@@ -141,6 +170,9 @@ export function SiteHeader({
         {navItem(HOME_ITEM)}
         <p className={styles.group}>{t('siteHeader.groups.work')}</p>
         {WORK_ITEMS.map(navItem)}
+        {navApps.map((app) => (
+          <RemoteNavItem key={app.id} app={app} collapsed={collapsed} />
+        ))}
         <p className={styles.group}>{t('siteHeader.groups.account')}</p>
         <button
           type="button"
@@ -166,6 +198,13 @@ export function SiteHeader({
       </nav>
 
       <div className={styles.footer}>
+        {visibleTopbar.length > 0 && (
+          <div className={styles.topbar}>
+            {visibleTopbar.map((item) => (
+              <TopbarSlot key={item.id} item={item} />
+            ))}
+          </div>
+        )}
         <button
           type="button"
           className={styles.item}

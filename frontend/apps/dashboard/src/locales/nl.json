@@ -2,6 +2,8 @@
   "dashboard": {
     "authenticating": "Authenticeren...",
     "loadingView": "Laden...",
+    "forbidden": "Je hebt geen toegang tot deze pagina.",
+    "unavailableApps": "Sommige apps zijn niet beschikbaar: {{names}}",
     "pageTitle": {
       "landing": "Kies je werkruimte",
       "projects": "Project selecteren",
@@ -120,6 +122,20 @@
       "title": "Kwaliteitsstatus",
       "open": "Kwaliteitsdashboard openen ↗",
       "viewAll": "Alle kwaliteitsregels bekijken"
+    },
+    "apps": {
+      "hello": {
+        "label": "Hallo"
+      },
+      "pulse": {
+        "label": "Pols",
+        "widget": {
+          "title": "Pols"
+        },
+        "quickAction": {
+          "open": "Pols"
+        }
+      }
     }
   }
 }

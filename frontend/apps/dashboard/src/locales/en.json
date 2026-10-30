@@ -2,6 +2,8 @@
   "dashboard": {
     "authenticating": "Authenticating...",
     "loadingView": "Loading...",
+    "forbidden": "You do not have access to this page.",
+    "unavailableApps": "Some apps are unavailable: {{names}}",
     "pageTitle": {
       "landing": "Choose your workspace",
       "projects": "Select project",
@@ -120,6 +122,20 @@
       "title": "Quality status",
       "open": "Open quality dashboard ↗",
       "viewAll": "View all quality rules"
+    },
+    "apps": {
+      "hello": {
+        "label": "Hello"
+      },
+      "pulse": {
+        "label": "Pulse",
+        "widget": {
+          "title": "Pulse"
+        },
+        "quickAction": {
+          "open": "Pulse"
+        }
+      }
     }
   }
 }

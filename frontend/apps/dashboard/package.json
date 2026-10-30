@@ -13,8 +13,10 @@
     "visual:check": "node visual/run.mjs check"
   },
   "dependencies": {
+    "@module-federation/enhanced": "2.9.2",
     "@openjcockpit/api": "*",
     "@openjcockpit/auth": "*",
+    "@openjcockpit/hub-contract": "*",
     "@openjcockpit/i18n": "*",
     "@openjcockpit/landing-hub": "*",
     "@openjcockpit/project": "*",

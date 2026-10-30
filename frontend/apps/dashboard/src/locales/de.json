@@ -2,6 +2,8 @@
   "dashboard": {
     "authenticating": "Authentifizierung läuft...",
     "loadingView": "Wird geladen...",
+    "forbidden": "Du hast keinen Zugriff auf diese Seite.",
+    "unavailableApps": "Einige Apps sind nicht verfügbar: {{names}}",
     "pageTitle": {
       "landing": "Arbeitsbereich wählen",
       "projects": "Projekt auswählen",
@@ -120,6 +122,20 @@
       "title": "Qualitätsstatus",
       "open": "Qualitäts-Dashboard öffnen ↗",
       "viewAll": "Alle Qualitätsregeln anzeigen"
+    },
+    "apps": {
+      "hello": {
+        "label": "Hallo"
+      },
+      "pulse": {
+        "label": "Puls",
+        "widget": {
+          "title": "Puls"
+        },
+        "quickAction": {
+          "open": "Puls"
+        }
+      }
     }
   }
 }

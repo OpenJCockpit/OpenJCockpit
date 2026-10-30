@@ -1,0 +1,22 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "hub-contract",
+  "projectType": "library",
+  "sourceRoot": "libs/hub-contract/src",
+  "tags": ["type:contract"],
+  "targets": {
+    "format-check": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "format:check"
+      }
+    },
+    "coverage": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --coverage",
+        "cwd": "{projectRoot}"
+      }
+    }
+  }
+}

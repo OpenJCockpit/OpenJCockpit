@@ -268,3 +268,41 @@ describe('App routing', () => {
     expect(await screen.findByText('Failed to load the workspace.')).toBeInTheDocument();
   });
 });
+
+describe('App remote apps', () => {
+  const remoteApp = (requiredPermissions: string[]) => ({
+    id: 'hello',
+    labelKey: 'x',
+    icon: 'x',
+    route: '/hello' as const,
+    order: 1,
+    requiredPermissions,
+    loadRoutes: () => Promise.resolve([{ index: true, element: <p>hello remote</p> }]),
+  });
+
+  beforeEach(() => {
+    localStorage.clear();
+    vi.clearAllMocks();
+    keycloak = createKeycloak();
+    keycloak.init.mockResolvedValue(true);
+    keycloak.updateToken.mockResolvedValue(false);
+    mockDashboardApis();
+  });
+
+  it('mounts a loaded remote app at its route', async () => {
+    renderRoutedApp('/hello', { apps: [remoteApp([])], failed: [] });
+    expect(await screen.findByText('hello remote')).toBeInTheDocument();
+  });
+
+  it('sends a user without the permission to the 403 page', async () => {
+    renderRoutedApp('/hello', { apps: [remoteApp(['hello.read'])], failed: [] });
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'You do not have access to this page.',
+    );
+  });
+
+  it('lists remotes that failed to load', async () => {
+    renderRoutedApp('/', { apps: [], failed: ['broken'] });
+    expect(await screen.findByRole('status')).toHaveTextContent('broken');
+  });
+});

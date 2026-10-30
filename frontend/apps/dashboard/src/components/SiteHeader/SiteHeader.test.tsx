@@ -1,11 +1,21 @@
-import { fireEvent, render as rtlRender, screen, waitFor, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render as rtlRender,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import {
   createI18n,
   I18nProvider,
   LOCALE_STORAGE_KEY,
   type LocaleLoader,
 } from '@openjcockpit/i18n';
+import { AppRegistryProvider, type AppDefinition } from '@openjcockpit/hub-contract';
+import { FakeHubSession, FakeHubSessionProvider } from '@openjcockpit/hub-contract/testing';
 import { render } from '../../testUtils/render';
+import type { ReactNode } from 'react';
 import { MemoryRouter, useLocation } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import { dashboardResources } from '../../i18n';
@@ -19,6 +29,27 @@ function project(id: string, name: string): Project {
   return { id, name } as Project;
 }
 
+function Registry({ apps = [], children }: { apps?: AppDefinition[]; children: ReactNode }) {
+  return (
+    <FakeHubSessionProvider session={new FakeHubSession()}>
+      <AppRegistryProvider apps={apps}>{children}</AppRegistryProvider>
+    </FakeHubSessionProvider>
+  );
+}
+
+function remoteApp(over: Partial<AppDefinition> = {}): AppDefinition {
+  return {
+    id: 'pulse',
+    labelKey: 'apps.pulse.label',
+    icon: 'pulse',
+    route: '/pulse',
+    order: 1,
+    requiredPermissions: [],
+    loadRoutes: () => Promise.resolve([]),
+    ...over,
+  };
+}
+
 function Location() {
   return <p data-testid="location">{useLocation().pathname}</p>;
 }
@@ -28,20 +59,24 @@ function setup(
     active: SiteSection;
     projects: Project[];
     selectedProject: Project | null;
+    apps: AppDefinition[];
+    at: string;
   }> = {},
 ) {
   const onProjectChange = vi.fn();
   const onLogout = vi.fn();
   render(
-    <MemoryRouter initialEntries={['/start']}>
-      <SiteHeader
-        active={props.active ?? 'platform'}
-        projects={props.projects ?? []}
-        selectedProject={props.selectedProject ?? null}
-        onProjectChange={onProjectChange}
-        onLogout={onLogout}
-      />
-      <Location />
+    <MemoryRouter initialEntries={[props.at ?? '/start']}>
+      <Registry apps={props.apps}>
+        <SiteHeader
+          active={props.active ?? 'platform'}
+          projects={props.projects ?? []}
+          selectedProject={props.selectedProject ?? null}
+          onProjectChange={onProjectChange}
+          onLogout={onLogout}
+        />
+        <Location />
+      </Registry>
     </MemoryRouter>,
   );
   return { onProjectChange, onLogout };
@@ -51,13 +86,15 @@ function renderWithI18nInstance(i18n: ReturnType<typeof createI18n>, loader: Loc
   rtlRender(
     <I18nProvider i18n={i18n} loader={loader}>
       <MemoryRouter>
-        <SiteHeader
-          active="platform"
-          projects={[]}
-          selectedProject={null}
-          onProjectChange={vi.fn()}
-          onLogout={vi.fn()}
-        />
+        <Registry>
+          <SiteHeader
+            active="platform"
+            projects={[]}
+            selectedProject={null}
+            onProjectChange={vi.fn()}
+            onLogout={vi.fn()}
+          />
+        </Registry>
       </MemoryRouter>
     </I18nProvider>,
   );
@@ -168,5 +205,58 @@ describe('SiteHeader', () => {
     fireEvent.click(select);
     fireEvent.click(screen.getByRole('option', { name: 'Alpha' }));
     expect(onProjectChange).toHaveBeenCalledWith('a');
+  });
+
+  it('lists remote apps in the nav with their badge, and opens them', () => {
+    const app = remoteApp({ useBadge: () => 4 });
+    setup({ apps: [app] });
+    const item = screen.getByTestId('nav-app-pulse');
+    expect(item).toHaveTextContent('Pulse');
+    expect(item).toHaveTextContent('4');
+    fireEvent.click(item);
+    expect(path()).toBe('/pulse');
+  });
+
+  it('marks a remote app current on its own routes and shows no badge when it has none', () => {
+    setup({ apps: [remoteApp()], at: '/pulse/details' });
+    const item = screen.getByTestId('nav-app-pulse');
+    expect(item).toHaveAttribute('aria-current', 'page');
+    expect(item).not.toHaveTextContent(/\d/);
+  });
+
+  it('keeps hidden-from-nav apps out and falls back to a generic icon', () => {
+    setup({
+      apps: [remoteApp({ showInNav: false }), remoteApp({ id: 'other', icon: 'unknown-icon' })],
+    });
+    expect(screen.queryByTestId('nav-app-pulse')).not.toBeInTheDocument();
+    expect(screen.getByTestId('nav-app-other')).toBeInTheDocument();
+  });
+
+  it('shows a top bar item from a remote and leaves the slot empty when it fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const topbar = [
+      {
+        id: 'ok',
+        requiredPermissions: [],
+        component: () => Promise.resolve({ default: () => <span>chip</span> }),
+      },
+      {
+        id: 'broken',
+        requiredPermissions: [],
+        component: () => Promise.reject(new Error('down')),
+      },
+    ];
+    // The slots suspend on `use()`, so the first render has to settle inside act.
+    await act(async () => {
+      setup({ apps: [remoteApp({ topbar })] });
+    });
+    expect(screen.getByText('chip')).toBeInTheDocument();
+  });
+
+  it('titles a remote nav item with its label when the sidebar is collapsed', () => {
+    setup({ apps: [remoteApp()] });
+    expect(screen.getByTestId('nav-app-pulse')).not.toHaveAttribute('title');
+    fireEvent.click(screen.getByTestId('nav-collapse'));
+    expect(screen.getByTestId('nav-app-pulse')).toHaveAttribute('title', 'Pulse');
   });
 });

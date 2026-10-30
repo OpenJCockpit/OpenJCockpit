@@ -14,7 +14,9 @@
     "coverage": "nx run-many -t coverage",
     "build": "nx run dashboard:build",
     "check": "nx run-many -t lint typecheck test format-check check-styles check-i18n",
-    "affected": "nx affected -t lint typecheck test build"
+    "affected": "nx affected -t lint typecheck test build",
+    "start:hub": "nx run-many -t dev -p dashboard,remote-hello,remote-pulse --parallel=3",
+    "build:hub": "nx run-many -t build -p remote-hello,remote-pulse,dashboard"
   },
   "nx": {
     "includedScripts": [
@@ -22,13 +24,14 @@
     ]
   },
   "workspaces": [
-    "apps/dashboard",
+    "apps/*",
     "libs/*",
     "e2e"
   ],
   "devDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "4.7.2",
     "@eslint/js": "9.39.5",
+    "@module-federation/vite": "1.23.7",
     "@nx/eslint": "23.3.0",
     "@nx/eslint-plugin": "23.3.0",
     "@nx/vite": "23.3.0",

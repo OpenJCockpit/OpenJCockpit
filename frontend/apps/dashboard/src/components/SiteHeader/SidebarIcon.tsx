@@ -7,9 +7,13 @@ export type SidebarIconName =
   | 'settings'
   | 'hub'
   | 'logout'
-  | 'collapse';
+  | 'collapse'
+  | 'pulse'
+  | 'app';
 
 const PATHS: Record<SidebarIconName, string[]> = {
+  pulse: ['M3 12h4l3-8 4 16 3-8h4'],
+  app: ['M4 4h16v16H4z'],
   platform: ['M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z'],
   workflow: [
     'M6 3.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z',
@@ -29,6 +33,11 @@ const PATHS: Record<SidebarIconName, string[]> = {
   logout: ['M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4', 'M16 17l5-5-5-5', 'M21 12H9'],
   collapse: ['M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z', 'M9 4v16'],
 };
+
+/** Icon names come from remote apps, so an unknown name falls back to a generic icon. */
+export function toSidebarIconName(name: string): SidebarIconName {
+  return name in PATHS ? (name as SidebarIconName) : 'app';
+}
 
 /** Decorative 20px line icon for the sidebar; the label next to it carries the meaning. */
 export function SidebarIcon({ name }: { name: SidebarIconName }) {

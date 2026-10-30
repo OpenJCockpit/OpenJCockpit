@@ -16,6 +16,9 @@ import {
 import App from './App';
 import { appResources, loadAppLocale } from './i18nResources';
 import { createQueryClient } from './queryClient';
+import { RemoteAppsProvider } from './federation/RemoteApps';
+import { fetchAllowedOrigins, fetchManifest, registerManifestRemotes } from './federation/manifest';
+import { loadRemoteApps, type RemoteApps } from './federation/loadRemoteApps';
 
 const queryClient = createQueryClient();
 const i18n = createI18n({ locale: detectLocale(), resources: appResources });
@@ -35,7 +38,20 @@ const localeReady = loadLocale(i18n, i18n.language as Locale, loadAppLocale).cat
   i18n.changeLanguage('en'),
 );
 
-void Promise.all([loadKeycloakConfig(), localeReady]).then(() => {
+// A missing or broken manifest must not stop the host: it starts with no remote apps.
+async function loadRemotes(): Promise<RemoteApps> {
+  try {
+    const [manifest, allowedOrigins] = await Promise.all([fetchManifest(), fetchAllowedOrigins()]);
+    const { names, rejected } = registerManifestRemotes(manifest, allowedOrigins);
+    const loaded = await loadRemoteApps(names);
+    return { apps: loaded.apps, failed: [...rejected, ...loaded.failed] };
+  } catch (error) {
+    console.error('Federation manifest could not be loaded', error);
+    return { apps: [], failed: [] };
+  }
+}
+
+void Promise.all([loadKeycloakConfig(), localeReady, loadRemotes()]).then(([, , remotes]) => {
   createRoot(document.getElementById('root') as HTMLElement).render(
     <StrictMode>
       {/* The boundary sits outside the provider and keeps a literal English message, so a broken i18n setup still shows an error. */}
@@ -43,7 +59,9 @@ void Promise.all([loadKeycloakConfig(), localeReady]).then(() => {
         <I18nProvider i18n={i18n} loader={loadAppLocale}>
           <QueryClientProvider client={queryClient}>
             <BrowserRouter>
-              <App />
+              <RemoteAppsProvider remotes={remotes}>
+                <App />
+              </RemoteAppsProvider>
             </BrowserRouter>
           </QueryClientProvider>
         </I18nProvider>
