@@ -24,6 +24,7 @@ import { HubSessionProvider } from './federation/HubSessionProvider';
 import { RemoteFailuresNotice, useRemoteApps } from './federation/RemoteApps';
 import { RemoteRoutes } from './federation/RemoteRoutes';
 import { ROUTES } from './routes';
+import { FEATURE_FLAGS, isFeatureEnabled } from './featureFlags';
 import { DashboardRoute } from './routeViews/DashboardRoute';
 import { LandingHubRoute } from './routeViews/LandingHubRoute';
 import { LandingRoute } from './routeViews/LandingRoute';
@@ -137,7 +138,16 @@ function App() {
                 }
               >
                 <Routes>
-                  <Route path={ROUTES.home} element={<Home />} />
+                  <Route
+                    path={ROUTES.home}
+                    element={
+                      isFeatureEnabled(FEATURE_FLAGS.hub) ? (
+                        <Home />
+                      ) : (
+                        <Navigate to={ROUTES.dashboard} replace />
+                      )
+                    }
+                  />
                   <Route
                     path={ROUTES.root}
                     element={

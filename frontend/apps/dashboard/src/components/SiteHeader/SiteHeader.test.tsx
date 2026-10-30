@@ -22,6 +22,7 @@ import { dashboardResources } from '../../i18n';
 import nl from '../../locales/nl.json';
 import type { Project } from '@openjcockpit/api';
 import { ROUTES } from '../../routes';
+import { FEATURE_FLAGS } from '../../featureFlags';
 import { SiteHeader } from './SiteHeader';
 import type { SiteSection } from './SiteHeader';
 
@@ -112,6 +113,7 @@ describe('SiteHeader', () => {
     ['nav-platform', ROUTES.dashboard],
     ['nav-hub', ROUTES.home],
   ])('%s navigates to %s', (testId, route) => {
+    localStorage.setItem(FEATURE_FLAGS.hub, '1');
     setup();
     fireEvent.click(screen.getByTestId(testId));
     expect(path()).toBe(route);

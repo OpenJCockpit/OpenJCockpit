@@ -14,6 +14,7 @@ import { useAppRegistry, useBadgeFor, type AppDefinition } from '@openjcockpit/h
 import { SidebarIcon, toSidebarIconName, type SidebarIconName } from './SidebarIcon';
 import { RemoteSlot } from '../../federation/RemoteSlot';
 import { ROUTES } from '../../routes';
+import { FEATURE_FLAGS, isFeatureEnabled } from '../../featureFlags';
 
 /** Only the host's own page has a fixed menu entry; the apps remotes ship are matched by route. */
 export type SiteSection = 'platform';
@@ -120,6 +121,7 @@ export function SiteHeader({
 
   const settingsLabel = t('siteHeader.projectManagement');
   const hubLabel = t('siteHeader.nav.hub');
+  const hubEnabled = isFeatureEnabled(FEATURE_FLAGS.hub);
   const collapseLabel = t(collapsed ? 'siteHeader.expand' : 'siteHeader.collapse');
   const displayName = user ? user.firstName || user.username : null;
 
@@ -181,17 +183,19 @@ export function SiteHeader({
           <SidebarIcon name="settings" />
           <span className={styles.label}>{settingsLabel}</span>
         </button>
-        <button
-          type="button"
-          className={styles.item}
-          aria-label={hubLabel}
-          title={t('siteHeader.backToHub')}
-          onClick={() => void navigate(ROUTES.home)}
-          data-testid="nav-hub"
-        >
-          <SidebarIcon name="hub" />
-          <span className={styles.label}>{hubLabel}</span>
-        </button>
+        {hubEnabled && (
+          <button
+            type="button"
+            className={styles.item}
+            aria-label={hubLabel}
+            title={t('siteHeader.backToHub')}
+            onClick={() => void navigate(ROUTES.home)}
+            data-testid="nav-hub"
+          >
+            <SidebarIcon name="hub" />
+            <span className={styles.label}>{hubLabel}</span>
+          </button>
+        )}
       </nav>
 
       <div className={styles.footer}>
