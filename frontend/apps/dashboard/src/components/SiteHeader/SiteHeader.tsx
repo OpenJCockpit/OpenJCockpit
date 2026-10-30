@@ -12,7 +12,7 @@ import styles from './SiteHeader.module.scss';
 import { BrandLogo, Select, cx } from '@openjcockpit/ui';
 import { useAppRegistry, useBadgeFor, type AppDefinition } from '@openjcockpit/hub-contract';
 import { SidebarIcon, toSidebarIconName, type SidebarIconName } from './SidebarIcon';
-import { TopbarSlot } from '../../federation/TopbarSlot';
+import { RemoteSlot } from '../../federation/RemoteSlot';
 import { ROUTES } from '../../routes';
 
 /** Only the host's own page has a fixed menu entry; the apps remotes ship are matched by route. */
@@ -131,7 +131,7 @@ export function SiteHeader({
       <button
         type="button"
         className={styles.brand}
-        onClick={() => void navigate(ROUTES.landing)}
+        onClick={() => void navigate(ROUTES.dashboard)}
         title={t('siteHeader.backToHub')}
       >
         <BrandLogo />
@@ -186,7 +186,7 @@ export function SiteHeader({
           className={styles.item}
           aria-label={hubLabel}
           title={t('siteHeader.backToHub')}
-          onClick={() => void navigate(ROUTES.landing)}
+          onClick={() => void navigate(ROUTES.home)}
           data-testid="nav-hub"
         >
           <SidebarIcon name="hub" />
@@ -198,7 +198,7 @@ export function SiteHeader({
         {visibleTopbar.length > 0 && (
           <div className={styles.topbar}>
             {visibleTopbar.map((item) => (
-              <TopbarSlot key={item.id} item={item} />
+              <RemoteSlot key={item.id} item={item} />
             ))}
           </div>
         )}

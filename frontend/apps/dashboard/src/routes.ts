@@ -1,5 +1,8 @@
 export const ROUTES = {
-  landing: '/',
+  root: '/',
+  home: '/home',
+  // Temporary: the portal landing keeps its own route until it is decided what happens to it.
+  landing: '/landing',
   projects: '/projects',
   dashboard: '/dashboard',
   settings: '/settings',

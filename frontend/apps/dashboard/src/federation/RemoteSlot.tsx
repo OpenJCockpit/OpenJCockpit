@@ -1,7 +1,10 @@
 import { Component, Suspense, use, type ReactNode } from 'react';
-import type { TopbarDefinition } from '@openjcockpit/hub-contract';
+import type { LazyComponent } from '@openjcockpit/hub-contract';
 
-/** A failed remote component leaves its slot empty instead of breaking the surrounding chrome. */
+/** Anything a remote contributes as a lazily loaded component: a top bar item or a widget. */
+type RemoteItem = { component: LazyComponent };
+
+/** A failed remote component leaves its slot empty instead of breaking the surrounding page. */
 class EmptyOnError extends Component<{ children: ReactNode }, { failed: boolean }> {
   override state = { failed: false };
 
@@ -10,7 +13,7 @@ class EmptyOnError extends Component<{ children: ReactNode }, { failed: boolean 
   }
 
   override componentDidCatch(error: Error) {
-    console.error('A top bar item failed to render', error);
+    console.error('A remote component failed to render', error);
   }
 
   override render() {
@@ -19,9 +22,9 @@ class EmptyOnError extends Component<{ children: ReactNode }, { failed: boolean 
 }
 
 // One load per definition for the page's lifetime; the promise is cached so re-renders do not refetch.
-const loads = new WeakMap<TopbarDefinition, ReturnType<TopbarDefinition['component']>>();
+const loads = new WeakMap<RemoteItem, ReturnType<RemoteItem['component']>>();
 
-function loadOnce(item: TopbarDefinition) {
+function loadOnce(item: RemoteItem) {
   let load = loads.get(item);
   if (!load) {
     load = item.component();
@@ -30,12 +33,12 @@ function loadOnce(item: TopbarDefinition) {
   return load;
 }
 
-function Loaded({ item }: { item: TopbarDefinition }) {
+function Loaded({ item }: { item: RemoteItem }) {
   const { default: Item } = use(loadOnce(item));
   return <Item />;
 }
 
-export function TopbarSlot({ item }: { item: TopbarDefinition }) {
+export function RemoteSlot({ item }: { item: RemoteItem }) {
   return (
     <EmptyOnError>
       <Suspense fallback={null}>

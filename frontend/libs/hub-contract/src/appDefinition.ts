@@ -17,6 +17,7 @@ export interface WidgetDefinition {
   sourceAppId: string;
   requiredPermissions: readonly string[];
   component: LazyComponent;
+  /** Permissions whose holders get this widget on their default Home; empty means everyone who may see it. */
   defaultFor: readonly string[];
   link: `/${string}`;
   descriptionKey?: string;

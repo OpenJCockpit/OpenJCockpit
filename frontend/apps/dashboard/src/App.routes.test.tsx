@@ -1,6 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { chooseOption } from '@openjcockpit/ui/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ROUTES } from './routes';
 import { renderRoutedApp } from './testUtils/renderRoutedApp';
 import { specsRemotes } from './testUtils/specsRemoteStubs';
 import { clickAsync } from './testUtils/dom';
@@ -130,9 +131,14 @@ describe('App routing', () => {
     vi.mocked(api.getSpecInitStatus).mockResolvedValue({ pending: false });
   });
 
-  it('redirects unknown paths to the landing hub', async () => {
+  it('redirects unknown paths and the root to the dashboard', async () => {
     renderRoutedApp('/nope');
-    expect(await screen.findByTestId('landing-hero')).toBeInTheDocument();
+    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+  });
+
+  it('opens the dashboard at the root', async () => {
+    renderRoutedApp(ROUTES.root);
+    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
   });
 
   it('returns from project settings to project selection without a project', async () => {
@@ -160,13 +166,13 @@ describe('App routing', () => {
   it('forgets a stored project that no longer exists', async () => {
     localStorage.setItem('openjcockpit_project_id', 'gone');
     vi.mocked(api.loadProjects).mockResolvedValue([]);
-    renderRoutedApp('/');
+    renderRoutedApp(ROUTES.landing);
     await screen.findByTestId('landing-hero');
     await waitFor(() => expect(localStorage.getItem('openjcockpit_project_id')).toBeNull());
   });
 
   it('logs out through keycloak from the hub', async () => {
-    renderRoutedApp('/');
+    renderRoutedApp(ROUTES.landing);
     await clickAsync(await screen.findByRole('button', { name: 'Logout' }));
     expect(keycloak.logout).toHaveBeenCalledWith({ redirectUri: window.location.origin });
   });
@@ -250,7 +256,7 @@ describe('App remote apps', () => {
   });
 
   it('lists remotes that failed to load', async () => {
-    renderRoutedApp('/', { apps: [], failed: ['broken'] });
+    renderRoutedApp(ROUTES.landing, { apps: [], failed: ['broken'] });
     expect(await screen.findByRole('status')).toHaveTextContent('broken');
   });
 });

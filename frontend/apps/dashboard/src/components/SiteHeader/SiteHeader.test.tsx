@@ -110,7 +110,7 @@ const path = () => screen.getByTestId('location').textContent;
 describe('SiteHeader', () => {
   it.each([
     ['nav-platform', ROUTES.dashboard],
-    ['nav-hub', ROUTES.landing],
+    ['nav-hub', ROUTES.home],
   ])('%s navigates to %s', (testId, route) => {
     setup();
     fireEvent.click(screen.getByTestId(testId));
@@ -126,7 +126,7 @@ describe('SiteHeader', () => {
   it('returns to the hub from the logo', () => {
     setup();
     fireEvent.click(screen.getAllByTitle('Back to hub')[0]!);
-    expect(path()).toBe(ROUTES.landing);
+    expect(path()).toBe(ROUTES.dashboard);
   });
 
   it('marks only the current page, whether host or remote', () => {

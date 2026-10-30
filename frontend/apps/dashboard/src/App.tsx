@@ -27,6 +27,7 @@ import { ROUTES } from './routes';
 import { DashboardRoute } from './routeViews/DashboardRoute';
 import { LandingHubRoute } from './routeViews/LandingHubRoute';
 import { LandingRoute } from './routeViews/LandingRoute';
+import { Home } from './home/Home';
 import { ProjectSelectionRoute } from './routeViews/ProjectSelectionRoute';
 import { RequireProject } from './routeViews/RequireProject';
 import { SettingsRoute } from './routeViews/SettingsRoute';
@@ -37,6 +38,7 @@ const NO_PROJECTS: Project[] = [];
 const APP_TITLE = 'OpenJCockpit';
 
 const TITLE_KEYS = {
+  [ROUTES.home]: 'pageTitle.home',
   [ROUTES.landing]: 'pageTitle.landing',
   [ROUTES.projects]: 'pageTitle.projects',
   [ROUTES.settings]: 'pageTitle.settings',
@@ -51,8 +53,7 @@ const TITLE_KEYS = {
 function titleKeyFor(pathname: string) {
   const routes = Object.keys(TITLE_KEYS) as (keyof typeof TITLE_KEYS)[];
   const route =
-    routes.find((r) => r === pathname) ??
-    routes.find((r) => r !== ROUTES.landing && pathname.startsWith(`${r}/`));
+    routes.find((r) => r === pathname) ?? routes.find((r) => pathname.startsWith(`${r}/`));
   return route ? TITLE_KEYS[route] : undefined;
 }
 
@@ -136,6 +137,15 @@ function App() {
                 }
               >
                 <Routes>
+                  <Route path={ROUTES.home} element={<Home />} />
+                  <Route
+                    path={ROUTES.root}
+                    element={
+                      <LandingRoute>
+                        <Navigate to={ROUTES.dashboard} replace />
+                      </LandingRoute>
+                    }
+                  />
                   <Route
                     path={ROUTES.landing}
                     element={
@@ -178,7 +188,7 @@ function App() {
                       }
                     />
                   ))}
-                  <Route path="*" element={<Navigate to={ROUTES.landing} replace />} />
+                  <Route path="*" element={<Navigate to={ROUTES.dashboard} replace />} />
                 </Routes>
               </Suspense>
             </ErrorBoundary>

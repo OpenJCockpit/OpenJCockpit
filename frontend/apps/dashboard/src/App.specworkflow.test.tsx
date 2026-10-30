@@ -1,5 +1,6 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ROUTES } from './routes';
 import { renderRoutedApp } from './testUtils/renderRoutedApp';
 import { specsRemotes } from './testUtils/specsRemoteStubs';
 import * as api from '@openjcockpit/api';
@@ -75,7 +76,7 @@ async function renderDashboard(specs: SpecFile[], workflows: WorkflowDefinition[
   });
   vi.mocked(api.getSpecInitStatus).mockResolvedValue({ pending: false });
 
-  renderRoutedApp('/', specsRemotes);
+  renderRoutedApp(ROUTES.landing, specsRemotes);
   await enterDashboard();
   await screen.findByText('▶ Start');
 }
