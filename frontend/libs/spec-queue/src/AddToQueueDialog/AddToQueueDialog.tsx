@@ -17,7 +17,7 @@ import {
   Button,
   feedbackErrorClass,
   fieldHintClass,
-  formInputClass,
+  Select,
   Eyebrow,
   panelClassName,
   cx,
@@ -175,21 +175,19 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
           <label htmlFor={specId} className={styles.addToQueueDialogLabel}>
             {t('addDialog.specFile')}
           </label>
-          <select
+          <Select
             id={specId}
-            className={formInputClass}
+            block
             data-testid="add-to-queue-spec-select"
             value={specFile}
             disabled={specs.loading || specList.length === 0 || submitting}
-            onChange={(e) => setSpecChoice(e.target.value)}
-          >
-            {specList.length === 0 && <option value="">{t('addDialog.noSpecFiles')}</option>}
-            {specList.map((s) => (
-              <option key={s.id} value={s.fileName}>
-                {s.fileName}
-              </option>
-            ))}
-          </select>
+            onChange={setSpecChoice}
+            options={
+              specList.length === 0
+                ? [{ value: '', label: t('addDialog.noSpecFiles') }]
+                : specList.map((s) => ({ value: s.fileName, label: s.fileName }))
+            }
+          />
           {!specs.loading && specs.error && (
             <p className={feedbackErrorClass} role="alert" data-testid="add-to-queue-spec-error">
               {t('addDialog.specsLoadError', { error: specs.error })}
@@ -202,21 +200,19 @@ export function AddToQueueDialog({ project, fixedSpecFile, onAdded, onCancel }: 
         <label htmlFor={workflowSelectId} className={styles.addToQueueDialogLabel}>
           {t('addDialog.workflow')}
         </label>
-        <select
+        <Select
           id={workflowSelectId}
-          className={formInputClass}
+          block
           data-testid="add-to-queue-workflow-select"
           value={workflowId}
           disabled={workflows.loading || workflowList.length === 0 || submitting}
-          onChange={(e) => setWorkflowChoice(e.target.value)}
-        >
-          {workflowList.length === 0 && <option value="">{t('addDialog.noWorkflows')}</option>}
-          {workflowList.map((w) => (
-            <option key={w.id} value={w.id}>
-              {w.name}
-            </option>
-          ))}
-        </select>
+          onChange={setWorkflowChoice}
+          options={
+            workflowList.length === 0
+              ? [{ value: '', label: t('addDialog.noWorkflows') }]
+              : workflowList.map((w) => ({ value: w.id, label: w.name }))
+          }
+        />
         {!workflows.loading && workflows.error && (
           <p className={feedbackErrorClass} role="alert" data-testid="add-to-queue-workflow-error">
             {t('addDialog.workflowsLoadError', { error: workflows.error })}

@@ -21,7 +21,7 @@ import {
   FileImportButton,
   fieldErrorClass,
   fieldHintClass,
-  formInputClass,
+  Select,
   cx,
 } from '@openjcockpit/ui';
 import { readFileText, downloadWorkflowBundle } from '../../utils';
@@ -208,19 +208,16 @@ export function WorkflowsPanel() {
         <ToolbarButton onClick={startCreate}>{t('workflows.newButton')}</ToolbarButton>
         <label className={WorkflowDesignStyles.workflowGroupFilter}>
           {t('workflows.group')}
-          <select
-            className={cx(formInputClass, WorkflowDesignStyles.workflowGroupFilterSelect)}
+          <Select
+            className={WorkflowDesignStyles.workflowGroupFilterSelect}
             value={groupFilter}
-            onChange={(e) => setGroupFilter(e.target.value)}
-          >
-            <option value="all">{t('workflows.allGroups')}</option>
-            <option value="none">{t('workflows.noGroup')}</option>
-            {groups.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.name}
-              </option>
-            ))}
-          </select>
+            onChange={setGroupFilter}
+            options={[
+              { value: 'all', label: t('workflows.allGroups') },
+              { value: 'none', label: t('workflows.noGroup') },
+              ...groups.map((g) => ({ value: g.id, label: g.name })),
+            ]}
+          />
         </label>
         <div className={WorkflowDesignStyles.workflowDesignToolbarSpacer} />
         <ToolbarButton variant="small" onClick={() => void handleExport()}>

@@ -175,10 +175,11 @@ export function OpaSettings() {
         label={t('opa.failMode')}
         value={form.failMode}
         onChange={(v) => update({ failMode: v })}
-      >
-        <option value="FAIL_CLOSED">{t('opa.failClosed')}</option>
-        <option value="FAIL_OPEN">{t('opa.failOpen')}</option>
-      </SelectField>
+        options={[
+          { value: 'FAIL_CLOSED', label: t('opa.failClosed') },
+          { value: 'FAIL_OPEN', label: t('opa.failOpen') },
+        ]}
+      />
       <TextField
         label={t('opa.environment')}
         value={form.environment}

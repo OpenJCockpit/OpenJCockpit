@@ -51,7 +51,7 @@ describe('ProjectSettings — Git credentials', () => {
     await waitFor(() => expect(api.getGitCredentials).toHaveBeenCalledWith('project-1'));
     expect(await screen.findByDisplayValue('ci-bot')).toBeInTheDocument();
     expect(screen.getByDisplayValue('https://github.example.com/api/v3')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('GitHub PAT')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /Type/ })).toHaveTextContent('GitHub PAT');
     // secret is never sent back from the server — the field starts blank with a hint that one is set
     expect(screen.getByPlaceholderText('Leave empty to keep the current secret')).toHaveValue('');
   });

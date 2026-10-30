@@ -42,7 +42,7 @@ async function renderDashboard() {
   renderRoutedApp();
   await enterDashboard();
   await waitFor(() => {
-    expect(screen.getByLabelText('Workflow')).toHaveValue(WORKFLOW.id);
+    expect(screen.getByLabelText('Workflow')).toHaveTextContent(WORKFLOW.name);
     expect(screen.getByText('▶ Start')).toBeEnabled();
   });
 }

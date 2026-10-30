@@ -1,4 +1,5 @@
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import { chooseOption } from '@openjcockpit/ui/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderRoutedApp } from './testUtils/renderRoutedApp';
 import { clickAsync } from './testUtils/dom';
@@ -226,15 +227,11 @@ describe('App routing', () => {
     const other = { ...PROJECT, id: 'project-2', name: 'Other Project' };
     vi.mocked(api.loadProjects).mockResolvedValue([PROJECT, other]);
     renderRoutedApp('/spec-queue');
-    const select = await screen.findByTitle('Active project');
-    await act(async () => {
-      fireEvent.change(select, { target: { value: 'project-2' } });
-    });
+    const select = await screen.findByRole('combobox', { name: 'Active project' });
+    await clickAsync(select);
+    await clickAsync(screen.getByRole('option', { name: 'Other Project' }));
     await waitFor(() => expect(localStorage.getItem('openjcockpit_project_id')).toBe('project-2'));
-    await act(async () => {
-      fireEvent.change(select, { target: { value: 'unknown' } });
-    });
-    expect(localStorage.getItem('openjcockpit_project_id')).toBe('project-2');
+    expect(select).toHaveTextContent('Other Project');
   });
 
   it('opens project settings from the pre-flight alert on a Git problem', async () => {
@@ -260,11 +257,9 @@ describe('App routing', () => {
     vi.mocked(api.listWorkflows).mockResolvedValue([WORKFLOW, second]);
     renderRoutedApp('/dashboard');
     const picker = await screen.findByLabelText('Workflow');
-    await waitFor(() => expect(picker).toHaveValue('wf-1'));
-    await act(async () => {
-      fireEvent.change(picker, { target: { value: 'wf-2' } });
-    });
-    expect(screen.getByLabelText('Workflow')).toHaveValue('wf-2');
+    await waitFor(() => expect(picker).toHaveTextContent('Spec to pull request'));
+    chooseOption(picker, 'Second workflow');
+    expect(screen.getByLabelText('Workflow')).toHaveTextContent('Second workflow');
   });
 
   it('shows an error instead of the hero when the workspace fails to load', async () => {

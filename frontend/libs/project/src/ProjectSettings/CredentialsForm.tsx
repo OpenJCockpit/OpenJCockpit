@@ -49,13 +49,10 @@ export function CredentialsForm({
                   credentialType: v as ProjectGitCredentialRequest['credentialType'],
                 }))
               }
-            >
-              <option value="NONE">{t('credentials.types.NONE')}</option>
-              <option value="HTTPS_TOKEN">{t('credentials.types.HTTPS_TOKEN')}</option>
-              <option value="GITHUB_PAT">{t('credentials.types.GITHUB_PAT')}</option>
-              <option value="USERNAME_PASSWORD">{t('credentials.types.USERNAME_PASSWORD')}</option>
-              <option value="GITHUB_APP">{t('credentials.types.GITHUB_APP')}</option>
-            </SelectField>
+              options={(
+                ['NONE', 'HTTPS_TOKEN', 'GITHUB_PAT', 'USERNAME_PASSWORD', 'GITHUB_APP'] as const
+              ).map((type) => ({ value: type, label: t(`credentials.types.${type}`) }))}
+            />
             <TextField
               label={t('credentials.username')}
               value={form.username ?? ''}

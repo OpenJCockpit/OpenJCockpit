@@ -1,4 +1,5 @@
 import { fireEvent, screen } from '@testing-library/react';
+import { chooseOption } from '@openjcockpit/ui/testing';
 import { render } from '../../../../testUtils/render';
 import { describe, expect, it, vi } from 'vitest';
 import type { AgentDefinition, WorkflowDefinition, WorkflowOrb } from '@openjcockpit/api';
@@ -56,9 +57,7 @@ describe('OrbEditor', () => {
     const first = orb();
     const second = orb({ workflowId: 'wf-b' });
     const onChange = setup([first, second]);
-    fireEvent.change(screen.getAllByLabelText('Referenced workflow')[1]!, {
-      target: { value: 'wf-a' },
-    });
+    chooseOption(screen.getAllByLabelText('Referenced workflow')[1]!, 'Workflow A');
     expect(onChange).toHaveBeenCalledWith([first, { ...second, workflowId: 'wf-a' }]);
   });
 
@@ -76,13 +75,13 @@ describe('OrbEditor', () => {
 
   it('sets the placement anchor', () => {
     const onChange = setup([orb()]);
-    fireEvent.change(screen.getByLabelText('Placement anchor'), { target: { value: 'agent-1' } });
+    chooseOption(screen.getByLabelText('Placement anchor'), 'Agent One');
     expect(onChange).toHaveBeenCalledWith([orb({ placementStage: 'agent-1' })]);
   });
 
   it('treats a missing placement stage as unanchored', () => {
     setup([orb({ placementStage: undefined })]);
-    expect(screen.getByLabelText('Placement anchor')).toHaveValue('');
+    expect(screen.getByLabelText('Placement anchor')).toHaveTextContent(/run first/i);
   });
 
   it('shows the error and links it to the mode group', () => {

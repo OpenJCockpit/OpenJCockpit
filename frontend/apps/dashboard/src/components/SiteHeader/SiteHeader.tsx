@@ -8,7 +8,7 @@ import {
 } from '@openjcockpit/i18n';
 import type { Project } from '@openjcockpit/api';
 import styles from './SiteHeader.module.scss';
-import { Button, BrandLogo, dropdownClass } from '@openjcockpit/ui';
+import { Button, BrandLogo, Select } from '@openjcockpit/ui';
 import { ROUTES } from '../../routes';
 
 export type SiteSection = 'platform' | 'workflow' | 'specFiles' | 'specQueue' | 'skillsHub';
@@ -76,33 +76,25 @@ export function SiteHeader({
 
       <div className={styles.headerActions}>
         {projects.length > 0 && (
-          <select
-            className={dropdownClass}
+          <Select
+            label={t('siteHeader.activeProject')}
             value={selectedProject?.id ?? ''}
-            onChange={(e) => onProjectChange(e.target.value)}
-            title={t('siteHeader.activeProject')}
-          >
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
+            options={projects.map((p) => ({ value: p.id, label: p.name }))}
+            onChange={onProjectChange}
+          />
         )}
-        <select
-          className={dropdownClass}
+        <Select
+          label={t('siteHeader.language')}
           value={locale}
+          options={SUPPORTED_LOCALES.map((code) => ({
+            value: code,
+            label: LOCALE_NAMES[code],
+            lang: code,
+          }))}
           // A failed locale download keeps the current language; the select stays on it.
-          onChange={(e) => void setLocale(e.target.value as Locale).catch(() => undefined)}
-          aria-label={t('siteHeader.language')}
+          onChange={(code) => void setLocale(code as Locale).catch(() => undefined)}
           data-testid="locale-select"
-        >
-          {SUPPORTED_LOCALES.map((code) => (
-            <option key={code} value={code} lang={code}>
-              {LOCALE_NAMES[code]}
-            </option>
-          ))}
-        </select>
+        />
         <Button
           variant="secondary"
           onClick={() => void navigate(ROUTES.settings)}

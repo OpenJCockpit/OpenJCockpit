@@ -29,6 +29,7 @@
       "@openjcockpit/spec-files": ["./libs/spec-files/src/index.ts"],
       "@openjcockpit/spec-queue": ["./libs/spec-queue/src/index.ts"],
       "@openjcockpit/ui": ["./libs/ui/src/index.ts"],
+      "@openjcockpit/ui/testing": ["./libs/ui/src/testing/index.ts"],
       "@openjcockpit/workflow": ["./libs/workflow/src/index.ts"]
     }
   }

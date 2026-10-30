@@ -79,14 +79,11 @@ export function WorkflowEditor({
         value={form.groupId ?? ''}
         onChange={(v) => setForm((f) => ({ ...f, groupId: v }))}
         hint={t('workflowEditor.groupHint')}
-      >
-        <option value="">{t('workflowEditor.noGroup')}</option>
-        {groups.map((g) => (
-          <option key={g.id} value={g.id}>
-            {g.name}
-          </option>
-        ))}
-      </SelectField>
+        options={[
+          { value: '', label: t('workflowEditor.noGroup') },
+          ...groups.map((g) => ({ value: g.id, label: g.name })),
+        ]}
+      />
       <TextField
         label={t('workflowEditor.status')}
         value={form.status}
@@ -138,13 +135,11 @@ export function WorkflowEditor({
                 approvalGate: { enabled: true, placementStage: v },
               }))
             }
-          >
-            {selectedStagesInOrder(availableAgents, form.agentIds, tApi).map((agent) => (
-              <option key={agent.id} value={agent.id}>
-                {agent.name}
-              </option>
-            ))}
-          </SelectField>
+            options={selectedStagesInOrder(availableAgents, form.agentIds, tApi).map((agent) => ({
+              value: agent.id,
+              label: agent.name,
+            }))}
+          />
           <p
             id="approval-gate-note"
             className={cx(fieldHintClass, WorkflowDesignStyles.approvalGateNote)}

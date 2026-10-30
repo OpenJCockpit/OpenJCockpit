@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { chooseOption } from '@openjcockpit/ui/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as api from '@openjcockpit/api';
 import type { OpaConfig } from '@openjcockpit/api';
@@ -49,7 +50,7 @@ describe('OpaSettings', () => {
     expect(screen.getByLabelText('Health check path')).toHaveValue('/health');
     expect(screen.getByLabelText('Policy decision endpoint')).toHaveValue('/v1/data/decision');
     expect(screen.getByLabelText('Timeout (seconds)')).toHaveValue(3);
-    expect(screen.getByLabelText('Fail mode')).toHaveValue('FAIL_CLOSED');
+    expect(screen.getByLabelText('Fail mode')).toHaveTextContent('FAIL_CLOSED');
     expect(screen.getByLabelText('Environment label')).toHaveValue('prod');
     expect(screen.getByLabelText('Customer/tenant label')).toHaveValue('acme');
     expect(screen.getByLabelText('Project label')).toHaveValue('onboarding');
@@ -67,7 +68,7 @@ describe('OpaSettings', () => {
       target: { value: '/p' },
     });
     fireEvent.change(screen.getByLabelText('Timeout (seconds)'), { target: { value: '9' } });
-    fireEvent.change(screen.getByLabelText('Fail mode'), { target: { value: 'FAIL_OPEN' } });
+    chooseOption(screen.getByLabelText('Fail mode'), /^FAIL_OPEN/);
     fireEvent.change(screen.getByLabelText('Environment label'), { target: { value: 'stg' } });
     fireEvent.change(screen.getByLabelText('Customer/tenant label'), { target: { value: 'c' } });
     fireEvent.change(screen.getByLabelText('Project label'), { target: { value: 'p' } });

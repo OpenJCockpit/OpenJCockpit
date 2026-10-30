@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { chooseOption } from '@openjcockpit/ui/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProjectSettings } from './ProjectSettings';
 import * as api from '@openjcockpit/api';
@@ -285,8 +286,8 @@ describe('ProjectSettings — credentials', () => {
     });
     await clickAsync(within(row('Beta')).getByText('Add credentials'));
     await screen.findByText('Type');
-    fireEvent.change(screen.getByDisplayValue('None'), { target: { value: 'HTTPS_TOKEN' } });
-    expect(screen.getByDisplayValue('HTTPS Token')).toBeInTheDocument();
+    chooseOption(screen.getByRole('combobox', { name: /Type/ }), 'HTTPS Token');
+    expect(screen.getByRole('combobox', { name: /Type/ })).toHaveTextContent('HTTPS Token');
 
     await clickAsync(screen.getByText('Cancel'));
     expect(screen.queryByText('Git credentials')).not.toBeInTheDocument();

@@ -63,6 +63,11 @@ function renderWithI18nInstance(i18n: ReturnType<typeof createI18n>, loader: Loc
   );
 }
 
+function chooseLanguage(name: string) {
+  fireEvent.click(screen.getByRole('combobox', { name: 'Language' }));
+  fireEvent.click(screen.getByRole('option', { name }));
+}
+
 const path = () => screen.getByTestId('location').textContent;
 
 describe('SiteHeader', () => {
@@ -105,14 +110,17 @@ describe('SiteHeader', () => {
 
   it('hides the project picker when there are no projects', () => {
     setup();
-    expect(screen.queryByTitle('Active project')).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox', { name: 'Active project' })).not.toBeInTheDocument();
   });
 
   it('offers every supported language by its own name', () => {
     setup();
-    const select = screen.getByLabelText('Language');
-    expect(select).toHaveValue('en');
-    expect(within(select).getByRole('option', { name: 'Nederlands' })).toHaveValue('nl');
+    const select = screen.getByRole('combobox', { name: 'Language' });
+    expect(select).toHaveTextContent('English');
+    fireEvent.click(select);
+    expect(
+      within(screen.getByRole('listbox')).getByRole('option', { name: 'Nederlands' }),
+    ).toHaveAttribute('lang', 'nl');
   });
 
   it('switches the language, translating the header and remembering the choice', async () => {
@@ -120,9 +128,11 @@ describe('SiteHeader', () => {
     const i18n = createI18n({ resources: dashboardResources });
     const loader = vi.fn().mockResolvedValue({ nl });
     renderWithI18nInstance(i18n, loader);
-    fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'nl' } });
+    chooseLanguage('Nederlands');
     expect(await screen.findByRole('navigation', { name: 'Hoofdnavigatie' })).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByTestId('locale-select')).toHaveValue('nl'));
+    await waitFor(() =>
+      expect(screen.getByTestId('locale-select')).toHaveTextContent('Nederlands'),
+    );
     expect(document.documentElement.lang).toBe('nl');
     expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('nl');
   });
@@ -131,18 +141,19 @@ describe('SiteHeader', () => {
     const i18n = createI18n({ resources: dashboardResources });
     const loader = vi.fn().mockRejectedValue(new Error('offline'));
     renderWithI18nInstance(i18n, loader);
-    fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'nl' } });
+    chooseLanguage('Nederlands');
     await waitFor(() => expect(loader).toHaveBeenCalled());
-    expect(screen.getByLabelText('Language')).toHaveValue('en');
+    expect(screen.getByTestId('locale-select')).toHaveTextContent('English');
   });
 
   it('shows the selected project and reports changes', () => {
     const a = project('a', 'Alpha');
     const b = project('b', 'Beta');
     const { onProjectChange } = setup({ projects: [a, b], selectedProject: b });
-    const select = screen.getByTitle('Active project');
-    expect(select).toHaveValue('b');
-    fireEvent.change(select, { target: { value: 'a' } });
+    const select = screen.getByRole('combobox', { name: 'Active project' });
+    expect(select).toHaveTextContent('Beta');
+    fireEvent.click(select);
+    fireEvent.click(screen.getByRole('option', { name: 'Alpha' }));
     expect(onProjectChange).toHaveBeenCalledWith('a');
   });
 });

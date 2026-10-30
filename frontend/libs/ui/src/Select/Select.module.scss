@@ -1,0 +1,108 @@
+.select {
+  position: relative;
+  display: inline-block;
+  max-width: 200px;
+
+  &.block {
+    display: block;
+    max-width: none;
+  }
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--cyan);
+  background: rgba(39, 231, 255, 0.04);
+  border: 1px solid rgba(39, 231, 255, 0.28);
+  border-radius: 10px;
+  box-shadow: 0 0 8px var(--surface-glow);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s,
+    border-color 0.15s;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible,
+  &[aria-expanded='true'] {
+    background: var(--surface-glow);
+    border-color: var(--cyan-a55);
+    box-shadow: 0 0 16px var(--cyan-a30);
+    outline: none;
+  }
+}
+
+.value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.15s;
+
+  [aria-expanded='true'] > & {
+    margin-top: 3px;
+    transform: rotate(-135deg);
+  }
+}
+
+.list {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  min-width: 100%;
+  max-height: 260px;
+  margin: 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+  background: rgba(6, 18, 30, 0.96);
+  border: 1px solid var(--cyan-a35);
+  border-radius: 10px;
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.5),
+    0 0 16px var(--cyan-a12);
+  backdrop-filter: blur(16px);
+}
+
+.option {
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text);
+  white-space: nowrap;
+  border-radius: 7px;
+  cursor: pointer;
+
+  &.active {
+    background: var(--cyan-a12);
+  }
+
+  &[aria-selected='true'] {
+    color: var(--cyan);
+  }
+}
