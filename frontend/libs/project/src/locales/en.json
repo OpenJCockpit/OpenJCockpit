@@ -23,6 +23,7 @@
       "notReachableNotice": "Repository not reachable. Update the project via ⚙ Manage projects."
     },
     "settings": {
+      "eyebrow": "Settings",
       "loading": "Loading projects…",
       "back": "← Projects",
       "title": "Project management",

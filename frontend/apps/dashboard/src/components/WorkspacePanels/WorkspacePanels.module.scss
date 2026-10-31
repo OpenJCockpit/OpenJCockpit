@@ -18,7 +18,8 @@
 }
 .qualityRow {
   display: grid;
-  grid-template-columns: 34px 1fr 24px;
+  grid-template-columns: 34px minmax(0, 1fr) 24px;
+  overflow-wrap: anywhere;
   align-items: center;
   gap: 12px;
   padding: 11px 0;
@@ -64,7 +65,8 @@
 .evidenceEvent {
   position: relative;
   display: grid;
-  grid-template-columns: 60px 1fr 24px;
+  grid-template-columns: 60px minmax(0, 1fr) 24px;
+  overflow-wrap: anywhere;
   gap: 14px;
   align-items: center;
   min-height: 56px;

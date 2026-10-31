@@ -23,6 +23,7 @@
       "notReachableNotice": "Repositorio no accesible. Actualiza el proyecto en ⚙ Gestionar proyectos."
     },
     "settings": {
+      "eyebrow": "Ajustes",
       "loading": "Cargando proyectos…",
       "back": "← Proyectos",
       "title": "Gestión de proyectos",

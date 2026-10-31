@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {
   LOCALE_NAMES,
@@ -100,8 +100,21 @@ export function SiteHeader({
   // Absent in a standalone harness, where there is no host theme to change.
   const theme = useContext(HubThemeContext);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const settingsActive = pathname === ROUTES.settings;
   const [collapsed, setCollapsed] = useState(readCollapsed);
+  const navRef = useRef<HTMLElement>(null);
   const { navApps } = useAppRegistry();
+
+  // On a phone the nav is a scrolling strip: keep the current page's entry in view.
+  useEffect(() => {
+    const nav = navRef.current;
+    const current = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+    // Scroll the strip itself: scrollIntoView would also shift the page behind it.
+    if (nav && current) {
+      nav.scrollLeft = current.offsetLeft - (nav.clientWidth - current.offsetWidth) / 2;
+    }
+  }, [pathname, collapsed]);
 
   function toggleCollapsed() {
     storeCollapsed(!collapsed);
@@ -187,7 +200,7 @@ export function SiteHeader({
         </div>
       )}
 
-      <nav className={styles.mainNav} aria-label={t('siteHeader.primaryNavigation')}>
+      <nav ref={navRef} className={styles.mainNav} aria-label={t('siteHeader.primaryNavigation')}>
         {navItem(HOME_ITEM)}
         <p className={styles.group}>{t('siteHeader.groups.work')}</p>
         {navApps.map((app) => (
@@ -196,7 +209,8 @@ export function SiteHeader({
         <p className={styles.group}>{t('siteHeader.groups.account')}</p>
         <button
           type="button"
-          className={styles.item}
+          className={cx(styles.item, settingsActive && styles.active)}
+          aria-current={settingsActive ? 'page' : undefined}
           aria-label={settingsLabel}
           title={settingsLabel}
           onClick={() => void navigate(ROUTES.settings)}

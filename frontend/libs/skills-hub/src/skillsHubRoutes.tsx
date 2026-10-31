@@ -25,7 +25,9 @@ function DashboardPage() {
 
 function SettingsPage() {
   const navigate = useNavigate();
-  return <SkillsHubSettings onBack={() => void navigate(SKILLS_HUB_ROUTE)} />;
+  return (
+    <SkillsHubSettings onBack={() => void navigate(SKILLS_HUB_ROUTE)} header={useHubHeader()} />
+  );
 }
 
 /** Relative to the app route, which the host mounts as `/skills-hub/*`. */

@@ -1,8 +1,13 @@
+import type { ReactNode } from 'react';
 import {
   Button,
   AppShell,
   AppHeader,
+  Eyebrow,
+  cx,
   fieldErrorClass,
+  pageClass,
+  pageHeaderClass,
   StatusMessage,
   useConfirmDialog,
 } from '@openjcockpit/ui';
@@ -15,9 +20,11 @@ import { useProjectSettings } from './useProjectSettings';
 
 interface Props {
   onBack: () => void;
+  /** Replaces the default back-button header, e.g. with the app's shared sidebar. */
+  header?: ReactNode;
 }
 
-export function ProjectSettings({ onBack }: Props) {
+export function ProjectSettings({ onBack, header }: Props) {
   const { t } = useTranslation('project');
   const {
     projects,
@@ -54,11 +61,14 @@ export function ProjectSettings({ onBack }: Props) {
 
   return (
     <AppShell>
-      <AppHeader onBack={onBack} backLabel={t('settings.back')} />
+      {header ?? <AppHeader onBack={onBack} backLabel={t('settings.back')} />}
 
-      <main className={styles.page}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>{t('settings.title')}</h1>
+      <main className={pageClass}>
+        <div className={cx(pageHeaderClass, styles.header)}>
+          <div>
+            <Eyebrow>{t('settings.eyebrow')}</Eyebrow>
+            <h1>{t('settings.title')}</h1>
+          </div>
           <Button variant="primary" onClick={startCreate}>
             {t('settings.newProject')}
           </Button>

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   AppShell,
   AppHeader,
@@ -25,9 +26,11 @@ import { useSkillsHubSettings } from './useSkillsHubSettings';
 
 interface Props {
   onBack: () => void;
+  /** Replaces the default back-button header, e.g. with the app's shared sidebar. */
+  header?: ReactNode;
 }
 
-export function SkillsHubSettings({ onBack }: Props) {
+export function SkillsHubSettings({ onBack, header }: Props) {
   const { t } = useTranslation('skillsHub');
   const { formatDate } = useFormatters();
   const {
@@ -54,7 +57,7 @@ export function SkillsHubSettings({ onBack }: Props) {
 
   return (
     <AppShell>
-      <AppHeader onBack={onBack} backTitle={t('settings.backTitle')} />
+      {header ?? <AppHeader onBack={onBack} backTitle={t('settings.backTitle')} />}
 
       <main className={pageClass}>
         <div className={pageHeaderClass}>

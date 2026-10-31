@@ -23,6 +23,7 @@
       "notReachableNotice": "Repository niet bereikbaar. Pas het project aan via ⚙ Projecten beheren."
     },
     "settings": {
+      "eyebrow": "Instellingen",
       "loading": "Projecten laden…",
       "back": "← Projecten",
       "title": "Projectbeheer",

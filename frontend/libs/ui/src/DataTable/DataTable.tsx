@@ -25,7 +25,21 @@ export function DataTableRow({ inactive, className, ...rest }: DataTableRowProps
 
 type ActionsProps = HTMLAttributes<HTMLElement> & { as?: ElementType };
 
-/** Wrapping row of action buttons, usable as a `<td>` or a `<div>`. */
-export function Actions({ as: Tag = 'div', className, ...rest }: ActionsProps) {
-  return <Tag className={cx(styles.actions, className)} {...rest} />;
+/**
+ * Wrapping row of action buttons, usable as a `<td>` or a `<div>`. As a `<td>` the flex row goes
+ * on an inner `<div>`, because a flex `<td>` stops being a table cell and breaks row borders.
+ */
+export function Actions({ as: Tag = 'div', className, children, ...rest }: ActionsProps) {
+  if (Tag === 'td') {
+    return (
+      <td className={className} {...rest}>
+        <div className={styles.actions}>{children}</div>
+      </td>
+    );
+  }
+  return (
+    <Tag className={cx(styles.actions, className)} {...rest}>
+      {children}
+    </Tag>
+  );
 }

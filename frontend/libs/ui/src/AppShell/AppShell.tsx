@@ -35,7 +35,8 @@ export function AppHeader({ onBack, backLabel, backTitle, children }: AppHeaderP
         {children}
         {onBack && (
           <Button variant="secondary" onClick={onBack} title={backTitle}>
-            {backLabel ?? t('back')}
+            {/* The label names the destination; the generic one is the last resort. */}
+            {backLabel ?? (backTitle ? `← ${backTitle}` : t('back'))}
           </Button>
         )}
       </div>
