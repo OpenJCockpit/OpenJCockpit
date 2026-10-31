@@ -49,6 +49,43 @@ State lives in the dev server process. Edits survive page reloads and are lost w
 | Catalogs                      | Derived from the data above: local agents and skills from the definitions, one provider per A2A service, one sample external skill per enabled marketplace.         |
 | Runs                          | Starting a workflow creates a run that reads as `RUNNING` for 5 seconds and `COMPLETED` after that. It appears in the executions list and in `/api/agent-runs/:id`. |
 
+## Error and slow responses
+
+Fault rules make matching requests fail or answer slowly, so error and loading states can be checked in a browser. Rules live in the dev server process and are cleared on restart. They are managed with plain GET requests, so the browser address bar works:
+
+| URL                                         | Effect                                |
+| ------------------------------------------- | ------------------------------------- |
+| `http://localhost:4000/__mock/faults/add?…` | Adds a rule and lists all rules.      |
+| `http://localhost:4000/__mock/faults`       | Lists the rules.                      |
+| `http://localhost:4000/__mock/faults/clear` | Removes all rules.                    |
+
+Parameters of `add`:
+
+| Parameter | Meaning                                                                            |
+| --------- | ---------------------------------------------------------------------------------- |
+| `path`    | Required. Matches when the request path contains this text.                        |
+| `method`  | Optional. `GET`, `PUT` and so on. Default: any method.                             |
+| `status`  | Optional. Response status, for example `500`. Omit it to only delay.               |
+| `delay`   | Optional. Milliseconds to wait before answering.                                   |
+| `code`    | Optional. Error `code` in the body. Default `MOCK_FAULT`.                          |
+| `message` | Optional. Error `message` in the body.                                             |
+| `times`   | Optional. Remove the rule after this many matches. Default: keep until cleared.    |
+
+Examples:
+
+```
+# failed load: the workflow list returns 500
+/__mock/faults/add?path=/api/workflows&method=GET&status=500
+
+# failed save: the next project update returns 409 once
+/__mock/faults/add?path=/api/projects/&method=PUT&status=409&code=CONFLICT&message=Project%20changed&times=1
+
+# slow response: every call to the skills catalog takes 4 seconds
+/__mock/faults/add?path=/api/skills&delay=4000
+```
+
+The first matching rule wins. A request that matches no route still returns `MOCK_NOT_FOUND`, and a rule with `status` answers before the route runs, so the state is not changed.
+
 ## Not simulated
 
 - **Approval gate.** `GET /api/agent-runs/:id/approval-gate` returns 404 because no run waits for approval. Decision logs are always empty.

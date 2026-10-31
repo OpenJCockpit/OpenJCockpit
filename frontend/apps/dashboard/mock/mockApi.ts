@@ -1,5 +1,6 @@
 import type { IncomingMessage } from 'node:http';
 import type { Plugin } from 'vite';
+import { faultControl, faultFor } from './faults';
 import { routes, type Ctx } from './routes';
 import { MockError } from './store';
 
@@ -23,12 +24,20 @@ export function mockApi(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const { pathname, searchParams } = new URL(req.url ?? '/', 'http://localhost');
-        if (!pathname.startsWith('/api/')) return next();
+        const isControl = pathname.startsWith('/__mock/');
+        if (!isControl && !pathname.startsWith('/api/')) return next();
         res.setHeader('Content-Type', 'application/json');
         const send = (status: number, body: unknown) => {
           res.statusCode = status;
           res.end(JSON.stringify(body));
         };
+        if (isControl) {
+          const result = faultControl(pathname, searchParams);
+          return result === undefined ? next() : send(200, result);
+        }
+        const fault = faultFor(req.method, pathname);
+        if (fault?.delayMs) await new Promise((resolve) => setTimeout(resolve, fault.delayMs));
+        if (fault?.status) return send(fault.status, { message: fault.message, code: fault.code });
         for (const [method, pattern, handler] of routes) {
           const match = method === req.method ? pattern.exec(pathname) : null;
           if (!match) continue;
