@@ -38,9 +38,8 @@ import styles from './Home.module.scss';
 
 export function Home() {
   const { t } = useTranslation('dashboard');
-  const navigate = useNavigate();
   const session = useHubSession();
-  const { visibleWidgets, visibleQuickActions } = useAppRegistry();
+  const { visibleWidgets } = useAppRegistry();
   const header = useHubHeader();
   const userKey = session.user?.id ?? session.user?.username ?? 'anonymous';
 
@@ -99,22 +98,6 @@ export function Home() {
             </Button>
           </div>
         </div>
-
-        {visibleQuickActions.length > 0 && (
-          <nav className={styles.quickActions} aria-label={t('home.quickActions')}>
-            {visibleQuickActions.map((action) => (
-              <Button
-                key={action.id}
-                size="sm"
-                title={action.descriptionKey ? text(action.descriptionKey) : undefined}
-                onClick={() => void navigate(action.link)}
-                data-testid={`quick-action-${action.id}`}
-              >
-                {text(action.labelKey)}
-              </Button>
-            ))}
-          </nav>
-        )}
 
         {layout.length === 0 ? (
           <p className={styles.empty} data-testid="home-empty">

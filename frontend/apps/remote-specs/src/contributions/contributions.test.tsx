@@ -7,7 +7,6 @@ import {
   type RenderResult,
 } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { createMemoryRouter, RouterProvider } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as api from '@openjcockpit/api';
@@ -17,12 +16,10 @@ import { FakeHubProjectProvider } from '@openjcockpit/hub-contract/testing';
 import { specsApps } from '../specsApps';
 import { specsContributionsResources } from './i18n';
 import SpecFilesWidget from './SpecFilesWidget';
-import SpecQueueTopbar from './SpecQueueTopbar';
 import SpecQueueWidget from './SpecQueueWidget';
 import { useQueueAttention } from './useQueueAttention';
 import { useSpecFileBadge } from './useSpecFileCount';
 import { useWorkflowCount } from './useWorkflowCount';
-import WorkflowRunTopbar from './WorkflowRunTopbar';
 import WorkflowsWidget from './WorkflowsWidget';
 
 vi.mock('@openjcockpit/api', async (importOriginal) => {
@@ -65,18 +62,6 @@ async function renderIn(ui: ReactNode, selected: unknown = project): Promise<Ren
     result = render(ui, { wrapper: wrap(selected) });
   });
   return result;
-}
-
-async function renderRouted(ui: ReactNode, selected: unknown = project) {
-  const router = createMemoryRouter(
-    [
-      { path: '/', element: ui },
-      { path: '/spec-queue', element: <p>queue page</p> },
-      { path: '/workflow/:workflowId/runs/:runId', element: <p>run page</p> },
-    ],
-    { initialEntries: ['/'] },
-  );
-  await renderIn(<RouterProvider router={router} />, selected);
 }
 
 beforeEach(() => {
@@ -145,34 +130,6 @@ describe('spec queue widget', () => {
   });
 });
 
-describe('spec queue top bar item', () => {
-  it('is hidden while the queue is active', async () => {
-    vi.mocked(api.getSpecQueue).mockResolvedValue(queue([], 'ACTIVE'));
-    await renderRouted(<SpecQueueTopbar />);
-    await waitFor(() => expect(api.getSpecQueue).toHaveBeenCalled());
-    expect(screen.queryByTestId('spec-queue-topbar')).toBeNull();
-  });
-
-  it('is hidden without a project', async () => {
-    await renderRouted(<SpecQueueTopbar />, null);
-    expect(screen.queryByTestId('spec-queue-topbar')).toBeNull();
-  });
-
-  it('shows a paused queue and opens the queue page', async () => {
-    vi.mocked(api.getSpecQueue).mockResolvedValue(queue([], 'PAUSED'));
-    await renderRouted(<SpecQueueTopbar />);
-    const button = await screen.findByText('Queue paused');
-    await act(async () => button.click());
-    expect(screen.getByText('queue page')).toBeInTheDocument();
-  });
-
-  it('shows a halted queue', async () => {
-    vi.mocked(api.getSpecQueue).mockResolvedValue(queue([], 'HALTED'));
-    await renderRouted(<SpecQueueTopbar />);
-    expect(await screen.findByText('Queue halted')).toBeInTheDocument();
-  });
-});
-
 describe('workflow badge', () => {
   it('counts the workflows', async () => {
     vi.mocked(api.listWorkflows).mockResolvedValue([workflow('a'), workflow('b')]);
@@ -217,31 +174,6 @@ describe('workflows widget', () => {
     vi.mocked(api.listWorkflows).mockReturnValue(new Promise(() => undefined));
     await renderIn(<WorkflowsWidget />);
     expect(screen.queryByTestId('workflows-widget')).toBeNull();
-  });
-});
-
-describe('workflow run top bar item', () => {
-  it('links to the run the queue is executing', async () => {
-    vi.mocked(api.getSpecQueue).mockResolvedValue(
-      queue([item('RUNNING', { workflowRunId: 'r/2' })]),
-    );
-    await renderRouted(<WorkflowRunTopbar />);
-    await act(async () => (await screen.findByText('Run in progress')).click());
-    expect(screen.getByText('run page')).toBeInTheDocument();
-  });
-
-  it('is hidden when no run has started', async () => {
-    vi.mocked(api.getSpecQueue).mockResolvedValue(
-      queue([item('RUNNING'), item('QUEUED', { workflowRunId: 'r1' })]),
-    );
-    await renderRouted(<WorkflowRunTopbar />);
-    await waitFor(() => expect(api.getSpecQueue).toHaveBeenCalled());
-    expect(screen.queryByTestId('workflow-run-topbar')).toBeNull();
-  });
-
-  it('is hidden without a project', async () => {
-    await renderRouted(<WorkflowRunTopbar />, null);
-    expect(screen.queryByTestId('workflow-run-topbar')).toBeNull();
   });
 });
 
@@ -293,15 +225,12 @@ describe('app definitions', () => {
     expect(app('spec-files').useBadge).toBe(useSpecFileBadge);
     expect(app('spec-queue').useBadge).toBe(useQueueAttention);
     expect((await app('workflow').widgets![0]!.component()).default).toBe(WorkflowsWidget);
-    expect((await app('workflow').topbar![0]!.component()).default).toBe(WorkflowRunTopbar);
     expect((await app('spec-files').widgets![0]!.component()).default).toBe(SpecFilesWidget);
     expect((await app('spec-queue').widgets![0]!.component()).default).toBe(SpecQueueWidget);
-    expect((await app('spec-queue').topbar![0]!.component()).default).toBe(SpecQueueTopbar);
   });
 
-  it('links each quick action and widget to its own app route', () => {
+  it('links each widget to its own app route', () => {
     for (const definition of specsApps) {
-      expect(definition.quickActions?.[0]?.link).toBe(definition.route);
       expect(definition.widgets?.[0]?.link).toBe(definition.route);
       expect(definition.widgets?.[0]?.sourceAppId).toBe(definition.id);
     }

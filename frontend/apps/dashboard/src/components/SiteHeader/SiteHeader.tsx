@@ -19,7 +19,6 @@ import {
   type AppDefinition,
 } from '@openjcockpit/hub-contract';
 import { SidebarIcon, toSidebarIconName, type SidebarIconName } from './SidebarIcon';
-import { RemoteSlot } from '../../federation/RemoteSlot';
 import { ROUTES } from '../../routes';
 import { FEATURE_FLAGS, isFeatureEnabled } from '../../featureFlags';
 
@@ -102,7 +101,7 @@ export function SiteHeader({
   const theme = useContext(HubThemeContext);
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(readCollapsed);
-  const { navApps, visibleTopbar } = useAppRegistry();
+  const { navApps } = useAppRegistry();
 
   function toggleCollapsed() {
     storeCollapsed(!collapsed);
@@ -221,13 +220,6 @@ export function SiteHeader({
       </nav>
 
       <div className={styles.footer}>
-        {visibleTopbar.length > 0 && (
-          <div className={styles.topbar}>
-            {visibleTopbar.map((item) => (
-              <RemoteSlot key={item.id} item={item} />
-            ))}
-          </div>
-        )}
         <button
           type="button"
           className={styles.item}

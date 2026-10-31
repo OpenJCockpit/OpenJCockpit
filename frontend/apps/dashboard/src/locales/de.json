@@ -11,7 +11,6 @@
       "customise": "Anpassen",
       "done": "Fertig",
       "reset": "Auf Standard zurücksetzen",
-      "quickActions": "Schnellaktionen",
       "empty": "Noch keine Widgets auf deiner Startseite. Wähle Anpassen, um welche hinzuzufügen.",
       "available": "Verfügbare Widgets",
       "noneAvailable": "Alle verfügbaren Widgets sind bereits auf deiner Startseite.",
@@ -149,21 +148,16 @@
     "apps": {
       "hello": {
         "label": "Hallo",
-        "widgetTitle": "Hallo",
-        "openAction": "Hallo sagen",
-        "adminAction": "Admin-Hallo"
+        "widgetTitle": "Hallo"
       },
       "specQueue": {
-        "widgetTitle": "Spec-Warteschlange",
-        "openAction": "Spec-Warteschlange öffnen"
+        "widgetTitle": "Spec-Warteschlange"
       },
       "workflow": {
-        "widgetTitle": "Letzte Workflows",
-        "openAction": "Workflows öffnen"
+        "widgetTitle": "Letzte Workflows"
       },
       "specFiles": {
-        "widgetTitle": "Spec-Dateien",
-        "openAction": "Spec-Dateien öffnen"
+        "widgetTitle": "Spec-Dateien"
       }
     }
   }

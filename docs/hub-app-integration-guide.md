@@ -12,9 +12,27 @@ unavailable" notice. No host code changes to add an app.
 3. Add the lib alias to `tsconfig.base.json` and the remote to the `start:hub` / `build:hub` scripts.
 4. Add `"<name>": "<origin>/mf-manifest.json"` to the host manifest.
 
+### A remote with several apps
+
+A remote may export `apps` (an `AppDefinition[]`) instead of `app`; the host accepts either and every entry must pass `isAppDefinition`. `remote-specs` does this: `src/app-entry.ts` re-exports `specsApps as apps`, and `src/specsApps.ts` defines workflow, spec-files and spec-queue, each with its own `route`, `order` and `loadRoutes`. Use it when several apps share one bundle; otherwise use one remote per app.
+
+## Shell contexts
+
+The host provides these; a remote reads them through hooks from `@openjcockpit/hub-contract` and never takes them as props (the host only mounts the remote's routes):
+
+| Hook                                       | Gives                                                                                                         |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `useHubSession()`                          | User, permissions (realm roles).                                                                              |
+| `useHubProject()` / `useSelectedProject()` | Projects, the selected one, `select(id)`. Wrap pages that need one in `<RequireProject>`, which sends the user to `/projects` and back. |
+| `useHubHeader()`                           | The host's header element to render in the remote's layout; undefined in a standalone harness. Link back with `DASHBOARD_PATH`. |
+| `useHubTheme()`                            | `preference`, `resolved`, `setPreference`; the host sets `data-theme` on `<html>`. Style with tokens, not hard-coded colours. |
+| `useAppRegistry()` / `useBadgeFor(id)`     | Host side: the loaded apps and their badge counts.                                                            |
+
+HTTP goes through the shared `@openjcockpit/api` singleton (host token, 401 refresh, error translation); the contract has no separate client. `api`, i18n, react-query and `@openjcockpit/ui` are shared singletons, so a remote registers its strings on the host's i18n instance.
+
 ## Rules
 
-- `shared` comes from `frontend/module-federation.shared.ts` (react, react-dom, react-router, `@openjcockpit/hub-contract`). A private copy of any of them breaks hooks or the session context.
+- `shared` comes from `frontend/module-federation.shared.ts` (react, react-dom, react-router, react-query, i18next, react-i18next, `@openjcockpit/api`, `@openjcockpit/i18n`, `@openjcockpit/ui`, `@openjcockpit/hub-contract`). A private copy of any of them breaks hooks or the session context.
 - Remotes read the session with `useHubSession()` and never import `keycloak-js` or `@openjcockpit/auth` (lint rule).
 - Gate pages with `<RequirePermission any={[...]}>`; permissions are Keycloak realm roles.
 - The contract is additive only. Bump `HUB_CONTRACT_VERSION` only when a host must understand the change; the host rejects a remote with a higher version.
@@ -42,4 +60,4 @@ Governance gates in CI (`frontend-ci.yml`): `frontend/scripts/check-remotes.mjs`
 
 ## Not done yet
 
-Bearer HTTP client, i18n namespaces and theme in the contract; nav rail entries, badges, widgets, quick actions and top bar items from the registry; Home grid.
+No app yet declares `widgets` or `useBadge`, so those registry paths have no real consumer. The signed-in browser run and the proof that api, i18n and react-query are single runtime copies are still open. See `docs/hub-remaining-work.md`.

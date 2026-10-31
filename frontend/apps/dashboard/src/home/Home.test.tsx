@@ -34,16 +34,6 @@ const demo: AppDefinition = {
     widget('admin-only', { requiredPermissions: ['admin'] }),
     widget('opt-in', { defaultFor: ['nobody'], descriptionKey: 'About opt-in' }),
   ],
-  quickActions: [
-    {
-      id: 'go',
-      labelKey: 'Go somewhere',
-      descriptionKey: 'Takes you somewhere',
-      requiredPermissions: [],
-      link: '/somewhere',
-    },
-    { id: 'plain', labelKey: 'Plain action', requiredPermissions: [], link: '/plain' },
-  ],
 };
 
 function Where() {
@@ -87,12 +77,6 @@ describe('Home', () => {
   it('shows permission-gated widgets only to those who hold the permission', async () => {
     await renderHome(['admin']);
     expect(order()).toContain('widget-admin-only');
-  });
-
-  it('runs quick actions and opens a widget page', async () => {
-    await renderHome();
-    await clickAsync(screen.getByTestId('quick-action-go'));
-    expect(screen.getByTestId('where')).toHaveTextContent('/somewhere');
   });
 
   it('opens the widget page from the card', async () => {
@@ -169,10 +153,8 @@ describe('Home', () => {
     expect(localStorage.getItem('openjcockpit.homeLayout.anonymous')).not.toBeNull();
   });
 
-  it('describes quick actions and addable widgets', async () => {
+  it('describes addable widgets', async () => {
     await renderHome();
-    expect(screen.getByTestId('quick-action-go')).toHaveAttribute('title', 'Takes you somewhere');
-    expect(screen.getByTestId('quick-action-plain')).not.toHaveAttribute('title');
     await clickAsync(screen.getByTestId('home-customise'));
     expect(screen.getByText('About opt-in')).toBeInTheDocument();
   });

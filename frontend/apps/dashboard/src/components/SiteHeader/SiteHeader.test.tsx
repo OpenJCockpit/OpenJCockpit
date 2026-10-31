@@ -1,11 +1,4 @@
-import {
-  act,
-  fireEvent,
-  render as rtlRender,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
+import { fireEvent, render as rtlRender, screen, waitFor, within } from '@testing-library/react';
 import {
   createI18n,
   I18nProvider,
@@ -291,27 +284,6 @@ describe('SiteHeader', () => {
     });
     expect(screen.queryByTestId('nav-app-pulse')).not.toBeInTheDocument();
     expect(screen.getByTestId('nav-app-other')).toBeInTheDocument();
-  });
-
-  it('shows a top bar item from a remote and leaves the slot empty when it fails', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    const topbar = [
-      {
-        id: 'ok',
-        requiredPermissions: [],
-        component: () => Promise.resolve({ default: () => <span>chip</span> }),
-      },
-      {
-        id: 'broken',
-        requiredPermissions: [],
-        component: () => Promise.reject(new Error('down')),
-      },
-    ];
-    // The slots suspend on `use()`, so the first render has to settle inside act.
-    await act(async () => {
-      setup({ apps: [remoteApp({ topbar })] });
-    });
-    expect(screen.getByText('chip')).toBeInTheDocument();
   });
 
   it('titles a remote nav item with its label when the sidebar is collapsed', () => {

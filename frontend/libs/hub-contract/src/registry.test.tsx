@@ -55,17 +55,19 @@ describe('AppRegistryProvider', () => {
     const apps = [
       app('hidden', {
         requiredPermissions: ['nope'],
-        topbar: [{ id: 'h-top', requiredPermissions: [], component: lazy }],
+        widgets: [
+          {
+            id: 'w-hidden',
+            titleKey: 'w',
+            sourceAppId: 'hidden',
+            requiredPermissions: [],
+            component: lazy,
+            defaultFor: [],
+            link: '/hidden',
+          },
+        ],
       }),
       app('shown', {
-        topbar: [
-          { id: 't-ok', requiredPermissions: [], component: lazy },
-          { id: 't-no', requiredPermissions: ['nope'], component: lazy },
-        ],
-        quickActions: [
-          { id: 'q-ok', labelKey: 'q', requiredPermissions: [], link: '/shown' },
-          { id: 'q-no', labelKey: 'q', requiredPermissions: ['nope'], link: '/shown' },
-        ],
         widgets: [
           {
             id: 'w-ok',
@@ -88,16 +90,8 @@ describe('AppRegistryProvider', () => {
         ],
       }),
     ];
-    renderRegistry(
-      apps,
-      [],
-      <Probe
-        pick={(r) =>
-          [ids(r.visibleTopbar), ids(r.visibleQuickActions), ids(r.visibleWidgets)].join('|')
-        }
-      />,
-    );
-    expect(screen.getByTestId('out')).toHaveTextContent('t-ok|q-ok|w-ok');
+    renderRegistry(apps, [], <Probe pick={(r) => ids(r.visibleWidgets)} />);
+    expect(screen.getByTestId('out')).toHaveTextContent(/^w-ok$/);
   });
 
   it('publishes badges from useBadge and re-renders on change', () => {

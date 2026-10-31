@@ -28,21 +28,6 @@ export interface WidgetDefinition {
   available?: boolean;
 }
 
-export interface QuickActionDefinition {
-  id: string;
-  labelKey: string;
-  descriptionKey?: string;
-  icon?: string;
-  requiredPermissions: readonly string[];
-  link: `/${string}`;
-}
-
-export interface TopbarDefinition {
-  id: string;
-  requiredPermissions: readonly string[];
-  component: LazyComponent;
-}
-
 export interface AppDefinition {
   id: string;
   labelKey: string;
@@ -57,8 +42,6 @@ export interface AppDefinition {
   /** Routes relative to `route`. */
   loadRoutes: () => Promise<RouteObject[]>;
   widgets?: WidgetDefinition[];
-  quickActions?: QuickActionDefinition[];
-  topbar?: TopbarDefinition[];
 }
 
 /** Structural check for what a remote exposes: a remote may export anything. */

@@ -1,13 +1,10 @@
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
-import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import * as api from '@openjcockpit/api';
 import { createI18n, I18nProvider } from '@openjcockpit/i18n';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { skillsHubResources } from '../i18n';
-import { clickAsync } from '../testUtils';
 import { skillsHubApp } from '../skillsHubApp';
-import SkillsHubTopbar from './SkillsHubTopbar';
 import SkillsHubWidget from './SkillsHubWidget';
 import { useConnectedMarketplaces } from './useConnectedMarketplaces';
 
@@ -59,25 +56,8 @@ describe('skills hub contributions', () => {
     expect(screen.queryByTestId('skills-hub-widget')).toBeNull();
   });
 
-  it('opens the settings page from the top bar item', async () => {
-    const router = createMemoryRouter(
-      [
-        { path: '/', element: <SkillsHubTopbar /> },
-        { path: '/skills-hub/settings', element: <p>settings page</p> },
-      ],
-      { initialEntries: ['/'] },
-    );
-    await act(async () => {
-      render(<RouterProvider router={router} />, { wrapper });
-    });
-    await clickAsync(screen.getByTestId('skills-hub-topbar'));
-    expect(screen.getByText('settings page')).toBeInTheDocument();
-  });
-
   it('declares each contribution on the app definition', async () => {
     expect(skillsHubApp.useBadge).toBe(useConnectedMarketplaces);
-    expect(skillsHubApp.quickActions?.[0]?.link).toBe('/skills-hub');
     expect((await skillsHubApp.widgets?.[0]?.component())?.default).toBe(SkillsHubWidget);
-    expect((await skillsHubApp.topbar?.[0]?.component())?.default).toBe(SkillsHubTopbar);
   });
 });

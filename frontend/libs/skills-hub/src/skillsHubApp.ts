@@ -22,19 +22,4 @@ export const skillsHubApp: AppDefinition = {
       component: () => import('./contributions/SkillsHubWidget'),
     },
   ],
-  quickActions: [
-    {
-      id: 'skills-hub-open',
-      labelKey: 'siteHeader.nav.skillsHub',
-      requiredPermissions: [],
-      link: SKILLS_HUB_ROUTE,
-    },
-  ],
-  topbar: [
-    {
-      id: 'skills-hub-topbar',
-      requiredPermissions: [],
-      component: () => import('./contributions/SkillsHubTopbar'),
-    },
-  ],
 };

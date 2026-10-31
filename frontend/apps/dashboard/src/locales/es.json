@@ -11,7 +11,6 @@
       "customise": "Personalizar",
       "done": "Hecho",
       "reset": "Restablecer",
-      "quickActions": "Acciones rápidas",
       "empty": "Aún no hay widgets en tu Inicio. Elige Personalizar para añadir algunos.",
       "available": "Widgets disponibles",
       "noneAvailable": "Todos los widgets disponibles ya están en tu Inicio.",
@@ -149,21 +148,16 @@
     "apps": {
       "hello": {
         "label": "Hola",
-        "widgetTitle": "Hola",
-        "openAction": "Saludar",
-        "adminAction": "Hola admin"
+        "widgetTitle": "Hola"
       },
       "specQueue": {
-        "widgetTitle": "Cola de specs",
-        "openAction": "Abrir cola de specs"
+        "widgetTitle": "Cola de specs"
       },
       "workflow": {
-        "widgetTitle": "Flujos recientes",
-        "openAction": "Abrir flujos de trabajo"
+        "widgetTitle": "Flujos recientes"
       },
       "specFiles": {
-        "widgetTitle": "Archivos de spec",
-        "openAction": "Abrir archivos de spec"
+        "widgetTitle": "Archivos de spec"
       }
     }
   }

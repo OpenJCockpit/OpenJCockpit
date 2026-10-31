@@ -1,11 +1,5 @@
 export { HUB_CONTRACT_VERSION, isAppDefinition } from './appDefinition';
-export type {
-  AppDefinition,
-  LazyComponent,
-  QuickActionDefinition,
-  TopbarDefinition,
-  WidgetDefinition,
-} from './appDefinition';
+export type { AppDefinition, LazyComponent, WidgetDefinition } from './appDefinition';
 export { HubSessionContext, isAllowed, useHubSession } from './session';
 export type { HubSession, HubUser } from './session';
 export { AppRegistryProvider, useAppRegistry, useBadgeFor } from './registry';

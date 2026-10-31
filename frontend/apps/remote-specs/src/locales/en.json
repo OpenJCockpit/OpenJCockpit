@@ -4,13 +4,10 @@
     "queue": {
       "queued": "Queued: {{count}}",
       "running": "Running: {{count}}",
-      "attention": "Needs attention: {{count}}",
-      "paused": "Queue paused",
-      "halted": "Queue halted"
+      "attention": "Needs attention: {{count}}"
     },
     "workflows": {
-      "empty": "No workflows yet.",
-      "runInProgress": "Run in progress"
+      "empty": "No workflows yet."
     },
     "specFiles": {
       "count": "Spec files: {{count}}"

@@ -3,8 +3,7 @@
     "eyebrow": "Skills-Hub",
     "contributions": {
       "widgetSummary": "Verbundene Marktplätze: {{count}}",
-      "widgetEmpty": "Noch kein Marktplatz verbunden.",
-      "topbar": "Marktplätze"
+      "widgetEmpty": "Noch kein Marktplatz verbunden."
     },
     "dashboard": {
       "backTitle": "Zurück zum Dashboard",

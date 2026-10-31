@@ -4,13 +4,10 @@
     "queue": {
       "queued": "In de wachtrij: {{count}}",
       "running": "Actief: {{count}}",
-      "attention": "Vraagt aandacht: {{count}}",
-      "paused": "Wachtrij gepauzeerd",
-      "halted": "Wachtrij gestopt"
+      "attention": "Vraagt aandacht: {{count}}"
     },
     "workflows": {
-      "empty": "Nog geen workflows.",
-      "runInProgress": "Run bezig"
+      "empty": "Nog geen workflows."
     },
     "specFiles": {
       "count": "Specbestanden: {{count}}"

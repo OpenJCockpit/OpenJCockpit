@@ -11,7 +11,6 @@
       "customise": "Customise",
       "done": "Done",
       "reset": "Reset to default",
-      "quickActions": "Quick actions",
       "empty": "No widgets on your Home yet. Choose Customise to add some.",
       "available": "Available widgets",
       "noneAvailable": "Every available widget is already on your Home.",
@@ -149,21 +148,16 @@
     "apps": {
       "hello": {
         "label": "Hello",
-        "widgetTitle": "Hello",
-        "openAction": "Say hello",
-        "adminAction": "Admin hello"
+        "widgetTitle": "Hello"
       },
       "specQueue": {
-        "widgetTitle": "Spec queue",
-        "openAction": "Open spec queue"
+        "widgetTitle": "Spec queue"
       },
       "workflow": {
-        "widgetTitle": "Recent workflows",
-        "openAction": "Open workflows"
+        "widgetTitle": "Recent workflows"
       },
       "specFiles": {
-        "widgetTitle": "Spec files",
-        "openAction": "Open spec files"
+        "widgetTitle": "Spec files"
       }
     }
   }

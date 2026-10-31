@@ -26,21 +26,6 @@ export const specsApps: AppDefinition[] = [
         component: () => import('./contributions/WorkflowsWidget'),
       },
     ],
-    quickActions: [
-      {
-        id: 'workflow-open',
-        labelKey: 'apps.workflow.openAction',
-        requiredPermissions: [],
-        link: WORKFLOW_ROUTE,
-      },
-    ],
-    topbar: [
-      {
-        id: 'workflow-run-topbar',
-        requiredPermissions: [],
-        component: () => import('./contributions/WorkflowRunTopbar'),
-      },
-    ],
   },
   {
     id: 'spec-files',
@@ -62,14 +47,6 @@ export const specsApps: AppDefinition[] = [
         component: () => import('./contributions/SpecFilesWidget'),
       },
     ],
-    quickActions: [
-      {
-        id: 'spec-files-open',
-        labelKey: 'apps.specFiles.openAction',
-        requiredPermissions: [],
-        link: SPEC_FILES_ROUTE,
-      },
-    ],
   },
   {
     id: 'spec-queue',
@@ -89,21 +66,6 @@ export const specsApps: AppDefinition[] = [
         defaultFor: [],
         link: SPEC_QUEUE_ROUTE,
         component: () => import('./contributions/SpecQueueWidget'),
-      },
-    ],
-    quickActions: [
-      {
-        id: 'spec-queue-open',
-        labelKey: 'apps.specQueue.openAction',
-        requiredPermissions: [],
-        link: SPEC_QUEUE_ROUTE,
-      },
-    ],
-    topbar: [
-      {
-        id: 'spec-queue-topbar',
-        requiredPermissions: [],
-        component: () => import('./contributions/SpecQueueTopbar'),
       },
     ],
   },

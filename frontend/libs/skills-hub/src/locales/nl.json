@@ -3,8 +3,7 @@
     "eyebrow": "Skills Hub",
     "contributions": {
       "widgetSummary": "Verbonden marketplaces: {{count}}",
-      "widgetEmpty": "Nog geen marketplace verbonden.",
-      "topbar": "Marketplaces"
+      "widgetEmpty": "Nog geen marketplace verbonden."
     },
     "dashboard": {
       "backTitle": "Terug naar dashboard",

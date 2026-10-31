@@ -11,7 +11,6 @@
       "customise": "Aanpassen",
       "done": "Klaar",
       "reset": "Standaard herstellen",
-      "quickActions": "Snelle acties",
       "empty": "Nog geen widgets op je Home. Kies Aanpassen om er toe te voegen.",
       "available": "Beschikbare widgets",
       "noneAvailable": "Alle beschikbare widgets staan al op je Home.",
@@ -149,21 +148,16 @@
     "apps": {
       "hello": {
         "label": "Hallo",
-        "widgetTitle": "Hallo",
-        "openAction": "Hallo zeggen",
-        "adminAction": "Admin-hallo"
+        "widgetTitle": "Hallo"
       },
       "specQueue": {
-        "widgetTitle": "Spec-wachtrij",
-        "openAction": "Spec-wachtrij openen"
+        "widgetTitle": "Spec-wachtrij"
       },
       "workflow": {
-        "widgetTitle": "Recente workflows",
-        "openAction": "Workflows openen"
+        "widgetTitle": "Recente workflows"
       },
       "specFiles": {
-        "widgetTitle": "Specbestanden",
-        "openAction": "Specbestanden openen"
+        "widgetTitle": "Specbestanden"
       }
     }
   }

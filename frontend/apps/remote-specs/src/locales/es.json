@@ -4,13 +4,10 @@
     "queue": {
       "queued": "En cola: {{count}}",
       "running": "En ejecución: {{count}}",
-      "attention": "Requiere atención: {{count}}",
-      "paused": "Cola en pausa",
-      "halted": "Cola detenida"
+      "attention": "Requiere atención: {{count}}"
     },
     "workflows": {
-      "empty": "Aún no hay flujos de trabajo.",
-      "runInProgress": "Ejecución en curso"
+      "empty": "Aún no hay flujos de trabajo."
     },
     "specFiles": {
       "count": "Archivos de especificación: {{count}}"

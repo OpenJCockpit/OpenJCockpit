@@ -7,12 +7,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from 'react';
-import type {
-  AppDefinition,
-  QuickActionDefinition,
-  TopbarDefinition,
-  WidgetDefinition,
-} from './appDefinition';
+import type { AppDefinition, WidgetDefinition } from './appDefinition';
 import { isAllowed, useHubSession } from './session';
 
 export interface AppRegistry {
@@ -21,8 +16,6 @@ export interface AppRegistry {
   visibleApps: readonly AppDefinition[];
   /** Visible apps shown in the nav rail. */
   navApps: readonly AppDefinition[];
-  visibleTopbar: readonly TopbarDefinition[];
-  visibleQuickActions: readonly QuickActionDefinition[];
   visibleWidgets: readonly WidgetDefinition[];
   /** Snapshot read; components should use `useBadgeFor` so they re-render on change. */
   badgeFor(appId: string): number | null;
@@ -92,8 +85,6 @@ export function AppRegistryProvider({
       allApps,
       visibleApps,
       navApps: visibleApps.filter((app) => app.showInNav !== false),
-      visibleTopbar: visibleApps.flatMap((app) => app.topbar ?? []).filter(permitted),
-      visibleQuickActions: visibleApps.flatMap((app) => app.quickActions ?? []).filter(permitted),
       visibleWidgets: visibleApps.flatMap((app) => app.widgets ?? []).filter(permitted),
       badgeFor: store.get,
       subscribeBadges: store.subscribe,
