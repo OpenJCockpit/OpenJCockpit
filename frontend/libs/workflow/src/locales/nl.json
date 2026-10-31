@@ -419,6 +419,7 @@
       "startAgain": "Opnieuw starten"
     },
     "workflowExecution": {
+      "emptyTitle": "Geen workflow actief",
       "empty": "Start een workflow vanaf het tabblad Overzicht om hem hier te zien draaien.",
       "stopping": "⟳ Stoppen…",
       "stop": "◼ Stoppen",

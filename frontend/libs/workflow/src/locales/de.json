@@ -419,6 +419,7 @@
       "startAgain": "Erneut starten"
     },
     "workflowExecution": {
+      "emptyTitle": "Kein Workflow aktiv",
       "empty": "Starten Sie einen Workflow im Tab Übersicht, um ihn hier laufen zu sehen.",
       "stopping": "⟳ Wird gestoppt…",
       "stop": "◼ Stoppen",

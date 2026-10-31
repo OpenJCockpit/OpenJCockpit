@@ -158,6 +158,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                       spec.id === selectedId && specStyles.selected,
                     )}
                     key={spec.id}
+                    aria-pressed={spec.id === selectedId}
                     onClick={() => handleSelect(project.id, spec)}
                   >
                     <IconBox label="📄" compact className={specStyles.icon} />

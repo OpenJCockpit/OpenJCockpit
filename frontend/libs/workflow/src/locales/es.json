@@ -419,6 +419,7 @@
       "startAgain": "Iniciar de nuevo"
     },
     "workflowExecution": {
+      "emptyTitle": "Ningún workflow en ejecución",
       "empty": "Inicia un workflow desde la pestaña Resumen para verlo en ejecución aquí.",
       "stopping": "⟳ Deteniendo…",
       "stop": "◼ Detener",

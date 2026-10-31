@@ -24,7 +24,7 @@ import { SiteHeader } from './SiteHeader';
 import type { SiteSection } from './SiteHeader';
 
 function project(id: string, name: string): Project {
-  return { id, name } as Project;
+  return { id, name, active: 1, gitStatus: 'ACCESSIBLE' } as Project;
 }
 
 function Registry({ apps = [], children }: { apps?: AppDefinition[]; children: ReactNode }) {
@@ -261,6 +261,19 @@ describe('SiteHeader', () => {
     expect(onProjectChange).toHaveBeenCalledWith('a');
   });
 
+  it('leaves projects that cannot be selected out of the project list', () => {
+    const a = project('a', 'Alpha');
+    const off = { ...project('off', 'Offline'), active: 0 };
+    setup({ projects: [a, off], selectedProject: a });
+    fireEvent.click(screen.getByRole('combobox', { name: 'Active project' }));
+    expect(screen.queryByRole('option', { name: 'Offline' })).not.toBeInTheDocument();
+  });
+
+  it('explains what a nav badge counts', () => {
+    setup({ apps: [remoteApp({ useBadge: () => 2, badgeLabelKey: 'home.eyebrow' })] });
+    expect(screen.getByText('2')).toHaveAttribute('title', 'Home');
+  });
+
   it('lists remote apps in the nav with their badge, and opens them', () => {
     const app = remoteApp({ useBadge: () => 4 });
     setup({ apps: [app] });
@@ -286,9 +299,9 @@ describe('SiteHeader', () => {
     expect(screen.getByTestId('nav-app-other')).toBeInTheDocument();
   });
 
-  it('titles a remote nav item with its label when the sidebar is collapsed', () => {
+  it('titles a remote nav item with its label so a truncated label stays readable', () => {
     setup({ apps: [remoteApp()] });
-    expect(screen.getByTestId('nav-app-pulse')).not.toHaveAttribute('title');
+    expect(screen.getByTestId('nav-app-pulse')).toHaveAttribute('title', 'Home');
     fireEvent.click(screen.getByTestId('nav-collapse'));
     expect(screen.getByTestId('nav-app-pulse')).toHaveAttribute('title', 'Home');
   });

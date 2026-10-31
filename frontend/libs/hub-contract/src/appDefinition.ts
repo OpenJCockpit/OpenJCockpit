@@ -39,6 +39,8 @@ export interface AppDefinition {
   showInNav?: boolean;
   /** A hook, called by the host in a stable position; returns the count or null. */
   useBadge?: () => number | null;
+  /** Translated tooltip saying what the badge counts, when the page does not make that obvious. */
+  badgeLabelKey?: string;
   /** Routes relative to `route`. */
   loadRoutes: () => Promise<RouteObject[]>;
   widgets?: WidgetDefinition[];

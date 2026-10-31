@@ -59,7 +59,7 @@ describe('SkillsHubSettings — flows', () => {
 
   it('goes back via the header', async () => {
     const { onBack } = await open([]);
-    fireEvent.click(screen.getByRole('button', { name: '← Back' }));
+    fireEvent.click(screen.getByRole('button', { name: '← Back to Skills Hub' }));
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 

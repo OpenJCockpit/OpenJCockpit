@@ -9,6 +9,7 @@ import {
 } from '@openjcockpit/i18n';
 import type { Project } from '@openjcockpit/api';
 import styles from './SiteHeader.module.scss';
+import { canSelectProject } from '@openjcockpit/project';
 import { BrandLogo, Select, cx } from '@openjcockpit/ui';
 import {
   HubThemeContext,
@@ -51,13 +52,14 @@ function storeCollapsed(collapsed: boolean) {
 }
 
 /** A nav entry for an app a remote contributed; the badge re-renders only this entry. */
-function RemoteNavItem({ app, collapsed }: { app: AppDefinition; collapsed: boolean }) {
+function RemoteNavItem({ app }: { app: AppDefinition }) {
   const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const badge = useBadgeFor(app.id);
   // Remote label keys are not in the host's typed catalog.
   const label = String(t(app.labelKey as never));
+  const badgeLabel = app.badgeLabelKey ? String(t(app.badgeLabelKey as never)) : undefined;
   const active = pathname === app.route || pathname.startsWith(`${app.route}/`);
   return (
     <button
@@ -65,13 +67,17 @@ function RemoteNavItem({ app, collapsed }: { app: AppDefinition; collapsed: bool
       className={cx(styles.item, active && styles.active)}
       aria-current={active ? 'page' : undefined}
       aria-label={label}
-      title={collapsed ? label : undefined}
+      title={label}
       onClick={() => void navigate(app.route)}
       data-testid={`nav-app-${app.id}`}
     >
       <SidebarIcon name={toSidebarIconName(app.icon)} />
       <span className={styles.label}>{label}</span>
-      {badge !== null && <span className={styles.badge}>{badge}</span>}
+      {badge !== null && (
+        <span className={styles.badge} title={badgeLabel}>
+          {badge}
+        </span>
+      )}
     </button>
   );
 }
@@ -167,7 +173,9 @@ export function SiteHeader({
               block
               label={t('siteHeader.activeProject')}
               value={selectedProject?.id ?? ''}
-              options={projects.map((p) => ({ value: p.id, label: p.name }))}
+              options={projects
+                .filter((p) => p.id === selectedProject?.id || canSelectProject(p))
+                .map((p) => ({ value: p.id, label: p.name }))}
               onChange={onProjectChange}
             />
           )}
@@ -204,7 +212,7 @@ export function SiteHeader({
         {navItem(HOME_ITEM)}
         <p className={styles.group}>{t('siteHeader.groups.work')}</p>
         {navApps.map((app) => (
-          <RemoteNavItem key={app.id} app={app} collapsed={collapsed} />
+          <RemoteNavItem key={app.id} app={app} />
         ))}
         <p className={styles.group}>{t('siteHeader.groups.account')}</p>
         <button

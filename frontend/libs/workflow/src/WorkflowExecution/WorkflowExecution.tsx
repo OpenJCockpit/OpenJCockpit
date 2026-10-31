@@ -15,6 +15,7 @@ import { loadLinkableAgents } from '../linkableAgents';
 import { AgentSequencer } from '../AgentSequencer/AgentSequencer';
 import { AgentLogConsole } from '../AgentLogConsole/AgentLogConsole';
 import {
+  EmptyState,
   StatusChip,
   Eyebrow,
   Panel,
@@ -208,9 +209,11 @@ export function WorkflowExecution({
 
   if (!workflow) {
     return (
-      <p className={cx(fieldHintClass, styles.workflowExecutionEmpty)}>
-        {t('workflowExecution.empty')}
-      </p>
+      <EmptyState
+        className={styles.workflowExecutionEmpty}
+        title={t('workflowExecution.emptyTitle')}
+        hint={t('workflowExecution.empty')}
+      />
     );
   }
 

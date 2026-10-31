@@ -419,6 +419,7 @@
       "startAgain": "Start again"
     },
     "workflowExecution": {
+      "emptyTitle": "No workflow running",
       "empty": "Start a workflow from the Overview tab to see it running here.",
       "stopping": "⟳ Stopping…",
       "stop": "◼ Stop",

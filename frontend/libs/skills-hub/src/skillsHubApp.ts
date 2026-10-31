@@ -10,6 +10,7 @@ export const skillsHubApp: AppDefinition = {
   order: 50,
   requiredPermissions: [],
   useBadge: useConnectedMarketplaces,
+  badgeLabelKey: 'siteHeader.nav.skillsHubBadge',
   loadRoutes: () => import('./skillsHubRoutes').then((m) => m.skillsHubRoutes),
   widgets: [
     {

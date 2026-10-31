@@ -42,7 +42,7 @@ function GitStatusIndicator({ status }: { status: GitStatus }) {
   );
 }
 
-function canSelect(project: Project): boolean {
+export function canSelectProject(project: Project): boolean {
   return (
     project.active === 1 &&
     (project.gitStatus === 'ACCESSIBLE' ||
@@ -75,7 +75,7 @@ export function ProjectSelection({ projects, onSelect, onSettings, onBack }: Pro
         ) : (
           <div className={styles.projectGrid}>
             {displayProjects.map((project) => {
-              const selectable = canSelect(project);
+              const selectable = canSelectProject(project);
               const showNotAccessible =
                 project.gitStatus === 'NOT_ACCESSIBLE' || project.gitStatus === 'CHECK_FAILED';
               return (
