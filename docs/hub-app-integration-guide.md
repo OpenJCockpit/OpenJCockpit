@@ -20,13 +20,13 @@ A remote may export `apps` (an `AppDefinition[]`) instead of `app`; the host acc
 
 The host provides these; a remote reads them through hooks from `@openjcockpit/hub-contract` and never takes them as props (the host only mounts the remote's routes):
 
-| Hook                                       | Gives                                                                                                         |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| `useHubSession()`                          | User, permissions (realm roles).                                                                              |
+| Hook                                       | Gives                                                                                                                                   |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `useHubSession()`                          | User, permissions (realm roles).                                                                                                        |
 | `useHubProject()` / `useSelectedProject()` | Projects, the selected one, `select(id)`. Wrap pages that need one in `<RequireProject>`, which sends the user to `/projects` and back. |
-| `useHubHeader()`                           | The host's header element to render in the remote's layout; undefined in a standalone harness. Link back with `DASHBOARD_PATH`. |
-| `useHubTheme()`                            | `preference`, `resolved`, `setPreference`; the host sets `data-theme` on `<html>`. Style with tokens, not hard-coded colours. |
-| `useAppRegistry()` / `useBadgeFor(id)`     | Host side: the loaded apps and their badge counts.                                                            |
+| `useHubHeader()`                           | The host's header element to render in the remote's layout; undefined in a standalone harness. Link back with `DASHBOARD_PATH`.         |
+| `useHubTheme()`                            | `preference`, `resolved`, `setPreference`; the host sets `data-theme` on `<html>`. Style with tokens, not hard-coded colours.           |
+| `useAppRegistry()` / `useBadgeFor(id)`     | Host side: the loaded apps and their badge counts.                                                                                      |
 
 HTTP goes through the shared `@openjcockpit/api` singleton (host token, 401 refresh, error translation); the contract has no separate client. `api`, i18n, react-query and `@openjcockpit/ui` are shared singletons, so a remote registers its strings on the host's i18n instance.
 
@@ -44,11 +44,11 @@ One image per deployable. The host (`apps/dashboard/Dockerfile`) and each remote
 
 Host env, rendered by nginx at container start (all `no-store`):
 
-| Variable                          | Default | Effect                                                                                           |
-| --------------------------------- | ------- | ------------------------------------------------------------------------------------------------ |
-| `FEDERATION_MANIFEST`             | `{}`    | JSON object served as `/federation.manifest.json`: name to `https://<origin>/mf-manifest.json`. |
+| Variable                          | Default | Effect                                                                                            |
+| --------------------------------- | ------- | ------------------------------------------------------------------------------------------------- |
+| `FEDERATION_MANIFEST`             | `{}`    | JSON object served as `/federation.manifest.json`: name to `https://<origin>/mf-manifest.json`.   |
 | `FEDERATION_ALLOWED_ORIGINS_JSON` | `[]`    | Served as `/config.json` `federation.allowedOrigins`; the host drops manifest entries outside it. |
-| `FEDERATION_ALLOWED_ORIGINS`      | empty   | Space-separated origins added to the CSP `script-src`, `style-src` and `connect-src`.            |
+| `FEDERATION_ALLOWED_ORIGINS`      | empty   | Space-separated origins added to the CSP `script-src`, `style-src` and `connect-src`.             |
 
 Keep the last two in step. Remote env: `HOST_ORIGIN` (default `http://localhost:4000`) is the only origin CORS allows. The remote serves `mf-manifest.json` and `remoteEntry.js` as `no-store`, `/assets/` as immutable, and answers a missing file with a plain 404 (no HTML fallback).
 
@@ -57,7 +57,3 @@ Keep the last two in step. Remote env: `HOST_ORIGIN` (default `http://localhost:
 Adding an app to a deployed hub: deploy the remote image, then add its origin to the three host variables and restart the host.
 
 Governance gates in CI (`frontend-ci.yml`): `frontend/scripts/check-remotes.mjs` (each remote exposes `./app`, shares the singletons, bundles no identity SDK, and its `app-entry` reaches the contract only through the shared scope, never a private copy); both image jobs smoke-test the endpoints above; the host's contract version gate rejects a remote with a higher `HUB_CONTRACT_VERSION` at runtime.
-
-## Not done yet
-
-No app yet declares `widgets` or `useBadge`, so those registry paths have no real consumer. The signed-in browser run and the proof that api, i18n and react-query are single runtime copies are still open. See `docs/hub-remaining-work.md`.
