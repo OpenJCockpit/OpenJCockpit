@@ -15,6 +15,11 @@ describe('SecretField', () => {
     expect(screen.getByPlaceholderText('••••••••')).toHaveAttribute('type', 'password');
   });
 
+  it('marks the input required', () => {
+    render(<SecretField label="Token" hasValue={false} value="" onChange={vi.fn()} required />);
+    expect(screen.getByLabelText(/Token/)).toHaveAttribute('aria-required', 'true');
+  });
+
   it('reports typed input', () => {
     const onChange = vi.fn();
     render(<SecretField label="Token" hasValue={false} value="" onChange={onChange} />);

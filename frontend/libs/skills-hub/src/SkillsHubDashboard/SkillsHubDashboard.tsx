@@ -128,8 +128,7 @@ export function SkillsHubDashboard({ onBack, onSettings, header }: Props) {
                     <div className={styles.skillRow}>
                       <IconBox label={skill.icon} compact />
                       <div>
-                        <strong>{skill.name}</strong>{' '}
-                        <span>{skill.description}</span>
+                        <strong>{skill.name}</strong> <span>{skill.description}</span>
                       </div>
                     </div>
                   </td>

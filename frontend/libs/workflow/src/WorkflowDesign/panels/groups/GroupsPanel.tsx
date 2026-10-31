@@ -98,9 +98,7 @@ export function GroupsPanel() {
       <GroupsTable
         items={items}
         onEdit={startEdit}
-        onDelete={(id) =>
-          askDelete('group', items.find((i) => i.id === id)?.name ?? id, () => handleDelete(id))
-        }
+        onDelete={(item) => askDelete('group', item.name, () => handleDelete(item.id))}
       />
       {dialog}
     </div>

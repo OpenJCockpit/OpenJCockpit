@@ -112,8 +112,7 @@ export function ProjectSettings({ onBack, header }: Props) {
           onEdit={startEdit}
           onGitCheck={(id) => void handleGitCheck(id)}
           onEditCredentials={(id) => void startCredEdit(id)}
-          onDeleteCredentials={(id) => {
-            const name = projects.find((p) => p.id === id)?.name ?? id;
+          onDeleteCredentials={({ id, name }) => {
             confirm({
               title: t('confirm.deleteCredentials.title', { name }),
               message: t('confirm.deleteCredentials.message'),

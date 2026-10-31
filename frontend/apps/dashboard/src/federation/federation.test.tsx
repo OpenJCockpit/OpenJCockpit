@@ -1,4 +1,4 @@
-import { act, render as rtl, screen } from '@testing-library/react';
+import { act, fireEvent, render as rtl, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useHubSession, type AppDefinition } from '@openjcockpit/hub-contract';
@@ -7,6 +7,7 @@ import { Forbidden } from './Forbidden';
 import { HubSessionProvider } from './HubSessionProvider';
 import { RemoteAppsProvider, RemoteFailuresNotice, useRemoteApps } from './RemoteApps';
 import { RemoteRoutes } from './RemoteRoutes';
+import { RemoteSlot } from './RemoteSlot';
 
 const keycloak = vi.hoisted(() => ({
   token: undefined as string | undefined,
@@ -26,6 +27,19 @@ describe('Forbidden', () => {
     );
     expect(screen.getByRole('alert')).toHaveTextContent('You do not have access to this page.');
     expect(screen.getByRole('button', { name: 'Back to dashboard' })).toBeInTheDocument();
+  });
+
+  it('returns to the dashboard', () => {
+    render(
+      <MemoryRouter initialEntries={['/secret']}>
+        <Routes>
+          <Route path="/secret" element={<Forbidden />} />
+          <Route path="/dashboard" element={<p>dashboard page</p>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Back to dashboard' }));
+    expect(screen.getByText('dashboard page')).toBeInTheDocument();
   });
 });
 
@@ -164,5 +178,26 @@ describe('RemoteRoutes', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     await mount(appWith(() => Promise.reject(new Error('boom'))));
     expect(await screen.findByTestId('error-boundary')).toBeInTheDocument();
+  });
+});
+
+describe('RemoteSlot', () => {
+  it('renders the lazily loaded component and loads it once per item', async () => {
+    const component = vi.fn(() => Promise.resolve({ default: () => <p>widget</p> }));
+    const item = { component };
+    const view = await act(async () => render(<RemoteSlot item={item} />));
+    expect(await screen.findByText('widget')).toBeInTheDocument();
+    view.rerender(<RemoteSlot item={item} />);
+    expect(component).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves the slot empty when the component fails', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const item = { component: () => Promise.reject(new Error('boom')) };
+    const { container } = await act(async () => render(<RemoteSlot item={item} />));
+    await vi.waitFor(() =>
+      expect(error).toHaveBeenCalledWith('A remote component failed to render', expect.any(Error)),
+    );
+    expect(container).toBeEmptyDOMElement();
   });
 });

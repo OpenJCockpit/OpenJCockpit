@@ -22,6 +22,16 @@ describe('untranslatedText', () => {
     expect(untranslatedText(document.body)).toEqual(['Plain English', 'Close dialog']);
   });
 
+  it('ignores script and style text', () => {
+    renderWithPseudoI18n(
+      <div>
+        <script>{'var greeting = "Hello there";'}</script>
+        <style>{'.a { content: "Hello there"; }'}</style>
+      </div>,
+    );
+    expect(untranslatedText(document.body)).toEqual([]);
+  });
+
   it('skips allowed strings and patterns', () => {
     renderWithPseudoI18n(<Sample />);
     expect(untranslatedText(document.body, ['Plain English', /^Close/])).toEqual([]);

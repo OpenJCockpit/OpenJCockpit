@@ -8,7 +8,7 @@ const assetsDir = new URL('../dist/assets', import.meta.url).pathname;
 const KB = 1024;
 const budgets = {
   'largest JS chunk': 185 * KB,
-  'total JS': 285 * KB,
+  'total JS': 400 * KB, // federation adds per-singleton fallback chunks (react, react-dom, react-router, ...)
   'total CSS': 20 * KB,
 };
 

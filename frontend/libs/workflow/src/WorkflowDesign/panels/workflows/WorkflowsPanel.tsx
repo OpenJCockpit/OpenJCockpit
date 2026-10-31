@@ -277,9 +277,7 @@ export function WorkflowsPanel() {
         items={visibleItems}
         groupName={groupName}
         onEdit={startEdit}
-        onDelete={(id) =>
-          askDelete('workflow', items.find((i) => i.id === id)?.name ?? id, () => handleDelete(id))
-        }
+        onDelete={(item) => askDelete('workflow', item.name, () => handleDelete(item.id))}
       />
       {dialog}
     </div>

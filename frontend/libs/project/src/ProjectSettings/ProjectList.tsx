@@ -19,7 +19,7 @@ interface Props {
   onEdit: (project: Project) => void;
   onGitCheck: (projectId: string) => void;
   onEditCredentials: (projectId: string) => void;
-  onDeleteCredentials: (projectId: string) => void;
+  onDeleteCredentials: (project: Project) => void;
   onToggleActive: (project: Project) => void;
 }
 
@@ -91,7 +91,7 @@ export function ProjectList({
                 {project.hasCredentials ? t('list.updateCredentials') : t('list.addCredentials')}
               </Button>
               {project.hasCredentials && (
-                <Button variant="danger" onClick={() => onDeleteCredentials(project.id)}>
+                <Button variant="danger" onClick={() => onDeleteCredentials(project)}>
                   {t('list.deleteCredentials')}
                 </Button>
               )}

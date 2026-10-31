@@ -5,7 +5,7 @@ import { Actions, DataTable, Button } from '@openjcockpit/ui';
 interface GroupsTableProps {
   items: WorkflowGroup[];
   onEdit: (item: WorkflowGroup) => void;
-  onDelete: (id: string) => void;
+  onDelete: (item: WorkflowGroup) => void;
 }
 
 export function GroupsTable({ items, onEdit, onDelete }: GroupsTableProps) {
@@ -33,7 +33,7 @@ export function GroupsTable({ items, onEdit, onDelete }: GroupsTableProps) {
                 <Button variant="secondary" onClick={() => onEdit(item)}>
                   {t('shared.edit')}
                 </Button>
-                <Button variant="danger" onClick={() => onDelete(item.id)}>
+                <Button variant="danger" onClick={() => onDelete(item)}>
                   {t('shared.delete')}
                 </Button>
               </Actions>

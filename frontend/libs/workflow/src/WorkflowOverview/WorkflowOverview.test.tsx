@@ -1,6 +1,7 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { clickAsync, renderAsync } from '../testUtils/dom';
+import { withQueryClient } from '../testUtils/queryClient';
 import { WorkflowOverview } from './WorkflowOverview';
 import * as workflowApi from '@openjcockpit/api';
 import type { Project, WorkflowDefinition } from '@openjcockpit/api';
@@ -916,5 +917,60 @@ describe('WorkflowOverview — card details and failure paths', () => {
     await clickAsync(screen.getAllByText('▶ Start')[0]!);
 
     await waitFor(() => expect(screen.getAllByText('Never run')).toHaveLength(1));
+  });
+  describe('when unmounted before the requests settle', () => {
+    function deferred<T>() {
+      let resolve!: (value: T) => void;
+      let reject!: (reason: unknown) => void;
+      const promise = new Promise<T>((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
+      return { promise, resolve, reject };
+    }
+
+    it('ignores a workflow list that resolves late', async () => {
+      const list = deferred<WorkflowDefinition[]>();
+      vi.mocked(workflowApi.listWorkflows).mockReturnValue(list.promise);
+      const { unmount } = render(withQueryClient(<WorkflowOverview project={null} />));
+      unmount();
+      await act(async () => list.resolve([WORKFLOW]));
+      expect(workflowApi.listWorkflowGroups).not.toHaveBeenCalled();
+    });
+
+    it('ignores decision summaries that resolve late', async () => {
+      const logs = deferred<never[]>();
+      vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
+      vi.mocked(workflowApi.getWorkflowDecisionLogs).mockReturnValue(logs.promise);
+      const { unmount } = render(withQueryClient(<WorkflowOverview project={null} />));
+      await waitFor(() => expect(workflowApi.getWorkflowDecisionLogs).toHaveBeenCalled());
+      unmount();
+      await act(async () => logs.resolve([]));
+    });
+
+    it('ignores a workflow list failure that arrives late', async () => {
+      const list = deferred<WorkflowDefinition[]>();
+      vi.mocked(workflowApi.listWorkflows).mockReturnValue(list.promise);
+      const { unmount } = render(withQueryClient(<WorkflowOverview project={null} />));
+      unmount();
+      await act(async () => list.reject(new Error('late')));
+    });
+
+    it('ignores an agent catalogue failure that arrives late', async () => {
+      const agents = deferred<never[]>();
+      vi.mocked(workflowApi.listWorkflows).mockResolvedValue([WORKFLOW]);
+      vi.mocked(linkable.fetchLinkableAgents).mockReturnValue(agents.promise);
+      const { unmount } = render(withQueryClient(<WorkflowOverview project={null} />));
+      unmount();
+      await act(async () => agents.reject(new Error('late')));
+    });
+  });
+
+  it('falls back to a generic message when the list fails with a non-Error', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockRejectedValue('boom');
+
+    await renderAsync(<WorkflowOverview project={null} />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Failed to load workflows');
   });
 });

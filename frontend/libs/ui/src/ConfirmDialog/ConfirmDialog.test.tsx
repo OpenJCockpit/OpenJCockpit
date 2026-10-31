@@ -22,6 +22,23 @@ describe('ConfirmDialog', () => {
     expect(screen.getByTestId('confirm-action-confirm').className).toContain('danger');
   });
 
+  it('shows an error and styles the confirm button for the chosen tone', () => {
+    render(
+      <ConfirmDialog
+        title="t"
+        message="m"
+        confirmLabel="Run"
+        {...labels}
+        tone="primary"
+        error="Failed"
+        onConfirm={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId('confirm-action-error')).toHaveTextContent('Failed');
+    expect(screen.getByTestId('confirm-action-confirm').className).toContain('primary');
+  });
+
   it('shows the busy label and disables both buttons while busy', () => {
     render(
       <ConfirmDialog
@@ -37,6 +54,36 @@ describe('ConfirmDialog', () => {
     expect(screen.getByTestId('confirm-action-confirm')).toHaveTextContent('Deleting…');
     expect(screen.getByTestId('confirm-action-confirm')).toBeDisabled();
     expect(screen.getByTestId('confirm-action-cancel')).toBeDisabled();
+  });
+
+  it('ignores Escape while busy and cancels on Escape otherwise', () => {
+    const onCancel = vi.fn();
+    const { rerender } = render(
+      <ConfirmDialog
+        title="t"
+        message="m"
+        confirmLabel="Delete"
+        {...labels}
+        busy
+        onConfirm={vi.fn()}
+        onCancel={onCancel}
+      />,
+    );
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+    expect(onCancel).not.toHaveBeenCalled();
+
+    rerender(
+      <ConfirmDialog
+        title="t"
+        message="m"
+        confirmLabel="Delete"
+        {...labels}
+        onConfirm={vi.fn()}
+        onCancel={onCancel}
+      />,
+    );
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -52,5 +52,6 @@ describe('format helpers', () => {
       '3:06 PM',
     );
     expect(result.current.formatDateTime(instant)).toContain('2026');
+    expect(result.current.formatDate(instant, { timeZone: 'UTC' })).toContain('2026');
   });
 });

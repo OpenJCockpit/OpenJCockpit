@@ -178,7 +178,7 @@
   --shadow-popover: rgba(15, 50, 80, 0.2);
 }
 
-// Color channels, so literal-alpha colors in component styles follow the theme: rgb(var(--x-rgb) / 0.3).
+// Color channels, so literal-alpha colors in component styles follow the theme: rgb(var(--accent-rgb) / 0.3).
 :root {
   --accent-rgb: 39 231 255;
   --teal-rgb: 55 247 194;

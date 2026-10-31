@@ -23,11 +23,10 @@ export function useConfirmDialog(): {
   const [request, setRequest] = useState<ConfirmRequest | null>(null);
   const [busy, setBusy] = useState(false);
 
-  async function handleConfirm() {
-    if (!request) return;
+  async function handleConfirm({ onConfirm }: ConfirmRequest) {
     setBusy(true);
     try {
-      await request.onConfirm();
+      await onConfirm();
     } finally {
       setBusy(false);
       setRequest(null);
@@ -40,7 +39,7 @@ export function useConfirmDialog(): {
       <ConfirmDialog
         {...request}
         busy={busy}
-        onConfirm={() => void handleConfirm()}
+        onConfirm={() => void handleConfirm(request)}
         onCancel={() => setRequest(null)}
       />
     ),
