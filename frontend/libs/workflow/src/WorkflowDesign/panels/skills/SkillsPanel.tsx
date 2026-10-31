@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '@openjcockpit/i18n';
-import { ToolbarButton, StatusMessage, fieldErrorClass, Button } from '@openjcockpit/ui';
+import { StatusMessage, fieldErrorClass, Button } from '@openjcockpit/ui';
 import {
   createSkillSpec,
   deleteSkillSpec,
@@ -10,6 +10,7 @@ import {
 } from '@openjcockpit/api';
 import type { SkillCatalog, SkillSpec } from '@openjcockpit/api';
 import { describeSourceOutcome } from '../../utils';
+import { useConfirmDelete } from '../shared/useConfirmDelete';
 import { PromptGenerator } from '../shared/PromptGenerator';
 import { SkillEditor } from './SkillEditor';
 import { SkillsTable } from './SkillsTable';
@@ -29,6 +30,7 @@ const EMPTY_SKILL: SkillSpec = {
 
 export function SkillsPanel() {
   const { t } = useTranslation('workflow');
+  const { askDelete, dialog } = useConfirmDelete();
   const queryClient = useQueryClient();
   const query = useSkillCatalog();
   const [editingName, setEditingName] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export function SkillsPanel() {
     !loading && query.isError
       ? query.error instanceof Error
         ? query.error.message
-        : 'Failed to load skill catalog.'
+        : t('skills.loadFailed')
       : null;
 
   function updateCatalog(update: (base: SkillCatalog) => SkillCatalog) {
@@ -77,8 +79,8 @@ export function SkillsPanel() {
     if (!catalog) return [];
     return catalog.sources
       .filter((source) => source.outcome !== 'SUCCESS')
-      .map(describeSourceOutcome);
-  }, [catalog]);
+      .map((source) => describeSourceOutcome(source, t));
+  }, [catalog, t]);
 
   function startCreate() {
     setEditingName('new');
@@ -97,7 +99,7 @@ export function SkillsPanel() {
       setEditingName('new');
       setForm(draft);
     } catch (err) {
-      setError('Failed to generate skill draft.');
+      setError(t('skills.draftFailed'));
       console.warn(err);
     }
   }
@@ -119,7 +121,7 @@ export function SkillsPanel() {
       });
       setEditingName(null);
     } catch (err) {
-      setError('Failed to save skill definition.');
+      setError(t('skills.saveFailed'));
       console.warn(err);
     } finally {
       setSaving(false);
@@ -135,7 +137,7 @@ export function SkillsPanel() {
         localSkills: base.localSkills.filter((s) => s.name !== name),
       }));
     } catch (err) {
-      setError('Failed to delete skill definition.');
+      setError(t('skills.deleteFailed'));
       console.warn(err);
     }
   }
@@ -144,7 +146,9 @@ export function SkillsPanel() {
     <div>
       <PromptGenerator kind="skill" onGenerate={handleGenerate} />
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>{t('skills.newButton')}</ToolbarButton>
+        <Button variant="primary" onClick={startCreate}>
+          {t('skills.newButton')}
+        </Button>
         <Button variant="secondary" onClick={() => void query.refetch()}>
           {t('skills.refresh')}
         </Button>
@@ -173,8 +177,13 @@ export function SkillsPanel() {
           {loadError}
         </p>
       ) : (
-        <SkillsTable rows={rows} onEdit={startEdit} onDelete={(name) => void handleDelete(name)} />
+        <SkillsTable
+          rows={rows}
+          onEdit={startEdit}
+          onDelete={(name) => askDelete('skill', name, () => handleDelete(name))}
+        />
       )}
+      {dialog}
     </div>
   );
 }

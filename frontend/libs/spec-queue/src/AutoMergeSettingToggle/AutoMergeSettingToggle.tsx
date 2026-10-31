@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import { isOpenJCockpitAdmin } from '@openjcockpit/auth';
+import { ADMIN_PERMISSION, useCan } from '@openjcockpit/hub-contract';
 import { useTranslation } from '@openjcockpit/i18n';
 import { feedbackErrorClass, fieldHintClass, cx } from '@openjcockpit/ui';
 import { ConfirmActionDialog } from '../ConfirmActionDialog/ConfirmActionDialog';
@@ -15,7 +15,7 @@ interface Props {
 
 export function AutoMergeSettingToggle({ projectId, autoMergeAllowed, onChanged }: Props) {
   const { t } = useTranslation('specQueue');
-  const canChange = isOpenJCockpitAdmin();
+  const canChange = useCan(ADMIN_PERMISSION);
   const [busy, setBusy] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +83,7 @@ export function AutoMergeSettingToggle({ projectId, autoMergeAllowed, onChanged 
           confirmLabel={t('autoMergeSetting.confirmLabel')}
           busy={busy}
           error={error}
+          tone="primary"
           onConfirm={() => void apply(true)}
           onCancel={cancelConfirmation}
         />

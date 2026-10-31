@@ -15,7 +15,8 @@ test.describe('language selector', () => {
     await enterDashboard(page);
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 
-    await page.getByTestId('locale-select').selectOption('nl');
+    await page.getByTestId('locale-select').click();
+    await page.getByRole('option', { name: 'Nederlands' }).click();
 
     await expect(page.getByRole('navigation', { name: 'Hoofdnavigatie' })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('lang', 'nl');

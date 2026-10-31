@@ -53,7 +53,7 @@
     "noProject": "Kein Projekt ausgewählt",
     "cancel": "Abbrechen",
     "working": "⟳ Wird ausgeführt…",
-    "unknownError": "Unbekannter Fehler",
+    "unknownError": "Unbekannter Fehler.",
     "dashboard": {
       "eyebrow": "Spec-Warteschlange",
       "state": "Status: {{state}}",
@@ -75,7 +75,7 @@
       "lastPolled": "Runner zuletzt geprüft: {{at}}",
       "recentlyFinished": "Kürzlich abgeschlossen",
       "added": "{{specFile}} zur Warteschlange hinzugefügt",
-      "loadFailed": "Die Spec-Warteschlange konnte nicht geladen werden"
+      "loadFailed": "Die Spec-Warteschlange konnte nicht geladen werden."
     },
     "addDialog": {
       "eyebrow": "Spec-Warteschlange",
@@ -105,7 +105,7 @@
       "confirmTitle": "Automatisches Zusammenführen erlauben?",
       "confirmWarning": "Die Pull Requests von Einträgen, die für automatisches Zusammenführen markiert sind, werden ohne menschliche Prüfung zusammengeführt, sofern der Workflow kein Freigabe-Gate hat.",
       "confirmLabel": "Automatisches Zusammenführen erlauben",
-      "updateFailed": "Die Warteschlangeneinstellungen konnten nicht aktualisiert werden"
+      "updateFailed": "Die Warteschlangeneinstellungen konnten nicht aktualisiert werden."
     },
     "row": {
       "autoMerge": "Automatisch zusammenführen",
@@ -150,12 +150,12 @@
       "moved": "{{spec}} an Position {{position}} von {{total}} verschoben",
       "paused": "Warteschlange pausiert",
       "resumed": "Warteschlange fortgesetzt",
-      "reorderFailed": "Die Warteschlange konnte nicht neu geordnet werden",
-      "pauseFailed": "Die Warteschlange konnte nicht pausiert werden",
-      "resumeFailed": "Die Warteschlange konnte nicht fortgesetzt werden",
-      "updateItemFailed": "Der Warteschlangeneintrag konnte nicht aktualisiert werden",
-      "retryFailed": "Der Warteschlangeneintrag konnte nicht wiederholt werden",
-      "actionFailed": "Die Aktion ist fehlgeschlagen",
+      "reorderFailed": "Die Warteschlange konnte nicht neu geordnet werden.",
+      "pauseFailed": "Die Warteschlange konnte nicht pausiert werden.",
+      "resumeFailed": "Die Warteschlange konnte nicht fortgesetzt werden.",
+      "updateItemFailed": "Der Warteschlangeneintrag konnte nicht aktualisiert werden.",
+      "retryFailed": "Der Warteschlangeneintrag konnte nicht wiederholt werden.",
+      "actionFailed": "Die Aktion ist fehlgeschlagen.",
       "noProject": "Kein Projekt ausgewählt"
     }
   }

@@ -3,7 +3,6 @@ import { useTranslation } from '@openjcockpit/i18n';
 import { PuffsBackground, Reveal, RevealGroup } from '@openjcockpit/ui';
 import { AmbientBackdrop } from '../AmbientBackdrop/AmbientBackdrop';
 import { AppShell } from '../AppShell/AppShell';
-import { Eyebrow } from '../Eyebrow/Eyebrow';
 import { IntroGreeting } from '../IntroGreeting/IntroGreeting';
 import { PortalOrb } from '../PortalOrb/PortalOrb';
 import type { Portal, PortalId } from '../PortalOrb/PortalOrb';
@@ -80,7 +79,6 @@ export function LandingPage({ user, onSelectPortal, onLogout }: LandingPageProps
         data-testid="landing-hero"
       >
         <Reveal as="div" className={styles.heroCopy} duration={0.55} index={0} from={{ y: 24 }}>
-          <Eyebrow>{t('hero.eyebrow')}</Eyebrow>
           <h2 id="landing-title">{t('hero.title')}</h2>
           <p>{t('hero.welcome', { firstName })}</p>
         </Reveal>

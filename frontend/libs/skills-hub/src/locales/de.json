@@ -1,12 +1,16 @@
 {
   "skillsHub": {
     "eyebrow": "Skills-Hub",
+    "contributions": {
+      "widgetSummary": "Verbundene Marktplätze: {{count}}",
+      "widgetEmpty": "Noch kein Marktplatz verbunden."
+    },
     "dashboard": {
       "backTitle": "Zurück zum Dashboard",
       "title": "Verfügbare Skills",
       "settingsTitle": "Skills-Hub-Einstellungen",
       "settings": "⚙ Einstellungen",
-      "searchPlaceholder": "Nach einem Skill suchen...",
+      "searchPlaceholder": "Nach einem Skill suchen…",
       "searchLabel": "Nach einem Skill suchen",
       "search": "⌕ Suchen",
       "columnCategory": "Kategorie",
@@ -30,16 +34,16 @@
     },
     "settings": {
       "backTitle": "Zurück zum Skills-Hub",
-      "loading": "Marktplätze werden geladen...",
+      "loading": "Marktplätze werden geladen…",
       "title": "Marktplatzverbindungen",
       "formNew": "Neuer Marktplatz",
       "formEdit": "Marktplatz bearbeiten",
-      "name": "Name *",
+      "name": "Name",
       "namePlaceholder": "z. B. Acme Skills",
-      "marketplaceUrl": "Marktplatz-URL *",
+      "marketplaceUrl": "Marktplatz-URL",
       "marketplaceUrlPlaceholder": "https://marketplace.example.com/api",
       "apiKey": "API-Schlüssel",
-      "apiKeyRequired": "API-Schlüssel *",
+      "apiKeyRequired": "API-Schlüssel",
       "apiKeyKeepPlaceholder": "Leer lassen, um den aktuellen API-Schlüssel zu behalten",
       "apiKeyRequiredPlaceholder": "Erforderlich — noch kein API-Schlüssel gesetzt",
       "description": "Beschreibung",
@@ -65,13 +69,18 @@
         "loadFailed": "Marktplätze konnten nicht geladen werden.",
         "nameRequired": "Name ist erforderlich.",
         "urlRequired": "Marktplatz-URL ist erforderlich.",
-        "saveFailed": "Speichern fehlgeschlagen.",
-        "deleteFailed": "Löschen fehlgeschlagen."
+        "saveFailed": "Der Marktplatz konnte nicht gespeichert werden.",
+        "deleteFailed": "Der Marktplatz konnte nicht gelöscht werden."
       },
       "status": {
         "added": "Marktplatz „{{name}}“ wurde hinzugefügt.",
         "updated": "Marktplatz „{{name}}“ wurde aktualisiert.",
         "deleted": "Marktplatz „{{name}}“ wurde gelöscht."
+      },
+      "deleting": "Wird gelöscht…",
+      "confirmDelete": {
+        "title": "{{name}} löschen?",
+        "message": "Die Marketplace-Verbindung und ihr API-Schlüssel werden dauerhaft gelöscht."
       }
     }
   }

@@ -4,9 +4,8 @@
       "greeting": "Hoi {{firstName}}!"
     },
     "hero": {
-      "eyebrow": "Geauthenticeerde bestemming",
       "title": "Kies je werkruimte",
-      "welcome": "Welkom terug, {{firstName}}. Je token is geldig en deze hub is nu ontgrendeld. Ga direct naar Business of Implementation."
+      "welcome": "Welkom terug, {{firstName}}. Kies waar je wilt beginnen: ga direct naar Business of Implementation."
     },
     "portals": {
       "business": {
@@ -19,7 +18,7 @@
       }
     },
     "topBar": {
-      "brand": "NEXUS PORTAL",
+      "brand": "OpenJCockpit",
       "fallbackIdentity": "Geauthenticeerde startpagina",
       "userActions": "Gebruikersacties",
       "logout": "Uitloggen",

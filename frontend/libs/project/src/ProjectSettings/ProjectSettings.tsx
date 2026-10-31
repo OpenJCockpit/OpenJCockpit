@@ -1,9 +1,15 @@
+import type { ReactNode } from 'react';
 import {
-  ToolbarButton,
+  Button,
   AppShell,
   AppHeader,
+  Eyebrow,
+  cx,
   fieldErrorClass,
+  pageClass,
+  pageHeaderClass,
   StatusMessage,
+  useConfirmDialog,
 } from '@openjcockpit/ui';
 import { useTranslation } from '@openjcockpit/i18n';
 import { CredentialsForm } from './CredentialsForm';
@@ -14,9 +20,11 @@ import { useProjectSettings } from './useProjectSettings';
 
 interface Props {
   onBack: () => void;
+  /** Replaces the default back-button header, e.g. with the app's shared sidebar. */
+  header?: ReactNode;
 }
 
-export function ProjectSettings({ onBack }: Props) {
+export function ProjectSettings({ onBack, header }: Props) {
   const { t } = useTranslation('project');
   const {
     projects,
@@ -45,6 +53,7 @@ export function ProjectSettings({ onBack }: Props) {
     handleSaveCred,
     handleDeleteCred,
   } = useProjectSettings();
+  const { confirm, dialog } = useConfirmDialog();
 
   if (!loaded) {
     return <StatusMessage variant="loading">{t('settings.loading')}</StatusMessage>;
@@ -52,16 +61,21 @@ export function ProjectSettings({ onBack }: Props) {
 
   return (
     <AppShell>
-      <AppHeader onBack={onBack} backLabel={t('settings.back')} />
+      {header ?? <AppHeader onBack={onBack} backLabel={t('settings.back')} />}
 
-      <main className={styles.page}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>{t('settings.title')}</h1>
-          <ToolbarButton onClick={startCreate}>{t('settings.newProject')}</ToolbarButton>
+      <main className={pageClass}>
+        <div className={cx(pageHeaderClass, styles.header)}>
+          <div>
+            <Eyebrow>{t('settings.eyebrow')}</Eyebrow>
+            <h1>{t('settings.title')}</h1>
+          </div>
+          <Button variant="primary" onClick={startCreate}>
+            {t('settings.newProject')}
+          </Button>
         </div>
 
-        {error && (
-          <p id="project-name-error" role="alert" className={fieldErrorClass}>
+        {error && !nameInvalid && (
+          <p role="alert" className={fieldErrorClass}>
             {error}
           </p>
         )}
@@ -73,6 +87,7 @@ export function ProjectSettings({ onBack }: Props) {
             onChange={(updater) => setForm(updater)}
             saving={saving}
             nameInvalid={nameInvalid}
+            nameError={nameInvalid ? error : null}
             nameInputRef={nameInputRef}
             onSave={() => void handleSave(editingId)}
             onCancel={cancelEdit}
@@ -97,9 +112,30 @@ export function ProjectSettings({ onBack }: Props) {
           onEdit={startEdit}
           onGitCheck={(id) => void handleGitCheck(id)}
           onEditCredentials={(id) => void startCredEdit(id)}
-          onDeleteCredentials={(id) => void handleDeleteCred(id)}
-          onToggleActive={(p) => void handleToggleActive(p)}
+          onDeleteCredentials={({ id, name }) => {
+            confirm({
+              title: t('confirm.deleteCredentials.title', { name }),
+              message: t('confirm.deleteCredentials.message'),
+              confirmLabel: t('confirm.deleteCredentials.confirm'),
+              cancelLabel: t('confirm.cancel'),
+              busyLabel: t('confirm.working'),
+              onConfirm: () => handleDeleteCred(id),
+            });
+          }}
+          onToggleActive={(p) => {
+            if (p.active !== 1) return void handleToggleActive(p);
+            confirm({
+              title: t('confirm.deactivate.title', { name: p.name }),
+              message: t('confirm.deactivate.message'),
+              confirmLabel: t('confirm.deactivate.confirm'),
+              tone: 'primary',
+              cancelLabel: t('confirm.cancel'),
+              busyLabel: t('confirm.working'),
+              onConfirm: () => handleToggleActive(p),
+            });
+          }}
         />
+        {dialog}
       </main>
     </AppShell>
   );

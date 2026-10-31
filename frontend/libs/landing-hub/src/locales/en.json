@@ -4,9 +4,8 @@
       "greeting": "Hi {{firstName}}!"
     },
     "hero": {
-      "eyebrow": "Authenticated destination",
       "title": "Choose your workspace",
-      "welcome": "Welcome back, {{firstName}}. Your token is valid and this hub is now unlocked. Navigate directly to Business or Implementation."
+      "welcome": "Welcome back, {{firstName}}. Pick where to start: navigate directly to Business or Implementation."
     },
     "portals": {
       "business": {
@@ -19,7 +18,7 @@
       }
     },
     "topBar": {
-      "brand": "NEXUS PORTAL",
+      "brand": "OpenJCockpit",
       "fallbackIdentity": "Authenticated launch hub",
       "userActions": "User actions",
       "logout": "Logout",

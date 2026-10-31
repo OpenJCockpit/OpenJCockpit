@@ -1,14 +1,45 @@
 {
   "dashboard": {
-    "authenticating": "Authenticeren...",
-    "loadingView": "Laden...",
+    "authenticating": "Authenticeren…",
+    "loadingView": "Laden…",
+    "forbidden": "Je hebt geen toegang tot deze pagina.",
+    "notFound": "Deze pagina bestaat niet.",
+    "backToDashboard": "Terug naar het dashboard",
+    "unavailableApps": "Sommige apps zijn niet beschikbaar: {{names}}",
+    "home": {
+      "eyebrow": "Home",
+      "title": "Welkom",
+      "greeting": "Welkom, {{name}}",
+      "customise": "Aanpassen",
+      "done": "Klaar",
+      "reset": "Standaard herstellen",
+      "empty": "Nog geen widgets op je Home. Kies Aanpassen om er toe te voegen.",
+      "available": "Beschikbare widgets",
+      "noneAvailable": "Alle beschikbare widgets staan al op je Home.",
+      "add": "Toevoegen",
+      "open": "Openen",
+      "moveEarlier": "Eerder plaatsen",
+      "moveLater": "Later plaatsen",
+      "narrower": "Smaller",
+      "wider": "Breder",
+      "shorter": "Lager",
+      "taller": "Hoger",
+      "remove": "Verwijderen"
+    },
+    "pageTitle": {
+      "home": "Home",
+      "landing": "Kies je werkruimte",
+      "projects": "Project selecteren",
+      "settings": "Instellingen"
+    },
     "siteHeader": {
       "backToHub": "Terug naar de hub",
       "primaryNavigation": "Hoofdnavigatie",
       "activeProject": "Actief project",
       "language": "Taal",
+      "theme": "Thema",
+      "themes": { "system": "Systeem", "light": "Licht", "dark": "Donker" },
       "projectManagement": "Projectbeheer",
-      "hub": "← Hub",
       "logOut": "Uitloggen",
       "logout": "Uitloggen",
       "nav": {
@@ -16,9 +47,18 @@
         "workflow": "Workflowontwerp en -uitvoering",
         "specFiles": "Spec-bestanden",
         "specQueue": "Spec-wachtrij",
-        "skillsHub": "Skills Hub"
-      }
+        "skillsHub": "Skills Hub",
+        "skillsHubBadge": "Gekoppelde marketplaces",
+        "hub": "Hub"
+      },
+      "groups": {
+        "work": "Werk",
+        "account": "Account"
+      },
+      "collapse": "Inklappen",
+      "expand": "Uitklappen"
     },
+    "sampleData": "Voorbeelddata",
     "statusBar": {
       "environment": "● Omgeving: {{value}}",
       "region": "☁ Regio: {{value}}",
@@ -27,12 +67,9 @@
       "springAiControlVersion": "Spring AI Control Service: {{value}}",
       "copyright": "© 2026 Metafactory B.V."
     },
-    "customerHero": {
-      "customer": "Klant: {{name}}"
-    },
     "workspace": {
       "failed": "De werkruimte laden is mislukt.",
-      "loading": "Werkruimte laden..."
+      "loading": "Werkruimte laden…"
     },
     "preflight": {
       "title": "Pre-flight-controle mislukt",
@@ -51,6 +88,8 @@
       }
     },
     "flow": {
+      "specsFailedTitle": "De specs konden niet worden geladen",
+      "specsFailed": "De specs konden niet worden geladen. De server antwoordde niet correct.",
       "startNewWorkflow": "↺ Nieuwe workflow starten",
       "currentSpec": "Huidige spec",
       "specFolder": "Spec-map",
@@ -86,6 +125,8 @@
       }
     },
     "specPanel": {
+      "error": "De specs konden niet worden geladen. De server antwoordde niet correct.",
+      "retry": "Opnieuw proberen",
       "title": "Spec",
       "loading": "Specs laden…",
       "viewAll": "Alle specs bekijken",
@@ -99,13 +140,57 @@
     },
     "evidence": {
       "title": "Uitvoeringsbewijs",
-      "view": "Bewijs bekijken",
-      "by": "Door: {{actor}}"
+      "by": "Door: {{actor}}",
+      "events": {
+        "specLoaded": "Specificatie geladen",
+        "impactAnalysisRecorded": "Impactanalyse vastgelegd",
+        "testSetGenerated": "Testset gegenereerd",
+        "implementationProposalSaved": "Implementatievoorstel opgeslagen",
+        "humanApprovalLogged": "Menselijke goedkeuring vastgelegd",
+        "evidenceDataRecorded": "Bewijsgegevens vastgelegd"
+      },
+      "actors": {
+        "requirement": "Requirement-agent",
+        "impact": "Impactanalyse-agent",
+        "testDesign": "Testontwerp-agent",
+        "implementation": "Implementatie-agent",
+        "review": "Review-agent",
+        "evidence": "Bewijs-agent"
+      }
     },
     "quality": {
       "title": "Kwaliteitsstatus",
-      "open": "Kwaliteitsdashboard openen ↗",
-      "viewAll": "Alle kwaliteitsregels bekijken"
+      "controls": {
+        "unitTestCoverage": "Unittestdekking",
+        "nist2": "NIST 2",
+        "owaspZap": "OWASP ZAP",
+        "iso25010": "ISO 25010",
+        "sast": "SAST",
+        "dependencyScan": "Afhankelijkhedenscan",
+        "architectureRules": "Architectuurregels"
+      },
+      "details": {
+        "noCriticalIssues": "Geen kritieke problemen",
+        "allAttributes": "8/8 attributen",
+        "noHighIssues": "Geen ernstige problemen",
+        "noKnownVulnerabilities": "Geen bekende kwetsbaarheden",
+        "noDeviations": "0 afwijkingen"
+      }
+    },
+    "apps": {
+      "hello": {
+        "label": "Hallo",
+        "widgetTitle": "Hallo"
+      },
+      "specQueue": {
+        "widgetTitle": "Spec-wachtrij"
+      },
+      "workflow": {
+        "widgetTitle": "Recente workflows"
+      },
+      "specFiles": {
+        "widgetTitle": "Specbestanden"
+      }
     }
   }
 }

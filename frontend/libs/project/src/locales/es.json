@@ -9,6 +9,7 @@
       "compactNotReachable": "Git no accesible"
     },
     "selection": {
+      "backToHub": "← Hub",
       "repoReachable": "Repositorio Git accesible",
       "repoNotReachable": "Repositorio Git no accesible",
       "statusUnknown": "Estado de Git desconocido",
@@ -22,15 +23,16 @@
       "notReachableNotice": "Repositorio no accesible. Actualiza el proyecto en ⚙ Gestionar proyectos."
     },
     "settings": {
-      "loading": "Cargando proyectos...",
+      "eyebrow": "Ajustes",
+      "loading": "Cargando proyectos…",
       "back": "← Proyectos",
       "title": "Gestión de proyectos",
       "newProject": "+ Nuevo proyecto",
       "errors": {
-        "nameRequired": "El nombre es obligatorio",
-        "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
-        "statusChangeFailed": "No se pudo cambiar el estado.",
-        "gitCheckFailed": "Falló la comprobación de Git.",
+        "nameRequired": "El nombre es obligatorio.",
+        "saveFailed": "No se pudo guardar el proyecto.",
+        "statusChangeFailed": "No se pudo cambiar el estado del proyecto.",
+        "gitCheckFailed": "No se pudo comprobar el repositorio de Git.",
         "credentialsLoadFailed": "No se pudieron cargar las credenciales existentes.",
         "credentialsSaveFailed": "No se pudieron guardar las credenciales.",
         "credentialsDeleteFailed": "No se pudieron eliminar las credenciales."
@@ -39,7 +41,7 @@
     "form": {
       "newTitle": "Nuevo proyecto",
       "editTitle": "Editar proyecto",
-      "name": "Nombre *",
+      "name": "Nombre",
       "namePlaceholder": "Nombre del proyecto",
       "customerId": "ID de cliente (stub)",
       "customerIdPlaceholder": "p. ej. noordzee-logistics",
@@ -60,7 +62,7 @@
     },
     "credentials": {
       "title": "Credenciales de Git",
-      "loading": "Cargando credenciales actuales...",
+      "loading": "Cargando credenciales actuales…",
       "type": "Tipo",
       "types": {
         "NONE": "Ninguna",
@@ -98,6 +100,20 @@
       "deleteCredentials": "Eliminar credenciales",
       "deactivate": "Desactivar",
       "activate": "Activar"
+    },
+    "confirm": {
+      "cancel": "Cancelar",
+      "working": "Procesando…",
+      "deleteCredentials": {
+        "title": "¿Eliminar las credenciales de {{name}}?",
+        "message": "Las credenciales de Git guardadas se eliminan de forma permanente. Las comprobaciones y ejecuciones de Git de este proyecto fallan hasta que se añadan credenciales nuevas.",
+        "confirm": "Eliminar credenciales"
+      },
+      "deactivate": {
+        "title": "¿Desactivar {{name}}?",
+        "message": "El proyecto desaparece del selector de proyectos. Puedes volver a activarlo desde esta página.",
+        "confirm": "Desactivar"
+      }
     }
   }
 }

@@ -1,14 +1,6 @@
 .spec-queue {
   display: grid;
   gap: 16px;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 32px 48px 64px;
-  & h1 {
-    margin: 4px 0 0;
-    font-size: 26px;
-    color: var(--cyan);
-  }
   &__header {
     display: flex;
     flex-wrap: wrap;
@@ -32,8 +24,8 @@
     font-size: 13px;
     background: var(--cyan-soft);
     &--warn {
-      border-color: rgba(246, 165, 37, 0.45);
-      background: rgba(246, 165, 37, 0.1);
+      border-color: rgb(var(--warn-rgb) / 0.45);
+      background: rgb(var(--warn-rgb) / 0.1);
     }
   }
   &__panel {
@@ -65,8 +57,5 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
-  }
-  @media (max-width: 720px) {
-    padding: 24px 16px 48px;
   }
 }

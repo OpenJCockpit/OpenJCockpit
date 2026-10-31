@@ -1,4 +1,5 @@
 import { fireEvent, screen } from '@testing-library/react';
+import { chooseOption } from '@openjcockpit/ui/testing';
 import { render } from '../../testUtils/render';
 import { describe, expect, it, vi } from 'vitest';
 import type { WorkflowDefinition } from '@openjcockpit/api';
@@ -30,8 +31,8 @@ function setup(
 describe('WorkflowLauncher', () => {
   it('lists the workflows and reports a different selection', () => {
     const { onWorkflowChange } = setup();
-    expect(screen.getByLabelText('Workflow')).toHaveValue('w1');
-    fireEvent.change(screen.getByLabelText('Workflow'), { target: { value: 'w2' } });
+    expect(screen.getByLabelText('Workflow')).toHaveTextContent('First');
+    chooseOption(screen.getByLabelText('Workflow'), 'Second');
     expect(onWorkflowChange).toHaveBeenCalledWith('w2');
   });
 

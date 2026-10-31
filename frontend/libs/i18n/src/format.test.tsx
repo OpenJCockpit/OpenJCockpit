@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { formatDateTime, formatNumber, formatTime, useFormatters } from './format';
+import { formatDate, formatDateTime, formatNumber, formatTime, useFormatters } from './format';
 import { I18nProvider } from './I18nProvider';
 import { createI18n } from './createI18n';
 
@@ -27,6 +27,12 @@ describe('format helpers', () => {
     expect(formatTime('2026-03-04T15:06:07Z', 'en', options)).toBe('15:06:07');
   });
 
+  it('formats a date without time and shows unparseable values as received', () => {
+    expect(formatDate(instant, 'en', { dateStyle: 'short', timeZone: 'UTC' })).toBe('3/4/26');
+    expect(formatDateTime('Yesterday', 'en')).toBe('Yesterday');
+    expect(formatTime('13:03', 'en')).toBe('13:03');
+  });
+
   it('formats time with default options', () => {
     expect(formatTime(instant, 'en')).toMatch(/\d/);
   });
@@ -46,5 +52,6 @@ describe('format helpers', () => {
       '3:06 PM',
     );
     expect(result.current.formatDateTime(instant)).toContain('2026');
+    expect(result.current.formatDate(instant, { timeZone: 'UTC' })).toContain('2026');
   });
 });

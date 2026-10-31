@@ -4,10 +4,14 @@ import { withI18n } from '@openjcockpit/i18n/testing';
 import { specQueueResources } from '../i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@openjcockpit/auth', () => ({ isOpenJCockpitAdmin: vi.fn() }));
+// The permission check is the only part of the contract these tests need to steer.
+vi.mock('@openjcockpit/hub-contract', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@openjcockpit/hub-contract')>()),
+  useCan: vi.fn(() => false),
+}));
 vi.mock('@openjcockpit/api', () => ({ updateSpecQueueSettings: vi.fn() }));
 
-import { isOpenJCockpitAdmin } from '@openjcockpit/auth';
+import { useCan } from '@openjcockpit/hub-contract';
 import { updateSpecQueueSettings } from '@openjcockpit/api';
 import { AutoMergeSettingToggle } from './AutoMergeSettingToggle';
 
@@ -28,11 +32,11 @@ function setup(autoMergeAllowed: boolean) {
 describe('AutoMergeSettingToggle', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(isOpenJCockpitAdmin).mockReturnValue(true);
+    vi.mocked(useCan).mockReturnValue(true);
   });
 
   it('is disabled with an explanation for non-admins', () => {
-    vi.mocked(isOpenJCockpitAdmin).mockReturnValue(false);
+    vi.mocked(useCan).mockReturnValue(false);
     setup(false);
     expect(
       screen.getByRole('checkbox', { name: 'Allow auto-merge for this project' }),

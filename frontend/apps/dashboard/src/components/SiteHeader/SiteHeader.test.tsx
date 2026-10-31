@@ -5,18 +5,47 @@ import {
   LOCALE_STORAGE_KEY,
   type LocaleLoader,
 } from '@openjcockpit/i18n';
+import { AppRegistryProvider, type AppDefinition } from '@openjcockpit/hub-contract';
+import {
+  FakeHubSession,
+  FakeHubSessionProvider,
+  FakeHubThemeProvider,
+} from '@openjcockpit/hub-contract/testing';
 import { render } from '../../testUtils/render';
+import type { ReactNode } from 'react';
 import { MemoryRouter, useLocation } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import { dashboardResources } from '../../i18n';
 import nl from '../../locales/nl.json';
 import type { Project } from '@openjcockpit/api';
 import { ROUTES } from '../../routes';
+import { FEATURE_FLAGS } from '../../featureFlags';
 import { SiteHeader } from './SiteHeader';
 import type { SiteSection } from './SiteHeader';
 
 function project(id: string, name: string): Project {
-  return { id, name } as Project;
+  return { id, name, active: 1, gitStatus: 'ACCESSIBLE' } as Project;
+}
+
+function Registry({ apps = [], children }: { apps?: AppDefinition[]; children: ReactNode }) {
+  return (
+    <FakeHubSessionProvider session={new FakeHubSession()}>
+      <AppRegistryProvider apps={apps}>{children}</AppRegistryProvider>
+    </FakeHubSessionProvider>
+  );
+}
+
+function remoteApp(over: Partial<AppDefinition> = {}): AppDefinition {
+  return {
+    id: 'pulse',
+    labelKey: 'home.eyebrow',
+    icon: 'pulse',
+    route: '/pulse',
+    order: 1,
+    requiredPermissions: [],
+    loadRoutes: () => Promise.resolve([]),
+    ...over,
+  };
 }
 
 function Location() {
@@ -28,20 +57,26 @@ function setup(
     active: SiteSection;
     projects: Project[];
     selectedProject: Project | null;
+    apps: AppDefinition[];
+    at: string;
+    user: { firstName: string; username: string };
   }> = {},
 ) {
   const onProjectChange = vi.fn();
   const onLogout = vi.fn();
   render(
-    <MemoryRouter initialEntries={['/start']}>
-      <SiteHeader
-        active={props.active ?? 'platform'}
-        projects={props.projects ?? []}
-        selectedProject={props.selectedProject ?? null}
-        onProjectChange={onProjectChange}
-        onLogout={onLogout}
-      />
-      <Location />
+    <MemoryRouter initialEntries={[props.at ?? '/start']}>
+      <Registry apps={props.apps}>
+        <SiteHeader
+          active={props.active ?? 'platform'}
+          projects={props.projects ?? []}
+          selectedProject={props.selectedProject ?? null}
+          onProjectChange={onProjectChange}
+          onLogout={onLogout}
+          user={props.user}
+        />
+        <Location />
+      </Registry>
     </MemoryRouter>,
   );
   return { onProjectChange, onLogout };
@@ -51,16 +86,23 @@ function renderWithI18nInstance(i18n: ReturnType<typeof createI18n>, loader: Loc
   rtlRender(
     <I18nProvider i18n={i18n} loader={loader}>
       <MemoryRouter>
-        <SiteHeader
-          active="platform"
-          projects={[]}
-          selectedProject={null}
-          onProjectChange={vi.fn()}
-          onLogout={vi.fn()}
-        />
+        <Registry>
+          <SiteHeader
+            active="platform"
+            projects={[]}
+            selectedProject={null}
+            onProjectChange={vi.fn()}
+            onLogout={vi.fn()}
+          />
+        </Registry>
       </MemoryRouter>
     </I18nProvider>,
   );
+}
+
+function chooseLanguage(name: string) {
+  fireEvent.click(screen.getByRole('combobox', { name: 'Language' }));
+  fireEvent.click(screen.getByRole('option', { name }));
 }
 
 const path = () => screen.getByTestId('location').textContent;
@@ -68,12 +110,9 @@ const path = () => screen.getByTestId('location').textContent;
 describe('SiteHeader', () => {
   it.each([
     ['nav-platform', ROUTES.dashboard],
-    ['nav-workflow', ROUTES.workflow],
-    ['nav-spec-files', ROUTES.specFiles],
-    ['nav-spec-queue', ROUTES.specQueue],
-    ['nav-skills-hub', ROUTES.skillsHub],
-    ['nav-hub', ROUTES.landing],
+    ['nav-hub', ROUTES.home],
   ])('%s navigates to %s', (testId, route) => {
+    localStorage.setItem(FEATURE_FLAGS.hub, '1');
     setup();
     fireEvent.click(screen.getByTestId(testId));
     expect(path()).toBe(route);
@@ -88,13 +127,55 @@ describe('SiteHeader', () => {
   it('returns to the hub from the logo', () => {
     setup();
     fireEvent.click(screen.getAllByTitle('Back to hub')[0]!);
-    expect(path()).toBe(ROUTES.landing);
+    expect(path()).toBe(ROUTES.dashboard);
   });
 
-  it('marks only the active section as the current page', () => {
-    setup({ active: 'specQueue' });
-    expect(screen.getByTestId('nav-spec-queue')).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByTestId('nav-platform')).not.toHaveAttribute('aria-current');
+  it('marks only the current page, whether host or remote', () => {
+    setup({ active: 'platform', apps: [remoteApp()] });
+    expect(screen.getByTestId('nav-platform')).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByTestId('nav-app-pulse')).not.toHaveAttribute('aria-current');
+  });
+
+  it('collapses to icons only and remembers the choice', () => {
+    window.localStorage.clear();
+    setup({ projects: [project('a', 'Alpha')] });
+    expect(screen.getByRole('combobox', { name: 'Active project' })).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('nav-collapse'));
+    expect(screen.getByTestId('nav-collapse')).toHaveAttribute('aria-label', 'Expand');
+    expect(screen.queryByRole('combobox', { name: 'Active project' })).not.toBeInTheDocument();
+    expect(screen.getByTestId('nav-platform')).toHaveAttribute('title', 'Platform');
+    expect(window.localStorage.getItem('openjcockpit.sidebarCollapsed')).toBe('1');
+    fireEvent.click(screen.getByTestId('nav-collapse'));
+    expect(screen.getByRole('combobox', { name: 'Active project' })).toBeInTheDocument();
+  });
+
+  it.each([
+    [{ firstName: 'Tony', username: 'tstark' }, 'Tony', 'T'],
+    [{ firstName: '', username: 'tstark' }, 'tstark', 'T'],
+  ])('shows the signed-in user %j as %s', (user, name, initial) => {
+    setup({ user });
+    expect(screen.getAllByText(name).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('tstark')).not.toHaveLength(0);
+    expect(document.querySelector('[aria-hidden="true"][title]')).toHaveTextContent(initial);
+  });
+
+  it('starts expanded when the stored preference cannot be read', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('denied');
+    });
+    setup();
+    expect(screen.getByTestId('nav-collapse')).toHaveAttribute('aria-label', 'Collapse');
+    vi.restoreAllMocks();
+  });
+
+  it('still collapses when the preference cannot be stored', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('quota');
+    });
+    setup();
+    fireEvent.click(screen.getByTestId('nav-collapse'));
+    expect(screen.getByTestId('nav-collapse')).toHaveAttribute('aria-label', 'Expand');
+    vi.restoreAllMocks();
   });
 
   it('logs out', () => {
@@ -105,14 +186,17 @@ describe('SiteHeader', () => {
 
   it('hides the project picker when there are no projects', () => {
     setup();
-    expect(screen.queryByTitle('Active project')).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox', { name: 'Active project' })).not.toBeInTheDocument();
   });
 
   it('offers every supported language by its own name', () => {
     setup();
-    const select = screen.getByLabelText('Language');
-    expect(select).toHaveValue('en');
-    expect(within(select).getByRole('option', { name: 'Nederlands' })).toHaveValue('nl');
+    const select = screen.getByRole('combobox', { name: 'Language' });
+    expect(select).toHaveTextContent('English');
+    fireEvent.click(select);
+    expect(
+      within(screen.getByRole('listbox')).getByRole('option', { name: 'Nederlands' }),
+    ).toHaveAttribute('lang', 'nl');
   });
 
   it('switches the language, translating the header and remembering the choice', async () => {
@@ -120,9 +204,11 @@ describe('SiteHeader', () => {
     const i18n = createI18n({ resources: dashboardResources });
     const loader = vi.fn().mockResolvedValue({ nl });
     renderWithI18nInstance(i18n, loader);
-    fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'nl' } });
+    chooseLanguage('Nederlands');
     expect(await screen.findByRole('navigation', { name: 'Hoofdnavigatie' })).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByTestId('locale-select')).toHaveValue('nl'));
+    await waitFor(() =>
+      expect(screen.getByTestId('locale-select')).toHaveTextContent('Nederlands'),
+    );
     expect(document.documentElement.lang).toBe('nl');
     expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('nl');
   });
@@ -131,18 +217,92 @@ describe('SiteHeader', () => {
     const i18n = createI18n({ resources: dashboardResources });
     const loader = vi.fn().mockRejectedValue(new Error('offline'));
     renderWithI18nInstance(i18n, loader);
-    fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'nl' } });
+    chooseLanguage('Nederlands');
     await waitFor(() => expect(loader).toHaveBeenCalled());
-    expect(screen.getByLabelText('Language')).toHaveValue('en');
+    expect(screen.getByTestId('locale-select')).toHaveTextContent('English');
+  });
+
+  it('offers a theme choice only when the host provides a theme', () => {
+    setup();
+    expect(screen.queryByTestId('theme-select')).not.toBeInTheDocument();
+  });
+
+  it('shows the host theme and changes it', () => {
+    const onChange = vi.fn();
+    render(
+      <MemoryRouter>
+        <Registry>
+          <FakeHubThemeProvider preference="dark" onChange={onChange}>
+            <SiteHeader
+              active="platform"
+              projects={[]}
+              selectedProject={null}
+              onProjectChange={vi.fn()}
+              onLogout={vi.fn()}
+            />
+          </FakeHubThemeProvider>
+        </Registry>
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId('theme-select')).toHaveTextContent('Dark');
+    fireEvent.click(screen.getByRole('combobox', { name: 'Theme' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Light' }));
+    expect(onChange).toHaveBeenCalledWith('light');
   });
 
   it('shows the selected project and reports changes', () => {
     const a = project('a', 'Alpha');
     const b = project('b', 'Beta');
     const { onProjectChange } = setup({ projects: [a, b], selectedProject: b });
-    const select = screen.getByTitle('Active project');
-    expect(select).toHaveValue('b');
-    fireEvent.change(select, { target: { value: 'a' } });
+    const select = screen.getByRole('combobox', { name: 'Active project' });
+    expect(select).toHaveTextContent('Beta');
+    fireEvent.click(select);
+    fireEvent.click(screen.getByRole('option', { name: 'Alpha' }));
     expect(onProjectChange).toHaveBeenCalledWith('a');
+  });
+
+  it('leaves projects that cannot be selected out of the project list', () => {
+    const a = project('a', 'Alpha');
+    const off = { ...project('off', 'Offline'), active: 0 };
+    setup({ projects: [a, off], selectedProject: a });
+    fireEvent.click(screen.getByRole('combobox', { name: 'Active project' }));
+    expect(screen.queryByRole('option', { name: 'Offline' })).not.toBeInTheDocument();
+  });
+
+  it('explains what a nav badge counts', () => {
+    setup({ apps: [remoteApp({ useBadge: () => 2, badgeLabelKey: 'home.eyebrow' })] });
+    expect(screen.getByText('2')).toHaveAttribute('title', 'Home');
+  });
+
+  it('lists remote apps in the nav with their badge, and opens them', () => {
+    const app = remoteApp({ useBadge: () => 4 });
+    setup({ apps: [app] });
+    const item = screen.getByTestId('nav-app-pulse');
+    expect(item).toHaveTextContent('Home');
+    expect(item).toHaveTextContent('4');
+    fireEvent.click(item);
+    expect(path()).toBe('/pulse');
+  });
+
+  it('marks a remote app current on its own routes and shows no badge when it has none', () => {
+    setup({ apps: [remoteApp()], at: '/pulse/details' });
+    const item = screen.getByTestId('nav-app-pulse');
+    expect(item).toHaveAttribute('aria-current', 'page');
+    expect(item).not.toHaveTextContent(/\d/);
+  });
+
+  it('keeps hidden-from-nav apps out and falls back to a generic icon', () => {
+    setup({
+      apps: [remoteApp({ showInNav: false }), remoteApp({ id: 'other', icon: 'unknown-icon' })],
+    });
+    expect(screen.queryByTestId('nav-app-pulse')).not.toBeInTheDocument();
+    expect(screen.getByTestId('nav-app-other')).toBeInTheDocument();
+  });
+
+  it('titles a remote nav item with its label so a truncated label stays readable', () => {
+    setup({ apps: [remoteApp()] });
+    expect(screen.getByTestId('nav-app-pulse')).toHaveAttribute('title', 'Home');
+    fireEvent.click(screen.getByTestId('nav-collapse'));
+    expect(screen.getByTestId('nav-app-pulse')).toHaveAttribute('title', 'Home');
   });
 });

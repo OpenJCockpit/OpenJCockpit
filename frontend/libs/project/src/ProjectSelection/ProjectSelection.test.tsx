@@ -79,15 +79,7 @@ describe('ProjectSelection', () => {
     const card = screen.getByTestId('project-card');
     expect(card).toBeDisabled();
     fireEvent.click(card);
-    fireEvent.keyDown(card, { key: 'Enter' });
     expect(onSelect).not.toHaveBeenCalled();
-  });
-
-  it('selects on Enter', () => {
-    const p = project();
-    const { onSelect } = setup([p]);
-    fireEvent.keyDown(screen.getByTestId('project-card'), { key: 'Enter' });
-    expect(onSelect).toHaveBeenCalledWith(p);
   });
 
   it.each([

@@ -1,4 +1,5 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { chooseOption, optionLabels } from '@openjcockpit/ui/testing';
 import { render } from '../testUtils/render';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WorkflowDesign } from './WorkflowDesign';
@@ -147,9 +148,7 @@ describe('workflow groups in the design tab', () => {
     await renderWorkflowsTab();
 
     const filter = screen.getByLabelText(/^Group$/);
-    await act(async () => {
-      fireEvent.change(filter, { target: { value: 'wg-onboarding' } });
-    });
+    chooseOption(filter, 'Onboarding flows');
 
     expect(screen.getByText('Customer Onboarding')).toBeInTheDocument();
     expect(screen.queryByText('Spec to pull request')).not.toBeInTheDocument();
@@ -163,12 +162,10 @@ describe('workflow groups in the design tab', () => {
     });
 
     const groupSelect = screen
-      .getAllByText('No group')
-      .map((el) => el.closest('select')!)
-      .find((sel) => sel.value === 'wg-onboarding')!;
+      .getAllByRole('combobox', { name: /Group/ })
+      .find((sel) => sel.textContent === 'Onboarding flows')!;
     expect(groupSelect).toBeDefined();
-    expect(within(groupSelect).getByText('Onboarding flows')).toBeInTheDocument();
-    expect(within(groupSelect).getByText('Compliance')).toBeInTheDocument();
+    expect(optionLabels(groupSelect)).toEqual(['No group', 'Onboarding flows', 'Compliance']);
   });
 
   it('manages groups on the Groups tab', async () => {
@@ -289,6 +286,10 @@ describe('workflow groups in the design tab', () => {
       within(screen.getByText('Onboarding flows').closest('tr')!).getByText('Delete').click();
     });
 
+    await act(async () => {
+      screen.getByTestId('confirm-action-confirm').click();
+    });
+
     await waitFor(() => {
       expect(workflowApi.deleteWorkflowGroup).toHaveBeenCalledWith('wg-onboarding');
       expect(screen.queryByText('Onboarding flows')).not.toBeInTheDocument();
@@ -377,10 +378,13 @@ describe('human approval gate (designer)', () => {
       fireEvent.click(screen.getByRole('checkbox', { name: /Human approval gate/ }));
     });
 
-    const select = screen.getByLabelText<HTMLSelectElement>('Gate placement');
-    const optionLabels = Array.from(select.options).map((o) => o.textContent);
-    expect(optionLabels).toEqual(['Realisation Agent', 'Requirement Agent', 'Test Design Agent']);
-    expect(select.value).toBe('test-design');
+    const select = screen.getByLabelText('Gate placement');
+    expect(optionLabels(select)).toEqual([
+      'Realisation Agent',
+      'Requirement Agent',
+      'Test Design Agent',
+    ]);
+    expect(select).toHaveTextContent('Test Design Agent');
   });
 
   it('defaults to the last linked agent in execution order (AC-02)', async () => {
@@ -390,8 +394,7 @@ describe('human approval gate (designer)', () => {
       fireEvent.click(screen.getByRole('checkbox', { name: /Human approval gate/ }));
     });
 
-    const select = screen.getByLabelText<HTMLSelectElement>('Gate placement');
-    expect(select.value).toBe('requirement');
+    expect(screen.getByLabelText('Gate placement')).toHaveTextContent('Requirement Agent');
   });
 
   it('offers feedback re-runs at any linked agent, as text only (AC-60)', async () => {
@@ -406,7 +409,7 @@ describe('human approval gate (designer)', () => {
     ).toBeInTheDocument();
 
     const select = screen.getByLabelText('Gate placement');
-    fireEvent.change(select, { target: { value: 'requirement' } });
+    chooseOption(select, 'Requirement Agent');
 
     expect(
       screen.getByText(/Up to 3 feedback iterations are available at this gate/),
@@ -442,7 +445,7 @@ describe('human approval gate (designer)', () => {
     });
 
     expect(screen.getByRole('checkbox', { name: /Human approval gate/ })).toBeChecked();
-    expect(screen.getByLabelText('Gate placement')).toHaveValue('realisation');
+    expect(screen.getByLabelText('Gate placement')).toHaveTextContent('Realisation Agent');
   });
 
   it('displays the server-provided validation message instead of a generic failure (AC-03)', async () => {
@@ -485,6 +488,10 @@ describe('human approval gate (designer)', () => {
 
     await act(async () => {
       within(screen.getByText('Customer Onboarding').closest('tr')!).getByText('Delete').click();
+    });
+
+    await act(async () => {
+      screen.getByTestId('confirm-action-confirm').click();
     });
 
     await waitFor(() => {
@@ -555,9 +562,7 @@ describe('workflow orb authoring', () => {
     await act(async () => {
       screen.getByText('+ Add orb').click();
     });
-    fireEvent.change(screen.getByLabelText('Referenced workflow'), {
-      target: { value: 'wf-other' },
-    });
+    chooseOption(screen.getByLabelText('Referenced workflow'), OTHER_WORKFLOW.name);
 
     await act(async () => {
       screen.getByText('Save').click();
@@ -573,9 +578,9 @@ describe('workflow orb authoring', () => {
       screen.getByText('+ Add orb').click();
     });
 
-    const placementSelect = screen.getByLabelText<HTMLSelectElement>('Placement anchor');
-    expect(placementSelect.value).toBe('');
-    expect(placementSelect.options[0]?.textContent).toMatch(/run first/i);
+    const placementSelect = screen.getByLabelText('Placement anchor');
+    expect(placementSelect.textContent).toMatch(/run first/i);
+    expect(optionLabels(placementSelect)[0]).toMatch(/run first/i);
   });
 
   it('disables Add orb once 5 orbs are already present (UX cap hint)', async () => {
@@ -597,9 +602,7 @@ describe('workflow orb authoring', () => {
     await act(async () => {
       screen.getByText('+ Add orb').click();
     });
-    fireEvent.change(screen.getByLabelText('Referenced workflow'), {
-      target: { value: 'wf-other' },
-    });
+    chooseOption(screen.getByLabelText('Referenced workflow'), OTHER_WORKFLOW.name);
     const sequentialRadio = screen.getByRole('radio', { name: /Sequential/ });
     await act(async () => {
       fireEvent.click(sequentialRadio);
@@ -935,7 +938,7 @@ describe('workflow export and import', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Failed to import workflows from JSON.')).toBeInTheDocument();
+      expect(screen.getByText('Failed to import the workflows from JSON.')).toBeInTheDocument();
     });
     expect(workflowApi.importWorkflows).not.toHaveBeenCalled();
   });
@@ -1780,9 +1783,7 @@ describe('workflows panel actions', () => {
 
   it('filters to workflows without a group', async () => {
     await renderWorkflowsTab();
-    await act(async () => {
-      fireEvent.change(screen.getByLabelText(/^Group$/), { target: { value: 'none' } });
-    });
+    chooseOption(screen.getByLabelText(/^Group$/), 'No group');
     expect(screen.queryByText('Customer Onboarding')).not.toBeInTheDocument();
     expect(screen.getByText('Spec to pull request')).toBeInTheDocument();
   });
@@ -1836,7 +1837,7 @@ describe('workflows panel actions', () => {
     await act(async () => {
       screen.getByText('Save').click();
     });
-    expect((await screen.findAllByText('Failed to save workflow.')).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText('Failed to save the workflow.')).length).toBeGreaterThan(0);
   });
 
   it('removes a deleted workflow from the list', async () => {
@@ -1844,6 +1845,9 @@ describe('workflows panel actions', () => {
     await renderWorkflowsTab();
     await act(async () => {
       within(screen.getByText('Customer Onboarding').closest('tr')!).getByText('Delete').click();
+    });
+    await act(async () => {
+      screen.getByTestId('confirm-action-confirm').click();
     });
     await waitFor(() => expect(screen.queryByText('Customer Onboarding')).not.toBeInTheDocument());
     expect(workflowApi.deleteWorkflow).toHaveBeenCalledWith('wf-1');
@@ -1855,7 +1859,10 @@ describe('workflows panel actions', () => {
     await act(async () => {
       within(screen.getByText('Customer Onboarding').closest('tr')!).getByText('Delete').click();
     });
-    expect(await screen.findByText('Failed to delete workflow.')).toBeInTheDocument();
+    await act(async () => {
+      screen.getByTestId('confirm-action-confirm').click();
+    });
+    expect(await screen.findByText('Failed to delete the workflow.')).toBeInTheDocument();
     expect(screen.getByText('Customer Onboarding')).toBeInTheDocument();
   });
 
@@ -1865,7 +1872,7 @@ describe('workflows panel actions', () => {
     await act(async () => {
       screen.getByText('⬇ Export JSON').click();
     });
-    expect(await screen.findByText('Failed to export workflows.')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to export the workflows.')).toBeInTheDocument();
   });
 
   it('shows a generic catalogue error when loading fails with a non-Error', async () => {

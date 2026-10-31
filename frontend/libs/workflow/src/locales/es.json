@@ -4,7 +4,6 @@
       "cancel": "Cancelar",
       "edit": "Editar",
       "delete": "Eliminar",
-      "remove": "Quitar",
       "retry": "Reintentar",
       "name": "Nombre",
       "description": "Descripción",
@@ -15,7 +14,8 @@
       "readOnly": "Solo lectura",
       "skills": "Skills",
       "version": "Versión",
-      "group": "Grupo"
+      "group": "Grupo",
+      "deleting": "Eliminando…"
     },
     "agentLogConsole": {
       "label": "LOG DEL AGENTE // {{agent}}",
@@ -41,7 +41,7 @@
       "title": "Aceptar con mis comentarios",
       "hint": "Describe qué debe cambiar en el siguiente intento. Esto vuelve a ejecutar la etapa de realización con tus comentarios y reabre este punto de control sobre el nuevo resultado.",
       "label": "Comentarios para el siguiente intento",
-      "placeholder": "Explica qué debe cambiar o corregir el siguiente intento...",
+      "placeholder": "Explica qué debe cambiar o corregir el siguiente intento…",
       "limit": "Hasta {{max}} caracteres.",
       "submitting": "⟳ Enviando…",
       "confirm": "Confirmar",
@@ -68,7 +68,7 @@
     "a2aServices": {
       "title": "Servicios A2A",
       "intro": "Gateways que alojan los agentes A2A que pueden usar los workflows. Sus agentes aparecen en Diseño de workflows → Agentes. Los servicios de la configuración del servicio de agentes son de solo lectura. Esta configuración es global: se aplica a todos los proyectos.",
-      "loading": "Cargando servicios A2A...",
+      "loading": "Cargando servicios A2A…",
       "columns": {
         "service": "Servicio",
         "baseUrl": "URL base",
@@ -85,27 +85,25 @@
       "noApiKey": "Sin clave de API",
       "callerIdentity": "Identidad del llamante: {{id}}",
       "noCallerIdentity": "Sin identidad del llamante",
-      "confirmRemove": "Confirmar eliminación",
-      "keep": "Conservar",
       "empty": "Aún no hay servicios A2A configurados.",
       "formTitleEdit": "Editar {{name}}",
       "formTitleAdd": "Añadir servicio A2A",
       "formHint": "Un gateway A2A compatible con LiteLLM (registro de agentes en /v1/agents, agentes en /a2a/<nombre>).",
       "fields": {
-        "id": "Id *",
+        "id": "Id",
         "idPlaceholder": "acme-gateway",
         "idHintEdit": "Los workflows hacen referencia a los agentes como a2a:<id>:<agente>, por lo que el id no puede cambiar.",
         "idHintAdd": "Letras minúsculas, dígitos y guiones; los workflows hacen referencia a los agentes como a2a:<id>:<agente>.",
-        "name": "Nombre *",
+        "name": "Nombre",
         "namePlaceholder": "Gateway de Acme",
-        "baseUrl": "URL base *",
+        "baseUrl": "URL base",
         "baseUrlPlaceholder": "http://litellm:4000",
         "baseUrlHint": "La dirección que usa el servicio de agentes.",
         "publicUrl": "URL pública",
         "publicUrlPlaceholder": "https://a2a.example.com",
         "publicUrlHint": "La dirección que ven los usuarios en las tarjetas de agente; por defecto, la URL base.",
         "apiKeyEdit": "Clave de API",
-        "apiKeyAdd": "Clave de API *",
+        "apiKeyAdd": "Clave de API",
         "callerTokenUrl": "URL del token del llamante",
         "callerTokenUrlPlaceholder": "https://idp.example.com/realms/x/protocol/openid-connect/token",
         "callerTokenUrlHint": "Identidad OAuth2 opcional (client credentials) que el gateway reenvía a sus agentes. Deja la URL y el id de cliente vacíos si no la necesitas.",
@@ -115,10 +113,22 @@
       },
       "saveService": "Guardar servicio A2A",
       "addService": "Añadir servicio A2A",
-      "addButton": "+ Añadir servicio A2A"
+      "addButton": "+ Añadir servicio A2A",
+      "loadFailed": "No se pudieron cargar los servicios A2A.",
+      "saveFailed": "No se pudo guardar el servicio A2A.",
+      "deleteFailed": "No se pudo eliminar el servicio A2A.",
+      "added": "Servicio A2A «{{name}}» añadido.",
+      "updated": "Servicio A2A «{{name}}» guardado.",
+      "deleted": "Servicio A2A «{{name}}» eliminado.",
+      "error": {
+        "idRequired": "El id es obligatorio.",
+        "nameRequired": "El nombre es obligatorio.",
+        "baseUrlRequired": "La URL base es obligatoria.",
+        "apiKeyRequired": "La clave de API es obligatoria."
+      }
     },
     "config": {
-      "loading": "Cargando configuración...",
+      "loading": "Cargando configuración…",
       "enabled": "Habilitado",
       "workflowIdToStart": "ID del workflow que se iniciará",
       "authToken": "Token de autenticación",
@@ -137,7 +147,9 @@
       "types": "Tipos de documento permitidos",
       "typesPlaceholder": "pdf,docx,md",
       "workflowId": "ID del workflow que se iniciará con un archivo nuevo",
-      "trigger": "Activador por archivo habilitado"
+      "trigger": "Activador por archivo habilitado",
+      "saved": "Configuración de la carpeta de documentos guardada.",
+      "saveFailed": "No se pudo guardar la configuración de la carpeta de documentos."
     },
     "hermes": {
       "loadFailed": "No se pudo cargar la configuración de Hermes.",
@@ -146,7 +158,9 @@
       "endpoint": "Fuente de señales / endpoint",
       "endpointPlaceholder": "https://hermes.example.com/signals",
       "signalType": "Tipo de señal",
-      "signalTypePlaceholder": "issue.created"
+      "signalTypePlaceholder": "issue.created",
+      "saved": "Configuración de Hermes guardada.",
+      "saveFailed": "No se pudo guardar la configuración de Hermes."
     },
     "jira": {
       "loadFailed": "No se pudo cargar la configuración de Jira.",
@@ -156,7 +170,10 @@
       "baseUrlPlaceholder": "https://your-org.atlassian.net",
       "projectKey": "Clave del proyecto",
       "issueTypeMapping": "Asignación de tipos de incidencia",
-      "issueTypeMappingPlaceholder": "Bug=bugfix-workflow"
+      "issueTypeMappingPlaceholder": "Bug=bugfix-workflow",
+      "saved": "Configuración de Jira guardada.",
+      "saveFailed": "No se pudo guardar la configuración de Jira.",
+      "projectKeyPlaceholder": "NL"
     },
     "opa": {
       "loadFailed": "No se pudo cargar la configuración de OPA.",
@@ -180,7 +197,17 @@
       "projectLabel": "Etiqueta de proyecto",
       "projectLabelPlaceholder": "onboarding",
       "decisionLogging": "Registro de decisiones habilitado",
-      "decisionLogExport": "Exportación del registro de decisiones habilitada"
+      "decisionLogExport": "Exportación del registro de decisiones habilitada",
+      "saved": "Configuración de OPA guardada.",
+      "saveFailed": "No se pudo guardar la configuración de OPA.",
+      "status": {
+        "notConfigured": "Sin configurar",
+        "disabled": "Desactivado",
+        "unreachable": "Configurado pero inaccesible",
+        "reachable": "Configurado y accesible",
+        "enforcing": "Activado y aplicando",
+        "unavailable": "Activado pero política no disponible"
+      }
     },
     "dashboard": {
       "backTitle": "Volver al panel",
@@ -193,7 +220,8 @@
         "design": "Diseño",
         "execution": "Ejecución del workflow"
       },
-      "runLoadFailed": "No se pudo cargar el workflow de esta ejecución — {{error}}"
+      "runLoadFailed": "No se pudo cargar el workflow de esta ejecución — {{error}}",
+      "workflowLoadFailed": "No se pudo cargar el workflow."
     },
     "design": {
       "tabsLabel": "Secciones de diseño",
@@ -207,8 +235,8 @@
     },
     "agentsPanel": {
       "loadFailed": "No se pudo cargar el catálogo de agentes.",
-      "loading": "Cargando agentes...",
-      "refresh": "↻ Actualizar",
+      "loading": "Cargando agentes…",
+      "refresh": "⟳ Actualizar",
       "status": {
         "NOT_CONFIGURED": "No configurado",
         "UNAVAILABLE": "No disponible",
@@ -216,7 +244,8 @@
         "INVALID": "Respuesta no válida"
       },
       "emptyLocal": "Aún no hay agentes en la carpeta /agents.",
-      "emptyProvider": "No hay agentes registrados en {{name}}."
+      "emptyProvider": "No hay agentes registrados en {{name}}.",
+      "intro": "Los agentes que pueden usar los workflows: agentes locales y los agentes alojados en tus servicios A2A. Esta lista es de solo lectura. Añade servicios A2A en Configuración."
     },
     "localAgents": {
       "model": "Modelo",
@@ -230,7 +259,7 @@
       "hide": "Ocultar",
       "details": "Detalles",
       "cardFailed": "No se pudo obtener la tarjeta de agente de {{name}}.",
-      "cardLoading": "Cargando tarjeta de agente...",
+      "cardLoading": "Cargando tarjeta de agente…",
       "cardLabel": "Tarjeta de agente {{name}}",
       "agentCard": "Tarjeta de agente",
       "providerKeyRequired": "(se requiere clave del proveedor)",
@@ -253,10 +282,12 @@
       "projectName": "Nombre del proyecto",
       "projectPlaceholder": "Déjalo vacío para un grupo global",
       "projectHint": "Vacío = global: los workflows de este grupo están disponibles para todos los proyectos.",
-      "loading": "Cargando grupos...",
+      "loading": "Cargando grupos…",
       "newButton": "+ Nuevo grupo",
       "intro": "Los grupos agrupan workflows diseñados con un propósito concreto (por ejemplo onboarding, cumplimiento normativo o informes). Al eliminar un grupo se desvinculan sus workflows; los workflows en sí se conservan.",
-      "global": "Global (todos los proyectos)"
+      "global": "Global (todos los proyectos)",
+      "saveFailed": "No se pudo guardar el grupo de workflows.",
+      "deleteFailed": "No se pudo eliminar el grupo de workflows."
     },
     "promptGenerator": {
       "example": {
@@ -284,14 +315,33 @@
       "input": "Entrada",
       "output": "Salida",
       "notProvided": "No proporcionado",
-      "local": "Local"
+      "local": "Local",
+      "loadFailed": "No se pudo cargar el catálogo de skills.",
+      "draftFailed": "No se pudo generar el borrador de la skill.",
+      "saveFailed": "No se pudo guardar la definición de la skill.",
+      "deleteFailed": "No se pudo eliminar la definición de la skill.",
+      "sourceOutcome": {
+        "authFailed": "{{name}}: se rechazó la autenticación (HTTP {{status}}).",
+        "unknownStatus": "desconocido",
+        "timeout": "{{name}}: se agotó el tiempo de espera.",
+        "unreachable": "{{name}}: no se pudo contactar.",
+        "invalidResponse": "{{name}}: devolvió una respuesta no válida.",
+        "blockedByPolicy": "{{name}}: bloqueado por la política de salida.",
+        "configError": "{{name}}: error de configuración — revise su clave de API.",
+        "unknown": "{{name}}: estado desconocido."
+      }
     },
     "subagents": {
       "new": "Nuevo subagente",
       "edit": "Editar subagente",
-      "loading": "Cargando subagentes...",
+      "loading": "Cargando subagentes…",
       "newButton": "+ Nuevo subagente",
-      "parentAgent": "Agente padre"
+      "parentAgent": "Agente padre",
+      "loadFailed": "No se pudieron cargar los subagentes.",
+      "draftFailed": "No se pudo generar el borrador del subagente.",
+      "saveFailed": "No se pudo guardar la definición del subagente.",
+      "deleteFailed": "No se pudo eliminar la definición del subagente.",
+      "intro": "Los subagentes son ayudantes a los que un agente principal encarga tareas concretas. Cada uno tiene sus propias instrucciones y skills."
     },
     "agentPicker": {
       "agents": "Agentes",
@@ -344,7 +394,7 @@
       "customerId": "ID de cliente (ejecución)"
     },
     "workflows": {
-      "loading": "Cargando workflows...",
+      "loading": "Cargando workflows…",
       "newButton": "+ Nuevo workflow",
       "group": "Grupo",
       "allGroups": "Todos los grupos",
@@ -352,13 +402,24 @@
       "export": "⬇ Exportar JSON",
       "importLabel": "Importar JSON de workflows",
       "import": "⬆ Importar JSON",
-      "unresolved": "No se pudieron resolver {{count}} referencia(s):"
+      "unresolved": "No se pudieron resolver {{count}} referencia(s):",
+      "saveFailed": "No se pudo guardar el workflow.",
+      "deleteFailed": "No se pudo eliminar el workflow.",
+      "exportFailed": "No se pudieron exportar los workflows.",
+      "importFailed": "No se pudieron importar los workflows desde el JSON.",
+      "imported": "Se importaron {{workflows}} workflow(s) y {{groups}} grupo(s).",
+      "groupOrProjectRequired": "Vincule el workflow a un grupo o introduzca un nombre de proyecto — sin grupo, el proyecto es obligatorio.",
+      "agentRequired": "Vincule al menos un agente — un workflow sin agentes no puede ejecutarse.",
+      "orbModeRequired": "Orbe de workflow {{index}}: elija un modo de ejecución (Secuencial o Paralelo) antes de guardar.",
+      "catalogFailed": "No se pudo cargar el catálogo de agentes.",
+      "intro": "Los workflows encadenan agentes en un proceso repetible. Un workflow pertenece a un grupo o a un proyecto y se inicia desde el panel, con una señal de Hermes o con la entrega de un archivo."
     },
     "runLost": {
       "message": "Se perdió el estado de esta ejecución, probablemente porque el servicio se reinició. No es posible tomar una decisión de aprobación para esta ejecución.",
       "startAgain": "Iniciar de nuevo"
     },
     "workflowExecution": {
+      "emptyTitle": "Ningún workflow en ejecución",
       "empty": "Inicia un workflow desde la pestaña Resumen para verlo en ejecución aquí.",
       "stopping": "⟳ Deteniendo…",
       "stop": "◼ Detener",
@@ -380,7 +441,7 @@
       "loadMore": "Cargar más"
     },
     "overview": {
-      "loading": "Cargando workflows...",
+      "loading": "Cargando workflows…",
       "loadFailed": "No se pudieron cargar los workflows — {{error}}",
       "empty": "Aún no hay workflows definidos. Crea uno en la pestaña Diseño.",
       "project": "Proyecto",
@@ -419,6 +480,16 @@
       "placeholder": "Por ejemplo: añade un botón de exportación a la vista general de clientes que descargue la tabla como CSV.",
       "starting": "⟳ Iniciando…",
       "start": "▶ Iniciar con prompt"
+    },
+    "confirmDelete": {
+      "title": "¿Eliminar {{name}}?",
+      "message": {
+        "workflow": "La definición del flujo de trabajo se elimina de forma permanente.",
+        "group": "El grupo de flujos de trabajo se elimina de forma permanente. Los flujos que contiene no se eliminan.",
+        "subagent": "La definición del subagente se elimina de forma permanente.",
+        "skill": "La definición de la skill se elimina de forma permanente.",
+        "a2aService": "Los flujos de trabajo que usan sus agentes dejan de funcionar hasta que se vuelva a añadir."
+      }
     }
   }
 }

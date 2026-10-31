@@ -1,0 +1,19 @@
+{
+  "name": "openjcockpit-remote-hello",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore"
+  },
+  "dependencies": {
+    "@openjcockpit/hello-hub": "*",
+    "@openjcockpit/hub-contract": "*",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router": "7.18.4"
+  },
+  "nx": {
+    "includedScripts": []
+  }
+}

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   AppShell,
   AppHeader,
@@ -5,7 +6,9 @@ import {
   TextField,
   Eyebrow,
   Actions,
+  CheckboxField,
   DataTable,
+  StatusChip,
   fieldErrorClass,
   fieldHintClass,
   formClass,
@@ -15,17 +18,21 @@ import {
   pageClass,
   pageHeaderClass,
   StatusMessage,
+  useConfirmDialog,
 } from '@openjcockpit/ui';
-import { useTranslation } from '@openjcockpit/i18n';
+import { useFormatters, useTranslation } from '@openjcockpit/i18n';
 import styles from './SkillsHubSettings.module.scss';
 import { useSkillsHubSettings } from './useSkillsHubSettings';
 
 interface Props {
   onBack: () => void;
+  /** Replaces the default back-button header, e.g. with the app's shared sidebar. */
+  header?: ReactNode;
 }
 
-export function SkillsHubSettings({ onBack }: Props) {
+export function SkillsHubSettings({ onBack, header }: Props) {
   const { t } = useTranslation('skillsHub');
+  const { formatDate } = useFormatters();
   const {
     connections,
     loaded,
@@ -42,6 +49,7 @@ export function SkillsHubSettings({ onBack }: Props) {
     handleSave,
     handleDelete,
   } = useSkillsHubSettings();
+  const { confirm, dialog } = useConfirmDialog();
 
   if (!loaded) {
     return <StatusMessage variant="loading">{t('settings.loading')}</StatusMessage>;
@@ -49,7 +57,7 @@ export function SkillsHubSettings({ onBack }: Props) {
 
   return (
     <AppShell>
-      <AppHeader onBack={onBack} backTitle={t('settings.backTitle')} />
+      {header ?? <AppHeader onBack={onBack} backTitle={t('settings.backTitle')} />}
 
       <main className={pageClass}>
         <div className={pageHeaderClass}>
@@ -75,6 +83,7 @@ export function SkillsHubSettings({ onBack }: Props) {
           <div className={formGridClass}>
             <TextField
               label={t('settings.name')}
+              required
               ref={nameInputRef}
               value={form.name}
               onChange={(v) => setForm((f) => ({ ...f, name: v }))}
@@ -82,12 +91,14 @@ export function SkillsHubSettings({ onBack }: Props) {
             />
             <TextField
               label={t('settings.marketplaceUrl')}
+              required
               value={form.marketplaceUrl}
               onChange={(v) => setForm((f) => ({ ...f, marketplaceUrl: v }))}
               placeholder={t('settings.marketplaceUrlPlaceholder')}
             />
             <TextField
               label={editingId === null ? t('settings.apiKeyRequired') : t('settings.apiKey')}
+              required={editingId === null}
               type="password"
               value={form.apiKey!}
               onChange={(v) => setForm((f) => ({ ...f, apiKey: v }))}
@@ -105,14 +116,11 @@ export function SkillsHubSettings({ onBack }: Props) {
               onChange={(v) => setForm((f) => ({ ...f, description: v }))}
               placeholder={t('settings.descriptionPlaceholder')}
             />
-            <label className={styles.enabledField}>
-              <input
-                type="checkbox"
-                checked={form.enabled}
-                onChange={(e) => setForm((f) => ({ ...f, enabled: e.target.checked }))}
-              />{' '}
-              {t('settings.enabledField')}
-            </label>
+            <CheckboxField
+              label={t('settings.enabledField')}
+              checked={form.enabled}
+              onChange={(enabled) => setForm((f) => ({ ...f, enabled }))}
+            />
           </div>
           <Actions className={styles.formActions}>
             <Button variant="primary" onClick={() => void handleSave()} disabled={saving}>
@@ -146,13 +154,30 @@ export function SkillsHubSettings({ onBack }: Props) {
                 </td>
                 <td>{connection.marketplaceUrl}</td>
                 <td>{connection.hasApiKey ? t('settings.apiKeySet') : t('settings.noApiKey')}</td>
-                <td>{connection.enabled ? t('settings.enabled') : t('settings.disabled')}</td>
-                <td>{connection.createdAt.slice(0, 10)}</td>
+                <td>
+                  <StatusChip
+                    label={connection.enabled ? t('settings.enabled') : t('settings.disabled')}
+                    kind={connection.enabled ? 'ok' : 'neutral'}
+                  />
+                </td>
+                <td>{formatDate(connection.createdAt)}</td>
                 <Actions as="td">
                   <Button variant="secondary" onClick={() => startEdit(connection)}>
                     {t('settings.edit')}
                   </Button>
-                  <Button variant="secondary" onClick={() => void handleDelete(connection)}>
+                  <Button
+                    variant="danger"
+                    onClick={() =>
+                      confirm({
+                        title: t('settings.confirmDelete.title', { name: connection.name }),
+                        message: t('settings.confirmDelete.message'),
+                        confirmLabel: t('settings.delete'),
+                        cancelLabel: t('settings.cancel'),
+                        busyLabel: t('settings.deleting'),
+                        onConfirm: () => handleDelete(connection),
+                      })
+                    }
+                  >
                     {t('settings.delete')}
                   </Button>
                 </Actions>
@@ -168,6 +193,7 @@ export function SkillsHubSettings({ onBack }: Props) {
           </tbody>
         </DataTable>
       </main>
+      {dialog}
     </AppShell>
   );
 }

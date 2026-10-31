@@ -1,12 +1,16 @@
 {
   "skillsHub": {
     "eyebrow": "Skills Hub",
+    "contributions": {
+      "widgetSummary": "Connected marketplaces: {{count}}",
+      "widgetEmpty": "No marketplace connected yet."
+    },
     "dashboard": {
       "backTitle": "Back to dashboard",
       "title": "Available skills",
       "settingsTitle": "Skills Hub settings",
       "settings": "⚙ Settings",
-      "searchPlaceholder": "Search for a skill...",
+      "searchPlaceholder": "Search for a skill…",
       "searchLabel": "Search for a skill",
       "search": "⌕ Search",
       "columnCategory": "Category",
@@ -30,16 +34,16 @@
     },
     "settings": {
       "backTitle": "Back to Skills Hub",
-      "loading": "Loading marketplaces...",
+      "loading": "Loading marketplaces…",
       "title": "Marketplace connections",
       "formNew": "New marketplace",
       "formEdit": "Edit marketplace",
-      "name": "Name *",
+      "name": "Name",
       "namePlaceholder": "e.g. Acme Skills",
-      "marketplaceUrl": "Marketplace URL *",
+      "marketplaceUrl": "Marketplace URL",
       "marketplaceUrlPlaceholder": "https://marketplace.example.com/api",
       "apiKey": "API key",
-      "apiKeyRequired": "API key *",
+      "apiKeyRequired": "API key",
       "apiKeyKeepPlaceholder": "Leave empty to keep the current API key",
       "apiKeyRequiredPlaceholder": "Required — no API key set yet",
       "description": "Description",
@@ -65,13 +69,18 @@
         "loadFailed": "Failed to load marketplaces.",
         "nameRequired": "Name is required.",
         "urlRequired": "Marketplace URL is required.",
-        "saveFailed": "Save failed.",
-        "deleteFailed": "Delete failed."
+        "saveFailed": "Failed to save the marketplace.",
+        "deleteFailed": "Failed to delete the marketplace."
       },
       "status": {
         "added": "Marketplace \"{{name}}\" has been added.",
         "updated": "Marketplace \"{{name}}\" has been updated.",
         "deleted": "Marketplace \"{{name}}\" has been deleted."
+      },
+      "deleting": "Deleting…",
+      "confirmDelete": {
+        "title": "Delete {{name}}?",
+        "message": "The marketplace connection and its API key are deleted permanently."
       }
     }
   }

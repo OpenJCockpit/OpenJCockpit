@@ -2,6 +2,9 @@
   "common": {
     "secretField": {
       "configuredHint": "(al ingesteld — leeg laten om te behouden)"
-    }
+    },
+    "back": "← Terug",
+    "somethingWrong": "Er is iets misgegaan.",
+    "reload": "Opnieuw laden"
   }
 }

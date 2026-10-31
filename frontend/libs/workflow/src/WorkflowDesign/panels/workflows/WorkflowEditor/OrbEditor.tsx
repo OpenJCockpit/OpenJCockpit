@@ -68,14 +68,11 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
             label={t('orbEditor.referenced')}
             value={orb.workflowId}
             onChange={(v) => updateOrb(index, { workflowId: v })}
-          >
-            <option value="">{t('orbEditor.select')}</option>
-            {candidates.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.name}
-              </option>
-            ))}
-          </SelectField>
+            options={[
+              { value: '', label: t('orbEditor.select') },
+              ...candidates.map((w) => ({ value: w.id, label: w.name })),
+            ]}
+          />
           <fieldset aria-describedby={error ? 'workflow-orb-error' : undefined}>
             <legend>{t('orbEditor.mode')}</legend>
             <label>
@@ -104,14 +101,11 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
             label={t('orbEditor.placement')}
             value={orb.placementStage ?? ''}
             onChange={(v) => updateOrb(index, { placementStage: v })}
-          >
-            <option value="">{t('orbEditor.runFirst')}</option>
-            {stages.map((agent) => (
-              <option key={agent.id} value={agent.id}>
-                {agent.name}
-              </option>
-            ))}
-          </SelectField>
+            options={[
+              { value: '', label: t('orbEditor.runFirst') },
+              ...stages.map((agent) => ({ value: agent.id, label: agent.name })),
+            ]}
+          />
           <Button type="button" size="sm" onClick={() => removeOrb(index)}>
             {t('orbEditor.remove')}
           </Button>

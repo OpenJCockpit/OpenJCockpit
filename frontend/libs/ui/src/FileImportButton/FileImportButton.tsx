@@ -1,5 +1,5 @@
 import { useRef, type ReactNode } from 'react';
-import { ToolbarButton } from '../ToolbarButton/ToolbarButton';
+import { Button } from '../Button/Button';
 import styles from './FileImportButton.module.scss';
 
 interface FileImportButtonProps {
@@ -15,9 +15,9 @@ export function FileImportButton({ children, accept, onFile, inputLabel }: FileI
   const inputRef = useRef<HTMLInputElement>(null);
   return (
     <>
-      <ToolbarButton variant="small" onClick={() => inputRef.current?.click()}>
+      <Button variant="secondary" onClick={() => inputRef.current?.click()}>
         {children}
-      </ToolbarButton>
+      </Button>
       <input
         ref={inputRef}
         type="file"

@@ -20,7 +20,7 @@ const EMPTY_FORM: SkillsMarketplaceConnectionRequest = {
   enabled: true,
 };
 
-const MARKETPLACES_KEY = ['skills-marketplaces'];
+import { MARKETPLACES_KEY } from '../contributions/useConnectedMarketplaces';
 /** Marketplace connections list, form state and save / delete actions. */
 export function useSkillsHubSettings() {
   const { t } = useTranslation('skillsHub');

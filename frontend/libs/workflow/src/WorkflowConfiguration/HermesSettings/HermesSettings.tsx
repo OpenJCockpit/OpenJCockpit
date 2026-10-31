@@ -70,9 +70,9 @@ export function HermesSettings({ projectId }: Props) {
       });
       queryClient.setQueryData(queryKey, result);
       setEdited(null);
-      setSavedMessage('Hermes configuration saved.');
+      setSavedMessage(t('hermes.saved'));
     } catch (err) {
-      setError('Failed to save Hermes configuration.');
+      setError(t('hermes.saveFailed'));
       console.warn(err);
     } finally {
       setSaving(false);

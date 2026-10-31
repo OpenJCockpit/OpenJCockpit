@@ -1,6 +1,8 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ROUTES } from './routes';
 import { renderRoutedApp } from './testUtils/renderRoutedApp';
+import { specsRemotes } from './testUtils/specsRemoteStubs';
 import * as api from '@openjcockpit/api';
 import * as workflowApi from '@openjcockpit/api';
 import { mockWorkspace } from '@openjcockpit/api/testing';
@@ -74,10 +76,43 @@ async function renderDashboard(specs: SpecFile[], workflows: WorkflowDefinition[
   });
   vi.mocked(api.getSpecInitStatus).mockResolvedValue({ pending: false });
 
-  renderRoutedApp();
+  renderRoutedApp(ROUTES.landing, specsRemotes);
   await enterDashboard();
   await screen.findByText('▶ Start');
 }
+
+describe('when the specs cannot be loaded', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.clearAllMocks();
+  });
+
+  async function renderFailing() {
+    mockDashboardApis({ project: PROJECT_WITH_GIT });
+    vi.mocked(api.loadProjectSpecs).mockRejectedValue(new Error('down'));
+    vi.mocked(api.getSpecInitStatus).mockResolvedValue({ pending: false });
+    renderRoutedApp(ROUTES.landing, specsRemotes);
+    await enterDashboard();
+    await screen.findByTestId('flow-specs-error');
+  }
+
+  it('shows the failure in both panels', async () => {
+    await renderFailing();
+    expect(screen.getByTestId('specs-error')).toBeInTheDocument();
+    expect(screen.getByText('Failed to load the specs')).toBeInTheDocument();
+    expect(screen.queryByText('▶ Start')).not.toBeInTheDocument();
+  });
+
+  it.each([['Retry'], ['⟳ Reload specs']])('recovers through "%s"', async (label) => {
+    await renderFailing();
+    vi.mocked(api.loadProjectSpecs).mockResolvedValue(SPECS);
+    await act(async () => {
+      screen.getByRole('button', { name: label }).click();
+    });
+    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+    expect(screen.queryByTestId('flow-specs-error')).not.toBeInTheDocument();
+  });
+});
 
 describe('spec files in the left pane', () => {
   beforeEach(() => {
@@ -91,7 +126,7 @@ describe('spec files in the left pane', () => {
     expect(api.loadProjectSpecs).toHaveBeenCalledWith(PROJECT.id, expect.any(AbortSignal));
     expect(screen.getAllByText('checkout-flow.md').length).toBeGreaterThan(0);
     expect(screen.getByText('pricing-rules.md')).toBeInTheDocument();
-    expect(screen.queryByText('No Specs Found')).not.toBeInTheDocument();
+    expect(screen.queryByText('No specs found')).not.toBeInTheDocument();
   });
 
   it('selects another spec when clicked and shows it in the center header', async () => {
@@ -104,10 +139,10 @@ describe('spec files in the left pane', () => {
     expect(screen.getByRole('heading', { name: 'pricing-rules.md' })).toBeInTheDocument();
   });
 
-  it('shows an unclickable No Specs Found record when the repository has no specs', async () => {
+  it('shows an unclickable No specs found record when the repository has no specs', async () => {
     await renderDashboard([]);
 
-    const record = screen.getByText('No Specs Found').closest('article')!;
+    const record = screen.getByText('No specs found', { selector: 'strong' }).closest('article')!;
     expect(record).not.toHaveAttribute('role');
     expect(record.className).toContain(specStyles.specCardEmpty);
   });
@@ -120,9 +155,9 @@ describe('spec files in the left pane', () => {
     });
 
     await waitFor(() =>
-      expect(screen.getByTestId('nav-workflow')).toHaveAttribute('aria-current', 'page'),
+      expect(screen.getByTestId('nav-app-workflow')).toHaveAttribute('aria-current', 'page'),
     );
-    expect(screen.queryByText('No Specs Found')).not.toBeInTheDocument();
+    expect(screen.queryByText('No specs found')).not.toBeInTheDocument();
   });
 
   it('navigates to the Spec Files Dashboard when "View all specs" is clicked', async () => {
@@ -133,9 +168,9 @@ describe('spec files in the left pane', () => {
     });
 
     await waitFor(() =>
-      expect(screen.getByTestId('nav-spec-files')).toHaveAttribute('aria-current', 'page'),
+      expect(screen.getByTestId('nav-app-spec-files')).toHaveAttribute('aria-current', 'page'),
     );
-    expect(screen.getByRole('heading', { name: 'Test Project' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Specs' })).toBeInTheDocument();
   });
 });
 

@@ -1,4 +1,5 @@
 import { fireEvent, screen } from '@testing-library/react';
+import { chooseOption, optionLabels } from '@openjcockpit/ui/testing';
 import { render } from '../../../../testUtils/render';
 import { useEffect, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -86,7 +87,6 @@ describe('WorkflowEditor', () => {
   it.each([
     ['Workflow name', 'name', 'Renamed'],
     ['Project name', 'projectName', 'Proj'],
-    ['Group', 'groupId', 'g1'],
     ['Status', 'status', 'DRAFT'],
     ['Description', 'description', 'Desc'],
     ['Prompt instructions (prefix)', 'promptInstructions', 'Do it'],
@@ -94,6 +94,12 @@ describe('WorkflowEditor', () => {
     render(<Harness />);
     fireEvent.change(field(label), { target: { value } });
     expect(latest).toMatchObject({ [key]: value });
+  });
+
+  it('updates Group', () => {
+    render(<Harness />);
+    chooseOption(field('Group'), 'Group One');
+    expect(latest).toMatchObject({ groupId: 'g1' });
   });
 
   it('edits the execution customer id', () => {
@@ -146,14 +152,14 @@ describe('WorkflowEditor', () => {
     expect(screen.queryByLabelText('Gate placement')).not.toBeInTheDocument();
     fireEvent.click(screen.getByLabelText(/Human approval gate/));
     expect(latest.approvalGate).toEqual({ enabled: true, placementStage: 'b' });
-    expect(field('Gate placement')).toHaveValue('b');
+    expect(field('Gate placement')).toHaveTextContent('Beta');
   });
 
   it('keeps an existing gate placement, moves it, and preserves it when disabled', () => {
     render(
       <Harness initial={{ ...baseForm, approvalGate: { enabled: true, placementStage: 'a' } }} />,
     );
-    fireEvent.change(field('Gate placement'), { target: { value: 'b' } });
+    chooseOption(field('Gate placement'), 'Beta');
     expect(latest.approvalGate).toEqual({ enabled: true, placementStage: 'b' });
     fireEvent.click(screen.getByLabelText(/Human approval gate/));
     expect(latest.approvalGate).toEqual({ enabled: false, placementStage: 'b' });
@@ -190,8 +196,10 @@ describe('WorkflowEditor', () => {
     render(
       <Harness items={[baseForm, other]} initial={{ ...baseForm, workflowOrbs: [{} as never] }} />,
     );
-    const options = field('Referenced workflow').querySelectorAll('option');
-    expect([...options].map((o) => o.textContent)).toEqual(['Select a workflow…', 'Other flow']);
+    expect(optionLabels(field('Referenced workflow'))).toEqual([
+      'Select a workflow…',
+      'Other flow',
+    ]);
   });
 
   it('shows the orb error and wires Save/Cancel', () => {

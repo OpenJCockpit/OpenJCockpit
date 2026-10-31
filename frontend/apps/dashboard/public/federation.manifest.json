@@ -1,0 +1,5 @@
+{
+  "hello": "http://localhost:4401/mf-manifest.json",
+  "skillsHub": "http://localhost:4403/mf-manifest.json",
+  "specs": "http://localhost:4404/mf-manifest.json"
+}

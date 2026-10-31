@@ -1,4 +1,5 @@
 import { fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react';
+import { chooseOption, optionLabels } from '@openjcockpit/ui/testing';
 import type { ReactElement } from 'react';
 import { withI18n } from '@openjcockpit/i18n/testing';
 import { specQueueResources } from '../i18n';
@@ -61,23 +62,19 @@ describe('AddToQueueDialog', () => {
     const { container } = render(
       withQueryClient(<AddToQueueDialog project={PROJECT} onAdded={vi.fn()} onCancel={vi.fn()} />),
     );
-    const workflowSelect = await screen.findByTestId<HTMLSelectElement>(
-      'add-to-queue-workflow-select',
-    );
+    const workflowSelect = await screen.findByTestId('add-to-queue-workflow-select');
     await waitFor(() => expect(workflowSelect).not.toBeDisabled());
     expect(await axe(container)).toHaveNoViolations();
   });
 
   it('lists specs and only usable workflows', async () => {
     setup();
-    const workflowSelect = await screen.findByTestId<HTMLSelectElement>(
-      'add-to-queue-workflow-select',
-    );
+    const workflowSelect = await screen.findByTestId('add-to-queue-workflow-select');
     await waitFor(() => expect(workflowSelect).not.toBeDisabled());
-    expect(Array.from(workflowSelect.options).map((o) => o.text)).toEqual(['WF w1']);
-    const specSelect = screen.getByTestId<HTMLSelectElement>('add-to-queue-spec-select');
-    expect(Array.from(specSelect.options).map((o) => o.text)).toEqual(['a.md', 'b.md']);
-    expect(specSelect.value).toBe('b.md');
+    expect(optionLabels(workflowSelect)).toEqual(['WF w1']);
+    const specSelect = screen.getByTestId('add-to-queue-spec-select');
+    expect(optionLabels(specSelect)).toEqual(['a.md', 'b.md']);
+    expect(specSelect).toHaveTextContent('b.md');
   });
 
   it('submits with auto-merge off by default', async () => {
@@ -194,10 +191,8 @@ describe('AddToQueueDialog', () => {
     vi.mocked(listWorkflows).mockResolvedValue([wf('w1'), wf('w4')]);
     const { onAdded } = setup();
     await waitFor(() => expect(screen.getByTestId('add-to-queue-submit')).not.toBeDisabled());
-    fireEvent.change(screen.getByTestId('add-to-queue-spec-select'), { target: { value: 'a.md' } });
-    fireEvent.change(screen.getByTestId('add-to-queue-workflow-select'), {
-      target: { value: 'w4' },
-    });
+    chooseOption(screen.getByTestId('add-to-queue-spec-select'), 'a.md');
+    chooseOption(screen.getByTestId('add-to-queue-workflow-select'), 'WF w4');
     fireEvent.click(screen.getByTestId('add-to-queue-submit'));
     await waitFor(() => expect(onAdded).toHaveBeenCalled());
     expect(enqueueSpecQueueItem).toHaveBeenCalledWith('p1', {
@@ -214,7 +209,7 @@ describe('AddToQueueDialog', () => {
     ] as never);
     setup();
     await waitFor(() => expect(screen.getByTestId('add-to-queue-submit')).not.toBeDisabled());
-    expect(screen.getByTestId<HTMLSelectElement>('add-to-queue-spec-select').value).toBe('a.md');
+    expect(screen.getByTestId('add-to-queue-spec-select')).toHaveTextContent('a.md');
   });
 
   it('asks for a spec when the repository has none', async () => {

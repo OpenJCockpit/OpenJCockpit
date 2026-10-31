@@ -1,0 +1,21 @@
+{
+  "specsContributions": {
+    "noProject": "Kies een project om dit te zien.",
+    "queue": {
+      "queued": "In de wachtrij: {{count}}",
+      "running": "Actief: {{count}}",
+      "attention": "Vraagt aandacht: {{count}}",
+      "loadFailed": "De spec-wachtrij kon niet worden geladen."
+    },
+    "workflows": {
+      "empty": "Nog geen workflows.",
+      "loadFailed": "De workflows konden niet worden geladen."
+    },
+    "specFiles": {
+      "count": "Specbestanden: {{count}}",
+      "loadFailed": "De specbestanden konden niet worden geladen."
+    },
+    "loading": "Laden…",
+    "retry": "Opnieuw proberen"
+  }
+}

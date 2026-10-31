@@ -21,7 +21,9 @@ export function TopBar({ user, onLogout }: TopBarProps) {
     <Reveal as="header" className={styles.topbar} duration={0.8} from={{ y: -20 }}>
       <FrameOctagon className={styles.frame} duration={0.8} />
       <div className={styles.brand}>
-        <span className={styles.brandMark}>A</span>
+        <span className={styles.brandMark} aria-hidden="true">
+          {(user?.firstName || user?.username || '?').charAt(0).toUpperCase()}
+        </span>
         <div>
           <strong>{t('topBar.brand')}</strong>
           <small>{user?.email || user?.username || t('topBar.fallbackIdentity')}</small>

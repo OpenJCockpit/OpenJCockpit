@@ -4,7 +4,6 @@ import {
   SecretField,
   TextField,
   StatusMessage,
-  ToolbarButton,
   Button,
   Actions,
   DataTable,
@@ -15,6 +14,7 @@ import {
   formGridClass,
   formTitleClass,
 } from '@openjcockpit/ui';
+import { useConfirmDelete } from '../../WorkflowDesign/panels/shared/useConfirmDelete';
 import { a2aServiceStatus } from './a2aServiceStatus';
 import { useA2AServices } from './useA2AServices';
 import WorkflowConfigurationStyles from '../WorkflowConfiguration.module.scss';
@@ -36,14 +36,13 @@ export function A2AServicesSettings() {
     form,
     setForm,
     saving,
-    confirmDelete,
-    setConfirmDelete,
     startAdd,
     startEdit,
     closeForm,
     handleSave,
     handleDelete,
   } = useA2AServices();
+  const { askDelete, dialog } = useConfirmDelete();
 
   return (
     <div className={formClass}>
@@ -109,31 +108,17 @@ export function A2AServicesSettings() {
                     <td>
                       {service.editable ? (
                         <Actions>
-                          {confirmDelete === service.id ? (
-                            <>
-                              <Button
-                                variant="secondary"
-                                onClick={() => void handleDelete(service)}
-                              >
-                                {t('a2aServices.confirmRemove')}
-                              </Button>
-                              <Button variant="secondary" onClick={() => setConfirmDelete(null)}>
-                                {t('a2aServices.keep')}
-                              </Button>
-                            </>
-                          ) : (
-                            <>
-                              <Button variant="secondary" onClick={() => startEdit(service)}>
-                                {t('shared.edit')}
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                onClick={() => setConfirmDelete(service.id)}
-                              >
-                                {t('shared.remove')}
-                              </Button>
-                            </>
-                          )}
+                          <Button variant="secondary" onClick={() => startEdit(service)}>
+                            {t('shared.edit')}
+                          </Button>
+                          <Button
+                            variant="danger"
+                            onClick={() =>
+                              askDelete('a2aService', service.name, () => handleDelete(service))
+                            }
+                          >
+                            {t('shared.delete')}
+                          </Button>
                         </Actions>
                       ) : (
                         <span className={fieldHintClass}>{t('shared.readOnly')}</span>
@@ -165,6 +150,7 @@ export function A2AServicesSettings() {
           <div className={cx(formGridClass, WorkflowConfigurationStyles.servicesFormGrid)}>
             <TextField
               label={t('a2aServices.fields.id')}
+              required
               value={form.id}
               onChange={(v) => setForm((f) => ({ ...f, id: v }))}
               placeholder={t('a2aServices.fields.idPlaceholder')}
@@ -177,12 +163,14 @@ export function A2AServicesSettings() {
             />
             <TextField
               label={t('a2aServices.fields.name')}
+              required
               value={form.name}
               onChange={(v) => setForm((f) => ({ ...f, name: v }))}
               placeholder={t('a2aServices.fields.namePlaceholder')}
             />
             <TextField
               label={t('a2aServices.fields.baseUrl')}
+              required
               value={form.baseUrl}
               onChange={(v) => setForm((f) => ({ ...f, baseUrl: v }))}
               placeholder={t('a2aServices.fields.baseUrlPlaceholder')}
@@ -202,6 +190,7 @@ export function A2AServicesSettings() {
                   : t('a2aServices.fields.apiKeyAdd')
               }
               hasValue={editingService?.hasApiKey ?? false}
+              required={!editingService}
               value={form.apiKey}
               onChange={(v) => setForm((f) => ({ ...f, apiKey: v }))}
             />
@@ -226,21 +215,26 @@ export function A2AServicesSettings() {
             />
           </div>
           <div className={formActionsClass}>
-            <ToolbarButton onClick={() => void handleSave(editing)} disabled={saving}>
+            <Button variant="primary" onClick={() => void handleSave(editing)} disabled={saving}>
               {saving
                 ? t('shared.saving')
                 : editingService
                   ? t('a2aServices.saveService')
                   : t('a2aServices.addService')}
-            </ToolbarButton>
+            </Button>
             <Button variant="secondary" onClick={closeForm} disabled={saving}>
               {t('shared.cancel')}
             </Button>
           </div>
         </div>
       ) : (
-        loaded && <ToolbarButton onClick={startAdd}>{t('a2aServices.addButton')}</ToolbarButton>
+        loaded && (
+          <Button variant="primary" onClick={startAdd}>
+            {t('a2aServices.addButton')}
+          </Button>
+        )
       )}
+      {dialog}
     </div>
   );
 }

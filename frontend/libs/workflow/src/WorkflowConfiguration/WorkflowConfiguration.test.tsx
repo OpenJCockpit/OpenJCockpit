@@ -111,7 +111,7 @@ describe('WorkflowConfiguration — OPA section', () => {
     await screen.findByText('Configured but unreachable');
 
     await act(async () => {
-      screen.getByText('Save OPA config').click();
+      screen.getByText('Save OPA configuration').click();
     });
 
     await waitFor(() => {
@@ -134,10 +134,10 @@ describe('WorkflowConfiguration — OPA section', () => {
     await screen.findByText('Not configured');
 
     await act(async () => {
-      screen.getByText('Save OPA config').click();
+      screen.getByText('Save OPA configuration').click();
     });
 
-    expect(await screen.findByText('Failed to save OPA configuration.')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to save the OPA configuration.')).toBeInTheDocument();
   });
 
   it('still renders the OPA section when no project is selected', async () => {
@@ -274,7 +274,7 @@ describe('WorkflowConfiguration — Project document folder section', () => {
     await screen.findByDisplayValue('/data/customer-docs/AbsenceProSolutions');
 
     await act(async () => {
-      screen.getByText('Save document folder config').click();
+      screen.getByText('Save document folder configuration').click();
     });
 
     await waitFor(() => {

@@ -1,6 +1,9 @@
 import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ROUTES } from './routes';
+import { FEATURE_FLAGS } from './featureFlags';
 import { renderRoutedApp } from './testUtils/renderRoutedApp';
+import { specsRemotes } from './testUtils/specsRemoteStubs';
 import * as api from '@openjcockpit/api';
 import { clickAsync } from './testUtils/dom';
 import { mockDashboardApis } from './testUtils/dashboardFixtures';
@@ -54,18 +57,19 @@ describe('landing hub entry view', () => {
     expect(screen.getByText('Hub for Tony')).toBeInTheDocument();
   });
 
-  it('opens the dashboard from the Implementation orb and returns via the header', async () => {
+  it('opens the dashboard from the Implementation orb and returns to Home via the header', async () => {
+    localStorage.setItem(FEATURE_FLAGS.hub, '1');
     renderRoutedApp();
     await clickAsync(await screen.findByTestId('portal-orb-implementation'));
     expect(await screen.findByText('▶ Start')).toBeInTheDocument();
 
     await clickAsync(screen.getByTestId('nav-hub'));
 
-    expect(await screen.findByTestId('landing-hero')).toBeInTheDocument();
+    expect(await screen.findByTestId('home')).toBeInTheDocument();
   });
 
   it('opens spec files from the Business orb', async () => {
-    renderRoutedApp();
+    renderRoutedApp(ROUTES.landing, specsRemotes);
     await clickAsync(await screen.findByTestId('portal-orb-business'));
 
     expect(await screen.findByRole('heading', { name: 'Specs' })).toBeInTheDocument();
@@ -81,7 +85,7 @@ describe('landing hub entry view', () => {
   });
 
   it('bypasses the hub on the spec-files deep link', async () => {
-    renderRoutedApp('/?view=spec-files');
+    renderRoutedApp('/?view=spec-files', specsRemotes);
 
     await waitFor(() => expect(api.loadProjects).toHaveBeenCalled());
     await screen.findByRole('heading', { name: 'Specs' });

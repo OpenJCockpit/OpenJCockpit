@@ -4,7 +4,6 @@
       "cancel": "Abbrechen",
       "edit": "Bearbeiten",
       "delete": "Löschen",
-      "remove": "Entfernen",
       "retry": "Wiederholen",
       "name": "Name",
       "description": "Beschreibung",
@@ -15,7 +14,8 @@
       "readOnly": "Schreibgeschützt",
       "skills": "Skills",
       "version": "Version",
-      "group": "Gruppe"
+      "group": "Gruppe",
+      "deleting": "Wird gelöscht…"
     },
     "agentLogConsole": {
       "label": "AGENTENPROTOKOLL // {{agent}}",
@@ -41,7 +41,7 @@
       "title": "Mit meinen Kommentaren akzeptieren",
       "hint": "Beschreiben Sie, was sich beim nächsten Versuch ändern soll. Dadurch wird die Realisierungsphase mit Ihrem Feedback erneut ausgeführt und dieser Checkpoint für das neue Ergebnis wieder geöffnet.",
       "label": "Feedback für den nächsten Versuch",
-      "placeholder": "Erklären Sie, was der nächste Versuch ändern oder beheben soll...",
+      "placeholder": "Erklären Sie, was der nächste Versuch ändern oder beheben soll…",
       "limit": "Bis zu {{max}} Zeichen.",
       "submitting": "⟳ Wird gesendet…",
       "confirm": "Bestätigen",
@@ -68,7 +68,7 @@
     "a2aServices": {
       "title": "A2A-Dienste",
       "intro": "Gateways, die die A2A-Agenten hosten, die Workflows verwenden können. Ihre Agenten erscheinen unter Workflow-Design → Agenten. Dienste aus der Konfiguration des Agentendienstes sind schreibgeschützt. Diese Konfiguration ist global — sie gilt für jedes Projekt.",
-      "loading": "A2A-Dienste werden geladen...",
+      "loading": "A2A-Dienste werden geladen…",
       "columns": {
         "service": "Dienst",
         "baseUrl": "Basis-URL",
@@ -85,27 +85,25 @@
       "noApiKey": "Kein API-Schlüssel",
       "callerIdentity": "Aufrufer-Identität: {{id}}",
       "noCallerIdentity": "Keine Aufrufer-Identität",
-      "confirmRemove": "Entfernen bestätigen",
-      "keep": "Behalten",
       "empty": "Noch keine A2A-Dienste konfiguriert.",
       "formTitleEdit": "{{name}} bearbeiten",
       "formTitleAdd": "A2A-Dienst hinzufügen",
       "formHint": "Ein LiteLLM-kompatibles A2A-Gateway (Agentenregister unter /v1/agents, Agenten unter /a2a/<name>).",
       "fields": {
-        "id": "ID *",
+        "id": "ID",
         "idPlaceholder": "acme-gateway",
         "idHintEdit": "Workflows referenzieren Agenten als a2a:<id>:<agent>, daher kann die ID nicht geändert werden.",
         "idHintAdd": "Kleinbuchstaben, Ziffern und Bindestriche; Workflows referenzieren Agenten als a2a:<id>:<agent>.",
-        "name": "Name *",
+        "name": "Name",
         "namePlaceholder": "Acme-Gateway",
-        "baseUrl": "Basis-URL *",
+        "baseUrl": "Basis-URL",
         "baseUrlPlaceholder": "http://litellm:4000",
         "baseUrlHint": "Die Adresse, die der Agentendienst verwendet.",
         "publicUrl": "Öffentliche URL",
         "publicUrlPlaceholder": "https://a2a.example.com",
         "publicUrlHint": "Die Adresse, die Benutzer in Agentenkarten sehen; standardmäßig die Basis-URL.",
         "apiKeyEdit": "API-Schlüssel",
-        "apiKeyAdd": "API-Schlüssel *",
+        "apiKeyAdd": "API-Schlüssel",
         "callerTokenUrl": "Aufrufer-Token-URL",
         "callerTokenUrlPlaceholder": "https://idp.example.com/realms/x/protocol/openid-connect/token",
         "callerTokenUrlHint": "Optionale OAuth2-Client-Credentials-Identität, die das Gateway an seine Agenten weiterleitet. Lassen Sie URL und Client-ID leer, wenn keine verwendet werden soll.",
@@ -115,10 +113,22 @@
       },
       "saveService": "A2A-Dienst speichern",
       "addService": "A2A-Dienst hinzufügen",
-      "addButton": "+ A2A-Dienst hinzufügen"
+      "addButton": "+ A2A-Dienst hinzufügen",
+      "loadFailed": "Die A2A-Dienste konnten nicht geladen werden.",
+      "saveFailed": "Der A2A-Dienst konnte nicht gespeichert werden.",
+      "deleteFailed": "Der A2A-Dienst konnte nicht gelöscht werden.",
+      "added": "A2A-Dienst „{{name}}“ hinzugefügt.",
+      "updated": "A2A-Dienst „{{name}}“ gespeichert.",
+      "deleted": "A2A-Dienst „{{name}}“ gelöscht.",
+      "error": {
+        "idRequired": "Die ID ist erforderlich.",
+        "nameRequired": "Der Name ist erforderlich.",
+        "baseUrlRequired": "Die Basis-URL ist erforderlich.",
+        "apiKeyRequired": "Der API-Schlüssel ist erforderlich."
+      }
     },
     "config": {
-      "loading": "Konfiguration wird geladen...",
+      "loading": "Konfiguration wird geladen…",
       "enabled": "Aktiviert",
       "workflowIdToStart": "Zu startende Workflow-ID",
       "authToken": "Auth-Token",
@@ -137,7 +147,9 @@
       "types": "Erlaubte Dokumenttypen",
       "typesPlaceholder": "pdf,docx,md",
       "workflowId": "Bei neuer Datei zu startende Workflow-ID",
-      "trigger": "Datei-Trigger aktiviert"
+      "trigger": "Datei-Trigger aktiviert",
+      "saved": "Konfiguration des Dokumentordners gespeichert.",
+      "saveFailed": "Die Konfiguration des Dokumentordners konnte nicht gespeichert werden."
     },
     "hermes": {
       "loadFailed": "Die Hermes-Konfiguration konnte nicht geladen werden.",
@@ -146,7 +158,9 @@
       "endpoint": "Signalquelle / Endpunkt",
       "endpointPlaceholder": "https://hermes.example.com/signals",
       "signalType": "Signaltyp",
-      "signalTypePlaceholder": "issue.created"
+      "signalTypePlaceholder": "issue.created",
+      "saved": "Hermes-Konfiguration gespeichert.",
+      "saveFailed": "Die Hermes-Konfiguration konnte nicht gespeichert werden."
     },
     "jira": {
       "loadFailed": "Die Jira-Konfiguration konnte nicht geladen werden.",
@@ -156,7 +170,10 @@
       "baseUrlPlaceholder": "https://your-org.atlassian.net",
       "projectKey": "Projektschlüssel",
       "issueTypeMapping": "Zuordnung der Issue-Typen",
-      "issueTypeMappingPlaceholder": "Bug=bugfix-workflow"
+      "issueTypeMappingPlaceholder": "Bug=bugfix-workflow",
+      "saved": "Jira-Konfiguration gespeichert.",
+      "saveFailed": "Die Jira-Konfiguration konnte nicht gespeichert werden.",
+      "projectKeyPlaceholder": "NL"
     },
     "opa": {
       "loadFailed": "Die OPA-Konfiguration konnte nicht geladen werden.",
@@ -180,7 +197,17 @@
       "projectLabel": "Projektbezeichnung",
       "projectLabelPlaceholder": "onboarding",
       "decisionLogging": "Entscheidungsprotokollierung aktiviert",
-      "decisionLogExport": "Export des Entscheidungsprotokolls aktiviert"
+      "decisionLogExport": "Export des Entscheidungsprotokolls aktiviert",
+      "saved": "OPA-Konfiguration gespeichert.",
+      "saveFailed": "Die OPA-Konfiguration konnte nicht gespeichert werden.",
+      "status": {
+        "notConfigured": "Nicht konfiguriert",
+        "disabled": "Deaktiviert",
+        "unreachable": "Konfiguriert, aber nicht erreichbar",
+        "reachable": "Konfiguriert und erreichbar",
+        "enforcing": "Aktiviert und durchgesetzt",
+        "unavailable": "Aktiviert, aber Richtlinie nicht verfügbar"
+      }
     },
     "dashboard": {
       "backTitle": "Zurück zum Dashboard",
@@ -193,7 +220,8 @@
         "design": "Design",
         "execution": "Workflow-Ausführung"
       },
-      "runLoadFailed": "Der Workflow dieses Laufs konnte nicht geladen werden — {{error}}"
+      "runLoadFailed": "Der Workflow dieses Laufs konnte nicht geladen werden — {{error}}",
+      "workflowLoadFailed": "Der Workflow konnte nicht geladen werden."
     },
     "design": {
       "tabsLabel": "Design-Bereiche",
@@ -207,8 +235,8 @@
     },
     "agentsPanel": {
       "loadFailed": "Der Agentenkatalog konnte nicht geladen werden.",
-      "loading": "Agenten werden geladen...",
-      "refresh": "↻ Aktualisieren",
+      "loading": "Agenten werden geladen…",
+      "refresh": "⟳ Aktualisieren",
       "status": {
         "NOT_CONFIGURED": "Nicht konfiguriert",
         "UNAVAILABLE": "Nicht verfügbar",
@@ -216,7 +244,8 @@
         "INVALID": "Ungültige Antwort"
       },
       "emptyLocal": "Noch keine Agenten im Ordner /agents.",
-      "emptyProvider": "Keine Agenten bei {{name}} registriert."
+      "emptyProvider": "Keine Agenten bei {{name}} registriert.",
+      "intro": "Die Agenten, die Workflows nutzen können: lokale Agenten und die Agenten Ihrer A2A-Dienste. Diese Liste ist schreibgeschützt. A2A-Dienste fügen Sie unter Konfiguration hinzu."
     },
     "localAgents": {
       "model": "Modell",
@@ -230,7 +259,7 @@
       "hide": "Ausblenden",
       "details": "Details",
       "cardFailed": "Die Agentenkarte konnte nicht von {{name}} abgerufen werden.",
-      "cardLoading": "Agentenkarte wird geladen...",
+      "cardLoading": "Agentenkarte wird geladen…",
       "cardLabel": "Agentenkarte {{name}}",
       "agentCard": "Agentenkarte",
       "providerKeyRequired": "(Anbieterschlüssel erforderlich)",
@@ -253,10 +282,12 @@
       "projectName": "Projektname",
       "projectPlaceholder": "Leer lassen für eine globale Gruppe",
       "projectHint": "Leer = global: Workflows in dieser Gruppe stehen jedem Projekt zur Verfügung.",
-      "loading": "Gruppen werden geladen...",
+      "loading": "Gruppen werden geladen…",
       "newButton": "+ Neue Gruppe",
       "intro": "Gruppen bündeln Workflows, die für eine bestimmte Bedeutung entworfen wurden (zum Beispiel Onboarding, Compliance oder Reporting). Beim Löschen einer Gruppe werden ihre Workflows entkoppelt; die Workflows selbst bleiben erhalten.",
-      "global": "Global (alle Projekte)"
+      "global": "Global (alle Projekte)",
+      "saveFailed": "Die Workflow-Gruppe konnte nicht gespeichert werden.",
+      "deleteFailed": "Die Workflow-Gruppe konnte nicht gelöscht werden."
     },
     "promptGenerator": {
       "example": {
@@ -284,14 +315,33 @@
       "input": "Eingabe",
       "output": "Ausgabe",
       "notProvided": "Nicht angegeben",
-      "local": "Lokal"
+      "local": "Lokal",
+      "loadFailed": "Der Skill-Katalog konnte nicht geladen werden.",
+      "draftFailed": "Der Skill-Entwurf konnte nicht erstellt werden.",
+      "saveFailed": "Die Skill-Definition konnte nicht gespeichert werden.",
+      "deleteFailed": "Die Skill-Definition konnte nicht gelöscht werden.",
+      "sourceOutcome": {
+        "authFailed": "{{name}}: Die Authentifizierung wurde abgelehnt (HTTP {{status}}).",
+        "unknownStatus": "unbekannt",
+        "timeout": "{{name}}: Zeitüberschreitung.",
+        "unreachable": "{{name}}: nicht erreichbar.",
+        "invalidResponse": "{{name}}: hat eine ungültige Antwort geliefert.",
+        "blockedByPolicy": "{{name}}: durch die Egress-Richtlinie blockiert.",
+        "configError": "{{name}}: Konfigurationsfehler — prüfen Sie den API-Schlüssel.",
+        "unknown": "{{name}}: unbekannter Status."
+      }
     },
     "subagents": {
       "new": "Neuer Subagent",
       "edit": "Subagent bearbeiten",
-      "loading": "Subagenten werden geladen...",
+      "loading": "Subagenten werden geladen…",
       "newButton": "+ Neuer Subagent",
-      "parentAgent": "Übergeordneter Agent"
+      "parentAgent": "Übergeordneter Agent",
+      "loadFailed": "Die Subagenten konnten nicht geladen werden.",
+      "draftFailed": "Der Subagent-Entwurf konnte nicht erstellt werden.",
+      "saveFailed": "Die Subagent-Definition konnte nicht gespeichert werden.",
+      "deleteFailed": "Die Subagent-Definition konnte nicht gelöscht werden.",
+      "intro": "Subagenten sind Helfer, denen ein übergeordneter Agent gezielte Aufgaben übergibt. Jeder hat eigene Anweisungen und Skills."
     },
     "agentPicker": {
       "agents": "Agenten",
@@ -344,7 +394,7 @@
       "customerId": "Kunden-ID (Ausführung)"
     },
     "workflows": {
-      "loading": "Workflows werden geladen...",
+      "loading": "Workflows werden geladen…",
       "newButton": "+ Neuer Workflow",
       "group": "Gruppe",
       "allGroups": "Alle Gruppen",
@@ -352,13 +402,24 @@
       "export": "⬇ JSON exportieren",
       "importLabel": "Workflows-JSON importieren",
       "import": "⬆ JSON importieren",
-      "unresolved": "{{count}} Referenz(en) konnten nicht aufgelöst werden:"
+      "unresolved": "{{count}} Referenz(en) konnten nicht aufgelöst werden:",
+      "saveFailed": "Der Workflow konnte nicht gespeichert werden.",
+      "deleteFailed": "Der Workflow konnte nicht gelöscht werden.",
+      "exportFailed": "Die Workflows konnten nicht exportiert werden.",
+      "importFailed": "Die Workflows konnten nicht aus der JSON-Datei importiert werden.",
+      "imported": "{{workflows}} Workflow(s) und {{groups}} Gruppe(n) importiert.",
+      "groupOrProjectRequired": "Verknüpfen Sie den Workflow mit einer Gruppe oder geben Sie einen Projektnamen ein — ohne Gruppe ist ein Projekt erforderlich.",
+      "agentRequired": "Verknüpfen Sie mindestens einen Agenten — ein Workflow ohne Agenten kann nicht laufen.",
+      "orbModeRequired": "Workflow-Orb {{index}}: Wählen Sie vor dem Speichern einen Ausführungsmodus (Sequenziell oder Parallel).",
+      "catalogFailed": "Der Agentenkatalog konnte nicht geladen werden.",
+      "intro": "Workflows verketten Agenten zu einem wiederholbaren Ablauf. Ein Workflow gehört zu einer Gruppe oder einem Projekt und startet über das Dashboard, ein Hermes-Signal oder eine Dateiablage."
     },
     "runLost": {
       "message": "Der Zustand dieses Laufs ging verloren, wahrscheinlich weil der Dienst neu gestartet wurde. Für diesen Lauf ist keine Freigabeentscheidung möglich.",
       "startAgain": "Erneut starten"
     },
     "workflowExecution": {
+      "emptyTitle": "Kein Workflow aktiv",
       "empty": "Starten Sie einen Workflow im Tab Übersicht, um ihn hier laufen zu sehen.",
       "stopping": "⟳ Wird gestoppt…",
       "stop": "◼ Stoppen",
@@ -380,7 +441,7 @@
       "loadMore": "Mehr laden"
     },
     "overview": {
-      "loading": "Workflows werden geladen...",
+      "loading": "Workflows werden geladen…",
       "loadFailed": "Workflows konnten nicht geladen werden — {{error}}",
       "empty": "Noch keine Workflows definiert. Erstellen Sie einen im Tab Design.",
       "project": "Projekt",
@@ -419,6 +480,16 @@
       "placeholder": "Z. B.: Füge der Kundenübersicht einen Export-Button hinzu, der die Tabelle als CSV herunterlädt.",
       "starting": "⟳ Wird gestartet…",
       "start": "▶ Mit Prompt starten"
+    },
+    "confirmDelete": {
+      "title": "{{name}} löschen?",
+      "message": {
+        "workflow": "Die Workflow-Definition wird dauerhaft gelöscht.",
+        "group": "Die Workflow-Gruppe wird dauerhaft gelöscht. Workflows darin bleiben erhalten.",
+        "subagent": "Die Subagent-Definition wird dauerhaft gelöscht.",
+        "skill": "Die Skill-Definition wird dauerhaft gelöscht.",
+        "a2aService": "Workflows, die Agenten dieses Dienstes verwenden, funktionieren nicht mehr, bis er wieder hinzugefügt wird."
+      }
     }
   }
 }

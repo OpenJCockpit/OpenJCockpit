@@ -9,6 +9,7 @@
       "compactNotReachable": "Git niet bereikbaar"
     },
     "selection": {
+      "backToHub": "← Hub",
       "repoReachable": "Git-repository bereikbaar",
       "repoNotReachable": "Git-repository niet bereikbaar",
       "statusUnknown": "Git-status onbekend",
@@ -22,15 +23,16 @@
       "notReachableNotice": "Repository niet bereikbaar. Pas het project aan via ⚙ Projecten beheren."
     },
     "settings": {
-      "loading": "Projecten laden...",
+      "eyebrow": "Instellingen",
+      "loading": "Projecten laden…",
       "back": "← Projecten",
       "title": "Projectbeheer",
       "newProject": "+ Nieuw project",
       "errors": {
-        "nameRequired": "Naam is verplicht",
-        "saveFailed": "Opslaan is mislukt. Probeer het opnieuw.",
-        "statusChangeFailed": "Statuswijziging is mislukt.",
-        "gitCheckFailed": "Git-controle is mislukt.",
+        "nameRequired": "Naam is verplicht.",
+        "saveFailed": "Het project kon niet worden opgeslagen.",
+        "statusChangeFailed": "De projectstatus kon niet worden gewijzigd.",
+        "gitCheckFailed": "De Git-repository kon niet worden gecontroleerd.",
         "credentialsLoadFailed": "Bestaande inloggegevens laden is mislukt.",
         "credentialsSaveFailed": "Inloggegevens opslaan is mislukt.",
         "credentialsDeleteFailed": "Inloggegevens verwijderen is mislukt."
@@ -39,7 +41,7 @@
     "form": {
       "newTitle": "Nieuw project",
       "editTitle": "Project bewerken",
-      "name": "Naam *",
+      "name": "Naam",
       "namePlaceholder": "Projectnaam",
       "customerId": "Klant-ID (stub)",
       "customerIdPlaceholder": "bijv. noordzee-logistics",
@@ -60,7 +62,7 @@
     },
     "credentials": {
       "title": "Git-inloggegevens",
-      "loading": "Huidige inloggegevens laden...",
+      "loading": "Huidige inloggegevens laden…",
       "type": "Type",
       "types": {
         "NONE": "Geen",
@@ -98,6 +100,20 @@
       "deleteCredentials": "Inloggegevens verwijderen",
       "deactivate": "Deactiveren",
       "activate": "Activeren"
+    },
+    "confirm": {
+      "cancel": "Annuleren",
+      "working": "Bezig…",
+      "deleteCredentials": {
+        "title": "Inloggegevens van {{name}} verwijderen?",
+        "message": "De opgeslagen Git-inloggegevens worden definitief verwijderd. Git-controles en runs voor dit project mislukken totdat nieuwe inloggegevens zijn toegevoegd.",
+        "confirm": "Inloggegevens verwijderen"
+      },
+      "deactivate": {
+        "title": "{{name}} deactiveren?",
+        "message": "Het project verdwijnt uit de projectkeuze. Op deze pagina kun je het weer activeren.",
+        "confirm": "Deactiveren"
+      }
     }
   }
 }

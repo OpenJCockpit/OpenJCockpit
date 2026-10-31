@@ -1,12 +1,16 @@
 {
   "skillsHub": {
     "eyebrow": "Skills Hub",
+    "contributions": {
+      "widgetSummary": "Verbonden marketplaces: {{count}}",
+      "widgetEmpty": "Nog geen marketplace verbonden."
+    },
     "dashboard": {
       "backTitle": "Terug naar dashboard",
       "title": "Beschikbare skills",
       "settingsTitle": "Instellingen van Skills Hub",
       "settings": "⚙ Instellingen",
-      "searchPlaceholder": "Zoek een skill...",
+      "searchPlaceholder": "Zoek een skill…",
       "searchLabel": "Zoek een skill",
       "search": "⌕ Zoeken",
       "columnCategory": "Categorie",
@@ -30,16 +34,16 @@
     },
     "settings": {
       "backTitle": "Terug naar Skills Hub",
-      "loading": "Marketplaces laden...",
+      "loading": "Marketplaces laden…",
       "title": "Marketplace-koppelingen",
       "formNew": "Nieuwe marketplace",
       "formEdit": "Marketplace bewerken",
-      "name": "Naam *",
+      "name": "Naam",
       "namePlaceholder": "bijv. Acme Skills",
-      "marketplaceUrl": "Marketplace-URL *",
+      "marketplaceUrl": "Marketplace-URL",
       "marketplaceUrlPlaceholder": "https://marketplace.example.com/api",
       "apiKey": "API-sleutel",
-      "apiKeyRequired": "API-sleutel *",
+      "apiKeyRequired": "API-sleutel",
       "apiKeyKeepPlaceholder": "Leeg laten om de huidige API-sleutel te behouden",
       "apiKeyRequiredPlaceholder": "Verplicht — nog geen API-sleutel ingesteld",
       "description": "Beschrijving",
@@ -65,13 +69,18 @@
         "loadFailed": "Marketplaces laden is mislukt.",
         "nameRequired": "Naam is verplicht.",
         "urlRequired": "Marketplace-URL is verplicht.",
-        "saveFailed": "Opslaan is mislukt.",
-        "deleteFailed": "Verwijderen is mislukt."
+        "saveFailed": "De marketplace kon niet worden opgeslagen.",
+        "deleteFailed": "De marketplace kon niet worden verwijderd."
       },
       "status": {
         "added": "Marketplace \"{{name}}\" is toegevoegd.",
         "updated": "Marketplace \"{{name}}\" is bijgewerkt.",
         "deleted": "Marketplace \"{{name}}\" is verwijderd."
+      },
+      "deleting": "Verwijderen…",
+      "confirmDelete": {
+        "title": "{{name}} verwijderen?",
+        "message": "De marketplaceverbinding en de API-sleutel worden definitief verwijderd."
       }
     }
   }

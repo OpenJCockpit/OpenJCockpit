@@ -1,6 +1,6 @@
 import type { PreflightError } from '@openjcockpit/api';
 import { useTranslation, type TFunction } from '@openjcockpit/i18n';
-import { ToolbarButton, Button } from '@openjcockpit/ui';
+import { Button } from '@openjcockpit/ui';
 import styles from './PreflightAlert.module.scss';
 
 const PREFLIGHT_ERROR_CODES = [
@@ -59,9 +59,9 @@ export function PreflightAlert({
         </ul>
         <div className={styles.preflightAlertActions}>
           {hasGitIssue && (
-            <ToolbarButton onClick={onOpenProjectSettings}>
+            <Button variant="primary" onClick={onOpenProjectSettings}>
               {t('preflight.checkGitSettings')}
-            </ToolbarButton>
+            </Button>
           )}
           <Button variant="link" onClick={onDismiss}>
             {t('preflight.dismiss')}

@@ -90,6 +90,7 @@ for (const [dir, files] of byDir) {
 // Key usage: literal t('ns:a.b') / t("a.b") calls, plus the static prefix of template keys.
 const used = new Set();
 const dynamicPrefixes = [];
+const quoted = new Set();
 for (const file of sourceFiles) {
   const text = readFileSync(file, 'utf8')
     .replace(/\/\*[\s\S]*?\*\//g, '')
@@ -97,11 +98,14 @@ for (const file of sourceFiles) {
   for (const [, key] of text.matchAll(/\bt\(\s*['"]([\w.:-]+)['"]/g)) {
     used.add(key.slice(key.indexOf(':') + 1));
   }
+  // Keys held in maps, ternaries or `labelKey` fields reach t() through a variable; a quoted full key counts.
+  for (const [, key] of text.matchAll(/['"]([a-z][\w-]*(?:\.[\w-]+)+)['"]/gi)) quoted.add(key);
   for (const [, prefix] of text.matchAll(/\bt\(\s*`([\w.:-]*)\$\{/g)) {
     dynamicPrefixes.push(prefix.slice(prefix.indexOf(':') + 1));
   }
 }
-const isUsed = (key) => used.has(key) || dynamicPrefixes.some((prefix) => key.startsWith(prefix));
+const isUsed = (key) =>
+  used.has(key) || quoted.has(key) || dynamicPrefixes.some((prefix) => key.startsWith(prefix));
 
 for (const [key, file] of sourceKeys) {
   // Namespaces are the first key segment (`common.close`); callers pass them separately.

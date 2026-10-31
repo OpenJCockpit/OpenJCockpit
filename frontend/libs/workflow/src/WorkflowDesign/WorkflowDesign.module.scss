@@ -3,8 +3,8 @@
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 10px;
   padding: 12px;
-  background: rgba(7, 22, 34, 0.6);
-  border: 1px solid rgba(39, 231, 255, 0.16);
+  background: rgb(var(--base-rgb) / 0.6);
+  border: 1px solid rgb(var(--accent-rgb) / 0.16);
   border-radius: 6px;
 
   &__option {
@@ -80,7 +80,7 @@
   gap: 10px;
   margin: 0 0 12px;
   font-size: 15px;
-  color: #edfaff;
+  color: var(--text);
 }
 .agent-catalog__count {
   font-size: 11px;

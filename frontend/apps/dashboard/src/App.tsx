@@ -10,29 +10,63 @@ import {
 } from '@openjcockpit/project';
 import type { Project } from '@openjcockpit/api';
 import { getKeycloak } from '@openjcockpit/auth';
+import {
+  AppRegistryProvider,
+  FORBIDDEN_PATH,
+  HubHeaderContext,
+  RequirePermission,
+} from '@openjcockpit/hub-contract';
 import type { PortalId } from '@openjcockpit/landing-hub';
+import { SiteHeader } from './components/SiteHeader/SiteHeader';
+import { Forbidden } from './federation/Forbidden';
+import { HubProjectProvider } from './federation/HubProjectProvider';
+import { HubSessionProvider } from './federation/HubSessionProvider';
+import { RemoteFailuresNotice, useRemoteApps } from './federation/RemoteApps';
+import { RemoteRoutes } from './federation/RemoteRoutes';
+import { ViewLoading } from './federation/ViewLoading';
 import { ROUTES } from './routes';
+import { FEATURE_FLAGS, isFeatureEnabled } from './featureFlags';
 import { DashboardRoute } from './routeViews/DashboardRoute';
 import { LandingHubRoute } from './routeViews/LandingHubRoute';
 import { LandingRoute } from './routeViews/LandingRoute';
+import { NotFound } from './routeViews/NotFound';
+import { Home } from './home/Home';
 import { ProjectSelectionRoute } from './routeViews/ProjectSelectionRoute';
 import { RequireProject } from './routeViews/RequireProject';
 import { SettingsRoute } from './routeViews/SettingsRoute';
-import { SkillsHubRoute } from './routeViews/SkillsHubRoute';
-import { SkillsHubSettingsRoute } from './routeViews/SkillsHubSettingsRoute';
-import { SpecFilesRoute } from './routeViews/SpecFilesRoute';
-import { SpecQueueRoute } from './routeViews/SpecQueueRoute';
 import type { ShellProps } from './routeViews/shell';
-import { WorkflowRoute } from './routeViews/WorkflowRoute';
 import { useAuthSession } from './useAuthSession';
 
 const NO_PROJECTS: Project[] = [];
+const APP_TITLE = 'OpenJCockpit';
+
+const TITLE_KEYS = {
+  [ROUTES.home]: 'pageTitle.home',
+  [ROUTES.landing]: 'pageTitle.landing',
+  [ROUTES.projects]: 'pageTitle.projects',
+  [ROUTES.settings]: 'pageTitle.settings',
+  [ROUTES.dashboard]: 'siteHeader.nav.platform',
+  [ROUTES.workflow]: 'siteHeader.nav.workflow',
+  [ROUTES.specFiles]: 'siteHeader.nav.specFiles',
+  [ROUTES.specQueue]: 'siteHeader.nav.specQueue',
+  [ROUTES.skillsHub]: 'siteHeader.nav.skillsHub',
+  [ROUTES.skillsHubSettings]: 'siteHeader.nav.skillsHub',
+} as const;
+
+function titleKeyFor(pathname: string) {
+  const routes = Object.keys(TITLE_KEYS) as (keyof typeof TITLE_KEYS)[];
+  const route =
+    routes.find((r) => r === pathname) ?? routes.find((r) => pathname.startsWith(`${r}/`));
+  return route ? TITLE_KEYS[route] : undefined;
+}
 
 function App() {
   const { t } = useTranslation('dashboard');
+  const { t: tCommon } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { authenticated, user } = useAuthSession();
+  const remoteApps = useRemoteApps();
   const projectsQuery = useProjectsQuery(authenticated);
   const projects = projectsQuery.data ?? NO_PROJECTS;
   const [selectedProjectId, setSelectedProjectId] = useState(getStoredProjectId);
@@ -40,6 +74,12 @@ function App() {
   // A backend failure must not bounce the user back to the Keycloak login: a failed load
   // settles the query and the app continues with no projects.
   const authReady = authenticated && !projectsQuery.isPending;
+
+  const titleKey = titleKeyFor(location.pathname);
+  const pageTitle = titleKey ? t(titleKey) : null;
+  useEffect(() => {
+    document.title = pageTitle ? `${pageTitle} · ${APP_TITLE}` : APP_TITLE;
+  }, [pageTitle]);
 
   useEffect(() => {
     if (projectsQuery.isSuccess && selectedProjectId && !selectedProject) {
@@ -71,6 +111,7 @@ function App() {
     selectedProject,
     onProjectChange: handleProjectChange,
     onLogout: handleLogout,
+    user,
   };
 
   if (!authReady) {
@@ -82,76 +123,91 @@ function App() {
   }
 
   return (
-    <ErrorBoundary resetKeys={[location.pathname]}>
-      <Suspense
-        fallback={
-          <StatusMessage variant="loading" data-testid="view-loading">
-            {t('loadingView')}
-          </StatusMessage>
-        }
+    <HubSessionProvider user={user}>
+      {/* The project sits above the registry: badge hooks run inside it and may read the project. */}
+      <HubProjectProvider
+        projects={projects}
+        selected={selectedProject}
+        onSelect={handleProjectChange}
       >
-        <Routes>
-          <Route
-            path={ROUTES.landing}
-            element={
-              <LandingRoute>
-                <LandingHubRoute
-                  user={user}
-                  onSelectPortal={handleSelectPortal}
-                  onLogout={handleLogout}
-                />
-              </LandingRoute>
-            }
-          />
-          <Route
-            path={ROUTES.projects}
-            element={<ProjectSelectionRoute projects={projects} onSelect={handleSelectProject} />}
-          />
-          <Route
-            path={ROUTES.dashboard}
-            element={
-              <RequireProject project={selectedProject}>
-                <DashboardRoute shell={shell} />
-              </RequireProject>
-            }
-          />
-          <Route
-            path={ROUTES.settings}
-            element={<SettingsRoute selectedProject={selectedProject} />}
-          />
-          {[ROUTES.workflow, `${ROUTES.workflow}/:workflowId/runs/:runId`].map((path) => (
-            <Route
-              key={path}
-              path={path}
-              element={
-                <RequireProject project={selectedProject}>
-                  <WorkflowRoute shell={shell} />
-                </RequireProject>
-              }
-            />
-          ))}
-          <Route
-            path={ROUTES.specQueue}
-            element={
-              <RequireProject project={selectedProject}>
-                <SpecQueueRoute shell={shell} />
-              </RequireProject>
-            }
-          />
-          <Route
-            path={ROUTES.specFiles}
-            element={
-              <RequireProject project={selectedProject}>
-                <SpecFilesRoute shell={shell} />
-              </RequireProject>
-            }
-          />
-          <Route path={ROUTES.skillsHub} element={<SkillsHubRoute shell={shell} />} />
-          <Route path={ROUTES.skillsHubSettings} element={<SkillsHubSettingsRoute />} />
-          <Route path="*" element={<Navigate to={ROUTES.landing} replace />} />
-        </Routes>
-      </Suspense>
-    </ErrorBoundary>
+        <AppRegistryProvider apps={remoteApps}>
+          <HubHeaderContext.Provider value={<SiteHeader {...shell} />}>
+            <RemoteFailuresNotice />
+            <ErrorBoundary
+              resetKeys={[location.pathname]}
+              message={tCommon('somethingWrong')}
+              reloadLabel={tCommon('reload')}
+            >
+              <Suspense fallback={<ViewLoading />}>
+                <Routes>
+                  <Route
+                    path={ROUTES.home}
+                    element={
+                      isFeatureEnabled(FEATURE_FLAGS.hub) ? (
+                        <Home />
+                      ) : (
+                        <Navigate to={ROUTES.dashboard} replace />
+                      )
+                    }
+                  />
+                  <Route
+                    path={ROUTES.root}
+                    element={
+                      <LandingRoute>
+                        <Navigate to={ROUTES.dashboard} replace />
+                      </LandingRoute>
+                    }
+                  />
+                  <Route
+                    path={ROUTES.landing}
+                    element={
+                      <LandingRoute>
+                        <LandingHubRoute
+                          user={user}
+                          onSelectPortal={handleSelectPortal}
+                          onLogout={handleLogout}
+                        />
+                      </LandingRoute>
+                    }
+                  />
+                  <Route
+                    path={ROUTES.projects}
+                    element={
+                      <ProjectSelectionRoute projects={projects} onSelect={handleSelectProject} />
+                    }
+                  />
+                  <Route
+                    path={ROUTES.dashboard}
+                    element={
+                      <RequireProject project={selectedProject}>
+                        <DashboardRoute shell={shell} />
+                      </RequireProject>
+                    }
+                  />
+                  <Route
+                    path={ROUTES.settings}
+                    element={<SettingsRoute selectedProject={selectedProject} />}
+                  />
+                  <Route path={FORBIDDEN_PATH} element={<Forbidden />} />
+                  {remoteApps.map((app) => (
+                    <Route
+                      key={app.id}
+                      path={`${app.route}/*`}
+                      element={
+                        <RequirePermission any={app.requiredPermissions}>
+                          <RemoteRoutes app={app} />
+                        </RequirePermission>
+                      }
+                    />
+                  ))}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </ErrorBoundary>
+          </HubHeaderContext.Provider>
+        </AppRegistryProvider>
+      </HubProjectProvider>
+    </HubSessionProvider>
   );
 }
 

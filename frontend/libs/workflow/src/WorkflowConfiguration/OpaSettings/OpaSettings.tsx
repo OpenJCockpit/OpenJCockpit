@@ -12,7 +12,7 @@ import {
   TextField,
 } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
-import { OPA_STATUS_KINDS, OPA_STATUS_LABELS, opaStatusFor } from './opaStatus';
+import { OPA_STATUS_KINDS, OPA_STATUS_LABEL_KEYS, opaStatusFor } from './opaStatus';
 
 interface OpaFormState {
   enabled: boolean;
@@ -110,10 +110,10 @@ export function OpaSettings() {
       });
       queryClient.setQueryData(OPA_CONFIG_KEY, result);
       setEdited(null);
-      setSavedMessage('OPA configuration saved.');
+      setSavedMessage(t('opa.saved'));
       queryClient.setQueryData(OPA_HEALTH_KEY, await checkOpaHealth());
     } catch (err) {
-      setError('Failed to save OPA configuration.');
+      setError(t('opa.saveFailed'));
       console.warn(err);
     } finally {
       setSaving(false);
@@ -131,7 +131,10 @@ export function OpaSettings() {
       title={
         <>
           {t('opa.title')}{' '}
-          <StatusChip label={OPA_STATUS_LABELS[status]} kind={OPA_STATUS_KINDS[status]} />
+          <StatusChip
+            label={t(OPA_STATUS_LABEL_KEYS[status] as never)}
+            kind={OPA_STATUS_KINDS[status]}
+          />
         </>
       }
       description={t('opa.description')}
@@ -175,10 +178,11 @@ export function OpaSettings() {
         label={t('opa.failMode')}
         value={form.failMode}
         onChange={(v) => update({ failMode: v })}
-      >
-        <option value="FAIL_CLOSED">{t('opa.failClosed')}</option>
-        <option value="FAIL_OPEN">{t('opa.failOpen')}</option>
-      </SelectField>
+        options={[
+          { value: 'FAIL_CLOSED', label: t('opa.failClosed') },
+          { value: 'FAIL_OPEN', label: t('opa.failOpen') },
+        ]}
+      />
       <TextField
         label={t('opa.environment')}
         value={form.environment}

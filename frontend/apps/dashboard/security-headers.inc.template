@@ -6,4 +6,4 @@ add_header X-Frame-Options "DENY" always;
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()" always;
 # style-src needs 'unsafe-inline' for React style props. Keycloak is the login redirect target and the token endpoint.
-add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' ${KEYCLOAK_URL}; frame-src 'self' ${KEYCLOAK_URL}; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self' ${KEYCLOAK_URL}" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' ${FEDERATION_ALLOWED_ORIGINS}; style-src 'self' 'unsafe-inline' ${FEDERATION_ALLOWED_ORIGINS}; img-src 'self' data:; font-src 'self' data:; connect-src 'self' ${KEYCLOAK_URL} ${FEDERATION_ALLOWED_ORIGINS}; frame-src 'self' ${KEYCLOAK_URL}; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self' ${KEYCLOAK_URL}" always;

@@ -32,7 +32,7 @@ describe('SkillsHubDashboard — Settings entry point', () => {
       resources: skillsHubResources,
     });
 
-    screen.getByRole('button', { name: '← Back' }).click();
+    screen.getByRole('button', { name: '← Back to dashboard' }).click();
 
     expect(onBack).toHaveBeenCalledTimes(1);
   });

@@ -1,14 +1,45 @@
 {
   "dashboard": {
-    "authenticating": "Authentifizierung läuft...",
-    "loadingView": "Wird geladen...",
+    "authenticating": "Authentifizierung läuft…",
+    "loadingView": "Wird geladen…",
+    "forbidden": "Du hast keinen Zugriff auf diese Seite.",
+    "notFound": "Diese Seite existiert nicht.",
+    "backToDashboard": "Zurück zum Dashboard",
+    "unavailableApps": "Einige Apps sind nicht verfügbar: {{names}}",
+    "home": {
+      "eyebrow": "Start",
+      "title": "Willkommen",
+      "greeting": "Willkommen, {{name}}",
+      "customise": "Anpassen",
+      "done": "Fertig",
+      "reset": "Auf Standard zurücksetzen",
+      "empty": "Noch keine Widgets auf deiner Startseite. Wähle Anpassen, um welche hinzuzufügen.",
+      "available": "Verfügbare Widgets",
+      "noneAvailable": "Alle verfügbaren Widgets sind bereits auf deiner Startseite.",
+      "add": "Hinzufügen",
+      "open": "Öffnen",
+      "moveEarlier": "Früher platzieren",
+      "moveLater": "Später platzieren",
+      "narrower": "Schmaler",
+      "wider": "Breiter",
+      "shorter": "Niedriger",
+      "taller": "Höher",
+      "remove": "Entfernen"
+    },
+    "pageTitle": {
+      "home": "Start",
+      "landing": "Arbeitsbereich wählen",
+      "projects": "Projekt auswählen",
+      "settings": "Einstellungen"
+    },
     "siteHeader": {
       "backToHub": "Zurück zum Hub",
       "primaryNavigation": "Hauptnavigation",
       "activeProject": "Aktives Projekt",
       "language": "Sprache",
+      "theme": "Design",
+      "themes": { "system": "System", "light": "Hell", "dark": "Dunkel" },
       "projectManagement": "Projektverwaltung",
-      "hub": "← Hub",
       "logOut": "Abmelden",
       "logout": "Abmelden",
       "nav": {
@@ -16,9 +47,18 @@
         "workflow": "Workflow-Design & -Ausführung",
         "specFiles": "Spec-Dateien",
         "specQueue": "Spec-Warteschlange",
-        "skillsHub": "Skills-Hub"
-      }
+        "skillsHub": "Skills-Hub",
+        "skillsHubBadge": "Verbundene Marktplätze",
+        "hub": "Hub"
+      },
+      "groups": {
+        "work": "Arbeit",
+        "account": "Konto"
+      },
+      "collapse": "Einklappen",
+      "expand": "Ausklappen"
     },
+    "sampleData": "Beispieldaten",
     "statusBar": {
       "environment": "● Umgebung: {{value}}",
       "region": "☁ Region: {{value}}",
@@ -27,12 +67,9 @@
       "springAiControlVersion": "Spring AI Control Service: {{value}}",
       "copyright": "© 2026 Metafactory B.V."
     },
-    "customerHero": {
-      "customer": "Kunde: {{name}}"
-    },
     "workspace": {
       "failed": "Der Arbeitsbereich konnte nicht geladen werden.",
-      "loading": "Arbeitsbereich wird geladen..."
+      "loading": "Arbeitsbereich wird geladen…"
     },
     "preflight": {
       "title": "Preflight-Prüfung fehlgeschlagen",
@@ -51,6 +88,8 @@
       }
     },
     "flow": {
+      "specsFailedTitle": "Die Specs konnten nicht geladen werden",
+      "specsFailed": "Die Specs konnten nicht geladen werden. Der Server hat nicht korrekt geantwortet.",
       "startNewWorkflow": "↺ Neuen Workflow starten",
       "currentSpec": "Aktuelle Spec",
       "specFolder": "Spec-Ordner",
@@ -86,6 +125,8 @@
       }
     },
     "specPanel": {
+      "error": "Die Specs konnten nicht geladen werden. Der Server hat nicht korrekt geantwortet.",
+      "retry": "Erneut versuchen",
       "title": "Spec",
       "loading": "Specs werden geladen…",
       "viewAll": "Alle Specs anzeigen",
@@ -99,13 +140,57 @@
     },
     "evidence": {
       "title": "Ausführungsnachweis",
-      "view": "Nachweis anzeigen",
-      "by": "Von: {{actor}}"
+      "by": "Von: {{actor}}",
+      "events": {
+        "specLoaded": "Spezifikation geladen",
+        "impactAnalysisRecorded": "Auswirkungsanalyse erfasst",
+        "testSetGenerated": "Testsatz erzeugt",
+        "implementationProposalSaved": "Implementierungsvorschlag gespeichert",
+        "humanApprovalLogged": "Menschliche Freigabe protokolliert",
+        "evidenceDataRecorded": "Nachweisdaten erfasst"
+      },
+      "actors": {
+        "requirement": "Anforderungs-Agent",
+        "impact": "Auswirkungsanalyse-Agent",
+        "testDesign": "Testdesign-Agent",
+        "implementation": "Implementierungs-Agent",
+        "review": "Review-Agent",
+        "evidence": "Nachweis-Agent"
+      }
     },
     "quality": {
       "title": "Qualitätsstatus",
-      "open": "Qualitäts-Dashboard öffnen ↗",
-      "viewAll": "Alle Qualitätsregeln anzeigen"
+      "controls": {
+        "unitTestCoverage": "Unit-Test-Abdeckung",
+        "nist2": "NIST 2",
+        "owaspZap": "OWASP ZAP",
+        "iso25010": "ISO 25010",
+        "sast": "SAST",
+        "dependencyScan": "Abhängigkeitsprüfung",
+        "architectureRules": "Architekturregeln"
+      },
+      "details": {
+        "noCriticalIssues": "Keine kritischen Probleme",
+        "allAttributes": "8/8 Attribute",
+        "noHighIssues": "Keine schwerwiegenden Probleme",
+        "noKnownVulnerabilities": "Keine bekannten Schwachstellen",
+        "noDeviations": "0 Abweichungen"
+      }
+    },
+    "apps": {
+      "hello": {
+        "label": "Hallo",
+        "widgetTitle": "Hallo"
+      },
+      "specQueue": {
+        "widgetTitle": "Spec-Warteschlange"
+      },
+      "workflow": {
+        "widgetTitle": "Letzte Workflows"
+      },
+      "specFiles": {
+        "widgetTitle": "Spec-Dateien"
+      }
     }
   }
 }

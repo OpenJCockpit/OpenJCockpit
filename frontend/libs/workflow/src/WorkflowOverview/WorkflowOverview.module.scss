@@ -31,7 +31,7 @@
   }
   & dd {
     margin: 0;
-    color: #dfeaf2;
+    color: var(--text);
   }
 }
 .workflow-card-actions {

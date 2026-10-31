@@ -31,6 +31,16 @@ describe('TopBar', () => {
     expect(screen.getByText('Authenticated launch hub')).toBeInTheDocument();
   });
 
+  it('uses a question mark as the brand mark without a first name or username', () => {
+    setup({ firstName: '', username: '', email: undefined });
+    expect(screen.getByText('?')).toBeInTheDocument();
+  });
+
+  it('uses the username initial as the brand mark without a first name', () => {
+    setup({ firstName: '' });
+    expect(screen.getByText('T')).toBeInTheDocument();
+  });
+
   it('opens a popover per action and toggles it closed', () => {
     setup();
     expect(screen.queryByText('No new notifications.')).not.toBeInTheDocument();

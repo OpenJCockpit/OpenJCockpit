@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 import {
   LOCALE_NAMES,
   type Locale,
@@ -8,125 +9,275 @@ import {
 } from '@openjcockpit/i18n';
 import type { Project } from '@openjcockpit/api';
 import styles from './SiteHeader.module.scss';
-import { Button, BrandLogo, dropdownClass } from '@openjcockpit/ui';
+import { canSelectProject } from '@openjcockpit/project';
+import { BrandLogo, Select, cx } from '@openjcockpit/ui';
+import {
+  HubThemeContext,
+  isThemePreference,
+  THEME_PREFERENCES,
+  useAppRegistry,
+  useBadgeFor,
+  type AppDefinition,
+} from '@openjcockpit/hub-contract';
+import { SidebarIcon, toSidebarIconName, type SidebarIconName } from './SidebarIcon';
 import { ROUTES } from '../../routes';
+import { FEATURE_FLAGS, isFeatureEnabled } from '../../featureFlags';
 
-export type SiteSection = 'platform' | 'workflow' | 'specFiles' | 'specQueue' | 'skillsHub';
+/** Only the host's own page has a fixed menu entry; the apps remotes ship are matched by route. */
+export type SiteSection = 'platform';
 
-const NAV_ITEMS: { section: SiteSection; path: string; testId: string }[] = [
-  { section: 'platform', path: ROUTES.dashboard, testId: 'nav-platform' },
-  {
-    section: 'workflow',
-    path: ROUTES.workflow,
-    testId: 'nav-workflow',
-  },
-  { section: 'specFiles', path: ROUTES.specFiles, testId: 'nav-spec-files' },
-  { section: 'specQueue', path: ROUTES.specQueue, testId: 'nav-spec-queue' },
-  { section: 'skillsHub', path: ROUTES.skillsHub, testId: 'nav-skills-hub' },
-];
+const HOME_ITEM: { section: SiteSection; path: string; testId: string; icon: SidebarIconName } = {
+  section: 'platform',
+  path: ROUTES.dashboard,
+  testId: 'nav-platform',
+  icon: 'platform',
+};
+
+const COLLAPSED_KEY = 'openjcockpit.sidebarCollapsed';
+
+function readCollapsed() {
+  try {
+    return window.localStorage.getItem(COLLAPSED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function storeCollapsed(collapsed: boolean) {
+  try {
+    window.localStorage.setItem(COLLAPSED_KEY, collapsed ? '1' : '0');
+  } catch {
+    // The preference only lasts for this page view.
+  }
+}
+
+/** A nav entry for an app a remote contributed; the badge re-renders only this entry. */
+function RemoteNavItem({ app }: { app: AppDefinition }) {
+  const { t } = useTranslation('dashboard');
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const badge = useBadgeFor(app.id);
+  // Remote label keys are not in the host's typed catalog.
+  const label = String(t(app.labelKey as never));
+  const badgeLabel = app.badgeLabelKey ? String(t(app.badgeLabelKey as never)) : undefined;
+  const active = pathname === app.route || pathname.startsWith(`${app.route}/`);
+  return (
+    <button
+      type="button"
+      className={cx(styles.item, active && styles.active)}
+      aria-current={active ? 'page' : undefined}
+      aria-label={label}
+      title={label}
+      onClick={() => void navigate(app.route)}
+      data-testid={`nav-app-${app.id}`}
+    >
+      <SidebarIcon name={toSidebarIconName(app.icon)} />
+      <span className={styles.label}>{label}</span>
+      {badge !== null && (
+        <span className={styles.badge} title={badgeLabel}>
+          {badge}
+        </span>
+      )}
+    </button>
+  );
+}
 
 interface Props {
-  /** The menu item shown as selected: the section of the page being viewed. */
-  active: SiteSection;
+  /** The menu item shown as selected: the section of the page being viewed. Remote apps are matched by route. */
+  active?: SiteSection;
   projects: Project[];
   selectedProject: Project | null;
   onProjectChange: (projectId: string) => void;
   onLogout: () => void;
+  user?: { firstName: string; username: string } | null;
 }
 
-/** The top menu shared by the platform overview and the feature pages it links to. */
+/** The sidebar menu shared by the platform overview and the feature pages it links to. */
 export function SiteHeader({
   active,
   projects,
   selectedProject,
   onProjectChange,
   onLogout,
+  user,
 }: Props) {
   const { t } = useTranslation('dashboard');
   const { locale, setLocale } = useLocale();
+  // Absent in a standalone harness, where there is no host theme to change.
+  const theme = useContext(HubThemeContext);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const settingsActive = pathname === ROUTES.settings;
+  const [collapsed, setCollapsed] = useState(readCollapsed);
+  const navRef = useRef<HTMLElement>(null);
+  const { navApps } = useAppRegistry();
+
+  // On a phone the nav is a scrolling strip: keep the current page's entry in view.
+  useEffect(() => {
+    const nav = navRef.current;
+    const current = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+    // Scroll the strip itself: scrollIntoView would also shift the page behind it.
+    if (nav && current) {
+      nav.scrollLeft = current.offsetLeft - (nav.clientWidth - current.offsetWidth) / 2;
+    }
+  }, [pathname, collapsed]);
+
+  function toggleCollapsed() {
+    storeCollapsed(!collapsed);
+    setCollapsed(!collapsed);
+  }
+
+  function navItem(item: typeof HOME_ITEM) {
+    const label = t(`siteHeader.nav.${item.section}`);
+    return (
+      <button
+        key={item.section}
+        type="button"
+        className={cx(styles.item, item.section === active && styles.active)}
+        aria-current={item.section === active ? 'page' : undefined}
+        aria-label={label}
+        title={collapsed ? label : undefined}
+        onClick={() => void navigate(item.path)}
+        data-testid={item.testId}
+      >
+        <SidebarIcon name={item.icon} />
+        <span className={styles.label}>{label}</span>
+      </button>
+    );
+  }
+
+  const settingsLabel = t('siteHeader.projectManagement');
+  const hubLabel = t('siteHeader.nav.hub');
+  const hubEnabled = isFeatureEnabled(FEATURE_FLAGS.hub);
+  const collapseLabel = t(collapsed ? 'siteHeader.expand' : 'siteHeader.collapse');
+  const displayName = user ? user.firstName || user.username : '';
 
   return (
-    <header className={styles.siteHeader}>
+    <aside
+      className={cx(styles.sidebar, collapsed && styles.collapsed)}
+      data-app-sidebar={collapsed ? 'collapsed' : 'expanded'}
+    >
       <button
         type="button"
         className={styles.brand}
-        onClick={() => void navigate(ROUTES.landing)}
+        onClick={() => void navigate(ROUTES.dashboard)}
         title={t('siteHeader.backToHub')}
       >
         <BrandLogo />
       </button>
 
-      <nav className={styles.mainNav} aria-label={t('siteHeader.primaryNavigation')}>
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.section}
-            type="button"
-            className={item.section === active ? styles.active : undefined}
-            aria-current={item.section === active ? 'page' : undefined}
-            onClick={() => void navigate(item.path)}
-            data-testid={item.testId}
-          >
-            {t(`siteHeader.nav.${item.section}`)}
-          </button>
+      {!collapsed && (
+        <div className={styles.selectors}>
+          {projects.length > 0 && (
+            <Select
+              block
+              label={t('siteHeader.activeProject')}
+              value={selectedProject?.id ?? ''}
+              options={projects
+                .filter((p) => p.id === selectedProject?.id || canSelectProject(p))
+                .map((p) => ({ value: p.id, label: p.name }))}
+              onChange={onProjectChange}
+            />
+          )}
+          <Select
+            block
+            label={t('siteHeader.language')}
+            value={locale}
+            options={SUPPORTED_LOCALES.map((code) => ({
+              value: code,
+              label: LOCALE_NAMES[code],
+              lang: code,
+            }))}
+            // A failed locale download keeps the current language; the select stays on it.
+            onChange={(code) => void setLocale(code as Locale).catch(() => undefined)}
+            data-testid="locale-select"
+          />
+          {theme && (
+            <Select
+              block
+              label={t('siteHeader.theme')}
+              value={theme.preference}
+              options={THEME_PREFERENCES.map((preference) => ({
+                value: preference,
+                label: t(`siteHeader.themes.${preference}`),
+              }))}
+              onChange={(value) => isThemePreference(value) && theme.setPreference(value)}
+              data-testid="theme-select"
+            />
+          )}
+        </div>
+      )}
+
+      <nav ref={navRef} className={styles.mainNav} aria-label={t('siteHeader.primaryNavigation')}>
+        {navItem(HOME_ITEM)}
+        <p className={styles.group}>{t('siteHeader.groups.work')}</p>
+        {navApps.map((app) => (
+          <RemoteNavItem key={app.id} app={app} />
         ))}
+        <p className={styles.group}>{t('siteHeader.groups.account')}</p>
+        <button
+          type="button"
+          className={cx(styles.item, settingsActive && styles.active)}
+          aria-current={settingsActive ? 'page' : undefined}
+          aria-label={settingsLabel}
+          title={settingsLabel}
+          onClick={() => void navigate(ROUTES.settings)}
+        >
+          <SidebarIcon name="settings" />
+          <span className={styles.label}>{settingsLabel}</span>
+        </button>
+        {hubEnabled && (
+          <button
+            type="button"
+            className={styles.item}
+            aria-label={hubLabel}
+            title={t('siteHeader.backToHub')}
+            onClick={() => void navigate(ROUTES.home)}
+            data-testid="nav-hub"
+          >
+            <SidebarIcon name="hub" />
+            <span className={styles.label}>{hubLabel}</span>
+          </button>
+        )}
       </nav>
 
-      <div className={styles.headerActions}>
-        {projects.length > 0 && (
-          <select
-            className={dropdownClass}
-            value={selectedProject?.id ?? ''}
-            onChange={(e) => onProjectChange(e.target.value)}
-            title={t('siteHeader.activeProject')}
+      <div className={styles.footer}>
+        <button
+          type="button"
+          className={styles.item}
+          aria-label={collapseLabel}
+          aria-pressed={collapsed}
+          title={collapsed ? collapseLabel : undefined}
+          onClick={toggleCollapsed}
+          data-testid="nav-collapse"
+        >
+          <SidebarIcon name="collapse" />
+          <span className={styles.label}>{collapseLabel}</span>
+        </button>
+        <div className={styles.userCard}>
+          {user && (
+            <span className={styles.avatar} title={user.firstName} aria-hidden="true">
+              {displayName.charAt(0).toUpperCase()}
+            </span>
+          )}
+          {user && (
+            <span className={styles.userText}>
+              <span className={styles.userName}>{displayName}</span>
+              <span className={styles.userHandle}>{user.username}</span>
+            </span>
+          )}
+          <button
+            type="button"
+            className={styles.logout}
+            onClick={onLogout}
+            title={t('siteHeader.logOut')}
+            aria-label={t('siteHeader.logout')}
+            data-testid="nav-logout"
           >
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        )}
-        <select
-          className={dropdownClass}
-          value={locale}
-          // A failed locale download keeps the current language; the select stays on it.
-          onChange={(e) => void setLocale(e.target.value as Locale).catch(() => undefined)}
-          aria-label={t('siteHeader.language')}
-          data-testid="locale-select"
-        >
-          {SUPPORTED_LOCALES.map((code) => (
-            <option key={code} value={code} lang={code}>
-              {LOCALE_NAMES[code]}
-            </option>
-          ))}
-        </select>
-        <Button
-          variant="secondary"
-          onClick={() => void navigate(ROUTES.settings)}
-          title={t('siteHeader.projectManagement')}
-        >
-          ⚙
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={() => void navigate(ROUTES.landing)}
-          title={t('siteHeader.backToHub')}
-          data-testid="nav-hub"
-        >
-          {t('siteHeader.hub')}
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={onLogout}
-          title={t('siteHeader.logOut')}
-          data-testid="nav-logout"
-        >
-          {t('siteHeader.logout')}
-        </Button>
-        <span className={styles.notification}>3</span>
-        <span className={styles.avatar}>D</span>
+            <SidebarIcon name="logout" />
+          </button>
+        </div>
       </div>
-    </header>
+    </aside>
   );
 }

@@ -1,12 +1,16 @@
 {
   "skillsHub": {
     "eyebrow": "Skills Hub",
+    "contributions": {
+      "widgetSummary": "Marketplaces conectados: {{count}}",
+      "widgetEmpty": "Aún no hay ningún marketplace conectado."
+    },
     "dashboard": {
       "backTitle": "Volver al panel",
       "title": "Skills disponibles",
       "settingsTitle": "Ajustes de Skills Hub",
       "settings": "⚙ Ajustes",
-      "searchPlaceholder": "Buscar una skill...",
+      "searchPlaceholder": "Buscar una skill…",
       "searchLabel": "Buscar una skill",
       "search": "⌕ Buscar",
       "columnCategory": "Categoría",
@@ -30,16 +34,16 @@
     },
     "settings": {
       "backTitle": "Volver a Skills Hub",
-      "loading": "Cargando marketplaces...",
+      "loading": "Cargando marketplaces…",
       "title": "Conexiones de marketplace",
       "formNew": "Nuevo marketplace",
       "formEdit": "Editar marketplace",
-      "name": "Nombre *",
+      "name": "Nombre",
       "namePlaceholder": "p. ej. Acme Skills",
-      "marketplaceUrl": "URL del marketplace *",
+      "marketplaceUrl": "URL del marketplace",
       "marketplaceUrlPlaceholder": "https://marketplace.example.com/api",
       "apiKey": "Clave de API",
-      "apiKeyRequired": "Clave de API *",
+      "apiKeyRequired": "Clave de API",
       "apiKeyKeepPlaceholder": "Déjalo vacío para conservar la clave de API actual",
       "apiKeyRequiredPlaceholder": "Obligatorio — aún no hay ninguna clave de API",
       "description": "Descripción",
@@ -65,13 +69,18 @@
         "loadFailed": "No se pudieron cargar los marketplaces.",
         "nameRequired": "El nombre es obligatorio.",
         "urlRequired": "La URL del marketplace es obligatoria.",
-        "saveFailed": "No se pudo guardar.",
-        "deleteFailed": "No se pudo eliminar."
+        "saveFailed": "No se pudo guardar el marketplace.",
+        "deleteFailed": "No se pudo eliminar el marketplace."
       },
       "status": {
         "added": "Se ha añadido el marketplace \"{{name}}\".",
         "updated": "Se ha actualizado el marketplace \"{{name}}\".",
         "deleted": "Se ha eliminado el marketplace \"{{name}}\"."
+      },
+      "deleting": "Eliminando…",
+      "confirmDelete": {
+        "title": "¿Eliminar {{name}}?",
+        "message": "La conexión con el marketplace y su clave de API se eliminan de forma permanente."
       }
     }
   }

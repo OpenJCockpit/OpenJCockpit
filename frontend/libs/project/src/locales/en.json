@@ -9,6 +9,7 @@
       "compactNotReachable": "Git not reachable"
     },
     "selection": {
+      "backToHub": "← Hub",
       "repoReachable": "Git repository reachable",
       "repoNotReachable": "Git repository not reachable",
       "statusUnknown": "Git status unknown",
@@ -22,15 +23,16 @@
       "notReachableNotice": "Repository not reachable. Update the project via ⚙ Manage projects."
     },
     "settings": {
-      "loading": "Loading projects...",
+      "eyebrow": "Settings",
+      "loading": "Loading projects…",
       "back": "← Projects",
       "title": "Project management",
       "newProject": "+ New project",
       "errors": {
-        "nameRequired": "Name is required",
-        "saveFailed": "Save failed. Please try again.",
-        "statusChangeFailed": "Status change failed.",
-        "gitCheckFailed": "Git check failed.",
+        "nameRequired": "Name is required.",
+        "saveFailed": "Failed to save the project.",
+        "statusChangeFailed": "Failed to change the project status.",
+        "gitCheckFailed": "Failed to check the Git repository.",
         "credentialsLoadFailed": "Failed to load existing credentials.",
         "credentialsSaveFailed": "Failed to save credentials.",
         "credentialsDeleteFailed": "Failed to delete credentials."
@@ -39,7 +41,7 @@
     "form": {
       "newTitle": "New project",
       "editTitle": "Edit project",
-      "name": "Name *",
+      "name": "Name",
       "namePlaceholder": "Project name",
       "customerId": "Customer ID (stub)",
       "customerIdPlaceholder": "e.g. noordzee-logistics",
@@ -60,7 +62,7 @@
     },
     "credentials": {
       "title": "Git credentials",
-      "loading": "Loading current credentials...",
+      "loading": "Loading current credentials…",
       "type": "Type",
       "types": {
         "NONE": "None",
@@ -98,6 +100,20 @@
       "deleteCredentials": "Delete credentials",
       "deactivate": "Deactivate",
       "activate": "Activate"
+    },
+    "confirm": {
+      "cancel": "Cancel",
+      "working": "Working…",
+      "deleteCredentials": {
+        "title": "Delete credentials for {{name}}?",
+        "message": "The stored Git credentials are deleted permanently. Git checks and runs for this project fail until new credentials are added.",
+        "confirm": "Delete credentials"
+      },
+      "deactivate": {
+        "title": "Deactivate {{name}}?",
+        "message": "The project disappears from the project picker. You can activate it again from this page.",
+        "confirm": "Deactivate"
+      }
     }
   }
 }

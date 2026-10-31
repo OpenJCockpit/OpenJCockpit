@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from '@openjcockpit/i18n';
 import { listWorkflowGroups, listWorkflows, queryKeys } from '@openjcockpit/api';
 import { fetchLinkableAgents } from '../../../linkableAgents';
 
@@ -8,6 +9,7 @@ export const linkableAgentsQueryKey = queryKeys.linkableAgents;
 
 /** Workflows, groups and linkable agents; `loaded` once every query has settled (success or error). */
 export function useWorkflowsPanelData() {
+  const { t } = useTranslation('workflow');
   const workflows = useQuery({
     queryKey: workflowsQueryKey,
     queryFn: ({ signal }) => listWorkflows(signal),
@@ -30,7 +32,7 @@ export function useWorkflowsPanelData() {
     loadError: failure
       ? failure instanceof Error
         ? failure.message
-        : 'Failed to load the agent catalog.'
+        : t('workflows.catalogFailed')
       : null,
   };
 }

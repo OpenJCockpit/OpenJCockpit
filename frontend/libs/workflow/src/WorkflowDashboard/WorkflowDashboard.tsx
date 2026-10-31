@@ -7,7 +7,17 @@ import { WorkflowOverview } from '../WorkflowOverview/WorkflowOverview';
 import { WorkflowConfiguration } from '../WorkflowConfiguration/WorkflowConfiguration';
 import { WorkflowDesign } from '../WorkflowDesign/WorkflowDesign';
 import { WorkflowExecution } from '../WorkflowExecution/WorkflowExecution';
-import { AppShell, AppHeader, Eyebrow, feedbackErrorClass, Tab, TabNav } from '@openjcockpit/ui';
+import {
+  AppShell,
+  AppHeader,
+  Eyebrow,
+  cx,
+  feedbackErrorClass,
+  pageClass,
+  pageHeaderClass,
+  Tab,
+  TabNav,
+} from '@openjcockpit/ui';
 import styles from './WorkflowDashboard.module.scss';
 
 type WorkflowTab = 'overview' | 'configuration' | 'design' | 'execution';
@@ -40,7 +50,7 @@ export function WorkflowDashboard({ project, onBack, initialExecution, header }:
   const initialError = initialWorkflowQuery.isError
     ? initialWorkflowQuery.error instanceof Error
       ? initialWorkflowQuery.error.message
-      : 'Failed to load workflow'
+      : t('dashboard.workflowLoadFailed')
     : null;
 
   function handleWorkflowStarted(workflow: WorkflowDefinition, runId: string) {
@@ -58,8 +68,8 @@ export function WorkflowDashboard({ project, onBack, initialExecution, header }:
     <AppShell>
       {header ?? <AppHeader onBack={onBack} backTitle={t('dashboard.backTitle')} />}
 
-      <main className={styles.workflowDashboard}>
-        <div className={styles.workflowDashboardHeader}>
+      <main className={pageClass}>
+        <div className={cx(pageHeaderClass, styles.workflowDashboardHeader)}>
           <div>
             <Eyebrow>{t('dashboard.eyebrow')}</Eyebrow>
             <h1>{project ? project.name : t('dashboard.allProjects')}</h1>

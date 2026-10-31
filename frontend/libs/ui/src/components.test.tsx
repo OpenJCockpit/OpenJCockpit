@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { renderWithI18n } from '@openjcockpit/i18n/testing';
 import {
   Actions,
   AppHeader,
@@ -121,13 +122,18 @@ describe('AppShell', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('AppHeader back button uses the default label and fires', () => {
+  it('AppHeader back button names its destination and fires', () => {
     const onBack = vi.fn();
-    render(<AppHeader onBack={onBack} backTitle="Return" />);
-    const back = screen.getByRole('button', { name: '← Back' });
-    expect(back).toHaveAttribute('title', 'Return');
+    renderWithI18n(<AppHeader onBack={onBack} backTitle="Back to dashboard" />);
+    const back = screen.getByRole('button', { name: '← Back to dashboard' });
+    expect(back).toHaveAttribute('title', 'Back to dashboard');
     fireEvent.click(back);
     expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('AppHeader back button falls back to the generic label', () => {
+    renderWithI18n(<AppHeader onBack={vi.fn()} />);
+    expect(screen.getByRole('button', { name: '← Back' })).toBeInTheDocument();
   });
 
   it('AppHeader supports a custom label and extra actions before the back button', () => {

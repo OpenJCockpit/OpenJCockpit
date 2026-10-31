@@ -41,9 +41,9 @@
 
 .workflow-run-lost-panel {
   padding: 20px;
-  border: 1px solid rgba(255, 80, 80, 0.35);
+  border: 1px solid rgb(var(--danger-rgb) / 0.35);
   border-radius: 12px;
-  background: rgba(255, 80, 80, 0.06);
+  background: rgb(var(--danger-rgb) / 0.06);
   margin-top: 12px;
 }
 .workflow-artifacts {

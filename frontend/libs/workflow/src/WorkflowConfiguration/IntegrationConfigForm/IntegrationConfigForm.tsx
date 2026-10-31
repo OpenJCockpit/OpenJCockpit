@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from '@openjcockpit/i18n';
 import {
-  ToolbarButton,
+  Button,
   StatusMessage,
+  formActionsClass,
   formClass,
   formGridClass,
   formTitleClass,
@@ -42,9 +43,11 @@ export function IntegrationConfigForm({
         <p className={WorkflowConfigurationStyles.workflowSavedMessage}>{savedMessage}</p>
       )}
       <div className={formGridClass}>{children}</div>
-      <ToolbarButton onClick={onSave} disabled={saving}>
-        {saving ? t('shared.saving') : saveLabel}
-      </ToolbarButton>
+      <div className={formActionsClass}>
+        <Button variant="primary" onClick={onSave} disabled={saving}>
+          {saving ? t('shared.saving') : saveLabel}
+        </Button>
+      </div>
     </div>
   );
 }

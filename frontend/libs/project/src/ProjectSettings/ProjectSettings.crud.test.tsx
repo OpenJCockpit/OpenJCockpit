@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { chooseOption } from '@openjcockpit/ui/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProjectSettings } from './ProjectSettings';
 import * as api from '@openjcockpit/api';
@@ -50,14 +51,14 @@ describe('ProjectSettings — loading', () => {
   it('keeps showing the loading message while the load is pending', async () => {
     vi.mocked(api.loadAllProjects).mockReturnValue(new Promise(() => {}));
     await renderAsync(<ProjectSettings onBack={vi.fn()} />);
-    expect(screen.getByText('Loading projects...')).toBeInTheDocument();
+    expect(screen.getByText('Loading projects…')).toBeInTheDocument();
   });
 
   it('keeps the loading message and logs when the load fails', async () => {
     vi.mocked(api.loadAllProjects).mockRejectedValue(new Error('down'));
     await renderAsync(<ProjectSettings onBack={vi.fn()} />);
     await waitFor(() => expect(console.error).toHaveBeenCalled());
-    expect(screen.getByText('Loading projects...')).toBeInTheDocument();
+    expect(screen.getByText('Loading projects…')).toBeInTheDocument();
   });
 
   it('goes back via the header button', async () => {
@@ -101,7 +102,7 @@ describe('ProjectSettings — create and edit', () => {
     fireEvent.change(screen.getByPlaceholderText('Project name'), { target: { value: 'X' } });
     await clickAsync(screen.getByText('Save'));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Save failed. Please try again.');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Failed to save the project.');
     expect(screen.getByText('New project')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Project name')).not.toHaveAttribute('aria-invalid');
   });
@@ -177,6 +178,7 @@ describe('ProjectSettings — status and git check', () => {
     await renderSettings();
     vi.mocked(api.deactivateProject).mockResolvedValue(undefined);
     await clickAsync(within(row('Beta')).getByText('Deactivate'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(api.deactivateProject).toHaveBeenCalledWith('p1');
     expect(await within(row('Beta')).findByText('Inactive')).toBeInTheDocument();
   });
@@ -193,7 +195,10 @@ describe('ProjectSettings — status and git check', () => {
     await renderSettings();
     vi.mocked(api.deactivateProject).mockRejectedValue(new Error('x'));
     await clickAsync(within(row('Beta')).getByText('Deactivate'));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Status change failed.');
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Failed to change the project status.',
+    );
     expect(within(row('Beta')).getByText('Active')).toBeInTheDocument();
   });
 
@@ -216,16 +221,18 @@ describe('ProjectSettings — status and git check', () => {
     let resolve!: (v: api.ProjectGitStatusDto) => void;
     vi.mocked(api.triggerGitCheck).mockReturnValue(new Promise((r) => (resolve = r)));
     await clickAsync(within(row('Beta')).getByText('Git check'));
-    expect(within(row('Beta')).getByText('⟳')).toBeDisabled();
+    expect(within(row('Beta')).getByRole('button', { name: 'Git check' })).toBeDisabled();
     resolve({ gitStatus: 'ACCESSIBLE' } as api.ProjectGitStatusDto);
-    expect(await within(row('Beta')).findByText('Git check')).toBeEnabled();
+    expect(await within(row('Beta')).findByRole('button', { name: 'Git check' })).toBeEnabled();
   });
 
   it('shows an error when the git check fails', async () => {
     await renderSettings();
     vi.mocked(api.triggerGitCheck).mockRejectedValue(new Error('x'));
     await clickAsync(within(row('Beta')).getByText('Git check'));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Git check failed.');
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Failed to check the Git repository.',
+    );
     expect(within(row('Beta')).getByText('Git check')).toBeEnabled();
   });
 });
@@ -237,6 +244,7 @@ describe('ProjectSettings — credentials', () => {
     await renderSettings([project({ hasCredentials: true })]);
     vi.mocked(api.deleteGitCredentials).mockResolvedValue(undefined);
     await clickAsync(within(row('Beta')).getByText('Delete credentials'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(api.deleteGitCredentials).toHaveBeenCalledWith('p1');
     expect(await within(row('Beta')).findByText('None')).toBeInTheDocument();
     expect(within(row('Beta')).getByText('Add credentials')).toBeInTheDocument();
@@ -246,6 +254,7 @@ describe('ProjectSettings — credentials', () => {
     await renderSettings([project({ hasCredentials: true })]);
     vi.mocked(api.deleteGitCredentials).mockRejectedValue(new Error('x'));
     await clickAsync(within(row('Beta')).getByText('Delete credentials'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(await screen.findByRole('alert')).toHaveTextContent('Failed to delete credentials.');
     expect(within(row('Beta')).getByText('Credentials set')).toBeInTheDocument();
   });
@@ -285,8 +294,8 @@ describe('ProjectSettings — credentials', () => {
     });
     await clickAsync(within(row('Beta')).getByText('Add credentials'));
     await screen.findByText('Type');
-    fireEvent.change(screen.getByDisplayValue('None'), { target: { value: 'HTTPS_TOKEN' } });
-    expect(screen.getByDisplayValue('HTTPS Token')).toBeInTheDocument();
+    chooseOption(screen.getByRole('combobox', { name: /Type/ }), 'HTTPS Token');
+    expect(screen.getByRole('combobox', { name: /Type/ })).toHaveTextContent('HTTPS Token');
 
     await clickAsync(screen.getByText('Cancel'));
     expect(screen.queryByText('Git credentials')).not.toBeInTheDocument();
@@ -329,6 +338,8 @@ describe('ProjectSettings — with several projects', () => {
     vi.mocked(api.activateProject).mockResolvedValue(undefined);
 
     await clickAsync(within(row('Beta')).getByText('Deactivate'));
+
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(await within(row('Beta')).findByText('Inactive')).toBeInTheDocument();
     expect(within(row('Gamma')).getByText('Inactive')).toBeInTheDocument();
 
@@ -367,6 +378,7 @@ describe('ProjectSettings — with several projects', () => {
     await renderSettings(two());
     vi.mocked(api.deleteGitCredentials).mockResolvedValue(undefined);
     await clickAsync(within(row('Gamma')).getByText('Delete credentials'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     await waitFor(() =>
       expect(within(row('Gamma')).queryByText('Credentials set')).not.toBeInTheDocument(),
     );
@@ -383,6 +395,6 @@ describe('ProjectSettings — aborted load', () => {
     await renderAsync(<ProjectSettings onBack={vi.fn()} />);
     await waitFor(() => expect(api.loadAllProjects).toHaveBeenCalled());
     expect(spy).not.toHaveBeenCalled();
-    expect(screen.getByText('Loading projects...')).toBeInTheDocument();
+    expect(screen.getByText('Loading projects…')).toBeInTheDocument();
   });
 });

@@ -93,3 +93,125 @@
   --frame-line-color: hsl(184 100% 58%);
   --frame-bg-color: transparent;
 }
+
+// Structural surfaces and neutrals shared by the shell and the ui library. Every value below is
+// overridden for the light theme, so components use these instead of literal colors.
+:root {
+  --shell-gradient: linear-gradient(180deg, #07111f 0%, #030914 52%, #020711 100%);
+  --shell-glow: rgba(55, 247, 194, 0.08);
+  --shell-bar-bg: rgba(4, 11, 21, 0.72);
+  --bar-line: rgba(124, 222, 255, 0.11);
+  --panel-bg: linear-gradient(180deg, rgba(10, 27, 41, 0.72), rgba(4, 16, 27, 0.62));
+  --modal-bg: linear-gradient(180deg, rgba(10, 27, 41, 0.92), rgba(4, 16, 27, 0.9));
+  --overlay-bg: rgba(2, 8, 16, 0.72);
+  --input-bg: rgba(7, 22, 34, 0.8);
+  --tooltip-bg: rgba(4, 16, 28, 0.95);
+  --popover-bg: rgba(6, 18, 30, 0.96);
+  --nav-text: #9fb4c1;
+  --nav-faint: #6f8797;
+  --nav-strong: #fff;
+  --button-text: #dffaff;
+  --button-text-soft: #cceaf4;
+  --error-text: #ff6b6b;
+  --tint-05: rgba(255, 255, 255, 0.05);
+  --tint-08: rgba(255, 255, 255, 0.08);
+  --tint-11: rgba(255, 255, 255, 0.11);
+  --tint-16: rgba(255, 255, 255, 0.16);
+}
+
+// Light palette. Accent hues are darkened so they keep contrast on a pale background.
+:root[data-theme='light'] {
+  --text: #0f2230;
+  --text-bright: #06151f;
+  --bg: #eef4f8;
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-strong: rgba(255, 255, 255, 0.94);
+  --surface-soft: rgba(255, 255, 255, 0.6);
+  --line: rgba(15, 80, 110, 0.18);
+  --line-soft: rgba(15, 80, 110, 0.1);
+  --line-strong: rgba(8, 120, 150, 0.45);
+  --cyan: #077f97;
+  --teal: #0b8a68;
+  --blue: #1d6fd1;
+  --violet: #6d3fd1;
+  --muted: #4a6677;
+  --faint: #6f8797;
+  --warn: #a86400;
+  --danger: #c62828;
+  --red-text: #8f1d1d;
+  --surface-glow: rgba(7, 127, 151, 0.08);
+  --shadow: 0 20px 60px rgba(15, 50, 80, 0.14);
+
+  --shell-gradient: linear-gradient(180deg, #f6fafc 0%, #eef4f8 52%, #e6eef4 100%);
+  --shell-glow: rgba(11, 138, 104, 0.06);
+  --shell-bar-bg: rgba(255, 255, 255, 0.82);
+  --bar-line: rgba(15, 80, 110, 0.14);
+  --panel-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(246, 250, 252, 0.86));
+  --modal-bg: linear-gradient(180deg, #ffffff, #f4f8fb);
+  --overlay-bg: rgba(15, 34, 48, 0.45);
+  --input-bg: rgba(255, 255, 255, 0.95);
+  --tooltip-bg: rgba(255, 255, 255, 0.98);
+  --popover-bg: rgba(255, 255, 255, 0.98);
+  --nav-text: #3c586a;
+  --nav-faint: #6a8394;
+  --nav-strong: #06151f;
+  --button-text: #06323f;
+  --button-text-soft: #14485a;
+  --error-text: #c62828;
+  --tint-05: rgba(15, 80, 110, 0.06);
+  --tint-08: rgba(15, 80, 110, 0.09);
+  --tint-11: rgba(15, 80, 110, 0.12);
+  --tint-16: rgba(15, 80, 110, 0.18);
+
+  --hub-text: #0f2230;
+  --hub-muted: rgba(15, 34, 48, 0.68);
+  --hub-line: rgba(8, 120, 150, 0.45);
+  --hub-cyan: #077f97;
+  --hub-green: #0b8a68;
+  --frame-line-color: #077f97;
+}
+
+:root {
+  --shadow-popover: rgba(0, 0, 0, 0.5);
+}
+:root[data-theme='light'] {
+  --shadow-popover: rgba(15, 50, 80, 0.2);
+}
+
+// Color channels, so literal-alpha colors in component styles follow the theme: rgb(var(--accent-rgb) / 0.3).
+:root {
+  --accent-rgb: 39 231 255;
+  --teal-rgb: 55 247 194;
+  --violet-rgb: 177 138 255;
+  --blue-rgb: 90 169 255;
+  --danger-rgb: 255 80 80;
+  --warn-rgb: 246 165 37;
+  --tint-rgb: 255 255 255;
+  --shadow-rgb: 0 0 0;
+  --text-rgb: 222 244 255;
+  --muted-rgb: 134 166 184;
+  --base-rgb: 6 18 30;
+  --base-violet-rgb: 20 12 40;
+  --base-blue-rgb: 18 36 72;
+  --violet-text: #ede4ff;
+  --orb-blue: #4e6cff;
+  --logo-bg: #fff;
+  --hub-gradient: linear-gradient(135deg, #03040b 0%, #080d22 48%, #02030a 100%);
+}
+:root[data-theme='light'] {
+  --accent-rgb: 7 127 151;
+  --teal-rgb: 11 138 104;
+  --violet-rgb: 109 63 209;
+  --blue-rgb: 29 111 209;
+  --danger-rgb: 198 40 40;
+  --warn-rgb: 168 100 0;
+  --tint-rgb: 15 80 110;
+  --shadow-rgb: 15 50 80;
+  --text-rgb: 15 34 48;
+  --muted-rgb: 74 102 119;
+  --base-rgb: 255 255 255;
+  --base-violet-rgb: 246 243 255;
+  --base-blue-rgb: 236 243 252;
+  --violet-text: #3d1f8f;
+  --hub-gradient: linear-gradient(135deg, #f6fafc 0%, #e8f0f7 48%, #eef4f8 100%);
+}

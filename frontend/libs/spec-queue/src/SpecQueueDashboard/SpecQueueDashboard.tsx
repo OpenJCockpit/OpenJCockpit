@@ -14,7 +14,10 @@ import {
   fieldHintClass,
   Eyebrow,
   Panel,
+  StatusChip,
   cx,
+  pageClass,
+  pageHeaderClass,
 } from '@openjcockpit/ui';
 import styles from './SpecQueueDashboard.module.scss';
 import { confirmationCopy, useQueueActions } from './useQueueActions';
@@ -76,8 +79,8 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
     <AppShell>
       {header ?? <AppHeader onBack={onBack} backTitle={t('backToDashboard')} />}
 
-      <main className={styles.specQueue}>
-        <div className={styles.specQueueHeader}>
+      <main className={cx(pageClass, styles.specQueue)}>
+        <div className={cx(pageHeaderClass, styles.specQueueHeader)}>
           <div>
             <Eyebrow>{t('dashboard.eyebrow')}</Eyebrow>
             <h1>{project ? project.name : t('noProject')}</h1>
@@ -85,7 +88,16 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
           {project && queue && (
             <div className={styles.specQueueControls}>
               <span data-testid="queue-state">
-                {t('dashboard.state', { state: queueStateText(queue.state, t) })}
+                <StatusChip
+                  label={t('dashboard.state', { state: queueStateText(queue.state, t) })}
+                  kind={
+                    queue.state === 'ACTIVE'
+                      ? 'ok'
+                      : queue.state === 'HALTED'
+                        ? 'changes'
+                        : 'waiting'
+                  }
+                />
               </span>
               {queue.state === 'ACTIVE' ? (
                 <Button

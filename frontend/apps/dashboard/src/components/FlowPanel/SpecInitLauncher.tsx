@@ -2,7 +2,7 @@ import { useTranslation } from '@openjcockpit/i18n';
 import type { LauncherButtonState } from '../../useRunLauncher';
 import { StartButton } from './StartButton';
 import styles from './FlowPanel.module.scss';
-import { cx, feedbackErrorClass, dropdownClass } from '@openjcockpit/ui';
+import { feedbackErrorClass, Select } from '@openjcockpit/ui';
 
 interface Props {
   buttonState: LauncherButtonState;
@@ -16,14 +16,15 @@ export function SpecInitLauncher({ buttonState, error, onStart }: Props) {
   return (
     <div className={styles.workflowLauncher}>
       <label htmlFor="workflow-select">{t('flow.workflow')}</label>
-      <select
+      <Select
         id="workflow-select"
-        className={cx(dropdownClass, styles.workflowSelect)}
+        className={styles.workflowSelect}
+        block
         value="spec-init"
+        onChange={() => undefined}
         disabled
-      >
-        <option value="spec-init">{t('flow.specInit.option')}</option>
-      </select>
+        options={[{ value: 'spec-init', label: t('flow.specInit.option') }]}
+      />
       <StartButton state={buttonState} onClick={onStart} />
       <p className={styles.workflowLauncherHint}>{t('flow.specInit.hint')}</p>
       {error && <p className={feedbackErrorClass}>{error}</p>}

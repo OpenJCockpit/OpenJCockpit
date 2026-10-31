@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '@openjcockpit/i18n';
-import { ToolbarButton, StatusMessage } from '@openjcockpit/ui';
+import { Button, StatusMessage, fieldHintClass } from '@openjcockpit/ui';
 import {
   createSubagentSpec,
   deleteSubagentSpec,
@@ -9,6 +9,7 @@ import {
   updateSubagentSpec,
 } from '@openjcockpit/api';
 import type { SubagentSpec } from '@openjcockpit/api';
+import { useConfirmDelete } from '../shared/useConfirmDelete';
 import { PromptGenerator } from '../shared/PromptGenerator';
 import { SubagentEditor } from './SubagentEditor';
 import { SubagentsTable } from './SubagentsTable';
@@ -29,6 +30,7 @@ const NO_ITEMS: SubagentSpec[] = [];
 
 export function SubagentsPanel() {
   const { t } = useTranslation('workflow');
+  const { askDelete, dialog } = useConfirmDelete();
   const queryClient = useQueryClient();
   const query = useSubagentSpecs();
   const items = query.data ?? NO_ITEMS;
@@ -40,7 +42,7 @@ export function SubagentsPanel() {
   const loadError = query.isError
     ? query.error instanceof Error
       ? query.error.message
-      : 'Failed to load subagents'
+      : t('subagents.loadFailed')
     : null;
   const error = actionError ?? loadError;
 
@@ -69,7 +71,7 @@ export function SubagentsPanel() {
       setEditingName('new');
       setForm(draft);
     } catch (err) {
-      setError('Failed to generate subagent draft.');
+      setError(t('subagents.draftFailed'));
       console.warn(err);
     }
   }
@@ -89,7 +91,7 @@ export function SubagentsPanel() {
       );
       setEditingName(null);
     } catch (err) {
-      setError('Failed to save subagent definition.');
+      setError(t('subagents.saveFailed'));
       console.warn(err);
     } finally {
       setSaving(false);
@@ -101,7 +103,7 @@ export function SubagentsPanel() {
       await deleteSubagentSpec(name);
       updateItems((prev) => prev.filter((i) => i.name !== name));
     } catch (err) {
-      setError('Failed to delete subagent definition.');
+      setError(t('subagents.deleteFailed'));
       console.warn(err);
     }
   }
@@ -110,8 +112,11 @@ export function SubagentsPanel() {
     <div>
       <PromptGenerator kind="subagent" onGenerate={handleGenerate} />
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>{t('subagents.newButton')}</ToolbarButton>
+        <Button variant="primary" onClick={startCreate}>
+          {t('subagents.newButton')}
+        </Button>
       </div>
+      <p className={fieldHintClass}>{t('subagents.intro')}</p>
       {error && <StatusMessage variant="error">{error}</StatusMessage>}
 
       {editingName && (
@@ -128,8 +133,9 @@ export function SubagentsPanel() {
       <SubagentsTable
         items={items}
         onEdit={startEdit}
-        onDelete={(name) => void handleDelete(name)}
+        onDelete={(name) => askDelete('subagent', name, () => handleDelete(name))}
       />
+      {dialog}
     </div>
   );
 }

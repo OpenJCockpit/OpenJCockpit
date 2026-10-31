@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from '@openjcockpit/i18n';
+import { useFormatters, useTranslation } from '@openjcockpit/i18n';
 import { loadProjectSpecs, queryKeys, saveSpecFile } from '@openjcockpit/api';
 import type { Project, SpecFile, SpecInitResult } from '@openjcockpit/api';
 import {
@@ -48,6 +48,7 @@ interface Selection {
 
 export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }: Props) {
   const { t } = useTranslation('specFiles');
+  const { formatDateTime } = useFormatters();
   const queryClient = useQueryClient();
   const projectId = project?.id ?? null;
   const specsQuery = useQuery({
@@ -60,6 +61,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
     [projectId, specsQuery.data],
   );
   const loading = projectId !== null && specsQuery.isPending;
+  const loadFailed = projectId !== null && specsQuery.isError;
   const [selection, setSelection] = useState<Selection | null>(null);
   const [saveResult, setSaveResult] = useState<SpecInitResult | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -133,11 +135,17 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
 
               <div className={cx(specStyles.specList, styles.specFilesList)}>
                 {loading && <p className={specStyles.specListLoading}>{t('loadingSpecs')}</p>}
-                {!loading && specs.length === 0 && (
+                {!loading && loadFailed && (
+                  <div role="alert" data-testid="specs-error">
+                    <p className={feedbackErrorClass}>{t('loadFailed')}</p>
+                    <Button onClick={() => void specsQuery.refetch()}>{t('retry')}</Button>
+                  </div>
+                )}
+                {!loading && !loadFailed && specs.length === 0 && (
                   <article className={cx(specStyles.specCard, specStyles.specCardEmpty)}>
                     <IconBox label="📄" compact className={specStyles.icon} />
                     <div>
-                      <strong>{t('noSpecsFound')}</strong>
+                      <h3>{t('noSpecsFound')}</h3>
                       <span>{t('noSpecsFolder')}</span>
                     </div>
                   </article>
@@ -150,12 +158,13 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                       spec.id === selectedId && specStyles.selected,
                     )}
                     key={spec.id}
+                    aria-pressed={spec.id === selectedId}
                     onClick={() => handleSelect(project.id, spec)}
                   >
                     <IconBox label="📄" compact className={specStyles.icon} />
                     <div>
                       <strong>{spec.fileName}</strong>
-                      <span>{t('lastModified', { date: spec.lastChanged })}</span>
+                      <span>{t('lastModified', { date: formatDateTime(spec.lastChanged) })}</span>
                     </div>
                     {spec.id === selectedId && (
                       <span className={specStyles.activeRail} aria-hidden="true" />
@@ -183,6 +192,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                       {renderAddToQueue && (
                         <Button
                           size="sm"
+                          variant="primary"
                           data-testid="spec-add-to-queue"
                           onClick={() => setQueueDialogOpen(true)}
                           disabled={isDirty || saving}

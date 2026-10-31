@@ -1,14 +1,45 @@
 {
   "dashboard": {
-    "authenticating": "Authenticating...",
-    "loadingView": "Loading...",
+    "authenticating": "Authenticating…",
+    "loadingView": "Loading…",
+    "forbidden": "You do not have access to this page.",
+    "notFound": "This page does not exist.",
+    "backToDashboard": "Back to dashboard",
+    "unavailableApps": "Some apps are unavailable: {{names}}",
+    "home": {
+      "eyebrow": "Home",
+      "title": "Welcome",
+      "greeting": "Welcome, {{name}}",
+      "customise": "Customise",
+      "done": "Done",
+      "reset": "Reset to default",
+      "empty": "No widgets on your Home yet. Choose Customise to add some.",
+      "available": "Available widgets",
+      "noneAvailable": "Every available widget is already on your Home.",
+      "add": "Add",
+      "open": "Open",
+      "moveEarlier": "Move earlier",
+      "moveLater": "Move later",
+      "narrower": "Narrower",
+      "wider": "Wider",
+      "shorter": "Shorter",
+      "taller": "Taller",
+      "remove": "Remove"
+    },
+    "pageTitle": {
+      "home": "Home",
+      "landing": "Choose your workspace",
+      "projects": "Select project",
+      "settings": "Settings"
+    },
     "siteHeader": {
       "backToHub": "Back to hub",
       "primaryNavigation": "Primary navigation",
       "activeProject": "Active project",
       "language": "Language",
+      "theme": "Theme",
+      "themes": { "system": "System", "light": "Light", "dark": "Dark" },
       "projectManagement": "Project management",
-      "hub": "← Hub",
       "logOut": "Log out",
       "logout": "Logout",
       "nav": {
@@ -16,9 +47,18 @@
         "workflow": "Workflow Design & Execution",
         "specFiles": "Spec Files",
         "specQueue": "Spec Queue",
-        "skillsHub": "Skills Hub"
-      }
+        "skillsHub": "Skills Hub",
+        "skillsHubBadge": "Connected marketplaces",
+        "hub": "Hub"
+      },
+      "groups": {
+        "work": "Work",
+        "account": "Account"
+      },
+      "collapse": "Collapse",
+      "expand": "Expand"
     },
+    "sampleData": "Sample data",
     "statusBar": {
       "environment": "● Environment: {{value}}",
       "region": "☁ Region: {{value}}",
@@ -27,12 +67,9 @@
       "springAiControlVersion": "Spring AI Control Service: {{value}}",
       "copyright": "© 2026 Metafactory B.V."
     },
-    "customerHero": {
-      "customer": "Customer: {{name}}"
-    },
     "workspace": {
       "failed": "Failed to load the workspace.",
-      "loading": "Loading workspace..."
+      "loading": "Loading workspace…"
     },
     "preflight": {
       "title": "Pre-flight check failed",
@@ -51,6 +88,8 @@
       }
     },
     "flow": {
+      "specsFailedTitle": "Failed to load the specs",
+      "specsFailed": "Failed to load the specs. The server did not respond correctly.",
       "startNewWorkflow": "↺ Start new workflow",
       "currentSpec": "Current spec",
       "specFolder": "Spec folder",
@@ -86,12 +125,14 @@
       }
     },
     "specPanel": {
+      "error": "Failed to load the specs. The server did not respond correctly.",
+      "retry": "Retry",
       "title": "Spec",
       "loading": "Loading specs…",
       "viewAll": "View all specs",
       "lastModified": "Last modified: {{value}}",
       "empty": {
-        "title": "No Specs Found",
+        "title": "No specs found",
         "text": "No specs/ folder with specifications in the repository",
         "goToWorkflow": "⚡ Go to Workflow Design & Execution",
         "hint": "Design or select a workflow there to create spec files."
@@ -99,13 +140,57 @@
     },
     "evidence": {
       "title": "Execution evidence",
-      "view": "View evidence",
-      "by": "By: {{actor}}"
+      "by": "By: {{actor}}",
+      "events": {
+        "specLoaded": "Spec loaded",
+        "impactAnalysisRecorded": "Impact analysis recorded",
+        "testSetGenerated": "Test set generated",
+        "implementationProposalSaved": "Implementation proposal saved",
+        "humanApprovalLogged": "Human approval logged",
+        "evidenceDataRecorded": "Evidence data recorded"
+      },
+      "actors": {
+        "requirement": "Requirement Agent",
+        "impact": "Impact Analysis Agent",
+        "testDesign": "Test Design Agent",
+        "implementation": "Implementation Agent",
+        "review": "Review Agent",
+        "evidence": "Evidence Agent"
+      }
     },
     "quality": {
       "title": "Quality status",
-      "open": "Open quality dashboard ↗",
-      "viewAll": "View all quality rules"
+      "controls": {
+        "unitTestCoverage": "Unit test coverage",
+        "nist2": "NIST 2",
+        "owaspZap": "OWASP ZAP",
+        "iso25010": "ISO 25010",
+        "sast": "SAST",
+        "dependencyScan": "Dependency scan",
+        "architectureRules": "Architecture rules"
+      },
+      "details": {
+        "noCriticalIssues": "No critical issues",
+        "allAttributes": "8/8 attributes",
+        "noHighIssues": "No high issues",
+        "noKnownVulnerabilities": "No known vulnerabilities",
+        "noDeviations": "0 deviations"
+      }
+    },
+    "apps": {
+      "hello": {
+        "label": "Hello",
+        "widgetTitle": "Hello"
+      },
+      "specQueue": {
+        "widgetTitle": "Spec queue"
+      },
+      "workflow": {
+        "widgetTitle": "Recent workflows"
+      },
+      "specFiles": {
+        "widgetTitle": "Spec files"
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 import type { ExternalSkill, SkillSpec } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
-import { DataTable, fieldHintClass, Button } from '@openjcockpit/ui';
+import { Actions, DataTable, fieldHintClass, Button } from '@openjcockpit/ui';
 
 type LocalSkillRow = { key: string; readOnly: false; skill: SkillSpec };
 type ExternalSkillRow = { key: string; readOnly: true; skill: ExternalSkill };
@@ -46,12 +46,14 @@ export function SkillsTable({ rows, onEdit, onDelete }: SkillsTableProps) {
               <td>{row.skill.inputContract}</td>
               <td>{row.skill.outputContract}</td>
               <td>
-                <Button variant="secondary" onClick={() => onEdit(row.skill)}>
-                  {t('shared.edit')}
-                </Button>
-                <Button variant="secondary" onClick={() => onDelete(row.skill.name)}>
-                  {t('shared.delete')}
-                </Button>
+                <Actions>
+                  <Button variant="secondary" onClick={() => onEdit(row.skill)}>
+                    {t('shared.edit')}
+                  </Button>
+                  <Button variant="danger" onClick={() => onDelete(row.skill.name)}>
+                    {t('shared.delete')}
+                  </Button>
+                </Actions>
               </td>
             </tr>
           ),

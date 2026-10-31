@@ -91,7 +91,7 @@ describe('SkillsHubSettings', () => {
     expect(screen.getByText('https://marketplace.example.com/api')).toBeInTheDocument();
     expect(screen.getByText('API key set')).toBeInTheDocument();
     expect(screen.getByText('Enabled')).toBeInTheDocument();
-    expect(screen.getByText('2026-01-05')).toBeInTheDocument();
+    expect(screen.getByText('Jan 5, 2026')).toBeInTheDocument();
     expect(screen.getByLabelText<HTMLInputElement>('API key *').value).toBe('');
     expect(screen.getByRole('status')).toHaveTextContent('Acme Skills" has been added.');
   });
@@ -180,6 +180,8 @@ describe('SkillsHubSettings', () => {
 
     await clickAsync(screen.getByRole('button', { name: 'Delete' }));
 
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
+
     await waitFor(() => expect(api.deleteSkillsMarketplace).toHaveBeenCalledWith('mp-1'));
     expect(screen.queryByText('Acme Skills')).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Acme Skills" has been deleted.');
@@ -191,6 +193,8 @@ describe('SkillsHubSettings', () => {
     await renderSettings([CONNECTION], 'Acme Skills');
 
     await clickAsync(screen.getByRole('button', { name: 'Delete' }));
+
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Marketplace not found');
   });

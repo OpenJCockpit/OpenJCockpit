@@ -3,19 +3,19 @@
   inset: 70px 0 0;
   opacity: 0.45;
   background-image:
-    radial-gradient(circle, rgba(60, 224, 255, 0.5) 0 1px, transparent 2px),
+    radial-gradient(circle, rgb(var(--accent-rgb) / 0.5) 0 1px, transparent 2px),
     linear-gradient(
       115deg,
       transparent 0 18%,
-      rgba(33, 205, 255, 0.08) 18.2%,
+      rgb(var(--accent-rgb) / 0.08) 18.2%,
       transparent 18.6% 38%,
-      rgba(33, 205, 255, 0.07) 38.3%,
+      rgb(var(--accent-rgb) / 0.07) 38.3%,
       transparent 38.8%
     ),
     linear-gradient(
       25deg,
       transparent 0 22%,
-      rgba(55, 247, 194, 0.06) 22.2%,
+      rgb(var(--teal-rgb) / 0.06) 22.2%,
       transparent 22.7% 70%,
       var(--cyan-a06) 70.4%,
       transparent 70.9%
@@ -45,5 +45,5 @@
 .orbRight {
   right: -120px;
   top: 14%;
-  background: #4e6cff;
+  background: var(--orb-blue);
 }

@@ -21,6 +21,8 @@
       "@openjcockpit/api": ["./libs/api/src/index.ts"],
       "@openjcockpit/api/testing": ["./libs/api/src/testing/index.ts"],
       "@openjcockpit/auth": ["./libs/auth/src/index.ts"],
+      "@openjcockpit/hub-contract": ["./libs/hub-contract/src/index.ts"],
+      "@openjcockpit/hub-contract/testing": ["./libs/hub-contract/src/testing/index.ts"],
       "@openjcockpit/i18n": ["./libs/i18n/src/index.ts"],
       "@openjcockpit/i18n/testing": ["./libs/i18n/src/testing/index.ts"],
       "@openjcockpit/landing-hub": ["./libs/landing-hub/src/index.ts"],
@@ -29,6 +31,7 @@
       "@openjcockpit/spec-files": ["./libs/spec-files/src/index.ts"],
       "@openjcockpit/spec-queue": ["./libs/spec-queue/src/index.ts"],
       "@openjcockpit/ui": ["./libs/ui/src/index.ts"],
+      "@openjcockpit/ui/testing": ["./libs/ui/src/testing/index.ts"],
       "@openjcockpit/workflow": ["./libs/workflow/src/index.ts"]
     }
   }

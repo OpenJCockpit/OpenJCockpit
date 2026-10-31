@@ -2,9 +2,10 @@ export type { Resources } from './resources';
 export { createI18n, DEFAULT_NAMESPACE, type CreateI18nOptions } from './createI18n';
 export { I18nProvider } from './I18nProvider';
 export { loadLocale, type LocaleLoader } from './loadLocale';
+export { WithTranslations, type LocaleModules } from './WithTranslations';
 export { mergeResources } from './mergeResources';
 export { useLocale, type LocaleContextValue } from './LocaleContext';
-export { formatDateTime, formatNumber, formatTime, useFormatters } from './format';
+export { formatDate, formatDateTime, formatNumber, formatTime, useFormatters } from './format';
 export {
   detectLocale,
   FALLBACK_LOCALE,

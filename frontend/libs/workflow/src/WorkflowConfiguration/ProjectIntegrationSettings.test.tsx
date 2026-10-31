@@ -50,8 +50,8 @@ const integrations: Integration[] = [
     edit: ['NL', 'ABC', 'projectKey'],
     savedMessage: 'Jira configuration saved.',
     loadError: 'Failed to load the Jira configuration.',
-    saveError: 'Failed to save Jira configuration.',
-    saveLabel: 'Save Jira config',
+    saveError: 'Failed to save the Jira configuration.',
+    saveLabel: 'Save Jira configuration',
   },
   {
     name: 'HermesSettings',
@@ -73,8 +73,8 @@ const integrations: Integration[] = [
     edit: ['issue.created', 'issue.updated', 'signalType'],
     savedMessage: 'Hermes configuration saved.',
     loadError: 'Failed to load the Hermes configuration.',
-    saveError: 'Failed to save Hermes configuration.',
-    saveLabel: 'Save Hermes config',
+    saveError: 'Failed to save the Hermes configuration.',
+    saveLabel: 'Save Hermes configuration',
   },
 ];
 
@@ -89,7 +89,7 @@ describe.each(integrations)('$name', (i) => {
   it('shows a loading message until the config arrives', async () => {
     i.get.mockReturnValue(new Promise(() => {}));
     await renderAsync(i.render());
-    expect(screen.getByText('Loading configuration...')).toBeInTheDocument();
+    expect(screen.getByText('Loading configuration…')).toBeInTheDocument();
   });
 
   it('shows an error when the config cannot be loaded', async () => {
@@ -190,7 +190,7 @@ describe('JiraSettings field edits', () => {
     await set('NL', 'KEY');
     await set('Bug=bugfix-workflow', 'Bug=wf');
     await set('wf-onboarding', 'wf-9');
-    await clickAsync(screen.getByRole('button', { name: 'Save Jira config' }));
+    await clickAsync(screen.getByRole('button', { name: 'Save Jira configuration' }));
     expect(api.saveJiraConfig).toHaveBeenCalledWith('p1', {
       enabled: false,
       baseUrl: 'https://x.atlassian.net',
@@ -219,7 +219,7 @@ describe('HermesSettings field edits', () => {
     await set('https://hermes.example.com/signals', 'https://h.example/s');
     await set('issue.created', 'pr.opened');
     await set('wf-onboarding', 'wf-9');
-    await clickAsync(screen.getByRole('button', { name: 'Save Hermes config' }));
+    await clickAsync(screen.getByRole('button', { name: 'Save Hermes configuration' }));
     expect(api.saveHermesConfig).toHaveBeenCalledWith('p1', {
       enabled: false,
       endpointUrl: 'https://h.example/s',

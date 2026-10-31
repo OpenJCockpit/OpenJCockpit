@@ -29,8 +29,8 @@
   }
 }
 .tabActive {
-  color: #ede4ff;
+  color: var(--violet-text);
   background: var(--violet-soft);
   border-color: var(--violet-a45);
-  box-shadow: 0 0 12px rgba(177, 138, 255, 0.25);
+  box-shadow: 0 0 12px rgb(var(--violet-rgb) / 0.25);
 }

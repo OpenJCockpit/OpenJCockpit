@@ -1,12 +1,14 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ROUTES } from './routes';
 import { renderRoutedApp } from './testUtils/renderRoutedApp';
+import { specsRemotes } from './testUtils/specsRemoteStubs';
+import type { RemoteApps } from './federation/loadRemoteApps';
 import * as api from '@openjcockpit/api';
 import { mockWorkspace } from '@openjcockpit/api/testing';
 import type { Project, SpecFile, SpecQueue, WorkflowDefinition } from '@openjcockpit/api';
 import * as queueApi from '@openjcockpit/api';
 import * as workflowApi from '@openjcockpit/api';
-import { tabActiveClass } from '@openjcockpit/ui';
 import { enterDashboard } from './testUtils/dom';
 vi.mock(
   '@openjcockpit/landing-hub',
@@ -99,7 +101,7 @@ function queueWith(items: SpecQueue['items'] = []): SpecQueue {
   };
 }
 
-async function renderApp(queue: SpecQueue = queueWith()) {
+async function renderApp(queue: SpecQueue = queueWith(), remotes?: RemoteApps) {
   localStorage.setItem('openjcockpit_project_id', PROJECT.id);
   vi.mocked(api.loadProjects).mockResolvedValue([PROJECT]);
   vi.mocked(api.loadWorkspace).mockResolvedValue(mockWorkspace);
@@ -118,7 +120,7 @@ async function renderApp(queue: SpecQueue = queueWith()) {
   });
   vi.mocked(queueApi.getSpecQueue).mockResolvedValue(queue);
 
-  renderRoutedApp();
+  renderRoutedApp(ROUTES.landing, remotes);
   await enterDashboard();
   await screen.findByText('▶ Start');
 }
@@ -130,26 +132,11 @@ describe('spec queue in the app', () => {
   });
 
   it('opens the Queue view from the nav and returns via Platform', async () => {
-    await renderApp(
-      queueWith([
-        {
-          id: 'i1',
-          projectId: PROJECT.id,
-          specFile: 'checkout-flow.md',
-          workflowId: 'wf-1',
-          workflowName: 'Spec to pull request',
-          autoMerge: false,
-          status: 'QUEUED',
-          pullRequestUrls: [],
-          createdBy: 'me',
-          createdAt: '2026-01-01T00:00:00Z',
-        },
-      ]),
-    );
-    fireEvent.click(screen.getByTestId('nav-spec-queue'));
-    expect(await screen.findByTestId('queue-items')).toHaveTextContent('checkout-flow.md');
-
-    expect(screen.getByTestId('nav-spec-queue')).toHaveAttribute('aria-current', 'page');
+    await renderApp(queueWith(), specsRemotes);
+    // The remote's routes suspend on `use()`, so the click has to settle inside act.
+    await act(async () => screen.getByTestId('nav-app-spec-queue').click());
+    expect(await screen.findByTestId('view-spec-queue')).toBeInTheDocument();
+    expect(screen.getByTestId('nav-app-spec-queue')).toHaveAttribute('aria-current', 'page');
 
     fireEvent.click(screen.getByTestId('nav-platform'));
     expect(await screen.findByText('▶ Start')).toBeInTheDocument();
@@ -197,30 +184,5 @@ describe('spec queue in the app', () => {
       screen.getByText(/Error/).click();
     });
     await waitFor(() => expect(screen.queryByTestId('start-error')).not.toBeInTheDocument());
-  });
-
-  it('opens the run of a queue item on the Execution tab of its workflow', async () => {
-    await renderApp(
-      queueWith([
-        {
-          id: 'i1',
-          projectId: PROJECT.id,
-          specFile: 'checkout-flow.md',
-          workflowId: 'wf-1',
-          workflowName: 'Spec to pull request',
-          autoMerge: false,
-          status: 'RUNNING',
-          workflowRunId: 'run-42',
-          pullRequestUrls: [],
-          createdBy: 'me',
-          createdAt: '2026-01-01T00:00:00Z',
-        },
-      ]),
-    );
-    fireEvent.click(screen.getByTestId('nav-spec-queue'));
-    fireEvent.click(await screen.findByTestId('queue-item-run-link'));
-
-    await waitFor(() => expect(workflowApi.getWorkflow).toHaveBeenCalledWith('wf-1'));
-    expect(await screen.findByText('Workflow Execution')).toHaveClass(tabActiveClass);
   });
 });

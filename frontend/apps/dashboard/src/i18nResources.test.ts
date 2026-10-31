@@ -5,7 +5,7 @@ describe('loadAppLocale', () => {
   it('merges every lib namespace of the requested locale', async () => {
     const { nl } = await loadAppLocale('nl');
     expect(Object.keys(nl ?? {})).toEqual(
-      expect.arrayContaining(['common', 'api', 'dashboard', 'workflow', 'specQueue', 'project']),
+      expect.arrayContaining(['common', 'api', 'dashboard', 'workflow', 'project']),
     );
   });
 

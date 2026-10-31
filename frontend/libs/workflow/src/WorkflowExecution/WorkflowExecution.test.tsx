@@ -120,7 +120,7 @@ describe('WorkflowExecution', () => {
     });
 
     expect(screen.getByText('◼ Stop')).toBeInTheDocument();
-    expect(screen.getByText('RUNNING')).toBeInTheDocument();
+    expect(screen.getByText('Running')).toBeInTheDocument();
   });
 
   it('shows the Stop button while the run status is still loading', async () => {
@@ -145,7 +145,7 @@ describe('WorkflowExecution', () => {
       () => expect(workflowApi.getWorkflowExecution).toHaveBeenCalledWith('wf-1', 'run-1'),
       { timeout: 3000 },
     );
-    expect(screen.getByText('RUNNING')).toBeInTheDocument();
+    expect(screen.getByText('Running')).toBeInTheDocument();
   });
 
   it('polls the run and renders the agent sequencer while active', async () => {
@@ -640,11 +640,11 @@ describe('WorkflowExecution', () => {
         render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
       });
 
-      await waitFor(() => expect(screen.getByText('DENIED')).toBeInTheDocument(), {
+      await waitFor(() => expect(screen.getByText('Denied')).toBeInTheDocument(), {
         timeout: 3000,
       });
-      expect(screen.queryByText('FAILED')).not.toBeInTheDocument();
-      expect(screen.queryByText('CANCELLED')).not.toBeInTheDocument();
+      expect(screen.queryByText('Failed')).not.toBeInTheDocument();
+      expect(screen.queryByText('Cancelled')).not.toBeInTheDocument();
     });
 
     it('renders the branch artifact as plain text and the pull-request artifact as a link with rel="noopener noreferrer"', async () => {
@@ -687,7 +687,7 @@ describe('WorkflowExecution', () => {
       });
 
       expect(screen.getByText('◼ Stop')).toBeInTheDocument();
-      expect(screen.getByText('RUNNING')).toBeInTheDocument();
+      expect(screen.getByText('Running')).toBeInTheDocument();
       expect(await screen.findByText('Requirement Agent')).toBeInTheDocument();
     });
 
@@ -1107,7 +1107,7 @@ describe('WorkflowExecution', () => {
 
         expect(workflowApi.getWorkflowExecution).not.toHaveBeenCalled();
         const row = screen.getByRole('button', { name: 'run-77' }).closest('tr')!;
-        expect(row).toHaveTextContent('COMPLETED');
+        expect(row).toHaveTextContent('Completed');
       } finally {
         vi.useRealTimers();
       }
@@ -1146,14 +1146,14 @@ describe('WorkflowExecution', () => {
         fireEvent.click(screen.getByRole('button', { name: 'run-88' }));
       });
 
-      expect(screen.queryByText('RUNNING')).not.toBeInTheDocument();
-      expect(screen.getAllByText('COMPLETED').length).toBeGreaterThan(0);
+      expect(screen.queryByText('Running')).not.toBeInTheDocument();
+      expect(screen.getAllByText('Completed').length).toBeGreaterThan(0);
 
       await act(async () => {
         resolveDetail(runWithStatus('COMPLETED', { runId: 'run-88' }));
       });
 
-      expect(screen.queryByText('RUNNING')).not.toBeInTheDocument();
+      expect(screen.queryByText('Running')).not.toBeInTheDocument();
     });
 
     it('does not fetch or render execution history when showHistory is false', async () => {
@@ -1170,7 +1170,7 @@ describe('WorkflowExecution', () => {
       expect(workflowApi.listWorkflowExecutions).not.toHaveBeenCalled();
       expect(screen.queryByRole('table')).not.toBeInTheDocument();
       expect(screen.getByText('◼ Stop')).toBeInTheDocument();
-      expect(screen.getByText('RUNNING')).toBeInTheDocument();
+      expect(screen.getByText('Running')).toBeInTheDocument();
       expect(await screen.findByText('Requirement Agent')).toBeInTheDocument();
     });
   });
@@ -1404,7 +1404,7 @@ describe('WorkflowExecution', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('COMPLETED')).toBeInTheDocument();
+      expect(screen.getByText('Completed')).toBeInTheDocument();
     });
     expect(screen.queryByText(/the run failed/)).not.toBeInTheDocument();
   });
@@ -1419,7 +1419,7 @@ describe('WorkflowExecution', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('FAILED')).toBeInTheDocument();
+      expect(screen.getByText('Failed')).toBeInTheDocument();
     });
     expect(screen.queryByText(/the run failed/)).not.toBeInTheDocument();
   });

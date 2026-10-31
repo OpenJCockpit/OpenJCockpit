@@ -11,4 +11,21 @@ describe('CheckboxField', () => {
 
     expect(onChange).toHaveBeenCalledWith(true);
   });
+
+  it('renders a hint and forwards input attributes', () => {
+    render(
+      <CheckboxField
+        label="Enabled"
+        hint="Takes effect on save"
+        checked
+        disabled
+        data-testid="box"
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('Takes effect on save')).toBeInTheDocument();
+    expect(screen.getByTestId('box')).toBeDisabled();
+    expect(screen.getByLabelText(/Enabled/)).toBeChecked();
+  });
 });
