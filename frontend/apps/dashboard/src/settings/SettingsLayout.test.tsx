@@ -1,4 +1,4 @@
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import {
@@ -187,6 +187,29 @@ describe('SettingsLayout', () => {
     expect(await screen.findByTestId('settings-select-project')).toBeInTheDocument();
     expect(screen.queryByTestId('body-jira')).not.toBeInTheDocument();
     expect(screen.getByTestId('settings-nav-jira')).toBeInTheDocument();
+  });
+
+  it('sends the user to project selection from the select-project message', async () => {
+    await renderSettings([app([section('jira', { requiresProject: true })])], '/settings/jira', {
+      project: false,
+    });
+    const prompt = await screen.findByTestId('settings-select-project');
+    fireEvent.click(prompt.querySelector('button') as HTMLButtonElement);
+    expect(screen.getByTestId('where')).toHaveTextContent('/projects');
+  });
+
+  it('lists a section without a group under the default group', async () => {
+    await renderSettings([app([section('plain', { groupKey: undefined })])], '/settings/plain');
+    expect(await screen.findByTestId('body-plain')).toBeInTheDocument();
+    expect(screen.getByTestId('settings-nav')).toHaveTextContent('Other');
+  });
+
+  it('ignores apps that contribute no settings', async () => {
+    await renderSettings(
+      [app([], { id: 'bare', settings: undefined }), app([section('projects')])],
+      '/settings/nope',
+    );
+    expect(await screen.findByTestId('not-found')).toBeInTheDocument();
   });
 
   it('keeps the nav when a section throws', async () => {
