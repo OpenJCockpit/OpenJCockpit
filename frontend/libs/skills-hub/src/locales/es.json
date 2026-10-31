@@ -1,6 +1,11 @@
 {
   "skillsHub": {
     "eyebrow": "Skills Hub",
+    "contributions": {
+      "widgetSummary": "Marketplaces conectados: {{count}}",
+      "widgetEmpty": "Aún no hay ningún marketplace conectado.",
+      "topbar": "Marketplaces"
+    },
     "dashboard": {
       "backTitle": "Volver al panel",
       "title": "Skills disponibles",

@@ -1,6 +1,11 @@
 {
   "skillsHub": {
     "eyebrow": "Skills-Hub",
+    "contributions": {
+      "widgetSummary": "Verbundene Marktplätze: {{count}}",
+      "widgetEmpty": "Noch kein Marktplatz verbunden.",
+      "topbar": "Marktplätze"
+    },
     "dashboard": {
       "backTitle": "Zurück zum Dashboard",
       "title": "Verfügbare Skills",

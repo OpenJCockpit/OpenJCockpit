@@ -1,6 +1,11 @@
 {
   "skillsHub": {
     "eyebrow": "Skills Hub",
+    "contributions": {
+      "widgetSummary": "Verbonden marketplaces: {{count}}",
+      "widgetEmpty": "Nog geen marketplace verbonden.",
+      "topbar": "Marketplaces"
+    },
     "dashboard": {
       "backTitle": "Terug naar dashboard",
       "title": "Beschikbare skills",
