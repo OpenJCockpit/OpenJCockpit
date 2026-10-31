@@ -39,9 +39,11 @@ for db in $DATABASES; do
   # Prove the archive is readable now, not on the day it is needed.
   docker exec -i "$PG_CONTAINER" pg_restore --list > /dev/null < "$OUT/$db.dump"
 done
-docker run --rm -v "${PROJECT}_workflow-definitions:/data:ro" -v "$OUT:/out" \
+# Streamed to stdout so the archive is created (and owned) by the invoking user, not by the container's
+# root: a root-owned file in $OUT cannot be chmod-ed below by a non-root operator (or CI runner).
+docker run --rm -v "${PROJECT}_workflow-definitions:/data:ro" \
   postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea \
-  tar -C /data -czf /out/workflow-definitions.tar.gz .
+  tar -C /data -czf - . > "$OUT/workflow-definitions.tar.gz"
 
 {
   echo "release=${TAG:-unknown}"

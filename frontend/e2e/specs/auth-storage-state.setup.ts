@@ -28,6 +28,7 @@
 import { test, expect } from '@playwright/test';
 import { env } from '../support/env.js';
 import { testIds } from '../support/testIds.js';
+import { hubUrl } from '../support/enterDashboard.js';
 
 // Resolved relative to the Playwright config's rootDir (e2e/), matching the
 // `AUTH_STATE_PATH` constant in `playwright.config.ts` byte-for-byte.
@@ -37,7 +38,7 @@ test('authenticate once via the themed Keycloak login form and save storage stat
   page,
   context,
 }) => {
-  await page.goto(env.dashboardBaseUrl);
+  await page.goto(hubUrl);
 
   // keycloak.init({ onLoad: 'login-required' }) redirects the browser to the
   // themed Keycloak login form; assert on its stable, locale-independent ids

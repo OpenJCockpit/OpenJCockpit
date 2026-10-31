@@ -72,8 +72,8 @@
  */
 
 import { test, expect } from '../support/fixtures.js';
-import { env } from '../support/env.js';
 import { testIds } from '../support/testIds.js';
+import { hubUrl } from '../support/enterDashboard.js';
 
 // 300s access-token TTL - 60s keycloak-js `updateToken(60)` min-validity =
 // 240s threshold before a refresh request is actually issued. Jump
@@ -95,7 +95,7 @@ test.describe('dashboard session / token refresh (AC-15)', () => {
     });
 
     await page.clock.install();
-    await page.goto(env.dashboardBaseUrl);
+    await page.goto(hubUrl);
 
     await expect(page.getByTestId(testIds.authLoading)).toHaveCount(0);
     await expect(page.locator(AUTHENTICATED_CONTENT_SELECTOR).first()).toBeVisible();
@@ -123,7 +123,7 @@ test.describe('dashboard session / token refresh (AC-15)', () => {
     context,
   }) => {
     await page.clock.install();
-    await page.goto(env.dashboardBaseUrl);
+    await page.goto(hubUrl);
 
     await expect(page.getByTestId(testIds.authLoading)).toHaveCount(0);
     await expect(page.locator(AUTHENTICATED_CONTENT_SELECTOR).first()).toBeVisible();

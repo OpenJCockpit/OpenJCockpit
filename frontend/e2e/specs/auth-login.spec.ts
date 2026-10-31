@@ -20,6 +20,7 @@
 import { test, expect } from '../support/fixtures.js';
 import { env } from '../support/env.js';
 import { testIds } from '../support/testIds.js';
+import { hubUrl } from '../support/enterDashboard.js';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -56,7 +57,7 @@ test.describe('dashboard authentication (clean profile)', () => {
       }
     });
 
-    await page.goto(env.dashboardBaseUrl);
+    await page.goto(hubUrl);
 
     // The app never renders authenticated content while unauthenticated.
     await expect(page.getByTestId(testIds.navWorkflow)).toHaveCount(0);
@@ -99,7 +100,7 @@ test.describe('dashboard authentication (clean profile)', () => {
       }
     });
 
-    await page.goto(env.dashboardBaseUrl);
+    await page.goto(hubUrl);
 
     await expect(page.locator('#mf-login-title')).toBeVisible();
 
