@@ -82,12 +82,15 @@ describe('skillsHubRoutes', () => {
     expect(router.state.location.pathname).toBe(target);
   });
 
-  it('opens the settings and returns', async () => {
+  it('opens the settings in the host', async () => {
     const router = await renderApp({ at: '/skills-hub' });
     await clickAsync(screen.getByTitle('Skills Hub settings'));
-    expect(router.state.location.pathname).toBe('/skills-hub/settings');
-    await clickAsync(await screen.findByTitle('Back to Skills Hub'));
-    expect(router.state.location.pathname).toBe('/skills-hub');
+    expect(router.state.location.pathname).toBe('/settings/skills-hub');
+  });
+
+  it('redirects the former in-page settings route to the host settings', async () => {
+    const router = await renderApp({ at: '/skills-hub/settings' });
+    expect(router.state.location.pathname).toBe('/settings/skills-hub');
   });
 });
 

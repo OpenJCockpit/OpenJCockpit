@@ -27,7 +27,6 @@ vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
 
 import type { Project, SpecQueue, SpecQueueItem } from '@openjcockpit/api';
 import * as api from '@openjcockpit/api';
-import { useCan } from '@openjcockpit/hub-contract';
 import { withI18n } from '@openjcockpit/i18n/testing';
 import { specQueueResources } from '../i18n';
 import { withQueryClient } from '../testQueryClient';
@@ -430,12 +429,18 @@ describe('SpecQueueDashboard', () => {
     );
   });
 
-  it('shows the read-only project toggle with an explanation for non-admins', async () => {
-    await renderDashboard();
-    expect(screen.getByTestId('auto-merge-setting-toggle')).toBeDisabled();
-    expect(screen.getByTestId('auto-merge-setting-description')).toHaveTextContent(
-      'Only administrators',
+  it('offers a shortcut to the queue settings only when the host provides one', async () => {
+    const onSettings = vi.fn();
+    render(
+      withQueryClient(
+        <SpecQueueDashboard project={PROJECT} onBack={vi.fn()} onSettings={onSettings} />,
+      ),
     );
+    fireEvent.click(await screen.findByTestId('queue-settings'));
+    expect(onSettings).toHaveBeenCalledTimes(1);
+    cleanup();
+    await renderDashboard();
+    expect(screen.queryByTestId('queue-settings')).not.toBeInTheDocument();
   });
 
   it('opens the add dialog, adds, announces and refreshes', async () => {
@@ -574,43 +579,6 @@ describe('SpecQueueDashboard', () => {
       cleanup();
       await act(async () => reject(new Error('late')));
       expect(api.removeSpecQueueItem).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('project auto-merge setting', () => {
-    const enable = async () => {
-      vi.mocked(useCan).mockReturnValue(true);
-      vi.mocked(api.updateSpecQueueSettings).mockResolvedValue({ autoMergeAllowed: true });
-      await renderDashboard();
-      fireEvent.click(screen.getByTestId('auto-merge-setting-toggle'));
-      fireEvent.click(screen.getByTestId('confirm-action-confirm'));
-    };
-
-    it('applies the saved setting to the cached queue', async () => {
-      await enable();
-      await waitFor(() => expect(screen.getByTestId('auto-merge-setting-toggle')).toBeChecked());
-    });
-
-    it('leaves an evicted queue cache untouched', async () => {
-      const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-      vi.mocked(useCan).mockReturnValue(true);
-      vi.mocked(api.updateSpecQueueSettings).mockImplementation(async () => {
-        client.removeQueries({ queryKey: ['spec-queue', 'p1', 'queue'] });
-        return { autoMergeAllowed: true };
-      });
-      render(
-        withI18n(
-          <QueryClientProvider client={client}>
-            <SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />
-          </QueryClientProvider>,
-          specQueueResources,
-        ),
-      );
-      fireEvent.click(await screen.findByTestId('auto-merge-setting-toggle'));
-      fireEvent.click(screen.getByTestId('confirm-action-confirm'));
-      await waitFor(() => expect(api.updateSpecQueueSettings).toHaveBeenCalled());
-      await settle();
-      expect(client.getQueryData(['spec-queue', 'p1', 'queue'])).toBeUndefined();
     });
   });
 });

@@ -28,10 +28,8 @@ function connection(
 
 async function open(connections: SkillsMarketplaceConnection[]) {
   vi.mocked(api.listSkillsMarketplaces).mockResolvedValue(connections);
-  const onBack = vi.fn();
-  await renderAsync(<SkillsHubSettings onBack={onBack} />);
-  await screen.findByText('Marketplace connections');
-  return { onBack };
+  await renderAsync(<SkillsHubSettings />);
+  await screen.findByText('New marketplace');
 }
 
 function type(label: string, value: string) {
@@ -47,20 +45,14 @@ describe('SkillsHubSettings — flows', () => {
 
   it('shows a loading message while the list is pending', async () => {
     vi.mocked(api.listSkillsMarketplaces).mockReturnValue(new Promise(() => {}));
-    await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
+    await renderAsync(<SkillsHubSettings />);
     expect(screen.getByText('Loading marketplaces…')).toBeInTheDocument();
   });
 
   it('uses a generic message for a non-Error load failure', async () => {
     vi.mocked(api.listSkillsMarketplaces).mockRejectedValue('nope');
-    await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
+    await renderAsync(<SkillsHubSettings />);
     expect(await screen.findByRole('alert')).toHaveTextContent('Failed to load marketplaces.');
-  });
-
-  it('goes back via the header', async () => {
-    const { onBack } = await open([]);
-    fireEvent.click(screen.getByRole('button', { name: '← Back to Skills Hub' }));
-    expect(onBack).toHaveBeenCalledTimes(1);
   });
 
   it('describes each connection in the table', async () => {
@@ -167,7 +159,7 @@ describe('SkillsHubSettings — flows', () => {
     vi.mocked(api.createSkillsMarketplace).mockImplementation(async (req) =>
       connection({ id: 'mp-9', name: req.name }),
     );
-    await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
+    await renderAsync(<SkillsHubSettings />);
     await screen.findByRole('alert');
     type('Name *', 'Alpha');
     type('Marketplace URL *', 'https://a.example.com');

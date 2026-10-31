@@ -30,7 +30,8 @@
       "home": "Inicio",
       "landing": "Elige tu espacio de trabajo",
       "projects": "Seleccionar proyecto",
-      "settings": "Ajustes"
+      "settings": "Ajustes",
+      "projectSettings": "Ajustes del proyecto"
     },
     "siteHeader": {
       "backToHub": "Volver al hub",
@@ -39,7 +40,8 @@
       "language": "Idioma",
       "theme": "Tema",
       "themes": { "system": "Sistema", "light": "Claro", "dark": "Oscuro" },
-      "projectManagement": "Gestión de proyectos",
+      "settings": "Ajustes",
+      "projectSettings": "Ajustes del proyecto",
       "logOut": "Cerrar sesión",
       "logout": "Cerrar sesión",
       "nav": {
@@ -175,6 +177,60 @@
         "noHighIssues": "Sin problemas altos",
         "noKnownVulnerabilities": "Sin vulnerabilidades conocidas",
         "noDeviations": "0 desviaciones"
+      }
+    },
+    "settings": {
+      "eyebrow": "Ajustes",
+      "navigation": "Secciones de ajustes",
+      "projectEyebrow": "Proyecto",
+      "projectNavigation": "Secciones de ajustes del proyecto",
+      "empty": "No hay ajustes que mostrar.",
+      "selectProject": "Selecciona un proyecto para configurar esta sección.",
+      "chooseProject": "Seleccionar proyecto",
+      "groups": {
+        "general": "General",
+        "project": "Proyecto",
+        "integrations": "Integraciones",
+        "projectIntegrations": "Integraciones del proyecto",
+        "other": "Otros"
+      },
+      "sections": {
+        "preferences": {
+          "title": "Preferencias",
+          "description": "Idioma y tema de tu cuenta en este dispositivo."
+        },
+        "projects": {
+          "title": "Gestión de proyectos",
+          "description": "Crea, edita y desactiva proyectos y sus credenciales de Git."
+        },
+        "skillsHub": {
+          "title": "Marketplaces",
+          "description": "Conecta los marketplaces de skills que muestra el Skills Hub."
+        },
+        "workflowOpa": {
+          "title": "Open Policy Agent",
+          "description": "Comprobaciones de políticas para las ejecuciones de workflows."
+        },
+        "workflowA2a": {
+          "title": "Servicios A2A",
+          "description": "Servicios agente a agente que los workflows pueden invocar."
+        },
+        "workflowHermes": {
+          "title": "Hermes Agent",
+          "description": "Integración de Hermes Agent para este proyecto."
+        },
+        "workflowJira": {
+          "title": "Conector de Jira",
+          "description": "Conector de Jira para este proyecto."
+        },
+        "workflowDocuments": {
+          "title": "Carpeta de documentos",
+          "description": "La carpeta de la que este proyecto lee sus documentos."
+        },
+        "specQueue": {
+          "title": "Cola de specs",
+          "description": "Comportamiento de la cola de este proyecto, incluido el auto-merge."
+        }
       }
     },
     "apps": {

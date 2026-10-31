@@ -2,7 +2,7 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { render } from '../testUtils/render';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { withQueryClient } from '../testUtils/queryClient';
-import { WorkflowConfiguration } from './WorkflowConfiguration';
+import { WorkflowConfiguration } from '../testUtils/SettingsHarness';
 import * as workflowApi from '@openjcockpit/api';
 import type { DocumentFolderConfig, OpaConfig, Project } from '@openjcockpit/api';
 
@@ -140,17 +140,13 @@ describe('WorkflowConfiguration — OPA section', () => {
     expect(await screen.findByText('Failed to save the OPA configuration.')).toBeInTheDocument();
   });
 
-  it('still renders the OPA section when no project is selected', async () => {
+  it('renders the OPA section without a project; project sections need one', async () => {
     await act(async () => {
       render(withQueryClient(<WorkflowConfiguration project={null} />));
     });
 
     expect(await screen.findByText('Open Policy Agent')).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        'Select a project from the dashboard header to configure its workflow input sources.',
-      ),
-    ).toBeInTheDocument();
+    expect(screen.queryByText('Jira connector')).not.toBeInTheDocument();
   });
 });
 

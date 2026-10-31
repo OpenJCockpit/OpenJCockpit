@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
 import { useSyncExternalStore } from 'react';
-import type { AppDefinition } from './appDefinition';
+import type { AppDefinition, SettingsSectionDefinition } from './appDefinition';
 import { AppRegistryProvider, useAppRegistry, useBadgeFor } from './registry';
 import { FakeHubSession, FakeHubSessionProvider } from './testing';
 
@@ -92,6 +92,35 @@ describe('AppRegistryProvider', () => {
     ];
     renderRegistry(apps, [], <Probe pick={(r) => ids(r.visibleWidgets)} />);
     expect(screen.getByTestId('out')).toHaveTextContent(/^w-ok$/);
+  });
+
+  it('lists permitted settings sections by order then id, skipping duplicates and hidden apps', () => {
+    const section = (id: string, order: number, over: Partial<SettingsSectionDefinition> = {}) => ({
+      id,
+      sourceAppId: 'x',
+      titleKey: id,
+      requiredPermissions: [],
+      order,
+      component: lazy,
+      ...over,
+    });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const apps = [
+      app('a', {
+        order: 1,
+        settings: [
+          section('b', 20),
+          section('a2', 20),
+          section('locked', 5, { requiredPermissions: ['nope'] }),
+        ],
+      }),
+      app('b', { order: 2, settings: [section('first', 10), section('b', 1)] }),
+      app('hidden', { order: 3, requiredPermissions: ['nope'], settings: [section('h', 1)] }),
+    ];
+    renderRegistry(apps, [], <Probe pick={(r) => ids(r.visibleSettings)} />);
+    expect(screen.getByTestId('out')).toHaveTextContent(/^first,a2,b$/);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('"b"'));
+    warn.mockRestore();
   });
 
   it('publishes badges from useBadge and re-renders on change', () => {

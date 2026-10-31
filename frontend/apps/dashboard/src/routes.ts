@@ -6,9 +6,9 @@ export const ROUTES = {
   projects: '/projects',
   dashboard: '/dashboard',
   settings: '/settings',
+  projectSettings: '/project-settings',
   workflow: '/workflow',
   specFiles: '/spec-files',
   specQueue: '/spec-queue',
   skillsHub: '/skills-hub',
-  skillsHubSettings: '/skills-hub/settings',
 } as const;

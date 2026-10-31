@@ -154,12 +154,10 @@ describe('WorkflowDashboard', () => {
     );
   });
 
-  it('switches to the Configuration tab when clicked', async () => {
+  it('no longer has a Configuration tab: integrations live in the host settings', async () => {
     await renderAsync(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
 
-    await clickAsync(screen.getByText('Configuration'));
-
-    expect(screen.getByText('Configuration')).toHaveClass(tabActiveClass);
+    expect(screen.queryByText('Configuration')).not.toBeInTheDocument();
   });
 
   it('switches to the Design tab when clicked', async () => {

@@ -38,6 +38,17 @@ HTTP goes through the shared `@openjcockpit/api` singleton (host token, 401 refr
 - The contract is additive only. Bump `HUB_CONTRACT_VERSION` only when a host must understand the change; the host rejects a remote with a higher version.
 - Manifest origins must be the host origin, listed in `/config.json` `federation.allowedOrigins` (or `VITE_FEDERATION_ALLOWED_ORIGINS`), or localhost in dev.
 
+## Settings sections
+
+An app contributes forms to the host's Settings page through `AppDefinition.settings` (contract version 2). The host owns the URL (`/settings/<id>`, or `/project-settings/<id>` for sections with `screen: 'project'`), the sub-navigation, the heading (`titleKey`/`descriptionKey`, resolved in the host's `dashboard` namespace under `settings.sections.*`, like widget titles) and the "select a project" guard (`requiresProject`).
+
+- `component` is lazy and content only: no `AppShell`, header, back button or `<h1>`. Its default export wraps itself in the remote's translation provider.
+- `requiredPermissions` is any-of; a section the session may not open is hidden and its URL answers 403. Ids must be unique across apps (the first wins, the rest are ignored with a warning).
+- Order sections with `order` (bands: Workspace 10-99, Integrations 100-199, Project integrations 200-299) and group them with `groupKey`.
+- `screen` (`'settings'`, the default, or `'project'`) picks the screen: global Settings or the selected project's settings, each with its own sidebar entry and sub-navigation. Put sections that configure a project (or need one) on `'project'`.
+- An app that only contributes settings sets `showInNav: false`.
+- A remote at contract version 1 keeps working but contributes no settings.
+
 ## Deployment
 
 One image per deployable. The host (`apps/dashboard/Dockerfile`) and each remote (`deploy/remote/Dockerfile`, `--build-arg REMOTE=remote-<name>`) are built from `frontend/`.

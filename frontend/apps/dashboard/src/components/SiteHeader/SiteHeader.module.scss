@@ -25,12 +25,6 @@
   cursor: pointer;
 }
 
-.selectors {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .mainNav {
   display: flex;
   flex-direction: column;
@@ -112,6 +106,10 @@
   border-top: 1px solid var(--bar-line);
 }
 
+.project {
+  min-width: 0;
+}
+
 .userCard {
   display: flex;
   align-items: center;
@@ -187,6 +185,7 @@
     padding: 0;
     overflow: hidden;
     width: 44px;
+    justify-content: center;
     & > * {
       flex: none;
     }
@@ -230,15 +229,6 @@
     border-right: 0;
     border-bottom: 1px solid var(--bar-line);
   }
-  /* The project select takes a full row; language and theme share the next one. */
-  .selectors {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    & > :first-child:nth-last-child(3) {
-      grid-column: 1 / -1;
-    }
-  }
   .mainNav {
     flex: none;
     flex-direction: row;
@@ -253,8 +243,13 @@
   .group {
     display: none;
   }
+  /* The project select takes a full row above the collapse button and user card. */
+  .project {
+    flex: 1 0 100%;
+  }
   .footer {
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
     padding-top: 0;
     border-top: 0;

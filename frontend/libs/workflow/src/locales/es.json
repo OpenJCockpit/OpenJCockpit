@@ -132,8 +132,7 @@
       "enabled": "Habilitado",
       "workflowIdToStart": "ID del workflow que se iniciará",
       "authToken": "Token de autenticación",
-      "workflowIdPlaceholder": "wf-onboarding",
-      "selectProject": "Selecciona un proyecto en la cabecera del panel para configurar las fuentes de entrada de sus workflows."
+      "workflowIdPlaceholder": "wf-onboarding"
     },
     "documentFolder": {
       "loadFailed": "No se pudo cargar la configuración de la carpeta de documentos.",
@@ -216,7 +215,6 @@
       "tabsLabel": "Secciones del workflow",
       "tabs": {
         "overview": "Resumen",
-        "configuration": "Configuración",
         "design": "Diseño",
         "execution": "Ejecución del workflow"
       },

@@ -30,7 +30,8 @@
       "home": "Home",
       "landing": "Kies je werkruimte",
       "projects": "Project selecteren",
-      "settings": "Instellingen"
+      "settings": "Instellingen",
+      "projectSettings": "Projectinstellingen"
     },
     "siteHeader": {
       "backToHub": "Terug naar de hub",
@@ -39,7 +40,8 @@
       "language": "Taal",
       "theme": "Thema",
       "themes": { "system": "Systeem", "light": "Licht", "dark": "Donker" },
-      "projectManagement": "Projectbeheer",
+      "settings": "Instellingen",
+      "projectSettings": "Projectinstellingen",
       "logOut": "Uitloggen",
       "logout": "Uitloggen",
       "nav": {
@@ -175,6 +177,60 @@
         "noHighIssues": "Geen ernstige problemen",
         "noKnownVulnerabilities": "Geen bekende kwetsbaarheden",
         "noDeviations": "0 afwijkingen"
+      }
+    },
+    "settings": {
+      "eyebrow": "Instellingen",
+      "navigation": "Instellingsecties",
+      "projectEyebrow": "Project",
+      "projectNavigation": "Secties van projectinstellingen",
+      "empty": "Er zijn geen instellingen om te tonen.",
+      "selectProject": "Selecteer een project om deze sectie te configureren.",
+      "chooseProject": "Project selecteren",
+      "groups": {
+        "general": "Algemeen",
+        "project": "Project",
+        "integrations": "Integraties",
+        "projectIntegrations": "Projectintegraties",
+        "other": "Overig"
+      },
+      "sections": {
+        "preferences": {
+          "title": "Voorkeuren",
+          "description": "Taal en thema voor je account op dit apparaat."
+        },
+        "projects": {
+          "title": "Projectbeheer",
+          "description": "Projecten en hun Git-inloggegevens aanmaken, bewerken en deactiveren."
+        },
+        "skillsHub": {
+          "title": "Marktplaatsen",
+          "description": "Koppel de skill-marktplaatsen die de Skills Hub toont."
+        },
+        "workflowOpa": {
+          "title": "Open Policy Agent",
+          "description": "Beleidscontroles voor workflowruns."
+        },
+        "workflowA2a": {
+          "title": "A2A-services",
+          "description": "Agent-naar-agent-services die workflows kunnen aanroepen."
+        },
+        "workflowHermes": {
+          "title": "Hermes Agent",
+          "description": "Hermes Agent-integratie voor dit project."
+        },
+        "workflowJira": {
+          "title": "Jira-connector",
+          "description": "Jira-connector voor dit project."
+        },
+        "workflowDocuments": {
+          "title": "Documentmap",
+          "description": "De map waaruit dit project zijn documenten leest."
+        },
+        "specQueue": {
+          "title": "Spec-wachtrij",
+          "description": "Wachtrijgedrag voor dit project, inclusief automatisch samenvoegen."
+        }
       }
     },
     "apps": {

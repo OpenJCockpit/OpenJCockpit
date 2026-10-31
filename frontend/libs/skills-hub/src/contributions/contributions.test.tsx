@@ -5,6 +5,7 @@ import { createI18n, I18nProvider } from '@openjcockpit/i18n';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { skillsHubResources } from '../i18n';
 import { skillsHubApp } from '../skillsHubApp';
+import SkillsHubSettingsSection from './SkillsHubSettingsSection';
 import SkillsHubWidget from './SkillsHubWidget';
 import { useConnectedMarketplaces } from './useConnectedMarketplaces';
 
@@ -56,8 +57,17 @@ describe('skills hub contributions', () => {
     expect(screen.queryByTestId('skills-hub-widget')).toBeNull();
   });
 
+  it('renders the marketplace settings with its own translations', async () => {
+    vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([]);
+    await act(async () => {
+      render(<SkillsHubSettingsSection />, { wrapper });
+    });
+    expect(await screen.findByText('New marketplace')).toBeInTheDocument();
+  });
+
   it('declares each contribution on the app definition', async () => {
     expect(skillsHubApp.useBadge).toBe(useConnectedMarketplaces);
     expect((await skillsHubApp.widgets?.[0]?.component())?.default).toBe(SkillsHubWidget);
+    expect((await skillsHubApp.settings?.[0]?.component())?.default).toBe(SkillsHubSettingsSection);
   });
 });

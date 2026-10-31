@@ -33,9 +33,7 @@
       }
     },
     "settings": {
-      "backTitle": "Zurück zum Skills-Hub",
       "loading": "Marktplätze werden geladen…",
-      "title": "Marktplatzverbindungen",
       "formNew": "Neuer Marktplatz",
       "formEdit": "Marktplatz bearbeiten",
       "name": "Name",

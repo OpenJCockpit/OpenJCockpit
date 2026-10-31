@@ -2,7 +2,6 @@ import { useRef, useState, type ReactNode } from 'react';
 import type { Project, SpecQueueItem } from '@openjcockpit/api';
 import { useFormatters, useTranslation } from '@openjcockpit/i18n';
 import { AddToQueueDialog } from '../AddToQueueDialog/AddToQueueDialog';
-import { AutoMergeSettingToggle } from '../AutoMergeSettingToggle/AutoMergeSettingToggle';
 import { ConfirmActionDialog } from '../ConfirmActionDialog/ConfirmActionDialog';
 import { pollErrorText, queueStateText } from '../queueStatus';
 import { SpecQueueItemRow } from '../SpecQueueItemRow/SpecQueueItemRow';
@@ -27,15 +26,17 @@ interface Props {
   project: Project | null;
   onBack: () => void;
   onOpenRun?: (workflowId: string, runId: string) => void;
+  /** Opens the queue's section in the host's settings; without it the shortcut is not shown. */
+  onSettings?: () => void;
   /** Replaces the default back-button header, e.g. with the app's shared top menu. */
   header?: ReactNode;
 }
 
-export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props) {
+export function SpecQueueDashboard({ project, onBack, onOpenRun, onSettings, header }: Props) {
   const { t } = useTranslation('specQueue');
   const { formatDateTime } = useFormatters();
   const projectId = project?.id ?? null;
-  const { queue, loadError, applyQueue, refresh, applyAutoMergeAllowed } = useSpecQueue(projectId);
+  const { queue, loadError, applyQueue, refresh } = useSpecQueue(projectId);
   const [announcement, setAnnouncement] = useState('');
   const [adding, setAdding] = useState(false);
   const queuedItems = queue?.items.filter((i) => i.status === 'QUEUED') ?? [];
@@ -118,6 +119,11 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                   onClick={() => actions.pauseResume(false)}
                 >
                   {t('dashboard.resume')}
+                </Button>
+              )}
+              {onSettings && (
+                <Button type="button" size="sm" data-testid="queue-settings" onClick={onSettings}>
+                  {t('dashboard.settings')}
                 </Button>
               )}
               <Button
@@ -211,15 +217,6 @@ export function SpecQueueDashboard({ project, onBack, onOpenRun, header }: Props
                 {actions.actionError}
               </p>
             )}
-
-            <Panel className={styles.specQueuePanel}>
-              <h2>{t('dashboard.settings')}</h2>
-              <AutoMergeSettingToggle
-                projectId={project.id}
-                autoMergeAllowed={queue.autoMergeAllowed}
-                onChanged={(settings) => void applyAutoMergeAllowed(settings.autoMergeAllowed)}
-              />
-            </Panel>
 
             <Panel className={styles.specQueuePanel}>
               <h2>{t('dashboard.queue')}</h2>

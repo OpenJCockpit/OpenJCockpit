@@ -30,7 +30,8 @@
       "home": "Home",
       "landing": "Choose your workspace",
       "projects": "Select project",
-      "settings": "Settings"
+      "settings": "Settings",
+      "projectSettings": "Project settings"
     },
     "siteHeader": {
       "backToHub": "Back to hub",
@@ -39,7 +40,8 @@
       "language": "Language",
       "theme": "Theme",
       "themes": { "system": "System", "light": "Light", "dark": "Dark" },
-      "projectManagement": "Project management",
+      "settings": "Settings",
+      "projectSettings": "Project settings",
       "logOut": "Log out",
       "logout": "Logout",
       "nav": {
@@ -175,6 +177,60 @@
         "noHighIssues": "No high issues",
         "noKnownVulnerabilities": "No known vulnerabilities",
         "noDeviations": "0 deviations"
+      }
+    },
+    "settings": {
+      "eyebrow": "Settings",
+      "navigation": "Settings sections",
+      "projectEyebrow": "Project",
+      "projectNavigation": "Project settings sections",
+      "empty": "There are no settings to show.",
+      "selectProject": "Select a project to configure this section.",
+      "chooseProject": "Select project",
+      "groups": {
+        "general": "General",
+        "project": "Project",
+        "integrations": "Integrations",
+        "projectIntegrations": "Project integrations",
+        "other": "Other"
+      },
+      "sections": {
+        "preferences": {
+          "title": "Preferences",
+          "description": "Language and theme for your account on this device."
+        },
+        "projects": {
+          "title": "Project management",
+          "description": "Create, edit and deactivate projects and their Git credentials."
+        },
+        "skillsHub": {
+          "title": "Marketplaces",
+          "description": "Connect the skill marketplaces the Skills Hub lists."
+        },
+        "workflowOpa": {
+          "title": "Open Policy Agent",
+          "description": "Policy checks for workflow runs."
+        },
+        "workflowA2a": {
+          "title": "A2A services",
+          "description": "Agent-to-agent services workflows can call."
+        },
+        "workflowHermes": {
+          "title": "Hermes Agent",
+          "description": "Hermes Agent integration for this project."
+        },
+        "workflowJira": {
+          "title": "Jira connector",
+          "description": "Jira connector for this project."
+        },
+        "workflowDocuments": {
+          "title": "Document folder",
+          "description": "The folder this project reads its documents from."
+        },
+        "specQueue": {
+          "title": "Spec queue",
+          "description": "Queue behaviour for this project, including auto-merge."
+        }
       }
     },
     "apps": {

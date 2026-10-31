@@ -117,7 +117,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout, us
             onWorkflowChange={setSelectedWorkflowId}
             specInitStatus={specInitStatus}
             onReloadSpecs={() => void specsQuery.refetch()}
-            onOpenProjectSettings={() => void navigate(ROUTES.settings)}
+            onOpenProjectSettings={() => void navigate(ROUTES.projectSettings)}
           />
 
           {workspace && (

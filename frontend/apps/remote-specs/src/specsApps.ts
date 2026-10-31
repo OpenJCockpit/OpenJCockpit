@@ -1,8 +1,28 @@
-import type { AppDefinition } from '@openjcockpit/hub-contract';
+import type { AppDefinition, SettingsSectionDefinition } from '@openjcockpit/hub-contract';
 import { useQueueAttention } from './contributions/useQueueAttention';
 import { useSpecFileBadge } from './contributions/useSpecFileCount';
 import { useWorkflowCount } from './contributions/useWorkflowCount';
 import { SPEC_FILES_ROUTE, SPEC_QUEUE_ROUTE, WORKFLOW_ROUTE } from './routePaths';
+
+type WorkflowSettingsExport = keyof typeof import('./contributions/workflowSettings');
+
+/** Titles and descriptions live in the host's catalog, like widget titles. */
+function workflowSection(
+  section: Pick<
+    SettingsSectionDefinition,
+    'id' | 'titleKey' | 'descriptionKey' | 'order' | 'groupKey' | 'requiresProject'
+  >,
+  exportName: WorkflowSettingsExport,
+): SettingsSectionDefinition {
+  return {
+    ...section,
+    sourceAppId: 'workflow',
+    screen: section.requiresProject ? 'project' : 'settings',
+    requiredPermissions: [],
+    component: () =>
+      import('./contributions/workflowSettings').then((m) => ({ default: m[exportName] })),
+  };
+}
 
 /** Nav order, kept as it was in the host menu: platform, workflow, spec files, spec queue, skills hub. */
 export const specsApps: AppDefinition[] = [
@@ -25,6 +45,63 @@ export const specsApps: AppDefinition[] = [
         link: WORKFLOW_ROUTE,
         component: () => import('./contributions/WorkflowsWidget'),
       },
+    ],
+    settings: [
+      workflowSection(
+        {
+          id: 'workflow-opa',
+          titleKey: 'settings.sections.workflowOpa.title',
+          descriptionKey: 'settings.sections.workflowOpa.description',
+          order: 110,
+          groupKey: 'settings.groups.integrations',
+          requiresProject: false,
+        },
+        'OpaSection',
+      ),
+      workflowSection(
+        {
+          id: 'workflow-a2a',
+          titleKey: 'settings.sections.workflowA2a.title',
+          descriptionKey: 'settings.sections.workflowA2a.description',
+          order: 120,
+          groupKey: 'settings.groups.integrations',
+          requiresProject: false,
+        },
+        'A2ASection',
+      ),
+      workflowSection(
+        {
+          id: 'workflow-hermes',
+          titleKey: 'settings.sections.workflowHermes.title',
+          descriptionKey: 'settings.sections.workflowHermes.description',
+          order: 210,
+          groupKey: 'settings.groups.projectIntegrations',
+          requiresProject: true,
+        },
+        'HermesSection',
+      ),
+      workflowSection(
+        {
+          id: 'workflow-jira',
+          titleKey: 'settings.sections.workflowJira.title',
+          descriptionKey: 'settings.sections.workflowJira.description',
+          order: 220,
+          groupKey: 'settings.groups.projectIntegrations',
+          requiresProject: true,
+        },
+        'JiraSection',
+      ),
+      workflowSection(
+        {
+          id: 'workflow-documents',
+          titleKey: 'settings.sections.workflowDocuments.title',
+          descriptionKey: 'settings.sections.workflowDocuments.description',
+          order: 230,
+          groupKey: 'settings.groups.projectIntegrations',
+          requiresProject: true,
+        },
+        'DocumentsSection',
+      ),
     ],
   },
   {
@@ -66,6 +143,20 @@ export const specsApps: AppDefinition[] = [
         defaultFor: [],
         link: SPEC_QUEUE_ROUTE,
         component: () => import('./contributions/SpecQueueWidget'),
+      },
+    ],
+    settings: [
+      {
+        id: 'spec-queue',
+        sourceAppId: 'spec-queue',
+        titleKey: 'settings.sections.specQueue.title',
+        descriptionKey: 'settings.sections.specQueue.description',
+        requiredPermissions: [],
+        order: 20,
+        screen: 'project',
+        groupKey: 'settings.groups.project',
+        requiresProject: true,
+        component: () => import('./contributions/SpecQueueSettingsSection'),
       },
     ],
   },

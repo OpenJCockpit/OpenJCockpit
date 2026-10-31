@@ -1,4 +1,4 @@
-import { Outlet, useNavigate, type RouteObject } from 'react-router';
+import { Navigate, Outlet, useNavigate, type RouteObject } from 'react-router';
 import {
   DASHBOARD_PATH,
   PROJECTS_PATH,
@@ -6,10 +6,11 @@ import {
   useHubProject,
 } from '@openjcockpit/hub-contract';
 import { SkillsHubDashboard } from './SkillsHubDashboard/SkillsHubDashboard';
-import { SkillsHubSettings } from './SkillsHubSettings/SkillsHubSettings';
 import { WithTranslations } from './registerTranslations';
 
 export const SKILLS_HUB_ROUTE = '/skills-hub';
+/** The host's Settings section for the marketplaces. */
+export const SKILLS_HUB_SETTINGS_PATH = '/settings/skills-hub';
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -18,15 +19,8 @@ function DashboardPage() {
     <SkillsHubDashboard
       onBack={() => void navigate(selected ? DASHBOARD_PATH : PROJECTS_PATH)}
       header={useHubHeader()}
-      onSettings={() => void navigate(`${SKILLS_HUB_ROUTE}/settings`)}
+      onSettings={() => void navigate(SKILLS_HUB_SETTINGS_PATH)}
     />
-  );
-}
-
-function SettingsPage() {
-  const navigate = useNavigate();
-  return (
-    <SkillsHubSettings onBack={() => void navigate(SKILLS_HUB_ROUTE)} header={useHubHeader()} />
   );
 }
 
@@ -40,7 +34,8 @@ export const skillsHubRoutes: RouteObject[] = [
     ),
     children: [
       { index: true, element: <DashboardPage /> },
-      { path: 'settings', element: <SettingsPage /> },
+      // Bookmarks of the former in-page settings keep working for one release.
+      { path: 'settings', element: <Navigate to={SKILLS_HUB_SETTINGS_PATH} replace /> },
     ],
   },
 ];

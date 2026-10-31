@@ -4,7 +4,6 @@ import { getWorkflow, queryKeys } from '@openjcockpit/api';
 import type { Project, WorkflowDefinition } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
 import { WorkflowOverview } from '../WorkflowOverview/WorkflowOverview';
-import { WorkflowConfiguration } from '../WorkflowConfiguration/WorkflowConfiguration';
 import { WorkflowDesign } from '../WorkflowDesign/WorkflowDesign';
 import { WorkflowExecution } from '../WorkflowExecution/WorkflowExecution';
 import {
@@ -20,7 +19,7 @@ import {
 } from '@openjcockpit/ui';
 import styles from './WorkflowDashboard.module.scss';
 
-type WorkflowTab = 'overview' | 'configuration' | 'design' | 'execution';
+type WorkflowTab = 'overview' | 'design' | 'execution';
 
 interface Props {
   project: Project | null;
@@ -78,9 +77,6 @@ export function WorkflowDashboard({ project, onBack, initialExecution, header }:
             <Tab active={tab === 'overview'} onClick={() => setTab('overview')}>
               {t('dashboard.tabs.overview')}
             </Tab>
-            <Tab active={tab === 'configuration'} onClick={() => setTab('configuration')}>
-              {t('dashboard.tabs.configuration')}
-            </Tab>
             <Tab active={tab === 'design'} onClick={() => setTab('design')}>
               {t('dashboard.tabs.design')}
             </Tab>
@@ -97,7 +93,6 @@ export function WorkflowDashboard({ project, onBack, initialExecution, header }:
             onViewExecutionTab={handleViewExecutionTab}
           />
         )}
-        {tab === 'configuration' && <WorkflowConfiguration project={project} />}
         {tab === 'design' && <WorkflowDesign />}
         {tab === 'execution' && initialError && !executionWorkflow && (
           <p className={feedbackErrorClass} role="alert">

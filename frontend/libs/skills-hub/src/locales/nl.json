@@ -33,9 +33,7 @@
       }
     },
     "settings": {
-      "backTitle": "Terug naar Skills Hub",
       "loading": "Marketplaces laden…",
-      "title": "Marketplace-koppelingen",
       "formNew": "Nieuwe marketplace",
       "formEdit": "Marketplace bewerken",
       "name": "Naam",

@@ -27,13 +27,14 @@ The shell app of the OpenJCockpit frontend: React 19, Vite, React Router and Tan
 | `/`           | Landing hub                                       |
 | `/projects`   | Projects                                          |
 | `/dashboard`  | Project dashboard                                 |
-| `/settings`   | Project settings                                  |
+| `/settings`   | Settings (`/settings/:sectionId`, one per section) |
+| `/project-settings` | Project settings (`/project-settings/:sectionId`) |
 | `/workflow`   | Workflows (`/workflow/:id/runs/:runId` for a run) |
 | `/spec-files` | Spec files                                        |
 | `/spec-queue` | Spec queue                                        |
-| `/skills-hub` | Skills Hub (`/skills-hub/settings`)               |
+| `/skills-hub` | Skills Hub                                        |
 
-`src/routes.ts` is authoritative.
+`src/routes.ts` is authoritative. Settings sections are contributed by the host (`src/hostApp.ts`) and by remotes through `AppDefinition.settings`; see `docs/hub-app-integration-guide.md`.
 
 ## Data flow
 

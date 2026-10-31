@@ -30,7 +30,8 @@
       "home": "Start",
       "landing": "Arbeitsbereich wählen",
       "projects": "Projekt auswählen",
-      "settings": "Einstellungen"
+      "settings": "Einstellungen",
+      "projectSettings": "Projekteinstellungen"
     },
     "siteHeader": {
       "backToHub": "Zurück zum Hub",
@@ -39,7 +40,8 @@
       "language": "Sprache",
       "theme": "Design",
       "themes": { "system": "System", "light": "Hell", "dark": "Dunkel" },
-      "projectManagement": "Projektverwaltung",
+      "settings": "Einstellungen",
+      "projectSettings": "Projekteinstellungen",
       "logOut": "Abmelden",
       "logout": "Abmelden",
       "nav": {
@@ -175,6 +177,60 @@
         "noHighIssues": "Keine schwerwiegenden Probleme",
         "noKnownVulnerabilities": "Keine bekannten Schwachstellen",
         "noDeviations": "0 Abweichungen"
+      }
+    },
+    "settings": {
+      "eyebrow": "Einstellungen",
+      "navigation": "Einstellungsbereiche",
+      "projectEyebrow": "Projekt",
+      "projectNavigation": "Bereiche der Projekteinstellungen",
+      "empty": "Es gibt keine Einstellungen anzuzeigen.",
+      "selectProject": "Wähle ein Projekt, um diesen Bereich zu konfigurieren.",
+      "chooseProject": "Projekt auswählen",
+      "groups": {
+        "general": "Allgemein",
+        "project": "Projekt",
+        "integrations": "Integrationen",
+        "projectIntegrations": "Projektintegrationen",
+        "other": "Sonstiges"
+      },
+      "sections": {
+        "preferences": {
+          "title": "Einstellungen",
+          "description": "Sprache und Design für dein Konto auf diesem Gerät."
+        },
+        "projects": {
+          "title": "Projektverwaltung",
+          "description": "Projekte und ihre Git-Zugangsdaten anlegen, bearbeiten und deaktivieren."
+        },
+        "skillsHub": {
+          "title": "Marktplätze",
+          "description": "Die Skill-Marktplätze verbinden, die der Skills Hub auflistet."
+        },
+        "workflowOpa": {
+          "title": "Open Policy Agent",
+          "description": "Richtlinienprüfungen für Workflow-Läufe."
+        },
+        "workflowA2a": {
+          "title": "A2A-Dienste",
+          "description": "Agent-zu-Agent-Dienste, die Workflows aufrufen können."
+        },
+        "workflowHermes": {
+          "title": "Hermes Agent",
+          "description": "Hermes-Agent-Integration für dieses Projekt."
+        },
+        "workflowJira": {
+          "title": "Jira-Connector",
+          "description": "Jira-Connector für dieses Projekt."
+        },
+        "workflowDocuments": {
+          "title": "Dokumentenordner",
+          "description": "Der Ordner, aus dem dieses Projekt seine Dokumente liest."
+        },
+        "specQueue": {
+          "title": "Spec-Queue",
+          "description": "Queue-Verhalten für dieses Projekt, einschließlich Auto-Merge."
+        }
       }
     },
     "apps": {
