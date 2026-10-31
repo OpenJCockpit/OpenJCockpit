@@ -31,12 +31,12 @@
   &--active {
     color: var(--teal);
     background: var(--teal-soft);
-    border: 1px solid rgba(55, 247, 194, 0.25);
+    border: 1px solid rgb(var(--teal-rgb) / 0.25);
   }
 
   &--inactive {
     color: var(--muted);
-    background: rgba(134, 166, 184, 0.1);
-    border: 1px solid rgba(134, 166, 184, 0.2);
+    background: rgb(var(--muted-rgb) / 0.1);
+    border: 1px solid rgb(var(--muted-rgb) / 0.2);
   }
 }

@@ -20,3 +20,11 @@ export {
 } from './project';
 export type { HubProject, HubProjects } from './project';
 export { DASHBOARD_PATH, HubHeaderContext, useHubHeader } from './header';
+export {
+  HubThemeContext,
+  isThemePreference,
+  THEME_PREFERENCES,
+  THEME_STORAGE_KEY,
+  useHubTheme,
+} from './theme';
+export type { HubTheme, ThemeMode, ThemePreference } from './theme';

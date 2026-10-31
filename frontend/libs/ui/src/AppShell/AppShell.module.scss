@@ -8,8 +8,7 @@
   --app-sidebar-width: 264px;
   background:
     radial-gradient(circle at 80% 18%, var(--cyan-a12), transparent 30%),
-    radial-gradient(circle at 25% 85%, rgba(55, 247, 194, 0.08), transparent 32%),
-    linear-gradient(180deg, #07111f 0%, #030914 52%, #020711 100%);
+    radial-gradient(circle at 25% 85%, var(--shell-glow), transparent 32%), var(--shell-gradient);
 }
 
 /* A page that renders a sidebar (marked data-app-sidebar) makes room for the fixed panel. */
@@ -28,8 +27,8 @@
   grid-template-columns: 280px 1fr auto;
   align-items: center;
   padding: 0 32px;
-  border-bottom: 1px solid rgba(124, 222, 255, 0.11);
-  background: rgba(4, 11, 21, 0.72);
+  border-bottom: 1px solid var(--bar-line);
+  background: var(--shell-bar-bg);
   backdrop-filter: blur(24px);
 }
 

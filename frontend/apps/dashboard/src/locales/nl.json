@@ -36,6 +36,8 @@
       "primaryNavigation": "Hoofdnavigatie",
       "activeProject": "Actief project",
       "language": "Taal",
+      "theme": "Thema",
+      "themes": { "system": "Systeem", "light": "Licht", "dark": "Donker" },
       "projectManagement": "Projectbeheer",
       "logOut": "Uitloggen",
       "logout": "Uitloggen",

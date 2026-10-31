@@ -20,8 +20,8 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--cyan);
-  background: rgba(39, 231, 255, 0.04);
-  border: 1px solid rgba(39, 231, 255, 0.28);
+  background: rgb(var(--accent-rgb) / 0.04);
+  border: 1px solid rgb(var(--accent-rgb) / 0.28);
   border-radius: 10px;
   box-shadow: 0 0 8px var(--surface-glow);
   cursor: pointer;
@@ -79,11 +79,11 @@
   padding: 4px;
   overflow-y: auto;
   list-style: none;
-  background: rgba(6, 18, 30, 0.96);
+  background: var(--popover-bg);
   border: 1px solid var(--cyan-a35);
   border-radius: 10px;
   box-shadow:
-    0 8px 28px rgba(0, 0, 0, 0.5),
+    0 8px 28px var(--shadow-popover),
     0 0 16px var(--cyan-a12);
   backdrop-filter: blur(16px);
 }

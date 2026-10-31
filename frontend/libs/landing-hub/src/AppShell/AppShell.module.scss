@@ -5,9 +5,9 @@
   height: 100vh;
   overflow: hidden;
   background:
-    radial-gradient(circle at 18% 24%, rgba(39, 247, 255, 0.16), transparent 32%),
-    radial-gradient(circle at 80% 18%, rgba(157, 107, 255, 0.18), transparent 34%),
-    linear-gradient(135deg, #03040b 0%, #080d22 48%, #02030a 100%);
+    radial-gradient(circle at 18% 24%, rgb(var(--accent-rgb) / 0.16), transparent 32%),
+    radial-gradient(circle at 80% 18%, rgb(var(--violet-rgb) / 0.18), transparent 34%),
+    var(--hub-gradient);
 }
 
 .shell {
@@ -24,8 +24,8 @@
     inset: 0;
     z-index: -5;
     background-image:
-      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      linear-gradient(rgb(var(--tint-rgb) / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--tint-rgb) / 0.035) 1px, transparent 1px);
     background-size: 54px 54px;
     mask-image: radial-gradient(circle at center, #000 0%, transparent 76%);
   }

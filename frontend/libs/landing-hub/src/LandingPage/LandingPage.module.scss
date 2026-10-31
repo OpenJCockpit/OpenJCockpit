@@ -17,7 +17,7 @@
     font-size: clamp(2.6rem, 6vw, 6rem);
     line-height: 0.95;
     letter-spacing: -0.02em;
-    text-shadow: 0 0 32px rgba(39, 247, 255, 0.2);
+    text-shadow: 0 0 32px rgb(var(--accent-rgb) / 0.2);
   }
 
   p {

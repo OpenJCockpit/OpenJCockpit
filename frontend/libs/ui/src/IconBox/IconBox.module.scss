@@ -3,11 +3,11 @@
   height: 40px;
   display: grid;
   place-items: center;
-  color: #dffbff;
-  border: 1px solid rgba(39, 231, 255, 0.36);
+  color: var(--text-bright);
+  border: 1px solid rgb(var(--accent-rgb) / 0.36);
   border-radius: 12px;
   background: var(--cyan-a05);
-  box-shadow: 0 0 20px rgba(39, 231, 255, 0.08);
+  box-shadow: 0 0 20px rgb(var(--accent-rgb) / 0.08);
 }
 .compact {
   width: 30px;

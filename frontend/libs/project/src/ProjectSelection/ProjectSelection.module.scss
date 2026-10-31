@@ -94,7 +94,7 @@
     font-size: 11px;
     color: var(--faint);
     background: var(--cyan-a06);
-    border: 1px solid rgba(39, 231, 255, 0.15);
+    border: 1px solid rgb(var(--accent-rgb) / 0.15);
     border-radius: 4px;
     padding: 2px 8px;
   }
@@ -144,6 +144,6 @@
 
 .project-card-notice {
   font-size: 11px;
-  color: #ff8a8a;
+  color: var(--error-text);
   margin: 6px 0 0;
 }

@@ -36,6 +36,8 @@
       "primaryNavigation": "Navegación principal",
       "activeProject": "Proyecto activo",
       "language": "Idioma",
+      "theme": "Tema",
+      "themes": { "system": "Sistema", "light": "Claro", "dark": "Oscuro" },
       "projectManagement": "Gestión de proyectos",
       "logOut": "Cerrar sesión",
       "logout": "Cerrar sesión",

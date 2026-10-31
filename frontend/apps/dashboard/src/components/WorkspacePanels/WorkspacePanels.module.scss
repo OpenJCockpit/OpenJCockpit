@@ -31,7 +31,7 @@
   align-items: center;
   gap: 12px;
   padding: 11px 0;
-  border-bottom: 1px solid rgba(124, 222, 255, 0.075);
+  border-bottom: 1px solid rgb(var(--accent-rgb) / 0.075);
   & strong {
     font-size: 13px;
     font-weight: 550;
@@ -49,8 +49,8 @@
   place-items: center;
   border-radius: 50%;
   color: var(--teal);
-  border: 1px solid rgba(55, 247, 194, 0.72);
-  box-shadow: 0 0 18px rgba(55, 247, 194, 0.12);
+  border: 1px solid rgb(var(--teal-rgb) / 0.72);
+  box-shadow: 0 0 18px rgb(var(--teal-rgb) / 0.12);
   font-size: 12px;
 }
 
@@ -88,7 +88,7 @@
   }
   & time {
     position: relative;
-    color: #a7c5d1;
+    color: var(--nav-text);
     font-size: 13px;
     &::before {
       content: '';

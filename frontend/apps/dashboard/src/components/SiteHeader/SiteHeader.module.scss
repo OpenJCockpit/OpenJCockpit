@@ -7,8 +7,8 @@
   flex-direction: column;
   gap: 20px;
   padding: 24px 14px 16px;
-  border-right: 1px solid rgba(124, 222, 255, 0.11);
-  background: rgba(4, 11, 21, 0.72);
+  border-right: 1px solid var(--bar-line);
+  background: var(--shell-bar-bg);
   backdrop-filter: blur(24px);
   transition: width 0.18s ease;
 }
@@ -43,7 +43,7 @@
 .group {
   margin: 18px 0 6px;
   padding: 0 14px;
-  color: #6f8797;
+  color: var(--nav-faint);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -60,7 +60,7 @@
   border: 0;
   border-radius: 12px;
   background: none;
-  color: #9fb4c1;
+  color: var(--nav-text);
   font: inherit;
   font-size: 14px;
   font-weight: 500;
@@ -73,8 +73,8 @@
     flex: none;
   }
   &:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.05);
+    color: var(--nav-strong);
+    background: var(--tint-05);
   }
   &:focus-visible {
     outline: 2px solid var(--cyan);
@@ -102,7 +102,7 @@
   flex-wrap: wrap;
   gap: 8px;
   padding-inline: 14px;
-  color: #9fb4c1;
+  color: var(--nav-text);
   font-size: 12px;
 }
 
@@ -118,7 +118,7 @@
   flex-direction: column;
   gap: 6px;
   padding-top: 12px;
-  border-top: 1px solid rgba(124, 222, 255, 0.11);
+  border-top: 1px solid var(--bar-line);
 }
 
 .userCard {
@@ -129,7 +129,7 @@
   margin-top: 6px;
   padding: 10px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--tint-05);
 }
 
 .avatar {
@@ -139,8 +139,8 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.11);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: var(--tint-11);
+  border: 1px solid var(--tint-16);
 }
 
 .userText {
@@ -153,7 +153,7 @@
 
 .userName {
   overflow: hidden;
-  color: #fff;
+  color: var(--nav-strong);
   font-size: 14px;
   font-weight: 600;
   text-overflow: ellipsis;
@@ -162,7 +162,7 @@
 
 .userHandle {
   overflow: hidden;
-  color: #6f8797;
+  color: var(--nav-faint);
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -177,11 +177,11 @@
   border: 0;
   border-radius: 8px;
   background: none;
-  color: #9fb4c1;
+  color: var(--nav-text);
   cursor: pointer;
   &:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.08);
+    color: var(--nav-strong);
+    background: var(--tint-08);
   }
   &:focus-visible {
     outline: 2px solid var(--cyan);
@@ -220,7 +220,7 @@
     padding: 0;
     overflow: hidden;
     font-size: 0;
-    background: rgba(124, 222, 255, 0.11);
+    background: var(--bar-line);
   }
   & .userCard {
     flex-direction: column;
@@ -236,7 +236,7 @@
     position: relative;
     width: auto;
     border-right: 0;
-    border-bottom: 1px solid rgba(124, 222, 255, 0.11);
+    border-bottom: 1px solid var(--bar-line);
   }
   .mainNav {
     flex: none;

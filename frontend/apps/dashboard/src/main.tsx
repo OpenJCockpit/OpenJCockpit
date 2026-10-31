@@ -18,6 +18,7 @@ import { appResources, loadAppLocale } from './i18nResources';
 import { createQueryClient } from './queryClient';
 import { RemoteAppsProvider } from './federation/RemoteApps';
 import { fetchAllowedOrigins, fetchManifest, registerManifestRemotes } from './federation/manifest';
+import { HubThemeProvider } from './federation/HubThemeProvider';
 import { loadRemoteApps, type RemoteApps } from './federation/loadRemoteApps';
 
 const queryClient = createQueryClient();
@@ -56,15 +57,17 @@ void Promise.all([loadKeycloakConfig(), localeReady, loadRemotes()]).then(([, , 
     <StrictMode>
       {/* The boundary sits outside the provider and keeps a literal English message, so a broken i18n setup still shows an error. */}
       <ErrorBoundary message="The application hit an unexpected error.">
-        <I18nProvider i18n={i18n} loader={loadAppLocale}>
-          <QueryClientProvider client={queryClient}>
-            <BrowserRouter>
-              <RemoteAppsProvider remotes={remotes}>
-                <App />
-              </RemoteAppsProvider>
-            </BrowserRouter>
-          </QueryClientProvider>
-        </I18nProvider>
+        <HubThemeProvider>
+          <I18nProvider i18n={i18n} loader={loadAppLocale}>
+            <QueryClientProvider client={queryClient}>
+              <BrowserRouter>
+                <RemoteAppsProvider remotes={remotes}>
+                  <App />
+                </RemoteAppsProvider>
+              </BrowserRouter>
+            </QueryClientProvider>
+          </I18nProvider>
+        </HubThemeProvider>
       </ErrorBoundary>
     </StrictMode>,
   );

@@ -32,8 +32,8 @@
     font-size: 13px;
     background: var(--cyan-soft);
     &--warn {
-      border-color: rgba(246, 165, 37, 0.45);
-      background: rgba(246, 165, 37, 0.1);
+      border-color: rgb(var(--warn-rgb) / 0.45);
+      background: rgb(var(--warn-rgb) / 0.1);
     }
   }
   &__panel {

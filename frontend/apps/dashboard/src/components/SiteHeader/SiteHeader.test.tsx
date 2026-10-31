@@ -13,7 +13,11 @@ import {
   type LocaleLoader,
 } from '@openjcockpit/i18n';
 import { AppRegistryProvider, type AppDefinition } from '@openjcockpit/hub-contract';
-import { FakeHubSession, FakeHubSessionProvider } from '@openjcockpit/hub-contract/testing';
+import {
+  FakeHubSession,
+  FakeHubSessionProvider,
+  FakeHubThemeProvider,
+} from '@openjcockpit/hub-contract/testing';
 import { render } from '../../testUtils/render';
 import type { ReactNode } from 'react';
 import { MemoryRouter, useLocation } from 'react-router';
@@ -223,6 +227,34 @@ describe('SiteHeader', () => {
     chooseLanguage('Nederlands');
     await waitFor(() => expect(loader).toHaveBeenCalled());
     expect(screen.getByTestId('locale-select')).toHaveTextContent('English');
+  });
+
+  it('offers a theme choice only when the host provides a theme', () => {
+    setup();
+    expect(screen.queryByTestId('theme-select')).not.toBeInTheDocument();
+  });
+
+  it('shows the host theme and changes it', () => {
+    const onChange = vi.fn();
+    render(
+      <MemoryRouter>
+        <Registry>
+          <FakeHubThemeProvider preference="dark" onChange={onChange}>
+            <SiteHeader
+              active="platform"
+              projects={[]}
+              selectedProject={null}
+              onProjectChange={vi.fn()}
+              onLogout={vi.fn()}
+            />
+          </FakeHubThemeProvider>
+        </Registry>
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId('theme-select')).toHaveTextContent('Dark');
+    fireEvent.click(screen.getByRole('combobox', { name: 'Theme' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Light' }));
+    expect(onChange).toHaveBeenCalledWith('light');
   });
 
   it('shows the selected project and reports changes', () => {

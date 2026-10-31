@@ -21,7 +21,7 @@
     height: 150px;
     resize: none;
     padding: 14px 16px;
-    background: rgba(6, 21, 34, 0.75);
+    background: rgb(var(--base-rgb) / 0.75);
     border: 1px solid var(--cyan-a35);
     border-radius: 10px;
     color: var(--text-bright);

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {
   LOCALE_NAMES,
@@ -10,7 +10,14 @@ import {
 import type { Project } from '@openjcockpit/api';
 import styles from './SiteHeader.module.scss';
 import { BrandLogo, Select, cx } from '@openjcockpit/ui';
-import { useAppRegistry, useBadgeFor, type AppDefinition } from '@openjcockpit/hub-contract';
+import {
+  HubThemeContext,
+  isThemePreference,
+  THEME_PREFERENCES,
+  useAppRegistry,
+  useBadgeFor,
+  type AppDefinition,
+} from '@openjcockpit/hub-contract';
 import { SidebarIcon, toSidebarIconName, type SidebarIconName } from './SidebarIcon';
 import { RemoteSlot } from '../../federation/RemoteSlot';
 import { ROUTES } from '../../routes';
@@ -91,6 +98,8 @@ export function SiteHeader({
 }: Props) {
   const { t } = useTranslation('dashboard');
   const { locale, setLocale } = useLocale();
+  // Absent in a standalone harness, where there is no host theme to change.
+  const theme = useContext(HubThemeContext);
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const { navApps, visibleTopbar } = useAppRegistry();
@@ -163,6 +172,19 @@ export function SiteHeader({
             onChange={(code) => void setLocale(code as Locale).catch(() => undefined)}
             data-testid="locale-select"
           />
+          {theme && (
+            <Select
+              block
+              label={t('siteHeader.theme')}
+              value={theme.preference}
+              options={THEME_PREFERENCES.map((preference) => ({
+                value: preference,
+                label: t(`siteHeader.themes.${preference}`),
+              }))}
+              onChange={(value) => isThemePreference(value) && theme.setPreference(value)}
+              data-testid="theme-select"
+            />
+          )}
         </div>
       )}
 

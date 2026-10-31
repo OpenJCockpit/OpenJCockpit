@@ -20,16 +20,16 @@
   padding: 14px 13px;
   border: 1px solid var(--line-soft);
   border-radius: 10px;
-  background: rgba(6, 21, 34, 0.58);
-  color: #eefbff;
+  background: rgb(var(--base-rgb) / 0.58);
+  color: var(--text-bright);
   cursor: pointer;
   transition: border-color 0.15s ease;
   &:hover {
-    border-color: rgba(124, 222, 255, 0.28);
+    border-color: rgb(var(--accent-rgb) / 0.28);
   }
   &.selected {
-    border-color: rgba(39, 231, 255, 0.7);
-    background: linear-gradient(90deg, var(--cyan-a12), rgba(6, 21, 34, 0.62));
+    border-color: rgb(var(--accent-rgb) / 0.7);
+    background: linear-gradient(90deg, var(--cyan-a12), rgb(var(--base-rgb) / 0.62));
     box-shadow: 0 0 26px var(--surface-glow);
   }
   & strong,
