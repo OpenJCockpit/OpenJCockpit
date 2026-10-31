@@ -10,8 +10,6 @@ export { HubSessionContext, isAllowed, useHubSession } from './session';
 export type { HubSession, HubUser } from './session';
 export { AppRegistryProvider, useAppRegistry, useBadgeFor } from './registry';
 export type { AppRegistry } from './registry';
-export { createHubHttp, HubHttpProvider, useHubHttp } from './http';
-export type { HubHttp } from './http';
 export { ADMIN_PERMISSION, Can, FORBIDDEN_PATH, RequirePermission, useCan } from './permissions';
 export {
   HubProjectContext,

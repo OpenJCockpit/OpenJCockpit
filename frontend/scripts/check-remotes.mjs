@@ -3,16 +3,27 @@
 // pass --require-built to fail on them instead.
 // Fails when a remote's build output could break the hub at runtime:
 //   - mf-manifest.json must expose ./app,
-//   - react, react-dom, react-router and the hub contract must be shared singletons (a private copy
-//     breaks hooks, router context and HubSessionContext),
+//   - react, react-dom, react-router, react-query, i18next, react-i18next, api, i18n and the hub
+//     contract must be shared singletons (a private copy breaks hooks, router context, the query
+//     cache, the i18n instance and HubSessionContext),
 //   - the identity SDK must not be bundled (remotes get the session from the host),
-//   - the federated entry (app-entry) must reach the contract only through the share-scope
+//   - the federated entry (app-entry) must reach the contract and the i18n lib only through the share-scope
 //     (loadShare) chunk. A direct import is a private copy: its HubSessionContext would differ from the host's.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 const appsDir = new URL('../apps/', import.meta.url).pathname;
-const REQUIRED_SHARED = ['react', 'react-dom', 'react-router', '@openjcockpit/hub-contract'];
+const REQUIRED_SHARED = [
+  'react',
+  'react-dom',
+  'react-router',
+  '@tanstack/react-query',
+  'i18next',
+  'react-i18next',
+  '@openjcockpit/api',
+  '@openjcockpit/i18n',
+  '@openjcockpit/hub-contract',
+];
 const FORBIDDEN_IN_OUTPUT = ['keycloak-js', 'Keycloak'];
 
 function jsFiles(dir) {
@@ -23,7 +34,13 @@ function jsFiles(dir) {
   });
 }
 
-const CONTRACT_SENTINEL = 'needs a HubSessionContext provider';
+// A string only the shared lib's own module contains. A chunk holding one is that lib's code.
+const SHARED_LIBS = [
+  { name: '@openjcockpit/hub-contract', sentinel: 'needs a HubSessionContext provider' },
+  { name: '@openjcockpit/i18n', sentinel: 'useLocale must be used inside <I18nProvider>' },
+  // The api lib holds the auth token; a private copy would send remote requests unauthenticated.
+  { name: '@openjcockpit/api', sentinel: '"ApiError"' },
+];
 
 // Chunk files reachable from `entry` by relative imports, not following imports out of `stop` chunks.
 function reachable(assets, entry, stop) {
@@ -70,22 +87,24 @@ for (const remote of remotes) {
   }
   const assets = join(dist, 'assets');
   const files = readdirSync(assets).filter((n) => n.endsWith('.js'));
-  const contractChunks = files.filter((n) =>
-    readFileSync(join(assets, n), 'utf8').includes(CONTRACT_SENTINEL),
-  );
   const entry = files.find((n) => n.startsWith('app-entry'));
-  if (contractChunks.length !== 1) {
-    errors.push(
-      `${remote}: expected one chunk defining the hub contract, found ${contractChunks.length}`,
-    );
-  } else if (!entry) {
+  if (!entry) {
     errors.push(`${remote}: no app-entry chunk`);
-  } else {
-    const viaShare = (n) => n.includes('loadShare');
-    if (reachable(assets, entry, viaShare).has(contractChunks[0])) {
-      errors.push(
-        `${remote}: app-entry imports the hub contract directly instead of through the shared scope`,
-      );
+  }
+  for (const lib of SHARED_LIBS) {
+    const chunks = files.filter((n) =>
+      readFileSync(join(assets, n), 'utf8').includes(lib.sentinel),
+    );
+    if (chunks.length !== 1) {
+      errors.push(`${remote}: expected one chunk defining ${lib.name}, found ${chunks.length}`);
+    } else if (entry) {
+      const viaShare = (n) => n.includes('loadShare');
+      // The share wrapper may hold the lib as its fallback copy; reaching that wrapper is the shared path.
+      if (!viaShare(chunks[0]) && reachable(assets, entry, viaShare).has(chunks[0])) {
+        errors.push(
+          `${remote}: app-entry imports ${lib.name} directly instead of through the shared scope`,
+        );
+      }
     }
   }
   console.log(`${remote}: checked`);
