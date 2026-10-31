@@ -16,7 +16,7 @@ import type {
   WorkflowOrb,
 } from '@openjcockpit/api';
 import {
-  ToolbarButton,
+  Button,
   StatusMessage,
   FileImportButton,
   fieldErrorClass,
@@ -207,7 +207,9 @@ export function WorkflowsPanel() {
   return (
     <div>
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>{t('workflows.newButton')}</ToolbarButton>
+        <Button variant="primary" onClick={startCreate}>
+          {t('workflows.newButton')}
+        </Button>
         <label className={WorkflowDesignStyles.workflowGroupFilter}>
           {t('workflows.group')}
           <Select
@@ -222,9 +224,9 @@ export function WorkflowsPanel() {
           />
         </label>
         <div className={WorkflowDesignStyles.workflowDesignToolbarSpacer} />
-        <ToolbarButton variant="small" onClick={() => void handleExport()}>
+        <Button variant="secondary" onClick={() => void handleExport()}>
           {t('workflows.export')}
-        </ToolbarButton>
+        </Button>
         <FileImportButton
           accept="application/json,.json"
           inputLabel={t('workflows.importLabel')}

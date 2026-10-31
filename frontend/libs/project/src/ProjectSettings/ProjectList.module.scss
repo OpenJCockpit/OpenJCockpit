@@ -5,32 +5,3 @@
 .gitMessage {
   font-size: 11px;
 }
-.credentialsSet {
-  color: var(--teal);
-  font-size: 12px;
-}
-.credentialsNone {
-  color: var(--faint);
-  font-size: 12px;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-
-  &--active {
-    color: var(--teal);
-    background: var(--teal-soft);
-    border: 1px solid rgb(var(--teal-rgb) / 0.25);
-  }
-
-  &--inactive {
-    color: var(--muted);
-    background: rgb(var(--muted-rgb) / 0.1);
-    border: 1px solid rgb(var(--muted-rgb) / 0.2);
-  }
-}

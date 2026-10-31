@@ -40,7 +40,7 @@
     "form": {
       "newTitle": "Neues Projekt",
       "editTitle": "Projekt bearbeiten",
-      "name": "Name *",
+      "name": "Name",
       "namePlaceholder": "Projektname",
       "customerId": "Kunden-ID (Stub)",
       "customerIdPlaceholder": "z. B. noordzee-logistics",

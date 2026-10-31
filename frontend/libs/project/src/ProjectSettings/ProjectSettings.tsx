@@ -1,5 +1,5 @@
 import {
-  ToolbarButton,
+  Button,
   AppShell,
   AppHeader,
   fieldErrorClass,
@@ -59,11 +59,13 @@ export function ProjectSettings({ onBack }: Props) {
       <main className={styles.page}>
         <div className={styles.header}>
           <h1 className={styles.title}>{t('settings.title')}</h1>
-          <ToolbarButton onClick={startCreate}>{t('settings.newProject')}</ToolbarButton>
+          <Button variant="primary" onClick={startCreate}>
+            {t('settings.newProject')}
+          </Button>
         </div>
 
-        {error && (
-          <p id="project-name-error" role="alert" className={fieldErrorClass}>
+        {error && !nameInvalid && (
+          <p role="alert" className={fieldErrorClass}>
             {error}
           </p>
         )}
@@ -75,6 +77,7 @@ export function ProjectSettings({ onBack }: Props) {
             onChange={(updater) => setForm(updater)}
             saving={saving}
             nameInvalid={nameInvalid}
+            nameError={nameInvalid ? error : null}
             nameInputRef={nameInputRef}
             onSave={() => void handleSave(editingId)}
             onCancel={cancelEdit}

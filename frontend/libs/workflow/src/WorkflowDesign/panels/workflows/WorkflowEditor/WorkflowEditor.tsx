@@ -4,7 +4,14 @@ import type { AgentDefinition, WorkflowDefinition, WorkflowGroup } from '@openjc
 import { useTranslation } from '@openjcockpit/i18n';
 import { selectedStagesInOrder } from '../../../utils';
 import { AgentPicker } from './AgentPicker';
-import { SelectField, TextAreaField, TextField, fieldHintClass, cx } from '@openjcockpit/ui';
+import {
+  CheckboxField,
+  SelectField,
+  TextAreaField,
+  TextField,
+  fieldHintClass,
+  cx,
+} from '@openjcockpit/ui';
 import { EditorForm } from '../../shared/EditorForm';
 import { OrbEditor } from './OrbEditor';
 import type { WorkflowDraft } from './OrbEditor';
@@ -102,26 +109,22 @@ export function WorkflowEditor({
         agentIds={form.agentIds}
         onChange={(agentIds) => setForm((f) => ({ ...f, agentIds }))}
       />
-      <label>
-        {t('workflowEditor.approvalGate')}
-        <input
-          type="checkbox"
-          checked={form.approvalGate?.enabled ?? false}
-          onChange={(e) => {
-            const enabled = e.target.checked;
-            setForm((f) => ({
-              ...f,
-              approvalGate: {
-                enabled,
-                placementStage: enabled
-                  ? f.approvalGate?.placementStage || defaultGatePlacement(f.agentIds)
-                  : (f.approvalGate?.placementStage ?? ''),
-              },
-            }));
-          }}
-        />
-        <span className={fieldHintClass}>{t('workflowEditor.approvalGateHint')}</span>
-      </label>
+      <CheckboxField
+        label={t('workflowEditor.approvalGate')}
+        hint={t('workflowEditor.approvalGateHint')}
+        checked={form.approvalGate?.enabled ?? false}
+        onChange={(enabled) =>
+          setForm((f) => ({
+            ...f,
+            approvalGate: {
+              enabled,
+              placementStage: enabled
+                ? f.approvalGate?.placementStage || defaultGatePlacement(f.agentIds)
+                : (f.approvalGate?.placementStage ?? ''),
+            },
+          }))
+        }
+      />
       {form.approvalGate?.enabled && (
         <div className={WorkflowDesignStyles.workflowDesignFieldFull}>
           <SelectField
@@ -155,15 +158,12 @@ export function WorkflowEditor({
         error={orbError}
         onChange={(workflowOrbs) => setForm((f) => ({ ...f, workflowOrbs }))}
       />
-      <label>
-        {t('workflowEditor.promptRequired')}
-        <input
-          type="checkbox"
-          checked={form.promptRequired ?? false}
-          onChange={(e) => setForm((f) => ({ ...f, promptRequired: e.target.checked }))}
-        />
-        <span className={fieldHintClass}>{t('workflowEditor.promptRequiredHint')}</span>
-      </label>
+      <CheckboxField
+        label={t('workflowEditor.promptRequired')}
+        hint={t('workflowEditor.promptRequiredHint')}
+        checked={form.promptRequired ?? false}
+        onChange={(promptRequired) => setForm((f) => ({ ...f, promptRequired }))}
+      />
       <TextAreaField
         label={t('workflowEditor.promptInstructions')}
         wide
@@ -173,26 +173,23 @@ export function WorkflowEditor({
         placeholder={t('workflowEditor.promptInstructionsPlaceholder')}
         hint={t('workflowEditor.promptInstructionsHint')}
       />
-      <label>
-        {t('workflowEditor.dashboardTrigger')}
-        <input
-          type="checkbox"
-          checked={form.trigger?.dashboardButtonEnabled ?? false}
-          onChange={(e) =>
-            setForm((f) => ({
-              ...f,
-              trigger: {
-                ...(f.trigger ?? {
-                  hermesSignalEnabled: false,
-                  fileDeliveryEnabled: false,
-                  dashboardButtonEnabled: false,
-                }),
-                dashboardButtonEnabled: e.target.checked,
-              },
-            }))
-          }
-        />
-      </label>
+      <CheckboxField
+        label={t('workflowEditor.dashboardTrigger')}
+        checked={form.trigger?.dashboardButtonEnabled ?? false}
+        onChange={(dashboardButtonEnabled) =>
+          setForm((f) => ({
+            ...f,
+            trigger: {
+              ...(f.trigger ?? {
+                hermesSignalEnabled: false,
+                fileDeliveryEnabled: false,
+                dashboardButtonEnabled: false,
+              }),
+              dashboardButtonEnabled,
+            },
+          }))
+        }
+      />
       <TextField
         label={t('workflowEditor.customerId')}
         value={form.execution?.customerId ?? ''}

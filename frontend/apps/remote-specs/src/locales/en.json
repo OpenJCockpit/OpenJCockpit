@@ -4,13 +4,18 @@
     "queue": {
       "queued": "Queued: {{count}}",
       "running": "Running: {{count}}",
-      "attention": "Needs attention: {{count}}"
+      "attention": "Needs attention: {{count}}",
+      "loadFailed": "Failed to load the spec queue."
     },
     "workflows": {
-      "empty": "No workflows yet."
+      "empty": "No workflows yet.",
+      "loadFailed": "Failed to load the workflows."
     },
     "specFiles": {
-      "count": "Spec files: {{count}}"
-    }
+      "count": "Spec files: {{count}}",
+      "loadFailed": "Failed to load the spec files."
+    },
+    "loading": "Loading…",
+    "retry": "Retry"
   }
 }

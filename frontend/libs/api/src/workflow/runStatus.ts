@@ -65,11 +65,7 @@ export function runStatusKind(status: string): StatusKind {
 // The status is an API enum and stays the identifier; only its presentation is translated.
 // Statuses without a label are shown as received.
 export function runStatusLabel(status: string, t: TFunction<'api'>): string {
-  if (status === 'AWAITING_APPROVAL') return t('runStatus.AWAITING_APPROVAL');
-  if (status === 'AWAITING_CHILD_WORKFLOW') return t('runStatus.AWAITING_CHILD_WORKFLOW');
-  if (status === 'TIMED_OUT') return t('runStatus.TIMED_OUT');
-  if (status === 'BLOCKED') return t('runStatus.BLOCKED');
-  return status;
+  return t(`runStatus.${status}`, { defaultValue: status });
 }
 
 // Renders the translated "n/a" (matching this codebase's existing "n/a" placeholder convention

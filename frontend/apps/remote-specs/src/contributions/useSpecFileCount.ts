@@ -1,15 +1,21 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { loadProjectSpecs, queryKeys } from '@openjcockpit/api';
+import type { SpecFile } from '@openjcockpit/api';
 import { useHubProject } from '@openjcockpit/hub-contract';
 
-/** Spec files of the selected project, on the cache entry the spec files page reads. Null if unknown. */
-export function useSpecFileCount(): number | null {
+/** Spec files query of the selected project, on the cache entry the spec files page reads. */
+export function useSpecFilesQuery(): UseQueryResult<SpecFile[]> {
   const projectId = useHubProject().selected?.id ?? null;
-  const { data } = useQuery({
+  return useQuery({
     queryKey: queryKeys.projectSpecFiles(projectId),
     queryFn: ({ signal }) => loadProjectSpecs(projectId as string, signal),
     enabled: projectId !== null,
   });
+}
+
+/** Spec files of the selected project. Null if unknown. */
+export function useSpecFileCount(): number | null {
+  const { data } = useSpecFilesQuery();
   return data ? data.length : null;
 }
 

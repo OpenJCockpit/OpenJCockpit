@@ -1,6 +1,14 @@
 {
   "api": {
     "runStatus": {
+      "ACTIVE": "Aktiv",
+      "RUNNING": "Läuft",
+      "COMPLETED": "Abgeschlossen",
+      "FAILED": "Fehlgeschlagen",
+      "CANCELLED": "Abgebrochen",
+      "DENIED": "Abgelehnt",
+      "RUN_STATE_LOST": "Laufstatus verloren",
+      "NOT_FOUND": "Nicht gefunden",
       "AWAITING_APPROVAL": "Wartet auf Freigabe",
       "AWAITING_CHILD_WORKFLOW": "Wartet auf untergeordneten Workflow",
       "TIMED_OUT": "Zeitüberschreitung",

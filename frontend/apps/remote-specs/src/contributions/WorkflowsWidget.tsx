@@ -1,5 +1,6 @@
 import { useTranslation } from '@openjcockpit/i18n';
-import { useWorkflows } from './useWorkflowCount';
+import { EmptyState, ErrorState, LoadingState } from '@openjcockpit/ui';
+import { useWorkflowsQuery } from './useWorkflowCount';
 import { WithContributionTranslations } from './translations';
 
 const SHOWN = 5;
@@ -11,10 +12,21 @@ function byLastRun(a: { lastExecutionAt?: string }, b: { lastExecutionAt?: strin
 
 function Recent() {
   const { t } = useTranslation('specsContributions');
-  const workflows = useWorkflows();
-  if (!workflows) return null;
+  const { data: workflows, isError, isPending, refetch } = useWorkflowsQuery();
+  if (isError) {
+    return (
+      <ErrorState onRetry={() => void refetch()} retryLabel={t('retry')}>
+        {t('workflows.loadFailed')}
+      </ErrorState>
+    );
+  }
+  if (isPending) return <LoadingState>{t('loading')}</LoadingState>;
   if (workflows.length === 0) {
-    return <p data-testid="workflows-widget-empty">{t('workflows.empty')}</p>;
+    return (
+      <div data-testid="workflows-widget-empty">
+        <EmptyState title={t('workflows.empty')} />
+      </div>
+    );
   }
   return (
     <ul data-testid="workflows-widget">

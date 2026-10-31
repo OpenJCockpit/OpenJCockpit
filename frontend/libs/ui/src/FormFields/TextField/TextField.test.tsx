@@ -7,6 +7,32 @@ import styles from '../FormFields.module.scss';
 import { formInputClass } from '../../Form/Form';
 
 describe('TextField', () => {
+  it('marks a required field once and exposes it as aria-required', () => {
+    render(<TextField label="Name" value="" onChange={vi.fn()} required />);
+
+    const input = screen.getByLabelText('Name *');
+    expect(input).toHaveAttribute('aria-required', 'true');
+    expect(screen.getAllByText('*')).toHaveLength(1);
+  });
+
+  it('shows an inline error that the input is invalid for and described by', () => {
+    render(<TextField label="Name" value="" onChange={vi.fn()} error="Name is required" />);
+
+    const alert = screen.getByRole('alert');
+    const input = screen.getByRole('textbox');
+    expect(alert).toHaveTextContent('Name is required');
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input.getAttribute('aria-describedby')).toContain(alert.id);
+  });
+
+  it('keeps a caller-supplied aria-describedby next to the hint', () => {
+    render(<TextField label="Name" value="" onChange={vi.fn()} hint="Hint" aria-describedby="x" />);
+
+    const describedBy = screen.getByRole('textbox').getAttribute('aria-describedby') ?? '';
+    expect(describedBy.split(' ')).toContain('x');
+    expect(describedBy.split(' ')).toHaveLength(2);
+  });
+
   it('TextField reports the typed value and forwards the ref', () => {
     const onChange = vi.fn();
     const ref = createRef<HTMLInputElement>();

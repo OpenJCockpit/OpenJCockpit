@@ -1,10 +1,17 @@
 import type { Project } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
 import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
-import { Actions, DataTable, DataTableRow, fieldHintClass, Button, cx } from '@openjcockpit/ui';
+import {
+  Actions,
+  DataTable,
+  DataTableRow,
+  fieldHintClass,
+  Button,
+  Icon,
+  StatusChip,
+  cx,
+} from '@openjcockpit/ui';
 import styles from './ProjectList.module.scss';
-
-const BUSY_ICON = '⟳';
 
 interface Props {
   projects: Project[];
@@ -56,21 +63,18 @@ export function ProjectList({
               )}
             </td>
             <td>
-              {project.hasCredentials ? (
-                <span className={styles.credentialsSet}>{t('list.credentialsSet')}</span>
-              ) : (
-                <span className={styles.credentialsNone}>{t('list.credentialsNone')}</span>
-              )}
+              <StatusChip
+                label={
+                  project.hasCredentials ? t('list.credentialsSet') : t('list.credentialsNone')
+                }
+                kind={project.hasCredentials ? 'ok' : 'neutral'}
+              />
             </td>
             <td>
-              <span
-                className={cx(
-                  styles.statusBadge,
-                  project.active === 1 ? styles.statusBadgeActive : styles.statusBadgeInactive,
-                )}
-              >
-                {project.active === 1 ? t('list.active') : t('list.inactive')}
-              </span>
+              <StatusChip
+                label={project.active === 1 ? t('list.active') : t('list.inactive')}
+                kind={project.active === 1 ? 'ok' : 'neutral'}
+              />
             </td>
             <Actions as="td">
               <Button variant="secondary" onClick={() => onEdit(project)}>
@@ -81,7 +85,7 @@ export function ProjectList({
                 onClick={() => onGitCheck(project.id)}
                 disabled={checkingId === project.id}
               >
-                {checkingId === project.id ? BUSY_ICON : t('list.gitCheck')}
+                {checkingId === project.id && <Icon name="spinner" />} {t('list.gitCheck')}
               </Button>
               <Button variant="secondary" onClick={() => onEditCredentials(project.id)}>
                 {project.hasCredentials ? t('list.updateCredentials') : t('list.addCredentials')}

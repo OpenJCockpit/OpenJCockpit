@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '@openjcockpit/i18n';
-import { ToolbarButton, StatusMessage, fieldErrorClass, Button } from '@openjcockpit/ui';
+import { StatusMessage, fieldErrorClass, Button } from '@openjcockpit/ui';
 import {
   createSkillSpec,
   deleteSkillSpec,
@@ -146,7 +146,9 @@ export function SkillsPanel() {
     <div>
       <PromptGenerator kind="skill" onGenerate={handleGenerate} />
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>{t('skills.newButton')}</ToolbarButton>
+        <Button variant="primary" onClick={startCreate}>
+          {t('skills.newButton')}
+        </Button>
         <Button variant="secondary" onClick={() => void query.refetch()}>
           {t('skills.refresh')}
         </Button>

@@ -1,7 +1,7 @@
 import type { LauncherButtonState } from '../../useRunLauncher';
 import { useTranslation } from '@openjcockpit/i18n';
 import type { TFunction } from '@openjcockpit/i18n';
-import { ToolbarButton } from '@openjcockpit/ui';
+import { Button } from '@openjcockpit/ui';
 
 interface Props {
   state: LauncherButtonState;
@@ -27,8 +27,8 @@ export function StartButton({ state, onClick, disabled = false }: Props) {
   const { t } = useTranslation('dashboard');
   const busy = state === 'preflight' || state === 'starting';
   return (
-    <ToolbarButton onClick={onClick} disabled={busy || disabled}>
+    <Button variant="primary" onClick={onClick} disabled={busy || disabled}>
       {getLabel(state, t)}
-    </ToolbarButton>
+    </Button>
   );
 }

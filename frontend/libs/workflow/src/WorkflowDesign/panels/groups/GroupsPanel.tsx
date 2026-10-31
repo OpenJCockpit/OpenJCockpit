@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from '@openjcockpit/i18n';
-import { ToolbarButton, StatusMessage, fieldHintClass } from '@openjcockpit/ui';
+import { Button, StatusMessage, fieldHintClass } from '@openjcockpit/ui';
 import {
   createWorkflowGroup,
   deleteWorkflowGroup,
@@ -77,7 +77,9 @@ export function GroupsPanel() {
   return (
     <div>
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>{t('groups.newButton')}</ToolbarButton>
+        <Button variant="primary" onClick={startCreate}>
+          {t('groups.newButton')}
+        </Button>
       </div>
       <p className={fieldHintClass}>{t('groups.intro')}</p>
       {error && <StatusMessage variant="error">{error}</StatusMessage>}

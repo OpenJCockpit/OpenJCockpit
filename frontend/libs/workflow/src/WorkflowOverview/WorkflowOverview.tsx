@@ -1,4 +1,4 @@
-import { referenceLabel, runStatusKind } from '@openjcockpit/api';
+import { referenceLabel, runStatusKind, runStatusLabel } from '@openjcockpit/api';
 import type { AgentDefinition, Project, WorkflowDefinition } from '@openjcockpit/api';
 import { useFormatters, useTranslation, type TFunction } from '@openjcockpit/i18n';
 import {
@@ -111,7 +111,7 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
             <header className={styles.workflowCardHeader}>
               <h2>{workflow.name}</h2>
               <StatusChip
-                label={workflow.status}
+                label={runStatusLabel(workflow.status ?? '', tApi)}
                 kind={workflow.status === 'ACTIVE' ? 'ok' : runStatusKind(workflow.status ?? '')}
               />
             </header>

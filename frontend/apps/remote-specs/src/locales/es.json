@@ -4,13 +4,18 @@
     "queue": {
       "queued": "En cola: {{count}}",
       "running": "En ejecución: {{count}}",
-      "attention": "Requiere atención: {{count}}"
+      "attention": "Requiere atención: {{count}}",
+      "loadFailed": "No se pudo cargar la cola de especificaciones."
     },
     "workflows": {
-      "empty": "Aún no hay flujos de trabajo."
+      "empty": "Aún no hay flujos de trabajo.",
+      "loadFailed": "No se pudieron cargar los workflows."
     },
     "specFiles": {
-      "count": "Archivos de especificación: {{count}}"
-    }
+      "count": "Archivos de especificación: {{count}}",
+      "loadFailed": "No se pudieron cargar los archivos de especificación."
+    },
+    "loading": "Cargando…",
+    "retry": "Reintentar"
   }
 }

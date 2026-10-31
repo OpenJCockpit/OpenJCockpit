@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { getSpecQueue, queryKeys } from '@openjcockpit/api';
 import type { SpecQueue } from '@openjcockpit/api';
 import { useHubProject } from '@openjcockpit/hub-contract';
@@ -10,13 +10,16 @@ const REFRESH_MS = 30_000;
  * widget, the top bar item and the page read one entry. Undefined without a project or before the
  * first load.
  */
-export function useProjectQueue(): SpecQueue | undefined {
+export function useProjectQueueQuery(): UseQueryResult<SpecQueue> {
   const projectId = useHubProject().selected?.id ?? null;
-  const { data } = useQuery({
+  return useQuery({
     queryKey: queryKeys.specQueue(projectId),
     queryFn: () => getSpecQueue(projectId as string),
     enabled: projectId !== null,
     refetchInterval: REFRESH_MS,
   });
-  return data;
+}
+
+export function useProjectQueue(): SpecQueue | undefined {
+  return useProjectQueueQuery().data;
 }

@@ -31,3 +31,13 @@
   border-color: rgb(var(--warn-rgb) / 0.32);
   background: rgb(var(--warn-rgb) / 0.1);
 }
+.status-chip--neutral {
+  color: var(--muted);
+  border-color: rgb(var(--muted-rgb) / 0.25);
+  background: rgb(var(--muted-rgb) / 0.1);
+}
+.status-chip--error {
+  color: var(--red-text);
+  border-color: rgb(var(--danger-rgb) / 0.4);
+  background: rgb(var(--danger-rgb) / 0.1);
+}

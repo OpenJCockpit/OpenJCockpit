@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from '@openjcockpit/i18n';
 import {
-  ToolbarButton,
+  Button,
   StatusMessage,
   formActionsClass,
   formClass,
@@ -44,9 +44,9 @@ export function IntegrationConfigForm({
       )}
       <div className={formGridClass}>{children}</div>
       <div className={formActionsClass}>
-        <ToolbarButton onClick={onSave} disabled={saving}>
+        <Button variant="primary" onClick={onSave} disabled={saving}>
           {saving ? t('shared.saving') : saveLabel}
-        </ToolbarButton>
+        </Button>
       </div>
     </div>
   );

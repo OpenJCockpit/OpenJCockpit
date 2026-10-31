@@ -1,17 +1,19 @@
 import type { GitStatus } from '@openjcockpit/api';
 import styles from './GitStatusBadge.module.scss';
 import { useTranslation } from '@openjcockpit/i18n';
-import { cx } from '@openjcockpit/ui';
+import { Icon, StatusChip, cx } from '@openjcockpit/ui';
+import type { IconName, StatusKind } from '@openjcockpit/ui';
 
 interface Props {
   status: GitStatus;
-  /** Icon-only variant (✓/✗) for tight spots such as headings. */
+  /** Icon-only variant (check / cross) for tight spots such as headings. */
   compact?: boolean;
 }
 
 interface BadgeConfig {
   className: string;
-  icon: string;
+  kind: StatusKind;
+  icon: IconName | null;
   labelKey: 'reachable' | 'notReachable' | 'checkFailed' | 'unknown';
   /** Aria label for the compact variant. Omitted for statuses it does not render. */
   compactAriaLabelKey?: 'compactReachable' | 'compactNotReachable';
@@ -20,50 +22,51 @@ interface BadgeConfig {
 const BADGES: Record<GitStatus, BadgeConfig> = {
   ACCESSIBLE: {
     className: styles.ok,
-    icon: '✓',
+    kind: 'ok',
+    icon: 'check',
     labelKey: 'reachable',
     compactAriaLabelKey: 'compactReachable',
   },
   NOT_ACCESSIBLE: {
     className: styles.error,
-    icon: '✗',
+    kind: 'error',
+    icon: 'close',
     labelKey: 'notReachable',
     compactAriaLabelKey: 'compactNotReachable',
   },
   CHECK_FAILED: {
     className: styles.error,
-    icon: '✗',
+    kind: 'error',
+    icon: 'close',
     labelKey: 'checkFailed',
     compactAriaLabelKey: 'compactNotReachable',
   },
   UNKNOWN: {
     className: styles.unknown,
-    icon: '…',
+    kind: 'neutral',
+    icon: null,
     labelKey: 'unknown',
   },
 };
 
 export function GitStatusBadge({ status, compact = false }: Props) {
   const { t } = useTranslation('project');
-  const { className, icon, labelKey, compactAriaLabelKey } = BADGES[status];
+  const { className, kind, icon, labelKey, compactAriaLabelKey } = BADGES[status];
   const label = t(`gitStatus.${labelKey}`);
 
   if (compact) {
-    if (!compactAriaLabelKey) return null;
+    if (!compactAriaLabelKey || !icon) return null;
     return (
       <span
         className={cx(className, styles.compact)}
+        role="img"
         aria-label={t(`gitStatus.${compactAriaLabelKey}`)}
       >
         {' '}
-        {icon}
+        <Icon name={icon} />
       </span>
     );
   }
 
-  return (
-    <span className={className} aria-label={label}>
-      {icon} {label}
-    </span>
-  );
+  return <StatusChip kind={kind} label={label} aria-label={label} />;
 }

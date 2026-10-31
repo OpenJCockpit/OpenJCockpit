@@ -219,9 +219,9 @@ describe('ProjectSettings — status and git check', () => {
     let resolve!: (v: api.ProjectGitStatusDto) => void;
     vi.mocked(api.triggerGitCheck).mockReturnValue(new Promise((r) => (resolve = r)));
     await clickAsync(within(row('Beta')).getByText('Git check'));
-    expect(within(row('Beta')).getByText('⟳')).toBeDisabled();
+    expect(within(row('Beta')).getByRole('button', { name: 'Git check' })).toBeDisabled();
     resolve({ gitStatus: 'ACCESSIBLE' } as api.ProjectGitStatusDto);
-    expect(await within(row('Beta')).findByText('Git check')).toBeEnabled();
+    expect(await within(row('Beta')).findByRole('button', { name: 'Git check' })).toBeEnabled();
   });
 
   it('shows an error when the git check fails', async () => {

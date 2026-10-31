@@ -1,9 +1,9 @@
 import type { Ref } from 'react';
 import type { ProjectRequest } from '@openjcockpit/api';
 import {
+  CheckboxField,
   TextAreaField,
   TextField,
-  ToolbarButton,
   formActionsClass,
   formClass,
   formGridClass,
@@ -11,7 +11,6 @@ import {
   Button,
 } from '@openjcockpit/ui';
 import { useTranslation } from '@openjcockpit/i18n';
-import styles from './ProjectSettings.module.scss';
 
 interface Props {
   isNew: boolean;
@@ -19,6 +18,8 @@ interface Props {
   onChange: (updater: (f: ProjectRequest) => ProjectRequest) => void;
   saving: boolean;
   nameInvalid: boolean;
+  /** Message shown inline under the Name input while `nameInvalid`. */
+  nameError?: string | null;
   nameInputRef: Ref<HTMLInputElement>;
   onSave: () => void;
   onCancel: () => void;
@@ -30,6 +31,7 @@ export function ProjectForm({
   onChange,
   saving,
   nameInvalid,
+  nameError,
   nameInputRef,
   onSave,
   onCancel,
@@ -45,8 +47,11 @@ export function ProjectForm({
           value={form.name}
           onChange={(v) => onChange((f) => ({ ...f, name: v }))}
           placeholder={t('form.namePlaceholder')}
+          required
+          error={nameInvalid ? nameError : undefined}
+          errorId="project-name-error"
           aria-invalid={nameInvalid ? true : undefined}
-          aria-describedby={nameInvalid ? 'project-name-error' : undefined}
+          aria-describedby={nameInvalid && !nameError ? 'project-name-error' : undefined}
         />
         <TextField
           label={t('form.customerId')}
@@ -86,23 +91,17 @@ export function ProjectForm({
           onChange={(v) => onChange((f) => ({ ...f, description: v }))}
           placeholder={t('form.descriptionPlaceholder')}
         />
-        <label className={styles.newProjectCheckbox}>
-          <input
-            type="checkbox"
-            checked={form.newProject === 1}
-            onChange={(e) => {
-              // Read now: the updater may run after React has restored the controlled value.
-              const checked = e.target.checked;
-              onChange((f) => ({ ...f, newProject: checked ? 1 : 0 }));
-            }}
-          />
-          {t('form.newProjectCheckbox')}
-        </label>
+        <CheckboxField
+          label={t('form.newProjectCheckbox')}
+          checked={form.newProject === 1}
+          // The checked value is passed in, so it is read before any updater runs.
+          onChange={(checked) => onChange((f) => ({ ...f, newProject: checked ? 1 : 0 }))}
+        />
       </div>
       <div className={formActionsClass}>
-        <ToolbarButton onClick={onSave} disabled={saving}>
+        <Button variant="primary" onClick={onSave} disabled={saving}>
           {saving ? t('form.saving') : t('form.save')}
-        </ToolbarButton>
+        </Button>
         <Button variant="secondary" onClick={onCancel}>
           {t('form.cancel')}
         </Button>

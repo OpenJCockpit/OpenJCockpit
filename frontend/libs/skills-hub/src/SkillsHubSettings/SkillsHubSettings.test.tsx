@@ -91,7 +91,7 @@ describe('SkillsHubSettings', () => {
     expect(screen.getByText('https://marketplace.example.com/api')).toBeInTheDocument();
     expect(screen.getByText('API key set')).toBeInTheDocument();
     expect(screen.getByText('Enabled')).toBeInTheDocument();
-    expect(screen.getByText('2026-01-05')).toBeInTheDocument();
+    expect(screen.getByText('Jan 5, 2026')).toBeInTheDocument();
     expect(screen.getByLabelText<HTMLInputElement>('API key *').value).toBe('');
     expect(screen.getByRole('status')).toHaveTextContent('Acme Skills" has been added.');
   });

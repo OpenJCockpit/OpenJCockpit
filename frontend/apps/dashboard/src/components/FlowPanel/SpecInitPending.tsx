@@ -1,6 +1,6 @@
 import { useTranslation } from '@openjcockpit/i18n';
 import type { SpecInitStatus } from '@openjcockpit/api';
-import { StatusChip, ToolbarButton, buttonClass, feedbackResultClass } from '@openjcockpit/ui';
+import { StatusChip, Button, buttonClass, feedbackResultClass } from '@openjcockpit/ui';
 
 interface Props {
   status: SpecInitStatus;
@@ -29,9 +29,9 @@ export function SpecInitPending({ status, onReload }: Props) {
           {t('flow.openPullRequest')} <span>→</span>
         </a>
       )}
-      <ToolbarButton variant="small" onClick={onReload}>
+      <Button variant="secondary" onClick={onReload}>
         {t('flow.reloadSpecs')}
-      </ToolbarButton>
+      </Button>
     </div>
   );
 }

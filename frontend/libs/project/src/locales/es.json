@@ -40,7 +40,7 @@
     "form": {
       "newTitle": "Nuevo proyecto",
       "editTitle": "Editar proyecto",
-      "name": "Nombre *",
+      "name": "Nombre",
       "namePlaceholder": "Nombre del proyecto",
       "customerId": "ID de cliente (stub)",
       "customerIdPlaceholder": "p. ej. noordzee-logistics",

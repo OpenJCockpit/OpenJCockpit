@@ -72,7 +72,7 @@ describe('SkillsHubSettings — flows', () => {
     expect(within(full).getByText('Internal catalog')).toBeInTheDocument();
     expect(within(full).getByText('API key set')).toBeInTheDocument();
     expect(within(full).getByText('Enabled')).toBeInTheDocument();
-    expect(within(full).getByText('2026-01-05')).toBeInTheDocument();
+    expect(within(full).getByText('Jan 5, 2026')).toBeInTheDocument();
     const bare = row('Bare');
     expect(within(bare).getByText('No API key')).toBeInTheDocument();
     expect(within(bare).getByText('Disabled')).toBeInTheDocument();

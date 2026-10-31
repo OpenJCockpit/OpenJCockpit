@@ -296,7 +296,7 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    const chip = screen.getByText('RUNNING');
+    const chip = screen.getByText('Running');
     expect(chip.className).toMatch(/statusChipActive/);
   });
 

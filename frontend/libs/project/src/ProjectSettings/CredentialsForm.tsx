@@ -3,7 +3,6 @@ import { useTranslation } from '@openjcockpit/i18n';
 import {
   SelectField,
   TextField,
-  ToolbarButton,
   fieldHintClass,
   formActionsClass,
   formClass,
@@ -81,9 +80,9 @@ export function CredentialsForm({
         </>
       )}
       <div className={formActionsClass}>
-        <ToolbarButton onClick={onSave} disabled={saving || loading}>
+        <Button variant="primary" onClick={onSave} disabled={saving || loading}>
           {saving ? t('credentials.saving') : t('credentials.save')}
-        </ToolbarButton>
+        </Button>
         <Button variant="secondary" onClick={onCancel}>
           {t('credentials.cancel')}
         </Button>

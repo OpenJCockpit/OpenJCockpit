@@ -40,7 +40,7 @@
     "form": {
       "newTitle": "Nieuw project",
       "editTitle": "Project bewerken",
-      "name": "Naam *",
+      "name": "Naam",
       "namePlaceholder": "Projectnaam",
       "customerId": "Klant-ID (stub)",
       "customerIdPlaceholder": "bijv. noordzee-logistics",

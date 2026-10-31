@@ -65,14 +65,18 @@ describe('runStatusLabel', () => {
     expect(runStatusLabel('AWAITING_APPROVAL', t)).toBe('Awaiting approval');
   });
 
-  it('returns the raw status string unchanged for every other status', () => {
-    expect(runStatusLabel('COMPLETED', t)).toBe('COMPLETED');
-    expect(runStatusLabel('FAILED', t)).toBe('FAILED');
-    expect(runStatusLabel('CANCELLED', t)).toBe('CANCELLED');
-    expect(runStatusLabel('DENIED', t)).toBe('DENIED');
-    expect(runStatusLabel('RUN_STATE_LOST', t)).toBe('RUN_STATE_LOST');
-    expect(runStatusLabel('NOT_FOUND', t)).toBe('NOT_FOUND');
-    expect(runStatusLabel('RUNNING', t)).toBe('RUNNING');
+  it('translates the lifecycle statuses', () => {
+    expect(runStatusLabel('COMPLETED', t)).toBe('Completed');
+    expect(runStatusLabel('FAILED', t)).toBe('Failed');
+    expect(runStatusLabel('CANCELLED', t)).toBe('Cancelled');
+    expect(runStatusLabel('DENIED', t)).toBe('Denied');
+    expect(runStatusLabel('RUN_STATE_LOST', t)).toBe('Run state lost');
+    expect(runStatusLabel('NOT_FOUND', t)).toBe('Not found');
+    expect(runStatusLabel('RUNNING', t)).toBe('Running');
+    expect(runStatusLabel('ACTIVE', t)).toBe('Active');
+  });
+
+  it('returns an unknown status string unchanged', () => {
     expect(runStatusLabel('SOMETHING_UNKNOWN', t)).toBe('SOMETHING_UNKNOWN');
   });
 });

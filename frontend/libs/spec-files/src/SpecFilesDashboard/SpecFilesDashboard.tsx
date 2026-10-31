@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from '@openjcockpit/i18n';
+import { useFormatters, useTranslation } from '@openjcockpit/i18n';
 import { loadProjectSpecs, queryKeys, saveSpecFile } from '@openjcockpit/api';
 import type { Project, SpecFile, SpecInitResult } from '@openjcockpit/api';
 import {
@@ -48,6 +48,7 @@ interface Selection {
 
 export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }: Props) {
   const { t } = useTranslation('specFiles');
+  const { formatDateTime } = useFormatters();
   const queryClient = useQueryClient();
   const projectId = project?.id ?? null;
   const specsQuery = useQuery({
@@ -162,7 +163,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                     <IconBox label="📄" compact className={specStyles.icon} />
                     <div>
                       <strong>{spec.fileName}</strong>
-                      <span>{t('lastModified', { date: spec.lastChanged })}</span>
+                      <span>{t('lastModified', { date: formatDateTime(spec.lastChanged) })}</span>
                     </div>
                     {spec.id === selectedId && (
                       <span className={specStyles.activeRail} aria-hidden="true" />

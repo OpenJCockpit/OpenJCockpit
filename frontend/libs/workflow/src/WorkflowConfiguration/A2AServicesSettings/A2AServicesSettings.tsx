@@ -4,7 +4,6 @@ import {
   SecretField,
   TextField,
   StatusMessage,
-  ToolbarButton,
   Button,
   Actions,
   DataTable,
@@ -151,6 +150,7 @@ export function A2AServicesSettings() {
           <div className={cx(formGridClass, WorkflowConfigurationStyles.servicesFormGrid)}>
             <TextField
               label={t('a2aServices.fields.id')}
+              required
               value={form.id}
               onChange={(v) => setForm((f) => ({ ...f, id: v }))}
               placeholder={t('a2aServices.fields.idPlaceholder')}
@@ -163,12 +163,14 @@ export function A2AServicesSettings() {
             />
             <TextField
               label={t('a2aServices.fields.name')}
+              required
               value={form.name}
               onChange={(v) => setForm((f) => ({ ...f, name: v }))}
               placeholder={t('a2aServices.fields.namePlaceholder')}
             />
             <TextField
               label={t('a2aServices.fields.baseUrl')}
+              required
               value={form.baseUrl}
               onChange={(v) => setForm((f) => ({ ...f, baseUrl: v }))}
               placeholder={t('a2aServices.fields.baseUrlPlaceholder')}
@@ -188,6 +190,7 @@ export function A2AServicesSettings() {
                   : t('a2aServices.fields.apiKeyAdd')
               }
               hasValue={editingService?.hasApiKey ?? false}
+              required={!editingService}
               value={form.apiKey}
               onChange={(v) => setForm((f) => ({ ...f, apiKey: v }))}
             />
@@ -212,20 +215,24 @@ export function A2AServicesSettings() {
             />
           </div>
           <div className={formActionsClass}>
-            <ToolbarButton onClick={() => void handleSave(editing)} disabled={saving}>
+            <Button variant="primary" onClick={() => void handleSave(editing)} disabled={saving}>
               {saving
                 ? t('shared.saving')
                 : editingService
                   ? t('a2aServices.saveService')
                   : t('a2aServices.addService')}
-            </ToolbarButton>
+            </Button>
             <Button variant="secondary" onClick={closeForm} disabled={saving}>
               {t('shared.cancel')}
             </Button>
           </div>
         </div>
       ) : (
-        loaded && <ToolbarButton onClick={startAdd}>{t('a2aServices.addButton')}</ToolbarButton>
+        loaded && (
+          <Button variant="primary" onClick={startAdd}>
+            {t('a2aServices.addButton')}
+          </Button>
+        )
       )}
       {dialog}
     </div>

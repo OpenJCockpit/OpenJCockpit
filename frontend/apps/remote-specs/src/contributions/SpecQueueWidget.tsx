@@ -1,15 +1,23 @@
 import { useTranslation } from '@openjcockpit/i18n';
 import { useHubProject } from '@openjcockpit/hub-contract';
+import { ErrorState, LoadingState } from '@openjcockpit/ui';
 import { queueCounts } from './queueCounts';
-import { useProjectQueue } from './useProjectQueue';
+import { useProjectQueueQuery } from './useProjectQueue';
 import { WithContributionTranslations } from './translations';
 
 function Summary() {
   const { t } = useTranslation('specsContributions');
   const { selected } = useHubProject();
-  const queue = useProjectQueue();
+  const { data: queue, isError, refetch } = useProjectQueueQuery();
   if (!selected) return <p data-testid="spec-queue-widget-no-project">{t('noProject')}</p>;
-  if (!queue) return null;
+  if (isError) {
+    return (
+      <ErrorState onRetry={() => void refetch()} retryLabel={t('retry')}>
+        {t('queue.loadFailed')}
+      </ErrorState>
+    );
+  }
+  if (!queue) return <LoadingState>{t('loading')}</LoadingState>;
   const counts = queueCounts(queue);
   return (
     <ul data-testid="spec-queue-widget">

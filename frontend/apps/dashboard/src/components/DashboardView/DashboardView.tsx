@@ -38,7 +38,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout, us
   const workspace = workspaceQuery.data;
   const specs = specsQuery.data?.specs ?? [];
   const specInitStatus = specsQuery.data?.specInitStatus ?? null;
-  const specsLoading = specsQuery.isFetching;
+  const specsLoading = specsQuery.isLoading;
   const selected =
     specs.find((s) => s.id === selectedSpecId) ?? specs.find((s) => s.selected) ?? specs[0];
   const specsError = specsQuery.isError && !specsQuery.data;

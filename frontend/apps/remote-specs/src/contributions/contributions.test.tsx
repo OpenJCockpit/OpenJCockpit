@@ -118,10 +118,18 @@ describe('spec queue widget', () => {
     expect(screen.getByText('Needs attention: 2')).toBeInTheDocument();
   });
 
-  it('renders nothing until the queue is known', async () => {
+  it('shows a loading line until the queue is known', async () => {
     vi.mocked(api.getSpecQueue).mockReturnValue(new Promise(() => undefined));
     await renderIn(<SpecQueueWidget />);
     expect(screen.queryByTestId('spec-queue-widget')).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading…');
+  });
+
+  it('shows an error with retry when the queue fails to load', async () => {
+    vi.mocked(api.getSpecQueue).mockRejectedValue(new Error('boom'));
+    await renderIn(<SpecQueueWidget />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Failed to load the spec queue.');
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
   });
 
   it('asks for a project when none is selected', async () => {
@@ -170,10 +178,18 @@ describe('workflows widget', () => {
     expect(await screen.findByText('No workflows yet.')).toBeInTheDocument();
   });
 
-  it('renders nothing until the list is known', async () => {
+  it('shows a loading line until the list is known', async () => {
     vi.mocked(api.listWorkflows).mockReturnValue(new Promise(() => undefined));
     await renderIn(<WorkflowsWidget />);
     expect(screen.queryByTestId('workflows-widget')).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading…');
+  });
+
+  it('shows an error with retry when the list fails to load', async () => {
+    vi.mocked(api.listWorkflows).mockRejectedValue(new Error('boom'));
+    await renderIn(<WorkflowsWidget />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Failed to load the workflows.');
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
   });
 });
 
@@ -205,10 +221,18 @@ describe('spec files badge and widget', () => {
     expect(await screen.findByText('Spec files: 0')).toBeInTheDocument();
   });
 
-  it('renders nothing in the widget until the count is known', async () => {
+  it('shows a loading line in the widget until the count is known', async () => {
     vi.mocked(api.loadProjectSpecs).mockReturnValue(new Promise(() => undefined));
     await renderIn(<SpecFilesWidget />);
     expect(screen.queryByTestId('spec-files-widget')).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading…');
+  });
+
+  it('shows an error with retry in the widget when loading fails', async () => {
+    vi.mocked(api.loadProjectSpecs).mockRejectedValue(new Error('boom'));
+    await renderIn(<SpecFilesWidget />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Failed to load the spec files.');
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
   });
 
   it('asks for a project when none is selected', async () => {

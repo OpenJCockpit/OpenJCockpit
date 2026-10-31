@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '@openjcockpit/i18n';
-import { ToolbarButton, StatusMessage } from '@openjcockpit/ui';
+import { Button, StatusMessage } from '@openjcockpit/ui';
 import {
   createSubagentSpec,
   deleteSubagentSpec,
@@ -112,7 +112,9 @@ export function SubagentsPanel() {
     <div>
       <PromptGenerator kind="subagent" onGenerate={handleGenerate} />
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>{t('subagents.newButton')}</ToolbarButton>
+        <Button variant="primary" onClick={startCreate}>
+          {t('subagents.newButton')}
+        </Button>
       </div>
       {error && <StatusMessage variant="error">{error}</StatusMessage>}
 
