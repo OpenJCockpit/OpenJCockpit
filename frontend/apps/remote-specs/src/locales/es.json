@@ -1,0 +1,19 @@
+{
+  "specsContributions": {
+    "noProject": "Selecciona un proyecto para ver esto.",
+    "queue": {
+      "queued": "En cola: {{count}}",
+      "running": "En ejecución: {{count}}",
+      "attention": "Requiere atención: {{count}}",
+      "paused": "Cola en pausa",
+      "halted": "Cola detenida"
+    },
+    "workflows": {
+      "empty": "Aún no hay flujos de trabajo.",
+      "runInProgress": "Ejecución en curso"
+    },
+    "specFiles": {
+      "count": "Archivos de especificación: {{count}}"
+    }
+  }
+}

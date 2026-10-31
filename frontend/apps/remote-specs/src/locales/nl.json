@@ -1,0 +1,19 @@
+{
+  "specsContributions": {
+    "noProject": "Kies een project om dit te zien.",
+    "queue": {
+      "queued": "In de wachtrij: {{count}}",
+      "running": "Actief: {{count}}",
+      "attention": "Vraagt aandacht: {{count}}",
+      "paused": "Wachtrij gepauzeerd",
+      "halted": "Wachtrij gestopt"
+    },
+    "workflows": {
+      "empty": "Nog geen workflows.",
+      "runInProgress": "Run bezig"
+    },
+    "specFiles": {
+      "count": "Specbestanden: {{count}}"
+    }
+  }
+}

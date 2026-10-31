@@ -122,12 +122,13 @@ function App() {
 
   return (
     <HubSessionProvider user={user}>
-      <AppRegistryProvider apps={remoteApps}>
-        <HubProjectProvider
-          projects={projects}
-          selected={selectedProject}
-          onSelect={handleProjectChange}
-        >
+      {/* The project sits above the registry: badge hooks run inside it and may read the project. */}
+      <HubProjectProvider
+        projects={projects}
+        selected={selectedProject}
+        onSelect={handleProjectChange}
+      >
+        <AppRegistryProvider apps={remoteApps}>
           <HubHeaderContext.Provider value={<SiteHeader {...shell} />}>
             <RemoteFailuresNotice />
             <ErrorBoundary resetKeys={[location.pathname]}>
@@ -198,8 +199,8 @@ function App() {
               </Suspense>
             </ErrorBoundary>
           </HubHeaderContext.Provider>
-        </HubProjectProvider>
-      </AppRegistryProvider>
+        </AppRegistryProvider>
+      </HubProjectProvider>
     </HubSessionProvider>
   );
 }

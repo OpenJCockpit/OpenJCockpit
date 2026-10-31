@@ -148,7 +148,22 @@
     },
     "apps": {
       "hello": {
-        "label": "Hallo"
+        "label": "Hallo",
+        "widgetTitle": "Hallo",
+        "openAction": "Hallo sagen",
+        "adminAction": "Admin-Hallo"
+      },
+      "specQueue": {
+        "widgetTitle": "Spec-Warteschlange",
+        "openAction": "Spec-Warteschlange öffnen"
+      },
+      "workflow": {
+        "widgetTitle": "Letzte Workflows",
+        "openAction": "Workflows öffnen"
+      },
+      "specFiles": {
+        "widgetTitle": "Spec-Dateien",
+        "openAction": "Spec-Dateien öffnen"
       }
     }
   }

@@ -13,7 +13,7 @@ import {
   useHubHeader,
   useSelectedProject,
 } from '@openjcockpit/hub-contract';
-import { WORKFLOW_ROUTE } from './specsApps';
+import { workflowRunPath } from './routePaths';
 
 /** Every page needs a project: without one the user is sent to project selection and back. */
 function projectRoute(translations: (props: { children: ReactNode }) => ReactNode): {
@@ -55,10 +55,6 @@ function SpecFilesPage() {
       )}
     />
   );
-}
-
-export function workflowRunPath(workflowId: string, runId: string) {
-  return `${WORKFLOW_ROUTE}/${encodeURIComponent(workflowId)}/runs/${encodeURIComponent(runId)}`;
 }
 
 function SpecQueuePage() {
