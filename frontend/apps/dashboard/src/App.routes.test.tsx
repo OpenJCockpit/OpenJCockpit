@@ -40,6 +40,12 @@ vi.mock('@openjcockpit/api', async (importOriginal) => ({
   listWorkflowGroups: vi.fn(),
 }));
 
+// The host contributes the project settings section; the real form is covered by the project lib.
+vi.mock('@openjcockpit/project', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@openjcockpit/project')>()),
+  ProjectSettings: () => <section data-testid="settings-section-projects" />,
+}));
+
 // Each lazy view is replaced by a stub exposing the callbacks App wires up, so these tests
 // cover App's routing glue without rendering the feature libraries.
 vi.mock('./lazyViews', async () => {
@@ -74,7 +80,6 @@ vi.mock('./lazyViews', async () => {
         </button>
       </section>
     ),
-    ProjectSettings: stub('settings', { 'Settings back': 'onBack' }),
     SpecFilesDashboard: (props: {
       header: React.ReactNode;
       onBack: () => void;
@@ -144,13 +149,6 @@ describe('App routing', () => {
     expect(await screen.findByText('▶ Start')).toBeInTheDocument();
   });
 
-  it('returns from project settings to project selection without a project', async () => {
-    localStorage.clear();
-    renderRoutedApp('/settings');
-    await clickAsync(await screen.findByRole('button', { name: 'Settings back' }));
-    expect(await screen.findByTestId('view-projects')).toBeInTheDocument();
-  });
-
   it('returns to the originally requested view after choosing a project', async () => {
     localStorage.clear();
     renderRoutedApp('/spec-queue', specsRemotes);
@@ -163,7 +161,7 @@ describe('App routing', () => {
     localStorage.clear();
     renderRoutedApp('/projects');
     await clickAsync(await screen.findByRole('button', { name: 'Open settings' }));
-    expect(await screen.findByTestId('view-settings')).toBeInTheDocument();
+    expect(await screen.findByTestId('settings-section-projects')).toBeInTheDocument();
   });
 
   it('forgets a stored project that no longer exists', async () => {
@@ -226,7 +224,7 @@ describe('App routing', () => {
     renderRoutedApp('/dashboard');
     await clickAsync(await screen.findByText('▶ Start'));
     await clickAsync(await screen.findByRole('button', { name: 'Check Git settings' }));
-    expect(await screen.findByTestId('view-settings')).toBeInTheDocument();
+    expect(await screen.findByTestId('settings-section-projects')).toBeInTheDocument();
   });
 
   it('selects a project from project selection and lands on the dashboard', async () => {

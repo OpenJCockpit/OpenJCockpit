@@ -25,7 +25,7 @@ const KEY_PLACEHOLDER = 'Leave empty to keep the current API key';
 
 async function renderSettings(connections: SkillsMarketplaceConnection[], readyText: string) {
   vi.mocked(api.listSkillsMarketplaces).mockResolvedValue(connections);
-  await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
+  await renderAsync(<SkillsHubSettings />);
   await screen.findByText(readyText);
 }
 
@@ -42,7 +42,7 @@ describe('SkillsHubSettings', () => {
   it('shows an empty-state row and no error when there are no connections (AC-02)', async () => {
     vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([]);
 
-    await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
+    await renderAsync(<SkillsHubSettings />);
 
     expect(await screen.findByText('No marketplaces connected yet.')).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -53,7 +53,7 @@ describe('SkillsHubSettings', () => {
       new Error('Failed to load marketplaces: 500'),
     );
 
-    await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
+    await renderAsync(<SkillsHubSettings />);
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Failed to load marketplaces: 500');
     expect(screen.queryByText('No marketplaces connected yet.')).not.toBeInTheDocument();

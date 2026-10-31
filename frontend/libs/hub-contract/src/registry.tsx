@@ -7,7 +7,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from 'react';
-import type { AppDefinition, WidgetDefinition } from './appDefinition';
+import type { AppDefinition, SettingsSectionDefinition, WidgetDefinition } from './appDefinition';
 import { isAllowed, useHubSession } from './session';
 
 export interface AppRegistry {
@@ -17,6 +17,8 @@ export interface AppRegistry {
   /** Visible apps shown in the nav rail. */
   navApps: readonly AppDefinition[];
   visibleWidgets: readonly WidgetDefinition[];
+  /** Settings sections of visible apps the session may open, ordered by `order`, then `id`. */
+  visibleSettings: readonly SettingsSectionDefinition[];
   /** Snapshot read; components should use `useBadgeFor` so they re-render on change. */
   badgeFor(appId: string): number | null;
   subscribeBadges(listener: () => void): () => void;
@@ -81,11 +83,25 @@ export function AppRegistryProvider({
     const visibleApps = allApps.filter((app) => isAllowed(session, app.requiredPermissions));
     const permitted = <T extends { requiredPermissions: readonly string[] }>(item: T) =>
       isAllowed(session, item.requiredPermissions);
+    const seen = new Set<string>();
+    const visibleSettings = visibleApps
+      .flatMap((app) => app.settings ?? [])
+      .filter(permitted)
+      .filter((section) => {
+        if (seen.has(section.id)) {
+          console.warn(`Duplicate settings section "${section.id}" ignored`);
+          return false;
+        }
+        seen.add(section.id);
+        return true;
+      })
+      .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
     return {
       allApps,
       visibleApps,
       navApps: visibleApps.filter((app) => app.showInNav !== false),
       visibleWidgets: visibleApps.flatMap((app) => app.widgets ?? []).filter(permitted),
+      visibleSettings,
       badgeFor: store.get,
       subscribeBadges: store.subscribe,
     };

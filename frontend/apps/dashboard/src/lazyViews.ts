@@ -4,9 +4,6 @@ import { lazy } from 'react';
 export const ProjectSelection = lazy(() =>
   import('@openjcockpit/project').then((m) => ({ default: m.ProjectSelection })),
 );
-export const ProjectSettings = lazy(() =>
-  import('@openjcockpit/project').then((m) => ({ default: m.ProjectSettings })),
-);
 export const WorkflowPromptDialog = lazy(() =>
   import('@openjcockpit/workflow').then((m) => ({ default: m.WorkflowPromptDialog })),
 );

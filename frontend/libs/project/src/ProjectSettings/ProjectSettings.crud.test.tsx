@@ -36,10 +36,8 @@ function row(name: string) {
 
 async function renderSettings(projects: Project[] = [project()]) {
   vi.mocked(api.loadAllProjects).mockResolvedValue(projects);
-  const onBack = vi.fn();
-  await renderAsync(<ProjectSettings onBack={onBack} />);
-  await screen.findByText('Project management');
-  return { onBack };
+  await renderAsync(<ProjectSettings />);
+  await screen.findByText('+ New project');
 }
 
 describe('ProjectSettings — loading', () => {
@@ -50,21 +48,15 @@ describe('ProjectSettings — loading', () => {
 
   it('keeps showing the loading message while the load is pending', async () => {
     vi.mocked(api.loadAllProjects).mockReturnValue(new Promise(() => {}));
-    await renderAsync(<ProjectSettings onBack={vi.fn()} />);
+    await renderAsync(<ProjectSettings />);
     expect(screen.getByText('Loading projects…')).toBeInTheDocument();
   });
 
   it('keeps the loading message and logs when the load fails', async () => {
     vi.mocked(api.loadAllProjects).mockRejectedValue(new Error('down'));
-    await renderAsync(<ProjectSettings onBack={vi.fn()} />);
+    await renderAsync(<ProjectSettings />);
     await waitFor(() => expect(console.error).toHaveBeenCalled());
     expect(screen.getByText('Loading projects…')).toBeInTheDocument();
-  });
-
-  it('goes back via the header button', async () => {
-    const { onBack } = await renderSettings();
-    fireEvent.click(screen.getByText('← Projects'));
-    expect(onBack).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -392,7 +384,7 @@ describe('ProjectSettings — aborted load', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(api.isAbortError).mockReturnValue(true);
     vi.mocked(api.loadAllProjects).mockRejectedValue(new DOMException('aborted', 'AbortError'));
-    await renderAsync(<ProjectSettings onBack={vi.fn()} />);
+    await renderAsync(<ProjectSettings />);
     await waitFor(() => expect(api.loadAllProjects).toHaveBeenCalled());
     expect(spy).not.toHaveBeenCalled();
     expect(screen.getByText('Loading projects…')).toBeInTheDocument();

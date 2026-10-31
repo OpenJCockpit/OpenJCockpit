@@ -132,8 +132,7 @@
       "enabled": "Aktiviert",
       "workflowIdToStart": "Zu startende Workflow-ID",
       "authToken": "Auth-Token",
-      "workflowIdPlaceholder": "wf-onboarding",
-      "selectProject": "Wählen Sie im Dashboard-Header ein Projekt aus, um dessen Workflow-Eingabequellen zu konfigurieren."
+      "workflowIdPlaceholder": "wf-onboarding"
     },
     "documentFolder": {
       "loadFailed": "Die Konfiguration des Dokumentenordners konnte nicht geladen werden.",
@@ -216,7 +215,6 @@
       "tabsLabel": "Workflow-Bereiche",
       "tabs": {
         "overview": "Übersicht",
-        "configuration": "Konfiguration",
         "design": "Design",
         "execution": "Workflow-Ausführung"
       },

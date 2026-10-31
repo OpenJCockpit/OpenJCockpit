@@ -1,27 +1,15 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import {
-  LOCALE_NAMES,
-  type Locale,
-  SUPPORTED_LOCALES,
-  useLocale,
-  useTranslation,
-} from '@openjcockpit/i18n';
+import { useTranslation } from '@openjcockpit/i18n';
 import type { Project } from '@openjcockpit/api';
 import styles from './SiteHeader.module.scss';
 import { canSelectProject } from '@openjcockpit/project';
 import { BrandLogo, Select, cx } from '@openjcockpit/ui';
-import {
-  HubThemeContext,
-  isThemePreference,
-  THEME_PREFERENCES,
-  useAppRegistry,
-  useBadgeFor,
-  type AppDefinition,
-} from '@openjcockpit/hub-contract';
+import { useAppRegistry, useBadgeFor, type AppDefinition } from '@openjcockpit/hub-contract';
 import { SidebarIcon, toSidebarIconName, type SidebarIconName } from './SidebarIcon';
 import { ROUTES } from '../../routes';
 import { FEATURE_FLAGS, isFeatureEnabled } from '../../featureFlags';
+import { useScreenSections } from '../../settings/SettingsLayout';
 
 /** Only the host's own page has a fixed menu entry; the apps remotes ship are matched by route. */
 export type SiteSection = 'platform';
@@ -32,6 +20,14 @@ const HOME_ITEM: { section: SiteSection; path: string; testId: string; icon: Sid
   testId: 'nav-platform',
   icon: 'platform',
 };
+
+/** The two screens contributed settings sections appear on, each with its own entry. */
+const SETTINGS_ITEM = { path: ROUTES.settings, testId: 'nav-settings', icon: 'settings' } as const;
+const PROJECT_SETTINGS_ITEM = {
+  path: ROUTES.projectSettings,
+  testId: 'nav-project-settings',
+  icon: 'project',
+} as const;
 
 const COLLAPSED_KEY = 'openjcockpit.sidebarCollapsed';
 
@@ -102,15 +98,14 @@ export function SiteHeader({
   user,
 }: Props) {
   const { t } = useTranslation('dashboard');
-  const { locale, setLocale } = useLocale();
-  // Absent in a standalone harness, where there is no host theme to change.
-  const theme = useContext(HubThemeContext);
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const settingsActive = pathname === ROUTES.settings;
+  const isWithin = (base: string) => pathname === base || pathname.startsWith(`${base}/`);
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const navRef = useRef<HTMLElement>(null);
   const { navApps } = useAppRegistry();
+  const hasSettings = useScreenSections('settings').length > 0;
+  const hasProjectSettings = useScreenSections('project').length > 0;
 
   // On a phone the nav is a scrolling strip: keep the current page's entry in view.
   useEffect(() => {
@@ -146,7 +141,27 @@ export function SiteHeader({
     );
   }
 
-  const settingsLabel = t('siteHeader.projectManagement');
+  const settingsLabel = t('siteHeader.settings');
+  const projectSettingsLabel = t('siteHeader.projectSettings');
+
+  function accountItem(label: string, item: typeof SETTINGS_ITEM | typeof PROJECT_SETTINGS_ITEM) {
+    const active = isWithin(item.path);
+    return (
+      <button
+        key={item.path}
+        type="button"
+        className={cx(styles.item, active && styles.active)}
+        aria-current={active ? 'page' : undefined}
+        aria-label={label}
+        title={label}
+        onClick={() => void navigate(item.path)}
+        data-testid={item.testId}
+      >
+        <SidebarIcon name={item.icon} />
+        <span className={styles.label}>{label}</span>
+      </button>
+    );
+  }
   const hubLabel = t('siteHeader.nav.hub');
   const hubEnabled = isFeatureEnabled(FEATURE_FLAGS.hub);
   const collapseLabel = t(collapsed ? 'siteHeader.expand' : 'siteHeader.collapse');
@@ -163,50 +178,8 @@ export function SiteHeader({
         onClick={() => void navigate(ROUTES.dashboard)}
         title={t('siteHeader.backToHub')}
       >
-        <BrandLogo />
+        <BrandLogo compact={collapsed} />
       </button>
-
-      {!collapsed && (
-        <div className={styles.selectors}>
-          {projects.length > 0 && (
-            <Select
-              block
-              label={t('siteHeader.activeProject')}
-              value={selectedProject?.id ?? ''}
-              options={projects
-                .filter((p) => p.id === selectedProject?.id || canSelectProject(p))
-                .map((p) => ({ value: p.id, label: p.name }))}
-              onChange={onProjectChange}
-            />
-          )}
-          <Select
-            block
-            label={t('siteHeader.language')}
-            value={locale}
-            options={SUPPORTED_LOCALES.map((code) => ({
-              value: code,
-              label: LOCALE_NAMES[code],
-              lang: code,
-            }))}
-            // A failed locale download keeps the current language; the select stays on it.
-            onChange={(code) => void setLocale(code as Locale).catch(() => undefined)}
-            data-testid="locale-select"
-          />
-          {theme && (
-            <Select
-              block
-              label={t('siteHeader.theme')}
-              value={theme.preference}
-              options={THEME_PREFERENCES.map((preference) => ({
-                value: preference,
-                label: t(`siteHeader.themes.${preference}`),
-              }))}
-              onChange={(value) => isThemePreference(value) && theme.setPreference(value)}
-              data-testid="theme-select"
-            />
-          )}
-        </div>
-      )}
 
       <nav ref={navRef} className={styles.mainNav} aria-label={t('siteHeader.primaryNavigation')}>
         {navItem(HOME_ITEM)}
@@ -215,17 +188,8 @@ export function SiteHeader({
           <RemoteNavItem key={app.id} app={app} />
         ))}
         <p className={styles.group}>{t('siteHeader.groups.account')}</p>
-        <button
-          type="button"
-          className={cx(styles.item, settingsActive && styles.active)}
-          aria-current={settingsActive ? 'page' : undefined}
-          aria-label={settingsLabel}
-          title={settingsLabel}
-          onClick={() => void navigate(ROUTES.settings)}
-        >
-          <SidebarIcon name="settings" />
-          <span className={styles.label}>{settingsLabel}</span>
-        </button>
+        {hasProjectSettings && accountItem(projectSettingsLabel, PROJECT_SETTINGS_ITEM)}
+        {hasSettings && accountItem(settingsLabel, SETTINGS_ITEM)}
         {hubEnabled && (
           <button
             type="button"
@@ -254,6 +218,19 @@ export function SiteHeader({
           <SidebarIcon name="collapse" />
           <span className={styles.label}>{collapseLabel}</span>
         </button>
+        {!collapsed && projects.length > 0 && (
+          <div className={styles.project}>
+            <Select
+              block
+              label={t('siteHeader.activeProject')}
+              value={selectedProject?.id ?? ''}
+              options={projects
+                .filter((p) => p.id === selectedProject?.id || canSelectProject(p))
+                .map((p) => ({ value: p.id, label: p.name }))}
+              onChange={onProjectChange}
+            />
+          </div>
+        )}
         <div className={styles.userCard}>
           {user && (
             <span className={styles.avatar} title={user.firstName} aria-hidden="true">

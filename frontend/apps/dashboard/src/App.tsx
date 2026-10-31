@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { useTranslation } from '@openjcockpit/i18n';
 import { ErrorBoundary, StatusMessage } from '@openjcockpit/ui';
@@ -24,6 +24,7 @@ import { HubSessionProvider } from './federation/HubSessionProvider';
 import { RemoteFailuresNotice, useRemoteApps } from './federation/RemoteApps';
 import { RemoteRoutes } from './federation/RemoteRoutes';
 import { ViewLoading } from './federation/ViewLoading';
+import { APP_TITLE } from './appTitle';
 import { ROUTES } from './routes';
 import { FEATURE_FLAGS, isFeatureEnabled } from './featureFlags';
 import { DashboardRoute } from './routeViews/DashboardRoute';
@@ -33,24 +34,22 @@ import { NotFound } from './routeViews/NotFound';
 import { Home } from './home/Home';
 import { ProjectSelectionRoute } from './routeViews/ProjectSelectionRoute';
 import { RequireProject } from './routeViews/RequireProject';
-import { SettingsRoute } from './routeViews/SettingsRoute';
 import type { ShellProps } from './routeViews/shell';
+import { hostApp } from './hostApp';
+import { SettingsLayout } from './settings/SettingsLayout';
 import { useAuthSession } from './useAuthSession';
 
 const NO_PROJECTS: Project[] = [];
-const APP_TITLE = 'OpenJCockpit';
 
 const TITLE_KEYS = {
   [ROUTES.home]: 'pageTitle.home',
   [ROUTES.landing]: 'pageTitle.landing',
   [ROUTES.projects]: 'pageTitle.projects',
-  [ROUTES.settings]: 'pageTitle.settings',
   [ROUTES.dashboard]: 'siteHeader.nav.platform',
   [ROUTES.workflow]: 'siteHeader.nav.workflow',
   [ROUTES.specFiles]: 'siteHeader.nav.specFiles',
   [ROUTES.specQueue]: 'siteHeader.nav.specQueue',
   [ROUTES.skillsHub]: 'siteHeader.nav.skillsHub',
-  [ROUTES.skillsHubSettings]: 'siteHeader.nav.skillsHub',
 } as const;
 
 function titleKeyFor(pathname: string) {
@@ -67,6 +66,7 @@ function App() {
   const location = useLocation();
   const { authenticated, user } = useAuthSession();
   const remoteApps = useRemoteApps();
+  const apps = useMemo(() => [hostApp, ...remoteApps], [remoteApps]);
   const projectsQuery = useProjectsQuery(authenticated);
   const projects = projectsQuery.data ?? NO_PROJECTS;
   const [selectedProjectId, setSelectedProjectId] = useState(getStoredProjectId);
@@ -77,9 +77,14 @@ function App() {
 
   const titleKey = titleKeyFor(location.pathname);
   const pageTitle = titleKey ? t(titleKey) : null;
+  // A settings section names itself (`Settings · <section> · …`), so the page title leaves it alone.
+  const sectionOwnsTitle = [ROUTES.settings, ROUTES.projectSettings].some(
+    (base) => location.pathname === base || location.pathname.startsWith(`${base}/`),
+  );
   useEffect(() => {
+    if (sectionOwnsTitle) return;
     document.title = pageTitle ? `${pageTitle} · ${APP_TITLE}` : APP_TITLE;
-  }, [pageTitle]);
+  }, [pageTitle, sectionOwnsTitle]);
 
   useEffect(() => {
     if (projectsQuery.isSuccess && selectedProjectId && !selectedProject) {
@@ -130,7 +135,7 @@ function App() {
         selected={selectedProject}
         onSelect={handleProjectChange}
       >
-        <AppRegistryProvider apps={remoteApps}>
+        <AppRegistryProvider apps={apps}>
           <HubHeaderContext.Provider value={<SiteHeader {...shell} />}>
             <RemoteFailuresNotice />
             <ErrorBoundary
@@ -185,8 +190,12 @@ function App() {
                     }
                   />
                   <Route
-                    path={ROUTES.settings}
-                    element={<SettingsRoute selectedProject={selectedProject} />}
+                    path={`${ROUTES.settings}/*`}
+                    element={<SettingsLayout screen="settings" />}
+                  />
+                  <Route
+                    path={`${ROUTES.projectSettings}/*`}
+                    element={<SettingsLayout screen="project" />}
                   />
                   <Route path={FORBIDDEN_PATH} element={<Forbidden />} />
                   {remoteApps.map((app) => (

@@ -6,7 +6,7 @@ import type { RouteObject } from 'react-router';
  * remote whose version is higher than its own. Bump only on a change a host must know about
  * (additive changes need no bump unless a host has to understand them).
  */
-export const HUB_CONTRACT_VERSION = 1;
+export const HUB_CONTRACT_VERSION = 2;
 
 /** A module whose default export is a component, so the host can wrap it in `React.lazy`. */
 export type LazyComponent = () => Promise<{ default: ComponentType }>;
@@ -28,6 +28,34 @@ export interface WidgetDefinition {
   available?: boolean;
 }
 
+/**
+ * A section of the host's Settings page. The host owns the URL (`/settings/<id>`), the sub-navigation,
+ * the heading and the project guard; the component renders only its own form content.
+ */
+/** Which host screen shows a section: the global Settings, or the selected project's settings. */
+export type SettingsScreen = 'settings' | 'project';
+
+export interface SettingsSectionDefinition {
+  /** Unique across all apps; also the URL segment: /settings/<id> or /project-settings/<id>. */
+  id: string;
+  sourceAppId: string;
+  titleKey: string;
+  descriptionKey?: string;
+  icon?: string;
+  /** Any-of; empty means every signed-in user. */
+  requiredPermissions: readonly string[];
+  /** Sort key inside a group. */
+  order: number;
+  /** Screen the section appears on; defaults to the global Settings. */
+  screen?: SettingsScreen;
+  /** Group heading key, e.g. 'settings.groups.project'. Sections without one go in a default group. */
+  groupKey?: string;
+  /** Needs a selected project; the host shows the project-required empty state otherwise. */
+  requiresProject?: boolean;
+  /** Content only: no header, no back button, no page chrome. Registers its own translations. */
+  component: LazyComponent;
+}
+
 export interface AppDefinition {
   id: string;
   labelKey: string;
@@ -44,6 +72,7 @@ export interface AppDefinition {
   /** Routes relative to `route`. */
   loadRoutes: () => Promise<RouteObject[]>;
   widgets?: WidgetDefinition[];
+  settings?: SettingsSectionDefinition[];
 }
 
 /** Structural check for what a remote exposes: a remote may export anything. */

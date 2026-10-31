@@ -33,9 +33,7 @@
       }
     },
     "settings": {
-      "backTitle": "Back to Skills Hub",
       "loading": "Loading marketplaces…",
-      "title": "Marketplace connections",
       "formNew": "New marketplace",
       "formEdit": "Edit marketplace",
       "name": "Name",

@@ -163,6 +163,11 @@ describe('decorative components', () => {
     expect(img).toHaveClass('big');
   });
 
+  it('BrandLogo shows the square icon when compact', () => {
+    render(<BrandLogo compact />);
+    expect(screen.getByAltText('OpenJCockpit')).toHaveAttribute('src', '/icon-192.png');
+  });
+
   it('IconBox renders a hidden label with variants', () => {
     render(<IconBox label="AB" variant="hero" compact className="c" />);
     const box = screen.getByText('AB');

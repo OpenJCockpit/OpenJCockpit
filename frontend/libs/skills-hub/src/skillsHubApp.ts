@@ -23,4 +23,16 @@ export const skillsHubApp: AppDefinition = {
       component: () => import('./contributions/SkillsHubWidget'),
     },
   ],
+  settings: [
+    {
+      id: 'skills-hub',
+      sourceAppId: 'skills-hub',
+      titleKey: 'settings.sections.skillsHub.title',
+      descriptionKey: 'settings.sections.skillsHub.description',
+      requiredPermissions: [],
+      order: 100,
+      groupKey: 'settings.groups.integrations',
+      component: () => import('./contributions/SkillsHubSettingsSection'),
+    },
+  ],
 };

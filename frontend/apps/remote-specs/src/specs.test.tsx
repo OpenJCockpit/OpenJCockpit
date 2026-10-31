@@ -42,9 +42,11 @@ vi.mock('@openjcockpit/spec-queue', () => ({
     project: Project;
     onBack: () => void;
     onOpenRun: (workflowId: string, runId: string) => void;
+    onSettings: () => void;
   }) => (
     <section>
       <p>spec-queue of {props.project.name}</p>
+      <button onClick={props.onSettings}>queue settings</button>
       <button onClick={props.onBack}>queue back</button>
       <button onClick={() => props.onOpenRun('wf 1', 'r/2')}>open run</button>
     </section>
@@ -127,6 +129,12 @@ describe('spec queue', () => {
     await act(async () => screen.getByText('open run').click());
     expect(router.state.location.pathname).toBe('/workflow/wf%201/runs/r%2F2');
     expect(await screen.findByText('workflow wf 1 run')).toBeInTheDocument();
+  });
+
+  it('opens its section in the host settings', async () => {
+    const router = await open('/spec-queue');
+    await act(async () => screen.getByText('queue settings').click());
+    expect(router.state.location.pathname).toBe('/project-settings/spec-queue');
   });
 
   it('goes back to the dashboard', async () => {

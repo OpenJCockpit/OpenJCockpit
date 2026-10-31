@@ -13,7 +13,7 @@ import {
   useHubHeader,
   useSelectedProject,
 } from '@openjcockpit/hub-contract';
-import { workflowRunPath } from './routePaths';
+import { SPEC_QUEUE_SETTINGS_PATH, workflowRunPath } from './routePaths';
 
 /** Every page needs a project: without one the user is sent to project selection and back. */
 function projectRoute(translations: (props: { children: ReactNode }) => ReactNode): {
@@ -66,6 +66,7 @@ function SpecQueuePage() {
       onBack={useBack()}
       header={useHubHeader()}
       onOpenRun={(workflowId, runId) => void navigate(workflowRunPath(workflowId, runId))}
+      onSettings={() => void navigate(SPEC_QUEUE_SETTINGS_PATH)}
     />
   );
 }

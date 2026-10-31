@@ -23,7 +23,7 @@ const PROJECT: Project = {
 };
 
 async function renderSettings() {
-  await renderAsync(<ProjectSettings onBack={vi.fn()} />);
+  await renderAsync(<ProjectSettings />);
   await screen.findByText('Absence Pro Solutions');
 }
 

@@ -1,22 +1,10 @@
-import { fireEvent, render as rtlRender, screen, waitFor, within } from '@testing-library/react';
-import {
-  createI18n,
-  I18nProvider,
-  LOCALE_STORAGE_KEY,
-  type LocaleLoader,
-} from '@openjcockpit/i18n';
+import { fireEvent, screen } from '@testing-library/react';
 import { AppRegistryProvider, type AppDefinition } from '@openjcockpit/hub-contract';
-import {
-  FakeHubSession,
-  FakeHubSessionProvider,
-  FakeHubThemeProvider,
-} from '@openjcockpit/hub-contract/testing';
+import { FakeHubSession, FakeHubSessionProvider } from '@openjcockpit/hub-contract/testing';
 import { render } from '../../testUtils/render';
 import type { ReactNode } from 'react';
 import { MemoryRouter, useLocation } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
-import { dashboardResources } from '../../i18n';
-import nl from '../../locales/nl.json';
 import type { Project } from '@openjcockpit/api';
 import { ROUTES } from '../../routes';
 import { FEATURE_FLAGS } from '../../featureFlags';
@@ -46,6 +34,24 @@ function remoteApp(over: Partial<AppDefinition> = {}): AppDefinition {
     loadRoutes: () => Promise.resolve([]),
     ...over,
   };
+}
+
+function settingsApp(screen?: 'settings' | 'project'): AppDefinition {
+  return remoteApp({
+    id: 'prefs',
+    showInNav: false,
+    settings: [
+      {
+        id: 'general',
+        sourceAppId: 'prefs',
+        titleKey: 'home.eyebrow',
+        requiredPermissions: [],
+        order: 1,
+        screen,
+        component: () => Promise.resolve({ default: () => null }),
+      },
+    ],
+  });
 }
 
 function Location() {
@@ -82,29 +88,6 @@ function setup(
   return { onProjectChange, onLogout };
 }
 
-function renderWithI18nInstance(i18n: ReturnType<typeof createI18n>, loader: LocaleLoader) {
-  rtlRender(
-    <I18nProvider i18n={i18n} loader={loader}>
-      <MemoryRouter>
-        <Registry>
-          <SiteHeader
-            active="platform"
-            projects={[]}
-            selectedProject={null}
-            onProjectChange={vi.fn()}
-            onLogout={vi.fn()}
-          />
-        </Registry>
-      </MemoryRouter>
-    </I18nProvider>,
-  );
-}
-
-function chooseLanguage(name: string) {
-  fireEvent.click(screen.getByRole('combobox', { name: 'Language' }));
-  fireEvent.click(screen.getByRole('option', { name }));
-}
-
 const path = () => screen.getByTestId('location').textContent;
 
 describe('SiteHeader', () => {
@@ -118,10 +101,32 @@ describe('SiteHeader', () => {
     expect(path()).toBe(route);
   });
 
-  it('opens project management from the gear', () => {
-    setup();
-    fireEvent.click(screen.getByTitle('Project management'));
+  it('opens settings from the gear', () => {
+    setup({ apps: [settingsApp()] });
+    fireEvent.click(screen.getByTitle('Settings'));
     expect(path()).toBe(ROUTES.settings);
+  });
+
+  it('opens project settings from its own entry, shown only when a project section exists', () => {
+    setup({ apps: [settingsApp('project')] });
+    expect(screen.queryByTitle('Settings')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTitle('Project settings'));
+    expect(path()).toBe(ROUTES.projectSettings);
+  });
+
+  it('marks project settings as current on any project settings path', () => {
+    setup({ apps: [settingsApp('project')], at: '/project-settings/general' });
+    expect(screen.getByTitle('Project settings')).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('hides the settings entry when no app contributes a section', () => {
+    setup({ apps: [remoteApp()] });
+    expect(screen.queryByTitle('Settings')).not.toBeInTheDocument();
+  });
+
+  it('marks settings as current on any settings path', () => {
+    setup({ apps: [settingsApp()], at: '/settings/general' });
+    expect(screen.getByTitle('Settings')).toHaveAttribute('aria-current', 'page');
   });
 
   it('returns to the hub from the logo', () => {
@@ -187,67 +192,6 @@ describe('SiteHeader', () => {
   it('hides the project picker when there are no projects', () => {
     setup();
     expect(screen.queryByRole('combobox', { name: 'Active project' })).not.toBeInTheDocument();
-  });
-
-  it('offers every supported language by its own name', () => {
-    setup();
-    const select = screen.getByRole('combobox', { name: 'Language' });
-    expect(select).toHaveTextContent('English');
-    fireEvent.click(select);
-    expect(
-      within(screen.getByRole('listbox')).getByRole('option', { name: 'Nederlands' }),
-    ).toHaveAttribute('lang', 'nl');
-  });
-
-  it('switches the language, translating the header and remembering the choice', async () => {
-    window.localStorage.clear();
-    const i18n = createI18n({ resources: dashboardResources });
-    const loader = vi.fn().mockResolvedValue({ nl });
-    renderWithI18nInstance(i18n, loader);
-    chooseLanguage('Nederlands');
-    expect(await screen.findByRole('navigation', { name: 'Hoofdnavigatie' })).toBeInTheDocument();
-    await waitFor(() =>
-      expect(screen.getByTestId('locale-select')).toHaveTextContent('Nederlands'),
-    );
-    expect(document.documentElement.lang).toBe('nl');
-    expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('nl');
-  });
-
-  it('stays on the current language when the translations cannot be downloaded', async () => {
-    const i18n = createI18n({ resources: dashboardResources });
-    const loader = vi.fn().mockRejectedValue(new Error('offline'));
-    renderWithI18nInstance(i18n, loader);
-    chooseLanguage('Nederlands');
-    await waitFor(() => expect(loader).toHaveBeenCalled());
-    expect(screen.getByTestId('locale-select')).toHaveTextContent('English');
-  });
-
-  it('offers a theme choice only when the host provides a theme', () => {
-    setup();
-    expect(screen.queryByTestId('theme-select')).not.toBeInTheDocument();
-  });
-
-  it('shows the host theme and changes it', () => {
-    const onChange = vi.fn();
-    render(
-      <MemoryRouter>
-        <Registry>
-          <FakeHubThemeProvider preference="dark" onChange={onChange}>
-            <SiteHeader
-              active="platform"
-              projects={[]}
-              selectedProject={null}
-              onProjectChange={vi.fn()}
-              onLogout={vi.fn()}
-            />
-          </FakeHubThemeProvider>
-        </Registry>
-      </MemoryRouter>,
-    );
-    expect(screen.getByTestId('theme-select')).toHaveTextContent('Dark');
-    fireEvent.click(screen.getByRole('combobox', { name: 'Theme' }));
-    fireEvent.click(screen.getByRole('option', { name: 'Light' }));
-    expect(onChange).toHaveBeenCalledWith('light');
   });
 
   it('shows the selected project and reports changes', () => {

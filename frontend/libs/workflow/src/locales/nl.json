@@ -132,8 +132,7 @@
       "enabled": "Ingeschakeld",
       "workflowIdToStart": "Te starten workflow-ID",
       "authToken": "Authenticatietoken",
-      "workflowIdPlaceholder": "wf-onboarding",
-      "selectProject": "Selecteer een project in de dashboardkop om de workflow-invoerbronnen ervan te configureren."
+      "workflowIdPlaceholder": "wf-onboarding"
     },
     "documentFolder": {
       "loadFailed": "De configuratie van de documentmap laden is mislukt.",
@@ -216,7 +215,6 @@
       "tabsLabel": "Workflowsecties",
       "tabs": {
         "overview": "Overzicht",
-        "configuration": "Configuratie",
         "design": "Ontwerp",
         "execution": "Workflowuitvoering"
       },

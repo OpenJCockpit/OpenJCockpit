@@ -5,7 +5,7 @@ import { pseudoLocalize, untranslatedText } from '@openjcockpit/i18n/testing';
 import { clickAsync } from '../testUtils/dom';
 import { withQueryClient } from '../testUtils/queryClient';
 import { HermesSettings } from './HermesSettings/HermesSettings';
-import { WorkflowConfiguration } from './WorkflowConfiguration';
+import { WorkflowConfiguration } from '../testUtils/SettingsHarness';
 
 vi.mock('@openjcockpit/api', async (importOriginal) =>
   (await import('../testUtils/mockApi')).automockApiClients(await importOriginal()),

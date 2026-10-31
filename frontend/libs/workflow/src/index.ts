@@ -3,3 +3,8 @@ export { WorkflowExecution } from './WorkflowExecution/WorkflowExecution';
 export { WorkflowPromptDialog } from './WorkflowPromptDialog/WorkflowPromptDialog';
 export { workflowResources } from './i18n';
 export { WithWorkflowTranslations } from './translations';
+export { A2AServicesSettings } from './WorkflowConfiguration/A2AServicesSettings/A2AServicesSettings';
+export { DocumentFolderSettings } from './WorkflowConfiguration/DocumentFolderSettings/DocumentFolderSettings';
+export { HermesSettings } from './WorkflowConfiguration/HermesSettings/HermesSettings';
+export { JiraSettings } from './WorkflowConfiguration/JiraSettings/JiraSettings';
+export { OpaSettings } from './WorkflowConfiguration/OpaSettings/OpaSettings';
