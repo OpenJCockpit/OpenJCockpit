@@ -3,6 +3,8 @@
     "authenticating": "Authentifizierung läuft...",
     "loadingView": "Wird geladen...",
     "forbidden": "Du hast keinen Zugriff auf diese Seite.",
+    "notFound": "Diese Seite existiert nicht.",
+    "backToDashboard": "Zurück zum Dashboard",
     "unavailableApps": "Einige Apps sind nicht verfügbar: {{names}}",
     "home": {
       "eyebrow": "Start",
@@ -137,13 +139,10 @@
     },
     "evidence": {
       "title": "Ausführungsnachweis",
-      "view": "Nachweis anzeigen",
       "by": "Von: {{actor}}"
     },
     "quality": {
-      "title": "Qualitätsstatus",
-      "open": "Qualitäts-Dashboard öffnen ↗",
-      "viewAll": "Alle Qualitätsregeln anzeigen"
+      "title": "Qualitätsstatus"
     },
     "apps": {
       "hello": {

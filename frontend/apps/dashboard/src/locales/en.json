@@ -3,6 +3,8 @@
     "authenticating": "Authenticating...",
     "loadingView": "Loading...",
     "forbidden": "You do not have access to this page.",
+    "notFound": "This page does not exist.",
+    "backToDashboard": "Back to dashboard",
     "unavailableApps": "Some apps are unavailable: {{names}}",
     "home": {
       "eyebrow": "Home",
@@ -137,13 +139,10 @@
     },
     "evidence": {
       "title": "Execution evidence",
-      "view": "View evidence",
       "by": "By: {{actor}}"
     },
     "quality": {
-      "title": "Quality status",
-      "open": "Open quality dashboard ↗",
-      "viewAll": "View all quality rules"
+      "title": "Quality status"
     },
     "apps": {
       "hello": {

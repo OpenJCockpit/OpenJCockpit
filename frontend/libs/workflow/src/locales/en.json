@@ -184,7 +184,7 @@
       "backTitle": "Back to dashboard",
       "eyebrow": "Workflow Design & Execution",
       "allProjects": "All projects",
-      "tabsLabel": "Workflow secties",
+      "tabsLabel": "Workflow sections",
       "tabs": {
         "overview": "Overview",
         "configuration": "Configuration",
@@ -194,7 +194,7 @@
       "runLoadFailed": "The workflow of this run could not be loaded — {{error}}"
     },
     "design": {
-      "tabsLabel": "Design secties",
+      "tabsLabel": "Design sections",
       "tabs": {
         "workflows": "Workflows",
         "groups": "Groups",
@@ -206,7 +206,7 @@
     "agentsPanel": {
       "loadFailed": "Failed to load the agent catalog.",
       "loading": "Loading agents...",
-      "refresh": "↻ Refresh",
+      "refresh": "⟳ Refresh",
       "status": {
         "NOT_CONFIGURED": "Not configured",
         "UNAVAILABLE": "Unavailable",

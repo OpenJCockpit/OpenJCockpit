@@ -69,7 +69,7 @@ describe('AgentsPanel', () => {
     expect(await screen.findByText('No agents in the /agents folder yet.')).toBeInTheDocument();
     expect(screen.getByText('No agents registered at LiteLLM.')).toBeInTheDocument();
     expect(screen.getByText('Connected')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: '↻ Refresh' }));
+    fireEvent.click(screen.getByRole('button', { name: '⟳ Refresh' }));
     await waitFor(() => expect(api.getAgentCatalog).toHaveBeenCalledTimes(2));
   });
 

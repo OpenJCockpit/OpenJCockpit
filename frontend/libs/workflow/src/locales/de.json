@@ -206,7 +206,7 @@
     "agentsPanel": {
       "loadFailed": "Der Agentenkatalog konnte nicht geladen werden.",
       "loading": "Agenten werden geladen...",
-      "refresh": "↻ Aktualisieren",
+      "refresh": "⟳ Aktualisieren",
       "status": {
         "NOT_CONFIGURED": "Nicht konfiguriert",
         "UNAVAILABLE": "Nicht verfügbar",

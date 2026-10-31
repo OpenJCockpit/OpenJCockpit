@@ -44,13 +44,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   override render() {
     if (!this.state.error) return this.props.children;
     return (
-      <StatusMessage variant="loading" role="alert" data-testid="error-boundary">
-        <div>
-          <p>{this.props.message ?? 'Something went wrong.'}</p>
-          <Button variant="primary" onClick={() => window.location.reload()}>
-            Reload
-          </Button>
-        </div>
+      <StatusMessage variant="page" role="alert" data-testid="error-boundary">
+        <p>{this.props.message ?? 'Something went wrong.'}</p>
+        <Button variant="primary" onClick={() => window.location.reload()}>
+          Reload
+        </Button>
       </StatusMessage>
     );
   }

@@ -83,7 +83,7 @@ describe('SpecFilesDashboard', () => {
       );
     });
 
-    const saveButton = await screen.findByText('💾 Save');
+    const saveButton = await screen.findByText('Save');
     expect(saveButton).toBeDisabled();
 
     const textarea = screen.getByLabelText('Contents of pricing-rules.md');
@@ -119,7 +119,7 @@ describe('SpecFilesDashboard', () => {
     fireEvent.change(textarea, { target: { value: '# Pricing rules v2' } });
 
     await act(async () => {
-      screen.getByText('💾 Save').click();
+      screen.getByText('Save').click();
     });
 
     await waitFor(() =>
@@ -156,7 +156,7 @@ describe('SpecFilesDashboard', () => {
     fireEvent.change(textarea, { target: { value: '# broken' } });
 
     await act(async () => {
-      screen.getByText('💾 Save').click();
+      screen.getByText('Save').click();
     });
 
     expect(await screen.findByText('Failed to save spec file: 502')).toBeInTheDocument();
@@ -279,7 +279,7 @@ describe('SpecFilesDashboard — without the queue slot', () => {
       });
       fireEvent.click(screen.getByRole('button', { name: /other\.md/ }));
       expect(await screen.findByDisplayValue('# Other')).toBeInTheDocument();
-      expect(screen.getByText('💾 Save')).toBeDisabled();
+      expect(screen.getByText('Save')).toBeDisabled();
       fireEvent.click(screen.getByRole('button', { name: /pricing-rules\.md/ }));
       expect(await screen.findByDisplayValue('# Pricing rules')).toBeInTheDocument();
     });
@@ -294,7 +294,7 @@ describe('SpecFilesDashboard — without the queue slot', () => {
       await open([{ ...SPEC, content: undefined }, noContent]);
       const textarea = await screen.findByLabelText('Contents of pricing-rules.md');
       expect(textarea).toHaveValue('');
-      expect(screen.getByText('💾 Save')).toBeDisabled();
+      expect(screen.getByText('Save')).toBeDisabled();
       fireEvent.click(screen.getByRole('button', { name: /other\.md/ }));
       expect(await screen.findByLabelText('Contents of other.md')).toHaveValue('');
     });
@@ -327,7 +327,7 @@ describe('SpecFilesDashboard — without the queue slot', () => {
         target: { value: 'edited' },
       });
       await act(async () => {
-        fireEvent.click(screen.getByText('💾 Save'));
+        fireEvent.click(screen.getByText('Save'));
       });
       expect(await screen.findByText('Saving the spec failed')).toBeInTheDocument();
     });

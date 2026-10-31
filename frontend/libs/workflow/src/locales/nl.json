@@ -206,7 +206,7 @@
     "agentsPanel": {
       "loadFailed": "De agentcatalogus laden is mislukt.",
       "loading": "Agents laden...",
-      "refresh": "↻ Vernieuwen",
+      "refresh": "⟳ Vernieuwen",
       "status": {
         "NOT_CONFIGURED": "Niet geconfigureerd",
         "UNAVAILABLE": "Niet beschikbaar",

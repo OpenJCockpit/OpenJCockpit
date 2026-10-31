@@ -15,9 +15,6 @@ export function EvidencePanel({ events }: { events: EvidenceEvent[] }) {
           <IconBox label="⌁" compact /> <h2>{t('evidence.title')}</h2>
           <StatusChip label={t('sampleData')} kind="waiting" />
         </PanelTitle>
-        <button className={styles.smallLink}>
-          {t('evidence.view')} <span>→</span>
-        </button>
       </PanelHeader>
 
       <div className={styles.evidenceTimeline}>

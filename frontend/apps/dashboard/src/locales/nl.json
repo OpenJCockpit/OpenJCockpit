@@ -3,6 +3,8 @@
     "authenticating": "Authenticeren...",
     "loadingView": "Laden...",
     "forbidden": "Je hebt geen toegang tot deze pagina.",
+    "notFound": "Deze pagina bestaat niet.",
+    "backToDashboard": "Terug naar het dashboard",
     "unavailableApps": "Sommige apps zijn niet beschikbaar: {{names}}",
     "home": {
       "eyebrow": "Home",
@@ -137,13 +139,10 @@
     },
     "evidence": {
       "title": "Uitvoeringsbewijs",
-      "view": "Bewijs bekijken",
       "by": "Door: {{actor}}"
     },
     "quality": {
-      "title": "Kwaliteitsstatus",
-      "open": "Kwaliteitsdashboard openen ↗",
-      "viewAll": "Alle kwaliteitsregels bekijken"
+      "title": "Kwaliteitsstatus"
     },
     "apps": {
       "hello": {

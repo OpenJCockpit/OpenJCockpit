@@ -3,6 +3,8 @@
     "authenticating": "Autenticando...",
     "loadingView": "Cargando...",
     "forbidden": "No tienes acceso a esta página.",
+    "notFound": "Esta página no existe.",
+    "backToDashboard": "Volver al panel",
     "unavailableApps": "Algunas aplicaciones no están disponibles: {{names}}",
     "home": {
       "eyebrow": "Inicio",
@@ -137,13 +139,10 @@
     },
     "evidence": {
       "title": "Evidencia de ejecución",
-      "view": "Ver evidencia",
       "by": "Por: {{actor}}"
     },
     "quality": {
-      "title": "Estado de calidad",
-      "open": "Abrir panel de calidad ↗",
-      "viewAll": "Ver todas las reglas de calidad"
+      "title": "Estado de calidad"
     },
     "apps": {
       "hello": {

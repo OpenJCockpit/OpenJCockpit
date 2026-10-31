@@ -190,6 +190,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                       {renderAddToQueue && (
                         <Button
                           size="sm"
+                          variant="primary"
                           data-testid="spec-add-to-queue"
                           onClick={() => setQueueDialogOpen(true)}
                           disabled={isDirty || saving}

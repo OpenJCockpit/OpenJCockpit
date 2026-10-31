@@ -132,8 +132,10 @@ describe('App routing', () => {
     vi.mocked(api.getSpecInitStatus).mockResolvedValue({ pending: false });
   });
 
-  it('redirects unknown paths and the root to the dashboard', async () => {
+  it('shows a not-found page with a way back for unknown paths', async () => {
     renderRoutedApp('/nope');
+    expect(await screen.findByTestId('not-found')).toHaveTextContent('This page does not exist.');
+    await clickAsync(screen.getByRole('button', { name: 'Back to dashboard' }));
     expect(await screen.findByText('▶ Start')).toBeInTheDocument();
   });
 

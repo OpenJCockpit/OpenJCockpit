@@ -29,6 +29,7 @@ import { FEATURE_FLAGS, isFeatureEnabled } from './featureFlags';
 import { DashboardRoute } from './routeViews/DashboardRoute';
 import { LandingHubRoute } from './routeViews/LandingHubRoute';
 import { LandingRoute } from './routeViews/LandingRoute';
+import { NotFound } from './routeViews/NotFound';
 import { Home } from './home/Home';
 import { ProjectSelectionRoute } from './routeViews/ProjectSelectionRoute';
 import { RequireProject } from './routeViews/RequireProject';
@@ -194,7 +195,7 @@ function App() {
                       }
                     />
                   ))}
-                  <Route path="*" element={<Navigate to={ROUTES.dashboard} replace />} />
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
             </ErrorBoundary>

@@ -19,8 +19,13 @@ const noop = { apps: [], failed: [] };
 
 describe('Forbidden', () => {
   it('shows the translated message', () => {
-    render(<Forbidden />);
+    render(
+      <MemoryRouter>
+        <Forbidden />
+      </MemoryRouter>,
+    );
     expect(screen.getByRole('alert')).toHaveTextContent('You do not have access to this page.');
+    expect(screen.getByRole('button', { name: 'Back to dashboard' })).toBeInTheDocument();
   });
 });
 

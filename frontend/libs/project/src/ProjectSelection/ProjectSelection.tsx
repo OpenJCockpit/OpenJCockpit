@@ -84,15 +84,14 @@ export function ProjectSelection({ projects, onSelect, onSettings, onBack }: Pro
                   className={cx(styles.projectCard, !selectable && styles.projectCardDisabled)}
                   onClick={() => selectable && onSelect(project)}
                   disabled={!selectable}
-                  onKeyDown={(e) => e.key === 'Enter' && selectable && onSelect(project)}
                   data-testid="project-card"
                 >
                   <div className={styles.projectCardIcon}>{PROJECT_ICON}</div>
                   <div className={styles.projectCardBody}>
-                    <h2 className={styles.projectCardName}>
+                    <span className={styles.projectCardName}>
                       {project.name}
                       <GitStatusIndicator status={project.gitStatus} />
-                    </h2>
+                    </span>
                     {project.description && (
                       <p className={styles.projectCardDesc}>{project.description}</p>
                     )}
