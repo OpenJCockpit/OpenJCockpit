@@ -2,6 +2,7 @@ import type { QualityControl } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
 import { IconBox, Panel, PanelHeader, PanelTitle, StatusChip } from '@openjcockpit/ui';
 import styles from './WorkspacePanels.module.scss';
+import { controlDetail, controlName } from './sampleData';
 
 /** Decorative glyph, not translatable copy. */
 const CHECK_MARK = '\u2713';
@@ -22,8 +23,8 @@ export function QualityPanel({ controls }: { controls: QualityControl[] }) {
           <article className={styles.qualityRow} key={control.name}>
             <IconBox label="⌬" compact />
             <div>
-              <strong>{control.name}</strong>
-              {control.statusText && <small>{control.statusText}</small>}
+              <strong>{controlName(t, control.name)}</strong>
+              {control.statusText && <small>{controlDetail(t, control.statusText)}</small>}
             </div>
             <span className={styles.check}>{CHECK_MARK}</span>
           </article>

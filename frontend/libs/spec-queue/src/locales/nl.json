@@ -53,7 +53,7 @@
     "noProject": "Geen project geselecteerd",
     "cancel": "Annuleren",
     "working": "⟳ Bezig…",
-    "unknownError": "Onbekende fout",
+    "unknownError": "Onbekende fout.",
     "dashboard": {
       "eyebrow": "Spec-wachtrij",
       "state": "Status: {{state}}",
@@ -68,14 +68,14 @@
       "bannerHalted": "De wachtrij is gestopt omdat een item is mislukt. Probeer het mislukte item opnieuw of sla het over en hervat daarna de wachtrij.",
       "bannerRunnerDisabled": "De wachtrijrunner is uitgeschakeld. Items in de wachtrij worden niet automatisch gestart.",
       "bannerRunnerNotConfigured": "De wachtrijrunner heeft geen identiteit ingesteld. Items in de wachtrij worden niet automatisch gestart.",
-      "bannerPollError": "De laatste wachtrijcontrole is mislukt: {{reason}} ({{at}}).",
+      "bannerPollError": "De laatste runnercontrole is mislukt: {{reason}} ({{at}}).",
       "settings": "Wachtrij-instellingen",
       "queue": "Wachtrij",
       "empty": "De wachtrij is leeg. Gebruik “Aan wachtrij toevoegen” om een spec-bestand in de wachtrij te zetten.",
       "lastPolled": "Runner laatst gecontroleerd: {{at}}",
       "recentlyFinished": "Recent afgerond",
       "added": "{{specFile}} aan de wachtrij toegevoegd",
-      "loadFailed": "De spec-wachtrij laden is mislukt"
+      "loadFailed": "De spec-wachtrij laden is mislukt."
     },
     "addDialog": {
       "eyebrow": "Spec-wachtrij",
@@ -105,7 +105,7 @@
       "confirmTitle": "Automatisch samenvoegen toestaan?",
       "confirmWarning": "De pull requests van wachtrij-items die voor automatisch samenvoegen zijn gemarkeerd, worden zonder menselijke review samengevoegd, tenzij de workflow een goedkeuringspoort heeft.",
       "confirmLabel": "Automatisch samenvoegen toestaan",
-      "updateFailed": "Bijwerken van de wachtrij-instellingen is mislukt"
+      "updateFailed": "Bijwerken van de wachtrij-instellingen is mislukt."
     },
     "row": {
       "autoMerge": "Automatisch samenvoegen",
@@ -150,12 +150,12 @@
       "moved": "{{spec}} verplaatst naar positie {{position}} van {{total}}",
       "paused": "Wachtrij gepauzeerd",
       "resumed": "Wachtrij hervat",
-      "reorderFailed": "Herschikken van de wachtrij is mislukt",
-      "pauseFailed": "Pauzeren van de wachtrij is mislukt",
-      "resumeFailed": "Hervatten van de wachtrij is mislukt",
-      "updateItemFailed": "Bijwerken van het wachtrij-item is mislukt",
-      "retryFailed": "Opnieuw proberen van het wachtrij-item is mislukt",
-      "actionFailed": "De actie is mislukt",
+      "reorderFailed": "Herschikken van de wachtrij is mislukt.",
+      "pauseFailed": "Pauzeren van de wachtrij is mislukt.",
+      "resumeFailed": "Hervatten van de wachtrij is mislukt.",
+      "updateItemFailed": "Bijwerken van het wachtrij-item is mislukt.",
+      "retryFailed": "Opnieuw proberen van het wachtrij-item is mislukt.",
+      "actionFailed": "De actie is mislukt.",
       "noProject": "Geen project geselecteerd"
     }
   }

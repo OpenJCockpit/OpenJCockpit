@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { describeSourceOutcome, downloadWorkflowBundle, readFileText, toList } from './utils';
 import type { SkillCatalogSourceStatus } from '@openjcockpit/api';
+import { fixedT } from '@openjcockpit/i18n/testing';
+import { workflowResources } from '../i18n';
 
 describe('toList', () => {
   it('splits on commas and trims whitespace', () => {
@@ -60,6 +62,7 @@ describe('downloadWorkflowBundle', () => {
 });
 
 describe('describeSourceOutcome', () => {
+  const t = fixedT('workflow', workflowResources);
   const source = (
     outcome: SkillCatalogSourceStatus['outcome'],
     httpStatus: number | null = null,
@@ -81,11 +84,11 @@ describe('describeSourceOutcome', () => {
     ['CONFIG_ERROR', 'Hub: configuration error — check its API key.', null],
     ['SUCCESS', 'Hub: unknown status.', null],
   ] as const)('describes %s', (outcome, expected, status) => {
-    expect(describeSourceOutcome(source(outcome, status))).toBe(expected);
+    expect(describeSourceOutcome(source(outcome, status), t)).toBe(expected);
   });
 
   it('falls back to "unknown" when the auth failure has no HTTP status', () => {
-    expect(describeSourceOutcome(source('AUTH_FAILED'))).toBe(
+    expect(describeSourceOutcome(source('AUTH_FAILED'), t)).toBe(
       'Hub: authentication was rejected (HTTP unknown).',
     );
   });

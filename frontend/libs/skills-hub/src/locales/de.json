@@ -10,7 +10,7 @@
       "title": "Verfügbare Skills",
       "settingsTitle": "Skills-Hub-Einstellungen",
       "settings": "⚙ Einstellungen",
-      "searchPlaceholder": "Nach einem Skill suchen...",
+      "searchPlaceholder": "Nach einem Skill suchen…",
       "searchLabel": "Nach einem Skill suchen",
       "search": "⌕ Suchen",
       "columnCategory": "Kategorie",
@@ -34,7 +34,7 @@
     },
     "settings": {
       "backTitle": "Zurück zum Skills-Hub",
-      "loading": "Marktplätze werden geladen...",
+      "loading": "Marktplätze werden geladen…",
       "title": "Marktplatzverbindungen",
       "formNew": "Neuer Marktplatz",
       "formEdit": "Marktplatz bearbeiten",
@@ -69,8 +69,8 @@
         "loadFailed": "Marktplätze konnten nicht geladen werden.",
         "nameRequired": "Name ist erforderlich.",
         "urlRequired": "Marktplatz-URL ist erforderlich.",
-        "saveFailed": "Speichern fehlgeschlagen.",
-        "deleteFailed": "Löschen fehlgeschlagen."
+        "saveFailed": "Der Marktplatz konnte nicht gespeichert werden.",
+        "deleteFailed": "Der Marktplatz konnte nicht gelöscht werden."
       },
       "status": {
         "added": "Marktplatz „{{name}}“ wurde hinzugefügt.",

@@ -68,14 +68,14 @@
       "bannerHalted": "The queue is halted because an item failed. Retry or skip the failed item, then resume the queue.",
       "bannerRunnerDisabled": "The queue runner is disabled. Queued items are not started automatically.",
       "bannerRunnerNotConfigured": "The queue runner has no identity configured. Queued items are not started automatically.",
-      "bannerPollError": "The last queue check failed: {{reason}} ({{at}}).",
+      "bannerPollError": "The last runner check failed: {{reason}} ({{at}}).",
       "settings": "Queue settings",
       "queue": "Queue",
       "empty": "The queue is empty. Use “Add to queue” to queue a spec file.",
       "lastPolled": "Runner last checked: {{at}}",
       "recentlyFinished": "Recently finished",
       "added": "{{specFile}} added to the queue",
-      "loadFailed": "Failed to load the spec queue"
+      "loadFailed": "Failed to load the spec queue."
     },
     "addDialog": {
       "eyebrow": "Spec queue",
@@ -105,7 +105,7 @@
       "confirmTitle": "Allow auto-merge?",
       "confirmWarning": "Queue items marked for auto-merge will have their pull requests merged without human review, unless the workflow has an approval gate.",
       "confirmLabel": "Allow auto-merge",
-      "updateFailed": "Failed to update the queue settings"
+      "updateFailed": "Failed to update the queue settings."
     },
     "row": {
       "autoMerge": "Auto-merge",
@@ -150,12 +150,12 @@
       "moved": "{{spec}} moved to position {{position}} of {{total}}",
       "paused": "Queue paused",
       "resumed": "Queue resumed",
-      "reorderFailed": "Failed to reorder the queue",
-      "pauseFailed": "Failed to pause the queue",
-      "resumeFailed": "Failed to resume the queue",
-      "updateItemFailed": "Failed to update the queue item",
-      "retryFailed": "Failed to retry the queue item",
-      "actionFailed": "The action failed",
+      "reorderFailed": "Failed to reorder the queue.",
+      "pauseFailed": "Failed to pause the queue.",
+      "resumeFailed": "Failed to resume the queue.",
+      "updateItemFailed": "Failed to update the queue item.",
+      "retryFailed": "Failed to retry the queue item.",
+      "actionFailed": "The action failed.",
       "noProject": "No project selected"
     }
   }

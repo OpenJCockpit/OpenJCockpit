@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { renderWithI18n } from '@openjcockpit/i18n/testing';
 import {
   Actions,
   AppHeader,
@@ -123,7 +124,7 @@ describe('AppShell', () => {
 
   it('AppHeader back button uses the default label and fires', () => {
     const onBack = vi.fn();
-    render(<AppHeader onBack={onBack} backTitle="Return" />);
+    renderWithI18n(<AppHeader onBack={onBack} backTitle="Return" />);
     const back = screen.getByRole('button', { name: '← Back' });
     expect(back).toHaveAttribute('title', 'Return');
     fireEvent.click(back);

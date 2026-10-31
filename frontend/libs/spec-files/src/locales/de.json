@@ -19,7 +19,7 @@
     "contentsOf": "Inhalt von {{fileName}}",
     "openPullRequest": "Pull Request öffnen",
     "noSpecSelected": "Keine Spec ausgewählt.",
-    "saveFailed": "Speichern der Spec fehlgeschlagen",
+    "saveFailed": "Die Spec konnte nicht gespeichert werden.",
     "addedToQueue": "{{fileName}} wurde zur Warteschlange hinzugefügt."
   }
 }

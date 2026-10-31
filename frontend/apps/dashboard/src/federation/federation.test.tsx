@@ -157,7 +157,7 @@ describe('RemoteRoutes', () => {
 
   it('shows a loading message while the routes load', async () => {
     await mount(appWith(() => new Promise(() => undefined)));
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByText('Loading…')).toBeInTheDocument();
   });
 
   it('contains a failing remote in its error boundary', async () => {

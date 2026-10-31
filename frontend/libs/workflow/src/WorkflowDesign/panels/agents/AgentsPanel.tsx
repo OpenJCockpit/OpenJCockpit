@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from '@openjcockpit/i18n';
-import { StatusMessage, Button } from '@openjcockpit/ui';
+import { StatusMessage, Button, fieldHintClass } from '@openjcockpit/ui';
 import type { AgentCatalogStatus } from '@openjcockpit/api';
 import { useAgentCatalog } from './useAgentCatalog';
 import { LocalAgentsTree } from './LocalAgentsTree';
@@ -35,6 +35,7 @@ export function AgentsPanel() {
           {t('agentsPanel.refresh')}
         </Button>
       </div>
+      <p className={fieldHintClass}>{t('agentsPanel.intro')}</p>
 
       <CatalogSection
         title={catalog.local.name}

@@ -6,9 +6,9 @@
     "selectProjectFirst": "Select a project first to manage the spec files.",
     "specs": "Specs",
     "loadingSpecs": "Loading specs…",
-    "loadFailed": "Could not load the specs. The server did not respond correctly.",
+    "loadFailed": "Failed to load the specs. The server did not respond correctly.",
     "retry": "Retry",
-    "noSpecsFound": "No Specs Found",
+    "noSpecsFound": "No specs found",
     "noSpecsFolder": "No specs/ folder with specifications in the repository",
     "lastModified": "Last modified: {{date}}",
     "saving": "⟳ Saving…",
@@ -19,7 +19,7 @@
     "contentsOf": "Contents of {{fileName}}",
     "openPullRequest": "Open pull request",
     "noSpecSelected": "No spec selected.",
-    "saveFailed": "Saving the spec failed",
+    "saveFailed": "Failed to save the spec.",
     "addedToQueue": "{{fileName}} was added to the queue."
   }
 }

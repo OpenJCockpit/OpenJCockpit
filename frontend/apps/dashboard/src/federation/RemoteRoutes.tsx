@@ -1,6 +1,7 @@
 import { Suspense, use } from 'react';
 import { useRoutes } from 'react-router';
 import type { AppDefinition } from '@openjcockpit/hub-contract';
+import { useTranslation } from '@openjcockpit/i18n';
 import { ErrorBoundary } from '@openjcockpit/ui';
 import { ViewLoading } from './ViewLoading';
 
@@ -24,8 +25,9 @@ function RenderRoutes({ app }: { app: AppDefinition }) {
 
 /** Renders a remote's relative route tree inside the host's router. */
 export function RemoteRoutes({ app }: { app: AppDefinition }) {
+  const { t } = useTranslation();
   return (
-    <ErrorBoundary>
+    <ErrorBoundary message={t('somethingWrong')} reloadLabel={t('reload')}>
       <Suspense fallback={<ViewLoading />}>
         <RenderRoutes app={app} />
       </Suspense>

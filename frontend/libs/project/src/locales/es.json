@@ -23,15 +23,15 @@
       "notReachableNotice": "Repositorio no accesible. Actualiza el proyecto en ⚙ Gestionar proyectos."
     },
     "settings": {
-      "loading": "Cargando proyectos...",
+      "loading": "Cargando proyectos…",
       "back": "← Proyectos",
       "title": "Gestión de proyectos",
       "newProject": "+ Nuevo proyecto",
       "errors": {
-        "nameRequired": "El nombre es obligatorio",
-        "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
-        "statusChangeFailed": "No se pudo cambiar el estado.",
-        "gitCheckFailed": "Falló la comprobación de Git.",
+        "nameRequired": "El nombre es obligatorio.",
+        "saveFailed": "No se pudo guardar el proyecto.",
+        "statusChangeFailed": "No se pudo cambiar el estado del proyecto.",
+        "gitCheckFailed": "No se pudo comprobar el repositorio de Git.",
         "credentialsLoadFailed": "No se pudieron cargar las credenciales existentes.",
         "credentialsSaveFailed": "No se pudieron guardar las credenciales.",
         "credentialsDeleteFailed": "No se pudieron eliminar las credenciales."
@@ -61,7 +61,7 @@
     },
     "credentials": {
       "title": "Credenciales de Git",
-      "loading": "Cargando credenciales actuales...",
+      "loading": "Cargando credenciales actuales…",
       "type": "Tipo",
       "types": {
         "NONE": "Ninguna",

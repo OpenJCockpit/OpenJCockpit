@@ -10,7 +10,7 @@
       "title": "Beschikbare skills",
       "settingsTitle": "Instellingen van Skills Hub",
       "settings": "⚙ Instellingen",
-      "searchPlaceholder": "Zoek een skill...",
+      "searchPlaceholder": "Zoek een skill…",
       "searchLabel": "Zoek een skill",
       "search": "⌕ Zoeken",
       "columnCategory": "Categorie",
@@ -34,7 +34,7 @@
     },
     "settings": {
       "backTitle": "Terug naar Skills Hub",
-      "loading": "Marketplaces laden...",
+      "loading": "Marketplaces laden…",
       "title": "Marketplace-koppelingen",
       "formNew": "Nieuwe marketplace",
       "formEdit": "Marketplace bewerken",
@@ -69,8 +69,8 @@
         "loadFailed": "Marketplaces laden is mislukt.",
         "nameRequired": "Naam is verplicht.",
         "urlRequired": "Marketplace-URL is verplicht.",
-        "saveFailed": "Opslaan is mislukt.",
-        "deleteFailed": "Verwijderen is mislukt."
+        "saveFailed": "De marketplace kon niet worden opgeslagen.",
+        "deleteFailed": "De marketplace kon niet worden verwijderd."
       },
       "status": {
         "added": "Marketplace \"{{name}}\" is toegevoegd.",

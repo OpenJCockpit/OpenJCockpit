@@ -40,7 +40,7 @@ export function WorkflowDashboard({ project, onBack, initialExecution, header }:
   const initialError = initialWorkflowQuery.isError
     ? initialWorkflowQuery.error instanceof Error
       ? initialWorkflowQuery.error.message
-      : 'Failed to load workflow'
+      : t('dashboard.workflowLoadFailed')
     : null;
 
   function handleWorkflowStarted(workflow: WorkflowDefinition, runId: string) {

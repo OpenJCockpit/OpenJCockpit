@@ -23,15 +23,15 @@
       "notReachableNotice": "Repository not reachable. Update the project via ⚙ Manage projects."
     },
     "settings": {
-      "loading": "Loading projects...",
+      "loading": "Loading projects…",
       "back": "← Projects",
       "title": "Project management",
       "newProject": "+ New project",
       "errors": {
-        "nameRequired": "Name is required",
-        "saveFailed": "Save failed. Please try again.",
-        "statusChangeFailed": "Status change failed.",
-        "gitCheckFailed": "Git check failed.",
+        "nameRequired": "Name is required.",
+        "saveFailed": "Failed to save the project.",
+        "statusChangeFailed": "Failed to change the project status.",
+        "gitCheckFailed": "Failed to check the Git repository.",
         "credentialsLoadFailed": "Failed to load existing credentials.",
         "credentialsSaveFailed": "Failed to save credentials.",
         "credentialsDeleteFailed": "Failed to delete credentials."
@@ -61,7 +61,7 @@
     },
     "credentials": {
       "title": "Git credentials",
-      "loading": "Loading current credentials...",
+      "loading": "Loading current credentials…",
       "type": "Type",
       "types": {
         "NONE": "None",

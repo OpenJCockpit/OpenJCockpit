@@ -41,7 +41,7 @@
       "title": "Accepteren met mijn opmerkingen",
       "hint": "Beschrijf wat er bij de volgende poging moet veranderen. Hiermee wordt de realisatiefase opnieuw uitgevoerd met jouw feedback en wordt dit controlepunt opnieuw geopend op het nieuwe resultaat.",
       "label": "Feedback voor de volgende poging",
-      "placeholder": "Leg uit wat de volgende poging moet wijzigen of herstellen...",
+      "placeholder": "Leg uit wat de volgende poging moet wijzigen of herstellen…",
       "limit": "Maximaal {{max}} tekens.",
       "submitting": "⟳ Verzenden…",
       "confirm": "Bevestigen",
@@ -68,7 +68,7 @@
     "a2aServices": {
       "title": "A2A-services",
       "intro": "Gateways die de A2A-agents hosten die workflows kunnen gebruiken. Hun agents verschijnen onder Workflowontwerp → Agents. Services uit de configuratie van de agentservice zijn alleen-lezen. Deze configuratie is globaal — ze geldt voor elk project.",
-      "loading": "A2A-services laden...",
+      "loading": "A2A-services laden…",
       "columns": {
         "service": "Service",
         "baseUrl": "Basis-URL",
@@ -113,10 +113,22 @@
       },
       "saveService": "A2A-service opslaan",
       "addService": "A2A-service toevoegen",
-      "addButton": "+ A2A-service toevoegen"
+      "addButton": "+ A2A-service toevoegen",
+      "loadFailed": "De A2A-services konden niet worden geladen.",
+      "saveFailed": "De A2A-service kon niet worden opgeslagen.",
+      "deleteFailed": "De A2A-service kon niet worden verwijderd.",
+      "added": "A2A-service \"{{name}}\" toegevoegd.",
+      "updated": "A2A-service \"{{name}}\" opgeslagen.",
+      "deleted": "A2A-service \"{{name}}\" verwijderd.",
+      "error": {
+        "idRequired": "Id is verplicht.",
+        "nameRequired": "Naam is verplicht.",
+        "baseUrlRequired": "Basis-URL is verplicht.",
+        "apiKeyRequired": "API-sleutel is verplicht."
+      }
     },
     "config": {
-      "loading": "Configuratie laden...",
+      "loading": "Configuratie laden…",
       "enabled": "Ingeschakeld",
       "workflowIdToStart": "Te starten workflow-ID",
       "authToken": "Authenticatietoken",
@@ -135,7 +147,9 @@
       "types": "Toegestane documenttypen",
       "typesPlaceholder": "pdf,docx,md",
       "workflowId": "Workflow-ID om te starten bij een nieuw bestand",
-      "trigger": "Bestandstrigger ingeschakeld"
+      "trigger": "Bestandstrigger ingeschakeld",
+      "saved": "Configuratie van de documentmap opgeslagen.",
+      "saveFailed": "De configuratie van de documentmap kon niet worden opgeslagen."
     },
     "hermes": {
       "loadFailed": "De Hermes-configuratie laden is mislukt.",
@@ -144,7 +158,9 @@
       "endpoint": "Signaalbron / endpoint",
       "endpointPlaceholder": "https://hermes.example.com/signals",
       "signalType": "Signaaltype",
-      "signalTypePlaceholder": "issue.created"
+      "signalTypePlaceholder": "issue.created",
+      "saved": "Hermes-configuratie opgeslagen.",
+      "saveFailed": "De Hermes-configuratie kon niet worden opgeslagen."
     },
     "jira": {
       "loadFailed": "De Jira-configuratie laden is mislukt.",
@@ -154,7 +170,10 @@
       "baseUrlPlaceholder": "https://your-org.atlassian.net",
       "projectKey": "Projectsleutel",
       "issueTypeMapping": "Koppeling van issuetypen",
-      "issueTypeMappingPlaceholder": "Bug=bugfix-workflow"
+      "issueTypeMappingPlaceholder": "Bug=bugfix-workflow",
+      "saved": "Jira-configuratie opgeslagen.",
+      "saveFailed": "De Jira-configuratie kon niet worden opgeslagen.",
+      "projectKeyPlaceholder": "NL"
     },
     "opa": {
       "loadFailed": "De OPA-configuratie laden is mislukt.",
@@ -178,7 +197,17 @@
       "projectLabel": "Projectlabel",
       "projectLabelPlaceholder": "onboarding",
       "decisionLogging": "Beslissingslogging ingeschakeld",
-      "decisionLogExport": "Export van beslissingslogs ingeschakeld"
+      "decisionLogExport": "Export van beslissingslogs ingeschakeld",
+      "saved": "OPA-configuratie opgeslagen.",
+      "saveFailed": "De OPA-configuratie kon niet worden opgeslagen.",
+      "status": {
+        "notConfigured": "Niet geconfigureerd",
+        "disabled": "Uitgeschakeld",
+        "unreachable": "Geconfigureerd maar onbereikbaar",
+        "reachable": "Geconfigureerd en bereikbaar",
+        "enforcing": "Ingeschakeld en afdwingend",
+        "unavailable": "Ingeschakeld maar beleid niet beschikbaar"
+      }
     },
     "dashboard": {
       "backTitle": "Terug naar dashboard",
@@ -191,7 +220,8 @@
         "design": "Ontwerp",
         "execution": "Workflowuitvoering"
       },
-      "runLoadFailed": "De workflow van deze run kon niet worden geladen — {{error}}"
+      "runLoadFailed": "De workflow van deze run kon niet worden geladen — {{error}}",
+      "workflowLoadFailed": "De workflow kon niet worden geladen."
     },
     "design": {
       "tabsLabel": "Ontwerpsecties",
@@ -205,7 +235,7 @@
     },
     "agentsPanel": {
       "loadFailed": "De agentcatalogus laden is mislukt.",
-      "loading": "Agents laden...",
+      "loading": "Agents laden…",
       "refresh": "⟳ Vernieuwen",
       "status": {
         "NOT_CONFIGURED": "Niet geconfigureerd",
@@ -214,7 +244,8 @@
         "INVALID": "Ongeldig antwoord"
       },
       "emptyLocal": "Nog geen agents in de map /agents.",
-      "emptyProvider": "Geen agents geregistreerd bij {{name}}."
+      "emptyProvider": "Geen agents geregistreerd bij {{name}}.",
+      "intro": "De agents die workflows kunnen gebruiken: lokale agents en de agents van je A2A-services. Deze lijst is alleen-lezen. Voeg A2A-services toe onder Configuratie."
     },
     "localAgents": {
       "model": "Model",
@@ -228,7 +259,7 @@
       "hide": "Verbergen",
       "details": "Details",
       "cardFailed": "De agentkaart kon niet worden opgehaald bij {{name}}.",
-      "cardLoading": "Agentkaart laden...",
+      "cardLoading": "Agentkaart laden…",
       "cardLabel": "Agentkaart {{name}}",
       "agentCard": "Agentkaart",
       "providerKeyRequired": "(providersleutel vereist)",
@@ -251,10 +282,12 @@
       "projectName": "Projectnaam",
       "projectPlaceholder": "Leeg laten voor een globale groep",
       "projectHint": "Leeg = globaal: workflows in deze groep zijn beschikbaar voor elk project.",
-      "loading": "Groepen laden...",
+      "loading": "Groepen laden…",
       "newButton": "+ Nieuwe groep",
       "intro": "Groepen bundelen workflows die voor een bepaald doel zijn ontworpen (bijvoorbeeld onboarding, compliance of rapportage). Als je een groep verwijdert, worden de workflows losgekoppeld; de workflows zelf blijven bestaan.",
-      "global": "Globaal (alle projecten)"
+      "global": "Globaal (alle projecten)",
+      "saveFailed": "De workflowgroep kon niet worden opgeslagen.",
+      "deleteFailed": "De workflowgroep kon niet worden verwijderd."
     },
     "promptGenerator": {
       "example": {
@@ -282,14 +315,33 @@
       "input": "Invoer",
       "output": "Uitvoer",
       "notProvided": "Niet opgegeven",
-      "local": "Lokaal"
+      "local": "Lokaal",
+      "loadFailed": "De skillcatalogus kon niet worden geladen.",
+      "draftFailed": "Het skill-concept kon niet worden gegenereerd.",
+      "saveFailed": "De skilldefinitie kon niet worden opgeslagen.",
+      "deleteFailed": "De skilldefinitie kon niet worden verwijderd.",
+      "sourceOutcome": {
+        "authFailed": "{{name}}: authenticatie geweigerd (HTTP {{status}}).",
+        "unknownStatus": "onbekend",
+        "timeout": "{{name}}: time-out.",
+        "unreachable": "{{name}}: niet bereikbaar.",
+        "invalidResponse": "{{name}}: gaf een ongeldig antwoord.",
+        "blockedByPolicy": "{{name}}: geblokkeerd door het egress-beleid.",
+        "configError": "{{name}}: configuratiefout — controleer de API-sleutel.",
+        "unknown": "{{name}}: onbekende status."
+      }
     },
     "subagents": {
       "new": "Nieuwe subagent",
       "edit": "Subagent bewerken",
-      "loading": "Subagents laden...",
+      "loading": "Subagents laden…",
       "newButton": "+ Nieuwe subagent",
-      "parentAgent": "Bovenliggende agent"
+      "parentAgent": "Bovenliggende agent",
+      "loadFailed": "De subagents konden niet worden geladen.",
+      "draftFailed": "Het subagent-concept kon niet worden gegenereerd.",
+      "saveFailed": "De subagentdefinitie kon niet worden opgeslagen.",
+      "deleteFailed": "De subagentdefinitie kon niet worden verwijderd.",
+      "intro": "Subagents zijn helpers aan wie een bovenliggende agent gerichte taken overdraagt. Elk heeft eigen instructies en skills."
     },
     "agentPicker": {
       "agents": "Agents",
@@ -342,7 +394,7 @@
       "customerId": "Klant-ID (uitvoering)"
     },
     "workflows": {
-      "loading": "Workflows laden...",
+      "loading": "Workflows laden…",
       "newButton": "+ Nieuwe workflow",
       "group": "Groep",
       "allGroups": "Alle groepen",
@@ -350,7 +402,17 @@
       "export": "⬇ JSON exporteren",
       "importLabel": "Workflows-JSON importeren",
       "import": "⬆ JSON importeren",
-      "unresolved": "{{count}} verwijzing(en) kon(den) niet worden opgelost:"
+      "unresolved": "{{count}} verwijzing(en) kon(den) niet worden opgelost:",
+      "saveFailed": "De workflow kon niet worden opgeslagen.",
+      "deleteFailed": "De workflow kon niet worden verwijderd.",
+      "exportFailed": "De workflows konden niet worden geëxporteerd.",
+      "importFailed": "De workflows konden niet uit de JSON worden geïmporteerd.",
+      "imported": "{{workflows}} workflow(s) en {{groups}} groep(en) geïmporteerd.",
+      "groupOrProjectRequired": "Koppel de workflow aan een groep of voer een projectnaam in — zonder groep is een project verplicht.",
+      "agentRequired": "Koppel minstens één agent — een workflow zonder agents kan niet draaien.",
+      "orbModeRequired": "Workflow-orb {{index}}: kies een uitvoeringsmodus (Sequentieel of Parallel) voordat je opslaat.",
+      "catalogFailed": "De agentcatalogus kon niet worden geladen.",
+      "intro": "Workflows koppelen agents aan elkaar tot een herhaalbaar proces. Een workflow hoort bij een groep of een project en start vanuit het dashboard, een Hermes-signaal of een bestandsaanlevering."
     },
     "runLost": {
       "message": "De status van deze run is verloren gegaan, waarschijnlijk doordat de service opnieuw is gestart. Voor deze run is geen goedkeuringsbeslissing mogelijk.",
@@ -378,7 +440,7 @@
       "loadMore": "Meer laden"
     },
     "overview": {
-      "loading": "Workflows laden...",
+      "loading": "Workflows laden…",
       "loadFailed": "Workflows konden niet worden geladen — {{error}}",
       "empty": "Nog geen workflows gedefinieerd. Maak er een aan op het tabblad Ontwerp.",
       "project": "Project",

@@ -75,7 +75,7 @@ describe('CredentialsForm', () => {
 
   it('shows a loading message and disables saving while loading', () => {
     setup({ loading: true });
-    expect(screen.getByText('Loading current credentials...')).toBeInTheDocument();
+    expect(screen.getByText('Loading current credentials…')).toBeInTheDocument();
     expect(screen.queryByPlaceholderText('optional')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });

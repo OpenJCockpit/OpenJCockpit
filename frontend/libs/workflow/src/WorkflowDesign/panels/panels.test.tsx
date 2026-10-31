@@ -52,7 +52,7 @@ describe('SubagentsPanel', () => {
   it('shows loading, then lists the subagents', async () => {
     vi.mocked(api.listSubagentSpecs).mockReturnValue(new Promise(() => {}));
     await renderAsync(<SubagentsPanel />);
-    expect(screen.getByText('Loading subagents...')).toBeInTheDocument();
+    expect(screen.getByText('Loading subagents…')).toBeInTheDocument();
   });
 
   it('renders a row per subagent with joined skills', async () => {
@@ -71,7 +71,7 @@ describe('SubagentsPanel', () => {
   it('falls back to a generic load error for a non-Error rejection', async () => {
     vi.mocked(api.listSubagentSpecs).mockRejectedValue('nope');
     await renderAsync(<SubagentsPanel />);
-    expect(await screen.findByText('Failed to load subagents')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to load the subagents.')).toBeInTheDocument();
   });
 
   it('creates a subagent and appends it', async () => {
@@ -134,7 +134,7 @@ describe('SubagentsPanel', () => {
     await openPanel(<SubagentsPanel />, 'scanner');
     await clickAsync(screen.getByText('+ New subagent'));
     await clickAsync(screen.getByRole('button', { name: 'Save' }));
-    expect(await screen.findByText('Failed to save subagent definition.')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to save the subagent definition.')).toBeInTheDocument();
     expect(screen.getByText('New subagent')).toBeInTheDocument();
   });
 
@@ -159,7 +159,9 @@ describe('SubagentsPanel', () => {
     await openPanel(<SubagentsPanel />, 'scanner');
     await clickAsync(within(row('scanner')).getByText('Delete'));
     await clickAsync(screen.getByTestId('confirm-action-confirm'));
-    expect(await screen.findByText('Failed to delete subagent definition.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Failed to delete the subagent definition.'),
+    ).toBeInTheDocument();
     expect(screen.getByText('scanner')).toBeInTheDocument();
   });
 
@@ -176,7 +178,7 @@ describe('SubagentsPanel', () => {
     vi.mocked(api.generateSubagentSpec).mockRejectedValue(new Error('x'));
     await openPanel(<SubagentsPanel />, 'scanner');
     await generate();
-    expect(await screen.findByText('Failed to generate subagent draft.')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to generate the subagent draft.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '✨ Generate draft' })).toBeEnabled();
   });
 });
@@ -253,7 +255,7 @@ describe('SkillsPanel', () => {
   it('uses a generic message for a non-Error load failure', async () => {
     vi.mocked(api.getSkillCatalog).mockRejectedValue('nope');
     await renderAsync(<SkillsPanel />);
-    expect(await screen.findByRole('alert')).toHaveTextContent('Failed to load skill catalog.');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Failed to load the skill catalog.');
   });
 
   it('refetches the catalog on refresh', async () => {
@@ -316,7 +318,7 @@ describe('SkillsPanel', () => {
     await openPanel(<SkillsPanel />, 'summarise');
     await clickAsync(screen.getByText('+ New skill'));
     await clickAsync(screen.getByRole('button', { name: 'Save' }));
-    expect(await screen.findByText('Failed to save skill definition.')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to save the skill definition.')).toBeInTheDocument();
     await clickAsync(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByText('New skill')).not.toBeInTheDocument();
   });
@@ -335,7 +337,7 @@ describe('SkillsPanel', () => {
     await openPanel(<SkillsPanel />, 'summarise');
     await clickAsync(within(row('summarise')).getByText('Delete'));
     await clickAsync(screen.getByTestId('confirm-action-confirm'));
-    expect(await screen.findByText('Failed to delete skill definition.')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to delete the skill definition.')).toBeInTheDocument();
     expect(screen.getByText('summarise')).toBeInTheDocument();
   });
 
@@ -348,7 +350,7 @@ describe('SkillsPanel', () => {
 
     vi.mocked(api.generateSkillSpec).mockRejectedValueOnce(new Error('x'));
     await generate();
-    expect(await screen.findByText('Failed to generate skill draft.')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to generate the skill draft.')).toBeInTheDocument();
   });
 });
 
@@ -426,7 +428,7 @@ describe('GroupsPanel', () => {
     await renderAsync(<GroupsPanel />);
     await clickAsync(screen.getByText('+ New group'));
     await clickAsync(screen.getByRole('button', { name: 'Save' }));
-    expect(await screen.findByText('Failed to save workflow group.')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to save the workflow group.')).toBeInTheDocument();
     await clickAsync(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByText('New group')).not.toBeInTheDocument();
   });
@@ -436,7 +438,7 @@ describe('GroupsPanel', () => {
     await renderAsync(<GroupsPanel />);
     await clickAsync(within(row('Onboarding')).getByText('Delete'));
     await clickAsync(screen.getByTestId('confirm-action-confirm'));
-    expect(await screen.findByText('Failed to delete workflow group.')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to delete the workflow group.')).toBeInTheDocument();
 
     vi.mocked(api.deleteWorkflowGroup).mockResolvedValueOnce(undefined);
     await clickAsync(within(row('Onboarding')).getByText('Delete'));

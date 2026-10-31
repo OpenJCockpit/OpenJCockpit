@@ -51,14 +51,14 @@ describe('ProjectSettings — loading', () => {
   it('keeps showing the loading message while the load is pending', async () => {
     vi.mocked(api.loadAllProjects).mockReturnValue(new Promise(() => {}));
     await renderAsync(<ProjectSettings onBack={vi.fn()} />);
-    expect(screen.getByText('Loading projects...')).toBeInTheDocument();
+    expect(screen.getByText('Loading projects…')).toBeInTheDocument();
   });
 
   it('keeps the loading message and logs when the load fails', async () => {
     vi.mocked(api.loadAllProjects).mockRejectedValue(new Error('down'));
     await renderAsync(<ProjectSettings onBack={vi.fn()} />);
     await waitFor(() => expect(console.error).toHaveBeenCalled());
-    expect(screen.getByText('Loading projects...')).toBeInTheDocument();
+    expect(screen.getByText('Loading projects…')).toBeInTheDocument();
   });
 
   it('goes back via the header button', async () => {
@@ -102,7 +102,7 @@ describe('ProjectSettings — create and edit', () => {
     fireEvent.change(screen.getByPlaceholderText('Project name'), { target: { value: 'X' } });
     await clickAsync(screen.getByText('Save'));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Save failed. Please try again.');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Failed to save the project.');
     expect(screen.getByText('New project')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Project name')).not.toHaveAttribute('aria-invalid');
   });
@@ -196,7 +196,9 @@ describe('ProjectSettings — status and git check', () => {
     vi.mocked(api.deactivateProject).mockRejectedValue(new Error('x'));
     await clickAsync(within(row('Beta')).getByText('Deactivate'));
     await clickAsync(screen.getByTestId('confirm-action-confirm'));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Status change failed.');
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Failed to change the project status.',
+    );
     expect(within(row('Beta')).getByText('Active')).toBeInTheDocument();
   });
 
@@ -228,7 +230,9 @@ describe('ProjectSettings — status and git check', () => {
     await renderSettings();
     vi.mocked(api.triggerGitCheck).mockRejectedValue(new Error('x'));
     await clickAsync(within(row('Beta')).getByText('Git check'));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Git check failed.');
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Failed to check the Git repository.',
+    );
     expect(within(row('Beta')).getByText('Git check')).toBeEnabled();
   });
 });
@@ -391,6 +395,6 @@ describe('ProjectSettings — aborted load', () => {
     await renderAsync(<ProjectSettings onBack={vi.fn()} />);
     await waitFor(() => expect(api.loadAllProjects).toHaveBeenCalled());
     expect(spy).not.toHaveBeenCalled();
-    expect(screen.getByText('Loading projects...')).toBeInTheDocument();
+    expect(screen.getByText('Loading projects…')).toBeInTheDocument();
   });
 });

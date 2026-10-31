@@ -99,7 +99,7 @@ describe('when the specs cannot be loaded', () => {
   it('shows the failure in both panels', async () => {
     await renderFailing();
     expect(screen.getByTestId('specs-error')).toBeInTheDocument();
-    expect(screen.getByText('Could not load specs')).toBeInTheDocument();
+    expect(screen.getByText('Failed to load the specs')).toBeInTheDocument();
     expect(screen.queryByText('▶ Start')).not.toBeInTheDocument();
   });
 
@@ -126,7 +126,7 @@ describe('spec files in the left pane', () => {
     expect(api.loadProjectSpecs).toHaveBeenCalledWith(PROJECT.id, expect.any(AbortSignal));
     expect(screen.getAllByText('checkout-flow.md').length).toBeGreaterThan(0);
     expect(screen.getByText('pricing-rules.md')).toBeInTheDocument();
-    expect(screen.queryByText('No Specs Found')).not.toBeInTheDocument();
+    expect(screen.queryByText('No specs found')).not.toBeInTheDocument();
   });
 
   it('selects another spec when clicked and shows it in the center header', async () => {
@@ -139,10 +139,10 @@ describe('spec files in the left pane', () => {
     expect(screen.getByRole('heading', { name: 'pricing-rules.md' })).toBeInTheDocument();
   });
 
-  it('shows an unclickable No Specs Found record when the repository has no specs', async () => {
+  it('shows an unclickable No specs found record when the repository has no specs', async () => {
     await renderDashboard([]);
 
-    const record = screen.getByText('No Specs Found').closest('article')!;
+    const record = screen.getByText('No specs found', { selector: 'strong' }).closest('article')!;
     expect(record).not.toHaveAttribute('role');
     expect(record.className).toContain(specStyles.specCardEmpty);
   });
@@ -157,7 +157,7 @@ describe('spec files in the left pane', () => {
     await waitFor(() =>
       expect(screen.getByTestId('nav-app-workflow')).toHaveAttribute('aria-current', 'page'),
     );
-    expect(screen.queryByText('No Specs Found')).not.toBeInTheDocument();
+    expect(screen.queryByText('No specs found')).not.toBeInTheDocument();
   });
 
   it('navigates to the Spec Files Dashboard when "View all specs" is clicked', async () => {

@@ -23,15 +23,15 @@
       "notReachableNotice": "Repository nicht erreichbar. Aktualisieren Sie das Projekt über ⚙ Projekte verwalten."
     },
     "settings": {
-      "loading": "Projekte werden geladen...",
+      "loading": "Projekte werden geladen…",
       "back": "← Projekte",
       "title": "Projektverwaltung",
       "newProject": "+ Neues Projekt",
       "errors": {
-        "nameRequired": "Name ist erforderlich",
-        "saveFailed": "Speichern fehlgeschlagen. Bitte versuchen Sie es erneut.",
-        "statusChangeFailed": "Statusänderung fehlgeschlagen.",
-        "gitCheckFailed": "Git-Prüfung fehlgeschlagen.",
+        "nameRequired": "Name ist erforderlich.",
+        "saveFailed": "Das Projekt konnte nicht gespeichert werden.",
+        "statusChangeFailed": "Der Projektstatus konnte nicht geändert werden.",
+        "gitCheckFailed": "Das Git-Repository konnte nicht geprüft werden.",
         "credentialsLoadFailed": "Vorhandene Zugangsdaten konnten nicht geladen werden.",
         "credentialsSaveFailed": "Zugangsdaten konnten nicht gespeichert werden.",
         "credentialsDeleteFailed": "Zugangsdaten konnten nicht gelöscht werden."
@@ -61,7 +61,7 @@
     },
     "credentials": {
       "title": "Git-Zugangsdaten",
-      "loading": "Aktuelle Zugangsdaten werden geladen...",
+      "loading": "Aktuelle Zugangsdaten werden geladen…",
       "type": "Typ",
       "types": {
         "NONE": "Keine",

@@ -32,22 +32,29 @@ export function downloadWorkflowBundle(bundle: WorkflowExportBundle) {
   URL.revokeObjectURL(url);
 }
 
-export function describeSourceOutcome(source: SkillCatalogSourceStatus): string {
+export function describeSourceOutcome(
+  source: SkillCatalogSourceStatus,
+  t: TFunction<'workflow'>,
+): string {
+  const name = source.name;
   switch (source.outcome) {
     case 'AUTH_FAILED':
-      return `${source.name}: authentication was rejected (HTTP ${source.httpStatus ?? 'unknown'}).`;
+      return t('skills.sourceOutcome.authFailed', {
+        name,
+        status: source.httpStatus ?? t('skills.sourceOutcome.unknownStatus'),
+      });
     case 'TIMEOUT':
-      return `${source.name}: timed out.`;
+      return t('skills.sourceOutcome.timeout', { name });
     case 'UNREACHABLE':
-      return `${source.name}: could not be reached.`;
+      return t('skills.sourceOutcome.unreachable', { name });
     case 'INVALID_RESPONSE':
-      return `${source.name}: returned an invalid response.`;
+      return t('skills.sourceOutcome.invalidResponse', { name });
     case 'BLOCKED_BY_POLICY':
-      return `${source.name}: blocked by egress policy.`;
+      return t('skills.sourceOutcome.blockedByPolicy', { name });
     case 'CONFIG_ERROR':
-      return `${source.name}: configuration error — check its API key.`;
+      return t('skills.sourceOutcome.configError', { name });
     default:
-      return `${source.name}: unknown status.`;
+      return t('skills.sourceOutcome.unknown', { name });
   }
 }
 

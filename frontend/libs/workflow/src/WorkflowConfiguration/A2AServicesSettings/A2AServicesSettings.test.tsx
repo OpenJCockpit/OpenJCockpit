@@ -180,7 +180,7 @@ describe('A2AServicesSettings', () => {
   it('falls back to a generic message when loading fails with a non-Error', async () => {
     vi.mocked(workflowApi.listA2AServices).mockRejectedValue('boom');
     await renderSettings();
-    expect(screen.getByRole('alert')).toHaveTextContent('Failed to load A2A services.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Failed to load the A2A services.');
   });
 
   it('shows the empty state when the API returns no services', async () => {
@@ -246,7 +246,7 @@ describe('A2AServicesSettings', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save A2A service' }));
     expect(screen.getByRole('button', { name: /Saving/ })).toBeDisabled();
     await act(async () => reject('nope'));
-    expect(screen.getByRole('alert')).toHaveTextContent('Failed to save A2A service.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Failed to save the A2A service.');
 
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByRole('heading', { name: /Edit Acme/ })).not.toBeInTheDocument();
@@ -290,7 +290,7 @@ describe('A2AServicesSettings', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('confirm-action-confirm'));
     });
-    expect(screen.getByRole('alert')).toHaveTextContent('Failed to delete A2A service.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Failed to delete the A2A service.');
   });
 
   it('shows the public URL when it differs and prefills the edit form from the service', async () => {

@@ -2,6 +2,9 @@
   "common": {
     "secretField": {
       "configuredHint": "(ya configurado — déjalo en blanco para conservarlo)"
-    }
+    },
+    "back": "← Volver",
+    "somethingWrong": "Algo salió mal.",
+    "reload": "Recargar"
   }
 }

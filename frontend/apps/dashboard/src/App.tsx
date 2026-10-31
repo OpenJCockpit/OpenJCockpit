@@ -62,6 +62,7 @@ function titleKeyFor(pathname: string) {
 
 function App() {
   const { t } = useTranslation('dashboard');
+  const { t: tCommon } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { authenticated, user } = useAuthSession();
@@ -132,7 +133,11 @@ function App() {
         <AppRegistryProvider apps={remoteApps}>
           <HubHeaderContext.Provider value={<SiteHeader {...shell} />}>
             <RemoteFailuresNotice />
-            <ErrorBoundary resetKeys={[location.pathname]}>
+            <ErrorBoundary
+              resetKeys={[location.pathname]}
+              message={tCommon('somethingWrong')}
+              reloadLabel={tCommon('reload')}
+            >
               <Suspense fallback={<ViewLoading />}>
                 <Routes>
                   <Route

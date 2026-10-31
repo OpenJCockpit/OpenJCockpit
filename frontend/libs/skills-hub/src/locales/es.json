@@ -10,7 +10,7 @@
       "title": "Skills disponibles",
       "settingsTitle": "Ajustes de Skills Hub",
       "settings": "⚙ Ajustes",
-      "searchPlaceholder": "Buscar una skill...",
+      "searchPlaceholder": "Buscar una skill…",
       "searchLabel": "Buscar una skill",
       "search": "⌕ Buscar",
       "columnCategory": "Categoría",
@@ -34,7 +34,7 @@
     },
     "settings": {
       "backTitle": "Volver a Skills Hub",
-      "loading": "Cargando marketplaces...",
+      "loading": "Cargando marketplaces…",
       "title": "Conexiones de marketplace",
       "formNew": "Nuevo marketplace",
       "formEdit": "Editar marketplace",
@@ -69,8 +69,8 @@
         "loadFailed": "No se pudieron cargar los marketplaces.",
         "nameRequired": "El nombre es obligatorio.",
         "urlRequired": "La URL del marketplace es obligatoria.",
-        "saveFailed": "No se pudo guardar.",
-        "deleteFailed": "No se pudo eliminar."
+        "saveFailed": "No se pudo guardar el marketplace.",
+        "deleteFailed": "No se pudo eliminar el marketplace."
       },
       "status": {
         "added": "Se ha añadido el marketplace \"{{name}}\".",

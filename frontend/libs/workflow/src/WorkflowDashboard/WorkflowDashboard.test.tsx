@@ -239,7 +239,7 @@ describe('WorkflowDashboard', () => {
     );
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'The workflow of this run could not be loaded — Failed to load workflow',
+      'The workflow of this run could not be loaded — Failed to load the workflow.',
     );
   });
 

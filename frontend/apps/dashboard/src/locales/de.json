@@ -1,7 +1,7 @@
 {
   "dashboard": {
-    "authenticating": "Authentifizierung läuft...",
-    "loadingView": "Wird geladen...",
+    "authenticating": "Authentifizierung läuft…",
+    "loadingView": "Wird geladen…",
     "forbidden": "Du hast keinen Zugriff auf diese Seite.",
     "notFound": "Diese Seite existiert nicht.",
     "backToDashboard": "Zurück zum Dashboard",
@@ -68,7 +68,7 @@
     },
     "workspace": {
       "failed": "Der Arbeitsbereich konnte nicht geladen werden.",
-      "loading": "Arbeitsbereich wird geladen..."
+      "loading": "Arbeitsbereich wird geladen…"
     },
     "preflight": {
       "title": "Preflight-Prüfung fehlgeschlagen",
@@ -87,7 +87,7 @@
       }
     },
     "flow": {
-      "specsFailedTitle": "Specs konnten nicht geladen werden",
+      "specsFailedTitle": "Die Specs konnten nicht geladen werden",
       "specsFailed": "Die Specs konnten nicht geladen werden. Der Server hat nicht korrekt geantwortet.",
       "startNewWorkflow": "↺ Neuen Workflow starten",
       "currentSpec": "Aktuelle Spec",
@@ -139,10 +139,42 @@
     },
     "evidence": {
       "title": "Ausführungsnachweis",
-      "by": "Von: {{actor}}"
+      "by": "Von: {{actor}}",
+      "events": {
+        "specLoaded": "Spezifikation geladen",
+        "impactAnalysisRecorded": "Auswirkungsanalyse erfasst",
+        "testSetGenerated": "Testsatz erzeugt",
+        "implementationProposalSaved": "Implementierungsvorschlag gespeichert",
+        "humanApprovalLogged": "Menschliche Freigabe protokolliert",
+        "evidenceDataRecorded": "Nachweisdaten erfasst"
+      },
+      "actors": {
+        "requirement": "Anforderungs-Agent",
+        "impact": "Auswirkungsanalyse-Agent",
+        "testDesign": "Testdesign-Agent",
+        "implementation": "Implementierungs-Agent",
+        "review": "Review-Agent",
+        "evidence": "Nachweis-Agent"
+      }
     },
     "quality": {
-      "title": "Qualitätsstatus"
+      "title": "Qualitätsstatus",
+      "controls": {
+        "unitTestCoverage": "Unit-Test-Abdeckung",
+        "nist2": "NIST 2",
+        "owaspZap": "OWASP ZAP",
+        "iso25010": "ISO 25010",
+        "sast": "SAST",
+        "dependencyScan": "Abhängigkeitsprüfung",
+        "architectureRules": "Architekturregeln"
+      },
+      "details": {
+        "noCriticalIssues": "Keine kritischen Probleme",
+        "allAttributes": "8/8 Attribute",
+        "noHighIssues": "Keine schwerwiegenden Probleme",
+        "noKnownVulnerabilities": "Keine bekannten Schwachstellen",
+        "noDeviations": "0 Abweichungen"
+      }
     },
     "apps": {
       "hello": {

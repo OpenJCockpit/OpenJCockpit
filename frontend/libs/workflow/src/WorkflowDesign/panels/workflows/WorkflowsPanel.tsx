@@ -115,22 +115,18 @@ export function WorkflowsPanel() {
 
   async function handleSave(editingId: string) {
     if (!form.groupId && !form.projectName.trim()) {
-      setError(
-        'Link the workflow to a group or enter a project name — without a group, a project is required.',
-      );
+      setError(t('workflows.groupOrProjectRequired'));
       return;
     }
     if (form.agentIds.length === 0) {
-      setError('Link at least one agent — a workflow without agents cannot run.');
+      setError(t('workflows.agentRequired'));
       return;
     }
     setOrbError(null);
     const orbs: WorkflowOrb[] = [];
     for (const [index, { mode, ...orb }] of (form.workflowOrbs ?? []).entries()) {
       if (!mode) {
-        setOrbError(
-          `Workflow orb ${index + 1}: choose an execution mode (Sequential or Parallel) before saving.`,
-        );
+        setOrbError(t('workflows.orbModeRequired', { index: index + 1 }));
         return;
       }
       orbs.push({ ...orb, mode });
@@ -155,7 +151,7 @@ export function WorkflowsPanel() {
       setOrbError(null);
       // Surfaces the server's actual message (e.g. the approval-gate placement validation
       // naming the offending stage) instead of a generic failure (AC-03).
-      setError(err instanceof Error ? err.message : 'Failed to save workflow.');
+      setError(err instanceof Error ? err.message : t('workflows.saveFailed'));
       console.warn(err);
     } finally {
       setSaving(false);
@@ -167,7 +163,7 @@ export function WorkflowsPanel() {
       await deleteWorkflow(id);
       updateItems((prev) => prev.filter((i) => i.id !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete workflow.');
+      setError(err instanceof Error ? err.message : t('workflows.deleteFailed'));
       console.warn(err);
     }
   }
@@ -178,7 +174,7 @@ export function WorkflowsPanel() {
     try {
       downloadWorkflowBundle(await exportWorkflows());
     } catch (err) {
-      setError('Failed to export workflows.');
+      setError(t('workflows.exportFailed'));
       console.warn(err);
     }
   }
@@ -195,11 +191,14 @@ export function WorkflowsPanel() {
         queryClient.invalidateQueries({ queryKey: workflowGroupsQueryKey }),
       ]);
       setInfo(
-        `Imported ${result.workflowsImported} workflow(s) and ${result.groupsImported} group(s).`,
+        t('workflows.imported', {
+          workflows: result.workflowsImported,
+          groups: result.groupsImported,
+        }),
       );
       setImportViolations(result.violations ?? []);
     } catch (err) {
-      setError('Failed to import workflows from JSON.');
+      setError(t('workflows.importFailed'));
       console.warn(err);
     }
   }
@@ -235,6 +234,7 @@ export function WorkflowsPanel() {
           {t('workflows.import')}
         </FileImportButton>
       </div>
+      <p className={fieldHintClass}>{t('workflows.intro')}</p>
       {error && (
         <p id="workflow-save-error" className={fieldErrorClass} role="alert">
           {error}

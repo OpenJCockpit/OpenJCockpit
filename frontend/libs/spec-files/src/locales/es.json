@@ -19,7 +19,7 @@
     "contentsOf": "Contenido de {{fileName}}",
     "openPullRequest": "Abrir pull request",
     "noSpecSelected": "Ninguna especificación seleccionada.",
-    "saveFailed": "No se pudo guardar la especificación",
+    "saveFailed": "No se pudo guardar la spec.",
     "addedToQueue": "{{fileName}} se añadió a la cola."
   }
 }

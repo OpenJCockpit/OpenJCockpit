@@ -53,7 +53,7 @@
     "noProject": "Ningún proyecto seleccionado",
     "cancel": "Cancelar",
     "working": "⟳ Trabajando…",
-    "unknownError": "Error desconocido",
+    "unknownError": "Error desconocido.",
     "dashboard": {
       "eyebrow": "Cola de especificaciones",
       "state": "Estado: {{state}}",
@@ -75,7 +75,7 @@
       "lastPolled": "Última comprobación del ejecutor: {{at}}",
       "recentlyFinished": "Finalizados recientemente",
       "added": "{{specFile}} añadido a la cola",
-      "loadFailed": "No se pudo cargar la cola de especificaciones"
+      "loadFailed": "No se pudo cargar la cola de especificaciones."
     },
     "addDialog": {
       "eyebrow": "Cola de especificaciones",
@@ -105,7 +105,7 @@
       "confirmTitle": "¿Permitir la fusión automática?",
       "confirmWarning": "Los pull requests de los elementos de la cola marcados para fusión automática se fusionarán sin revisión humana, salvo que el workflow tenga una puerta de aprobación.",
       "confirmLabel": "Permitir fusión automática",
-      "updateFailed": "No se pudieron actualizar los ajustes de la cola"
+      "updateFailed": "No se pudieron actualizar los ajustes de la cola."
     },
     "row": {
       "autoMerge": "Fusión automática",
@@ -150,12 +150,12 @@
       "moved": "{{spec}} movido a la posición {{position}} de {{total}}",
       "paused": "Cola en pausa",
       "resumed": "Cola reanudada",
-      "reorderFailed": "No se pudo reordenar la cola",
-      "pauseFailed": "No se pudo pausar la cola",
-      "resumeFailed": "No se pudo reanudar la cola",
-      "updateItemFailed": "No se pudo actualizar el elemento de la cola",
-      "retryFailed": "No se pudo reintentar el elemento de la cola",
-      "actionFailed": "La acción falló",
+      "reorderFailed": "No se pudo reordenar la cola.",
+      "pauseFailed": "No se pudo pausar la cola.",
+      "resumeFailed": "No se pudo reanudar la cola.",
+      "updateItemFailed": "No se pudo actualizar el elemento de la cola.",
+      "retryFailed": "No se pudo reintentar el elemento de la cola.",
+      "actionFailed": "La acción falló.",
       "noProject": "Ningún proyecto seleccionado"
     }
   }

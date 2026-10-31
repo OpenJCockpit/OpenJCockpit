@@ -1,7 +1,7 @@
 {
   "dashboard": {
-    "authenticating": "Authenticeren...",
-    "loadingView": "Laden...",
+    "authenticating": "Authenticeren…",
+    "loadingView": "Laden…",
     "forbidden": "Je hebt geen toegang tot deze pagina.",
     "notFound": "Deze pagina bestaat niet.",
     "backToDashboard": "Terug naar het dashboard",
@@ -68,7 +68,7 @@
     },
     "workspace": {
       "failed": "De werkruimte laden is mislukt.",
-      "loading": "Werkruimte laden..."
+      "loading": "Werkruimte laden…"
     },
     "preflight": {
       "title": "Pre-flight-controle mislukt",
@@ -87,7 +87,7 @@
       }
     },
     "flow": {
-      "specsFailedTitle": "Specs konden niet worden geladen",
+      "specsFailedTitle": "De specs konden niet worden geladen",
       "specsFailed": "De specs konden niet worden geladen. De server antwoordde niet correct.",
       "startNewWorkflow": "↺ Nieuwe workflow starten",
       "currentSpec": "Huidige spec",
@@ -139,10 +139,42 @@
     },
     "evidence": {
       "title": "Uitvoeringsbewijs",
-      "by": "Door: {{actor}}"
+      "by": "Door: {{actor}}",
+      "events": {
+        "specLoaded": "Specificatie geladen",
+        "impactAnalysisRecorded": "Impactanalyse vastgelegd",
+        "testSetGenerated": "Testset gegenereerd",
+        "implementationProposalSaved": "Implementatievoorstel opgeslagen",
+        "humanApprovalLogged": "Menselijke goedkeuring vastgelegd",
+        "evidenceDataRecorded": "Bewijsgegevens vastgelegd"
+      },
+      "actors": {
+        "requirement": "Requirement-agent",
+        "impact": "Impactanalyse-agent",
+        "testDesign": "Testontwerp-agent",
+        "implementation": "Implementatie-agent",
+        "review": "Review-agent",
+        "evidence": "Bewijs-agent"
+      }
     },
     "quality": {
-      "title": "Kwaliteitsstatus"
+      "title": "Kwaliteitsstatus",
+      "controls": {
+        "unitTestCoverage": "Unittestdekking",
+        "nist2": "NIST 2",
+        "owaspZap": "OWASP ZAP",
+        "iso25010": "ISO 25010",
+        "sast": "SAST",
+        "dependencyScan": "Afhankelijkhedenscan",
+        "architectureRules": "Architectuurregels"
+      },
+      "details": {
+        "noCriticalIssues": "Geen kritieke problemen",
+        "allAttributes": "8/8 attributen",
+        "noHighIssues": "Geen ernstige problemen",
+        "noKnownVulnerabilities": "Geen bekende kwetsbaarheden",
+        "noDeviations": "0 afwijkingen"
+      }
     },
     "apps": {
       "hello": {

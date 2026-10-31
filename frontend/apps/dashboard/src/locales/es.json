@@ -1,7 +1,7 @@
 {
   "dashboard": {
-    "authenticating": "Autenticando...",
-    "loadingView": "Cargando...",
+    "authenticating": "Autenticando…",
+    "loadingView": "Cargando…",
     "forbidden": "No tienes acceso a esta página.",
     "notFound": "Esta página no existe.",
     "backToDashboard": "Volver al panel",
@@ -68,7 +68,7 @@
     },
     "workspace": {
       "failed": "No se pudo cargar el espacio de trabajo.",
-      "loading": "Cargando espacio de trabajo..."
+      "loading": "Cargando espacio de trabajo…"
     },
     "preflight": {
       "title": "Falló la comprobación previa",
@@ -139,10 +139,42 @@
     },
     "evidence": {
       "title": "Evidencia de ejecución",
-      "by": "Por: {{actor}}"
+      "by": "Por: {{actor}}",
+      "events": {
+        "specLoaded": "Especificación cargada",
+        "impactAnalysisRecorded": "Análisis de impacto registrado",
+        "testSetGenerated": "Conjunto de pruebas generado",
+        "implementationProposalSaved": "Propuesta de implementación guardada",
+        "humanApprovalLogged": "Aprobación humana registrada",
+        "evidenceDataRecorded": "Datos de evidencia registrados"
+      },
+      "actors": {
+        "requirement": "Agente de requisitos",
+        "impact": "Agente de análisis de impacto",
+        "testDesign": "Agente de diseño de pruebas",
+        "implementation": "Agente de implementación",
+        "review": "Agente de revisión",
+        "evidence": "Agente de evidencia"
+      }
     },
     "quality": {
-      "title": "Estado de calidad"
+      "title": "Estado de calidad",
+      "controls": {
+        "unitTestCoverage": "Cobertura de pruebas unitarias",
+        "nist2": "NIST 2",
+        "owaspZap": "OWASP ZAP",
+        "iso25010": "ISO 25010",
+        "sast": "SAST",
+        "dependencyScan": "Análisis de dependencias",
+        "architectureRules": "Reglas de arquitectura"
+      },
+      "details": {
+        "noCriticalIssues": "Sin problemas críticos",
+        "allAttributes": "8/8 atributos",
+        "noHighIssues": "Sin problemas altos",
+        "noKnownVulnerabilities": "Sin vulnerabilidades conocidas",
+        "noDeviations": "0 desviaciones"
+      }
     },
     "apps": {
       "hello": {

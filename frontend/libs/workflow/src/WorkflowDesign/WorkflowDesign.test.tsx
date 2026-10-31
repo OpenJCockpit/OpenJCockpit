@@ -938,7 +938,7 @@ describe('workflow export and import', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Failed to import workflows from JSON.')).toBeInTheDocument();
+      expect(screen.getByText('Failed to import the workflows from JSON.')).toBeInTheDocument();
     });
     expect(workflowApi.importWorkflows).not.toHaveBeenCalled();
   });
@@ -1837,7 +1837,7 @@ describe('workflows panel actions', () => {
     await act(async () => {
       screen.getByText('Save').click();
     });
-    expect((await screen.findAllByText('Failed to save workflow.')).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText('Failed to save the workflow.')).length).toBeGreaterThan(0);
   });
 
   it('removes a deleted workflow from the list', async () => {
@@ -1862,7 +1862,7 @@ describe('workflows panel actions', () => {
     await act(async () => {
       screen.getByTestId('confirm-action-confirm').click();
     });
-    expect(await screen.findByText('Failed to delete workflow.')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to delete the workflow.')).toBeInTheDocument();
     expect(screen.getByText('Customer Onboarding')).toBeInTheDocument();
   });
 
@@ -1872,7 +1872,7 @@ describe('workflows panel actions', () => {
     await act(async () => {
       screen.getByText('⬇ Export JSON').click();
     });
-    expect(await screen.findByText('Failed to export workflows.')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to export the workflows.')).toBeInTheDocument();
   });
 
   it('shows a generic catalogue error when loading fails with a non-Error', async () => {

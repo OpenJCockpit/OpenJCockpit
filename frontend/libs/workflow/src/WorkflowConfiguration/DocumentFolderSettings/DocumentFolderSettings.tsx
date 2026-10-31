@@ -72,9 +72,9 @@ export function DocumentFolderSettings({ project }: Props) {
       });
       queryClient.setQueryData(queryKey, result);
       setEdited(null);
-      setSavedMessage('Document folder configuration saved.');
+      setSavedMessage(t('documentFolder.saved'));
     } catch (err) {
-      setError('Failed to save document folder configuration.');
+      setError(t('documentFolder.saveFailed'));
       console.warn(err);
     } finally {
       setSaving(false);

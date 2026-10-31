@@ -57,7 +57,7 @@ export function GroupsPanel() {
       );
       setEditingId(null);
     } catch (err) {
-      setError('Failed to save workflow group.');
+      setError(t('groups.saveFailed'));
       console.warn(err);
     } finally {
       setSaving(false);
@@ -69,7 +69,7 @@ export function GroupsPanel() {
       await deleteWorkflowGroup(id);
       setItems((prev) => prev.filter((i) => i.id !== id));
     } catch (err) {
-      setError('Failed to delete workflow group.');
+      setError(t('groups.deleteFailed'));
       console.warn(err);
     }
   }

@@ -74,9 +74,9 @@ export function JiraSettings({ projectId }: Props) {
       });
       queryClient.setQueryData(queryKey, result);
       setEdited(null);
-      setSavedMessage('Jira configuration saved.');
+      setSavedMessage(t('jira.saved'));
     } catch (err) {
-      setError('Failed to save Jira configuration.');
+      setError(t('jira.saveFailed'));
       console.warn(err);
     } finally {
       setSaving(false);
@@ -113,7 +113,7 @@ export function JiraSettings({ projectId }: Props) {
         label={t('jira.projectKey')}
         value={form.projectKey}
         onChange={(v) => update({ projectKey: v })}
-        placeholder="NL"
+        placeholder={t('jira.projectKeyPlaceholder')}
       />
       <TextField
         label={t('jira.issueTypeMapping')}

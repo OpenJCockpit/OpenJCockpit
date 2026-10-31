@@ -41,7 +41,7 @@
       "title": "Accept with my comments",
       "hint": "Describe what should change in the next attempt. This re-runs the realisation stage with your feedback and re-opens this checkpoint on the new result.",
       "label": "Feedback for the next attempt",
-      "placeholder": "Explain what the next attempt should change or fix...",
+      "placeholder": "Explain what the next attempt should change or fix…",
       "limit": "Up to {{max}} characters.",
       "submitting": "⟳ Submitting…",
       "confirm": "Confirm",
@@ -68,7 +68,7 @@
     "a2aServices": {
       "title": "A2A services",
       "intro": "Gateways that host the A2A agents workflows can use. Their agents appear in Workflow design → Agents. Services from the agent service's configuration are read-only. This configuration is global — it applies to every project.",
-      "loading": "Loading A2A services...",
+      "loading": "Loading A2A services…",
       "columns": {
         "service": "Service",
         "baseUrl": "Base URL",
@@ -113,10 +113,22 @@
       },
       "saveService": "Save A2A service",
       "addService": "Add A2A service",
-      "addButton": "+ Add A2A service"
+      "addButton": "+ Add A2A service",
+      "loadFailed": "Failed to load the A2A services.",
+      "saveFailed": "Failed to save the A2A service.",
+      "deleteFailed": "Failed to delete the A2A service.",
+      "added": "A2A service \"{{name}}\" added.",
+      "updated": "A2A service \"{{name}}\" saved.",
+      "deleted": "A2A service \"{{name}}\" deleted.",
+      "error": {
+        "idRequired": "Id is required.",
+        "nameRequired": "Name is required.",
+        "baseUrlRequired": "Base URL is required.",
+        "apiKeyRequired": "API key is required."
+      }
     },
     "config": {
-      "loading": "Loading configuration...",
+      "loading": "Loading configuration…",
       "enabled": "Enabled",
       "workflowIdToStart": "Workflow ID to start",
       "authToken": "Auth token",
@@ -126,7 +138,7 @@
     "documentFolder": {
       "loadFailed": "Failed to load the document folder configuration.",
       "title": "Project document folder",
-      "save": "Save document folder config",
+      "save": "Save document folder configuration",
       "projectName": "Project name",
       "folderName": "Folder name (CamelCase, no spaces — derived from the project name)",
       "basePath": "Folder base location",
@@ -135,31 +147,38 @@
       "types": "Allowed document types",
       "typesPlaceholder": "pdf,docx,md",
       "workflowId": "Workflow ID to start on new file",
-      "trigger": "File trigger enabled"
+      "trigger": "File trigger enabled",
+      "saved": "Document folder configuration saved.",
+      "saveFailed": "Failed to save the document folder configuration."
     },
     "hermes": {
       "loadFailed": "Failed to load the Hermes configuration.",
       "title": "Hermes Agent integration",
-      "save": "Save Hermes config",
+      "save": "Save Hermes configuration",
       "endpoint": "Signal source / endpoint",
       "endpointPlaceholder": "https://hermes.example.com/signals",
       "signalType": "Signal type",
-      "signalTypePlaceholder": "issue.created"
+      "signalTypePlaceholder": "issue.created",
+      "saved": "Hermes configuration saved.",
+      "saveFailed": "Failed to save the Hermes configuration."
     },
     "jira": {
       "loadFailed": "Failed to load the Jira configuration.",
       "title": "Jira connector",
-      "save": "Save Jira config",
+      "save": "Save Jira configuration",
       "baseUrl": "Jira base URL",
       "baseUrlPlaceholder": "https://your-org.atlassian.net",
       "projectKey": "Project key",
       "issueTypeMapping": "Issue type mapping",
-      "issueTypeMappingPlaceholder": "Bug=bugfix-workflow"
+      "issueTypeMappingPlaceholder": "Bug=bugfix-workflow",
+      "saved": "Jira configuration saved.",
+      "saveFailed": "Failed to save the Jira configuration.",
+      "projectKeyPlaceholder": "NL"
     },
     "opa": {
       "loadFailed": "Failed to load the OPA configuration.",
       "title": "Open Policy Agent",
-      "save": "Save OPA config",
+      "save": "Save OPA configuration",
       "description": "When enabled and reachable, OPA is the mandatory runtime policy gate for workflow starts, agent/subagent/skill activation, and MCP tool invocation. This configuration is global — it applies to every project.",
       "baseUrl": "Base URL",
       "baseUrlPlaceholder": "http://localhost:8181",
@@ -178,7 +197,17 @@
       "projectLabel": "Project label",
       "projectLabelPlaceholder": "onboarding",
       "decisionLogging": "Decision logging enabled",
-      "decisionLogExport": "Decision log export enabled"
+      "decisionLogExport": "Decision log export enabled",
+      "saved": "OPA configuration saved.",
+      "saveFailed": "Failed to save the OPA configuration.",
+      "status": {
+        "notConfigured": "Not configured",
+        "disabled": "Disabled",
+        "unreachable": "Configured but unreachable",
+        "reachable": "Configured and reachable",
+        "enforcing": "Enabled and enforcing",
+        "unavailable": "Enabled but policy unavailable"
+      }
     },
     "dashboard": {
       "backTitle": "Back to dashboard",
@@ -191,7 +220,8 @@
         "design": "Design",
         "execution": "Workflow Execution"
       },
-      "runLoadFailed": "The workflow of this run could not be loaded — {{error}}"
+      "runLoadFailed": "The workflow of this run could not be loaded — {{error}}",
+      "workflowLoadFailed": "Failed to load the workflow."
     },
     "design": {
       "tabsLabel": "Design sections",
@@ -205,7 +235,7 @@
     },
     "agentsPanel": {
       "loadFailed": "Failed to load the agent catalog.",
-      "loading": "Loading agents...",
+      "loading": "Loading agents…",
       "refresh": "⟳ Refresh",
       "status": {
         "NOT_CONFIGURED": "Not configured",
@@ -214,7 +244,8 @@
         "INVALID": "Invalid response"
       },
       "emptyLocal": "No agents in the /agents folder yet.",
-      "emptyProvider": "No agents registered at {{name}}."
+      "emptyProvider": "No agents registered at {{name}}.",
+      "intro": "The agents workflows can use: local agents and the agents hosted by your A2A services. This list is read-only. Add A2A services under Configuration."
     },
     "localAgents": {
       "model": "Model",
@@ -228,7 +259,7 @@
       "hide": "Hide",
       "details": "Details",
       "cardFailed": "Could not retrieve the agent card from {{name}}.",
-      "cardLoading": "Loading agent card...",
+      "cardLoading": "Loading agent card…",
       "cardLabel": "Agent card {{name}}",
       "agentCard": "Agent card",
       "providerKeyRequired": "(provider key required)",
@@ -251,10 +282,12 @@
       "projectName": "Project name",
       "projectPlaceholder": "Leave empty for a global group",
       "projectHint": "Empty = global: workflows in this group are available for every project.",
-      "loading": "Loading groups...",
+      "loading": "Loading groups…",
       "newButton": "+ New group",
       "intro": "Groups bundle workflows designed for a specific meaning (for example onboarding, compliance or reporting). Deleting a group unlinks its workflows; the workflows themselves are kept.",
-      "global": "Global (all projects)"
+      "global": "Global (all projects)",
+      "saveFailed": "Failed to save the workflow group.",
+      "deleteFailed": "Failed to delete the workflow group."
     },
     "promptGenerator": {
       "example": {
@@ -282,14 +315,33 @@
       "input": "Input",
       "output": "Output",
       "notProvided": "Not provided",
-      "local": "Local"
+      "local": "Local",
+      "loadFailed": "Failed to load the skill catalog.",
+      "draftFailed": "Failed to generate the skill draft.",
+      "saveFailed": "Failed to save the skill definition.",
+      "deleteFailed": "Failed to delete the skill definition.",
+      "sourceOutcome": {
+        "authFailed": "{{name}}: authentication was rejected (HTTP {{status}}).",
+        "unknownStatus": "unknown",
+        "timeout": "{{name}}: timed out.",
+        "unreachable": "{{name}}: could not be reached.",
+        "invalidResponse": "{{name}}: returned an invalid response.",
+        "blockedByPolicy": "{{name}}: blocked by egress policy.",
+        "configError": "{{name}}: configuration error — check its API key.",
+        "unknown": "{{name}}: unknown status."
+      }
     },
     "subagents": {
       "new": "New subagent",
       "edit": "Edit subagent",
-      "loading": "Loading subagents...",
+      "loading": "Loading subagents…",
       "newButton": "+ New subagent",
-      "parentAgent": "Parent agent"
+      "parentAgent": "Parent agent",
+      "loadFailed": "Failed to load the subagents.",
+      "draftFailed": "Failed to generate the subagent draft.",
+      "saveFailed": "Failed to save the subagent definition.",
+      "deleteFailed": "Failed to delete the subagent definition.",
+      "intro": "Subagents are helpers that a parent agent hands focused tasks to. Each has its own instructions and skills."
     },
     "agentPicker": {
       "agents": "Agents",
@@ -342,7 +394,7 @@
       "customerId": "Customer ID (execution)"
     },
     "workflows": {
-      "loading": "Loading workflows...",
+      "loading": "Loading workflows…",
       "newButton": "+ New workflow",
       "group": "Group",
       "allGroups": "All groups",
@@ -350,7 +402,17 @@
       "export": "⬇ Export JSON",
       "importLabel": "Import workflows JSON",
       "import": "⬆ Import JSON",
-      "unresolved": "{{count}} reference(s) could not be resolved:"
+      "unresolved": "{{count}} reference(s) could not be resolved:",
+      "saveFailed": "Failed to save the workflow.",
+      "deleteFailed": "Failed to delete the workflow.",
+      "exportFailed": "Failed to export the workflows.",
+      "importFailed": "Failed to import the workflows from JSON.",
+      "imported": "Imported {{workflows}} workflow(s) and {{groups}} group(s).",
+      "groupOrProjectRequired": "Link the workflow to a group or enter a project name — without a group, a project is required.",
+      "agentRequired": "Link at least one agent — a workflow without agents cannot run.",
+      "orbModeRequired": "Workflow orb {{index}}: choose an execution mode (Sequential or Parallel) before saving.",
+      "catalogFailed": "Failed to load the agent catalog.",
+      "intro": "Workflows chain agents into a repeatable process. A workflow belongs to a group or a project, and starts from the dashboard, a Hermes signal or a file delivery."
     },
     "runLost": {
       "message": "The state of this run was lost, likely because the service restarted. No approval decision is possible for this run.",
@@ -378,7 +440,7 @@
       "loadMore": "Load more"
     },
     "overview": {
-      "loading": "Loading workflows...",
+      "loading": "Loading workflows…",
       "loadFailed": "Workflows could not be loaded — {{error}}",
       "empty": "No workflows defined yet. Create one in the Design tab.",
       "project": "Project",

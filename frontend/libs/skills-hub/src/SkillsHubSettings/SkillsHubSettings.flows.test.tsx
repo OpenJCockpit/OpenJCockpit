@@ -48,7 +48,7 @@ describe('SkillsHubSettings — flows', () => {
   it('shows a loading message while the list is pending', async () => {
     vi.mocked(api.listSkillsMarketplaces).mockReturnValue(new Promise(() => {}));
     await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
-    expect(screen.getByText('Loading marketplaces...')).toBeInTheDocument();
+    expect(screen.getByText('Loading marketplaces…')).toBeInTheDocument();
   });
 
   it('uses a generic message for a non-Error load failure', async () => {
@@ -210,7 +210,7 @@ describe('SkillsHubSettings — flows', () => {
 
     vi.mocked(api.createSkillsMarketplace).mockRejectedValueOnce('boom');
     await clickAsync(screen.getByRole('button', { name: 'Save' }));
-    expect(screen.getByRole('alert')).toHaveTextContent('Save failed.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Failed to save the marketplace.');
   });
 
   it('resets the form when the connection being edited is deleted', async () => {
@@ -238,7 +238,7 @@ describe('SkillsHubSettings — flows', () => {
     vi.mocked(api.deleteSkillsMarketplace).mockRejectedValue('boom');
     await clickAsync(screen.getByRole('button', { name: 'Delete' }));
     await clickAsync(screen.getByTestId('confirm-action-confirm'));
-    expect(screen.getByRole('alert')).toHaveTextContent('Delete failed.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Failed to delete the marketplace.');
     expect(screen.getByText('Acme Skills')).toBeInTheDocument();
   });
 });

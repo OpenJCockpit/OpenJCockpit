@@ -75,7 +75,7 @@ describe('OpaSettings', () => {
     fireEvent.click(screen.getByLabelText('Decision logging enabled'));
     fireEvent.click(screen.getByLabelText('Decision log export enabled'));
     fireEvent.change(screen.getByLabelText(/Auth token/), { target: { value: 'tok' } });
-    await clickAsync(screen.getByRole('button', { name: 'Save OPA config' }));
+    await clickAsync(screen.getByRole('button', { name: 'Save OPA configuration' }));
 
     await waitFor(() => expect(api.saveOpaConfig).toHaveBeenCalledTimes(1));
     expect(api.saveOpaConfig).toHaveBeenCalledWith({
@@ -97,7 +97,7 @@ describe('OpaSettings', () => {
   it('omits the timeout when it is not a positive number and sends no token when blank', async () => {
     await openSettings();
     fireEvent.change(screen.getByLabelText('Timeout (seconds)'), { target: { value: '' } });
-    await clickAsync(screen.getByRole('button', { name: 'Save OPA config' }));
+    await clickAsync(screen.getByRole('button', { name: 'Save OPA configuration' }));
     await waitFor(() => expect(api.saveOpaConfig).toHaveBeenCalled());
     expect(api.saveOpaConfig).toHaveBeenCalledWith(
       expect.objectContaining({ timeoutSeconds: undefined, authToken: null }),
@@ -107,7 +107,7 @@ describe('OpaSettings', () => {
   it('re-checks health after saving', async () => {
     await openSettings();
     const before = vi.mocked(api.checkOpaHealth).mock.calls.length;
-    await clickAsync(screen.getByRole('button', { name: 'Save OPA config' }));
+    await clickAsync(screen.getByRole('button', { name: 'Save OPA configuration' }));
     await screen.findByText('OPA configuration saved.');
     expect(vi.mocked(api.checkOpaHealth).mock.calls.length).toBeGreaterThan(before);
   });

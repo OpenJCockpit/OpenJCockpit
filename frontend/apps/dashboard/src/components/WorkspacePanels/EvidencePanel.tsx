@@ -2,6 +2,7 @@ import type { EvidenceEvent } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
 import { IconBox, Panel, PanelHeader, PanelTitle, StatusChip } from '@openjcockpit/ui';
 import styles from './WorkspacePanels.module.scss';
+import { actorName, eventTitle } from './sampleData';
 
 /** Decorative glyph, not translatable copy. */
 const CHECK_MARK = '\u2713';
@@ -25,8 +26,8 @@ export function EvidencePanel({ events }: { events: EvidenceEvent[] }) {
             <article className={styles.evidenceEvent} key={`${event.time}-${event.title}`}>
               <time>{event.time}</time>
               <div>
-                <strong>{event.title}</strong>
-                <span>{t('evidence.by', { actor: event.actor })}</span>
+                <strong>{eventTitle(t, event.title)}</strong>
+                <span>{t('evidence.by', { actor: actorName(t, event.actor) })}</span>
               </div>
               <span className={styles.check}>{CHECK_MARK}</span>
             </article>

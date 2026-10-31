@@ -45,7 +45,7 @@ export function SkillsPanel() {
     !loading && query.isError
       ? query.error instanceof Error
         ? query.error.message
-        : 'Failed to load skill catalog.'
+        : t('skills.loadFailed')
       : null;
 
   function updateCatalog(update: (base: SkillCatalog) => SkillCatalog) {
@@ -79,8 +79,8 @@ export function SkillsPanel() {
     if (!catalog) return [];
     return catalog.sources
       .filter((source) => source.outcome !== 'SUCCESS')
-      .map(describeSourceOutcome);
-  }, [catalog]);
+      .map((source) => describeSourceOutcome(source, t));
+  }, [catalog, t]);
 
   function startCreate() {
     setEditingName('new');
@@ -99,7 +99,7 @@ export function SkillsPanel() {
       setEditingName('new');
       setForm(draft);
     } catch (err) {
-      setError('Failed to generate skill draft.');
+      setError(t('skills.draftFailed'));
       console.warn(err);
     }
   }
@@ -121,7 +121,7 @@ export function SkillsPanel() {
       });
       setEditingName(null);
     } catch (err) {
-      setError('Failed to save skill definition.');
+      setError(t('skills.saveFailed'));
       console.warn(err);
     } finally {
       setSaving(false);
@@ -137,7 +137,7 @@ export function SkillsPanel() {
         localSkills: base.localSkills.filter((s) => s.name !== name),
       }));
     } catch (err) {
-      setError('Failed to delete skill definition.');
+      setError(t('skills.deleteFailed'));
       console.warn(err);
     }
   }

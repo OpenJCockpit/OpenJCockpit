@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '@openjcockpit/i18n';
-import { Button, StatusMessage } from '@openjcockpit/ui';
+import { Button, StatusMessage, fieldHintClass } from '@openjcockpit/ui';
 import {
   createSubagentSpec,
   deleteSubagentSpec,
@@ -42,7 +42,7 @@ export function SubagentsPanel() {
   const loadError = query.isError
     ? query.error instanceof Error
       ? query.error.message
-      : 'Failed to load subagents'
+      : t('subagents.loadFailed')
     : null;
   const error = actionError ?? loadError;
 
@@ -71,7 +71,7 @@ export function SubagentsPanel() {
       setEditingName('new');
       setForm(draft);
     } catch (err) {
-      setError('Failed to generate subagent draft.');
+      setError(t('subagents.draftFailed'));
       console.warn(err);
     }
   }
@@ -91,7 +91,7 @@ export function SubagentsPanel() {
       );
       setEditingName(null);
     } catch (err) {
-      setError('Failed to save subagent definition.');
+      setError(t('subagents.saveFailed'));
       console.warn(err);
     } finally {
       setSaving(false);
@@ -103,7 +103,7 @@ export function SubagentsPanel() {
       await deleteSubagentSpec(name);
       updateItems((prev) => prev.filter((i) => i.name !== name));
     } catch (err) {
-      setError('Failed to delete subagent definition.');
+      setError(t('subagents.deleteFailed'));
       console.warn(err);
     }
   }
@@ -116,6 +116,7 @@ export function SubagentsPanel() {
           {t('subagents.newButton')}
         </Button>
       </div>
+      <p className={fieldHintClass}>{t('subagents.intro')}</p>
       {error && <StatusMessage variant="error">{error}</StatusMessage>}
 
       {editingName && (

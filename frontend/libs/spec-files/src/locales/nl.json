@@ -19,7 +19,7 @@
     "contentsOf": "Inhoud van {{fileName}}",
     "openPullRequest": "Pull request openen",
     "noSpecSelected": "Geen spec geselecteerd.",
-    "saveFailed": "Opslaan van de spec is mislukt",
+    "saveFailed": "De spec kon niet worden opgeslagen.",
     "addedToQueue": "{{fileName}} is aan de wachtrij toegevoegd."
   }
 }

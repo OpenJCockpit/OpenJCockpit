@@ -316,7 +316,7 @@ describe('SpecFilesDashboard — without the queue slot', () => {
 
     it('explains an empty repository', async () => {
       await open([]);
-      expect(await screen.findByText('No Specs Found')).toBeInTheDocument();
+      expect(await screen.findByText('No specs found')).toBeInTheDocument();
       expect(screen.getByText('No spec selected.')).toBeInTheDocument();
     });
 
@@ -329,7 +329,7 @@ describe('SpecFilesDashboard — without the queue slot', () => {
       await act(async () => {
         fireEvent.click(screen.getByText('Save'));
       });
-      expect(await screen.findByText('Saving the spec failed')).toBeInTheDocument();
+      expect(await screen.findByText('Failed to save the spec.')).toBeInTheDocument();
     });
   });
 });

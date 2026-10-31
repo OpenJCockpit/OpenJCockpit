@@ -1,7 +1,7 @@
 {
   "dashboard": {
-    "authenticating": "Authenticating...",
-    "loadingView": "Loading...",
+    "authenticating": "Authenticating…",
+    "loadingView": "Loading…",
     "forbidden": "You do not have access to this page.",
     "notFound": "This page does not exist.",
     "backToDashboard": "Back to dashboard",
@@ -68,7 +68,7 @@
     },
     "workspace": {
       "failed": "Failed to load the workspace.",
-      "loading": "Loading workspace..."
+      "loading": "Loading workspace…"
     },
     "preflight": {
       "title": "Pre-flight check failed",
@@ -87,8 +87,8 @@
       }
     },
     "flow": {
-      "specsFailedTitle": "Could not load specs",
-      "specsFailed": "Could not load the specs. The server did not respond correctly.",
+      "specsFailedTitle": "Failed to load the specs",
+      "specsFailed": "Failed to load the specs. The server did not respond correctly.",
       "startNewWorkflow": "↺ Start new workflow",
       "currentSpec": "Current spec",
       "specFolder": "Spec folder",
@@ -124,14 +124,14 @@
       }
     },
     "specPanel": {
-      "error": "Could not load the specs. The server did not respond correctly.",
+      "error": "Failed to load the specs. The server did not respond correctly.",
       "retry": "Retry",
       "title": "Spec",
       "loading": "Loading specs…",
       "viewAll": "View all specs",
       "lastModified": "Last modified: {{value}}",
       "empty": {
-        "title": "No Specs Found",
+        "title": "No specs found",
         "text": "No specs/ folder with specifications in the repository",
         "goToWorkflow": "⚡ Go to Workflow Design & Execution",
         "hint": "Design or select a workflow there to create spec files."
@@ -139,10 +139,42 @@
     },
     "evidence": {
       "title": "Execution evidence",
-      "by": "By: {{actor}}"
+      "by": "By: {{actor}}",
+      "events": {
+        "specLoaded": "Spec loaded",
+        "impactAnalysisRecorded": "Impact analysis recorded",
+        "testSetGenerated": "Test set generated",
+        "implementationProposalSaved": "Implementation proposal saved",
+        "humanApprovalLogged": "Human approval logged",
+        "evidenceDataRecorded": "Evidence data recorded"
+      },
+      "actors": {
+        "requirement": "Requirement Agent",
+        "impact": "Impact Analysis Agent",
+        "testDesign": "Test Design Agent",
+        "implementation": "Implementation Agent",
+        "review": "Review Agent",
+        "evidence": "Evidence Agent"
+      }
     },
     "quality": {
-      "title": "Quality status"
+      "title": "Quality status",
+      "controls": {
+        "unitTestCoverage": "Unit test coverage",
+        "nist2": "NIST 2",
+        "owaspZap": "OWASP ZAP",
+        "iso25010": "ISO 25010",
+        "sast": "SAST",
+        "dependencyScan": "Dependency scan",
+        "architectureRules": "Architecture rules"
+      },
+      "details": {
+        "noCriticalIssues": "No critical issues",
+        "allAttributes": "8/8 attributes",
+        "noHighIssues": "No high issues",
+        "noKnownVulnerabilities": "No known vulnerabilities",
+        "noDeviations": "0 deviations"
+      }
     },
     "apps": {
       "hello": {

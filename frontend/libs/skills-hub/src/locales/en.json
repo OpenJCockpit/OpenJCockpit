@@ -10,7 +10,7 @@
       "title": "Available skills",
       "settingsTitle": "Skills Hub settings",
       "settings": "⚙ Settings",
-      "searchPlaceholder": "Search for a skill...",
+      "searchPlaceholder": "Search for a skill…",
       "searchLabel": "Search for a skill",
       "search": "⌕ Search",
       "columnCategory": "Category",
@@ -34,7 +34,7 @@
     },
     "settings": {
       "backTitle": "Back to Skills Hub",
-      "loading": "Loading marketplaces...",
+      "loading": "Loading marketplaces…",
       "title": "Marketplace connections",
       "formNew": "New marketplace",
       "formEdit": "Edit marketplace",
@@ -69,8 +69,8 @@
         "loadFailed": "Failed to load marketplaces.",
         "nameRequired": "Name is required.",
         "urlRequired": "Marketplace URL is required.",
-        "saveFailed": "Save failed.",
-        "deleteFailed": "Delete failed."
+        "saveFailed": "Failed to save the marketplace.",
+        "deleteFailed": "Failed to delete the marketplace."
       },
       "status": {
         "added": "Marketplace \"{{name}}\" has been added.",
