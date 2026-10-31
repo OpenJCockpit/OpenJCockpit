@@ -2,9 +2,16 @@ import type { ElementType, HTMLAttributes, TableHTMLAttributes } from 'react';
 import { cx } from '../cx';
 import styles from './DataTable.module.scss';
 
-/** Full-width table with the dashboard's header and cell styling. */
+/**
+ * Full-width table with the dashboard's header and cell styling. It scrolls horizontally inside
+ * its own wrapper so a wide table never pushes the page past a narrow viewport.
+ */
 export function DataTable({ className, ...rest }: TableHTMLAttributes<HTMLTableElement>) {
-  return <table className={cx(styles.table, className)} {...rest} />;
+  return (
+    <div className={styles.scroll}>
+      <table className={cx(styles.table, className)} {...rest} />
+    </div>
+  );
 }
 
 interface DataTableRowProps extends HTMLAttributes<HTMLTableRowElement> {

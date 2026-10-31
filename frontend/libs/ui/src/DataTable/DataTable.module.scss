@@ -1,4 +1,9 @@
 // :where() keeps these rules at zero specificity so consumer overrides always win.
+.scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 :where(.table) {
   width: 100%;
   border-collapse: collapse;
