@@ -299,6 +299,21 @@ describe('SpecFilesDashboard — without the queue slot', () => {
       expect(await screen.findByLabelText('Contents of other.md')).toHaveValue('');
     });
 
+    it('shows an error with a retry that reloads the specs', async () => {
+      vi.mocked(api.loadProjectSpecs).mockRejectedValueOnce(new Error('boom'));
+      await act(async () => {
+        render(<SpecFilesDashboard project={PROJECT} onBack={vi.fn()} />);
+      });
+      expect(await screen.findByTestId('specs-error')).toBeInTheDocument();
+
+      vi.mocked(api.loadProjectSpecs).mockResolvedValue([SPEC]);
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: /retry/i }));
+      });
+      expect(await screen.findByDisplayValue('# Pricing rules')).toBeInTheDocument();
+      expect(screen.queryByTestId('specs-error')).not.toBeInTheDocument();
+    });
+
     it('explains an empty repository', async () => {
       await open([]);
       expect(await screen.findByText('No Specs Found')).toBeInTheDocument();

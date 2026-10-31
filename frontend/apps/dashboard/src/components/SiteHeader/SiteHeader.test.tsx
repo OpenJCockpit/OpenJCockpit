@@ -62,6 +62,7 @@ function setup(
     selectedProject: Project | null;
     apps: AppDefinition[];
     at: string;
+    user: { firstName: string; username: string };
   }> = {},
 ) {
   const onProjectChange = vi.fn();
@@ -75,6 +76,7 @@ function setup(
           selectedProject={props.selectedProject ?? null}
           onProjectChange={onProjectChange}
           onLogout={onLogout}
+          user={props.user}
         />
         <Location />
       </Registry>
@@ -148,6 +150,35 @@ describe('SiteHeader', () => {
     expect(window.localStorage.getItem('openjcockpit.sidebarCollapsed')).toBe('1');
     fireEvent.click(screen.getByTestId('nav-collapse'));
     expect(screen.getByRole('combobox', { name: 'Active project' })).toBeInTheDocument();
+  });
+
+  it.each([
+    [{ firstName: 'Tony', username: 'tstark' }, 'Tony', 'T'],
+    [{ firstName: '', username: 'tstark' }, 'tstark', 'T'],
+  ])('shows the signed-in user %j as %s', (user, name, initial) => {
+    setup({ user });
+    expect(screen.getAllByText(name).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('tstark')).not.toHaveLength(0);
+    expect(document.querySelector('[aria-hidden="true"][title]')).toHaveTextContent(initial);
+  });
+
+  it('starts expanded when the stored preference cannot be read', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('denied');
+    });
+    setup();
+    expect(screen.getByTestId('nav-collapse')).toHaveAttribute('aria-label', 'Collapse');
+    vi.restoreAllMocks();
+  });
+
+  it('still collapses when the preference cannot be stored', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('quota');
+    });
+    setup();
+    fireEvent.click(screen.getByTestId('nav-collapse'));
+    expect(screen.getByTestId('nav-collapse')).toHaveAttribute('aria-label', 'Expand');
+    vi.restoreAllMocks();
   });
 
   it('logs out', () => {

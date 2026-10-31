@@ -123,8 +123,8 @@ export function Home() {
         ) : (
           <div className={styles.grid} data-testid="home-grid">
             {layout.map((item, index) => {
-              const widget = widgetsById.get(item.id);
-              if (!widget) return null;
+              // The layout is resolved against `visibleWidgets`, so every item has its widget.
+              const widget = widgetsById.get(item.id)!;
               return (
                 <WidgetCard
                   key={item.id}

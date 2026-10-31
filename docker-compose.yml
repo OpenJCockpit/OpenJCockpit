@@ -254,8 +254,55 @@ services:
     restart: unless-stopped
     ports:
       - "4000:8080"
+    environment:
+      # The browser loads remotes from the published host ports, so these are localhost origins.
+      FEDERATION_MANIFEST: '{"hello":"http://localhost:4401/mf-manifest.json","skillsHub":"http://localhost:4403/mf-manifest.json","specs":"http://localhost:4404/mf-manifest.json"}'
+      FEDERATION_ALLOWED_ORIGINS_JSON: '["http://localhost:4401","http://localhost:4403","http://localhost:4404"]'
+      FEDERATION_ALLOWED_ORIGINS: http://localhost:4401 http://localhost:4403 http://localhost:4404
     depends_on:
       - ai-control-service
+
+  remote-hello:
+    build:
+      context: frontend
+      dockerfile: deploy/remote/Dockerfile
+      args:
+        REMOTE: remote-hello
+        BUILD_SHA: ${BUILD_SHA:-dev}
+    container_name: openjcockpit-remote-hello
+    restart: unless-stopped
+    ports:
+      - "4401:8080"
+    environment:
+      HOST_ORIGIN: http://localhost:4000
+
+  remote-skills-hub:
+    build:
+      context: frontend
+      dockerfile: deploy/remote/Dockerfile
+      args:
+        REMOTE: remote-skills-hub
+        BUILD_SHA: ${BUILD_SHA:-dev}
+    container_name: openjcockpit-remote-skills-hub
+    restart: unless-stopped
+    ports:
+      - "4403:8080"
+    environment:
+      HOST_ORIGIN: http://localhost:4000
+
+  remote-specs:
+    build:
+      context: frontend
+      dockerfile: deploy/remote/Dockerfile
+      args:
+        REMOTE: remote-specs
+        BUILD_SHA: ${BUILD_SHA:-dev}
+    container_name: openjcockpit-remote-specs
+    restart: unless-stopped
+    ports:
+      - "4404:8080"
+    environment:
+      HOST_ORIGIN: http://localhost:4000
 
   # Proxied access to the Docker daemon for services within the compose network.
   # SECURITY NOTE: this exposes the Docker daemon without TLS on the internal

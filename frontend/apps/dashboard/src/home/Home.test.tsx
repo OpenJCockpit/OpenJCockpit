@@ -3,6 +3,7 @@ import { act, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router';
 import { withI18n } from '@openjcockpit/i18n/testing';
 import { AppRegistryProvider, type AppDefinition } from '@openjcockpit/hub-contract';
+import type { HubUser } from '@openjcockpit/hub-contract';
 import { FakeHubSession, FakeHubSessionProvider } from '@openjcockpit/hub-contract/testing';
 import { appResources } from '../i18nResources';
 import { clickAsync } from '../testUtils/dom';
@@ -31,10 +32,17 @@ const demo: AppDefinition = {
     widget('one'),
     widget('two'),
     widget('admin-only', { requiredPermissions: ['admin'] }),
-    widget('opt-in', { defaultFor: ['nobody'] }),
+    widget('opt-in', { defaultFor: ['nobody'], descriptionKey: 'About opt-in' }),
   ],
   quickActions: [
-    { id: 'go', labelKey: 'Go somewhere', requiredPermissions: [], link: '/somewhere' },
+    {
+      id: 'go',
+      labelKey: 'Go somewhere',
+      descriptionKey: 'Takes you somewhere',
+      requiredPermissions: [],
+      link: '/somewhere',
+    },
+    { id: 'plain', labelKey: 'Plain action', requiredPermissions: [], link: '/plain' },
   ],
 };
 
@@ -42,11 +50,13 @@ function Where() {
   return <p data-testid="where">{useLocation().pathname}</p>;
 }
 
-async function renderHome(permissions: string[] = []) {
+async function renderHome(permissions: string[] = [], user?: HubUser | null) {
+  const session = new FakeHubSession(permissions);
+  if (user !== undefined) session.user = user ?? undefined;
   await act(async () => {
     render(
       withI18n(
-        <FakeHubSessionProvider session={new FakeHubSession(permissions)}>
+        <FakeHubSessionProvider session={session}>
           <AppRegistryProvider apps={[demo]}>
             <MemoryRouter>
               <Home />
@@ -139,5 +149,31 @@ describe('Home', () => {
     localStorage.setItem('openjcockpit.homeLayout.fake-user', '[]');
     await renderHome();
     expect(screen.getByTestId('home-empty')).toBeInTheDocument();
+  });
+
+  it('greets the user by first name', async () => {
+    await renderHome();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Welcome, Fake');
+  });
+
+  it('greets by username when there is no first name', async () => {
+    await renderHome([], { id: 'u1', username: 'tony', firstName: '', email: undefined });
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Welcome, tony');
+  });
+
+  it('shows a plain welcome and keeps the layout under an anonymous key without a user', async () => {
+    await renderHome([], null);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/^Welcome$/);
+    await clickAsync(screen.getByTestId('home-customise'));
+    await clickAsync(screen.getByTestId('widget-remove-one'));
+    expect(localStorage.getItem('openjcockpit.homeLayout.anonymous')).not.toBeNull();
+  });
+
+  it('describes quick actions and addable widgets', async () => {
+    await renderHome();
+    expect(screen.getByTestId('quick-action-go')).toHaveAttribute('title', 'Takes you somewhere');
+    expect(screen.getByTestId('quick-action-plain')).not.toHaveAttribute('title');
+    await clickAsync(screen.getByTestId('home-customise'));
+    expect(screen.getByText('About opt-in')).toBeInTheDocument();
   });
 });

@@ -123,7 +123,7 @@ export function SiteHeader({
   const hubLabel = t('siteHeader.nav.hub');
   const hubEnabled = isFeatureEnabled(FEATURE_FLAGS.hub);
   const collapseLabel = t(collapsed ? 'siteHeader.expand' : 'siteHeader.collapse');
-  const displayName = user ? user.firstName || user.username : null;
+  const displayName = user ? user.firstName || user.username : '';
 
   return (
     <aside
@@ -221,7 +221,7 @@ export function SiteHeader({
         <div className={styles.userCard}>
           {user && (
             <span className={styles.avatar} title={user.firstName} aria-hidden="true">
-              {(displayName ?? '').charAt(0).toUpperCase()}
+              {displayName.charAt(0).toUpperCase()}
             </span>
           )}
           {user && (

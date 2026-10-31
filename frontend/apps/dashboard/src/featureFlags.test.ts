@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FEATURE_FLAGS, isFeatureEnabled } from './featureFlags';
 
 describe('isFeatureEnabled', () => {
@@ -11,5 +11,13 @@ describe('isFeatureEnabled', () => {
   it('is on when the flag is set to 1', () => {
     localStorage.setItem(FEATURE_FLAGS.hub, '1');
     expect(isFeatureEnabled(FEATURE_FLAGS.hub)).toBe(true);
+  });
+
+  it('is off when storage cannot be read', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('denied');
+    });
+    expect(isFeatureEnabled(FEATURE_FLAGS.hub)).toBe(false);
+    vi.restoreAllMocks();
   });
 });

@@ -7,6 +7,7 @@ import { specsRemotes } from './testUtils/specsRemoteStubs';
 import { clickAsync } from './testUtils/dom';
 import { mockDashboardApis, PROJECT, WORKFLOW } from './testUtils/dashboardFixtures';
 import * as api from '@openjcockpit/api';
+import { useHubProject, type AppDefinition } from '@openjcockpit/hub-contract';
 
 vi.mock(
   '@openjcockpit/landing-hub',
@@ -186,6 +187,33 @@ describe('App routing', () => {
     await clickAsync(screen.getByRole('option', { name: 'Other Project' }));
     await waitFor(() => expect(localStorage.getItem('openjcockpit_project_id')).toBe('project-2'));
     expect(select).toHaveTextContent('Other Project');
+  });
+
+  it('ignores a remote selecting a project the user does not have', async () => {
+    function Picker() {
+      const { select, selected } = useHubProject();
+      return (
+        <>
+          <p data-testid="picked">{selected?.id ?? 'none'}</p>
+          <button type="button" onClick={() => select('missing')}>
+            Pick missing
+          </button>
+        </>
+      );
+    }
+    const picker: AppDefinition = {
+      id: 'picker',
+      labelKey: 'siteHeader.nav.platform',
+      icon: 'picker',
+      route: '/picker',
+      order: 1,
+      requiredPermissions: [],
+      loadRoutes: () => Promise.resolve([{ path: '*', element: <Picker /> }]),
+    };
+    renderRoutedApp('/picker', { apps: [picker], failed: [] });
+    await clickAsync(await screen.findByRole('button', { name: 'Pick missing' }));
+    expect(screen.getByTestId('picked')).toHaveTextContent('project-1');
+    expect(localStorage.getItem('openjcockpit_project_id')).toBe('project-1');
   });
 
   it('opens project settings from the pre-flight alert on a Git problem', async () => {

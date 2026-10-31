@@ -16,7 +16,7 @@ export function chooseOption(trigger: HTMLElement, name: string | RegExp): void 
 export function optionLabels(trigger: HTMLElement): string[] {
   const labels = within(openListbox(trigger))
     .getAllByRole('option')
-    .map((o) => o.textContent ?? '');
+    .map((o) => o.textContent);
   fireEvent.keyDown(trigger, { key: 'Escape' });
   return labels;
 }

@@ -23,6 +23,7 @@ import { HubProjectProvider } from './federation/HubProjectProvider';
 import { HubSessionProvider } from './federation/HubSessionProvider';
 import { RemoteFailuresNotice, useRemoteApps } from './federation/RemoteApps';
 import { RemoteRoutes } from './federation/RemoteRoutes';
+import { ViewLoading } from './federation/ViewLoading';
 import { ROUTES } from './routes';
 import { FEATURE_FLAGS, isFeatureEnabled } from './featureFlags';
 import { DashboardRoute } from './routeViews/DashboardRoute';
@@ -130,13 +131,7 @@ function App() {
           <HubHeaderContext.Provider value={<SiteHeader {...shell} />}>
             <RemoteFailuresNotice />
             <ErrorBoundary resetKeys={[location.pathname]}>
-              <Suspense
-                fallback={
-                  <StatusMessage variant="loading" data-testid="view-loading">
-                    {t('loadingView')}
-                  </StatusMessage>
-                }
-              >
+              <Suspense fallback={<ViewLoading />}>
                 <Routes>
                   <Route
                     path={ROUTES.home}

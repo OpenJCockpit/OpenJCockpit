@@ -81,6 +81,39 @@ async function renderDashboard(specs: SpecFile[], workflows: WorkflowDefinition[
   await screen.findByText('▶ Start');
 }
 
+describe('when the specs cannot be loaded', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.clearAllMocks();
+  });
+
+  async function renderFailing() {
+    mockDashboardApis({ project: PROJECT_WITH_GIT });
+    vi.mocked(api.loadProjectSpecs).mockRejectedValue(new Error('down'));
+    vi.mocked(api.getSpecInitStatus).mockResolvedValue({ pending: false });
+    renderRoutedApp(ROUTES.landing, specsRemotes);
+    await enterDashboard();
+    await screen.findByTestId('flow-specs-error');
+  }
+
+  it('shows the failure in both panels', async () => {
+    await renderFailing();
+    expect(screen.getByTestId('specs-error')).toBeInTheDocument();
+    expect(screen.getByText('Could not load specs')).toBeInTheDocument();
+    expect(screen.queryByText('▶ Start')).not.toBeInTheDocument();
+  });
+
+  it.each([['Retry'], ['⟳ Reload specs']])('recovers through "%s"', async (label) => {
+    await renderFailing();
+    vi.mocked(api.loadProjectSpecs).mockResolvedValue(SPECS);
+    await act(async () => {
+      screen.getByRole('button', { name: label }).click();
+    });
+    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+    expect(screen.queryByTestId('flow-specs-error')).not.toBeInTheDocument();
+  });
+});
+
 describe('spec files in the left pane', () => {
   beforeEach(() => {
     localStorage.clear();

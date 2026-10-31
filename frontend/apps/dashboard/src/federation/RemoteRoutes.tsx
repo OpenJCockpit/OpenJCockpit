@@ -1,8 +1,8 @@
 import { Suspense, use } from 'react';
 import { useRoutes } from 'react-router';
-import { useTranslation } from '@openjcockpit/i18n';
 import type { AppDefinition } from '@openjcockpit/hub-contract';
-import { ErrorBoundary, StatusMessage } from '@openjcockpit/ui';
+import { ErrorBoundary } from '@openjcockpit/ui';
+import { ViewLoading } from './ViewLoading';
 
 // One load per app for the page's lifetime; the promise is cached so re-renders do not refetch.
 const routeLoads = new WeakMap<AppDefinition, ReturnType<AppDefinition['loadRoutes']>>();
@@ -24,10 +24,9 @@ function RenderRoutes({ app }: { app: AppDefinition }) {
 
 /** Renders a remote's relative route tree inside the host's router. */
 export function RemoteRoutes({ app }: { app: AppDefinition }) {
-  const { t } = useTranslation('dashboard');
   return (
     <ErrorBoundary>
-      <Suspense fallback={<StatusMessage variant="loading">{t('loadingView')}</StatusMessage>}>
+      <Suspense fallback={<ViewLoading />}>
         <RenderRoutes app={app} />
       </Suspense>
     </ErrorBoundary>

@@ -107,5 +107,7 @@ describe('storage', () => {
     expect(loadStoredLayout('u1')).toBeNull();
     localStorage.setItem('openjcockpit.homeLayout.u1', JSON.stringify([{ id: 1 }]));
     expect(loadStoredLayout('u1')).toBeNull();
+    localStorage.setItem('openjcockpit.homeLayout.u1', JSON.stringify([null]));
+    expect(loadStoredLayout('u1')).toBeNull();
   });
 });

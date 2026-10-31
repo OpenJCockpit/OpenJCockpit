@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { clickAsync, renderAsync } from '../testUtils/dom';
 import { WorkflowOverview } from './WorkflowOverview';
 import * as workflowApi from '@openjcockpit/api';
-import type { WorkflowDefinition } from '@openjcockpit/api';
+import type { Project, WorkflowDefinition } from '@openjcockpit/api';
 import * as linkable from '../linkableAgents';
 
 // The designer and overview load linkable agents from the agent catalog; these tests stub that
@@ -811,6 +811,21 @@ describe('WorkflowOverview — card details and failure paths', () => {
     expect(await screen.findByText('sub-a, sub-b')).toBeInTheDocument();
     expect(screen.getByText('skill-a')).toBeInTheDocument();
     expect(screen.getByText('tool-a, tool-b')).toBeInTheDocument();
+  });
+
+  it('falls back to the selected project name, then n/a, when the workflow has no project name', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([{ ...WORKFLOW, projectName: '' }]);
+    await renderAsync(
+      <WorkflowOverview project={{ id: 'p1', name: 'Fallback Project' } as Project} />,
+    );
+    expect(await screen.findByText('Fallback Project')).toBeInTheDocument();
+  });
+
+  it('shows n/a for the project when neither the workflow nor a selection names one', async () => {
+    vi.mocked(workflowApi.listWorkflows).mockResolvedValue([{ ...WORKFLOW, projectName: '' }]);
+    await renderAsync(<WorkflowOverview project={null} />);
+    const dt = await screen.findByText('Project');
+    expect(dt.nextElementSibling).toHaveTextContent('n/a');
   });
 
   it('counts approvals and falls back to n/a for a decision without an id', async () => {
