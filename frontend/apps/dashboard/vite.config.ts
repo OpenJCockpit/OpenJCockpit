@@ -1,7 +1,9 @@
 import { federation } from '@module-federation/vite';
+import { fileURLToPath } from 'node:url';
 import { mergeConfig } from 'vite';
 import base from '../../vite.config.base';
 import { sharedModules } from '../../module-federation.shared';
+import { mockApi } from './mock/mockApi';
 
 // The plugin rewrites the entry for federation, which tests do not need and jsdom cannot run.
 const plugins = process.env.VITEST
@@ -17,8 +19,21 @@ const plugins = process.env.VITEST
       }),
     ];
 
+// `npm run dev:mock`: serve fixtures for /api and skip Keycloak, so the UI runs without the backend.
+const mock = process.env.MOCK_API === '1';
+
 export default mergeConfig(base, {
-  plugins,
+  plugins: mock ? [...plugins, mockApi()] : plugins,
+  resolve: mock
+    ? {
+        alias: [
+          {
+            find: /^\.\/keycloak$/,
+            replacement: fileURLToPath(new URL('./mock/keycloak.stub.ts', import.meta.url)),
+          },
+        ],
+      }
+    : {},
   build: { target: 'esnext' },
   server: {
     port: 4000,

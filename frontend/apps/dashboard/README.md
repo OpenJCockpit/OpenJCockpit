@@ -17,6 +17,7 @@ The shell app of the OpenJCockpit frontend: React 19, Vite, React Router and Tan
 | `@openjcockpit/ui/styles.scss` | Global tokens, reset and animations, imported from `main.tsx` (see Styling). |
 | `visual/`                                                            | Visual-regression runner and the `check-styles` script.                         |
 | `scripts/`                                                           | `check-bundle-size.mjs`.                                                        |
+| `mock/`                                                              | Dev-only mock API and Keycloak stub (see below).                                |
 | `Dockerfile`, `nginx.conf.template`, `security-headers.inc.template` | Production image.                                                               |
 
 ## Routes
@@ -40,6 +41,10 @@ Feature libraries expose query hooks and views. They call the HTTP clients in `@
 
 Render errors are caught by `ErrorBoundary` from `@openjcockpit/ui`.
 
+## Mock mode
+
+`npm run start:hub:mock` (from `frontend/`) runs the whole hub against an in-memory mock API with a stubbed login, so no backend or Keycloak is needed. Edits persist until the dev server restarts. See `docs/frontend-mock-server.md` for how it works and how to add endpoints.
+
 ## Commands
 
 Run from `frontend/`.
@@ -47,6 +52,8 @@ Run from `frontend/`.
 | Task                 | Command                                                                      |
 | -------------------- | ---------------------------------------------------------------------------- |
 | Dev server           | `npx nx dev dashboard`                                                       |
+| Dev server, mock API | `npm run dev:mock -w @openjcockpit/dashboard` (no backend or Keycloak)       |
+| Whole hub, mock API  | `npm run start:hub:mock` (from `frontend/`)                                  |
 | Production build     | `npx nx build dashboard`                                                     |
 | Unit tests           | `npx nx test dashboard`                                                      |
 | Everything CI runs   | `npx nx run-many -t lint check-styles typecheck coverage build check-bundle` |

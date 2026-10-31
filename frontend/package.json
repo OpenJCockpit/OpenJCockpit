@@ -16,6 +16,7 @@
     "check": "nx run-many -t lint typecheck test format-check check-styles check-i18n",
     "affected": "nx affected -t lint typecheck test build",
     "start:hub": "nx run-many -t dev -p dashboard,remote-hello,remote-skills-hub,remote-specs --parallel=4",
+    "start:hub:mock": "MOCK_API=1 nx run-many -t dev -p dashboard,remote-hello,remote-skills-hub,remote-specs --parallel=4",
     "build:hub": "nx run-many -t build -p remote-hello,remote-skills-hub,remote-specs,dashboard"
   },
   "nx": {

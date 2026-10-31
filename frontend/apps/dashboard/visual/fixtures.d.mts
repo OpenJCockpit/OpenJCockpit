@@ -1,0 +1,11 @@
+type Fixture = Record<string, unknown>;
+export const projects: Fixture[];
+export const allProjects: Fixture[];
+export const workflows: Fixture[];
+export const specs: Fixture[];
+export const groups: Fixture[];
+export const agents: Fixture[];
+export const subagents: Fixture[];
+export const skills: Fixture[];
+export const marketplaces: Fixture[];
+export const routes: [RegExp, unknown][];
