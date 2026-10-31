@@ -218,6 +218,7 @@ describe('SkillsHubSettings — flows', () => {
     vi.mocked(api.deleteSkillsMarketplace).mockResolvedValue(undefined);
     await clickAsync(within(row('Acme Skills')).getByText('Edit'));
     await clickAsync(within(row('Acme Skills')).getByText('Delete'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(screen.getByText('New marketplace')).toBeInTheDocument();
     expect(screen.queryByText('Acme Skills', { selector: 'strong' })).not.toBeInTheDocument();
   });
@@ -227,6 +228,7 @@ describe('SkillsHubSettings — flows', () => {
     vi.mocked(api.deleteSkillsMarketplace).mockResolvedValue(undefined);
     await clickAsync(within(row('Acme Skills')).getByText('Edit'));
     await clickAsync(within(row('Other')).getByText('Delete'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(screen.getByText('Edit marketplace')).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Marketplace "Other" has been deleted.');
   });
@@ -235,6 +237,7 @@ describe('SkillsHubSettings — flows', () => {
     await open([connection()]);
     vi.mocked(api.deleteSkillsMarketplace).mockRejectedValue('boom');
     await clickAsync(screen.getByRole('button', { name: 'Delete' }));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(screen.getByRole('alert')).toHaveTextContent('Delete failed.');
     expect(screen.getByText('Acme Skills')).toBeInTheDocument();
   });

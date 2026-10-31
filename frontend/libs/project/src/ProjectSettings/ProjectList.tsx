@@ -87,19 +87,11 @@ export function ProjectList({
                 {project.hasCredentials ? t('list.updateCredentials') : t('list.addCredentials')}
               </Button>
               {project.hasCredentials && (
-                <Button
-                  variant="secondary"
-                  className={styles.danger}
-                  onClick={() => onDeleteCredentials(project.id)}
-                >
+                <Button variant="danger" onClick={() => onDeleteCredentials(project.id)}>
                   {t('list.deleteCredentials')}
                 </Button>
               )}
-              <Button
-                variant="secondary"
-                onClick={() => onToggleActive(project)}
-                className={project.active === 1 ? styles.danger : styles.activate}
-              >
+              <Button variant="secondary" onClick={() => onToggleActive(project)}>
                 {project.active === 1 ? t('list.deactivate') : t('list.activate')}
               </Button>
             </Actions>

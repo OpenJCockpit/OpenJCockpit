@@ -49,7 +49,7 @@ export function SkillsTable({ rows, onEdit, onDelete }: SkillsTableProps) {
                 <Button variant="secondary" onClick={() => onEdit(row.skill)}>
                   {t('shared.edit')}
                 </Button>
-                <Button variant="secondary" onClick={() => onDelete(row.skill.name)}>
+                <Button variant="danger" onClick={() => onDelete(row.skill.name)}>
                   {t('shared.delete')}
                 </Button>
               </td>

@@ -4,7 +4,6 @@
       "cancel": "Cancelar",
       "edit": "Editar",
       "delete": "Eliminar",
-      "remove": "Quitar",
       "retry": "Reintentar",
       "name": "Nombre",
       "description": "Descripción",
@@ -15,7 +14,8 @@
       "readOnly": "Solo lectura",
       "skills": "Skills",
       "version": "Versión",
-      "group": "Grupo"
+      "group": "Grupo",
+      "deleting": "Eliminando…"
     },
     "agentLogConsole": {
       "label": "LOG DEL AGENTE // {{agent}}",
@@ -85,8 +85,6 @@
       "noApiKey": "Sin clave de API",
       "callerIdentity": "Identidad del llamante: {{id}}",
       "noCallerIdentity": "Sin identidad del llamante",
-      "confirmRemove": "Confirmar eliminación",
-      "keep": "Conservar",
       "empty": "Aún no hay servicios A2A configurados.",
       "formTitleEdit": "Editar {{name}}",
       "formTitleAdd": "Añadir servicio A2A",
@@ -419,6 +417,16 @@
       "placeholder": "Por ejemplo: añade un botón de exportación a la vista general de clientes que descargue la tabla como CSV.",
       "starting": "⟳ Iniciando…",
       "start": "▶ Iniciar con prompt"
+    },
+    "confirmDelete": {
+      "title": "¿Eliminar {{name}}?",
+      "message": {
+        "workflow": "La definición del flujo de trabajo se elimina de forma permanente.",
+        "group": "El grupo de flujos de trabajo se elimina de forma permanente. Los flujos que contiene no se eliminan.",
+        "subagent": "La definición del subagente se elimina de forma permanente.",
+        "skill": "La definición de la skill se elimina de forma permanente.",
+        "a2aService": "Los flujos de trabajo que usan sus agentes dejan de funcionar hasta que se vuelva a añadir."
+      }
     }
   }
 }

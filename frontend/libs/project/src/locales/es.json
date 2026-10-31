@@ -99,6 +99,20 @@
       "deleteCredentials": "Eliminar credenciales",
       "deactivate": "Desactivar",
       "activate": "Activar"
+    },
+    "confirm": {
+      "cancel": "Cancelar",
+      "working": "Procesando…",
+      "deleteCredentials": {
+        "title": "¿Eliminar las credenciales de {{name}}?",
+        "message": "Las credenciales de Git guardadas se eliminan de forma permanente. Las comprobaciones y ejecuciones de Git de este proyecto fallan hasta que se añadan credenciales nuevas.",
+        "confirm": "Eliminar credenciales"
+      },
+      "deactivate": {
+        "title": "¿Desactivar {{name}}?",
+        "message": "El proyecto desaparece del selector de proyectos. Puedes volver a activarlo desde esta página.",
+        "confirm": "Desactivar"
+      }
     }
   }
 }

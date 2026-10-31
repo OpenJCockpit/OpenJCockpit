@@ -4,7 +4,6 @@
       "cancel": "Abbrechen",
       "edit": "Bearbeiten",
       "delete": "Löschen",
-      "remove": "Entfernen",
       "retry": "Wiederholen",
       "name": "Name",
       "description": "Beschreibung",
@@ -15,7 +14,8 @@
       "readOnly": "Schreibgeschützt",
       "skills": "Skills",
       "version": "Version",
-      "group": "Gruppe"
+      "group": "Gruppe",
+      "deleting": "Wird gelöscht…"
     },
     "agentLogConsole": {
       "label": "AGENTENPROTOKOLL // {{agent}}",
@@ -85,8 +85,6 @@
       "noApiKey": "Kein API-Schlüssel",
       "callerIdentity": "Aufrufer-Identität: {{id}}",
       "noCallerIdentity": "Keine Aufrufer-Identität",
-      "confirmRemove": "Entfernen bestätigen",
-      "keep": "Behalten",
       "empty": "Noch keine A2A-Dienste konfiguriert.",
       "formTitleEdit": "{{name}} bearbeiten",
       "formTitleAdd": "A2A-Dienst hinzufügen",
@@ -419,6 +417,16 @@
       "placeholder": "Z. B.: Füge der Kundenübersicht einen Export-Button hinzu, der die Tabelle als CSV herunterlädt.",
       "starting": "⟳ Wird gestartet…",
       "start": "▶ Mit Prompt starten"
+    },
+    "confirmDelete": {
+      "title": "{{name}} löschen?",
+      "message": {
+        "workflow": "Die Workflow-Definition wird dauerhaft gelöscht.",
+        "group": "Die Workflow-Gruppe wird dauerhaft gelöscht. Workflows darin bleiben erhalten.",
+        "subagent": "Die Subagent-Definition wird dauerhaft gelöscht.",
+        "skill": "Die Skill-Definition wird dauerhaft gelöscht.",
+        "a2aService": "Workflows, die Agenten dieses Dienstes verwenden, funktionieren nicht mehr, bis er wieder hinzugefügt wird."
+      }
     }
   }
 }

@@ -76,6 +76,11 @@
         "added": "Marketplace \"{{name}}\" is toegevoegd.",
         "updated": "Marketplace \"{{name}}\" is bijgewerkt.",
         "deleted": "Marketplace \"{{name}}\" is verwijderd."
+      },
+      "deleting": "Verwijderen…",
+      "confirmDelete": {
+        "title": "{{name}} verwijderen?",
+        "message": "De marketplaceverbinding en de API-sleutel worden definitief verwijderd."
       }
     }
   }

@@ -10,12 +10,14 @@ import {
 import type { WorkflowGroup } from '@openjcockpit/api';
 import { GroupEditor } from './GroupEditor';
 import { GroupsTable } from './GroupsTable';
+import { useConfirmDelete } from '../shared/useConfirmDelete';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_GROUP: WorkflowGroup = { id: '', name: '', description: '', projectName: '' };
 
 export function GroupsPanel() {
   const { t } = useTranslation('workflow');
+  const { askDelete, dialog } = useConfirmDelete();
   const [items, setItems] = useState<WorkflowGroup[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -91,7 +93,14 @@ export function GroupsPanel() {
         />
       )}
 
-      <GroupsTable items={items} onEdit={startEdit} onDelete={(id) => void handleDelete(id)} />
+      <GroupsTable
+        items={items}
+        onEdit={startEdit}
+        onDelete={(id) =>
+          askDelete('group', items.find((i) => i.id === id)?.name ?? id, () => handleDelete(id))
+        }
+      />
+      {dialog}
     </div>
   );
 }

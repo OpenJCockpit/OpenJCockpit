@@ -99,6 +99,20 @@
       "deleteCredentials": "Delete credentials",
       "deactivate": "Deactivate",
       "activate": "Activate"
+    },
+    "confirm": {
+      "cancel": "Cancel",
+      "working": "Working…",
+      "deleteCredentials": {
+        "title": "Delete credentials for {{name}}?",
+        "message": "The stored Git credentials are deleted permanently. Git checks and runs for this project fail until new credentials are added.",
+        "confirm": "Delete credentials"
+      },
+      "deactivate": {
+        "title": "Deactivate {{name}}?",
+        "message": "The project disappears from the project picker. You can activate it again from this page.",
+        "confirm": "Deactivate"
+      }
     }
   }
 }

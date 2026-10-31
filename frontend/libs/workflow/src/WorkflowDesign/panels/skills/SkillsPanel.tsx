@@ -10,6 +10,7 @@ import {
 } from '@openjcockpit/api';
 import type { SkillCatalog, SkillSpec } from '@openjcockpit/api';
 import { describeSourceOutcome } from '../../utils';
+import { useConfirmDelete } from '../shared/useConfirmDelete';
 import { PromptGenerator } from '../shared/PromptGenerator';
 import { SkillEditor } from './SkillEditor';
 import { SkillsTable } from './SkillsTable';
@@ -29,6 +30,7 @@ const EMPTY_SKILL: SkillSpec = {
 
 export function SkillsPanel() {
   const { t } = useTranslation('workflow');
+  const { askDelete, dialog } = useConfirmDelete();
   const queryClient = useQueryClient();
   const query = useSkillCatalog();
   const [editingName, setEditingName] = useState<string | null>(null);
@@ -173,8 +175,13 @@ export function SkillsPanel() {
           {loadError}
         </p>
       ) : (
-        <SkillsTable rows={rows} onEdit={startEdit} onDelete={(name) => void handleDelete(name)} />
+        <SkillsTable
+          rows={rows}
+          onEdit={startEdit}
+          onDelete={(name) => askDelete('skill', name, () => handleDelete(name))}
+        />
       )}
+      {dialog}
     </div>
   );
 }

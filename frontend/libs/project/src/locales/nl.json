@@ -99,6 +99,20 @@
       "deleteCredentials": "Inloggegevens verwijderen",
       "deactivate": "Deactiveren",
       "activate": "Activeren"
+    },
+    "confirm": {
+      "cancel": "Annuleren",
+      "working": "Bezig…",
+      "deleteCredentials": {
+        "title": "Inloggegevens van {{name}} verwijderen?",
+        "message": "De opgeslagen Git-inloggegevens worden definitief verwijderd. Git-controles en runs voor dit project mislukken totdat nieuwe inloggegevens zijn toegevoegd.",
+        "confirm": "Inloggegevens verwijderen"
+      },
+      "deactivate": {
+        "title": "{{name}} deactiveren?",
+        "message": "Het project verdwijnt uit de projectkeuze. Op deze pagina kun je het weer activeren.",
+        "confirm": "Deactiveren"
+      }
     }
   }
 }

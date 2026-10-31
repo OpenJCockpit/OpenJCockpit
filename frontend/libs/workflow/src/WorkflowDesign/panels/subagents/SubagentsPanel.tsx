@@ -9,6 +9,7 @@ import {
   updateSubagentSpec,
 } from '@openjcockpit/api';
 import type { SubagentSpec } from '@openjcockpit/api';
+import { useConfirmDelete } from '../shared/useConfirmDelete';
 import { PromptGenerator } from '../shared/PromptGenerator';
 import { SubagentEditor } from './SubagentEditor';
 import { SubagentsTable } from './SubagentsTable';
@@ -29,6 +30,7 @@ const NO_ITEMS: SubagentSpec[] = [];
 
 export function SubagentsPanel() {
   const { t } = useTranslation('workflow');
+  const { askDelete, dialog } = useConfirmDelete();
   const queryClient = useQueryClient();
   const query = useSubagentSpecs();
   const items = query.data ?? NO_ITEMS;
@@ -128,8 +130,9 @@ export function SubagentsPanel() {
       <SubagentsTable
         items={items}
         onEdit={startEdit}
-        onDelete={(name) => void handleDelete(name)}
+        onDelete={(name) => askDelete('subagent', name, () => handleDelete(name))}
       />
+      {dialog}
     </div>
   );
 }

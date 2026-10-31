@@ -76,6 +76,11 @@
         "added": "Marketplace \"{{name}}\" has been added.",
         "updated": "Marketplace \"{{name}}\" has been updated.",
         "deleted": "Marketplace \"{{name}}\" has been deleted."
+      },
+      "deleting": "Deleting…",
+      "confirmDelete": {
+        "title": "Delete {{name}}?",
+        "message": "The marketplace connection and its API key are deleted permanently."
       }
     }
   }

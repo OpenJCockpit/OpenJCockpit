@@ -4,7 +4,6 @@
       "cancel": "Cancel",
       "edit": "Edit",
       "delete": "Delete",
-      "remove": "Remove",
       "retry": "Retry",
       "name": "Name",
       "description": "Description",
@@ -15,7 +14,8 @@
       "readOnly": "Read-only",
       "skills": "Skills",
       "version": "Version",
-      "group": "Group"
+      "group": "Group",
+      "deleting": "Deleting…"
     },
     "agentLogConsole": {
       "label": "AGENT LOG // {{agent}}",
@@ -85,8 +85,6 @@
       "noApiKey": "No API key",
       "callerIdentity": "Caller identity: {{id}}",
       "noCallerIdentity": "No caller identity",
-      "confirmRemove": "Confirm remove",
-      "keep": "Keep",
       "empty": "No A2A services configured yet.",
       "formTitleEdit": "Edit {{name}}",
       "formTitleAdd": "Add A2A service",
@@ -419,6 +417,16 @@
       "placeholder": "E.g.: Add an export button to the customer overview that downloads the table as CSV.",
       "starting": "⟳ Starting…",
       "start": "▶ Start with prompt"
+    },
+    "confirmDelete": {
+      "title": "Delete {{name}}?",
+      "message": {
+        "workflow": "The workflow definition is deleted permanently.",
+        "group": "The workflow group is deleted permanently. Workflows in it are not deleted.",
+        "subagent": "The subagent definition is deleted permanently.",
+        "skill": "The skill definition is deleted permanently.",
+        "a2aService": "Workflows that reference its agents stop working until it is added again."
+      }
     }
   }
 }

@@ -178,6 +178,7 @@ describe('ProjectSettings — status and git check', () => {
     await renderSettings();
     vi.mocked(api.deactivateProject).mockResolvedValue(undefined);
     await clickAsync(within(row('Beta')).getByText('Deactivate'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(api.deactivateProject).toHaveBeenCalledWith('p1');
     expect(await within(row('Beta')).findByText('Inactive')).toBeInTheDocument();
   });
@@ -194,6 +195,7 @@ describe('ProjectSettings — status and git check', () => {
     await renderSettings();
     vi.mocked(api.deactivateProject).mockRejectedValue(new Error('x'));
     await clickAsync(within(row('Beta')).getByText('Deactivate'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(await screen.findByRole('alert')).toHaveTextContent('Status change failed.');
     expect(within(row('Beta')).getByText('Active')).toBeInTheDocument();
   });
@@ -238,6 +240,7 @@ describe('ProjectSettings — credentials', () => {
     await renderSettings([project({ hasCredentials: true })]);
     vi.mocked(api.deleteGitCredentials).mockResolvedValue(undefined);
     await clickAsync(within(row('Beta')).getByText('Delete credentials'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(api.deleteGitCredentials).toHaveBeenCalledWith('p1');
     expect(await within(row('Beta')).findByText('None')).toBeInTheDocument();
     expect(within(row('Beta')).getByText('Add credentials')).toBeInTheDocument();
@@ -247,6 +250,7 @@ describe('ProjectSettings — credentials', () => {
     await renderSettings([project({ hasCredentials: true })]);
     vi.mocked(api.deleteGitCredentials).mockRejectedValue(new Error('x'));
     await clickAsync(within(row('Beta')).getByText('Delete credentials'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(await screen.findByRole('alert')).toHaveTextContent('Failed to delete credentials.');
     expect(within(row('Beta')).getByText('Credentials set')).toBeInTheDocument();
   });
@@ -330,6 +334,8 @@ describe('ProjectSettings — with several projects', () => {
     vi.mocked(api.activateProject).mockResolvedValue(undefined);
 
     await clickAsync(within(row('Beta')).getByText('Deactivate'));
+
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(await within(row('Beta')).findByText('Inactive')).toBeInTheDocument();
     expect(within(row('Gamma')).getByText('Inactive')).toBeInTheDocument();
 
@@ -368,6 +374,7 @@ describe('ProjectSettings — with several projects', () => {
     await renderSettings(two());
     vi.mocked(api.deleteGitCredentials).mockResolvedValue(undefined);
     await clickAsync(within(row('Gamma')).getByText('Delete credentials'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     await waitFor(() =>
       expect(within(row('Gamma')).queryByText('Credentials set')).not.toBeInTheDocument(),
     );

@@ -30,7 +30,7 @@ export function SubagentsTable({ items, onEdit, onDelete }: SubagentsTableProps)
               <Button variant="secondary" onClick={() => onEdit(item)}>
                 {t('shared.edit')}
               </Button>
-              <Button variant="secondary" onClick={() => onDelete(item.name)}>
+              <Button variant="danger" onClick={() => onDelete(item.name)}>
                 {t('shared.delete')}
               </Button>
             </td>

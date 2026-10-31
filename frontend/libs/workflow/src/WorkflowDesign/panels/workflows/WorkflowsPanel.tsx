@@ -24,6 +24,7 @@ import {
   Select,
   cx,
 } from '@openjcockpit/ui';
+import { useConfirmDelete } from '../shared/useConfirmDelete';
 import { readFileText, downloadWorkflowBundle } from '../../utils';
 import { WorkflowEditor } from './WorkflowEditor/WorkflowEditor';
 import type { WorkflowDraft } from './WorkflowEditor/OrbEditor';
@@ -57,6 +58,7 @@ const NO_AGENTS: AgentDefinition[] = [];
 
 export function WorkflowsPanel() {
   const { t } = useTranslation('workflow');
+  const { askDelete, dialog } = useConfirmDelete();
   const queryClient = useQueryClient();
   const data = useWorkflowsPanelData();
   const items = data.items ?? NO_WORKFLOWS;
@@ -273,8 +275,11 @@ export function WorkflowsPanel() {
         items={visibleItems}
         groupName={groupName}
         onEdit={startEdit}
-        onDelete={(id) => void handleDelete(id)}
+        onDelete={(id) =>
+          askDelete('workflow', items.find((i) => i.id === id)?.name ?? id, () => handleDelete(id))
+        }
       />
+      {dialog}
     </div>
   );
 }

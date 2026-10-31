@@ -149,6 +149,7 @@ describe('SubagentsPanel', () => {
     vi.mocked(api.deleteSubagentSpec).mockResolvedValue(undefined);
     await openPanel(<SubagentsPanel />, 'scanner');
     await clickAsync(within(row('scanner')).getByText('Delete'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(api.deleteSubagentSpec).toHaveBeenCalledWith('scanner');
     await waitFor(() => expect(screen.queryByText('scanner')).not.toBeInTheDocument());
   });
@@ -157,6 +158,7 @@ describe('SubagentsPanel', () => {
     vi.mocked(api.deleteSubagentSpec).mockRejectedValue(new Error('x'));
     await openPanel(<SubagentsPanel />, 'scanner');
     await clickAsync(within(row('scanner')).getByText('Delete'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(await screen.findByText('Failed to delete subagent definition.')).toBeInTheDocument();
     expect(screen.getByText('scanner')).toBeInTheDocument();
   });
@@ -323,6 +325,7 @@ describe('SkillsPanel', () => {
     vi.mocked(api.deleteSkillSpec).mockResolvedValue(undefined);
     await openPanel(<SkillsPanel />, 'summarise');
     await clickAsync(within(row('summarise')).getByText('Delete'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(api.deleteSkillSpec).toHaveBeenCalledWith('summarise');
     await waitFor(() => expect(screen.queryByText('summarise')).not.toBeInTheDocument());
   });
@@ -331,6 +334,7 @@ describe('SkillsPanel', () => {
     vi.mocked(api.deleteSkillSpec).mockRejectedValue(new Error('x'));
     await openPanel(<SkillsPanel />, 'summarise');
     await clickAsync(within(row('summarise')).getByText('Delete'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(await screen.findByText('Failed to delete skill definition.')).toBeInTheDocument();
     expect(screen.getByText('summarise')).toBeInTheDocument();
   });
@@ -431,10 +435,12 @@ describe('GroupsPanel', () => {
     vi.mocked(api.deleteWorkflowGroup).mockRejectedValueOnce(new Error('x'));
     await renderAsync(<GroupsPanel />);
     await clickAsync(within(row('Onboarding')).getByText('Delete'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     expect(await screen.findByText('Failed to delete workflow group.')).toBeInTheDocument();
 
     vi.mocked(api.deleteWorkflowGroup).mockResolvedValueOnce(undefined);
     await clickAsync(within(row('Onboarding')).getByText('Delete'));
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
     await waitFor(() => expect(screen.queryByText('Onboarding')).not.toBeInTheDocument());
   });
 });

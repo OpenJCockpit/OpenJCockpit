@@ -48,7 +48,6 @@ export function useA2AServices() {
     queryClient.setQueryData<A2AService[]>(A2A_SERVICES_KEY, (prev) => prev && update(prev));
   const [editing, setEditing] = useState<Editing | null>(null);
   const [form, setForm] = useState<A2AServiceFormState>(EMPTY_FORM);
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   // undefined until an action sets or clears it; then the load failure (if any) is shown instead.
   const [actionError, setError] = useState<string | null | undefined>(undefined);
@@ -138,12 +137,10 @@ export function useA2AServices() {
     try {
       await deleteMutation.mutateAsync(service.id);
       setServices((prev) => prev.filter((s) => s.id !== service.id));
-      setSavedMessage(`A2A service "${service.name}" removed.`);
+      setSavedMessage(`A2A service "${service.name}" deleted.`);
       if (editing?.mode === 'edit' && editing.service.id === service.id) closeForm();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to remove A2A service.');
-    } finally {
-      setConfirmDelete(null);
+      setError(err instanceof Error ? err.message : 'Failed to delete A2A service.');
     }
   }
 
@@ -157,8 +154,6 @@ export function useA2AServices() {
     form,
     setForm,
     saving,
-    confirmDelete,
-    setConfirmDelete,
     startAdd,
     startEdit,
     closeForm,

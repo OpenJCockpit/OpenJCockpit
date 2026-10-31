@@ -99,6 +99,20 @@
       "deleteCredentials": "Zugangsdaten löschen",
       "deactivate": "Deaktivieren",
       "activate": "Aktivieren"
+    },
+    "confirm": {
+      "cancel": "Abbrechen",
+      "working": "Wird ausgeführt…",
+      "deleteCredentials": {
+        "title": "Zugangsdaten für {{name}} löschen?",
+        "message": "Die gespeicherten Git-Zugangsdaten werden dauerhaft gelöscht. Git-Prüfungen und Läufe für dieses Projekt schlagen fehl, bis neue Zugangsdaten hinzugefügt werden.",
+        "confirm": "Zugangsdaten löschen"
+      },
+      "deactivate": {
+        "title": "{{name}} deaktivieren?",
+        "message": "Das Projekt verschwindet aus der Projektauswahl. Auf dieser Seite kann es wieder aktiviert werden.",
+        "confirm": "Deaktivieren"
+      }
     }
   }
 }

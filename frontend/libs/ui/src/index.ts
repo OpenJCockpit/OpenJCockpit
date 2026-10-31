@@ -1,4 +1,6 @@
 export * from './Backdrop/Backdrop';
+export * from './ConfirmDialog/ConfirmDialog';
+export * from './ConfirmDialog/useConfirmDialog';
 export * from './BrandLogo/BrandLogo';
 export * from './Button/Button';
 export * from './DataTable/DataTable';

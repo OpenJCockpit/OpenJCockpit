@@ -152,18 +152,18 @@ describe('A2AServicesSettings', () => {
     );
     await renderSettings();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
     expect(workflowApi.deleteA2AService).not.toHaveBeenCalled();
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Confirm remove' }));
+      fireEvent.click(screen.getByTestId('confirm-action-confirm'));
     });
     expect(screen.getByRole('alert')).toHaveTextContent('used by workflow wf-1');
     expect(screen.getByText('Acme gateway')).toBeInTheDocument();
 
     vi.mocked(workflowApi.deleteA2AService).mockResolvedValueOnce(undefined);
-    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Confirm remove' }));
+      fireEvent.click(screen.getByTestId('confirm-action-confirm'));
     });
     await waitFor(() => expect(screen.queryByText('Acme gateway')).not.toBeInTheDocument());
     expect(workflowApi.deleteA2AService).toHaveBeenCalledWith('acme');
@@ -270,27 +270,27 @@ describe('A2AServicesSettings', () => {
     vi.mocked(workflowApi.deleteA2AService).mockResolvedValue(undefined);
     await renderSettings();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Keep' }));
-    expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    fireEvent.click(screen.getByTestId('confirm-action-cancel'));
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Confirm remove' }));
+      fireEvent.click(screen.getByTestId('confirm-action-confirm'));
     });
-    expect(screen.getByText('A2A service "Acme gateway" removed.')).toBeInTheDocument();
+    expect(screen.getByText('A2A service "Acme gateway" deleted.')).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /Edit Acme/ })).not.toBeInTheDocument();
   });
 
   it('falls back to a generic message when removal fails with a non-Error', async () => {
     vi.mocked(workflowApi.deleteA2AService).mockRejectedValue('x');
     await renderSettings();
-    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Confirm remove' }));
+      fireEvent.click(screen.getByTestId('confirm-action-confirm'));
     });
-    expect(screen.getByRole('alert')).toHaveTextContent('Failed to remove A2A service.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Failed to delete A2A service.');
   });
 
   it('shows the public URL when it differs and prefills the edit form from the service', async () => {

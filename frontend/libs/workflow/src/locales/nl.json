@@ -4,7 +4,6 @@
       "cancel": "Annuleren",
       "edit": "Bewerken",
       "delete": "Verwijderen",
-      "remove": "Verwijderen",
       "retry": "Opnieuw proberen",
       "name": "Naam",
       "description": "Beschrijving",
@@ -15,7 +14,8 @@
       "readOnly": "Alleen-lezen",
       "skills": "Skills",
       "version": "Versie",
-      "group": "Groep"
+      "group": "Groep",
+      "deleting": "Verwijderen…"
     },
     "agentLogConsole": {
       "label": "AGENTLOG // {{agent}}",
@@ -85,8 +85,6 @@
       "noApiKey": "Geen API-sleutel",
       "callerIdentity": "Identiteit van de aanroeper: {{id}}",
       "noCallerIdentity": "Geen identiteit van de aanroeper",
-      "confirmRemove": "Verwijderen bevestigen",
-      "keep": "Behouden",
       "empty": "Nog geen A2A-services geconfigureerd.",
       "formTitleEdit": "{{name}} bewerken",
       "formTitleAdd": "A2A-service toevoegen",
@@ -419,6 +417,16 @@
       "placeholder": "Bijv.: Voeg een exportknop toe aan het klantoverzicht die de tabel als CSV downloadt.",
       "starting": "⟳ Starten…",
       "start": "▶ Starten met prompt"
+    },
+    "confirmDelete": {
+      "title": "{{name}} verwijderen?",
+      "message": {
+        "workflow": "De workflowdefinitie wordt definitief verwijderd.",
+        "group": "De workflowgroep wordt definitief verwijderd. Workflows erin blijven bestaan.",
+        "subagent": "De subagentdefinitie wordt definitief verwijderd.",
+        "skill": "De skilldefinitie wordt definitief verwijderd.",
+        "a2aService": "Workflows die naar de agents van deze service verwijzen werken niet meer totdat hij opnieuw is toegevoegd."
+      }
     }
   }
 }

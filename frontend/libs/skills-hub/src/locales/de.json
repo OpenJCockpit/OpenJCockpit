@@ -76,6 +76,11 @@
         "added": "Marktplatz „{{name}}“ wurde hinzugefügt.",
         "updated": "Marktplatz „{{name}}“ wurde aktualisiert.",
         "deleted": "Marktplatz „{{name}}“ wurde gelöscht."
+      },
+      "deleting": "Wird gelöscht…",
+      "confirmDelete": {
+        "title": "{{name}} löschen?",
+        "message": "Die Marketplace-Verbindung und ihr API-Schlüssel werden dauerhaft gelöscht."
       }
     }
   }

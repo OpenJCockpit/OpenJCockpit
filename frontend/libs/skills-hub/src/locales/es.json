@@ -76,6 +76,11 @@
         "added": "Se ha añadido el marketplace \"{{name}}\".",
         "updated": "Se ha actualizado el marketplace \"{{name}}\".",
         "deleted": "Se ha eliminado el marketplace \"{{name}}\"."
+      },
+      "deleting": "Eliminando…",
+      "confirmDelete": {
+        "title": "¿Eliminar {{name}}?",
+        "message": "La conexión con el marketplace y su clave de API se eliminan de forma permanente."
       }
     }
   }

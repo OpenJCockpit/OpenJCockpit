@@ -32,7 +32,7 @@ export function GroupsTable({ items, onEdit, onDelete }: GroupsTableProps) {
               <Button variant="secondary" onClick={() => onEdit(item)}>
                 {t('shared.edit')}
               </Button>
-              <Button variant="secondary" onClick={() => onDelete(item.id)}>
+              <Button variant="danger" onClick={() => onDelete(item.id)}>
                 {t('shared.delete')}
               </Button>
             </td>

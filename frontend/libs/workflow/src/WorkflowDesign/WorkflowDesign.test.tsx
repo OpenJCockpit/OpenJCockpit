@@ -286,6 +286,10 @@ describe('workflow groups in the design tab', () => {
       within(screen.getByText('Onboarding flows').closest('tr')!).getByText('Delete').click();
     });
 
+    await act(async () => {
+      screen.getByTestId('confirm-action-confirm').click();
+    });
+
     await waitFor(() => {
       expect(workflowApi.deleteWorkflowGroup).toHaveBeenCalledWith('wg-onboarding');
       expect(screen.queryByText('Onboarding flows')).not.toBeInTheDocument();
@@ -484,6 +488,10 @@ describe('human approval gate (designer)', () => {
 
     await act(async () => {
       within(screen.getByText('Customer Onboarding').closest('tr')!).getByText('Delete').click();
+    });
+
+    await act(async () => {
+      screen.getByTestId('confirm-action-confirm').click();
     });
 
     await waitFor(() => {
@@ -1838,6 +1846,9 @@ describe('workflows panel actions', () => {
     await act(async () => {
       within(screen.getByText('Customer Onboarding').closest('tr')!).getByText('Delete').click();
     });
+    await act(async () => {
+      screen.getByTestId('confirm-action-confirm').click();
+    });
     await waitFor(() => expect(screen.queryByText('Customer Onboarding')).not.toBeInTheDocument());
     expect(workflowApi.deleteWorkflow).toHaveBeenCalledWith('wf-1');
   });
@@ -1847,6 +1858,9 @@ describe('workflows panel actions', () => {
     await renderWorkflowsTab();
     await act(async () => {
       within(screen.getByText('Customer Onboarding').closest('tr')!).getByText('Delete').click();
+    });
+    await act(async () => {
+      screen.getByTestId('confirm-action-confirm').click();
     });
     expect(await screen.findByText('Failed to delete workflow.')).toBeInTheDocument();
     expect(screen.getByText('Customer Onboarding')).toBeInTheDocument();

@@ -83,6 +83,7 @@ export function AutoMergeSettingToggle({ projectId, autoMergeAllowed, onChanged 
           confirmLabel={t('autoMergeSetting.confirmLabel')}
           busy={busy}
           error={error}
+          tone="primary"
           onConfirm={() => void apply(true)}
           onCancel={cancelConfirmation}
         />

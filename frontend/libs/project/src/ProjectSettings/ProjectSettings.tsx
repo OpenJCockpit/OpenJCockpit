@@ -4,6 +4,7 @@ import {
   AppHeader,
   fieldErrorClass,
   StatusMessage,
+  useConfirmDialog,
 } from '@openjcockpit/ui';
 import { useTranslation } from '@openjcockpit/i18n';
 import { CredentialsForm } from './CredentialsForm';
@@ -45,6 +46,7 @@ export function ProjectSettings({ onBack }: Props) {
     handleSaveCred,
     handleDeleteCred,
   } = useProjectSettings();
+  const { confirm, dialog } = useConfirmDialog();
 
   if (!loaded) {
     return <StatusMessage variant="loading">{t('settings.loading')}</StatusMessage>;
@@ -97,9 +99,31 @@ export function ProjectSettings({ onBack }: Props) {
           onEdit={startEdit}
           onGitCheck={(id) => void handleGitCheck(id)}
           onEditCredentials={(id) => void startCredEdit(id)}
-          onDeleteCredentials={(id) => void handleDeleteCred(id)}
-          onToggleActive={(p) => void handleToggleActive(p)}
+          onDeleteCredentials={(id) => {
+            const name = projects.find((p) => p.id === id)?.name ?? id;
+            confirm({
+              title: t('confirm.deleteCredentials.title', { name }),
+              message: t('confirm.deleteCredentials.message'),
+              confirmLabel: t('confirm.deleteCredentials.confirm'),
+              cancelLabel: t('confirm.cancel'),
+              busyLabel: t('confirm.working'),
+              onConfirm: () => handleDeleteCred(id),
+            });
+          }}
+          onToggleActive={(p) => {
+            if (p.active !== 1) return void handleToggleActive(p);
+            confirm({
+              title: t('confirm.deactivate.title', { name: p.name }),
+              message: t('confirm.deactivate.message'),
+              confirmLabel: t('confirm.deactivate.confirm'),
+              tone: 'primary',
+              cancelLabel: t('confirm.cancel'),
+              busyLabel: t('confirm.working'),
+              onConfirm: () => handleToggleActive(p),
+            });
+          }}
         />
+        {dialog}
       </main>
     </AppShell>
   );

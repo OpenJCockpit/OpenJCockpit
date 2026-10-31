@@ -15,6 +15,7 @@ import {
   pageClass,
   pageHeaderClass,
   StatusMessage,
+  useConfirmDialog,
 } from '@openjcockpit/ui';
 import { useTranslation } from '@openjcockpit/i18n';
 import styles from './SkillsHubSettings.module.scss';
@@ -42,6 +43,7 @@ export function SkillsHubSettings({ onBack }: Props) {
     handleSave,
     handleDelete,
   } = useSkillsHubSettings();
+  const { confirm, dialog } = useConfirmDialog();
 
   if (!loaded) {
     return <StatusMessage variant="loading">{t('settings.loading')}</StatusMessage>;
@@ -152,7 +154,19 @@ export function SkillsHubSettings({ onBack }: Props) {
                   <Button variant="secondary" onClick={() => startEdit(connection)}>
                     {t('settings.edit')}
                   </Button>
-                  <Button variant="secondary" onClick={() => void handleDelete(connection)}>
+                  <Button
+                    variant="danger"
+                    onClick={() =>
+                      confirm({
+                        title: t('settings.confirmDelete.title', { name: connection.name }),
+                        message: t('settings.confirmDelete.message'),
+                        confirmLabel: t('settings.delete'),
+                        cancelLabel: t('settings.cancel'),
+                        busyLabel: t('settings.deleting'),
+                        onConfirm: () => handleDelete(connection),
+                      })
+                    }
+                  >
                     {t('settings.delete')}
                   </Button>
                 </Actions>
@@ -168,6 +182,7 @@ export function SkillsHubSettings({ onBack }: Props) {
           </tbody>
         </DataTable>
       </main>
+      {dialog}
     </AppShell>
   );
 }
