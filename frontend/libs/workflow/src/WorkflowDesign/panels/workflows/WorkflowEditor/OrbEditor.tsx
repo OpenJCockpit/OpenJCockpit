@@ -1,4 +1,5 @@
 import type { AgentDefinition, WorkflowDefinition, WorkflowOrb } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { SelectField, fieldErrorClass, fieldHintClass, Button } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
 
@@ -34,6 +35,7 @@ interface OrbEditorProps {
 }
 
 export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEditorProps) {
+  const { t } = useTranslation('workflow');
   function addOrb() {
     onChange([...orbs, { workflowId: '', placementStage: '' }]);
   }
@@ -53,7 +55,7 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
 
   return (
     <div className={WorkflowDesignStyles.workflowDesignFieldFull}>
-      <span>Workflow orbs</span>
+      <span>{t('orbEditor.title')}</span>
       {error && (
         <p id="workflow-orb-error" role="alert" className={fieldErrorClass}>
           {error}
@@ -63,19 +65,16 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
         <div key={orbKey(orb)} className="workflow-orb-row">
           <SelectField
             id={`orb-target-${index}`}
-            label="Referenced workflow"
+            label={t('orbEditor.referenced')}
             value={orb.workflowId}
             onChange={(v) => updateOrb(index, { workflowId: v })}
-          >
-            <option value="">Select a workflow…</option>
-            {candidates.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.name}
-              </option>
-            ))}
-          </SelectField>
+            options={[
+              { value: '', label: t('orbEditor.select') },
+              ...candidates.map((w) => ({ value: w.id, label: w.name })),
+            ]}
+          />
           <fieldset aria-describedby={error ? 'workflow-orb-error' : undefined}>
-            <legend>Execution mode</legend>
+            <legend>{t('orbEditor.mode')}</legend>
             <label>
               <input
                 type="radio"
@@ -84,7 +83,7 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
                 checked={orb.mode === 'SEQUENTIAL'}
                 onChange={() => updateOrb(index, { mode: 'SEQUENTIAL' })}
               />
-              Sequential — wait for it to finish before continuing
+              {t('orbEditor.sequential')}
             </label>
             <label>
               <input
@@ -94,34 +93,28 @@ export function OrbEditor({ orbs, candidates, stages, error, onChange }: OrbEdit
                 checked={orb.mode === 'PARALLEL'}
                 onChange={() => updateOrb(index, { mode: 'PARALLEL' })}
               />
-              Parallel — start it and continue immediately
+              {t('orbEditor.parallel')}
             </label>
           </fieldset>
           <SelectField
             id={`orb-placement-${index}`}
-            label="Placement anchor"
+            label={t('orbEditor.placement')}
             value={orb.placementStage ?? ''}
             onChange={(v) => updateOrb(index, { placementStage: v })}
-          >
-            <option value="">Run first (before any agent stage)</option>
-            {stages.map((agent) => (
-              <option key={agent.id} value={agent.id}>
-                {agent.name}
-              </option>
-            ))}
-          </SelectField>
+            options={[
+              { value: '', label: t('orbEditor.runFirst') },
+              ...stages.map((agent) => ({ value: agent.id, label: agent.name })),
+            ]}
+          />
           <Button type="button" size="sm" onClick={() => removeOrb(index)}>
-            Remove orb
+            {t('orbEditor.remove')}
           </Button>
         </div>
       ))}
       <Button type="button" size="sm" onClick={addOrb} disabled={orbs.length >= MAX_ORBS}>
-        + Add orb
+        {t('orbEditor.add')}
       </Button>
-      <span className={fieldHintClass}>
-        A workflow orb triggers another workflow as part of this one. Up to 5 orbs are allowed (the
-        server enforces the actual configured limit).
-      </span>
+      <span className={fieldHintClass}>{t('orbEditor.hint', { max: MAX_ORBS })}</span>
     </div>
   );
 }

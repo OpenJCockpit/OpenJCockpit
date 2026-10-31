@@ -12,7 +12,7 @@ RUN mkdir /manifests \
 
 FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS build
 WORKDIR /app
-COPY package.json package-lock.json nx.json tsconfig.base.json vite.config.base.ts ./
+COPY package.json package-lock.json nx.json tsconfig.base.json vite.config.base.ts module-federation.shared.ts ./
 COPY --from=manifests /manifests ./
 RUN --mount=type=cache,target=/root/.npm npm ci --workspace=openjcockpit-frontend --include-workspace-root
 COPY libs libs
@@ -28,7 +28,10 @@ ENV BUILD_SHA=$BUILD_SHA \
     KEYCLOAK_URL=http://localhost:8080 \
     KEYCLOAK_REALM=openjcockpit \
     KEYCLOAK_CLIENT_ID=openjcockpit \
-    NGINX_ENVSUBST_FILTER=^(KEYCLOAK_|API_UPSTREAM$|BUILD_SHA$)
+    FEDERATION_MANIFEST={} \
+    FEDERATION_ALLOWED_ORIGINS_JSON=[] \
+    FEDERATION_ALLOWED_ORIGINS= \
+    NGINX_ENVSUBST_FILTER=^(KEYCLOAK_|FEDERATION_|API_UPSTREAM$|BUILD_SHA$)
 COPY --from=build /app/apps/dashboard/dist /usr/share/nginx/html
 COPY apps/dashboard/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY apps/dashboard/security-headers.inc.template /etc/nginx/templates/security-headers.inc.template

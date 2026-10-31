@@ -22,11 +22,11 @@ describe('StatusMessage', () => {
   it('renders loading as a block element and forwards attributes', () => {
     render(
       <StatusMessage variant="loading" data-testid="loading">
-        Loading things...
+        Loading things…
       </StatusMessage>,
     );
     const el = screen.getByTestId('loading');
     expect(el.tagName).toBe('DIV');
-    expect(el).toHaveTextContent('Loading things...');
+    expect(el).toHaveTextContent('Loading things…');
   });
 });

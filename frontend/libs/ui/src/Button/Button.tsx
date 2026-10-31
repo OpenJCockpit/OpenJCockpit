@@ -33,7 +33,13 @@ export function buttonClass({ variant = 'default', size = 'md' }: ButtonStyle = 
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, ButtonStyle {}
 
-/** The dashboard's button. Does not set `type`, so forms behave as with a plain <button>. */
+/**
+ * The dashboard's button. Does not set `type`, so forms behave as with a plain <button>.
+ *
+ * The set: `primary` for the one main action of a view or form, `secondary` for everything
+ * else (Cancel, Refresh, Export, Edit), `danger` for destructive actions. `workflow` and `link`
+ * are special-purpose looks; `size="sm"` only tightens the padding of the plain default look.
+ */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { variant, size, className, ...rest },
   ref,

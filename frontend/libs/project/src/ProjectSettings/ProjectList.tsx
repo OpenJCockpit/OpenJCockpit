@@ -1,6 +1,16 @@
 import type { Project } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import { GitStatusBadge } from '../GitStatusBadge/GitStatusBadge';
-import { Actions, DataTable, DataTableRow, fieldHintClass, Button, cx } from '@openjcockpit/ui';
+import {
+  Actions,
+  DataTable,
+  DataTableRow,
+  fieldHintClass,
+  Button,
+  Icon,
+  StatusChip,
+  cx,
+} from '@openjcockpit/ui';
 import styles from './ProjectList.module.scss';
 
 interface Props {
@@ -9,7 +19,7 @@ interface Props {
   onEdit: (project: Project) => void;
   onGitCheck: (projectId: string) => void;
   onEditCredentials: (projectId: string) => void;
-  onDeleteCredentials: (projectId: string) => void;
+  onDeleteCredentials: (project: Project) => void;
   onToggleActive: (project: Project) => void;
 }
 
@@ -22,15 +32,16 @@ export function ProjectList({
   onDeleteCredentials,
   onToggleActive,
 }: Props) {
+  const { t } = useTranslation('project');
   return (
     <DataTable>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Git status</th>
-          <th>Credentials</th>
-          <th>Status</th>
-          <th>Actions</th>
+          <th>{t('list.name')}</th>
+          <th>{t('list.gitStatus')}</th>
+          <th>{t('list.credentials')}</th>
+          <th>{t('list.status')}</th>
+          <th>{t('list.actions')}</th>
         </tr>
       </thead>
       <tbody>
@@ -52,51 +63,40 @@ export function ProjectList({
               )}
             </td>
             <td>
-              {project.hasCredentials ? (
-                <span className={styles.credentialsSet}>Credentials set</span>
-              ) : (
-                <span className={styles.credentialsNone}>None</span>
-              )}
+              <StatusChip
+                label={
+                  project.hasCredentials ? t('list.credentialsSet') : t('list.credentialsNone')
+                }
+                kind={project.hasCredentials ? 'ok' : 'neutral'}
+              />
             </td>
             <td>
-              <span
-                className={cx(
-                  styles.statusBadge,
-                  project.active === 1 ? styles.statusBadgeActive : styles.statusBadgeInactive,
-                )}
-              >
-                {project.active === 1 ? 'Active' : 'Inactive'}
-              </span>
+              <StatusChip
+                label={project.active === 1 ? t('list.active') : t('list.inactive')}
+                kind={project.active === 1 ? 'ok' : 'neutral'}
+              />
             </td>
             <Actions as="td">
               <Button variant="secondary" onClick={() => onEdit(project)}>
-                Edit
+                {t('list.edit')}
               </Button>
               <Button
                 variant="secondary"
                 onClick={() => onGitCheck(project.id)}
                 disabled={checkingId === project.id}
               >
-                {checkingId === project.id ? '⟳' : 'Git check'}
+                {checkingId === project.id && <Icon name="spinner" />} {t('list.gitCheck')}
               </Button>
               <Button variant="secondary" onClick={() => onEditCredentials(project.id)}>
-                {project.hasCredentials ? 'Update credentials' : 'Add credentials'}
+                {project.hasCredentials ? t('list.updateCredentials') : t('list.addCredentials')}
               </Button>
               {project.hasCredentials && (
-                <Button
-                  variant="secondary"
-                  className={styles.danger}
-                  onClick={() => onDeleteCredentials(project.id)}
-                >
-                  Delete credentials
+                <Button variant="danger" onClick={() => onDeleteCredentials(project)}>
+                  {t('list.deleteCredentials')}
                 </Button>
               )}
-              <Button
-                variant="secondary"
-                onClick={() => onToggleActive(project)}
-                className={project.active === 1 ? styles.danger : styles.activate}
-              >
-                {project.active === 1 ? 'Deactivate' : 'Activate'}
+              <Button variant="secondary" onClick={() => onToggleActive(project)}>
+                {project.active === 1 ? t('list.deactivate') : t('list.activate')}
               </Button>
             </Actions>
           </DataTableRow>

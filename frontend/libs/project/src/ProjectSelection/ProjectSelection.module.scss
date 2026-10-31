@@ -8,35 +8,22 @@
 }
 
 /* ── Project selection ─────────────────────────────────────────────────── */
-.project-selection-shell {
-  position: relative;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
 .project-selection-content {
   position: relative;
   z-index: 1;
   width: 100%;
   max-width: 880px;
+  margin: 0 auto;
   padding: 48px 32px;
 }
 
 .project-selection-header {
   text-align: center;
   margin-bottom: 40px;
-  & .project-selection-logo {
-    height: 36px;
-    margin-bottom: 24px;
-  }
 }
 
 .project-selection-title {
-  font-family: var(--font-mono);
-  font-size: 24px;
+  font-size: 26px;
   color: var(--cyan);
   margin: 0 0 8px;
   letter-spacing: 0.04em;
@@ -85,6 +72,7 @@
 }
 
 .project-card-name {
+  display: block;
   font-size: 16px;
   font-weight: 600;
   color: var(--cyan);
@@ -107,7 +95,7 @@
     font-size: 11px;
     color: var(--faint);
     background: var(--cyan-a06);
-    border: 1px solid rgba(39, 231, 255, 0.15);
+    border: 1px solid rgb(var(--accent-rgb) / 0.15);
     border-radius: 4px;
     padding: 2px 8px;
   }
@@ -157,6 +145,6 @@
 
 .project-card-notice {
   font-size: 11px;
-  color: #ff8a8a;
+  color: var(--error-text);
   margin: 6px 0 0;
 }

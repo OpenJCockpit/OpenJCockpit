@@ -41,7 +41,16 @@ server {
     include /etc/nginx/conf.d/security-headers.inc;
     default_type application/json;
     add_header Cache-Control "no-store";
-    return 200 '{"keycloak":{"url":"${KEYCLOAK_URL}","realm":"${KEYCLOAK_REALM}","clientId":"${KEYCLOAK_CLIENT_ID}"}}';
+    return 200 '{"keycloak":{"url":"${KEYCLOAK_URL}","realm":"${KEYCLOAK_REALM}","clientId":"${KEYCLOAK_CLIENT_ID}"},"federation":{"allowedOrigins":${FEDERATION_ALLOWED_ORIGINS_JSON}}}';
+  }
+
+  # Remotes the hub loads, rendered from the container env (a JSON object of name to mf-manifest.json URL).
+  # Overrides the localhost dev manifest in public/. Adding an app is an env change, not a host rebuild.
+  location = /federation.manifest.json {
+    include /etc/nginx/conf.d/security-headers.inc;
+    default_type application/json;
+    add_header Cache-Control "no-store";
+    return 200 '${FEDERATION_MANIFEST}';
   }
 
   # Build identity for support and deploy checks; set with `--build-arg BUILD_SHA=<git sha>`.

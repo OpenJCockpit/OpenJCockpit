@@ -1,4 +1,5 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
+import { render } from '../testRender';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LandingPage } from './LandingPage';
 

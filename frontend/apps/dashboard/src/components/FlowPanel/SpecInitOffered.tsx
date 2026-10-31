@@ -1,5 +1,6 @@
+import { useTranslation } from '@openjcockpit/i18n';
 import type { SpecInitResult } from '@openjcockpit/api';
-import { StatusChip, ToolbarButton, buttonClass, feedbackResultClass } from '@openjcockpit/ui';
+import { StatusChip, Button, buttonClass, feedbackResultClass } from '@openjcockpit/ui';
 
 interface Props {
   result: SpecInitResult;
@@ -8,9 +9,10 @@ interface Props {
 
 /** The spec-init pull request was just created. */
 export function SpecInitOffered({ result, onReload }: Props) {
+  const { t } = useTranslation('dashboard');
   return (
     <div className={feedbackResultClass}>
-      <StatusChip label="Pull request offered" kind="ok" />
+      <StatusChip label={t('flow.specInit.offered')} kind="ok" />
       <p>{result.message}</p>
       {result.pullRequestUrl && (
         <a
@@ -19,12 +21,12 @@ export function SpecInitOffered({ result, onReload }: Props) {
           target="_blank"
           rel="noreferrer"
         >
-          Open pull request <span>→</span>
+          {t('flow.openPullRequest')} <span>→</span>
         </a>
       )}
-      <ToolbarButton variant="small" onClick={onReload}>
-        ⟳ Reload specs
-      </ToolbarButton>
+      <Button variant="secondary" onClick={onReload}>
+        {t('flow.reloadSpecs')}
+      </Button>
     </div>
   );
 }

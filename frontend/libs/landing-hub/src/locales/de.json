@@ -1,0 +1,40 @@
+{
+  "landing": {
+    "intro": {
+      "greeting": "Hallo {{firstName}}!"
+    },
+    "hero": {
+      "title": "Wählen Sie Ihren Arbeitsbereich",
+      "welcome": "Willkommen zurück, {{firstName}}. Wählen Sie, wo Sie beginnen möchten: navigieren Sie direkt zu Business oder Implementation."
+    },
+    "portals": {
+      "business": {
+        "title": "Business",
+        "subtitle": "Strategie, Dashboards und Entscheidungsfindung"
+      },
+      "implementation": {
+        "title": "Implementation",
+        "subtitle": "Rollout, Konfiguration und operative Aktionen"
+      }
+    },
+    "topBar": {
+      "brand": "OpenJCockpit",
+      "fallbackIdentity": "Authentifizierter Start-Hub",
+      "userActions": "Benutzeraktionen",
+      "logout": "Abmelden",
+      "actions": {
+        "profile": "Profil",
+        "notifications": "Benachrichtigungen",
+        "messages": "Nachrichten"
+      },
+      "panels": {
+        "profile": "Profil",
+        "notifications": "Benachrichtigungen",
+        "messages": "Nachrichten"
+      },
+      "profileSummary": "Angemeldet als {{firstName}} ({{username}}). Token gültig bis zur Sitzungsaktualisierung oder Abmeldung.",
+      "noNotifications": "Keine neuen Benachrichtigungen.",
+      "noMessages": "Keine neuen Nachrichten."
+    }
+  }
+}

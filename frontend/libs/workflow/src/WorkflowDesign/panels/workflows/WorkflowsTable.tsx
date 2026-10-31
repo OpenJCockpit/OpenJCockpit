@@ -1,23 +1,25 @@
 import type { WorkflowDefinition } from '@openjcockpit/api';
-import { DataTable, Button } from '@openjcockpit/ui';
+import { useTranslation } from '@openjcockpit/i18n';
+import { Actions, DataTable, Button } from '@openjcockpit/ui';
 
 interface WorkflowsTableProps {
   items: WorkflowDefinition[];
   groupName: (groupId?: string) => string;
   onEdit: (item: WorkflowDefinition) => void;
-  onDelete: (id: string) => void;
+  onDelete: (item: WorkflowDefinition) => void;
 }
 
 export function WorkflowsTable({ items, groupName, onEdit, onDelete }: WorkflowsTableProps) {
+  const { t } = useTranslation('workflow');
   return (
     <DataTable>
       <thead>
         <tr>
           <th>ID</th>
-          <th>Name</th>
-          <th>Project</th>
-          <th>Group</th>
-          <th>Status</th>
+          <th>{t('shared.name')}</th>
+          <th>{t('shared.project')}</th>
+          <th>{t('shared.group')}</th>
+          <th>{t('shared.status')}</th>
           <th></th>
         </tr>
       </thead>
@@ -30,12 +32,14 @@ export function WorkflowsTable({ items, groupName, onEdit, onDelete }: Workflows
             <td>{groupName(item.groupId)}</td>
             <td>{item.status}</td>
             <td>
-              <Button variant="secondary" onClick={() => onEdit(item)}>
-                Edit
-              </Button>
-              <Button variant="secondary" onClick={() => onDelete(item.id)}>
-                Delete
-              </Button>
+              <Actions>
+                <Button variant="secondary" onClick={() => onEdit(item)}>
+                  {t('shared.edit')}
+                </Button>
+                <Button variant="danger" onClick={() => onDelete(item)}>
+                  {t('shared.delete')}
+                </Button>
+              </Actions>
             </td>
           </tr>
         ))}

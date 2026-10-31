@@ -65,8 +65,8 @@ test.describe('axe accessibility scan (authenticated)', () => {
     await enterDashboard(page);
     await page.getByTestId(testIds.projectCard).first().click();
     await expect(page.getByTestId(testIds.navWorkflow)).toBeVisible();
-    await page.getByTitle('Project management').click();
-    await expect(page).toHaveURL(/\/settings$/);
+    await page.getByTitle('Project settings').click();
+    await expect(page).toHaveURL(/\/project-settings\/projects$/);
     await expectNoSeriousViolations(page);
   });
 });

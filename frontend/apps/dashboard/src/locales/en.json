@@ -1,0 +1,252 @@
+{
+  "dashboard": {
+    "authenticating": "Authenticating…",
+    "loadingView": "Loading…",
+    "forbidden": "You do not have access to this page.",
+    "notFound": "This page does not exist.",
+    "backToDashboard": "Back to dashboard",
+    "unavailableApps": "Some apps are unavailable: {{names}}",
+    "home": {
+      "eyebrow": "Home",
+      "title": "Welcome",
+      "greeting": "Welcome, {{name}}",
+      "customise": "Customise",
+      "done": "Done",
+      "reset": "Reset to default",
+      "empty": "No widgets on your Home yet. Choose Customise to add some.",
+      "available": "Available widgets",
+      "noneAvailable": "Every available widget is already on your Home.",
+      "add": "Add",
+      "open": "Open",
+      "moveEarlier": "Move earlier",
+      "moveLater": "Move later",
+      "narrower": "Narrower",
+      "wider": "Wider",
+      "shorter": "Shorter",
+      "taller": "Taller",
+      "remove": "Remove"
+    },
+    "pageTitle": {
+      "home": "Home",
+      "landing": "Choose your workspace",
+      "projects": "Select project",
+      "settings": "Settings",
+      "projectSettings": "Project settings"
+    },
+    "siteHeader": {
+      "backToHub": "Back to hub",
+      "primaryNavigation": "Primary navigation",
+      "activeProject": "Active project",
+      "language": "Language",
+      "theme": "Theme",
+      "themes": { "system": "System", "light": "Light", "dark": "Dark" },
+      "settings": "Settings",
+      "projectSettings": "Project settings",
+      "logOut": "Log out",
+      "logout": "Logout",
+      "nav": {
+        "platform": "Platform",
+        "workflow": "Workflow Design & Execution",
+        "specFiles": "Spec Files",
+        "specQueue": "Spec Queue",
+        "skillsHub": "Skills Hub",
+        "skillsHubBadge": "Connected marketplaces",
+        "hub": "Hub"
+      },
+      "groups": {
+        "work": "Work",
+        "account": "Account"
+      },
+      "collapse": "Collapse",
+      "expand": "Expand"
+    },
+    "sampleData": "Sample data",
+    "statusBar": {
+      "environment": "● Environment: {{value}}",
+      "region": "☁ Region: {{value}}",
+      "classification": "⬡ Classification: {{value}}",
+      "embabelVersion": "Embabel version: {{value}}",
+      "springAiControlVersion": "Spring AI Control Service: {{value}}",
+      "copyright": "© 2026 Metafactory B.V."
+    },
+    "workspace": {
+      "failed": "Failed to load the workspace.",
+      "loading": "Loading workspace…"
+    },
+    "preflight": {
+      "title": "Pre-flight check failed",
+      "checkGitSettings": "Check Git settings",
+      "dismiss": "Dismiss",
+      "unknown": "Pre-flight check failed: {{message}}",
+      "errors": {
+        "DOCKER_UNAVAILABLE": "Docker is not available. Please make sure Docker is running and the application is allowed to start containers.",
+        "GIT_REPOSITORY_UNAVAILABLE": "The Git repository is not reachable. Please check the project Git URL or credentials.",
+        "NO_SELECTED_PROJECT": "No project is selected. Please choose a project before starting the workflow.",
+        "PROJECT_INACTIVE": "The selected project is inactive and cannot be used to start a workflow.",
+        "GIT_AUTH_FAILED": "Git authentication failed. Please update the project credentials.",
+        "GIT_URL_MISSING": "The selected project does not have a Git URL configured.",
+        "GIT_REPOSITORY_NOT_FOUND": "The Git repository could not be found.",
+        "TIMEOUT": "The pre-flight check timed out. Please try again or check the infrastructure."
+      }
+    },
+    "flow": {
+      "specsFailedTitle": "Failed to load the specs",
+      "specsFailed": "Failed to load the specs. The server did not respond correctly.",
+      "startNewWorkflow": "↺ Start new workflow",
+      "currentSpec": "Current spec",
+      "specFolder": "Spec folder",
+      "loadingSpecs": "Loading specs…",
+      "noSpecsFound": "No specs found",
+      "active": "Active",
+      "workflow": "Workflow",
+      "reloadSpecs": "⟳ Reload specs",
+      "openPullRequest": "Open pull request",
+      "start": {
+        "preflight": "⟳ Running pre-flight checks…",
+        "starting": "⟳ Starting…",
+        "error": "✕ Error",
+        "idle": "▶ Start"
+      },
+      "specInit": {
+        "option": "Spec folder initialization — spec template via pull request",
+        "hint": "This workflow creates a .specify folder with the spec template and offers it as a pull request on the repository.",
+        "offered": "Pull request offered",
+        "pending": "Pull request open",
+        "pendingText": "A branch with the spec template is already prepared{{branch}}. Merge the corresponding pull request to add the .specify folder.",
+        "viewBranch": "⎇ View branch on the repository"
+      },
+      "template": {
+        "present": "Spec structure present",
+        "text": "The repository already has a .specify folder, but no specs in the specs/ folder yet. Create the first spec with a prompt — the workflow combines your prompt with the repository contents (RAG) into a small, executable spec file.",
+        "createSpec": "✨ Create spec with prompt",
+        "unavailable": "De workflow \"Create spec from prompt (RAG)\" is not available for this project."
+      },
+      "launcher": {
+        "none": "No workflows available",
+        "noneHint": "No workflows for this project. Create one via Workflow Design & Execution."
+      }
+    },
+    "specPanel": {
+      "error": "Failed to load the specs. The server did not respond correctly.",
+      "retry": "Retry",
+      "title": "Spec",
+      "loading": "Loading specs…",
+      "viewAll": "View all specs",
+      "lastModified": "Last modified: {{value}}",
+      "empty": {
+        "title": "No specs found",
+        "text": "No specs/ folder with specifications in the repository",
+        "goToWorkflow": "⚡ Go to Workflow Design & Execution",
+        "hint": "Design or select a workflow there to create spec files."
+      }
+    },
+    "evidence": {
+      "title": "Execution evidence",
+      "by": "By: {{actor}}",
+      "events": {
+        "specLoaded": "Spec loaded",
+        "impactAnalysisRecorded": "Impact analysis recorded",
+        "testSetGenerated": "Test set generated",
+        "implementationProposalSaved": "Implementation proposal saved",
+        "humanApprovalLogged": "Human approval logged",
+        "evidenceDataRecorded": "Evidence data recorded"
+      },
+      "actors": {
+        "requirement": "Requirement Agent",
+        "impact": "Impact Analysis Agent",
+        "testDesign": "Test Design Agent",
+        "implementation": "Implementation Agent",
+        "review": "Review Agent",
+        "evidence": "Evidence Agent"
+      }
+    },
+    "quality": {
+      "title": "Quality status",
+      "controls": {
+        "unitTestCoverage": "Unit test coverage",
+        "nist2": "NIST 2",
+        "owaspZap": "OWASP ZAP",
+        "iso25010": "ISO 25010",
+        "sast": "SAST",
+        "dependencyScan": "Dependency scan",
+        "architectureRules": "Architecture rules"
+      },
+      "details": {
+        "noCriticalIssues": "No critical issues",
+        "allAttributes": "8/8 attributes",
+        "noHighIssues": "No high issues",
+        "noKnownVulnerabilities": "No known vulnerabilities",
+        "noDeviations": "0 deviations"
+      }
+    },
+    "settings": {
+      "eyebrow": "Settings",
+      "navigation": "Settings sections",
+      "projectEyebrow": "Project",
+      "projectNavigation": "Project settings sections",
+      "empty": "There are no settings to show.",
+      "selectProject": "Select a project to configure this section.",
+      "chooseProject": "Select project",
+      "groups": {
+        "general": "General",
+        "project": "Project",
+        "integrations": "Integrations",
+        "projectIntegrations": "Project integrations",
+        "other": "Other"
+      },
+      "sections": {
+        "preferences": {
+          "title": "Preferences",
+          "description": "Language and theme for your account on this device."
+        },
+        "projects": {
+          "title": "Project management",
+          "description": "Create, edit and deactivate projects and their Git credentials."
+        },
+        "skillsHub": {
+          "title": "Marketplaces",
+          "description": "Connect the skill marketplaces the Skills Hub lists."
+        },
+        "workflowOpa": {
+          "title": "Open Policy Agent",
+          "description": "Policy checks for workflow runs."
+        },
+        "workflowA2a": {
+          "title": "A2A services",
+          "description": "Agent-to-agent services workflows can call."
+        },
+        "workflowHermes": {
+          "title": "Hermes Agent",
+          "description": "Hermes Agent integration for this project."
+        },
+        "workflowJira": {
+          "title": "Jira connector",
+          "description": "Jira connector for this project."
+        },
+        "workflowDocuments": {
+          "title": "Document folder",
+          "description": "The folder this project reads its documents from."
+        },
+        "specQueue": {
+          "title": "Spec queue",
+          "description": "Queue behaviour for this project, including auto-merge."
+        }
+      }
+    },
+    "apps": {
+      "hello": {
+        "label": "Hello",
+        "widgetTitle": "Hello"
+      },
+      "specQueue": {
+        "widgetTitle": "Spec queue"
+      },
+      "workflow": {
+        "widgetTitle": "Recent workflows"
+      },
+      "specFiles": {
+        "widgetTitle": "Spec files"
+      }
+    }
+  }
+}

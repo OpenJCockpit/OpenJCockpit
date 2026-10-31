@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import { AgentsPanel } from './panels/agents/AgentsPanel';
 import { GroupsPanel } from './panels/groups/GroupsPanel';
 import { SkillsPanel } from './panels/skills/SkillsPanel';
@@ -9,25 +10,26 @@ import { Tab, TabNav } from '@openjcockpit/ui';
 type DesignTab = 'workflows' | 'groups' | 'agents' | 'subagents' | 'skills';
 
 export function WorkflowDesign() {
+  const { t } = useTranslation('workflow');
   const [tab, setTab] = useState<DesignTab>('workflows');
 
   return (
     <section className="workflow-design">
-      <TabNav secondary aria-label="Design secties">
+      <TabNav secondary aria-label={t('design.tabsLabel')}>
         <Tab active={tab === 'workflows'} onClick={() => setTab('workflows')}>
-          Workflows
+          {t('design.tabs.workflows')}
         </Tab>
         <Tab active={tab === 'groups'} onClick={() => setTab('groups')}>
-          Groups
+          {t('design.tabs.groups')}
         </Tab>
         <Tab active={tab === 'agents'} onClick={() => setTab('agents')}>
-          Agents
+          {t('design.tabs.agents')}
         </Tab>
         <Tab active={tab === 'subagents'} onClick={() => setTab('subagents')}>
-          Subagents
+          {t('design.tabs.subagents')}
         </Tab>
         <Tab active={tab === 'skills'} onClick={() => setTab('skills')}>
-          Skills
+          {t('design.tabs.skills')}
         </Tab>
       </TabNav>
 

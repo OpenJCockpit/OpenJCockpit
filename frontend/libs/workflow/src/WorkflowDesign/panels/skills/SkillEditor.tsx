@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import { TextAreaField, TextField } from '@openjcockpit/ui';
 import type { SkillSpec } from '@openjcockpit/api';
 import { EditorForm } from '../shared/EditorForm';
@@ -13,9 +14,10 @@ interface SkillEditorProps {
 }
 
 export function SkillEditor({ isNew, form, setForm, saving, onSave, onCancel }: SkillEditorProps) {
+  const { t } = useTranslation('workflow');
   return (
     <EditorForm
-      title={isNew ? 'New skill' : 'Edit skill'}
+      title={isNew ? t('skills.new') : t('skills.edit')}
       saving={saving}
       onSave={onSave}
       onCancel={onCancel}

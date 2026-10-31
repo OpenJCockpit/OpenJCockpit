@@ -17,8 +17,8 @@
   height: 1px;
   background: repeating-linear-gradient(
     to right,
-    rgba(39, 231, 255, 0.5) 0,
-    rgba(39, 231, 255, 0.5) 5px,
+    rgb(var(--accent-rgb) / 0.5) 0,
+    rgb(var(--accent-rgb) / 0.5) 5px,
     transparent 5px,
     transparent 9px
   );
@@ -70,10 +70,10 @@
   height: 110px;
   border: 1px solid var(--cyan-a35);
   border-radius: 50%;
-  background: rgba(6, 21, 34, 0.65);
+  background: rgb(var(--base-rgb) / 0.65);
   box-shadow:
     0 0 12px var(--cyan-a30),
-    0 0 28px rgba(39, 231, 255, 0.15),
+    0 0 28px rgb(var(--accent-rgb) / 0.15),
     inset 0 0 18px var(--cyan-a06);
   cursor: grab;
   transition:
@@ -84,7 +84,7 @@
     opacity 0.2s;
   user-select: none;
   &--active {
-    border-color: rgba(39, 231, 255, 0.95);
+    border-color: rgb(var(--accent-rgb) / 0.95);
   }
   // Two expanding ring pulses, offset by half a cycle so one is always
   // growing outward. Only transform + opacity animate, both of which the
@@ -97,7 +97,7 @@
     inset: -1px;
     border-radius: 50%;
     pointer-events: none;
-    border: 1px solid rgba(39, 231, 255, 0.9);
+    border: 1px solid rgb(var(--accent-rgb) / 0.9);
     box-shadow:
       0 0 24px var(--cyan-a60),
       0 0 48px var(--cyan-a30);
@@ -108,15 +108,15 @@
 
   &:hover,
   &:focus-visible {
-    border-color: rgba(39, 231, 255, 0.75);
-    background: rgba(6, 21, 34, 0.8);
+    border-color: rgb(var(--accent-rgb) / 0.75);
+    background: rgb(var(--base-rgb) / 0.8);
     box-shadow:
       0 0 20px var(--cyan-a55),
       0 0 48px var(--cyan-a30),
       inset 0 0 24px var(--surface-glow);
   }
   &:focus-visible {
-    outline: 2px solid rgba(39, 231, 255, 0.9);
+    outline: 2px solid rgb(var(--accent-rgb) / 0.9);
     outline-offset: 3px;
   }
 }
@@ -128,7 +128,7 @@
   border-radius: 50%;
   border: 1px solid var(--cyan-a60);
   color: var(--text-bright);
-  background: rgba(39, 231, 255, 0.07);
+  background: rgb(var(--accent-rgb) / 0.07);
   font-size: 14px;
 }
 .sequencer-meta {
@@ -144,34 +144,34 @@
 }
 .sequencer-node--orb {
   border-radius: 12px;
-  border-color: rgba(180, 140, 255, 0.45);
-  background: rgba(20, 12, 40, 0.65);
+  border-color: rgb(var(--violet-rgb) / 0.45);
+  background: rgb(var(--base-violet-rgb) / 0.65);
   box-shadow:
-    0 0 12px rgba(180, 140, 255, 0.25),
-    0 0 28px rgba(180, 140, 255, 0.12),
-    inset 0 0 18px rgba(180, 140, 255, 0.05);
+    0 0 12px rgb(var(--violet-rgb) / 0.25),
+    0 0 28px rgb(var(--violet-rgb) / 0.12),
+    inset 0 0 18px rgb(var(--violet-rgb) / 0.05);
   cursor: pointer;
   &.sequencer-node--active {
-    border-color: rgba(180, 140, 255, 0.95);
+    border-color: rgb(var(--violet-rgb) / 0.95);
   }
   &:hover,
   &:focus-visible {
-    border-color: rgba(180, 140, 255, 0.75);
-    background: rgba(20, 12, 40, 0.8);
+    border-color: rgb(var(--violet-rgb) / 0.75);
+    background: rgb(var(--base-violet-rgb) / 0.8);
     box-shadow:
-      0 0 20px rgba(180, 140, 255, 0.5),
-      0 0 48px rgba(180, 140, 255, 0.25),
-      inset 0 0 24px rgba(180, 140, 255, 0.08);
+      0 0 20px rgb(var(--violet-rgb) / 0.5),
+      0 0 48px rgb(var(--violet-rgb) / 0.25),
+      inset 0 0 24px rgb(var(--violet-rgb) / 0.08);
   }
   &:focus-visible {
-    outline-color: rgba(180, 140, 255, 0.9);
+    outline-color: rgb(var(--violet-rgb) / 0.9);
   }
 }
 .sequencer-orb-mode {
   display: block;
   font-size: 9px;
   font-weight: 500;
-  color: rgba(180, 140, 255, 0.8);
+  color: rgb(var(--violet-rgb) / 0.8);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-top: 2px;
@@ -181,7 +181,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(39, 231, 255, 0.7);
+  color: rgb(var(--accent-rgb) / 0.7);
 }
 .sequencer-tooltip-text {
   font-size: 11px;

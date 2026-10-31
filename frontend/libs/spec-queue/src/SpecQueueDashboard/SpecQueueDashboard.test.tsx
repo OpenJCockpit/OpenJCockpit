@@ -5,7 +5,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@openjcockpit/api', async (importOriginal) =>
   (await import('../testUtils')).automockApiClients(await importOriginal()),
 );
-vi.mock('@openjcockpit/auth', () => ({ isOpenJCockpitAdmin: vi.fn(() => false) }));
+// The permission check is the only part of the contract these tests need to steer.
+vi.mock('@openjcockpit/hub-contract', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@openjcockpit/hub-contract')>()),
+  useCan: vi.fn(() => false),
+}));
 vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
   AddToQueueDialog: ({
     onAdded,
@@ -23,7 +27,8 @@ vi.mock('../AddToQueueDialog/AddToQueueDialog', () => ({
 
 import type { Project, SpecQueue, SpecQueueItem } from '@openjcockpit/api';
 import * as api from '@openjcockpit/api';
-import { isOpenJCockpitAdmin } from '@openjcockpit/auth';
+import { withI18n } from '@openjcockpit/i18n/testing';
+import { specQueueResources } from '../i18n';
 import { withQueryClient } from '../testQueryClient';
 import { SpecQueueDashboard } from './SpecQueueDashboard';
 
@@ -235,11 +240,13 @@ describe('SpecQueueDashboard', () => {
       const other = { id: 'p2', name: 'Other' } as Project;
       // One client across both renders, so the project switch is a key change, not a new cache.
       const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
-      const dashboard = (project: Project) => (
-        <QueryClientProvider client={client}>
-          <SpecQueueDashboard project={project} onBack={vi.fn()} />
-        </QueryClientProvider>
-      );
+      const dashboard = (project: Project) =>
+        withI18n(
+          <QueryClientProvider client={client}>
+            <SpecQueueDashboard project={project} onBack={vi.fn()} />
+          </QueryClientProvider>,
+          specQueueResources,
+        );
       const { rerender } = render(dashboard(PROJECT));
       vi.mocked(api.getSpecQueue).mockResolvedValue(queue({ projectId: 'p2', items: [item('z')] }));
       rerender(dashboard(other));
@@ -422,12 +429,18 @@ describe('SpecQueueDashboard', () => {
     );
   });
 
-  it('shows the read-only project toggle with an explanation for non-admins', async () => {
-    await renderDashboard();
-    expect(screen.getByTestId('auto-merge-setting-toggle')).toBeDisabled();
-    expect(screen.getByTestId('auto-merge-setting-description')).toHaveTextContent(
-      'Only administrators',
+  it('offers a shortcut to the queue settings only when the host provides one', async () => {
+    const onSettings = vi.fn();
+    render(
+      withQueryClient(
+        <SpecQueueDashboard project={PROJECT} onBack={vi.fn()} onSettings={onSettings} />,
+      ),
     );
+    fireEvent.click(await screen.findByTestId('queue-settings'));
+    expect(onSettings).toHaveBeenCalledTimes(1);
+    cleanup();
+    await renderDashboard();
+    expect(screen.queryByTestId('queue-settings')).not.toBeInTheDocument();
   });
 
   it('opens the add dialog, adds, announces and refreshes', async () => {
@@ -566,40 +579,6 @@ describe('SpecQueueDashboard', () => {
       cleanup();
       await act(async () => reject(new Error('late')));
       expect(api.removeSpecQueueItem).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('project auto-merge setting', () => {
-    const enable = async () => {
-      vi.mocked(isOpenJCockpitAdmin).mockReturnValue(true);
-      vi.mocked(api.updateSpecQueueSettings).mockResolvedValue({ autoMergeAllowed: true });
-      await renderDashboard();
-      fireEvent.click(screen.getByTestId('auto-merge-setting-toggle'));
-      fireEvent.click(screen.getByTestId('confirm-action-confirm'));
-    };
-
-    it('applies the saved setting to the cached queue', async () => {
-      await enable();
-      await waitFor(() => expect(screen.getByTestId('auto-merge-setting-toggle')).toBeChecked());
-    });
-
-    it('leaves an evicted queue cache untouched', async () => {
-      const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-      vi.mocked(isOpenJCockpitAdmin).mockReturnValue(true);
-      vi.mocked(api.updateSpecQueueSettings).mockImplementation(async () => {
-        client.removeQueries({ queryKey: ['spec-queue', 'p1', 'queue'] });
-        return { autoMergeAllowed: true };
-      });
-      render(
-        <QueryClientProvider client={client}>
-          <SpecQueueDashboard project={PROJECT} onBack={vi.fn()} />
-        </QueryClientProvider>,
-      );
-      fireEvent.click(await screen.findByTestId('auto-merge-setting-toggle'));
-      fireEvent.click(screen.getByTestId('confirm-action-confirm'));
-      await waitFor(() => expect(api.updateSpecQueueSettings).toHaveBeenCalled());
-      await settle();
-      expect(client.getQueryData(['spec-queue', 'p1', 'queue'])).toBeUndefined();
     });
   });
 });

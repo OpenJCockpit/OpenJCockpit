@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import {
   ModalShell,
   modalActionsClass,
@@ -34,6 +35,7 @@ export function ApprovalCommentModal({
   onConfirm,
   onCancel,
 }: ApprovalCommentModalProps) {
+  const { t } = useTranslation('workflow');
   const [comment, setComment] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -47,9 +49,7 @@ export function ApprovalCommentModal({
 
   function handleConfirm() {
     if (comment.trim().length === 0) {
-      setValidationError(
-        'Enter your feedback before confirming — an empty or whitespace-only comment cannot be submitted.',
-      );
+      setValidationError(t('approvalComment.empty'));
       return;
     }
     setValidationError(null);
@@ -63,13 +63,10 @@ export function ApprovalCommentModal({
       className={styles.approvalCommentDialog}
       overlayClassName="approval-comment-overlay"
     >
-      <h2 id={titleId}>Accept with my comments</h2>
-      <p className={fieldHintClass}>
-        Describe what should change in the next attempt. This re-runs the realisation stage with
-        your feedback and re-opens this checkpoint on the new result.
-      </p>
+      <h2 id={titleId}>{t('approvalComment.title')}</h2>
+      <p className={fieldHintClass}>{t('approvalComment.hint')}</p>
       <label className={styles.approvalCommentField} htmlFor={textareaId}>
-        Feedback for the next attempt
+        {t('approvalComment.label')}
         <textarea
           id={textareaId}
           ref={textareaRef}
@@ -83,7 +80,7 @@ export function ApprovalCommentModal({
             setComment(e.target.value);
             if (validationError) setValidationError(null);
           }}
-          placeholder="Explain what the next attempt should change or fix..."
+          placeholder={t('approvalComment.placeholder')}
         />
       </label>
       <p
@@ -92,7 +89,7 @@ export function ApprovalCommentModal({
         className={validationError ? fieldErrorClass : fieldHintClass}
         role={validationError ? 'alert' : undefined}
       >
-        {validationError ?? `Up to ${COMMENT_MAX_LENGTH} characters.`}
+        {validationError ?? t('approvalComment.limit', { max: COMMENT_MAX_LENGTH })}
       </p>
       {errorMessage && (
         <p className={fieldErrorClass} role="alert">
@@ -106,10 +103,10 @@ export function ApprovalCommentModal({
           disabled={submitting}
           aria-busy={submitting || undefined}
         >
-          {submitting ? '⟳ Submitting…' : 'Confirm'}
+          {submitting ? t('approvalComment.submitting') : t('approvalComment.confirm')}
         </Button>
         <Button variant="secondary" onClick={onCancel} disabled={submitting}>
-          Cancel
+          {t('shared.cancel')}
         </Button>
       </div>
     </ModalShell>

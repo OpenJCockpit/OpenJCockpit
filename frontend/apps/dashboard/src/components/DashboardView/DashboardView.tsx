@@ -1,5 +1,6 @@
 import { Suspense, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from '@openjcockpit/i18n';
 import { AppShell, StatusMessage } from '@openjcockpit/ui';
 import { useProjectWorkflows } from '@openjcockpit/workflow/queries';
 import type { Project } from '@openjcockpit/api';
@@ -21,10 +22,12 @@ interface Props {
   project: Project;
   onProjectChange: (projectId: string) => void;
   onLogout: () => void;
+  user?: { firstName: string; username: string } | null;
 }
 
 /** The project dashboard. Mounted with `key={project.id}` so all local state resets per project. */
-export function DashboardView({ projects, project, onProjectChange, onLogout }: Props) {
+export function DashboardView({ projects, project, onProjectChange, onLogout, user }: Props) {
+  const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
   const workspaceQuery = useWorkspaceQuery(project);
   const specsQuery = useProjectSpecsQuery(project.id);
@@ -35,9 +38,10 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
   const workspace = workspaceQuery.data;
   const specs = specsQuery.data?.specs ?? [];
   const specInitStatus = specsQuery.data?.specInitStatus ?? null;
-  const specsLoading = specsQuery.isFetching;
+  const specsLoading = specsQuery.isLoading;
   const selected =
     specs.find((s) => s.id === selectedSpecId) ?? specs.find((s) => s.selected) ?? specs[0];
+  const specsError = specsQuery.isError && !specsQuery.data;
   const hasSpecs = !specsLoading && specs.length > 0;
 
   // Falls back to the first workflow while the chosen one is unset or no longer in the project.
@@ -74,6 +78,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
         selectedProject={project}
         onProjectChange={onProjectChange}
         onLogout={onLogout}
+        user={user}
       />
 
       <main className={styles.workspace}>
@@ -84,7 +89,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
             variant={workspaceQuery.isError ? 'error' : 'loading'}
             data-testid="workspace-status"
           >
-            {workspaceQuery.isError ? 'Failed to load the workspace.' : 'Loading workspace...'}
+            {workspaceQuery.isError ? t('workspace.failed') : t('workspace.loading')}
           </StatusMessage>
         )}
 
@@ -92,6 +97,8 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
           <SpecPanel
             specs={specs}
             loading={specsLoading}
+            error={specsError}
+            onRetry={() => void specsQuery.refetch()}
             selectedSpecId={selected?.id ?? ''}
             selected={selected}
             onSelect={setSelectedSpecId}
@@ -102,6 +109,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
           <FlowPanel
             launcher={launcher}
             specsLoading={specsLoading}
+            specsError={specsError}
             hasSpecs={hasSpecs}
             selectedFileName={selected?.fileName}
             projectWorkflows={projectWorkflows}
@@ -109,7 +117,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout }: 
             onWorkflowChange={setSelectedWorkflowId}
             specInitStatus={specInitStatus}
             onReloadSpecs={() => void specsQuery.refetch()}
-            onOpenProjectSettings={() => void navigate(ROUTES.settings)}
+            onOpenProjectSettings={() => void navigate(ROUTES.projectSettings)}
           />
 
           {workspace && (

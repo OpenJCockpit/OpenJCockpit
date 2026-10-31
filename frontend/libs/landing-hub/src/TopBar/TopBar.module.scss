@@ -1,6 +1,6 @@
 .frame {
-  --frame-line-color: hsl(184 100% 58% / 78%);
-  --frame-bg-color: hsl(230 50% 12% / 46%);
+  --frame-line-color: rgb(var(--accent-rgb) / 78%);
+  --frame-bg-color: rgb(var(--base-rgb) / 46%);
 }
 
 .topbar {
@@ -34,8 +34,8 @@
   font-family: var(--font-hub-mono);
   font-weight: 800;
   box-shadow:
-    0 0 24px rgba(39, 247, 255, 0.22),
-    inset 0 0 18px rgba(39, 247, 255, 0.08);
+    0 0 24px rgb(var(--accent-rgb) / 0.22),
+    inset 0 0 18px rgb(var(--accent-rgb) / 0.08);
 }
 
 .brand strong {
@@ -61,8 +61,8 @@
 }
 
 .logout-button {
-  border-color: rgba(84, 255, 198, 0.35);
-  color: #dfffee;
+  border-color: rgb(var(--teal-rgb) / 0.35);
+  color: var(--text-bright);
 }
 
 .topbar-popover {
@@ -72,12 +72,12 @@
   right: 18px;
   width: min(320px, calc(100vw - 48px));
   padding: 18px;
-  border: 1px solid rgba(127, 236, 255, 0.32);
+  border: 1px solid rgb(var(--accent-rgb) / 0.32);
   border-radius: 18px;
-  background: rgba(5, 10, 24, 0.92);
+  background: rgb(var(--base-rgb) / 0.92);
   box-shadow:
-    0 0 42px rgba(39, 247, 255, 0.16),
-    inset 0 0 24px rgba(39, 247, 255, 0.06);
+    0 0 42px rgb(var(--accent-rgb) / 0.16),
+    inset 0 0 24px rgb(var(--accent-rgb) / 0.06);
   backdrop-filter: blur(20px);
 }
 

@@ -6,8 +6,8 @@
   opacity: 0.08;
   background: repeating-linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0.5) 0,
-    rgba(255, 255, 255, 0.5) 1px,
+    rgb(var(--tint-rgb) / 0.5) 0,
+    rgb(var(--tint-rgb) / 0.5) 1px,
     transparent 1px,
     transparent 6px
   );

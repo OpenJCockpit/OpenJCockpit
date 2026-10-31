@@ -1,4 +1,5 @@
-import { ToolbarButton } from '@openjcockpit/ui';
+import { useTranslation } from '@openjcockpit/i18n';
+import { Button } from '@openjcockpit/ui';
 import styles from './WorkflowExecution.module.scss';
 
 interface Props {
@@ -7,14 +8,14 @@ interface Props {
 }
 
 export function RunLostPanel({ onRestartRequested }: Props) {
+  const { t } = useTranslation('workflow');
   return (
     <div className={styles.workflowRunLostPanel} role="alert">
-      <p>
-        The state of this run was lost, likely because the service restarted. No approval decision
-        is possible for this run.
-      </p>
+      <p>{t('runLost.message')}</p>
       {onRestartRequested && (
-        <ToolbarButton onClick={onRestartRequested}>Start again</ToolbarButton>
+        <Button variant="primary" onClick={onRestartRequested}>
+          {t('runLost.startAgain')}
+        </Button>
       )}
     </div>
   );

@@ -1,0 +1,22 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "hello-hub",
+  "projectType": "library",
+  "sourceRoot": "libs/hello-hub/src",
+  "tags": ["type:feature"],
+  "targets": {
+    "format-check": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "format:check"
+      }
+    },
+    "coverage": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --coverage",
+        "cwd": "{projectRoot}"
+      }
+    }
+  }
+}

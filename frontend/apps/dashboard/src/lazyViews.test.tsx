@@ -7,11 +7,6 @@ import * as lazyViews from './lazyViews';
 const stub = vi.hoisted(() => (name: string) => () => <p data-testid="resolved">{name}</p>);
 vi.mock('@openjcockpit/project', () => ({
   ProjectSelection: stub('ProjectSelection'),
-  ProjectSettings: stub('ProjectSettings'),
-}));
-vi.mock('@openjcockpit/skills-hub', () => ({
-  SkillsHubDashboard: stub('SkillsHubDashboard'),
-  SkillsHubSettings: stub('SkillsHubSettings'),
 }));
 vi.mock('@openjcockpit/spec-files', () => ({ SpecFilesDashboard: stub('SpecFilesDashboard') }));
 vi.mock('@openjcockpit/spec-queue', () => ({

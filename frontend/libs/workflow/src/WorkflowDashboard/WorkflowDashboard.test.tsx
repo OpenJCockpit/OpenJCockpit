@@ -154,12 +154,10 @@ describe('WorkflowDashboard', () => {
     );
   });
 
-  it('switches to the Configuration tab when clicked', async () => {
+  it('no longer has a Configuration tab: integrations live in the host settings', async () => {
     await renderAsync(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
 
-    await clickAsync(screen.getByText('Configuration'));
-
-    expect(screen.getByText('Configuration')).toHaveClass(tabActiveClass);
+    expect(screen.queryByText('Configuration')).not.toBeInTheDocument();
   });
 
   it('switches to the Design tab when clicked', async () => {
@@ -239,7 +237,7 @@ describe('WorkflowDashboard', () => {
     );
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'The workflow of this run could not be loaded — Failed to load workflow',
+      'The workflow of this run could not be loaded — Failed to load the workflow.',
     );
   });
 

@@ -1,8 +1,9 @@
+import { useTranslation } from '@openjcockpit/i18n';
 import type { WorkflowDefinition } from '@openjcockpit/api';
 import type { LauncherButtonState } from '../../useRunLauncher';
 import { StartButton } from './StartButton';
 import styles from './FlowPanel.module.scss';
-import { cx, dropdownClass } from '@openjcockpit/ui';
+import { Select } from '@openjcockpit/ui';
 
 interface Props {
   workflows: WorkflowDefinition[];
@@ -20,28 +21,26 @@ export function WorkflowLauncher({
   buttonState,
   onStart,
 }: Props) {
+  const { t } = useTranslation('dashboard');
   return (
     <div className={styles.workflowLauncher}>
-      <label htmlFor="workflow-select">Workflow</label>
-      <select
+      <label htmlFor="workflow-select">{t('flow.workflow')}</label>
+      <Select
         id="workflow-select"
-        className={cx(dropdownClass, styles.workflowSelect)}
+        className={styles.workflowSelect}
+        block
         value={selectedWorkflowId}
-        onChange={(e) => onWorkflowChange(e.target.value)}
+        onChange={onWorkflowChange}
         disabled={workflows.length === 0}
-      >
-        {workflows.length === 0 && <option value="">No workflows available</option>}
-        {workflows.map((w) => (
-          <option key={w.id} value={w.id}>
-            {w.name}
-          </option>
-        ))}
-      </select>
+        options={
+          workflows.length === 0
+            ? [{ value: '', label: t('flow.launcher.none') }]
+            : workflows.map((w) => ({ value: w.id, label: w.name }))
+        }
+      />
       <StartButton state={buttonState} onClick={onStart} disabled={workflows.length === 0} />
       {workflows.length === 0 && (
-        <p className={styles.workflowLauncherHint}>
-          No workflows for this project. Create one via Workflow Design &amp; Execution.
-        </p>
+        <p className={styles.workflowLauncherHint}>{t('flow.launcher.noneHint')}</p>
       )}
     </div>
   );

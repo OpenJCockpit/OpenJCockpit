@@ -4,7 +4,17 @@ import type { StatusKind } from './StatusChip';
 import { StatusChip } from './StatusChip';
 import styles from './StatusChip.module.scss';
 
-const KINDS: StatusKind[] = ['active', 'done', 'waiting', 'open', 'review', 'changes', 'ok'];
+const KINDS: StatusKind[] = [
+  'active',
+  'done',
+  'waiting',
+  'open',
+  'review',
+  'changes',
+  'ok',
+  'neutral',
+  'error',
+];
 
 describe('StatusChip', () => {
   it.each(KINDS)('styles the %s kind with the base chip plus a kind class', (kind) => {

@@ -14,13 +14,14 @@ export function opaStatusFor(
   return reachable ? 'reachable' : 'unreachable';
 }
 
-export const OPA_STATUS_LABELS: Record<OpaStatus, string> = {
-  not_configured: 'Not configured',
-  disabled: 'Disabled',
-  unreachable: 'Configured but unreachable',
-  reachable: 'Configured and reachable',
-  enforcing: 'Enabled and enforcing',
-  unavailable: 'Enabled but policy unavailable',
+/** Translation key (workflow namespace) of each status label. */
+export const OPA_STATUS_LABEL_KEYS: Record<OpaStatus, string> = {
+  not_configured: 'opa.status.notConfigured',
+  disabled: 'opa.status.disabled',
+  unreachable: 'opa.status.unreachable',
+  reachable: 'opa.status.reachable',
+  enforcing: 'opa.status.enforcing',
+  unavailable: 'opa.status.unavailable',
 };
 
 export const OPA_STATUS_KINDS: Record<OpaStatus, StatusKind> = {

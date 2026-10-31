@@ -1,7 +1,8 @@
+import { useTranslation } from '@openjcockpit/i18n';
 import type { LauncherButtonState } from '../../useRunLauncher';
 import { StartButton } from './StartButton';
 import styles from './FlowPanel.module.scss';
-import { cx, feedbackErrorClass, dropdownClass } from '@openjcockpit/ui';
+import { feedbackErrorClass, Select } from '@openjcockpit/ui';
 
 interface Props {
   buttonState: LauncherButtonState;
@@ -11,24 +12,21 @@ interface Props {
 
 /** Start the spec-folder initialization (spec template offered as a pull request). */
 export function SpecInitLauncher({ buttonState, error, onStart }: Props) {
+  const { t } = useTranslation('dashboard');
   return (
     <div className={styles.workflowLauncher}>
-      <label htmlFor="workflow-select">Workflow</label>
-      <select
+      <label htmlFor="workflow-select">{t('flow.workflow')}</label>
+      <Select
         id="workflow-select"
-        className={cx(dropdownClass, styles.workflowSelect)}
+        className={styles.workflowSelect}
+        block
         value="spec-init"
+        onChange={() => undefined}
         disabled
-      >
-        <option value="spec-init">
-          Spec folder initialization — spec template via pull request
-        </option>
-      </select>
+        options={[{ value: 'spec-init', label: t('flow.specInit.option') }]}
+      />
       <StartButton state={buttonState} onClick={onStart} />
-      <p className={styles.workflowLauncherHint}>
-        This workflow creates a .specify folder with the spec template and offers it as a pull
-        request on the repository.
-      </p>
+      <p className={styles.workflowLauncherHint}>{t('flow.specInit.hint')}</p>
       {error && <p className={feedbackErrorClass}>{error}</p>}
     </div>
   );

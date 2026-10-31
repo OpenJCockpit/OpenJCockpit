@@ -1,8 +1,8 @@
 import type { ProjectGitCredentialRequest } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import {
   SelectField,
   TextField,
-  ToolbarButton,
   fieldHintClass,
   formActionsClass,
   formClass,
@@ -30,16 +30,17 @@ export function CredentialsForm({
   onSave,
   onCancel,
 }: Props) {
+  const { t } = useTranslation('project');
   return (
     <div className={formClass}>
-      <h2 className={formTitleClass}>Git credentials</h2>
+      <h2 className={formTitleClass}>{t('credentials.title')}</h2>
       {loading ? (
-        <p className={fieldHintClass}>Loading current credentials...</p>
+        <p className={fieldHintClass}>{t('credentials.loading')}</p>
       ) : (
         <>
           <div className={formGridClass}>
             <SelectField
-              label="Type"
+              label={t('credentials.type')}
               value={form.credentialType}
               onChange={(v) =>
                 onChange((f) => ({
@@ -47,49 +48,43 @@ export function CredentialsForm({
                   credentialType: v as ProjectGitCredentialRequest['credentialType'],
                 }))
               }
-            >
-              <option value="NONE">None</option>
-              <option value="HTTPS_TOKEN">HTTPS Token</option>
-              <option value="GITHUB_PAT">GitHub PAT</option>
-              <option value="USERNAME_PASSWORD">Username + password</option>
-              <option value="GITHUB_APP">GitHub App</option>
-            </SelectField>
-            <TextField
-              label="Username"
-              value={form.username ?? ''}
-              onChange={(v) => onChange((f) => ({ ...f, username: v }))}
-              placeholder="optional"
+              options={(
+                ['NONE', 'HTTPS_TOKEN', 'GITHUB_PAT', 'USERNAME_PASSWORD', 'GITHUB_APP'] as const
+              ).map((type) => ({ value: type, label: t(`credentials.types.${type}`) }))}
             />
             <TextField
-              label="Secret / token / password"
+              label={t('credentials.username')}
+              value={form.username ?? ''}
+              onChange={(v) => onChange((f) => ({ ...f, username: v }))}
+              placeholder={t('credentials.usernamePlaceholder')}
+            />
+            <TextField
+              label={t('credentials.secret')}
               type="password"
               value={form.secret ?? ''}
               onChange={(v) => onChange((f) => ({ ...f, secret: v }))}
               placeholder={
                 hasSecret
-                  ? 'Leave empty to keep the current secret'
-                  : 'Required — no secret set yet'
+                  ? t('credentials.secretKeepPlaceholder')
+                  : t('credentials.secretRequiredPlaceholder')
               }
             />
             <TextField
-              label="GitHub API URL (GitHub Enterprise)"
+              label={t('credentials.githubApiUrl')}
               value={form.githubApiUrl ?? ''}
               onChange={(v) => onChange((f) => ({ ...f, githubApiUrl: v }))}
-              placeholder="https://github.example.com/api/v3"
+              placeholder={t('credentials.githubApiUrlPlaceholder')}
             />
           </div>
-          <p className={fieldHintClass}>
-            On save, a Git check is first run with these credentials; they are only stored if the
-            check succeeds.
-          </p>
+          <p className={fieldHintClass}>{t('credentials.hint')}</p>
         </>
       )}
       <div className={formActionsClass}>
-        <ToolbarButton onClick={onSave} disabled={saving || loading}>
-          {saving ? '⟳ Verifying and saving…' : 'Save'}
-        </ToolbarButton>
+        <Button variant="primary" onClick={onSave} disabled={saving || loading}>
+          {saving ? t('credentials.saving') : t('credentials.save')}
+        </Button>
         <Button variant="secondary" onClick={onCancel}>
-          Cancel
+          {t('credentials.cancel')}
         </Button>
       </div>
     </div>

@@ -1,7 +1,12 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render as rtlRender, screen } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { withI18n } from '@openjcockpit/i18n/testing';
+import { specQueueResources } from '../i18n';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { ConfirmActionDialog } from './ConfirmActionDialog';
+
+const render = (ui: ReactElement) => rtlRender(withI18n(ui, specQueueResources));
 
 function renderDialog(props: Partial<Parameters<typeof ConfirmActionDialog>[0]> = {}) {
   const onConfirm = vi.fn();

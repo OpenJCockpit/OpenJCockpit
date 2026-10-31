@@ -1,0 +1,21 @@
+{
+  "specsContributions": {
+    "noProject": "Wähle ein Projekt, um dies zu sehen.",
+    "queue": {
+      "queued": "In der Warteschlange: {{count}}",
+      "running": "Laufend: {{count}}",
+      "attention": "Braucht Aufmerksamkeit: {{count}}",
+      "loadFailed": "Die Spec-Warteschlange konnte nicht geladen werden."
+    },
+    "workflows": {
+      "empty": "Noch keine Workflows.",
+      "loadFailed": "Die Workflows konnten nicht geladen werden."
+    },
+    "specFiles": {
+      "count": "Spec-Dateien: {{count}}",
+      "loadFailed": "Die Spec-Dateien konnten nicht geladen werden."
+    },
+    "loading": "Wird geladen…",
+    "retry": "Erneut versuchen"
+  }
+}

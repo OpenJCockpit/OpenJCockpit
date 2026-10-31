@@ -9,6 +9,8 @@ interface ErrorBoundaryProps {
   resetKeys?: readonly unknown[];
   /** Message shown above the reload action. */
   message?: string;
+  /** Label of the reload button. */
+  reloadLabel?: string;
 }
 
 interface ErrorBoundaryState {
@@ -19,7 +21,12 @@ function keysChanged(a: readonly unknown[] = [], b: readonly unknown[] = []): bo
   return a.length !== b.length || a.some((key, i) => !Object.is(key, b[i]));
 }
 
-/** Catches render errors below it and shows a reload fallback instead of a blank page. */
+/**
+ * Catches render errors below it and shows a reload fallback instead of a blank page.
+ * The outermost boundary sits outside the i18n provider so a broken i18n setup still shows an error, so its
+ * copy defaults to English. Boundaries inside the provider pass translated `message` and `reloadLabel`.
+ */
+/* eslint-disable i18next/no-literal-string -- outside the i18n provider, see above */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   override state: ErrorBoundaryState = { error: null };
 
@@ -40,13 +47,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   override render() {
     if (!this.state.error) return this.props.children;
     return (
-      <StatusMessage variant="loading" role="alert" data-testid="error-boundary">
-        <div>
-          <p>{this.props.message ?? 'Something went wrong.'}</p>
-          <Button variant="primary" onClick={() => window.location.reload()}>
-            Reload
-          </Button>
-        </div>
+      <StatusMessage variant="page" role="alert" data-testid="error-boundary">
+        <p>{this.props.message ?? 'Something went wrong.'}</p>
+        <Button variant="primary" onClick={() => window.location.reload()}>
+          {this.props.reloadLabel ?? 'Reload'}
+        </Button>
       </StatusMessage>
     );
   }

@@ -1,5 +1,6 @@
 export * from './core/http';
 export * from './core/httpErrors';
+export * from './core/errorCodes';
 export * from './types/types';
 export * from './projects/projectsApi';
 export * from './specs/specsApi';
@@ -13,3 +14,4 @@ export * from './workflow/referenceLabel';
 export * from './spec-queue/specQueueApi';
 export * from './spec-queue/specQueueTypes';
 export * from './queryKeys';
+export { apiResources } from './i18n';

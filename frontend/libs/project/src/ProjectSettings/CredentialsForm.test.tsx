@@ -1,4 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { chooseOption } from '@openjcockpit/ui/testing';
+import { render } from '../testRender';
 import type { ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import type { ProjectGitCredentialRequest } from '@openjcockpit/api';
@@ -51,7 +53,7 @@ describe('CredentialsForm', () => {
   it('reports each field change as an updater on the form', () => {
     const { onChange } = setup();
 
-    fireEvent.change(screen.getByDisplayValue('None'), { target: { value: 'GITHUB_APP' } });
+    chooseOption(screen.getByRole('combobox', { name: /Type/ }), 'GitHub App');
     expect(applied(onChange)).toEqual({ credentialType: 'GITHUB_APP' });
 
     fireEvent.change(screen.getByPlaceholderText('optional'), { target: { value: 'bot' } });
@@ -73,7 +75,7 @@ describe('CredentialsForm', () => {
 
   it('shows a loading message and disables saving while loading', () => {
     setup({ loading: true });
-    expect(screen.getByText('Loading current credentials...')).toBeInTheDocument();
+    expect(screen.getByText('Loading current credentials…')).toBeInTheDocument();
     expect(screen.queryByPlaceholderText('optional')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });

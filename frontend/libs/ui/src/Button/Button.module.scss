@@ -7,8 +7,8 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--cyan);
-  background: rgba(39, 231, 255, 0.04);
-  border: 1px solid rgba(39, 231, 255, 0.28);
+  background: rgb(var(--accent-rgb) / 0.04);
+  border: 1px solid rgb(var(--accent-rgb) / 0.28);
   border-radius: 10px;
   cursor: pointer;
   transition:
@@ -26,15 +26,15 @@
 
 :is(button, a):where(.base) {
   border: 1px solid var(--line);
-  background: rgba(12, 35, 52, 0.36);
+  background: rgb(var(--base-rgb) / 0.36);
   border-radius: 10px;
-  color: #dffaff;
+  color: var(--button-text);
   cursor: default;
 }
 
 :is(button, a):where(.small) {
   padding: 10px 16px;
-  color: #cceaf4;
+  color: var(--button-text-soft);
 }
 
 :is(button, a):where(.primary) {
@@ -55,8 +55,8 @@
   white-space: nowrap;
   &:hover:not(:disabled) {
     background: var(--cyan-a20);
-    border-color: rgba(39, 231, 255, 0.75);
-    box-shadow: 0 0 16px rgba(39, 231, 255, 0.4);
+    border-color: rgb(var(--accent-rgb) / 0.75);
+    box-shadow: 0 0 16px rgb(var(--accent-rgb) / 0.4);
   }
   &:disabled {
     opacity: 0.45;
@@ -70,19 +70,19 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--red-text);
-  background: rgba(255, 80, 80, 0.1);
-  border: 1px solid rgba(255, 80, 80, 0.45);
+  background: rgb(var(--danger-rgb) / 0.1);
+  border: 1px solid rgb(var(--danger-rgb) / 0.45);
   border-radius: 6px;
   cursor: pointer;
   transition:
     background 0.15s,
     box-shadow 0.15s,
     border-color 0.15s;
-  box-shadow: 0 0 8px rgba(255, 80, 80, 0.2);
+  box-shadow: 0 0 8px rgb(var(--danger-rgb) / 0.2);
   white-space: nowrap;
   &:hover:not(:disabled) {
-    background: rgba(255, 80, 80, 0.2);
-    border-color: rgba(255, 80, 80, 0.75);
+    background: rgb(var(--danger-rgb) / 0.2);
+    border-color: rgb(var(--danger-rgb) / 0.75);
     box-shadow: 0 0 16px var(--red-a40);
   }
   &:disabled {
@@ -96,7 +96,7 @@
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: #ede4ff;
+  color: var(--violet-text);
   background: var(--violet-soft);
   border: 1px solid var(--violet-a45);
   border-radius: 6px;
@@ -105,11 +105,11 @@
     background 0.15s,
     box-shadow 0.15s,
     border-color 0.15s;
-  box-shadow: 0 0 8px rgba(177, 138, 255, 0.2);
+  box-shadow: 0 0 8px rgb(var(--violet-rgb) / 0.2);
   white-space: nowrap;
   &:hover:not(:disabled) {
-    background: rgba(177, 138, 255, 0.22);
-    border-color: rgba(177, 138, 255, 0.8);
+    background: rgb(var(--violet-rgb) / 0.22);
+    border-color: rgb(var(--violet-rgb) / 0.8);
     box-shadow: 0 0 18px var(--violet-a45);
   }
   &:disabled {
@@ -127,5 +127,5 @@
   margin: 12px 16px 0;
   padding: 13px;
   color: var(--cyan);
-  background: rgba(39, 231, 255, 0.03);
+  background: rgb(var(--accent-rgb) / 0.03);
 }

@@ -55,7 +55,7 @@ const VIEWS = [
   { name: 'project-selection', stored: false, go: async () => {} },
   { name: 'workspace', go: async () => {} },
   { name: 'prompt-modal', go: (p) => p.getByRole('button', { name: /start/i }).click() },
-  { name: 'project-settings', go: (p) => p.getByTitle('Project management').click() },
+  { name: 'project-settings', go: (p) => p.getByTitle('Project settings').click() },
   ...[
     ['project-form-new', '+ New project'],
     ['project-form-edit', 'Edit'],
@@ -63,15 +63,12 @@ const VIEWS = [
   ].map(([name, label]) => ({
     name,
     go: async (p) => {
-      await p.getByTitle('Project management').click();
+      await p.getByTitle('Project settings').click();
       await p.getByRole('button', { name: label, exact: true }).first().click();
     },
   })),
   { name: 'workflow', go: (p) => p.getByTestId('nav-workflow').click() },
-  ...[
-    ['workflow-configuration', 'Configuration'],
-    ['workflow-execution', 'Workflow Execution'],
-  ].map(([name, tab]) => ({
+  ...[['workflow-execution', 'Workflow Execution']].map(([name, tab]) => ({
     name,
     go: async (p) => {
       await p.getByTestId('nav-workflow').click();
@@ -104,16 +101,22 @@ const VIEWS = [
   })),
   { name: 'spec-files', go: (p) => p.getByTestId('nav-spec-files').click() },
   { name: 'skills-hub', go: (p) => p.getByTestId('nav-skills-hub').click() },
-  {
-    name: 'skills-hub-settings',
+  // Every section the apps contribute, opened from the sub-navigation of its screen.
+  ...[
+    ['skills-hub-settings', 'Settings', 'skills-hub'],
+    ['workflow-opa-settings', 'Settings', 'workflow-opa'],
+    ['workflow-a2a-settings', 'Settings', 'workflow-a2a'],
+    ['workflow-hermes-settings', 'Project settings', 'workflow-hermes'],
+    ['workflow-jira-settings', 'Project settings', 'workflow-jira'],
+    ['workflow-documents-settings', 'Project settings', 'workflow-documents'],
+    ['spec-queue-settings', 'Project settings', 'spec-queue'],
+  ].map(([name, entry, section]) => ({
+    name,
     go: async (p) => {
-      await p.getByTestId('nav-skills-hub').click();
-      await p
-        .getByRole('button', { name: /settings|⚙/i })
-        .first()
-        .click();
+      await p.getByTitle(entry).click();
+      await p.getByTestId(`settings-nav-${section}`).click();
     },
-  },
+  })),
 ];
 
 // VISUAL_BUILD=1 serves a production build instead of the dev server, to catch CSS order

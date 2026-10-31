@@ -6,10 +6,10 @@
   gap: 42px;
   min-height: 64px;
   padding: 0 34px;
-  color: #839ba7;
+  color: var(--nav-faint);
   font-size: 12px;
-  border-top: 1px solid rgba(124, 222, 255, 0.08);
-  background: rgba(2, 9, 17, 0.58);
+  border-top: 1px solid rgb(var(--accent-rgb) / 0.08);
+  background: rgb(var(--base-rgb) / 0.58);
   backdrop-filter: blur(18px);
   & span:first-child {
     color: var(--teal);

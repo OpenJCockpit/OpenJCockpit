@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { render } from '../../testUtils/render';
 import { describe, expect, it } from 'vitest';
 import type { Project } from '@openjcockpit/api';
 import { mockWorkspace } from '@openjcockpit/api/testing';
@@ -56,7 +57,7 @@ describe('CustomerHero', () => {
   it('falls back to the workspace customer when no project is selected', () => {
     render(<CustomerHero selectedProject={null} workspace={mockWorkspace} />);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      `Customer: ${mockWorkspace.customer.name}`,
+      mockWorkspace.customer.name,
     );
     expect(screen.queryByTestId('project-repository-link')).not.toBeInTheDocument();
   });

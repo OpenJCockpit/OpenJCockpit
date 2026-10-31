@@ -33,8 +33,8 @@
 
 :where(.input) {
   padding: 8px 12px;
-  background: rgba(7, 22, 34, 0.8);
-  border: 1px solid rgba(39, 231, 255, 0.22);
+  background: var(--input-bg);
+  border: 1px solid rgb(var(--accent-rgb) / 0.22);
   border-radius: 6px;
   color: var(--text);
   font: inherit;
@@ -55,9 +55,9 @@
 }
 
 :where(.fieldError) {
-  color: #ff6b6b;
-  background: rgba(255, 60, 60, 0.08);
-  border: 1px solid rgba(255, 60, 60, 0.25);
+  color: var(--error-text);
+  background: rgb(var(--danger-rgb) / 0.08);
+  border: 1px solid rgb(var(--danger-rgb) / 0.25);
   border-radius: 6px;
   padding: 10px 14px;
   font-size: 13px;

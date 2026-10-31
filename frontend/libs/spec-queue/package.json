@@ -19,7 +19,8 @@
   },
   "dependencies": {
     "@openjcockpit/api": "*",
-    "@openjcockpit/auth": "*",
+    "@openjcockpit/hub-contract": "*",
+    "@openjcockpit/i18n": "*",
     "@openjcockpit/ui": "*",
     "@tanstack/react-query": "5.104.5"
   }

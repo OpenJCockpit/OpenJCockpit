@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithI18n as render } from '@openjcockpit/i18n/testing';
 import { describe, expect, it, vi } from 'vitest';
 import { SecretField } from './SecretField';
 
@@ -12,6 +13,11 @@ describe('SecretField', () => {
     rerender(<SecretField label="Token" hasValue value="" onChange={vi.fn()} />);
     expect(screen.getByText(/leave blank to keep/)).toBeTruthy();
     expect(screen.getByPlaceholderText('••••••••')).toHaveAttribute('type', 'password');
+  });
+
+  it('marks the input required', () => {
+    render(<SecretField label="Token" hasValue={false} value="" onChange={vi.fn()} required />);
+    expect(screen.getByLabelText(/Token/)).toHaveAttribute('aria-required', 'true');
   });
 
   it('reports typed input', () => {

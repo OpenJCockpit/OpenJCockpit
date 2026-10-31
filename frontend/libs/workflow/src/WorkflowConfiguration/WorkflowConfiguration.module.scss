@@ -1,7 +1,7 @@
 .workflow-saved-message {
   color: var(--teal);
   background: var(--teal-soft);
-  border: 1px solid rgba(55, 247, 194, 0.3);
+  border: 1px solid rgb(var(--teal-rgb) / 0.3);
   border-radius: 6px;
   padding: 10px 14px;
   font-size: 13px;

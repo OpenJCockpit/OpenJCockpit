@@ -56,6 +56,7 @@ PR_*.md
 
 # Test coverage reports
 coverage/
+.playwright-mcp/
 
 # Production deployment: filled-in environment files, rendered secrets, backups and deploy history
 deploy/**/.env

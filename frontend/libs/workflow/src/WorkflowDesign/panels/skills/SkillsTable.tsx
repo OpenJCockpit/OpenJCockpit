@@ -1,5 +1,6 @@
 import type { ExternalSkill, SkillSpec } from '@openjcockpit/api';
-import { DataTable, fieldHintClass, Button } from '@openjcockpit/ui';
+import { useTranslation } from '@openjcockpit/i18n';
+import { Actions, DataTable, fieldHintClass, Button } from '@openjcockpit/ui';
 
 type LocalSkillRow = { key: string; readOnly: false; skill: SkillSpec };
 type ExternalSkillRow = { key: string; readOnly: true; skill: ExternalSkill };
@@ -12,14 +13,15 @@ interface SkillsTableProps {
 }
 
 export function SkillsTable({ rows, onEdit, onDelete }: SkillsTableProps) {
+  const { t } = useTranslation('workflow');
   return (
     <DataTable>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Marketplace</th>
-          <th>Input</th>
-          <th>Output</th>
+          <th>{t('shared.name')}</th>
+          <th>{t('skills.marketplace')}</th>
+          <th>{t('skills.input')}</th>
+          <th>{t('skills.output')}</th>
           <th></th>
         </tr>
       </thead>
@@ -30,26 +32,28 @@ export function SkillsTable({ rows, onEdit, onDelete }: SkillsTableProps) {
               <td>{row.skill.name}</td>
               <td>{row.skill.marketplaceName}</td>
               <td>
-                <span className={fieldHintClass}>Not provided</span>
+                <span className={fieldHintClass}>{t('skills.notProvided')}</span>
               </td>
               <td>
-                <span className={fieldHintClass}>Not provided</span>
+                <span className={fieldHintClass}>{t('skills.notProvided')}</span>
               </td>
-              <td>Read-only</td>
+              <td>{t('shared.readOnly')}</td>
             </tr>
           ) : (
             <tr key={row.key}>
               <td>{row.skill.name}</td>
-              <td>Local</td>
+              <td>{t('skills.local')}</td>
               <td>{row.skill.inputContract}</td>
               <td>{row.skill.outputContract}</td>
               <td>
-                <Button variant="secondary" onClick={() => onEdit(row.skill)}>
-                  Edit
-                </Button>
-                <Button variant="secondary" onClick={() => onDelete(row.skill.name)}>
-                  Delete
-                </Button>
+                <Actions>
+                  <Button variant="secondary" onClick={() => onEdit(row.skill)}>
+                    {t('shared.edit')}
+                  </Button>
+                  <Button variant="danger" onClick={() => onDelete(row.skill.name)}>
+                    {t('shared.delete')}
+                  </Button>
+                </Actions>
               </td>
             </tr>
           ),

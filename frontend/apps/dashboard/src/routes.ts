@@ -1,15 +1,14 @@
 export const ROUTES = {
-  landing: '/',
+  root: '/',
+  home: '/home',
+  // Temporary: the portal landing keeps its own route until it is decided what happens to it.
+  landing: '/landing',
   projects: '/projects',
   dashboard: '/dashboard',
   settings: '/settings',
+  projectSettings: '/project-settings',
   workflow: '/workflow',
   specFiles: '/spec-files',
   specQueue: '/spec-queue',
   skillsHub: '/skills-hub',
-  skillsHubSettings: '/skills-hub/settings',
 } as const;
-
-export function workflowRunPath(workflowId: string, runId: string) {
-  return `${ROUTES.workflow}/${encodeURIComponent(workflowId)}/runs/${encodeURIComponent(runId)}`;
-}

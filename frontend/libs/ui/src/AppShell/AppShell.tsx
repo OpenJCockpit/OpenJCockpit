@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from '@openjcockpit/i18n';
 import styles from './AppShell.module.scss';
 import { Button } from '../Button/Button';
 import { Backdrop } from '../Backdrop/Backdrop';
@@ -23,7 +24,8 @@ interface AppHeaderProps {
 }
 
 /** The logo header with a back button (and optional extra actions) used by the sub-views. */
-export function AppHeader({ onBack, backLabel = '← Back', backTitle, children }: AppHeaderProps) {
+export function AppHeader({ onBack, backLabel, backTitle, children }: AppHeaderProps) {
+  const { t } = useTranslation();
   return (
     <header className={styles.siteHeader}>
       <div className={styles.brand}>
@@ -33,7 +35,8 @@ export function AppHeader({ onBack, backLabel = '← Back', backTitle, children 
         {children}
         {onBack && (
           <Button variant="secondary" onClick={onBack} title={backTitle}>
-            {backLabel}
+            {/* The label names the destination; the generic one is the last resort. */}
+            {backLabel ?? (backTitle ? `← ${backTitle}` : t('back'))}
           </Button>
         )}
       </div>

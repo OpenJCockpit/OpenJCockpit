@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { checkOpaHealth, getOpaConfig, saveOpaConfig } from '@openjcockpit/api';
 import type { OpaConfig, OpaConfigRequest } from '@openjcockpit/api';
+import { useTranslation } from '@openjcockpit/i18n';
 import {
   StatusChip,
   CheckboxField,
@@ -11,7 +12,7 @@ import {
   TextField,
 } from '@openjcockpit/ui';
 import { IntegrationConfigForm } from '../IntegrationConfigForm/IntegrationConfigForm';
-import { OPA_STATUS_KINDS, OPA_STATUS_LABELS, opaStatusFor } from './opaStatus';
+import { OPA_STATUS_KINDS, OPA_STATUS_LABEL_KEYS, opaStatusFor } from './opaStatus';
 
 interface OpaFormState {
   enabled: boolean;
@@ -64,6 +65,7 @@ const OPA_CONFIG_KEY = ['opa-config'];
 const OPA_HEALTH_KEY = ['opa-config', 'health'];
 
 export function OpaSettings() {
+  const { t } = useTranslation('workflow');
   const queryClient = useQueryClient();
   const configQuery = useQuery({ queryKey: OPA_CONFIG_KEY, queryFn: () => getOpaConfig() });
   const healthQuery = useQuery({
@@ -108,10 +110,10 @@ export function OpaSettings() {
       });
       queryClient.setQueryData(OPA_CONFIG_KEY, result);
       setEdited(null);
-      setSavedMessage('OPA configuration saved.');
+      setSavedMessage(t('opa.saved'));
       queryClient.setQueryData(OPA_HEALTH_KEY, await checkOpaHealth());
     } catch (err) {
-      setError('Failed to save OPA configuration.');
+      setError(t('opa.saveFailed'));
       console.warn(err);
     } finally {
       setSaving(false);
@@ -121,92 +123,96 @@ export function OpaSettings() {
   const status = opaStatusFor(form.enabled, form.baseUrl, reachable);
 
   if (loadError) {
-    return <StatusMessage variant="error">Failed to load the OPA configuration.</StatusMessage>;
+    return <StatusMessage variant="error">{t('opa.loadFailed')}</StatusMessage>;
   }
 
   return (
     <IntegrationConfigForm
       title={
         <>
-          Open Policy Agent{' '}
-          <StatusChip label={OPA_STATUS_LABELS[status]} kind={OPA_STATUS_KINDS[status]} />
+          {t('opa.title')}{' '}
+          <StatusChip
+            label={t(OPA_STATUS_LABEL_KEYS[status] as never)}
+            kind={OPA_STATUS_KINDS[status]}
+          />
         </>
       }
-      description="When enabled and reachable, OPA is the mandatory runtime policy gate for workflow starts, agent/subagent/skill activation, and MCP tool invocation. This configuration is global — it applies to every project."
+      description={t('opa.description')}
       error={error}
       savedMessage={savedMessage}
-      saveLabel="Save OPA config"
+      saveLabel={t('opa.save')}
       saving={saving}
       onSave={() => void handleSave()}
     >
       <CheckboxField
-        label="Enabled"
+        label={t('config.enabled')}
         checked={form.enabled}
         onChange={(v) => update({ enabled: v })}
       />
       <TextField
-        label="Base URL"
+        label={t('opa.baseUrl')}
         value={form.baseUrl}
         onChange={(v) => update({ baseUrl: v })}
-        placeholder="http://localhost:8181"
+        placeholder={t('opa.baseUrlPlaceholder')}
       />
       <TextField
-        label="Health check path"
+        label={t('opa.healthPath')}
         value={form.healthPath}
         onChange={(v) => update({ healthPath: v })}
-        placeholder="/health"
+        placeholder={t('opa.healthPathPlaceholder')}
       />
       <TextField
-        label="Policy decision endpoint"
+        label={t('opa.policyPath')}
         value={form.policyPath}
         onChange={(v) => update({ policyPath: v })}
-        placeholder="/v1/data/openjcockpit/workflow/decision"
+        placeholder={t('opa.policyPathPlaceholder')}
       />
       <TextField
-        label="Timeout (seconds)"
+        label={t('opa.timeout')}
         type="number"
         min="1"
         value={form.timeoutSeconds}
         onChange={(v) => update({ timeoutSeconds: v })}
       />
       <SelectField
-        label="Fail mode"
+        label={t('opa.failMode')}
         value={form.failMode}
         onChange={(v) => update({ failMode: v })}
-      >
-        <option value="FAIL_CLOSED">FAIL_CLOSED — block sensitive actions when unreachable</option>
-        <option value="FAIL_OPEN">FAIL_OPEN — allow but log as policy-check-unavailable</option>
-      </SelectField>
+        options={[
+          { value: 'FAIL_CLOSED', label: t('opa.failClosed') },
+          { value: 'FAIL_OPEN', label: t('opa.failOpen') },
+        ]}
+      />
       <TextField
-        label="Environment label"
+        label={t('opa.environment')}
         value={form.environment}
         onChange={(v) => update({ environment: v })}
-        placeholder="production"
+        placeholder={t('opa.environmentPlaceholder')}
       />
       <TextField
-        label="Customer/tenant label"
+        label={t('opa.customer')}
         value={form.customerLabel}
         onChange={(v) => update({ customerLabel: v })}
-        placeholder="noordzee"
+        placeholder={t('opa.customerPlaceholder')}
       />
       <TextField
-        label="Project label"
+        label={t('opa.projectLabel')}
         value={form.projectLabel}
         onChange={(v) => update({ projectLabel: v })}
-        placeholder="onboarding"
+        placeholder={t('opa.projectLabelPlaceholder')}
       />
       <CheckboxField
-        label="Decision logging enabled"
+        label={t('opa.decisionLogging')}
         checked={form.decisionLoggingEnabled}
         onChange={(v) => update({ decisionLoggingEnabled: v })}
       />
       <CheckboxField
-        label="Decision log export enabled"
+        label={t('opa.decisionLogExport')}
         checked={form.decisionLogExportEnabled}
         onChange={(v) => update({ decisionLogExportEnabled: v })}
       />
       <SecretField
-        label="Auth token"
+        label={t('config.authToken')}
         hasValue={hasAuthToken}
         value={form.authToken}
         onChange={(v) => update({ authToken: v })}

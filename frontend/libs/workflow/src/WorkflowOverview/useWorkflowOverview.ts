@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   getOpaConfig,
   getWorkflowDecisionLogs,
@@ -67,35 +67,42 @@ export function useWorkflowOverview(
   const [catalogueError, setCatalogueError] = useState<string | null>(null);
   const [listError, setListError] = useState<string | null>(null);
 
-  if (!loaded) {
+  useEffect(() => {
+    let active = true;
     void listWorkflows()
       .then(async (workflowList) => {
+        if (!active) return;
         setWorkflows(workflowList);
-        void listWorkflowGroups().then(setGroups);
+        void listWorkflowGroups().then((list) => active && setGroups(list));
         setLoaded(true);
         getOpaConfig()
-          .then((config) => setOpaEnabled(config.enabled))
-          .catch(() => setOpaEnabled(false));
+          .then((config) => active && setOpaEnabled(config.enabled))
+          .catch(() => active && setOpaEnabled(false));
         const summaries = await Promise.all(
           workflowList.map(async (workflow) => {
             const entries = await getWorkflowDecisionLogs(workflow.id).catch(() => []);
             return [workflow.id, summarize(entries)] as const;
           }),
         );
-        setDecisionSummaries(Object.fromEntries(summaries));
+        if (active) setDecisionSummaries(Object.fromEntries(summaries));
       })
       .catch((error: unknown) => {
+        if (!active) return;
         setWorkflows([]);
         setListError(error instanceof Error ? error.message : 'Failed to load workflows');
         setLoaded(true);
       });
     fetchLinkableAgents()
-      .then(setAgentCatalogue)
+      .then((agents) => active && setAgentCatalogue(agents))
       .catch(() => {
+        if (!active) return;
         setAgentCatalogue([]);
         setCatalogueError('Agent names could not be loaded — showing agent ids.');
       });
-  }
+    return () => {
+      active = false;
+    };
+  }, []);
 
   async function handleExportDecisionLogs(workflow: WorkflowDefinition) {
     setExportingId(workflow.id);

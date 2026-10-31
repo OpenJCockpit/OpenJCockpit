@@ -1,3 +1,4 @@
+import { useTranslation } from '@openjcockpit/i18n';
 import type { WorkflowDefinition } from '@openjcockpit/api';
 import { StatusChip, Button, feedbackResultClass } from '@openjcockpit/ui';
 import styles from './FlowPanel.module.scss';
@@ -9,21 +10,16 @@ interface Props {
 
 /** The repository has a .specify folder but no specs yet. */
 export function SpecTemplatePresent({ specCreateWorkflow, onCreateSpec }: Props) {
+  const { t } = useTranslation('dashboard');
   return (
     <div className={feedbackResultClass}>
-      <StatusChip label="Spec structure present" kind="ok" />
-      <p>
-        The repository already has a .specify folder, but no specs in the specs/ folder yet. Create
-        the first spec with a prompt — the workflow combines your prompt with the repository
-        contents (RAG) into a small, executable spec file.
-      </p>
+      <StatusChip label={t('flow.template.present')} kind="ok" />
+      <p>{t('flow.template.text')}</p>
       <Button variant="primary" onClick={onCreateSpec} disabled={!specCreateWorkflow}>
-        ✨ Create spec with prompt
+        {t('flow.template.createSpec')}
       </Button>
       {!specCreateWorkflow && (
-        <p className={styles.workflowLauncherHint}>
-          De workflow &quot;Create spec from prompt (RAG)&quot; is not available for this project.
-        </p>
+        <p className={styles.workflowLauncherHint}>{t('flow.template.unavailable')}</p>
       )}
     </div>
   );

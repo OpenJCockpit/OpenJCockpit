@@ -308,14 +308,6 @@ input {
   }
 }
 
-.mf-orb-label {
-  margin: 0;
-  color: var(--mf-green);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-}
-
 .mf-orb-copy {
   max-width: 260px;
   margin: 0;
@@ -343,8 +335,7 @@ input {
 }
 
 .mf-brand-kicker,
-.mf-system-status,
-.mf-eyebrow {
+.mf-system-status {
   font-family: 'JetBrains Mono', monospace;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -368,18 +359,11 @@ input {
   margin-bottom: 26px;
 }
 
-.mf-eyebrow {
-  display: inline-flex;
-  margin: 0 0 10px;
-  color: var(--mf-green);
-  font-size: 0.74rem;
-}
-
 .mf-form-header h1 {
   margin: 0;
   font-size: clamp(2.4rem, 6vw, 4.8rem);
   line-height: 0.95;
-  letter-spacing: -0.075em;
+  letter-spacing: -0.02em;
   text-shadow: 0 0 32px rgba(39, 247, 255, 0.2);
 }
 
@@ -419,7 +403,7 @@ input {
   border-color: rgba(39, 247, 255, 0.9);
   background: rgba(7, 18, 42, 0.86);
   box-shadow:
-    0 0 26px rgba(39, 247, 255, 0.18),
+    inset 0 0 0 1px rgba(39, 247, 255, 0.9),
     inset 0 0 18px rgba(39, 247, 255, 0.055);
 }
 

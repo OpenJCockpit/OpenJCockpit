@@ -1,29 +1,27 @@
 import {
-  AppShell,
-  AppHeader,
   TextAreaField,
   TextField,
-  Eyebrow,
   Actions,
+  CheckboxField,
   DataTable,
+  StatusChip,
   fieldErrorClass,
   fieldHintClass,
   formClass,
   formGridClass,
   formTitleClass,
   Button,
-  pageClass,
-  pageHeaderClass,
   StatusMessage,
+  useConfirmDialog,
 } from '@openjcockpit/ui';
+import { useFormatters, useTranslation } from '@openjcockpit/i18n';
 import styles from './SkillsHubSettings.module.scss';
 import { useSkillsHubSettings } from './useSkillsHubSettings';
 
-interface Props {
-  onBack: () => void;
-}
-
-export function SkillsHubSettings({ onBack }: Props) {
+/** Content of the host's "Marketplaces" settings section; the host owns the heading and page chrome. */
+export function SkillsHubSettings() {
+  const { t } = useTranslation('skillsHub');
+  const { formatDate } = useFormatters();
   const {
     connections,
     loaded,
@@ -40,132 +38,140 @@ export function SkillsHubSettings({ onBack }: Props) {
     handleSave,
     handleDelete,
   } = useSkillsHubSettings();
+  const { confirm, dialog } = useConfirmDialog();
 
   if (!loaded) {
-    return <StatusMessage variant="loading">Loading marketplaces...</StatusMessage>;
+    return <StatusMessage variant="loading">{t('settings.loading')}</StatusMessage>;
   }
 
   return (
-    <AppShell>
-      <AppHeader onBack={onBack} backTitle="Back to Skills Hub" />
-
-      <main className={pageClass}>
-        <div className={pageHeaderClass}>
-          <div>
-            <Eyebrow>Skills Hub</Eyebrow>
-            <h1>Marketplace connections</h1>
-          </div>
-        </div>
-
-        {error && (
-          <p className={fieldErrorClass} role="alert">
-            {error}
-          </p>
-        )}
-        <p className={fieldHintClass} role="status" aria-live="polite">
-          {status}
+    <>
+      {error && (
+        <p className={fieldErrorClass} role="alert">
+          {error}
         </p>
+      )}
+      <p className={fieldHintClass} role="status" aria-live="polite">
+        {status}
+      </p>
 
-        <div className={formClass}>
-          <h2 className={formTitleClass}>
-            {editingId === null ? 'New marketplace' : 'Edit marketplace'}
-          </h2>
-          <div className={formGridClass}>
-            <TextField
-              label="Name *"
-              ref={nameInputRef}
-              value={form.name}
-              onChange={(v) => setForm((f) => ({ ...f, name: v }))}
-              placeholder="e.g. Acme Skills"
-            />
-            <TextField
-              label="Marketplace URL *"
-              value={form.marketplaceUrl}
-              onChange={(v) => setForm((f) => ({ ...f, marketplaceUrl: v }))}
-              placeholder="https://marketplace.example.com/api"
-            />
-            <TextField
-              label={`API key${editingId === null ? ' *' : ''}`}
-              type="password"
-              value={form.apiKey!}
-              onChange={(v) => setForm((f) => ({ ...f, apiKey: v }))}
-              placeholder={
-                editingId !== null && editingHasApiKey
-                  ? 'Leave empty to keep the current API key'
-                  : 'Required — no API key set yet'
-              }
-            />
-            <TextAreaField
-              label="Description"
-              wide
-              rows={3}
-              value={form.description!}
-              onChange={(v) => setForm((f) => ({ ...f, description: v }))}
-              placeholder="Optional description"
-            />
-            <label className={styles.enabledField}>
-              <input
-                type="checkbox"
-                checked={form.enabled}
-                onChange={(e) => setForm((f) => ({ ...f, enabled: e.target.checked }))}
-              />{' '}
-              Enabled for future skill import (has no effect yet)
-            </label>
-          </div>
-          <Actions className={styles.formActions}>
-            <Button variant="primary" onClick={() => void handleSave()} disabled={saving}>
-              {saving ? '⟳ Saving…' : 'Save'}
-            </Button>
-            <Button variant="secondary" onClick={cancelEdit}>
-              Cancel
-            </Button>
-          </Actions>
+      <div className={formClass}>
+        <h2 className={formTitleClass}>
+          {editingId === null ? t('settings.formNew') : t('settings.formEdit')}
+        </h2>
+        <div className={formGridClass}>
+          <TextField
+            label={t('settings.name')}
+            required
+            ref={nameInputRef}
+            value={form.name}
+            onChange={(v) => setForm((f) => ({ ...f, name: v }))}
+            placeholder={t('settings.namePlaceholder')}
+          />
+          <TextField
+            label={t('settings.marketplaceUrl')}
+            required
+            value={form.marketplaceUrl}
+            onChange={(v) => setForm((f) => ({ ...f, marketplaceUrl: v }))}
+            placeholder={t('settings.marketplaceUrlPlaceholder')}
+          />
+          <TextField
+            label={editingId === null ? t('settings.apiKeyRequired') : t('settings.apiKey')}
+            required={editingId === null}
+            type="password"
+            value={form.apiKey!}
+            onChange={(v) => setForm((f) => ({ ...f, apiKey: v }))}
+            placeholder={
+              editingId !== null && editingHasApiKey
+                ? t('settings.apiKeyKeepPlaceholder')
+                : t('settings.apiKeyRequiredPlaceholder')
+            }
+          />
+          <TextAreaField
+            label={t('settings.description')}
+            wide
+            rows={3}
+            value={form.description!}
+            onChange={(v) => setForm((f) => ({ ...f, description: v }))}
+            placeholder={t('settings.descriptionPlaceholder')}
+          />
+          <CheckboxField
+            label={t('settings.enabledField')}
+            checked={form.enabled}
+            onChange={(enabled) => setForm((f) => ({ ...f, enabled }))}
+          />
         </div>
+        <Actions className={styles.formActions}>
+          <Button variant="primary" onClick={() => void handleSave()} disabled={saving}>
+            {saving ? t('settings.saving') : t('settings.save')}
+          </Button>
+          <Button variant="secondary" onClick={cancelEdit}>
+            {t('settings.cancel')}
+          </Button>
+        </Actions>
+      </div>
 
-        <DataTable>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Marketplace URL</th>
-              <th>API key</th>
-              <th>Status</th>
-              <th>Created</th>
-              <th>Actions</th>
+      <DataTable>
+        <thead>
+          <tr>
+            <th>{t('settings.columnName')}</th>
+            <th>{t('settings.columnUrl')}</th>
+            <th>{t('settings.columnApiKey')}</th>
+            <th>{t('settings.columnStatus')}</th>
+            <th>{t('settings.columnCreated')}</th>
+            <th>{t('settings.columnActions')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {connections.map((connection) => (
+            <tr key={connection.id}>
+              <td>
+                <strong>{connection.name}</strong>
+                {connection.description && (
+                  <span className={fieldHintClass}>{connection.description}</span>
+                )}
+              </td>
+              <td>{connection.marketplaceUrl}</td>
+              <td>{connection.hasApiKey ? t('settings.apiKeySet') : t('settings.noApiKey')}</td>
+              <td>
+                <StatusChip
+                  label={connection.enabled ? t('settings.enabled') : t('settings.disabled')}
+                  kind={connection.enabled ? 'ok' : 'neutral'}
+                />
+              </td>
+              <td>{formatDate(connection.createdAt)}</td>
+              <Actions as="td">
+                <Button variant="secondary" onClick={() => startEdit(connection)}>
+                  {t('settings.edit')}
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() =>
+                    confirm({
+                      title: t('settings.confirmDelete.title', { name: connection.name }),
+                      message: t('settings.confirmDelete.message'),
+                      confirmLabel: t('settings.delete'),
+                      cancelLabel: t('settings.cancel'),
+                      busyLabel: t('settings.deleting'),
+                      onConfirm: () => handleDelete(connection),
+                    })
+                  }
+                >
+                  {t('settings.delete')}
+                </Button>
+              </Actions>
             </tr>
-          </thead>
-          <tbody>
-            {connections.map((connection) => (
-              <tr key={connection.id}>
-                <td>
-                  <strong>{connection.name}</strong>
-                  {connection.description && (
-                    <span className={fieldHintClass}>{connection.description}</span>
-                  )}
-                </td>
-                <td>{connection.marketplaceUrl}</td>
-                <td>{connection.hasApiKey ? 'API key set' : 'No API key'}</td>
-                <td>{connection.enabled ? 'Enabled' : 'Disabled'}</td>
-                <td>{connection.createdAt.slice(0, 10)}</td>
-                <Actions as="td">
-                  <Button variant="secondary" onClick={() => startEdit(connection)}>
-                    Edit
-                  </Button>
-                  <Button variant="secondary" onClick={() => void handleDelete(connection)}>
-                    Delete
-                  </Button>
-                </Actions>
-              </tr>
-            ))}
-            {!error && connections.length === 0 && (
-              <tr>
-                <td colSpan={6} className={fieldHintClass}>
-                  No marketplaces connected yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </DataTable>
-      </main>
-    </AppShell>
+          ))}
+          {!error && connections.length === 0 && (
+            <tr>
+              <td colSpan={6} className={fieldHintClass}>
+                {t('settings.empty')}
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </DataTable>
+      {dialog}
+    </>
   );
 }

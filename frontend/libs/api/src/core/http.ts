@@ -1,4 +1,4 @@
-import { errorMessageFrom } from './httpErrors';
+import { parseApiError } from './httpErrors';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -35,6 +35,16 @@ function refreshSession(refresher: SessionRefresher): Promise<string> {
   return _pendingRefresh;
 }
 
+/** Returns the localised text for a server error code, or undefined to keep the server's message. */
+export type ErrorTranslator = (code: string) => string | undefined;
+
+let _translateError: ErrorTranslator | null = null;
+
+/** Registers how server error codes become localised messages; the api lib stays independent of the i18n instance. */
+export function setErrorTranslator(translator: ErrorTranslator | null) {
+  _translateError = translator;
+}
+
 export function authHeaders(): HeadersInit {
   return _authToken ? { Authorization: `Bearer ${_authToken}` } : {};
 }
@@ -44,6 +54,8 @@ export class ApiError extends Error {
   constructor(
     message: string,
     readonly status: number,
+    /** Server `ApiErrorResponse.code`, e.g. `NAME_CONFLICT`. */
+    readonly code?: string,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -88,7 +100,10 @@ async function apiFetch(
   if (!response.ok) {
     const fallback =
       typeof errorMessage === 'function' ? errorMessage(response.status) : errorMessage;
-    throw new ApiError(await errorMessageFrom(response, fallback), response.status);
+    const { message, code } = await parseApiError(response, fallback);
+    // Known codes are shown in the active language; unknown codes keep the server's message.
+    const localised = code ? _translateError?.(code) : undefined;
+    throw new ApiError(localised ?? message, response.status, code);
   }
   return response;
 }

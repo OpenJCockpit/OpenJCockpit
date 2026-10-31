@@ -6,7 +6,7 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba(2, 8, 16, 0.72);
+  background: var(--overlay-bg);
   backdrop-filter: blur(6px);
 }
 .modal-shell {
@@ -16,9 +16,9 @@
   padding: 26px 28px;
   border: 1px solid var(--line-strong);
   border-radius: 14px;
-  background: linear-gradient(180deg, rgba(10, 27, 41, 0.92), rgba(4, 16, 27, 0.9));
+  background: var(--modal-bg);
   box-shadow:
-    0 0 40px rgba(39, 231, 255, 0.14),
+    0 0 40px rgb(var(--accent-rgb) / 0.14),
     var(--shadow);
   &:focus {
     outline: none;

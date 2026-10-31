@@ -1,8 +1,13 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { fireEvent, screen, within } from '@testing-library/react';
+import { renderWithI18n } from '@openjcockpit/i18n/testing';
+import { apiResources } from '@openjcockpit/api';
 import { describe, expect, it, vi } from 'vitest';
 import { linkableAgents } from './linkableAgents';
 import { AgentPicker } from './WorkflowDesign/panels/workflows/WorkflowEditor/AgentPicker';
 import type { AgentCatalog } from '@openjcockpit/api';
+
+const render = (ui: ReactElement) => renderWithI18n(ui, { resources: apiResources });
 
 const CATALOG: AgentCatalog = {
   local: {

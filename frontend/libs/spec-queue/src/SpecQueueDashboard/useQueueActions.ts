@@ -10,6 +10,7 @@ import {
   updateSpecQueueItem,
 } from '@openjcockpit/api';
 import type { SpecQueue, SpecQueueItem } from '@openjcockpit/api';
+import { useTranslation, type TFunction } from '@openjcockpit/i18n';
 import type { MoveDirection } from '../SpecQueueItemRow/SpecQueueItemRow';
 import { useFocusAfterMove } from './useFocusAfterMove';
 import { messageOf } from './useSpecQueue';
@@ -20,30 +21,29 @@ export interface Confirmation {
   item: SpecQueueItem;
 }
 
-export function confirmationCopy({ kind, item }: Confirmation) {
+export function confirmationCopy({ kind, item }: Confirmation, t: TFunction<'specQueue'>) {
   const spec = item.specFile;
   switch (kind) {
     case 'remove':
       return {
-        title: `Remove ${spec}?`,
-        message: 'The spec file leaves the queue. It can be added again later.',
-        confirmLabel: 'Remove',
-        done: `${spec} removed`,
+        title: t('actions.removeTitle', { spec }),
+        message: t('actions.removeMessage'),
+        confirmLabel: t('actions.removeConfirm'),
+        done: t('actions.removeDone', { spec }),
       };
     case 'cancel':
       return {
-        title: `Cancel ${spec}?`,
-        message:
-          'The running workflow is stopped and the queue is paused. Any pull request that was already opened stays open.',
-        confirmLabel: 'Cancel run',
-        done: `${spec} cancelled`,
+        title: t('actions.cancelTitle', { spec }),
+        message: t('actions.cancelMessage'),
+        confirmLabel: t('actions.cancelConfirm'),
+        done: t('actions.cancelDone', { spec }),
       };
     case 'skip':
       return {
-        title: `Skip ${spec}?`,
-        message: 'The failed item is marked as skipped so the queue can continue.',
-        confirmLabel: 'Skip',
-        done: `${spec} skipped`,
+        title: t('actions.skipTitle', { spec }),
+        message: t('actions.skipMessage'),
+        confirmLabel: t('actions.skipConfirm'),
+        done: t('actions.skipDone', { spec }),
       };
   }
 }
@@ -74,6 +74,7 @@ export function useQueueActions({
   refresh,
   announce,
 }: Options) {
+  const { t } = useTranslation('specQueue');
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
   // The request and its follow-up (cache write, announcement) share one mutation so `isPending` covers both.
@@ -113,9 +114,9 @@ export function useQueueActions({
         const response = await reorderSpecQueue(projectId, ids);
         requestFocus(item.id, direction);
         await applyQueue(response);
-        announce(`${item.specFile} moved to position ${to + 1} of ${ids.length}`);
+        announce(t('actions.moved', { spec: item.specFile, position: to + 1, total: ids.length }));
       },
-      'Failed to reorder the queue',
+      t('actions.reorderFailed'),
       false,
     );
   }
@@ -126,9 +127,9 @@ export function useQueueActions({
       async () => {
         const response = await (pause ? pauseSpecQueue(projectId) : resumeSpecQueue(projectId));
         await applyQueue(response);
-        announce(pause ? 'Queue paused' : 'Queue resumed');
+        announce(pause ? t('actions.paused') : t('actions.resumed'));
       },
-      pause ? 'Failed to pause the queue' : 'Failed to resume the queue',
+      pause ? t('actions.pauseFailed') : t('actions.resumeFailed'),
       false,
     );
   }
@@ -137,18 +138,18 @@ export function useQueueActions({
     if (!projectId) return;
     run(
       () => updateSpecQueueItem(projectId, item.id, { autoMerge }),
-      'Failed to update the queue item',
+      t('actions.updateItemFailed'),
     );
   }
 
   function retry(item: SpecQueueItem) {
     if (!projectId) return;
-    run(() => retrySpecQueueItem(projectId, item.id), 'Failed to retry the queue item');
+    run(() => retrySpecQueueItem(projectId, item.id), t('actions.retryFailed'));
   }
 
   const confirmMutation = useMutation({
     mutationFn: ({ kind, item }: Confirmation) => {
-      if (!projectId) throw new Error('No project selected');
+      if (!projectId) throw new Error(t('actions.noProject'));
       return kind === 'skip'
         ? skipSpecQueueItem(projectId, item.id)
         : removeSpecQueueItem(projectId, item.id);
@@ -156,7 +157,7 @@ export function useQueueActions({
   });
   const confirmBusy = confirmMutation.isPending;
   const confirmError = confirmMutation.isError
-    ? messageOf(confirmMutation.error, 'The action failed')
+    ? messageOf(confirmMutation.error, t('actions.actionFailed'))
     : null;
 
   function openConfirmation(kind: ConfirmationKind, item: SpecQueueItem) {
@@ -174,7 +175,7 @@ export function useQueueActions({
     confirmMutation.mutate(confirmation, {
       onSuccess: () => {
         setConfirmation(null);
-        announce(confirmationCopy(confirmation).done);
+        announce(confirmationCopy(confirmation, t).done);
         void refresh();
       },
     });

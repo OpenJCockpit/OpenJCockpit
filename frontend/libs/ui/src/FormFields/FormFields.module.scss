@@ -1,3 +1,31 @@
 .form-field--wide {
   grid-column: 1 / -1;
 }
+
+// Beats the column layout that `formGrid` gives every label: box and text share one row.
+.checkbox-field {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+
+  & > input {
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--cyan);
+  }
+}
+
+.required-mark {
+  color: var(--error-text);
+}
+
+// The page-level error box has margin and padding for a banner; inline it hugs the field.
+.inline-error {
+  margin: 0;
+  padding: 4px 8px;
+  font-size: 12px;
+}

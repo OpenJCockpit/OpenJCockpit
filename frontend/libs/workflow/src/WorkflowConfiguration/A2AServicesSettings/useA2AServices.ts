@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from '@openjcockpit/i18n';
 import {
   createA2AService,
   deleteA2AService,
@@ -37,6 +38,7 @@ type Editing = { mode: 'add' } | { mode: 'edit'; service: A2AService };
 
 /** Data, form state and actions for the A2A services settings. */
 export function useA2AServices() {
+  const { t } = useTranslation('workflow');
   const queryClient = useQueryClient();
   const servicesQuery = useQuery({
     queryKey: A2A_SERVICES_KEY,
@@ -48,14 +50,13 @@ export function useA2AServices() {
     queryClient.setQueryData<A2AService[]>(A2A_SERVICES_KEY, (prev) => prev && update(prev));
   const [editing, setEditing] = useState<Editing | null>(null);
   const [form, setForm] = useState<A2AServiceFormState>(EMPTY_FORM);
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   // undefined until an action sets or clears it; then the load failure (if any) is shown instead.
   const [actionError, setError] = useState<string | null | undefined>(undefined);
   const loadError = servicesQuery.error
     ? servicesQuery.error instanceof Error
       ? servicesQuery.error.message
-      : 'Failed to load A2A services.'
+      : t('a2aServices.loadFailed')
     : null;
   const error = actionError === undefined ? loadError : actionError;
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
@@ -98,10 +99,14 @@ export function useA2AServices() {
   }
 
   async function handleSave(editing: Editing) {
-    if (editing.mode === 'add' && !form.id.trim()) return setError('Id is required.');
-    if (!form.name.trim()) return setError('Name is required.');
-    if (!form.baseUrl.trim()) return setError('Base URL is required.');
-    if (editing.mode === 'add' && !form.apiKey.trim()) return setError('API key is required.');
+    if (editing.mode === 'add' && !form.id.trim()) {
+      return setError(t('a2aServices.error.idRequired'));
+    }
+    if (!form.name.trim()) return setError(t('a2aServices.error.nameRequired'));
+    if (!form.baseUrl.trim()) return setError(t('a2aServices.error.baseUrlRequired'));
+    if (editing.mode === 'add' && !form.apiKey.trim()) {
+      return setError(t('a2aServices.error.apiKeyRequired'));
+    }
     setSaving(true);
     setError(null);
     setSavedMessage(null);
@@ -118,15 +123,15 @@ export function useA2AServices() {
       if (editing.mode === 'add') {
         const created = await createMutation.mutateAsync({ id: form.id.trim(), ...request });
         setServices((prev) => [...prev, created]);
-        setSavedMessage(`A2A service "${created.name}" added.`);
+        setSavedMessage(t('a2aServices.added', { name: created.name }));
       } else {
         const updated = await updateMutation.mutateAsync({ id: editing.service.id, request });
         setServices((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
-        setSavedMessage(`A2A service "${updated.name}" saved.`);
+        setSavedMessage(t('a2aServices.updated', { name: updated.name }));
       }
       closeForm();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save A2A service.');
+      setError(err instanceof Error ? err.message : t('a2aServices.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -138,12 +143,10 @@ export function useA2AServices() {
     try {
       await deleteMutation.mutateAsync(service.id);
       setServices((prev) => prev.filter((s) => s.id !== service.id));
-      setSavedMessage(`A2A service "${service.name}" removed.`);
+      setSavedMessage(t('a2aServices.deleted', { name: service.name }));
       if (editing?.mode === 'edit' && editing.service.id === service.id) closeForm();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to remove A2A service.');
-    } finally {
-      setConfirmDelete(null);
+      setError(err instanceof Error ? err.message : t('a2aServices.deleteFailed'));
     }
   }
 
@@ -157,8 +160,6 @@ export function useA2AServices() {
     form,
     setForm,
     saving,
-    confirmDelete,
-    setConfirmDelete,
     startAdd,
     startEdit,
     closeForm,

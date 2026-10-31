@@ -119,12 +119,13 @@ test.describe('workflow-trigger-workflow-orb: chained-workflow authoring end to 
     // meaningful assertion is that the picker offers the child and nothing
     // that isn't a legal same-project/global candidate.
     const referencedWorkflowSelect = page.getByLabel('Referenced workflow');
-    await expect(referencedWorkflowSelect.locator('option', { hasText: childName })).toHaveCount(1);
-    await referencedWorkflowSelect.selectOption({ label: childName });
+    await referencedWorkflowSelect.click();
+    await expect(page.getByRole('option', { name: childName })).toHaveCount(1);
+    await page.getByRole('option', { name: childName }).click();
     // Captured once, right after selection, so the post-reload assertion
     // below compares against the child's real, server-assigned id rather
     // than re-deriving it from the DOM a second time.
-    const childWorkflowId = await referencedWorkflowSelect.inputValue();
+    const childWorkflowId = (await referencedWorkflowSelect.getAttribute('data-value')) ?? '';
     expect(childWorkflowId).not.toBe('');
 
     // AC-02: no execution mode is pre-selected.
@@ -135,8 +136,9 @@ test.describe('workflow-trigger-workflow-orb: chained-workflow authoring end to 
     // Only one stage is selected on the parent, so it is the only real
     // placement-anchor option besides "Run first".
     const placementAnchor = page.getByLabel('Placement anchor');
-    await placementAnchor.selectOption({ label: agentName! });
-    const anchorValue = await placementAnchor.inputValue();
+    await placementAnchor.click();
+    await page.getByRole('option', { name: agentName! }).click();
+    const anchorValue = (await placementAnchor.getAttribute('data-value')) ?? '';
     expect(anchorValue).not.toBe('');
 
     await page.getByText('Save', { exact: true }).click();
@@ -148,10 +150,13 @@ test.describe('workflow-trigger-workflow-orb: chained-workflow authoring end to 
     //         the orb persisted exactly as saved (AC-01) ----
     await parentRow.getByText('Edit', { exact: true }).click();
 
-    await expect(page.getByLabel('Referenced workflow')).toHaveValue(childWorkflowId);
+    await expect(page.getByLabel('Referenced workflow')).toHaveAttribute(
+      'data-value',
+      childWorkflowId,
+    );
     await expect(page.getByRole('radio', { name: /Sequential/ })).toBeChecked();
     await expect(page.getByRole('radio', { name: /Parallel/ })).not.toBeChecked();
-    await expect(page.getByLabel('Placement anchor')).toHaveValue(anchorValue);
+    await expect(page.getByLabel('Placement anchor')).toHaveAttribute('data-value', anchorValue);
 
     await page.getByText('Cancel', { exact: true }).click();
 

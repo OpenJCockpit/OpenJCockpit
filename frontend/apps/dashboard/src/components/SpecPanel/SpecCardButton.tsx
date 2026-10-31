@@ -1,4 +1,5 @@
 import type { SpecFile } from '@openjcockpit/api';
+import { useFormatters, useTranslation } from '@openjcockpit/i18n';
 import { IconBox, specStyles, cx } from '@openjcockpit/ui';
 
 interface Props {
@@ -9,6 +10,8 @@ interface Props {
 
 /** A selectable card for one spec file in the spec list. */
 export function SpecCardButton({ spec, selected, onSelect }: Props) {
+  const { t } = useTranslation('dashboard');
+  const { formatDateTime } = useFormatters();
   return (
     <button
       className={cx(specStyles.specCard, selected && specStyles.selected)}
@@ -18,7 +21,7 @@ export function SpecCardButton({ spec, selected, onSelect }: Props) {
       <IconBox label="📄" compact className={specStyles.icon} />
       <div>
         <strong>{spec.fileName}</strong>
-        <span>Last modified: {spec.lastChanged}</span>
+        <span>{t('specPanel.lastModified', { value: formatDateTime(spec.lastChanged) })}</span>
       </div>
       {selected && <span className={specStyles.activeRail} aria-hidden="true" />}
     </button>

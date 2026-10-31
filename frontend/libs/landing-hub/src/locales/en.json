@@ -1,0 +1,40 @@
+{
+  "landing": {
+    "intro": {
+      "greeting": "Hi {{firstName}}!"
+    },
+    "hero": {
+      "title": "Choose your workspace",
+      "welcome": "Welcome back, {{firstName}}. Pick where to start: navigate directly to Business or Implementation."
+    },
+    "portals": {
+      "business": {
+        "title": "Business",
+        "subtitle": "Strategy, dashboarding and decision-making"
+      },
+      "implementation": {
+        "title": "Implementation",
+        "subtitle": "Rollout, configuration and operational actions"
+      }
+    },
+    "topBar": {
+      "brand": "OpenJCockpit",
+      "fallbackIdentity": "Authenticated launch hub",
+      "userActions": "User actions",
+      "logout": "Logout",
+      "actions": {
+        "profile": "Profile",
+        "notifications": "Notifications",
+        "messages": "Messages"
+      },
+      "panels": {
+        "profile": "profile",
+        "notifications": "notifications",
+        "messages": "messages"
+      },
+      "profileSummary": "Logged in as {{firstName}} ({{username}}). Token valid until session refresh or logout.",
+      "noNotifications": "No new notifications.",
+      "noMessages": "No new messages."
+    }
+  }
+}

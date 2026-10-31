@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { render } from '../../../testUtils/render';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as api from '@openjcockpit/api';
 import type { AgentCatalog } from '@openjcockpit/api';
@@ -44,7 +45,7 @@ describe('AgentsPanel', () => {
   it('shows a loading message first', () => {
     vi.mocked(api.getAgentCatalog).mockReturnValue(new Promise(() => {}));
     renderPanel();
-    expect(screen.getByText('Loading agents...')).toBeInTheDocument();
+    expect(screen.getByText('Loading agents…')).toBeInTheDocument();
   });
 
   it('shows an error and retries', async () => {
@@ -68,7 +69,7 @@ describe('AgentsPanel', () => {
     expect(await screen.findByText('No agents in the /agents folder yet.')).toBeInTheDocument();
     expect(screen.getByText('No agents registered at LiteLLM.')).toBeInTheDocument();
     expect(screen.getByText('Connected')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: '↻ Refresh' }));
+    fireEvent.click(screen.getByRole('button', { name: '⟳ Refresh' }));
     await waitFor(() => expect(api.getAgentCatalog).toHaveBeenCalledTimes(2));
   });
 
@@ -143,7 +144,7 @@ describe('ProviderAgentsTable', () => {
     renderTable();
     const toggle = screen.getByRole('button', { name: 'Details' });
     fireEvent.click(toggle);
-    expect(screen.getByRole('status')).toHaveTextContent('Loading agent card...');
+    expect(screen.getByRole('status')).toHaveTextContent('Loading agent card…');
     expect(await screen.findByLabelText('Agent card summarizer')).toBeInTheDocument();
     expect(api.getProviderAgentCard).toHaveBeenCalledWith('litellm', 'summarizer');
     expect(screen.getByText(/JSONRPC/)).toBeInTheDocument();

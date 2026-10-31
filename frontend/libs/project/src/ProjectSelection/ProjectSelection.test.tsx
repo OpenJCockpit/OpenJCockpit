@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { render } from '../testRender';
 import { describe, expect, it, vi } from 'vitest';
 import type { Project } from '@openjcockpit/api';
 import { ProjectSelection } from './ProjectSelection';
@@ -78,15 +79,7 @@ describe('ProjectSelection', () => {
     const card = screen.getByTestId('project-card');
     expect(card).toBeDisabled();
     fireEvent.click(card);
-    fireEvent.keyDown(card, { key: 'Enter' });
     expect(onSelect).not.toHaveBeenCalled();
-  });
-
-  it('selects on Enter', () => {
-    const p = project();
-    const { onSelect } = setup([p]);
-    fireEvent.keyDown(screen.getByTestId('project-card'), { key: 'Enter' });
-    expect(onSelect).toHaveBeenCalledWith(p);
   });
 
   it.each([

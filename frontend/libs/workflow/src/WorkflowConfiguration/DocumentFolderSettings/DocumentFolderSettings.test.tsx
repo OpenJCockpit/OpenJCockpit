@@ -11,7 +11,7 @@ vi.mock('@openjcockpit/api', async (importOriginal) =>
 );
 
 const PROJECT = { id: 'p1', name: 'Absence Pro Solutions' } as Project;
-const SAVE = 'Save document folder config';
+const SAVE = 'Save document folder configuration';
 
 // Hints and long labels are part of the <label>; match on the leading text.
 const field = (label: string) => screen.getByLabelText(new RegExp(`^${label}`));
@@ -99,7 +99,7 @@ describe('DocumentFolderSettings', () => {
     await screen.findByDisplayValue('/data/docs');
     await clickAsync(screen.getByRole('button', { name: SAVE }));
     expect(
-      await screen.findByText('Failed to save document folder configuration.'),
+      await screen.findByText('Failed to save the document folder configuration.'),
     ).toBeInTheDocument();
   });
 });

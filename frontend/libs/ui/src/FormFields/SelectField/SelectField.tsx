@@ -1,40 +1,36 @@
-import type { ReactNode, SelectHTMLAttributes } from 'react';
+import type { ReactNode } from 'react';
 import styles from '../FormFields.module.scss';
-import { fieldHintClass, formInputClass } from '../../Form/Form';
-import { cx } from '../../cx';
+import { fieldHintClass } from '../../Form/Form';
+import { Select } from '../../Select/Select';
+import type { SelectOption } from '../../Select/Select';
 
-type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'value'>;
-
-interface SelectFieldProps extends SelectProps {
+interface SelectFieldProps {
   label: ReactNode;
   value: string;
+  options: SelectOption[];
   onChange: (value: string) => void;
   wide?: boolean;
   hint?: ReactNode;
-  children: ReactNode;
+  id?: string;
+  disabled?: boolean;
+  className?: string;
+  'aria-describedby'?: string;
+  'data-testid'?: string;
 }
 
 export function SelectField({
   label,
   value,
+  options,
   onChange,
   wide,
   hint,
-  className,
-  children,
   ...selectProps
 }: SelectFieldProps) {
   return (
     <label className={wide ? styles.formFieldWide : undefined}>
       {label}
-      <select
-        {...selectProps}
-        className={cx(formInputClass, className)}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {children}
-      </select>
+      <Select {...selectProps} block value={value} options={options} onChange={onChange} />
       {hint && <span className={fieldHintClass}>{hint}</span>}
     </label>
   );

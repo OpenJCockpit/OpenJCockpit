@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { render } from '../testRender';
 import { createRef } from 'react';
 import type { ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';

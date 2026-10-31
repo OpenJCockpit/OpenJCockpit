@@ -1,0 +1,40 @@
+{
+  "landing": {
+    "intro": {
+      "greeting": "¡Hola, {{firstName}}!"
+    },
+    "hero": {
+      "title": "Elige tu espacio de trabajo",
+      "welcome": "Bienvenido de nuevo, {{firstName}}. Elige por dónde empezar: ve directamente a Negocio o Implementación."
+    },
+    "portals": {
+      "business": {
+        "title": "Negocio",
+        "subtitle": "Estrategia, paneles y toma de decisiones"
+      },
+      "implementation": {
+        "title": "Implementación",
+        "subtitle": "Despliegue, configuración y acciones operativas"
+      }
+    },
+    "topBar": {
+      "brand": "OpenJCockpit",
+      "fallbackIdentity": "Hub de acceso autenticado",
+      "userActions": "Acciones de usuario",
+      "logout": "Cerrar sesión",
+      "actions": {
+        "profile": "Perfil",
+        "notifications": "Notificaciones",
+        "messages": "Mensajes"
+      },
+      "panels": {
+        "profile": "perfil",
+        "notifications": "notificaciones",
+        "messages": "mensajes"
+      },
+      "profileSummary": "Sesión iniciada como {{firstName}} ({{username}}). El token es válido hasta que se actualice la sesión o se cierre sesión.",
+      "noNotifications": "No hay notificaciones nuevas.",
+      "noMessages": "No hay mensajes nuevos."
+    }
+  }
+}

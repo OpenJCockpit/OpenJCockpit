@@ -1,9 +1,14 @@
 .page {
   position: relative;
   z-index: 1;
+  width: 100%;
+  box-sizing: border-box;
   max-width: 1200px;
   margin: 0 auto;
   padding: 32px 48px 64px;
+  @media (max-width: 720px) {
+    padding: 24px 16px 48px;
+  }
 }
 .pageHeader {
   margin-bottom: 24px;

@@ -6,11 +6,11 @@
   padding: 16px 18px;
   border-radius: 12px;
   border: 1px solid var(--red-a40);
-  border-left: 3px solid #ff6b6b;
-  background: linear-gradient(180deg, rgba(255, 60, 60, 0.1), rgba(10, 27, 41, 0.72));
+  border-left: 3px solid var(--error-text);
+  background: linear-gradient(180deg, rgb(var(--danger-rgb) / 0.1), rgb(var(--base-rgb) / 0.72));
   backdrop-filter: blur(20px);
   box-shadow:
-    0 0 20px rgba(255, 60, 60, 0.12),
+    0 0 20px rgb(var(--danger-rgb) / 0.12),
     var(--shadow);
   &__icon {
     flex-shrink: 0;
@@ -19,7 +19,7 @@
     display: grid;
     place-items: center;
     color: var(--red-text);
-    background: rgba(255, 80, 80, 0.14);
+    background: rgb(var(--danger-rgb) / 0.14);
     border: 1px solid var(--red-a40);
     border-radius: 8px;
     font-size: 15px;
@@ -38,7 +38,7 @@
   &__list {
     margin: 0 0 12px;
     padding-left: 18px;
-    color: #ffe3e3;
+    color: var(--red-text);
     font-size: 13px;
     line-height: 1.5;
     & li + li {

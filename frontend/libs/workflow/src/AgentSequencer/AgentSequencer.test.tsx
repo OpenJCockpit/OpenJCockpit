@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { render } from '../testUtils/render';
 import { describe, expect, it } from 'vitest';
 import { AgentSequencer } from './AgentSequencer';
 import type { AgentCard, AgentDefinition, AgentEvent, OrbCard } from '@openjcockpit/api';

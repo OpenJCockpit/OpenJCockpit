@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import type { ApprovalGateContext } from '@openjcockpit/api';
+import { useTranslation, type TFunction } from '@openjcockpit/i18n';
 import {
   ModalShell,
   modalActionsClass,
@@ -21,23 +22,24 @@ interface ApprovalDecisionModalProps {
   onDismiss: () => void;
 }
 
-function iterationText(context: ApprovalGateContext): string {
+function iterationText(context: ApprovalGateContext, t: TFunction<'workflow'>): string {
   if (!context.feedbackSupported) {
-    return `Review ${context.iteration} of 1 — this checkpoint offers Accept and Deny only.`;
+    return t('approvalDecision.iterationNoFeedback', { iteration: context.iteration });
   }
   const totalOpenings = context.maxFeedbackIterations + 1;
   const feedbackIterationsUsed = context.iteration - 1;
   const remaining = Math.max(context.maxFeedbackIterations - feedbackIterationsUsed, 0);
   if (remaining === 0) {
-    return (
-      `Review ${context.iteration} of up to ${totalOpenings} — the feedback limit for this run has been ` +
-      'reached. This is the final review.'
-    );
+    return t('approvalDecision.iterationFinal', {
+      iteration: context.iteration,
+      total: totalOpenings,
+    });
   }
-  return (
-    `Review ${context.iteration} of up to ${totalOpenings} — ${remaining} feedback iteration` +
-    `${remaining === 1 ? '' : 's'} remaining.`
-  );
+  return t('approvalDecision.iterationRemaining', {
+    iteration: context.iteration,
+    total: totalOpenings,
+    count: remaining,
+  });
 }
 
 /**
@@ -55,6 +57,7 @@ export function ApprovalDecisionModal({
   onAcceptWithComments,
   onDismiss,
 }: ApprovalDecisionModalProps) {
+  const { t } = useTranslation('workflow');
   const [showCommentModal, setShowCommentModal] = useState(false);
   const titleId = useId();
 
@@ -68,7 +71,7 @@ export function ApprovalDecisionModal({
       className={styles.approvalDecisionDialog}
       overlayClassName="approval-decision-overlay"
     >
-      <h2 id={titleId}>Review the change before it continues</h2>
+      <h2 id={titleId}>{t('approvalDecision.title')}</h2>
       <p>{context.changeSummary}</p>
 
       {context.stageOutcome !== 'PUBLISHED' && context.outcomeReason && (
@@ -79,7 +82,7 @@ export function ApprovalDecisionModal({
 
       <div className={styles.approvalChangedFiles}>
         <p className={fieldHintClass}>
-          {context.changedFileCount} file{context.changedFileCount === 1 ? '' : 's'} changed
+          {t('approvalDecision.filesChanged', { count: context.changedFileCount })}
         </p>
         {context.changedPaths.length > 0 && (
           <ul className={styles.approvalChangedFilesList}>
@@ -90,12 +93,16 @@ export function ApprovalDecisionModal({
         )}
         {context.omittedFileCount > 0 && (
           <p className={fieldHintClass}>
-            {context.omittedFileCount} more file{context.omittedFileCount === 1 ? '' : 's'}
+            {t('approvalDecision.moreFiles', { count: context.omittedFileCount })}
           </p>
         )}
       </div>
 
-      {context.branchName && <p className={fieldHintClass}>Branch: {context.branchName}</p>}
+      {context.branchName && (
+        <p className={fieldHintClass}>
+          {t('approvalDecision.branch', { name: context.branchName })}
+        </p>
+      )}
       {actionUrl && (
         <p>
           <a
@@ -104,21 +111,26 @@ export function ApprovalDecisionModal({
             target="_blank"
             rel="noopener noreferrer"
           >
-            {context.pullRequestUrl ? 'View pull request' : 'View branch'}
+            {context.pullRequestUrl
+              ? t('approvalDecision.viewPullRequest')
+              : t('approvalDecision.viewBranch')}
           </a>
         </p>
       )}
 
-      <p className={fieldHintClass}>{iterationText(context)}</p>
+      <p className={fieldHintClass}>{iterationText(context, t)}</p>
 
       {context.feedbackSupported && context.commentHistory.length > 0 && (
         <div className={styles.approvalCommentHistory}>
-          <h3>Previous feedback on this run</h3>
+          <h3>{t('approvalDecision.previousFeedback')}</h3>
           <ul>
             {context.commentHistory.map((entry) => (
               <li key={`${entry.iteration}-${entry.submittedAt}`}>
                 <strong>
-                  Review {entry.iteration} — {entry.author}:
+                  {t('approvalDecision.review', {
+                    iteration: entry.iteration,
+                    author: entry.author,
+                  })}
                 </strong>{' '}
                 {entry.comment}
               </li>
@@ -140,7 +152,7 @@ export function ApprovalDecisionModal({
           disabled={submitting}
           aria-busy={submitting || undefined}
         >
-          Accept
+          {t('approvalDecision.accept')}
         </Button>
         <Button
           variant="danger"
@@ -148,7 +160,7 @@ export function ApprovalDecisionModal({
           disabled={submitting}
           aria-busy={submitting || undefined}
         >
-          Deny
+          {t('approvalDecision.deny')}
         </Button>
         {canOfferComments && (
           <Button
@@ -157,7 +169,7 @@ export function ApprovalDecisionModal({
             disabled={submitting}
             aria-busy={submitting || undefined}
           >
-            Accept with my comments
+            {t('approvalComment.title')}
           </Button>
         )}
       </div>

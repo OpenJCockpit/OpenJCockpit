@@ -25,7 +25,7 @@ const KEY_PLACEHOLDER = 'Leave empty to keep the current API key';
 
 async function renderSettings(connections: SkillsMarketplaceConnection[], readyText: string) {
   vi.mocked(api.listSkillsMarketplaces).mockResolvedValue(connections);
-  await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
+  await renderAsync(<SkillsHubSettings />);
   await screen.findByText(readyText);
 }
 
@@ -42,7 +42,7 @@ describe('SkillsHubSettings', () => {
   it('shows an empty-state row and no error when there are no connections (AC-02)', async () => {
     vi.mocked(api.listSkillsMarketplaces).mockResolvedValue([]);
 
-    await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
+    await renderAsync(<SkillsHubSettings />);
 
     expect(await screen.findByText('No marketplaces connected yet.')).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -53,7 +53,7 @@ describe('SkillsHubSettings', () => {
       new Error('Failed to load marketplaces: 500'),
     );
 
-    await renderAsync(<SkillsHubSettings onBack={vi.fn()} />);
+    await renderAsync(<SkillsHubSettings />);
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Failed to load marketplaces: 500');
     expect(screen.queryByText('No marketplaces connected yet.')).not.toBeInTheDocument();
@@ -91,7 +91,7 @@ describe('SkillsHubSettings', () => {
     expect(screen.getByText('https://marketplace.example.com/api')).toBeInTheDocument();
     expect(screen.getByText('API key set')).toBeInTheDocument();
     expect(screen.getByText('Enabled')).toBeInTheDocument();
-    expect(screen.getByText('2026-01-05')).toBeInTheDocument();
+    expect(screen.getByText('Jan 5, 2026')).toBeInTheDocument();
     expect(screen.getByLabelText<HTMLInputElement>('API key *').value).toBe('');
     expect(screen.getByRole('status')).toHaveTextContent('Acme Skills" has been added.');
   });
@@ -180,6 +180,8 @@ describe('SkillsHubSettings', () => {
 
     await clickAsync(screen.getByRole('button', { name: 'Delete' }));
 
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
+
     await waitFor(() => expect(api.deleteSkillsMarketplace).toHaveBeenCalledWith('mp-1'));
     expect(screen.queryByText('Acme Skills')).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Acme Skills" has been deleted.');
@@ -191,6 +193,8 @@ describe('SkillsHubSettings', () => {
     await renderSettings([CONNECTION], 'Acme Skills');
 
     await clickAsync(screen.getByRole('button', { name: 'Delete' }));
+
+    await clickAsync(screen.getByTestId('confirm-action-confirm'));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Marketplace not found');
   });

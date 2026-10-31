@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
+import { render } from '../../../../testUtils/render';
 import { describe, expect, it, vi } from 'vitest';
 import type { AgentDefinition } from '@openjcockpit/api';
 import { AgentPicker } from './AgentPicker';

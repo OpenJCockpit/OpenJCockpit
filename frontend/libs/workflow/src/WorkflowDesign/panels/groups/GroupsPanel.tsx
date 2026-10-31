@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ToolbarButton, StatusMessage, fieldHintClass } from '@openjcockpit/ui';
+import { useTranslation } from '@openjcockpit/i18n';
+import { Button, StatusMessage, fieldHintClass } from '@openjcockpit/ui';
 import {
   createWorkflowGroup,
   deleteWorkflowGroup,
@@ -9,11 +10,14 @@ import {
 import type { WorkflowGroup } from '@openjcockpit/api';
 import { GroupEditor } from './GroupEditor';
 import { GroupsTable } from './GroupsTable';
+import { useConfirmDelete } from '../shared/useConfirmDelete';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 const EMPTY_GROUP: WorkflowGroup = { id: '', name: '', description: '', projectName: '' };
 
 export function GroupsPanel() {
+  const { t } = useTranslation('workflow');
+  const { askDelete, dialog } = useConfirmDelete();
   const [items, setItems] = useState<WorkflowGroup[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -26,7 +30,7 @@ export function GroupsPanel() {
       setItems(g);
       setLoaded(true);
     });
-    return <StatusMessage variant="loading">Loading groups...</StatusMessage>;
+    return <StatusMessage variant="loading">{t('groups.loading')}</StatusMessage>;
   }
 
   function startCreate() {
@@ -53,7 +57,7 @@ export function GroupsPanel() {
       );
       setEditingId(null);
     } catch (err) {
-      setError('Failed to save workflow group.');
+      setError(t('groups.saveFailed'));
       console.warn(err);
     } finally {
       setSaving(false);
@@ -65,7 +69,7 @@ export function GroupsPanel() {
       await deleteWorkflowGroup(id);
       setItems((prev) => prev.filter((i) => i.id !== id));
     } catch (err) {
-      setError('Failed to delete workflow group.');
+      setError(t('groups.deleteFailed'));
       console.warn(err);
     }
   }
@@ -73,12 +77,11 @@ export function GroupsPanel() {
   return (
     <div>
       <div className={WorkflowDesignStyles.workflowDesignToolbar}>
-        <ToolbarButton onClick={startCreate}>+ New group</ToolbarButton>
+        <Button variant="primary" onClick={startCreate}>
+          {t('groups.newButton')}
+        </Button>
       </div>
-      <p className={fieldHintClass}>
-        Groups bundle workflows designed for a specific meaning (for example onboarding, compliance
-        or reporting). Deleting a group unlinks its workflows; the workflows themselves are kept.
-      </p>
+      <p className={fieldHintClass}>{t('groups.intro')}</p>
       {error && <StatusMessage variant="error">{error}</StatusMessage>}
 
       {editingId && (
@@ -92,7 +95,12 @@ export function GroupsPanel() {
         />
       )}
 
-      <GroupsTable items={items} onEdit={startEdit} onDelete={(id) => void handleDelete(id)} />
+      <GroupsTable
+        items={items}
+        onEdit={startEdit}
+        onDelete={(item) => askDelete('group', item.name, () => handleDelete(item.id))}
+      />
+      {dialog}
     </div>
   );
 }

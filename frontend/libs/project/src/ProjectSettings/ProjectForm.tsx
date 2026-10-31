@@ -1,16 +1,16 @@
 import type { Ref } from 'react';
 import type { ProjectRequest } from '@openjcockpit/api';
 import {
+  CheckboxField,
   TextAreaField,
   TextField,
-  ToolbarButton,
   formActionsClass,
   formClass,
   formGridClass,
   formTitleClass,
   Button,
 } from '@openjcockpit/ui';
-import styles from './ProjectSettings.module.scss';
+import { useTranslation } from '@openjcockpit/i18n';
 
 interface Props {
   isNew: boolean;
@@ -18,6 +18,8 @@ interface Props {
   onChange: (updater: (f: ProjectRequest) => ProjectRequest) => void;
   saving: boolean;
   nameInvalid: boolean;
+  /** Message shown inline under the Name input while `nameInvalid`. */
+  nameError?: string | null;
   nameInputRef: Ref<HTMLInputElement>;
   onSave: () => void;
   onCancel: () => void;
@@ -29,80 +31,79 @@ export function ProjectForm({
   onChange,
   saving,
   nameInvalid,
+  nameError,
   nameInputRef,
   onSave,
   onCancel,
 }: Props) {
+  const { t } = useTranslation('project');
   return (
     <div className={formClass}>
-      <h2 className={formTitleClass}>{isNew ? 'New project' : 'Edit project'}</h2>
+      <h2 className={formTitleClass}>{isNew ? t('form.newTitle') : t('form.editTitle')}</h2>
       <div className={formGridClass}>
         <TextField
-          label="Name *"
+          label={t('form.name')}
           ref={nameInputRef}
           value={form.name}
           onChange={(v) => onChange((f) => ({ ...f, name: v }))}
-          placeholder="Project name"
+          placeholder={t('form.namePlaceholder')}
+          required
+          error={nameInvalid ? nameError : undefined}
+          errorId="project-name-error"
           aria-invalid={nameInvalid ? true : undefined}
-          aria-describedby={nameInvalid ? 'project-name-error' : undefined}
+          aria-describedby={nameInvalid && !nameError ? 'project-name-error' : undefined}
         />
         <TextField
-          label="Customer ID (stub)"
+          label={t('form.customerId')}
           value={form.customerId ?? ''}
           onChange={(v) => onChange((f) => ({ ...f, customerId: v }))}
-          placeholder="e.g. noordzee-logistics"
+          placeholder={t('form.customerIdPlaceholder')}
         />
         <TextField
-          label="Git URL"
+          label={t('form.gitUrl')}
           value={form.gitUrl ?? ''}
           onChange={(v) => onChange((f) => ({ ...f, gitUrl: v }))}
-          placeholder="https://github.com/org/repo"
+          placeholder={t('form.gitUrlPlaceholder')}
         />
         <TextField
-          label="Branch"
+          label={t('form.branch')}
           value={form.defaultBranch ?? ''}
           onChange={(v) => onChange((f) => ({ ...f, defaultBranch: v }))}
-          placeholder="main"
+          placeholder={t('form.branchPlaceholder')}
         />
         <TextField
-          label="Environment"
+          label={t('form.environment')}
           value={form.environment ?? ''}
           onChange={(v) => onChange((f) => ({ ...f, environment: v }))}
-          placeholder="prod / staging / dev"
+          placeholder={t('form.environmentPlaceholder')}
         />
         <TextField
-          label="Owner"
+          label={t('form.owner')}
           value={form.owner ?? ''}
           onChange={(v) => onChange((f) => ({ ...f, owner: v }))}
-          placeholder="Name or team"
+          placeholder={t('form.ownerPlaceholder')}
         />
         <TextAreaField
-          label="Description"
+          label={t('form.description')}
           wide
           rows={3}
           value={form.description ?? ''}
           onChange={(v) => onChange((f) => ({ ...f, description: v }))}
-          placeholder="Short description"
+          placeholder={t('form.descriptionPlaceholder')}
         />
-        <label className={styles.newProjectCheckbox}>
-          <input
-            type="checkbox"
-            checked={form.newProject === 1}
-            onChange={(e) => {
-              // Read now: the updater may run after React has restored the controlled value.
-              const checked = e.target.checked;
-              onChange((f) => ({ ...f, newProject: checked ? 1 : 0 }));
-            }}
-          />
-          New project (repository does not exist yet — skip Git check)
-        </label>
+        <CheckboxField
+          label={t('form.newProjectCheckbox')}
+          checked={form.newProject === 1}
+          // The checked value is passed in, so it is read before any updater runs.
+          onChange={(checked) => onChange((f) => ({ ...f, newProject: checked ? 1 : 0 }))}
+        />
       </div>
       <div className={formActionsClass}>
-        <ToolbarButton onClick={onSave} disabled={saving}>
-          {saving ? '⟳ Saving…' : 'Save'}
-        </ToolbarButton>
+        <Button variant="primary" onClick={onSave} disabled={saving}>
+          {saving ? t('form.saving') : t('form.save')}
+        </Button>
         <Button variant="secondary" onClick={onCancel}>
-          Cancel
+          {t('form.cancel')}
         </Button>
       </div>
     </div>

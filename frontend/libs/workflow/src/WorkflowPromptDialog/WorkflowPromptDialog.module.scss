@@ -5,7 +5,7 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba(2, 8, 16, 0.72);
+  background: rgb(var(--base-rgb) / 0.72);
   backdrop-filter: blur(6px);
 }
 .workflow-prompt-dialog {
@@ -14,7 +14,7 @@
   padding: 26px 28px;
   border-color: var(--line-strong);
   box-shadow:
-    0 0 40px rgba(39, 231, 255, 0.14),
+    0 0 40px rgb(var(--accent-rgb) / 0.14),
     var(--shadow);
   &__header h2 {
     margin: 6px 0 0;
