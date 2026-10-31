@@ -125,7 +125,7 @@ jobs:
             -e KEYCLOAK_URL=https://auth.example.test \
             -e KEYCLOAK_REALM=ci-realm \
             -e KEYCLOAK_CLIENT_ID=ci-client \
-            -e FEDERATION_MANIFEST='{"hello":"https://apps.example.test/mf-manifest.json"}' \
+            -e FEDERATION_MANIFEST='{"skillsHub":"https://apps.example.test/skills/mf-manifest.json","specs":"https://apps.example.test/specs/mf-manifest.json"}' \
             -e FEDERATION_ALLOWED_ORIGINS_JSON='["https://apps.example.test"]' \
             -e FEDERATION_ALLOWED_ORIGINS=https://apps.example.test \
             "$IMAGE"
@@ -149,7 +149,8 @@ jobs:
           curl -fsSI "$base/" | grep -qi '^content-security-policy:'
           # Federation: manifest and allowlist come from the env, and the CSP admits the remote origin.
           curl -fsS "$base/config.json" | jq -e '.federation.allowedOrigins == ["https://apps.example.test"]'
-          curl -fsS "$base/federation.manifest.json" | jq -e '.hello == "https://apps.example.test/mf-manifest.json"'
+          # The deployed manifest names the real remotes; `hello` is a dev-only sample and must not ship.
+          curl -fsS "$base/federation.manifest.json" | jq -e '.skillsHub == "https://apps.example.test/skills/mf-manifest.json" and .specs == "https://apps.example.test/specs/mf-manifest.json" and (has("hello") | not)'
           curl -fsSI "$base/federation.manifest.json" | grep -qi '^cache-control: no-store'
           curl -fsSI "$base/" | grep -i '^content-security-policy:' | grep -q "script-src 'self' https://apps.example.test"
 
@@ -162,13 +163,17 @@ jobs:
   remote-image:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        remote: [remote-hello, remote-skills-hub, remote-specs]
     env:
-      IMAGE: openjcockpit-remote-hello:ci
+      IMAGE: openjcockpit-${{ matrix.remote }}:ci
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Build image
-        run: docker build -f frontend/deploy/remote/Dockerfile --build-arg REMOTE=remote-hello --build-arg BUILD_SHA="$GITHUB_SHA" -t "$IMAGE" frontend
+        run: docker build -f frontend/deploy/remote/Dockerfile --build-arg REMOTE=${{ matrix.remote }} --build-arg BUILD_SHA="$GITHUB_SHA" -t "$IMAGE" frontend
 
       - name: Start container
         run: |
@@ -188,7 +193,7 @@ jobs:
           curl -fsSI "$base/mf-manifest.json" | grep -qi '^cache-control: no-store'
           curl -fsSI "$base/mf-manifest.json" | grep -qi '^access-control-allow-origin: https://hub.example.test'
           curl -fsS "$base/version.json" | jq -e --arg sha "$GITHUB_SHA" '.sha == $sha'
-          chunk=$(curl -fsS "$base/mf-manifest.json" | jq -r '.shared[0].assets.js.async[0]')
+          chunk=$(curl -fsS "$base/mf-manifest.json" | jq -r '[.shared[].assets.js.async[]?] | first')
           curl -fsSI "$base/$chunk" | grep -qi '^cache-control: public, max-age=31536000, immutable'
           # A missing script or JSON file is a 404, never the HTML shell.
           [ "$(curl -s -o /dev/null -w '%{http_code}' "$base/assets/missing.js")" = 404 ]
