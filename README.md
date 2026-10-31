@@ -5,7 +5,7 @@
 <h3 align="center">The open-source AI Software Factory</h3>
 
 <p align="center">
-  <strong>Orchestrate AI agents. Govern development workflows. Build enterprise-grade software.</strong>
+  <strong>You are the pilot. AI is your crew. Quality is the destination.</strong>
 </p>
 
 <p align="center">
