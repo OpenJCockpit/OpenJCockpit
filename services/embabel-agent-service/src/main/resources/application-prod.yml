@@ -1,0 +1,98 @@
+# Profile `prod`: shared and production deployments (deploy/k8s, deploy/compose). The production
+# counterpart of application-local.yml: every secret and endpoint comes from the environment WITHOUT a
+# fallback, so a missing value fails startup. ProductionConfigGuard (service-common) additionally rejects
+# the repository's well-known local placeholder values. Never combine with the `local` profile.
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  flyway:
+    # Schema migrations + the agent bindings of the deployment's tenant (no users, no sample content).
+    locations: classpath:db/migration,classpath:db/seed-tenant
+    placeholders:
+      tenant: ${AGENT_WORKFLOWS_TENANT}
+    clean-disabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI}
+  lifecycle:
+    timeout-per-shutdown-phase: ${SHUTDOWN_GRACE:30s}
+
+server:
+  shutdown: graceful
+  forward-headers-strategy: framework
+  error:
+    include-stacktrace: never
+    include-exception: false
+
+management:
+  server:
+    port: ${MANAGEMENT_PORT:9090}
+  endpoint:
+    health:
+      show-details: never
+      show-components: never
+  info:
+    env:
+      enabled: false
+
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    root: INFO
+    com.embabel.agent: INFO
+
+openjcockpit:
+  security:
+    jwt-issuer: ${KEYCLOAK_ISSUER}
+    spec-queue-runner:
+      secret: ${SPEC_QUEUE_RUNNER_TOKEN_SECRET}
+  a2a-providers:
+    - type: litellm
+      name: LiteLLM
+      base-url: ${LITELLM_PROXY_URL}
+      public-url: ${LITELLM_PUBLIC_URL}
+      api-key: ${LITELLM_A2A_KEY}
+      caller-auth:
+        token-url: ${KEYCLOAK_TOKEN_URL}
+        client-id: openjcockpit-a2a
+        client-secret: ${A2A_CLIENT_SECRET}
+  agent-workflows:
+    tenant: ${AGENT_WORKFLOWS_TENANT}
+  agent-runtime:
+    base-url: ${EMBABEL_AGENT_RUNTIME_BASE_URL}
+    token-url: ${KEYCLOAK_TOKEN_URL}
+    client-secret: ${AGENT_SERVICE_CLIENT_SECRET}
+  git-workspace:
+    gateway-base-url: ${LITELLM_PROXY_URL}
+    gateway-api-key: ${LITELLM_AGENT_SERVICE_KEY}
+  agent-catalog:
+    local-path: ${AGENT_CATALOG_LOCAL_PATH:/agents}
+  workflow-definitions:
+    path: ${WORKFLOW_DEFINITIONS_PATH}
+  a2a-services:
+    encryption-secret: ${A2A_SERVICE_ENCRYPTION_SECRET}
+    encryption-salt: ${A2A_SERVICE_ENCRYPTION_SALT}
+  opa:
+    # Policy enforcement is mandatory in production and fails closed.
+    enabled: true
+    base-url: ${OPA_BASE_URL}
+    fail-mode: FAIL_CLOSED
+    environment: ${OPA_ENVIRONMENT:production}
+    # Enforcement, fail mode and the OPA endpoint cannot be changed through the API in production.
+    config-locked: true
+    auth-token: ${OPA_AUTH_TOKEN:}
+  production-guard:
+    required-secrets: >-
+      spring.datasource.password,
+      openjcockpit.security.spec-queue-runner.secret,
+      openjcockpit.agent-runtime.client-secret,
+      openjcockpit.git-workspace.gateway-api-key,
+      openjcockpit.a2a-services.encryption-secret,
+      openjcockpit.a2a-services.encryption-salt
+    https-urls: openjcockpit.security.jwt-issuer

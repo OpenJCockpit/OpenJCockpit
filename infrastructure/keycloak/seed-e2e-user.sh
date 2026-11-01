@@ -104,4 +104,33 @@ else
   fi
 fi
 
-echo "keycloak-e2e-user: user '${E2E_SEED_USERNAME}' ready"
+# Realm roles the Playwright suite needs (it creates/deletes/starts workflows; it must NOT be
+# admin: one scenario asserts a non-admin 403). Idempotent; a role that does not exist yet is
+# skipped, seed-realm-roles.sh creates it and maps it to e2e as well.
+E2E_SEED_ROLES="${E2E_SEED_ROLES-openjcockpit-operator openjcockpit-approver}"
+for role in $E2E_SEED_ROLES; do
+  if [ "$role" = "openjcockpit-admin" ]; then
+    echo "keycloak-e2e-user: refusing to grant ${role} to the e2e user"
+    exit 1
+  fi
+  status=$(curl -s -o /tmp/kc-e2e-user-resp.json -w '%{http_code}' \
+    -H "Authorization: Bearer ${TOKEN}" \
+    "${KC_URL}/admin/realms/${KC_REALM}/roles/${role}")
+  if [ "$status" != "200" ]; then
+    echo "keycloak-e2e-user: role ${role} not available yet (GET -> ${status}), skipping"
+    continue
+  fi
+  role_id=$(sed -n 's/.*"id":"\([^"]*\)".*/\1/p' /tmp/kc-e2e-user-resp.json | head -n1)
+  mapping=$(printf '[{"id":"%s","name":"%s"}]' "$role_id" "$role")
+  status=$(curl -s -o /tmp/kc-e2e-user-resp.json -w '%{http_code}' \
+    -H "Authorization: Bearer ${TOKEN}" \
+    -H "Content-Type: application/json" \
+    -X POST -d "$mapping" \
+    "${KC_URL}/admin/realms/${KC_REALM}/users/${id}/role-mappings/realm")
+  if [ "$status" != "204" ]; then
+    echo "keycloak-e2e-user: POST role-mappings ${role} -> ${status} (user: ${E2E_SEED_USERNAME})"
+    exit 1
+  fi
+done
+
+echo "keycloak-e2e-user: user '${E2E_SEED_USERNAME}' ready (roles: ${E2E_SEED_ROLES:-none})"

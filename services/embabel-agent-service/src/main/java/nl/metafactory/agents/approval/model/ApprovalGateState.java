@@ -2,6 +2,7 @@ package nl.metafactory.agents.approval.model;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,7 +11,8 @@ import java.util.Set;
  * Mutable per-run gate state (architecture §4.3), created the first time
  * {@code ApprovalGateCoordinator.pauseAfter} fires for a run and held by
  * {@code nl.metafactory.agents.orchestration.PipelineState} until the run is denied or accepted.
- * Not persisted — a restart loses it (BR-36), same as {@code PipelineState} itself.
+ * Persisted as part of the parked run's snapshot ({@code PipelineStateCodec}) and restored with
+ * {@link #restore} after a restart.
  */
 public class ApprovalGateState {
 
@@ -33,6 +35,26 @@ public class ApprovalGateState {
         this.placementStage = placementStage;
         this.feedbackSupported = feedbackSupported;
         this.maxFeedbackIterations = maxFeedbackIterations;
+    }
+
+    /** Rebuilds a gate from a persisted snapshot (restart rehydration); the inverse of reading its accessors. */
+    public static ApprovalGateState restore(String placementStage, boolean feedbackSupported, int maxFeedbackIterations,
+                                            int iteration, boolean open, boolean acceptedFinal,
+                                            Collection<Integer> decidedIterations, List<GateComment> commentHistory,
+                                            String pendingFeedback, StageChangeReport lastReport, String retainedBranch,
+                                            String retainedPullRequestUrl, Instant openedAt) {
+        var gate = new ApprovalGateState(placementStage, feedbackSupported, maxFeedbackIterations);
+        gate.iteration = iteration;
+        gate.open = open;
+        gate.acceptedFinal = acceptedFinal;
+        gate.decidedIterations.addAll(decidedIterations);
+        gate.commentHistory.addAll(commentHistory);
+        gate.pendingFeedback = pendingFeedback;
+        gate.lastReport = lastReport;
+        gate.retainedBranch = retainedBranch;
+        gate.retainedPullRequestUrl = retainedPullRequestUrl;
+        gate.openedAt = openedAt;
+        return gate;
     }
 
     public String placementStage() {

@@ -95,4 +95,12 @@ export const CONSOLE_ERROR_ALLOW_LIST: ConsoleAllowListEntry[] = [
       'logs any non-2xx fetch response as a console.error regardless of correct app-level ' +
       'handling.',
   },
+  {
+    pattern: /Failed to load resource: the server responded with a status of 502/,
+    urlPattern: /\/api\/workflows(?:\?|$)/,
+    reason:
+      'Reduced mode runs without embabel-agent-service, so the specs remote\'s workflow-count ' +
+      'badge gets a 502 from GET /api/workflows; the badge renders nothing on failure and ' +
+      'Chromium logs any non-2xx fetch response as a console.error regardless.',
+  },
 ];

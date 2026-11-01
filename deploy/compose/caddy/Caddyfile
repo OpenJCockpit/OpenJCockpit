@@ -1,0 +1,39 @@
+# TLS termination (automatic ACME certificates) and the only published entry point of the VM profile.
+{
+	email {$ACME_EMAIL}
+	servers {
+		trusted_proxies static private_ranges
+	}
+	log {
+		output stdout
+		format json
+	}
+}
+
+(hardening) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+	encode zstd gzip
+}
+
+{$OPENJCOCKPIT_HOST} {
+	import hardening
+	# The dashboard's nginx serves the SPA and proxies /api to ai-control-service. Actuator endpoints are
+	# on the services' management ports and are never routed.
+	@actuator path /actuator /actuator/*
+	respond @actuator 404
+	reverse_proxy dashboard:8080
+}
+
+{$KEYCLOAK_HOST} {
+	import hardening
+	# Only the public realm endpoints; the admin console and the master realm stay unreachable from the
+	# internet (administer through an SSH tunnel to the keycloak container, see the runbook).
+	@blocked path /admin /admin/* /realms/master /realms/master/* /metrics /health /health/*
+	respond @blocked 404
+	reverse_proxy keycloak:8080
+}

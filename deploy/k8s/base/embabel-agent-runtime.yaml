@@ -1,0 +1,146 @@
+# embabel-agent-runtime: execution plane (stateless per request). Scaled in the production overlay.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: embabel-agent-runtime
+  labels:
+    app.kubernetes.io/name: embabel-agent-runtime
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: embabel-agent-runtime
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: embabel-agent-runtime
+        app.kubernetes.io/part-of: openjcockpit
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9090'
+        prometheus.io/path: /actuator/prometheus
+    spec:
+      serviceAccountName: openjcockpit
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: embabel-agent-runtime
+        image: openjcockpit/embabel-agent-runtime
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8082
+        - name: management
+          containerPort: 9090
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: prod
+        - name: MANAGEMENT_PORT
+          value: '9090'
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: OPENAI_API_KEY
+        - name: KEYCLOAK_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: openjcockpit-settings
+              key: KEYCLOAK_HOST
+        - name: KEYCLOAK_ISSUER
+          value: https://$(KEYCLOAK_HOST)/realms/openjcockpit
+        - name: KEYCLOAK_JWK_SET_URI
+          value: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs
+        - name: KEYCLOAK_TOKEN_URL
+          value: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
+        - name: EMBABEL_AGENT_SERVICE_BASE_URL
+          value: http://embabel-agent-service:8081
+        - name: AGENT_RUNTIME_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: AGENT_RUNTIME_CLIENT_SECRET
+        - name: LITELLM_BASE_URL
+          value: http://litellm:4000/v1
+        - name: LITELLM_PROXY_URL
+          value: http://litellm:4000
+        - name: LITELLM_VIRTUAL_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: LITELLM_VIRTUAL_KEY
+        - name: OLLAMA_MODEL
+          valueFrom:
+            configMapKeyRef:
+              name: openjcockpit-settings
+              key: OLLAMA_MODEL
+        - name: A2A_PUBLIC_BASE_URL
+          value: http://embabel-agent-runtime:8082
+        resources:
+          requests:
+            cpu: 250m
+            memory: 2Gi
+          limits:
+            cpu: '2'
+            memory: 2Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        startupProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+          periodSeconds: 5
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+          periodSeconds: 15
+          failureThreshold: 4
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+          periodSeconds: 10
+          failureThreshold: 3
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: embabel-agent-runtime
+  labels:
+    app.kubernetes.io/name: embabel-agent-runtime
+spec:
+  selector:
+    app.kubernetes.io/name: embabel-agent-runtime
+  ports:
+  - name: http
+    port: 8082
+    targetPort: http
+  - name: management
+    port: 9090
+    targetPort: management

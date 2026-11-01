@@ -11,9 +11,11 @@ import java.util.Set;
 
 /**
  * Mutable per-run continuation state for {@link EmbabelOrchestrator#pipeline(PipelineState)}
- * (ADR-001, workflow-approval-gate architecture §4.3/§7.2, batch B4). Not persisted — a restart
- * loses any run parked mid-pipeline (BR-36), which is why an unknown run id maps to the explicit
- * terminal {@code RUN_STATE_LOST} status rather than an indefinite hang (V8).
+ * (ADR-001, workflow-approval-gate architecture §4.3/§7.2, batch B4). A run parked at an approval
+ * gate is snapshotted to the database ({@link PipelineStateCodec}, table {@code agent_parked_runs})
+ * and rehydrated on startup, so it survives a restart; a run that is mid-pipeline (not parked) does
+ * not, which is why such a run is reconciled to the explicit terminal {@code RUN_STATE_LOST} status
+ * rather than hanging indefinitely (V8).
  *
  * <p>Single-owner invariant (architecture §7.2, "the one honest cost"): at most one thread ever
  * executes {@code pipeline(state)} for a given state at a time. A parked run's registry entry
@@ -46,6 +48,19 @@ public class PipelineState {
 
     void setWorkflowScope(nl.metafactory.agents.workflowrun.WorkflowRunScope workflowScope) {
         this.workflowScope = workflowScope;
+    }
+
+    /** Snapshot access for {@link PipelineStateCodec}. */
+    Set<String> selectedAgentIds() {
+        return selectedAgentIds;
+    }
+
+    Set<String> completedStages() {
+        return completedStages;
+    }
+
+    Set<String> completedOrbs() {
+        return completedOrbs;
     }
 
     public PipelineState(String runId, SpecContent spec, Set<String> selectedAgentIds, AgentRunRequest request) {

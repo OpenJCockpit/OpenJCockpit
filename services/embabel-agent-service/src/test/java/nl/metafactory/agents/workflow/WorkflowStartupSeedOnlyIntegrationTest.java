@@ -14,6 +14,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -192,7 +193,8 @@ class WorkflowStartupSeedOnlyIntegrationTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void theOnlyStartupRunnersAreTheImporterAndTheSpecInitializerInThatOrder() {
         String[] runnerBeanNames = context.getBeanNamesForType(ApplicationRunner.class);
-        assertThat(runnerBeanNames).containsExactlyInAnyOrder("defaultWorkflowImporter", "specWorkflowInitializer", "agentRunReconciliationService");
+        assertThat(runnerBeanNames).containsExactlyInAnyOrder("defaultWorkflowImporter", "specWorkflowInitializer", "agentRunReconciliationService",
+                "parkedRunRehydrator");
 
         List<ApplicationRunner> orderedRunners = context.getBeanProvider(ApplicationRunner.class).orderedStream().toList();
         assertThat(orderedRunners).isNotEmpty();
@@ -218,7 +220,8 @@ class WorkflowStartupSeedOnlyIntegrationTest {
         WorkflowDefinition updated = current.withAgentIds(List.of("a2a:litellm:qa-engineer"));
 
         mockMvc.perform(put("/api/workflows/wf-spec-realise")
-                        .with(jwt())
+                        // Changing a workflow needs the operator role.
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_openjcockpit-operator")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updated)))
                 .andExpect(status().isOk());

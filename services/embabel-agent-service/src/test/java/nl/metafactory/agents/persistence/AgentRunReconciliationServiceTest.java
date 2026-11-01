@@ -83,6 +83,26 @@ class AgentRunReconciliationServiceTest {
     }
 
     @Test
+    void aRunParkedAtAnApprovalGateIsLeftAloneWhileRunningRunsAreMarkedLost() {
+        seedFourRows();
+        entityManager.createNativeQuery("""
+                        INSERT INTO agent_parked_runs (run_id, gate_stage, iteration, state, parked_at, version)
+                        VALUES ('run-open-awaiting', 'local:dev', 1, '{}', CURRENT_TIMESTAMP, 0)""")
+                .executeUpdate();
+        entityManager.clear();
+
+        reconciliationService.run(null);
+        entityManager.clear();
+
+        var parkedRow = agentRunRecordRepository.findById("run-open-awaiting").orElseThrow();
+        assertThat(parkedRow.getStatus()).isEqualTo("AWAITING_APPROVAL");
+        assertThat(parkedRow.getReconciledAt()).isNull();
+        var runningRow = agentRunRecordRepository.findById("run-open-running").orElseThrow();
+        assertThat(runningRow.getStatus()).isEqualTo(AgentRunStatuses.RUN_STATE_LOST);
+        assertThat(runningRow.getReconciledAt()).isNotNull();
+    }
+
+    @Test
     void reconciliationLogsOnlyACountNeverPerRowData() {
         seedFourRows();
 

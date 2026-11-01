@@ -76,7 +76,7 @@ class GitCredentialPersistenceTest {
         var request = new ProjectGitCredentialRequest(GitCredentialType.GITHUB_PAT, "ci-bot", plaintextToken, null);
 
         mockMvc.perform(post("/api/projects/{id}/git-credentials", projectId)
-                        .with(jwt())
+                        .with(jwt().authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_openjcockpit-admin")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
@@ -103,7 +103,7 @@ class GitCredentialPersistenceTest {
     void savingAgainForTheSameProjectUpdatesTheExistingRowInPlace() throws Exception {
         var firstRequest = new ProjectGitCredentialRequest(GitCredentialType.HTTPS_TOKEN, "user", "first-secret", null);
         mockMvc.perform(post("/api/projects/{id}/git-credentials", projectId)
-                        .with(jwt())
+                        .with(jwt().authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_openjcockpit-admin")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(firstRequest)))
                 .andExpect(status().isCreated());
@@ -112,7 +112,7 @@ class GitCredentialPersistenceTest {
 
         var secondRequest = new ProjectGitCredentialRequest(GitCredentialType.HTTPS_TOKEN, "user", "rotated-secret", null);
         mockMvc.perform(post("/api/projects/{id}/git-credentials", projectId)
-                        .with(jwt())
+                        .with(jwt().authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_openjcockpit-admin")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(secondRequest)))
                 .andExpect(status().isCreated());

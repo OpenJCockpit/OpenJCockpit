@@ -28,3 +28,78 @@ jobs:
             echo "::error::docker-compose.yml references a variable that is not defined in .env.example"
             exit 1
           fi
+
+  # OPA policy unit tests (allow/deny/guardrail cases) and a strict compile check.
+  policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: opa check --strict and opa test
+        run: |
+          set -euo pipefail
+          OPA=openpolicyagent/opa:0.70.0@sha256:2b1c4b231f6dfa6a2baea4af4109203b10cd4b65e836d72f03bfe5d8dfce7095
+          docker run --rm -v "$PWD/infrastructure/opa/policies:/policies:ro" "$OPA" check --strict /policies
+          docker run --rm -v "$PWD/infrastructure/opa/policies:/policies:ro" "$OPA" test /policies -v
+
+  # Production deployment profiles: generated files up to date, compose and Kubernetes manifests valid,
+  # alert rules valid, scripts lint-clean, the env validator rejects placeholders.
+  deploy-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Generated files are up to date (production realm, PrometheusRule)
+        run: |
+          set -euo pipefail
+          python3 deploy/scripts/render-prod-realm.py --check
+          deploy/scripts/render-prometheusrule.sh --check
+      - name: Shellcheck deployment scripts
+        run: docker run --rm -v "$PWD:/w:ro" -w /w koalaman/shellcheck:v0.10.0 -S warning deploy/scripts/*.sh deploy/compose/postgres/*.sh
+      - name: validate-env rejects the template and accepts a generated environment
+        run: |
+          set -euo pipefail
+          cp deploy/compose/.env.prod.example "$RUNNER_TEMP/template.env"; chmod 600 "$RUNNER_TEMP/template.env"
+          if deploy/scripts/validate-env.sh "$RUNNER_TEMP/template.env"; then echo "::error::template accepted"; exit 1; fi
+          python3 - "$RUNNER_TEMP" <<'PY'
+          import re, secrets, sys
+          fixed = {"OPENJCOCKPIT_IMAGE_TAG": "v0.0.0-ci", "OPENJCOCKPIT_HOST": "cockpit.ci.test", "KEYCLOAK_HOST": "auth.ci.test",
+                   "ACME_EMAIL": "ops@ci.test", "AGENT_WORKFLOWS_TENANT": "ci", "OLLAMA_BASE_URL": "https://ollama.ci.test",
+                   "OLLAMA_MODEL": "qwen3.6:27b", "POSTGRES_SUPERUSER": "pgsuper", "KC_BOOTSTRAP_ADMIN_USERNAME": "bootstrap-ops",
+                   "ENCRYPTION_SALT": secrets.token_hex(8), "A2A_SERVICE_ENCRYPTION_SALT": secrets.token_hex(8)}
+          out = []
+          for line in open(sys.argv[1] + "/template.env"):
+              m = re.match(r"^([A-Z0-9_]+)=__REQUIRED__", line)
+              if m:
+                  k = m.group(1)
+                  v = fixed.get(k) or (("sk-" if k.startswith("LITELLM_") and k.endswith("_KEY") and k != "LITELLM_SALT_KEY" else "") + secrets.token_urlsafe(30))
+                  line = f"{k}={v}\n"
+              out.append(line)
+          open(sys.argv[1] + "/ci.env", "w").write("".join(out))
+          PY
+          chmod 600 "$RUNNER_TEMP/ci.env"
+          deploy/scripts/validate-env.sh "$RUNNER_TEMP/ci.env"
+          docker compose -f deploy/compose/docker-compose.prod.yml --env-file "$RUNNER_TEMP/ci.env" --profile monitoring config -q
+          if docker compose -f deploy/compose/docker-compose.prod.yml --env-file "$RUNNER_TEMP/ci.env" config \
+               | grep -nE 'docker\.sock|privileged: true|Welkom|-local-secret|sk-openjcockpit'; then
+            echo "::error::development values or Docker socket in the production compose profile"; exit 1
+          fi
+      - name: Kubernetes manifests render and validate (kubeconform, strict)
+        run: |
+          set -euo pipefail
+          kubectl kustomize --load-restrictor LoadRestrictionsNone deploy/k8s/overlays/production > "$RUNNER_TEMP/k8s.yaml"
+          docker run --rm -v "$RUNNER_TEMP/k8s.yaml:/m.yaml:ro" ghcr.io/yannh/kubeconform:v0.7.0 \
+            -strict -summary -ignore-missing-schemas -kubernetes-version 1.31.0 /m.yaml
+          if grep -nE 'hostPath|docker\.sock|privileged: true|hostNetwork: true' "$RUNNER_TEMP/k8s.yaml"; then
+            echo "::error::host access in the Kubernetes profile"; exit 1
+          fi
+      - name: Prometheus alert rules
+        run: |
+          docker run --rm --entrypoint promtool -v "$PWD/deploy/monitoring:/m:ro" \
+            prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996 \
+            check rules /m/alerts.rules.yml
+
+  # Recovery drill: backup.sh -> data loss -> restore.sh -> every marker back; tampered backups refused.
+  backup-restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - run: deploy/scripts/backup-restore-drill.sh

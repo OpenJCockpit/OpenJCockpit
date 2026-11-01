@@ -43,9 +43,15 @@ The OPA client settings can also be viewed and changed in the dashboard's Workfl
 *a starting point, not final governance logic*. Rules are evaluated top to bottom:
 
 1. **Missing identifiers** (`workflowId` or `customerId`) → denied, risk `medium`.
-2. **Restricted project** (`projectClassification == "restricted"`) without human approval → allowed,
+2. **Forbidden tool operation** (guardrail): a tool call whose operation is destructive or rewrites history
+   (`force_push`, `reset_hard`, `reset`, `rebase`, `delete_branch`, `delete_repository`, `exec`, `shell`,
+   `run_command`, as tool suffix of `git.`/`git_` or as `mcpToolOperation`) → denied, risk `critical`,
+   tags `guardrail`, `forbidden-operation`.
+3. **Unknown tool** (guardrail): a tool call without a name or outside the `git.`/`git_` families → denied,
+   risk `high`, tags `guardrail`, `unknown-tool`. New tool families must be added to the policy explicitly.
+4. **Restricted project** (`projectClassification == "restricted"`) without human approval → allowed,
    with `requiredApproval: true`, risk `high`.
-3. Otherwise → **default allow**, risk `low`.
+5. Otherwise → **allow**, risk `low`.
 
 Each decision returns `allowed`, `reason`, `requiredApproval`, `riskLevel` and `auditTags`, which are
 recorded in the decision log. Replace or extend these rules with your organization's real approval and
@@ -54,6 +60,22 @@ risk requirements before relying on them.
 > Agent runs outside a workflow (for example a standalone A2A call) have no `workflowId` and are
 > therefore denied tool access by this policy. Every workflow run carries its workflow id and execution
 > id to its agents for this purpose.
+
+### Validating policy enforcement
+
+| Level | What it proves | How |
+| --- | --- | --- |
+| Policy unit tests | Every rule allows/denies what it should (12 cases, incl. guardrails) | `docker run --rm -v "$PWD/infrastructure/opa/policies:/p:ro" openpolicyagent/opa:0.70.0 test /p -v` (CI: `infra-ci.yml`) |
+| Service tests | Fail-closed when OPA is down, decisions audited, tool calls refused on deny, config lock | `mvn -pl services/embabel-agent-service -am verify` (`DefaultPolicyDecisionServiceTest`, `PolicyGuardedMcpToolGateway*Test`, `OpaConfigControllerTest`) |
+| Live deployment | The running OPA allows a valid start and denies a forbidden tool and an unidentified request | `deploy/scripts/smoke-test.sh compose` or `... k8s` (runs after every deploy) |
+| Metrics | Denials and unavailability are visible | `openjcockpit_policy_decisions_total{action,result}`; alerts `OpenJCockpitPolicy*` |
+
+### Locking the policy client in production
+
+Under the Spring `prod` profile `openjcockpit.opa.enabled=true`, `fail-mode=FAIL_CLOSED` and
+`config-locked=true`: `PUT /api/opa-config` returns 403 (and logs `AUDIT opa-config change refused`), so
+enforcement cannot be switched off, failed open or redirected at runtime. Outside production the endpoint
+is admin-only and every change is audit-logged. Set `OPA_CONFIG_LOCKED=true` to lock other environments.
 
 ## Policy-guarded tool execution
 

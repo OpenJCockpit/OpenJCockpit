@@ -10,15 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
@@ -68,12 +71,31 @@ class SecurityConfigTest {
 
     @Test
     void anAuthenticatedUserWithNoRealmRolesCanReadApprovalDecisions() throws Exception {
-        // AC-38: this platform defines no realm roles; every endpoint is "authenticated only".
-        // Pinned deliberately so a future role introduction is a visible, tested change.
+        // Reads stay "authenticated only" in this service; the dashboard API (ai-control-service)
+        // requires openjcockpit-viewer for them. Only mutations are re-checked by role here.
         when(approvalDecisionAuditRepository.findByRunId("run-1")).thenReturn(List.of());
 
         mockMvc.perform(get("/api/agent-runs/run-1/approval-decisions").with(jwt()))
                .andExpect(status().isOk());
+    }
+
+    @Test
+    void anAuthenticatedUserWithoutTheApproverRoleCannotDecideAGate() throws Exception {
+        mockMvc.perform(post("/api/agent-runs/run-1/approval-gate/decision")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_openjcockpit-operator")))
+                        .contentType("application/json").content("{\"decision\":\"APPROVE\"}"))
+               .andExpect(status().isForbidden());
+
+        verifyNoInteractions(approvalDecisionService);
+    }
+
+    @Test
+    void internalGitWorkspaceTicketsRejectAHumanTokenEvenForAnAdmin() throws Exception {
+        mockMvc.perform(post("/internal/git-workspace-tickets")
+                        .with(jwt().jwt(j -> j.claim("azp", "openjcockpit"))
+                                .authorities(new SimpleGrantedAuthority("ROLE_openjcockpit-admin")))
+                        .contentType("application/json").content("{\"workspaceKey\":\"k\"}"))
+               .andExpect(status().isForbidden());
     }
 
     @Test

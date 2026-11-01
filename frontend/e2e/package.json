@@ -7,6 +7,7 @@
     "test:ui": "playwright test --ui",
     "e2e:reduced": "E2E_MODE=reduced playwright test",
     "e2e:full": "E2E_MODE=full playwright test",
+    "e2e:critical": "E2E_MODE=reduced playwright test specs/critical-authorization.spec.ts specs/api-unauthenticated.spec.ts specs/auth-login.spec.ts specs/dashboard-session.spec.ts",
     "e2e:llm": "E2E_MODE=full E2E_REQUIRE_LLM_PATH=true playwright test specs/agent-llm-gateway.spec.ts",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",

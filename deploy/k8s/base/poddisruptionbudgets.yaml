@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata: {name: dashboard}
+spec:
+  minAvailable: 1
+  selector: {matchLabels: {app.kubernetes.io/name: dashboard}}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata: {name: embabel-agent-runtime}
+spec:
+  minAvailable: 1
+  selector: {matchLabels: {app.kubernetes.io/name: embabel-agent-runtime}}

@@ -1,0 +1,30 @@
+# Profile `prod`: shared and production deployments (deploy/k8s, deploy/compose). The server has no
+# authentication of its own; it must only be reachable from LiteLLM and embabel-agent-service (Kubernetes
+# NetworkPolicy deploy/k8s/base/networkpolicies.yaml, compose network `backend` without published ports).
+# Credentials and endpoints come from the environment WITHOUT a fallback: a missing value fails startup.
+openjcockpit:
+  git-mcp:
+    workspace-base-path: ${GIT_MCP_WORKSPACE_BASE}
+    credentials:
+      ai-control-url: ${GIT_MCP_AI_CONTROL_URL}
+      token-url: ${KEYCLOAK_TOKEN_URL}
+      client-id: ${GIT_MCP_CLIENT_ID:openjcockpit-git-mcp}
+      client-secret: ${GIT_MCP_CLIENT_SECRET}
+
+server:
+  shutdown: graceful
+  error:
+    include-stacktrace: never
+    include-exception: false
+
+management:
+  server:
+    port: ${MANAGEMENT_PORT:9090}
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  structured:
+    format:
+      console: ecs

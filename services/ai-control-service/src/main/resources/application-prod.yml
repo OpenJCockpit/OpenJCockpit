@@ -1,0 +1,84 @@
+# Profile `prod`: shared and production deployments (deploy/k8s, deploy/compose). Every secret and
+# environment-specific endpoint comes from the environment WITHOUT a fallback, so a missing value fails
+# startup instead of silently using a local default. ProductionConfigGuard (service-common) additionally
+# rejects the repository's well-known local placeholder values. Never combine with the `local` profile.
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  flyway:
+    # Schema migrations only: the demo projects in db/seed-local are never applied.
+    locations: classpath:db/migration
+    clean-disabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI}
+  lifecycle:
+    timeout-per-shutdown-phase: ${SHUTDOWN_GRACE:30s}
+
+server:
+  shutdown: graceful
+  # Behind an ingress / reverse proxy that terminates TLS.
+  forward-headers-strategy: framework
+  error:
+    include-stacktrace: never
+    include-exception: false
+
+management:
+  # Actuator lives on its own port, which is never routed by the ingress / reverse proxy; only probes and
+  # the metrics scraper reach it (deploy/k8s network policy, deploy/compose port binding).
+  server:
+    port: ${MANAGEMENT_PORT:9090}
+  endpoint:
+    health:
+      show-details: never
+      show-components: never
+  info:
+    env:
+      enabled: false
+
+logging:
+  structured:
+    # One JSON object per line (Elastic Common Schema) for central log collection.
+    format:
+      console: ecs
+  level:
+    root: INFO
+
+openjcockpit:
+  security:
+    jwt-issuer: ${KEYCLOAK_ISSUER}
+  cors:
+    # The dashboard proxies /api on its own origin; set only if another origin must call the API.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+  spec-repository:
+    path: ${SPEC_REPOSITORY_PATH}
+  encryption:
+    secret: ${ENCRYPTION_SECRET}
+    salt: ${ENCRYPTION_SALT}
+  skills-marketplace:
+    egress:
+      # Fixed off in production (BR-14); not overridable through the environment.
+      allow-private-addresses: false
+  spec-queue:
+    runner:
+      token:
+        secret: ${SPEC_QUEUE_RUNNER_TOKEN_SECRET}
+  production-guard:
+    required-secrets: >-
+      spring.datasource.password,
+      openjcockpit.encryption.secret,
+      openjcockpit.encryption.salt,
+      openjcockpit.spec-queue.runner.token.secret,
+      openjcockpit.git-workspace.service-identity.client-secret,
+      openjcockpit.git-workspace.gateway.api-key
+    https-urls: openjcockpit.security.jwt-issuer
+
+agentic:
+  workflow:
+    container:
+      # The job container needs a Docker daemon (root-equivalent) and runs nothing yet: off in production.
+      enabled: false

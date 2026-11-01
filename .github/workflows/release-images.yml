@@ -1,0 +1,75 @@
+name: Release images
+
+# Publishes the deployable images for a release tag (vX.Y.Z) to GHCR with an immutable tag equal to the git
+# tag. deploy/scripts/deploy-compose.sh and deploy-k8s.sh only accept such tags, which is what makes a
+# rollback a redeploy of the previous tag. A CRITICAL vulnerability with a fix available blocks the release.
+# Before tagging, the release checklist (docs/readme/operations/release-checklist.md) must be complete and
+# ci-summary must be green on the tagged commit.
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - {name: ai-control-service, dockerfile: services/ai-control-service/Dockerfile, context: .}
+          - {name: embabel-agent-service, dockerfile: services/embabel-agent-service/Dockerfile, context: .}
+          - {name: embabel-agent-runtime, dockerfile: services/embabel-agent-runtime/Dockerfile, context: .}
+          - {name: git-mcp-server, dockerfile: services/git-mcp-server/Dockerfile, context: .}
+          - {name: dashboard, dockerfile: frontend/apps/dashboard/Dockerfile, context: frontend}
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.name }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Refuse anything but an immutable version tag
+        run: |
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] || { echo "::error::'$TAG' is not a release tag"; exit 1; }
+
+      - name: Build
+        run: |
+          docker build --file "${{ matrix.dockerfile }}" --build-arg BUILD_SHA="$GITHUB_SHA" \
+            --label org.opencontainers.image.source="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --label org.opencontainers.image.revision="$GITHUB_SHA" \
+            --label org.opencontainers.image.version="$TAG" \
+            --tag "$IMAGE:$TAG" "${{ matrix.context }}"
+
+      - name: Non-root user
+        run: |
+          uid="$(docker run --rm --entrypoint id "$IMAGE:$TAG" -u)"
+          [ "$uid" != 0 ] || { echo "::error::${{ matrix.name }} runs as root"; exit 1; }
+
+      - name: Vulnerability scan (blocks on fixable CRITICAL)
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock:ro \
+            aquasec/trivy:0.65.0@sha256:a22415a38938a56c379387a8163fcb0ce38b10ace73e593475d3658d578b2436 \
+            image --severity CRITICAL --ignore-unfixed --exit-code 1 --no-progress "$IMAGE:$TAG"
+
+      - name: Refuse to overwrite an existing release
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          if docker manifest inspect "$IMAGE:$TAG" >/dev/null 2>&1; then
+            echo "::error::$IMAGE:$TAG already exists; release tags are immutable"; exit 1
+          fi
+
+      - name: Push
+        run: |
+          docker push "$IMAGE:$TAG"
+          echo "### ${{ matrix.name }}: \`$IMAGE@$(docker inspect --format '{{index .RepoDigests 0}}' "$IMAGE:$TAG" | cut -d@ -f2)\`" >> "$GITHUB_STEP_SUMMARY"

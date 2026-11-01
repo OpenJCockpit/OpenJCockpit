@@ -1,0 +1,210 @@
+# Default deny in both directions, then exactly the flows the architecture needs. Egress to the internet
+# (LLM providers, Git hosts) is allowed only for litellm, embabel-agent-runtime, git-mcp-server and
+# ai-control-service, and never to the cluster's private ranges beyond the listed peers.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: default-deny-all}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-dns}
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector: {matchLabels: {k8s-app: kube-dns}}
+      ports: [{protocol: UDP, port: 53}, {protocol: TCP, port: 53}]
+---
+# Public entry: the ingress controller reaches the dashboard and Keycloak only.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: ingress-controller}
+spec:
+  podSelector:
+    matchExpressions: [{key: app.kubernetes.io/name, operator: In, values: [dashboard, keycloak]}]
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: ingress-nginx}}
+      ports: [{port: 8080}]
+---
+# Metrics scraping (management port 9090) from the monitoring namespace only.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: monitoring-scrape}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: monitoring}}
+      ports: [{port: 9090}, {port: 9000}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: dashboard}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: dashboard}}
+  policyTypes: [Egress]
+  egress:
+    - to: [{podSelector: {matchLabels: {app.kubernetes.io/name: ai-control-service}}}]
+      ports: [{port: 8080}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: ai-control-service}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: ai-control-service}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: dashboard}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: git-mcp-server}}
+        - podSelector: {matchLabels: {openjcockpit.io/smoke: "true"}}
+      ports: [{port: 8080}, {port: 9090}]
+  egress:
+    - to:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: embabel-agent-service}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: keycloak}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: litellm}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: postgres}}
+    - to: [{ipBlock: {cidr: 0.0.0.0/0, except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16]}}]
+      ports: [{port: 443}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: embabel-agent-service}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: embabel-agent-service}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: ai-control-service}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: embabel-agent-runtime}}
+        - podSelector: {matchLabels: {openjcockpit.io/smoke: "true"}}
+      ports: [{port: 8081}, {port: 9090}]
+  egress:
+    - to:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: opa}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: keycloak}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: litellm}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: git-mcp-server}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: embabel-agent-runtime}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: postgres}}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: embabel-agent-runtime}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: embabel-agent-runtime}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: embabel-agent-service}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: litellm}}
+        - podSelector: {matchLabels: {openjcockpit.io/smoke: "true"}}
+      ports: [{port: 8082}, {port: 9090}]
+  egress:
+    - to:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: embabel-agent-service}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: keycloak}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: litellm}}
+    - to: [{ipBlock: {cidr: 0.0.0.0/0, except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16]}}]
+      ports: [{port: 443}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: git-mcp-server}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: git-mcp-server}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: litellm}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: embabel-agent-service}}
+        - podSelector: {matchLabels: {openjcockpit.io/smoke: "true"}}
+      ports: [{port: 8093}, {port: 9090}]
+  egress:
+    - to:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: ai-control-service}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: keycloak}}
+    # Git hosts over HTTPS/SSH.
+    - to: [{ipBlock: {cidr: 0.0.0.0/0, except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16]}}]
+      ports: [{port: 443}, {port: 22}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: litellm}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: litellm}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: embabel-agent-runtime}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: embabel-agent-service}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: ai-control-service}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: openjcockpit-bootstrap}}
+      ports: [{port: 4000}]
+  egress:
+    - to:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: git-mcp-server}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: embabel-agent-runtime}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: postgres}}
+    # LLM providers. If Ollama runs inside your private network, add an explicit ipBlock for it in the overlay.
+    - to: [{ipBlock: {cidr: 0.0.0.0/0, except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16]}}]
+      ports: [{port: 443}, {port: 11434}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: opa}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: opa}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: embabel-agent-service}}
+        - podSelector: {matchLabels: {openjcockpit.io/smoke: "true"}}
+      ports: [{port: 8181}]
+  egress: []
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: keycloak}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: keycloak}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - {key: app.kubernetes.io/name, operator: In,
+                 values: [ai-control-service, embabel-agent-service, embabel-agent-runtime, git-mcp-server, openjcockpit-bootstrap]}
+      ports: [{port: 8080}]
+  egress:
+    - to: [{podSelector: {matchLabels: {app.kubernetes.io/name: postgres}}}]
+---
+# The smoke-test pod (deploy/scripts/smoke-test.sh k8s) may reach the services it checks, nothing else.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: smoke-test}
+spec:
+  podSelector: {matchLabels: {openjcockpit.io/smoke: "true"}}
+  policyTypes: [Egress]
+  egress:
+    - to: [{podSelector: {matchLabels: {app.kubernetes.io/part-of: openjcockpit}}}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: bootstrap}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: openjcockpit-bootstrap}}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: keycloak}}
+        - podSelector: {matchLabels: {app.kubernetes.io/name: litellm}}

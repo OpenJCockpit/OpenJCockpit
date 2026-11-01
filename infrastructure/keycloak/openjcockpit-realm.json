@@ -13,7 +13,19 @@
     "realm": [
       {
         "name": "openjcockpit-admin",
-        "description": "May change project-level spec-queue settings (autoMergeAllowed). Local seed only."
+        "description": "OpenJCockpit administrator: everything, including project, git-credential, OPA, integration, skills-marketplace and A2A configuration. Implies operator, approver and viewer."
+      },
+      {
+        "name": "openjcockpit-operator",
+        "description": "OpenJCockpit operator: start/stop workflow runs; manage workflows, definitions, specs and spec queues. Implies viewer."
+      },
+      {
+        "name": "openjcockpit-approver",
+        "description": "OpenJCockpit approver: decide workflow approval gates. Implies viewer."
+      },
+      {
+        "name": "openjcockpit-viewer",
+        "description": "OpenJCockpit viewer: read-only access to the dashboard API."
       }
     ]
   },
@@ -101,7 +113,12 @@
           "temporary": false
         }
       ],
-      "requiredActions": []
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-openjcockpit",
+        "openjcockpit-operator",
+        "openjcockpit-approver"
+      ]
     },
     {
       "username": "ricky",
@@ -117,7 +134,11 @@
           "temporary": false
         }
       ],
-      "requiredActions": []
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-openjcockpit",
+        "openjcockpit-operator"
+      ]
     },
     {
       "username": "e2e",
@@ -133,7 +154,12 @@
           "temporary": false
         }
       ],
-      "requiredActions": []
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-openjcockpit",
+        "openjcockpit-operator",
+        "openjcockpit-approver"
+      ]
     }
   ],
   "loginTheme": "openjcockpit",

@@ -1,0 +1,45 @@
+# Two public hosts, TLS only. Actuator/management ports are not Service ports of the ingress backends and
+# the Keycloak admin console / master realm are not routed (administer with kubectl port-forward).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openjcockpit
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location ~ ^/actuator { return 404; }
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [cockpit.example.invalid]
+      secretName: openjcockpit-tls
+  rules:
+    - host: cockpit.example.invalid
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: {service: {name: dashboard, port: {name: http}}}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openjcockpit-auth
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [auth.example.invalid]
+      secretName: openjcockpit-auth-tls
+  rules:
+    - host: auth.example.invalid
+      http:
+        paths:
+          - path: /realms/openjcockpit
+            pathType: Prefix
+            backend: {service: {name: keycloak, port: {name: http}}}
+          - path: /resources
+            pathType: Prefix
+            backend: {service: {name: keycloak, port: {name: http}}}

@@ -1,0 +1,18 @@
+# Alertmanager for the VM profile. Replace the receiver with your channel (email, Slack, PagerDuty,
+# Opsgenie...). Secrets for receivers belong in a file mounted next to this one, not in git.
+route:
+  receiver: operations
+  group_by: [alertname, job]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers: [severity="critical"]
+      receiver: operations
+      repeat_interval: 1h
+receivers:
+  - name: operations
+    # CHANGE: e.g. email_configs / slack_configs / webhook_configs
+    webhook_configs:
+      - url: http://127.0.0.1:9/replace-with-your-receiver
+        send_resolved: true

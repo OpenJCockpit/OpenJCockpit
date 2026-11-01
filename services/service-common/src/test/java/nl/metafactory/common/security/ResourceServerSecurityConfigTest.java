@@ -32,7 +32,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringJUnitWebConfig(ResourceServerSecurityConfigTest.TestApp.class)
 @TestPropertySource(properties = {
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost:1/jwks",
-        "openjcockpit.security.jwt-issuer=http://issuer.example"
+        "openjcockpit.security.jwt-issuer=http://issuer.example",
+        // a separate management port activates the metrics-scrape rule (MetricsScrapeMatcherTest)
+        "management.server.port=9090",
+        "server.port=8080"
 })
 class ResourceServerSecurityConfigTest {
 

@@ -1,0 +1,40 @@
+# Production overlay. Copy this directory per environment (e.g. overlays/acme-prod), set the values marked
+# CHANGE, and deploy with: deploy/scripts/deploy-k8s.sh deploy/k8s/overlays/<env> <release-tag> <env-file>
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+components:
+  # Remove when using a managed PostgreSQL and set DB_HOST below.
+  - ../../components/in-cluster-postgres
+  # Remove if the cluster has no prometheus-operator (then scrape the `management` ports yourself).
+  - ../../components/monitoring
+configMapGenerator:
+  - name: openjcockpit-settings
+    behavior: replace
+    literals:
+      - OPENJCOCKPIT_HOST=cockpit.example.com     # CHANGE
+      - KEYCLOAK_HOST=auth.example.com            # CHANGE
+      - AGENT_WORKFLOWS_TENANT=acme               # CHANGE
+      - OLLAMA_BASE_URL=https://ollama.internal.example.com   # CHANGE
+      - OLLAMA_MODEL=qwen3.6:27b                  # CHANGE
+      - DB_HOST=postgres
+images:
+  # deploy-k8s.sh sets newTag to the release being deployed (immutable tags only).
+  - {name: ghcr.io/openjcockpit/ai-control-service, newTag: RELEASE_TAG}
+  - {name: ghcr.io/openjcockpit/embabel-agent-service, newTag: RELEASE_TAG}
+  - {name: ghcr.io/openjcockpit/embabel-agent-runtime, newTag: RELEASE_TAG}
+  - {name: ghcr.io/openjcockpit/git-mcp-server, newTag: RELEASE_TAG}
+  - {name: ghcr.io/openjcockpit/dashboard, newTag: RELEASE_TAG}
+replicas:
+  - {name: dashboard, count: 2}
+  - {name: embabel-agent-runtime, count: 2}
+patches:
+  - target: {kind: Ingress, name: openjcockpit}
+    patch: |
+      - {op: replace, path: /spec/tls/0/hosts/0, value: cockpit.example.com}
+      - {op: replace, path: /spec/rules/0/host, value: cockpit.example.com}
+  - target: {kind: Ingress, name: openjcockpit-auth}
+    patch: |
+      - {op: replace, path: /spec/tls/0/hosts/0, value: auth.example.com}
+      - {op: replace, path: /spec/rules/0/host, value: auth.example.com}

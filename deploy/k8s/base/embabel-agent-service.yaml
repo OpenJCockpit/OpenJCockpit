@@ -1,0 +1,200 @@
+# embabel-agent-service: management plane. Exactly ONE replica (startup reconciliation assumes a single
+# instance) with Recreate, so an upgrade never runs two versions against the same schema.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: embabel-agent-service
+  labels:
+    app.kubernetes.io/name: embabel-agent-service
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: embabel-agent-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: embabel-agent-service
+        app.kubernetes.io/part-of: openjcockpit
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9090'
+        prometheus.io/path: /actuator/prometheus
+    spec:
+      serviceAccountName: openjcockpit
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: embabel-agent-service
+        image: openjcockpit/embabel-agent-service
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8081
+        - name: management
+          containerPort: 9090
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: prod
+        - name: MANAGEMENT_PORT
+          value: '9090'
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: openjcockpit-settings
+              key: DB_HOST
+        - name: DB_URL
+          value: jdbc:postgresql://$(DB_HOST):5432/embabel
+        - name: DB_USERNAME
+          value: embabel_app
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: EMBABEL_DB_PASSWORD
+        - name: KEYCLOAK_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: openjcockpit-settings
+              key: KEYCLOAK_HOST
+        - name: KEYCLOAK_ISSUER
+          value: https://$(KEYCLOAK_HOST)/realms/openjcockpit
+        - name: KEYCLOAK_JWK_SET_URI
+          value: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs
+        - name: KEYCLOAK_TOKEN_URL
+          value: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
+        - name: AGENT_WORKFLOWS_TENANT
+          valueFrom:
+            configMapKeyRef:
+              name: openjcockpit-settings
+              key: AGENT_WORKFLOWS_TENANT
+        - name: WORKFLOW_DEFINITIONS_PATH
+          value: /workflow-definitions
+        - name: OPA_BASE_URL
+          value: http://opa:8181
+        - name: MCP_CLIENT_ENABLED
+          value: 'true'
+        - name: GIT_MCP_SERVER_URL
+          value: http://git-mcp-server:8093
+        - name: EMBABEL_AGENT_RUNTIME_BASE_URL
+          value: http://embabel-agent-runtime:8082
+        - name: AGENT_SERVICE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: AGENT_SERVICE_CLIENT_SECRET
+        - name: LITELLM_PROXY_URL
+          value: http://litellm:4000
+        - name: LITELLM_PUBLIC_URL
+          value: http://litellm:4000
+        - name: LITELLM_A2A_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: LITELLM_A2A_KEY
+        - name: LITELLM_AGENT_SERVICE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: LITELLM_AGENT_SERVICE_KEY
+        - name: A2A_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: A2A_CLIENT_SECRET
+        - name: A2A_SERVICE_ENCRYPTION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: A2A_SERVICE_ENCRYPTION_SECRET
+        - name: A2A_SERVICE_ENCRYPTION_SALT
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: A2A_SERVICE_ENCRYPTION_SALT
+        - name: SPEC_QUEUE_RUNNER_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: SPEC_QUEUE_RUNNER_TOKEN_SECRET
+        resources:
+          requests:
+            cpu: 250m
+            memory: 1536Mi
+          limits:
+            cpu: '2'
+            memory: 1536Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: workflow-definitions
+          mountPath: /workflow-definitions
+        startupProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+          periodSeconds: 5
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+          periodSeconds: 15
+          failureThreshold: 4
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+          periodSeconds: 10
+          failureThreshold: 3
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 256Mi
+      - name: workflow-definitions
+        persistentVolumeClaim:
+          claimName: workflow-definitions
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: embabel-agent-service
+  labels:
+    app.kubernetes.io/name: embabel-agent-service
+spec:
+  selector:
+    app.kubernetes.io/name: embabel-agent-service
+  ports:
+  - name: http
+    port: 8081
+    targetPort: http
+  - name: management
+    port: 9090
+    targetPort: management
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: workflow-definitions
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

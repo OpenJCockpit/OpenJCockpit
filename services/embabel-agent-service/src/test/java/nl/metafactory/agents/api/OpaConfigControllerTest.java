@@ -117,6 +117,22 @@ class OpaConfigControllerTest {
     }
 
     @Test
+    void aLockedConfigurationRefusesEveryRuntimeChange() throws Exception {
+        when(properties.isConfigLocked()).thenReturn(true);
+        var request = new OpaConfigRequest(false, "http://attacker:8181", null, null, null, "FAIL_OPEN",
+                null, null, null, null, null, null);
+
+        mockMvc.perform(put("/api/opa-config")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
+
+        org.mockito.Mockito.verify(properties, org.mockito.Mockito.never()).setEnabled(org.mockito.ArgumentMatchers.anyBoolean());
+        org.mockito.Mockito.verify(properties, org.mockito.Mockito.never()).setBaseUrl(org.mockito.ArgumentMatchers.any());
+        org.mockito.Mockito.verify(properties, org.mockito.Mockito.never()).setFailMode(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
     void healthReturnsClientReachability() throws Exception {
         when(client.isReachable()).thenReturn(true);
 

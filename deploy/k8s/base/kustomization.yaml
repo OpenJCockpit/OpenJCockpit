@@ -1,0 +1,62 @@
+# OpenJCockpit on Kubernetes -- base. Render and apply with deploy/scripts/deploy-k8s.sh (it passes
+# --load-restrictor LoadRestrictionsNone so the reviewed policy, LiteLLM and seed files are taken from
+# infrastructure/ instead of being copied here).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: openjcockpit
+labels:
+  - pairs: {app.kubernetes.io/part-of: openjcockpit}
+    includeSelectors: false
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - networkpolicies.yaml
+  - opa.yaml
+  - keycloak.yaml
+  - litellm.yaml
+  - git-mcp-server.yaml
+  - embabel-agent-runtime.yaml
+  - embabel-agent-service.yaml
+  - ai-control-service.yaml
+  - dashboard.yaml
+  - bootstrap-job.yaml
+  - ingress.yaml
+  - poddisruptionbudgets.yaml
+configMapGenerator:
+  - name: opa-policies
+    files:
+      - ../../../infrastructure/opa/policies/workflow_decision.rego
+  - name: opa-config
+    files:
+      - config.yaml=../../opa/config.prod.yaml
+  - name: litellm-config
+    files:
+      - config.yaml=../../../infrastructure/litellm/config.yaml
+  - name: keycloak-realm
+    files:
+      - openjcockpit-realm.json=../../keycloak/openjcockpit-realm.json
+  - name: bootstrap-scripts
+    files:
+      - ../../../infrastructure/local-seed/keycloak-service-clients.sh
+      - ../../../infrastructure/local-seed/litellm-keys.sh
+      - ../../../infrastructure/keycloak/seed-realm-roles.sh
+  # Non-secret, environment-specific values; the production overlay replaces them.
+  - name: openjcockpit-settings
+    literals:
+      - OPENJCOCKPIT_HOST=cockpit.example.invalid
+      - KEYCLOAK_HOST=auth.example.invalid
+      - AGENT_WORKFLOWS_TENANT=REPLACE_ME
+      - OLLAMA_MODEL=REPLACE_ME
+      - OLLAMA_BASE_URL=REPLACE_ME
+      - DB_HOST=postgres
+images:
+  - name: openjcockpit/ai-control-service
+    newName: ghcr.io/openjcockpit/ai-control-service
+  - name: openjcockpit/embabel-agent-service
+    newName: ghcr.io/openjcockpit/embabel-agent-service
+  - name: openjcockpit/embabel-agent-runtime
+    newName: ghcr.io/openjcockpit/embabel-agent-runtime
+  - name: openjcockpit/git-mcp-server
+    newName: ghcr.io/openjcockpit/git-mcp-server
+  - name: openjcockpit/dashboard
+    newName: ghcr.io/openjcockpit/dashboard

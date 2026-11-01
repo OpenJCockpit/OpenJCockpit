@@ -1,0 +1,11 @@
+# Optional: a single-instance PostgreSQL inside the namespace, for clusters without a managed database.
+# Prefer a managed/operator-run PostgreSQL (backups, PITR, failover) for production; then omit this
+# component and set DB_HOST in the overlay's openjcockpit-settings.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+resources:
+  - postgres.yaml
+configMapGenerator:
+  - name: postgres-init
+    files:
+      - 10-init-databases.sh=../../../compose/postgres/init-databases.sh

@@ -37,17 +37,22 @@ jobs:
             **/target/failsafe-reports/**
             **/target/site/jacoco/**
 
-  # The management plane and the execution plane are separate deployables: each image must build on its
-  # own from the reactor (no push; the build validates the Dockerfile and the module's -am closure).
+  # Every service is a separate deployable: each image must build on its own from the reactor (no push; the
+  # build validates the Dockerfile, the non-root user and the module's -am closure).
   agent-images:
     needs: verify
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        service: [embabel-agent-service, embabel-agent-runtime]
+        service: [ai-control-service, embabel-agent-service, embabel-agent-runtime, git-mcp-server]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Build ${{ matrix.service }} image
         run: docker build --file services/${{ matrix.service }}/Dockerfile --tag openjcockpit/${{ matrix.service }}:ci .
+
+      - name: Image runs as a non-root user
+        run: |
+          uid="$(docker run --rm --entrypoint id openjcockpit/${{ matrix.service }}:ci -u)"
+          [ "$uid" != 0 ] || { echo "::error::${{ matrix.service }} runs as root"; exit 1; }

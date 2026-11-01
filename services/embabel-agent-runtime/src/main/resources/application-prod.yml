@@ -1,0 +1,77 @@
+# Profile `prod`: shared and production deployments (deploy/k8s, deploy/compose). The production
+# counterpart of application-local.yml: every secret and endpoint comes from the environment WITHOUT a
+# fallback, so a missing value fails startup. ProductionConfigGuard (service-common) additionally rejects
+# the repository's well-known local placeholder values. Never combine with the `local` profile.
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI}
+
+embabel:
+  models:
+    llms:
+      agent-chat: agent-chat
+      customer-chat: customer-chat
+
+server:
+  forward-headers-strategy: framework
+  error:
+    include-stacktrace: never
+    include-exception: false
+
+management:
+  server:
+    port: ${MANAGEMENT_PORT:9090}
+  endpoint:
+    health:
+      show-details: never
+      show-components: never
+  info:
+    env:
+      enabled: false
+
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    root: INFO
+    # DEBUG can log prompt content (security considerations): never in production.
+    com.embabel.agent: INFO
+
+openjcockpit:
+  security:
+    jwt-issuer: ${KEYCLOAK_ISSUER}
+  agent-service:
+    base-url: ${EMBABEL_AGENT_SERVICE_BASE_URL}
+    token-url: ${KEYCLOAK_TOKEN_URL}
+    client-secret: ${AGENT_RUNTIME_CLIENT_SECRET}
+  git-workspace:
+    gateway-base-url: ${LITELLM_PROXY_URL}
+    gateway-api-key: ${LITELLM_VIRTUAL_KEY}
+  llm:
+    coding:
+      route: gateway
+    gateway:
+      base-url: ${LITELLM_BASE_URL}
+      api-key: ${LITELLM_VIRTUAL_KEY}
+  agent-definitions:
+    enabled: true
+    tenant-claim: tenant_id
+    litellm:
+      model-gateway-url: ${LITELLM_BASE_URL}
+      model-gateway-key: ${LITELLM_VIRTUAL_KEY}
+      gateway-model-aliases:
+        - agent-chat
+        - customer-chat
+      registry-url: ${LITELLM_PROXY_URL}
+    a2a:
+      enabled: true
+      public-base-url: ${A2A_PUBLIC_BASE_URL}
+  production-guard:
+    required-secrets: >-
+      openjcockpit.agent-service.client-secret,
+      openjcockpit.llm.gateway.api-key
+    https-urls: openjcockpit.security.jwt-issuer

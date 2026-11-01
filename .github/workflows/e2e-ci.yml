@@ -1,59 +1,28 @@
 name: E2E CI
 
-# Non-blocking, informational leg (AC-29 follow-up, see frontend/e2e/README.md). It is
-# intentionally NOT wired into ci-summary.yml's gate: a failure here must
-# never fail a PR. It does not upload playwright-report/test-results as
-# artifacts, because they can contain live bearer tokens and Keycloak session
-# cookies for the seeded e2e identity (see frontend/e2e/README.md, "Warning: traces,
-# screenshots, videos, and storage state contain live credentials") — that
-# remains a stated follow-up if this leg is ever made blocking.
+# BLOCKING merge gate (called by ci-summary.yml on every pull request and every push to main).
+#
+#   critical  -- the smallest set of end-to-end checks that must pass before merge: login, unauthenticated
+#                rejection, session handling and API authorization (deny by default, role separation,
+#                admin-only routes). `npm run e2e:critical`. A failure fails ci-summary.
+#   extended  -- the rest of the reduced-mode Playwright suite, reported but not blocking (it includes
+#                long-running UI flows that remain informational).
+#
+# No artefacts are uploaded: Playwright traces and storage state contain live bearer tokens and Keycloak
+# session cookies for the seeded e2e identity (frontend/e2e/README.md).
 
 on:
-  pull_request:
-    paths:
-      - "frontend/e2e/**"
-      - "frontend/apps/dashboard/**"
-      - "frontend/libs/**"
-      - "frontend/package.json"
-      - "frontend/package-lock.json"
-      - "frontend/nx.json"
-      - "frontend/tsconfig.base.json"
-      - "frontend/vite.config.base.ts"
-      - "services/ai-control-service/**"
-      - "infrastructure/keycloak/**"
-      - "docker-compose.yml"
-      - ".env.example"
-      - ".github/workflows/e2e-ci.yml"
-  push:
-    branches: [main]
-    paths:
-      - "frontend/e2e/**"
-      - "frontend/apps/dashboard/**"
-      - "frontend/libs/**"
-      - "frontend/package.json"
-      - "frontend/package-lock.json"
-      - "frontend/nx.json"
-      - "frontend/tsconfig.base.json"
-      - "frontend/vite.config.base.ts"
-      - "services/ai-control-service/**"
-      - "infrastructure/keycloak/**"
-      - "docker-compose.yml"
-      - ".env.example"
-      - ".github/workflows/e2e-ci.yml"
+  workflow_call: {}
   workflow_dispatch: {}
 
 permissions:
   contents: read
 
-concurrency:
-  group: "${{ github.workflow }}-${{ github.ref }}"
-  cancel-in-progress: true
-
 jobs:
   e2e:
-    name: playwright (reduced mode, non-blocking)
+    name: playwright critical (blocking)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -78,17 +47,24 @@ jobs:
         working-directory: frontend/e2e
         run: npm run stack:reduced
 
-      - name: Run Playwright e2e suite (reduced mode)
-        id: e2e_run
+      - name: Critical E2E (blocking)
+        working-directory: frontend/e2e
+        run: npm run e2e:critical
+
+      - name: Extended E2E (reduced mode, informational)
+        id: extended
         working-directory: frontend/e2e
         continue-on-error: true
         run: npm run e2e:reduced
+
+      - name: Surface extended result
+        if: always()
+        env:
+          OUTCOME: ${{ steps.extended.outcome }}
+        run: |
+          echo "::notice::Extended Playwright suite outcome: $OUTCOME (informational)"
 
       - name: Stop reduced stack
         if: always()
         working-directory: frontend/e2e
         run: npm run stack:reduced:stop
-
-      - name: Surface e2e result
-        run: |
-          echo "::notice::Playwright e2e outcome: ${{ steps.e2e_run.outcome }} (non-blocking leg — does not fail this workflow or gate CI, see frontend/e2e/README.md)"

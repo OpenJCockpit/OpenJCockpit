@@ -62,7 +62,7 @@ management:
     web:
       base-path: /actuator
       exposure:
-        include: health,info,metrics,loggers
+        include: health,info,metrics,loggers,prometheus
   endpoint:
     health:
       show-details: always
@@ -152,14 +152,18 @@ agentic:
     agent-timeout-seconds: ${WORKFLOW_AGENT_TIMEOUT:600}
     push-timeout-seconds: ${WORKFLOW_PUSH_TIMEOUT:120}
     container:
-      enabled: ${AGENTIC_CONTAINER_ENABLED:true}
+      # Off by default: nothing executes in the job container yet, and the Docker daemon it needs is
+      # root-equivalent on its host. Opt in locally with the compose profile `docker-jobs`.
+      enabled: ${AGENTIC_CONTAINER_ENABLED:false}
       # Docker daemon endpoint. Leave empty for the docker-java default (DOCKER_HOST env
-      # or the local unix socket). When running via docker-compose this is set to the
+      # or the local unix socket). With the compose profile `docker-jobs` this is the
       # docker-socat proxy service (tcp://docker-socat:2375), which also works on macOS.
       docker-host: ${AGENTIC_DOCKER_HOST:${DOCKER_HOST:}}
       image: ${AGENTIC_CONTAINER_IMAGE:eclipse-temurin:25-jre}
       memory-mb: ${AGENTIC_CONTAINER_MEMORY_MB:512}
-      network-mode: ${AGENTIC_CONTAINER_NETWORK:bridge}
+      network-mode: ${AGENTIC_CONTAINER_NETWORK:none}
+      cpus: ${AGENTIC_CONTAINER_CPUS:1.0}
+      pids-limit: ${AGENTIC_CONTAINER_PIDS_LIMIT:256}
     tmpfs:
       size-mb: ${AGENTIC_TMPFS_SIZE_MB:512}
     preflight:

@@ -1,4 +1,4 @@
-package nl.metafactory.aicontrol.config;
+package nl.metafactory.common.security;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

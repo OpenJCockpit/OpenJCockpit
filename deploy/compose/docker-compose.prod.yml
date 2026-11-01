@@ -1,0 +1,397 @@
+# OpenJCockpit production profile for a single VM/VPS (Docker Engine + Compose v2).
+#
+# Standalone on purpose: it does NOT extend the repository's docker-compose.yml (the local development
+# stack), so no development default, seeded user, fixture or placeholder secret can leak in. Every secret
+# comes from deploy/compose/.env (created from .env.prod.example, never committed); `${VAR:?}` makes a
+# missing value a hard error before anything starts.
+#
+# Run it through deploy/scripts/deploy-compose.sh (validation, pull, ordered start, health wait, smoke
+# test, rollback record) -- see docs/readme/operations/production-runbook.md.
+#
+# Isolation model
+#   edge     : caddy (only published ports 80/443), dashboard, keycloak
+#   backend  : internal (no route out); every service-to-service call
+#   egress   : services that must reach the internet (LLM providers, Git hosts)
+# Every container: non-root where the image allows it, no-new-privileges, all capabilities dropped (a
+# minimal set added back only where the image's entrypoint needs it), read-only root filesystem where the
+# application supports it, CPU/memory/PID limits, bounded logs. No Docker socket is mounted anywhere.
+
+name: openjcockpit
+
+x-hardened: &hardened
+  restart: unless-stopped
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: ["ALL"]
+  logging:
+    driver: json-file
+    options: {max-size: "20m", max-file: "5"}
+
+x-java-service: &java-service
+  <<: *hardened
+  read_only: true
+  tmpfs: ["/tmp:rw,noexec,nosuid,size=256m"]
+  user: "10001:10001"
+
+services:
+  postgres:
+    <<: *hardened
+    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+    # The entrypoint initialises the data directory as root and drops to the postgres user.
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?}
+      POSTGRES_DB: postgres
+      KEYCLOAK_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?}
+      OPENJCOCKPIT_DB_PASSWORD: ${OPENJCOCKPIT_DB_PASSWORD:?}
+      EMBABEL_DB_PASSWORD: ${EMBABEL_DB_PASSWORD:?}
+      LITELLM_DB_PASSWORD: ${LITELLM_DB_PASSWORD:?}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init-databases.sh:/docker-entrypoint-initdb.d/10-init-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [backend]
+    deploy:
+      resources:
+        limits: {cpus: "2", memory: 2g, pids: 512}
+
+  keycloak:
+    <<: *hardened
+    image: quay.io/keycloak/keycloak:26.6.4@sha256:0aae0de7fca85525f727d3354df17896092de8bb26ae4c12d89c77e5df8cbce4
+    command: ["start", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:?}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:?}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak_app
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?}
+      # TLS terminates at caddy; Keycloak trusts its X-Forwarded-* headers only.
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HOSTNAME: https://${KEYCLOAK_HOST:?}
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      # The admin console is only served through an SSH tunnel (runbook), never on KEYCLOAK_HOST.
+      KC_HOSTNAME_ADMIN: http://localhost:8081
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_LOG_CONSOLE_OUTPUT: json
+      # Substituted into the realm import (deploy/keycloak/openjcockpit-realm.json).
+      OPENJCOCKPIT_PUBLIC_URL: https://${OPENJCOCKPIT_HOST:?}
+    volumes:
+      - ../keycloak/openjcockpit-realm.json:/opt/keycloak/data/import/openjcockpit-realm.json:ro
+      - ../../infrastructure/themes:/opt/keycloak/themes:ro
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '\"status\": \"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    depends_on:
+      postgres: {condition: service_healthy}
+    networks: [edge, backend]
+    deploy:
+      resources:
+        limits: {cpus: "2", memory: 1536m, pids: 512}
+
+  opa:
+    <<: *hardened
+    image: openpolicyagent/opa:0.70.0@sha256:2b1c4b231f6dfa6a2baea4af4109203b10cd4b65e836d72f03bfe5d8dfce7095
+    read_only: true
+    user: "1000:1000"
+    command: ["run", "--server", "--addr=0.0.0.0:8181", "--config-file=/config/config.yaml",
+              "--log-format=json", "/policies"]
+    volumes:
+      - ../opa/config.prod.yaml:/config/config.yaml:ro
+      - ../../infrastructure/opa/policies:/policies:ro
+    networks: [backend]
+    deploy:
+      resources:
+        limits: {cpus: "1", memory: 256m, pids: 512}
+
+  git-mcp-server:
+    <<: *java-service
+    image: ${OPENJCOCKPIT_REGISTRY:-ghcr.io/openjcockpit}/git-mcp-server:${OPENJCOCKPIT_IMAGE_TAG:?}
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      MANAGEMENT_PORT: "9090"           # actuator port (image HEALTHCHECK, Prometheus); never published
+      GIT_MCP_WORKSPACE_BASE: /git-mcp-workspaces
+      GIT_MCP_AI_CONTROL_URL: http://ai-control-service:8080
+      KEYCLOAK_TOKEN_URL: &token-url http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
+      GIT_MCP_CLIENT_SECRET: ${GIT_MCP_CLIENT_SECRET:?}
+    volumes:
+      - git-mcp-workspaces:/git-mcp-workspaces
+    # Unauthenticated MCP server: reachable on `backend` only (LiteLLM, embabel-agent-service); `egress`
+    # lets it clone from and push to the Git host.
+    networks: [backend, egress]
+    deploy:
+      resources:
+        limits: {cpus: "1", memory: 1g, pids: 512}
+
+  litellm:
+    <<: *hardened
+    image: ghcr.io/berriai/litellm:v1.101.6@sha256:fc0e36a0965e4ffe75bc509b3a1085f5d6c6b78b16efa2ffbb525e122e51f83b
+    environment:
+      CONFIG_FILE_PATH: /app/config.yaml
+      DATABASE_URL: postgresql://litellm_app:${LITELLM_DB_PASSWORD:?}@postgres:5432/litellm
+      ENFORCE_PRISMA_MIGRATION_CHECK: "True"
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?}
+      LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:?}
+      # The admin UI is disabled in production (second authentication surface).
+      DISABLE_ADMIN_UI: "True"
+      STORE_MODEL_IN_DB: "True"
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:?}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:?}
+      JSON_LOGS: "True"
+    volumes:
+      - ../../infrastructure/litellm/config.yaml:/app/config.yaml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:4000/health/liveliness')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    depends_on:
+      postgres: {condition: service_healthy}
+      git-mcp-server: {condition: service_started}
+    networks: [backend, egress]
+    deploy:
+      resources:
+        limits: {cpus: "2", memory: 2g, pids: 512}
+
+  # One-shot, idempotent: Keycloak service clients (secrets from .env) and LiteLLM virtual keys. Reuses the
+  # reconciling seed scripts; it creates NO users. Re-run on every deploy (rotation = change .env + redeploy).
+  bootstrap:
+    <<: *hardened
+    image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
+    read_only: true
+    restart: "no"
+    environment:
+      KC_URL: http://keycloak:8080
+      KC_REALM: openjcockpit
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:?}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:?}
+      KC_ADMIN_ROLE_USERS: ""
+      LITELLM_URL: http://litellm:4000
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?}
+      LITELLM_VIRTUAL_KEY: ${LITELLM_VIRTUAL_KEY:?}
+      LITELLM_KEY_ALIAS: embabel-agent-runtime
+      LITELLM_KEY_MODEL: ${OLLAMA_MODEL:?}
+      LITELLM_A2A_KEY: ${LITELLM_A2A_KEY:?}
+      LITELLM_AI_CONTROL_KEY: ${LITELLM_AI_CONTROL_KEY:?}
+      LITELLM_AGENT_SERVICE_KEY: ${LITELLM_AGENT_SERVICE_KEY:?}
+      A2A_CLIENT_ID: openjcockpit-a2a
+      A2A_CLIENT_SECRET: ${A2A_CLIENT_SECRET:?}
+      A2A_TENANT_CLAIM: tenant_id
+      A2A_TENANT: ${AGENT_WORKFLOWS_TENANT:?}
+      GIT_MCP_CLIENT_SECRET: ${GIT_MCP_CLIENT_SECRET:?}
+      AI_CONTROL_CLIENT_SECRET: ${AI_CONTROL_CLIENT_SECRET:?}
+      AGENT_SERVICE_CLIENT_SECRET: ${AGENT_SERVICE_CLIENT_SECRET:?}
+      AGENT_RUNTIME_CLIENT_SECRET: ${AGENT_RUNTIME_CLIENT_SECRET:?}
+    volumes:
+      - ../../infrastructure/local-seed:/seed:ro
+      - ../../infrastructure/keycloak/seed-realm-roles.sh:/seed-realm-roles.sh:ro
+    entrypoint: ["/bin/sh", "-c", "sh /seed-realm-roles.sh && sh /seed/keycloak-service-clients.sh && sh /seed/litellm-keys.sh"]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=16m"]
+    depends_on:
+      keycloak: {condition: service_healthy}
+      litellm: {condition: service_healthy}
+    networks: [backend]
+
+  embabel-agent-runtime:
+    <<: *java-service
+    image: ${OPENJCOCKPIT_REGISTRY:-ghcr.io/openjcockpit}/embabel-agent-runtime:${OPENJCOCKPIT_IMAGE_TAG:?}
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      MANAGEMENT_PORT: "9090"           # actuator port (image HEALTHCHECK, Prometheus); never published
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?}
+      KEYCLOAK_ISSUER: &issuer https://${KEYCLOAK_HOST:?}/realms/openjcockpit
+      KEYCLOAK_JWK_SET_URI: &jwks http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs
+      KEYCLOAK_TOKEN_URL: *token-url
+      EMBABEL_AGENT_SERVICE_BASE_URL: http://embabel-agent-service:8081
+      AGENT_RUNTIME_CLIENT_SECRET: ${AGENT_RUNTIME_CLIENT_SECRET:?}
+      LITELLM_BASE_URL: http://litellm:4000/v1
+      LITELLM_PROXY_URL: &litellm http://litellm:4000
+      LITELLM_VIRTUAL_KEY: ${LITELLM_VIRTUAL_KEY:?}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:?}
+      A2A_PUBLIC_BASE_URL: http://embabel-agent-runtime:8082
+    depends_on:
+      bootstrap: {condition: service_completed_successfully}
+    networks: [backend, egress]
+    deploy:
+      resources:
+        limits: {cpus: "2", memory: 2g, pids: 512}
+
+  embabel-agent-service:
+    <<: *java-service
+    image: ${OPENJCOCKPIT_REGISTRY:-ghcr.io/openjcockpit}/embabel-agent-service:${OPENJCOCKPIT_IMAGE_TAG:?}
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      MANAGEMENT_PORT: "9090"           # actuator port (image HEALTHCHECK, Prometheus); never published
+      DB_URL: jdbc:postgresql://postgres:5432/embabel
+      DB_USERNAME: embabel_app
+      DB_PASSWORD: ${EMBABEL_DB_PASSWORD:?}
+      KEYCLOAK_ISSUER: *issuer
+      KEYCLOAK_JWK_SET_URI: *jwks
+      KEYCLOAK_TOKEN_URL: *token-url
+      AGENT_WORKFLOWS_TENANT: ${AGENT_WORKFLOWS_TENANT:?}
+      WORKFLOW_DEFINITIONS_PATH: /workflow-definitions
+      OPA_BASE_URL: http://opa:8181
+      MCP_CLIENT_ENABLED: "true"
+      GIT_MCP_SERVER_URL: http://git-mcp-server:8093
+      EMBABEL_AGENT_RUNTIME_BASE_URL: http://embabel-agent-runtime:8082
+      AGENT_SERVICE_CLIENT_SECRET: ${AGENT_SERVICE_CLIENT_SECRET:?}
+      LITELLM_PROXY_URL: *litellm
+      LITELLM_PUBLIC_URL: *litellm
+      LITELLM_A2A_KEY: ${LITELLM_A2A_KEY:?}
+      LITELLM_AGENT_SERVICE_KEY: ${LITELLM_AGENT_SERVICE_KEY:?}
+      A2A_CLIENT_SECRET: ${A2A_CLIENT_SECRET:?}
+      A2A_SERVICE_ENCRYPTION_SECRET: ${A2A_SERVICE_ENCRYPTION_SECRET:?}
+      A2A_SERVICE_ENCRYPTION_SALT: ${A2A_SERVICE_ENCRYPTION_SALT:?}
+      SPEC_QUEUE_RUNNER_TOKEN_SECRET: ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:?}
+    volumes:
+      - workflow-definitions:/workflow-definitions
+    depends_on:
+      postgres: {condition: service_healthy}
+      opa: {condition: service_started}
+      bootstrap: {condition: service_completed_successfully}
+    networks: [backend]
+    deploy:
+      resources:
+        limits: {cpus: "2", memory: 1536m, pids: 512}
+
+  ai-control-service:
+    <<: *java-service
+    image: ${OPENJCOCKPIT_REGISTRY:-ghcr.io/openjcockpit}/ai-control-service:${OPENJCOCKPIT_IMAGE_TAG:?}
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      MANAGEMENT_PORT: "9090"           # actuator port (image HEALTHCHECK, Prometheus); never published
+      DB_URL: jdbc:postgresql://postgres:5432/openjcockpit
+      DB_USERNAME: openjcockpit_app
+      DB_PASSWORD: ${OPENJCOCKPIT_DB_PASSWORD:?}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?}
+      KEYCLOAK_ISSUER: *issuer
+      KEYCLOAK_JWK_SET_URI: *jwks
+      EMBABEL_AGENT_SERVICE_BASE_URL: http://embabel-agent-service:8081
+      SPEC_REPOSITORY_PATH: /spec-repository
+      ENCRYPTION_SECRET: ${ENCRYPTION_SECRET:?}
+      ENCRYPTION_SALT: ${ENCRYPTION_SALT:?}
+      SPEC_QUEUE_RUNNER_TOKEN_SECRET: ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:?}
+      WORKFLOW_WORKSPACE_BASE: /workflow-workspaces
+      LITELLM_MCP_BASE_URL: *litellm
+      LITELLM_AI_CONTROL_KEY: ${LITELLM_AI_CONTROL_KEY:?}
+      AI_CONTROL_SERVICE_TOKEN_URL: *token-url
+      AI_CONTROL_SERVICE_CLIENT_ID: openjcockpit-ai-control
+      AI_CONTROL_SERVICE_CLIENT_SECRET: ${AI_CONTROL_CLIENT_SECRET:?}
+    volumes:
+      - workflow-workspaces:/workflow-workspaces
+      - spec-repository:/spec-repository:ro
+    depends_on:
+      postgres: {condition: service_healthy}
+      bootstrap: {condition: service_completed_successfully}
+    # egress: GitHub API (spec queue merges) and skills marketplaces.
+    networks: [backend, egress]
+    deploy:
+      resources:
+        limits: {cpus: "2", memory: 1536m, pids: 512}
+
+  dashboard:
+    <<: *hardened
+    image: ${OPENJCOCKPIT_REGISTRY:-ghcr.io/openjcockpit}/dashboard:${OPENJCOCKPIT_IMAGE_TAG:?}
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+      - /etc/nginx/conf.d:rw,noexec,nosuid,size=1m
+    environment:
+      API_UPSTREAM: http://ai-control-service:8080
+      KEYCLOAK_URL: https://${KEYCLOAK_HOST:?}
+      KEYCLOAK_REALM: openjcockpit
+      KEYCLOAK_CLIENT_ID: openjcockpit
+    depends_on:
+      ai-control-service: {condition: service_healthy}
+    networks: [edge, backend]
+    deploy:
+      resources:
+        limits: {cpus: "0.5", memory: 128m, pids: 512}
+
+  caddy:
+    <<: *hardened
+    image: caddy:2.10.2-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d
+    cap_add: [NET_BIND_SERVICE]
+    environment:
+      OPENJCOCKPIT_HOST: ${OPENJCOCKPIT_HOST:?}
+      KEYCLOAK_HOST: ${KEYCLOAK_HOST:?}
+      ACME_EMAIL: ${ACME_EMAIL:?}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      dashboard: {condition: service_started}
+      keycloak: {condition: service_healthy}
+    networks: [edge]
+    deploy:
+      resources:
+        limits: {cpus: "1", memory: 256m, pids: 512}
+
+  # ── Optional: `--profile monitoring` (or point your existing Prometheus at the management ports) ──
+  prometheus:
+    <<: *hardened
+    profiles: ["monitoring"]
+    image: prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
+    user: "65534:65534"
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=30d"]
+    volumes:
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../monitoring/alerts.rules.yml:/etc/prometheus/alerts.rules.yml:ro
+      - prometheus-data:/prometheus
+    # Bound to the host loopback only: reach it through an SSH tunnel.
+    ports: ["127.0.0.1:9091:9090"]
+    networks: [backend]
+
+  # Host saturation (CPU, memory, disk) and the backup freshness metric written by
+  # deploy/scripts/backup.sh into ${METRICS_TEXTFILE_DIR} (textfile collector). Read-only host view.
+  node-exporter:
+    <<: *hardened
+    profiles: ["monitoring"]
+    image: prom/node-exporter:v1.9.1@sha256:d00a542e409ee618a4edc67da14dd48c5da66726bbd5537ab2af9c1dfc442c8a
+    read_only: true
+    user: "65534:65534"
+    command: ["--path.rootfs=/host", "--collector.textfile.directory=/textfile"]
+    volumes:
+      - /:/host:ro,rslave
+      - ${METRICS_TEXTFILE_DIR:-/var/lib/openjcockpit/metrics}:/textfile:ro
+    networks: [backend]
+
+  alertmanager:
+    <<: *hardened
+    profiles: ["monitoring"]
+    image: prom/alertmanager:v0.28.1@sha256:27c475db5fb156cab31d5c18a4251ac7ed567746a2483ff264516437a39b15ba
+    user: "65534:65534"
+    volumes:
+      - ../monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    ports: ["127.0.0.1:9093:9093"]
+    networks: [backend, egress]
+
+networks:
+  edge: {}
+  backend:
+    internal: true
+  egress: {}
+
+volumes:
+  pgdata:
+  workflow-workspaces:
+  workflow-definitions:
+  git-mcp-workspaces:
+  spec-repository:
+  caddy-data:
+  caddy-config:
+  prometheus-data:

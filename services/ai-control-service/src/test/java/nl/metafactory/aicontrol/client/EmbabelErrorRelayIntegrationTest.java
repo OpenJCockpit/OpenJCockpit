@@ -114,6 +114,8 @@ class EmbabelErrorRelayIntegrationTest {
                     .header("alg", "none")
                     .claim("sub", "qa-tester-sub")
                     .claim("preferred_username", "qa-tester")
+                    // The endpoints under test are role-protected; admin implies every role.
+                    .claim("realm_access", java.util.Map.of("roles", java.util.List.of("openjcockpit-admin")))
                     .issuedAt(Instant.now())
                     .expiresAt(Instant.now().plusSeconds(3600))
                     .build();

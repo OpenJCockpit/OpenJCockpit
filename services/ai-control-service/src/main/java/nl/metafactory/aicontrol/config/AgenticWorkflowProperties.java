@@ -20,10 +20,15 @@ public class AgenticWorkflowProperties {
     private String workspaceBasePath = System.getProperty("java.io.tmpdir") + "/agentic-workspaces";
 
     public static class Container {
-        private boolean enabled = true;
+        // Off by default: the job container is a sandbox placeholder (nothing executes in it yet) and
+        // enabling it requires access to a Docker daemon, which is equivalent to root on that host.
+        private boolean enabled = false;
         private String image = "eclipse-temurin:25-jre";
         private long memoryMb = 512;
-        private String networkMode = "bridge";
+        // "none" = no network at all; anything else must be a deliberately created, isolated network.
+        private String networkMode = "none";
+        private double cpus = 1.0;
+        private long pidsLimit = 256;
         // Docker daemon endpoint, e.g. tcp://host.docker.internal:2375 when this service
         // itself runs in a container. Blank = docker-java default (DOCKER_HOST env or unix socket).
         private String dockerHost = "";
@@ -38,6 +43,10 @@ public class AgenticWorkflowProperties {
         public void setMemoryMb(long memoryMb) { this.memoryMb = memoryMb; }
         public String getNetworkMode() { return networkMode; }
         public void setNetworkMode(String networkMode) { this.networkMode = networkMode; }
+        public double getCpus() { return cpus; }
+        public void setCpus(double cpus) { this.cpus = cpus; }
+        public long getPidsLimit() { return pidsLimit; }
+        public void setPidsLimit(long pidsLimit) { this.pidsLimit = pidsLimit; }
     }
 
     public static class Tmpfs {

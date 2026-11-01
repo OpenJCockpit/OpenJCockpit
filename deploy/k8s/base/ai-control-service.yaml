@@ -1,0 +1,193 @@
+# ai-control-service: dashboard API. One replica (spec-queue runner and job threads are per process).
+# Job containers are disabled (no Docker daemon in the cluster); nothing mounts a host path or socket.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-control-service
+  labels:
+    app.kubernetes.io/name: ai-control-service
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ai-control-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ai-control-service
+        app.kubernetes.io/part-of: openjcockpit
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9090'
+        prometheus.io/path: /actuator/prometheus
+    spec:
+      serviceAccountName: openjcockpit
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: ai-control-service
+        image: openjcockpit/ai-control-service
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: management
+          containerPort: 9090
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: prod
+        - name: MANAGEMENT_PORT
+          value: '9090'
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: openjcockpit-settings
+              key: DB_HOST
+        - name: DB_URL
+          value: jdbc:postgresql://$(DB_HOST):5432/openjcockpit
+        - name: DB_USERNAME
+          value: openjcockpit_app
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: OPENJCOCKPIT_DB_PASSWORD
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: OPENAI_API_KEY
+        - name: KEYCLOAK_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: openjcockpit-settings
+              key: KEYCLOAK_HOST
+        - name: KEYCLOAK_ISSUER
+          value: https://$(KEYCLOAK_HOST)/realms/openjcockpit
+        - name: KEYCLOAK_JWK_SET_URI
+          value: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs
+        - name: EMBABEL_AGENT_SERVICE_BASE_URL
+          value: http://embabel-agent-service:8081
+        - name: SPEC_REPOSITORY_PATH
+          value: /spec-repository
+        - name: ENCRYPTION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: ENCRYPTION_SECRET
+        - name: ENCRYPTION_SALT
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: ENCRYPTION_SALT
+        - name: SPEC_QUEUE_RUNNER_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: SPEC_QUEUE_RUNNER_TOKEN_SECRET
+        - name: WORKFLOW_WORKSPACE_BASE
+          value: /workflow-workspaces
+        - name: LITELLM_MCP_BASE_URL
+          value: http://litellm:4000
+        - name: LITELLM_AI_CONTROL_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: LITELLM_AI_CONTROL_KEY
+        - name: AI_CONTROL_SERVICE_TOKEN_URL
+          value: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
+        - name: AI_CONTROL_SERVICE_CLIENT_ID
+          value: openjcockpit-ai-control
+        - name: AI_CONTROL_SERVICE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: AI_CONTROL_CLIENT_SECRET
+        resources:
+          requests:
+            cpu: 250m
+            memory: 1536Mi
+          limits:
+            cpu: '2'
+            memory: 1536Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: workflow-workspaces
+          mountPath: /workflow-workspaces
+        - name: spec-repository
+          mountPath: /spec-repository
+          readOnly: true
+        startupProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+          periodSeconds: 5
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+          periodSeconds: 15
+          failureThreshold: 4
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+          periodSeconds: 10
+          failureThreshold: 3
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 256Mi
+      - name: workflow-workspaces
+        emptyDir:
+          sizeLimit: 2Gi
+      - name: spec-repository
+        persistentVolumeClaim:
+          claimName: spec-repository
+          readOnly: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-control-service
+  labels:
+    app.kubernetes.io/name: ai-control-service
+spec:
+  selector:
+    app.kubernetes.io/name: ai-control-service
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http
+  - name: management
+    port: 9090
+    targetPort: management
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spec-repository
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

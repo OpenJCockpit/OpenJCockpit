@@ -84,8 +84,11 @@ class SpecQueueEndpointsTest {
         return new SpecFile(name, name, null, null, null, false, content, null);
     }
 
+    /** A non-admin operator: may manage the queue, may not change its settings. */
     private static RequestPostProcessor user() {
-        return jwt().jwt(j -> j.subject("user-1").claim("preferred_username", "alice"));
+        return jwt().jwt(j -> j.subject("user-1").claim("preferred_username", "alice"))
+                .authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority(
+                        "ROLE_openjcockpit-operator"));
     }
 
     private static RequestPostProcessor admin() {

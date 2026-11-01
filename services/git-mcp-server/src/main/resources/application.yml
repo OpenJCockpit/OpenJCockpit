@@ -34,4 +34,9 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus
+  endpoint:
+    health:
+      # /actuator/health/liveness and /readiness for the image HEALTHCHECK and Kubernetes probes.
+      probes:
+        enabled: true

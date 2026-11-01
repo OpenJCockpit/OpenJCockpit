@@ -29,6 +29,27 @@ docs-site/                 Static documentation site (GitHub Pages)
 docs/readme/               This documentation
 ```
 
+## Developer profile: start, reset, stop
+
+The local stack is the **developer profile**: Spring profile `local`, seeded local users and public
+placeholder secrets, demo projects and the spec-repository stub. It needs no production credentials
+(only an `OPENAI_API_KEY` and a host Ollama, see the [Quickstart](../getting-started/quickstart.md)).
+
+```bash
+cp .env.example .env              # once; set OPENAI_API_KEY
+./scripts/stack-start.sh          # build + start everything (idempotent); same as: docker compose up -d --build
+./scripts/stack-stop.sh           # stop; all state is kept
+docker compose down               # remove containers; named volumes are kept
+docker compose down -v            # DESTRUCTIVE: also deletes every volume (fresh start next time)
+```
+
+Opt-in: `AGENTIC_CONTAINER_ENABLED=true docker compose --profile docker-jobs up -d` gives
+`ai-control-service` access to the host Docker daemon for job containers (root-equivalent; see
+[Security considerations](../governance/security-considerations.md)).
+
+Production uses different files entirely (`deploy/`, Spring profile `prod`); see the
+[Production runbook](../operations/production-runbook.md).
+
 ## Running parts of the stack
 
 ### Local frontend development

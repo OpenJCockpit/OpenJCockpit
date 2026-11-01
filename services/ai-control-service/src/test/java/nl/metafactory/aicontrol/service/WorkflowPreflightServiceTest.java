@@ -36,6 +36,7 @@ class WorkflowPreflightServiceTest {
         gitConnectivityService = mock(GitConnectivityService.class);
         containerRuntime = mock(ContainerRuntime.class);
         properties = new AgenticWorkflowProperties();
+        properties.getContainer().setEnabled(true); // opt-in (default off since the production-readiness hardening)
 
         service = new WorkflowPreflightService(projectGit,
                 gitConnectivityService, containerRuntime, properties);

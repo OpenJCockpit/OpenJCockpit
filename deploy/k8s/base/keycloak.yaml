@@ -1,0 +1,166 @@
+# keycloak: identity provider. The realm import (deploy/keycloak) contains roles and clients only, no
+# users. For HA run 2+ replicas with a shared cache (see the Keycloak docs) or use a managed Keycloak.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  labels:
+    app.kubernetes.io/name: keycloak
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keycloak
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: keycloak
+        app.kubernetes.io/part-of: openjcockpit
+      annotations:
+        prometheus.io/scrape: 'false'
+        prometheus.io/port: '9090'
+        prometheus.io/path: /actuator/prometheus
+    spec:
+      serviceAccountName: openjcockpit
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:26.6.4@sha256:0aae0de7fca85525f727d3354df17896092de8bb26ae4c12d89c77e5df8cbce4
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: kc-management
+          containerPort: 9000
+        env:
+        - name: KC_BOOTSTRAP_ADMIN_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: KC_BOOTSTRAP_ADMIN_USERNAME
+        - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: KC_BOOTSTRAP_ADMIN_PASSWORD
+        - name: KC_DB
+          value: postgres
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: openjcockpit-settings
+              key: DB_HOST
+        - name: KC_DB_URL
+          value: jdbc:postgresql://$(DB_HOST):5432/keycloak
+        - name: KC_DB_USERNAME
+          value: keycloak_app
+        - name: KC_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: KEYCLOAK_DB_PASSWORD
+        - name: KC_HTTP_ENABLED
+          value: 'true'
+        - name: KC_PROXY_HEADERS
+          value: xforwarded
+        - name: KEYCLOAK_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: openjcockpit-settings
+              key: KEYCLOAK_HOST
+        - name: KC_HOSTNAME
+          value: https://$(KEYCLOAK_HOST)
+        - name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC
+          value: 'true'
+        # Admin console only through `kubectl port-forward svc/keycloak 8081:8080` (runbook).
+        - name: KC_HOSTNAME_ADMIN
+          value: http://localhost:8081
+        - name: KC_HEALTH_ENABLED
+          value: 'true'
+        - name: KC_METRICS_ENABLED
+          value: 'true'
+        - name: KC_LOG_CONSOLE_OUTPUT
+          value: json
+        - name: OPENJCOCKPIT_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: openjcockpit-settings
+              key: OPENJCOCKPIT_HOST
+        - name: OPENJCOCKPIT_PUBLIC_URL
+          value: https://$(OPENJCOCKPIT_HOST)
+        resources:
+          requests:
+            cpu: 250m
+            memory: 1536Mi
+          limits:
+            cpu: '2'
+            memory: 1536Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: realm
+          mountPath: /opt/keycloak/data/import
+          readOnly: true
+        args:
+        - start
+        - --import-realm
+        startupProbe:
+          httpGet:
+            path: /health/started
+            port: kc-management
+          periodSeconds: 5
+          failureThreshold: 60
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: kc-management
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: kc-management
+          periodSeconds: 10
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 256Mi
+      - name: realm
+        configMap:
+          name: keycloak-realm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  labels:
+    app.kubernetes.io/name: keycloak
+spec:
+  selector:
+    app.kubernetes.io/name: keycloak
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http
+  - name: kc-management
+    port: 9000
+    targetPort: kc-management

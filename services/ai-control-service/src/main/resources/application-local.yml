@@ -1,0 +1,7 @@
+# Profile `local`: the service in the local docker-compose stack (SPRING_PROFILES_ACTIVE=local).
+# Never activate this profile in a shared or production environment: it seeds demo projects.
+spring:
+  flyway:
+    # Approved schema migrations + the local-only demo projects (V2/V3/V12 keep their original version
+    # numbers and checksums, so databases created before the split keep validating).
+    locations: classpath:db/migration,classpath:db/seed-local

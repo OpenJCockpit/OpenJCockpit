@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: openjcockpit
+  labels: {release: prometheus}
+spec:
+  selector:
+    matchExpressions:
+      - {key: app.kubernetes.io/name, operator: In,
+         values: [ai-control-service, embabel-agent-service, embabel-agent-runtime, git-mcp-server]}
+  podMetricsEndpoints:
+    - port: management
+      path: /actuator/prometheus
+      interval: 30s
+      relabelings:
+        # job = service name, so the shared alert rules match both profiles.
+        - {sourceLabels: [__meta_kubernetes_pod_label_app_kubernetes_io_name], targetLabel: job}

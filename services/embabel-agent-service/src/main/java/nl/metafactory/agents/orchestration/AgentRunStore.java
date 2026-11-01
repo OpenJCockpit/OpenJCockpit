@@ -206,6 +206,15 @@ public class AgentRunStore {
         });
     }
 
+    /**
+     * Makes a run restored from durable storage (e.g. a parked run rehydrated after a restart) live in
+     * this instance again, so decisions, events and status changes apply to it like to any other live
+     * run. A run that is already live is left untouched.
+     */
+    public void adopt(AgentRun run) {
+        runs.putIfAbsent(run.runId(), run);
+    }
+
     public void markCancelled(String runId) {
         cancelledRuns.add(runId);
     }

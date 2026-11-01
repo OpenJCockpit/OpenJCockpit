@@ -6,7 +6,10 @@ import nl.metafactory.agents.policy.model.PolicyDecision;
 import nl.metafactory.common.policy.PolicyDecisionAuditEntry;
 import nl.metafactory.agents.policy.model.PolicyDecisionContext;
 import org.slf4j.Logger;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -32,12 +35,20 @@ public class DefaultPolicyDecisionService implements PolicyDecisionService {
     private final OpaProperties properties;
     private final PolicyDecisionAuditRepository auditRepository;
     private final Map<String, PolicyDecision> decisionCache = new ConcurrentHashMap<>();
+    private final MeterRegistry meterRegistry;
 
     public DefaultPolicyDecisionService(OpenPolicyAgentClient client, OpaProperties properties,
                                          PolicyDecisionAuditRepository auditRepository) {
+        this(client, properties, auditRepository, new SimpleMeterRegistry());
+    }
+
+    @Autowired
+    public DefaultPolicyDecisionService(OpenPolicyAgentClient client, OpaProperties properties,
+                                         PolicyDecisionAuditRepository auditRepository, MeterRegistry meterRegistry) {
         this.client = client;
         this.properties = properties;
         this.auditRepository = auditRepository;
+        this.meterRegistry = meterRegistry;
     }
 
     @Override
@@ -93,6 +104,9 @@ public class DefaultPolicyDecisionService implements PolicyDecisionService {
 
         PolicyDecision decision = evaluate(context);
 
+        // openjcockpit_policy_decisions_total{action,result}: drives the policy-violation and OPA-unavailable alerts.
+        meterRegistry.counter("openjcockpit.policy.decisions", "action", context.action(),
+                "result", decisionResult(decision)).increment();
         audit(context, decision);
         if (cacheKey != null) {
             decisionCache.put(cacheKey, decision);
