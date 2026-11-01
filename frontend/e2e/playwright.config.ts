@@ -76,10 +76,6 @@ export default defineConfig({
             reuseExistingServer: !process.env.CI,
             timeout: env.readinessTimeoutMs,
           },
-          // The module-federation remotes the host registers at runtime
-          // (apps/dashboard/public/federation.manifest.json). Without them the host logs
-          // `Remote "…" failed to load` on every page, which the AC-25 console guard rejects.
-          // Readiness is each remote's manifest, the exact URL the host fetches.
           ...REMOTES.map(({ project, port }) => ({
             command: 'npx vite',
             cwd: `../apps/${project}`,
