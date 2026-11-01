@@ -9,6 +9,12 @@ import { env } from './support/env.js';
 
 const AUTH_STATE_PATH = './.auth/storage-state.json';
 
+const REMOTES = [
+  { project: 'remote-hello', port: 4401 },
+  { project: 'remote-skills-hub', port: 4403 },
+  { project: 'remote-specs', port: 4404 },
+];
+
 export default defineConfig({
   testDir: './specs',
   fullyParallel: false,
@@ -70,6 +76,17 @@ export default defineConfig({
             reuseExistingServer: !process.env.CI,
             timeout: env.readinessTimeoutMs,
           },
+          // The module-federation remotes the host registers at runtime
+          // (apps/dashboard/public/federation.manifest.json). Without them the host logs
+          // `Remote "…" failed to load` on every page, which the AC-25 console guard rejects.
+          // Readiness is each remote's manifest, the exact URL the host fetches.
+          ...REMOTES.map(({ project, port }) => ({
+            command: 'npx vite',
+            cwd: `../apps/${project}`,
+            url: `http://localhost:${port}/mf-manifest.json`,
+            reuseExistingServer: !process.env.CI,
+            timeout: env.readinessTimeoutMs,
+          })),
         ]
       : undefined,
 });
