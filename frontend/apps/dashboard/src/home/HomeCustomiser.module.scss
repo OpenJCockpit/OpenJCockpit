@@ -73,9 +73,8 @@
   outline-offset: 3px;
 }
 
-/* Room for the controls in the corner; the tile is edited, not used, so its content ignores the pointer. */
+/* The tile is edited, not used, so its content ignores the pointer. */
 .tileBody {
-  padding-bottom: 52px;
   overflow: hidden;
   pointer-events: none;
 }
@@ -84,29 +83,40 @@
   border-radius: 999px;
 }
 
+/* Floats above the tile content in the bottom-right corner, on its own background. */
 .controls {
   position: absolute;
   right: 40px;
   bottom: 12px;
+  z-index: 2;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 6px;
+  gap: 2px;
+  padding: 2px 6px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--surface-soft);
+
+  /* The arrows are bare glyphs: the pill is the only outline. */
+  & button {
+    min-height: 0;
+    padding: 2px 6px;
+    border: 0;
+    background: transparent;
+  }
 }
 
 .grip {
   position: absolute;
   right: 6px;
   bottom: 6px;
+  z-index: 2;
   width: 24px;
   height: 24px;
   padding: 0;
   border: 0;
   border-radius: 6px;
-  background: transparent;
+  background: var(--surface-soft);
   color: var(--muted);
   font-size: 14px;
   line-height: 1;

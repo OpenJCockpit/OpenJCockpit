@@ -16,6 +16,7 @@ import {
   COL_STEPS,
   GRID_COLUMNS,
   MAX_ROWS,
+  sizeLimits,
   insertItem,
   moveItem,
   moveItemTo,
@@ -188,6 +189,7 @@ export function HomeCustomiser({ initial, defaultItems, widgets, onDone, onCance
         start.id,
         start.cols + (event.clientX - start.x) / start.colUnit,
         start.rows + (event.clientY - start.y) / start.rowUnit,
+        widgetsById.get(start.id),
       ),
     );
     setIsDefault(false);
@@ -198,17 +200,20 @@ export function HomeCustomiser({ initial, defaultItems, widgets, onDone, onCance
   }
 
   function resizeWithKeys(event: KeyboardEvent<HTMLElement>, item: LayoutItem) {
-    const step = COL_STEPS.indexOf(item.cols as (typeof COL_STEPS)[number]);
+    const widget = widgetsById.get(item.id);
+    const { minCols, minRows } = sizeLimits(widget);
+    const steps = COL_STEPS.filter((s) => s >= minCols);
+    const step = steps.indexOf(item.cols as (typeof COL_STEPS)[number]);
     const moves: Record<string, [number, number]> = {
-      ArrowLeft: [COL_STEPS[Math.max(0, step - 1)]!, item.rows],
-      ArrowRight: [COL_STEPS[Math.min(COL_STEPS.length - 1, step + 1)]!, item.rows],
-      ArrowUp: [item.cols, Math.max(1, item.rows - 1)],
+      ArrowLeft: [steps[Math.max(0, step - 1)]!, item.rows],
+      ArrowRight: [steps[Math.min(steps.length - 1, step + 1)]!, item.rows],
+      ArrowUp: [item.cols, Math.max(minRows, item.rows - 1)],
       ArrowDown: [item.cols, Math.min(MAX_ROWS, item.rows + 1)],
     };
     const move = moves[event.key];
     if (!move) return;
     event.preventDefault();
-    change(resizeTo(layout, item.id, move[0], move[1]));
+    change(resizeTo(layout, item.id, move[0], move[1], widget));
   }
 
   function startDrag(event: DragEvent<HTMLElement>, next: Drag) {

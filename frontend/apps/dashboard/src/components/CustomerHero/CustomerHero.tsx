@@ -6,7 +6,7 @@ import styles from './CustomerHero.module.scss';
 
 interface Props {
   selectedProject: Project | null;
-  workspace: Workspace;
+  workspace?: Workspace;
 }
 
 /**
@@ -41,7 +41,7 @@ export function CustomerHero({ selectedProject, workspace }: Props) {
           <div>
             <Eyebrow>{t('siteHeader.nav.platform')}</Eyebrow>
             <h1>
-              {selectedProject?.name ?? workspace.customer.name}
+              {selectedProject?.name ?? workspace?.customer.name}
               {selectedProject && <GitStatusBadge status={selectedProject.gitStatus} compact />}
             </h1>
             {repositoryUrl && (

@@ -4,7 +4,6 @@ import type { Project } from '@openjcockpit/api';
 import { CustomerHero } from '../CustomerHero/CustomerHero';
 import { SiteHeader } from '../SiteHeader/SiteHeader';
 import { SpecWorkspace } from '../SpecWorkspace/SpecWorkspace';
-import { StatusBar } from '../StatusBar/StatusBar';
 import { EvidencePanel } from '../WorkspacePanels/EvidencePanel';
 import { QualityPanel } from '../WorkspacePanels/QualityPanel';
 import { useWorkspaceQuery } from './useDashboardQueries';
@@ -62,7 +61,6 @@ export function DashboardView({ projects, project, onProjectChange, onLogout, us
         </section>
       </main>
 
-      {workspace && <StatusBar footer={workspace.footer} />}
     </AppShell>
   );
 }

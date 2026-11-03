@@ -10,10 +10,21 @@ export interface LayoutItem {
 /** The Home grid is this many columns wide; a tile spans 1 to GRID_COLUMNS of them. */
 export const GRID_COLUMNS = 5;
 export const COL_STEPS = [1, 2, 3, 4, 5] as const;
-export const MAX_ROWS = 4;
+/** Smallest tile a widget gets unless it asks for less or more with `minCols` / `minRows`. */
+export const MIN_COLS = 2;
+export const MIN_ROWS = 2;
+export const MAX_ROWS = 8;
 
 const DEFAULT_COLS = 2;
-const DEFAULT_ROWS = 1;
+const DEFAULT_ROWS = MIN_ROWS;
+
+/** The smallest size a widget may be shown at. */
+export function sizeLimits(widget?: Pick<WidgetDefinition, 'minCols' | 'minRows'>) {
+  return {
+    minCols: clamp(Math.round(widget?.minCols ?? MIN_COLS), 1, GRID_COLUMNS),
+    minRows: clamp(Math.round(widget?.minRows ?? MIN_ROWS), 1, MAX_ROWS),
+  };
+}
 // v2: sizes became spans of a 5-column grid; layouts saved against the old 12 columns are not reused.
 const STORAGE_PREFIX = 'openjcockpit.homeLayout.v2.';
 
@@ -22,17 +33,18 @@ function clamp(value: number, min: number, max: number) {
 }
 
 /** Snaps to the closest allowed column span so stored or contributed sizes cannot break the grid. */
-function snapCols(cols: number): number {
-  return COL_STEPS.reduce((best, step) =>
+function snapCols(cols: number, min = MIN_COLS): number {
+  return COL_STEPS.filter((step) => step >= min).reduce((best, step) =>
     Math.abs(step - cols) < Math.abs(best - cols) ? step : best,
   );
 }
 
 function place(widget: WidgetDefinition): LayoutItem {
+  const { minCols, minRows } = sizeLimits(widget);
   return {
     id: widget.id,
-    cols: snapCols(widget.cols ?? DEFAULT_COLS),
-    rows: clamp(Math.round(widget.rows ?? DEFAULT_ROWS), 1, MAX_ROWS),
+    cols: snapCols(widget.cols ?? DEFAULT_COLS, minCols),
+    rows: clamp(Math.round(widget.rows ?? DEFAULT_ROWS), minRows, MAX_ROWS),
   };
 }
 
@@ -55,16 +67,18 @@ export function resolveLayout(
   stored: readonly LayoutItem[],
   widgets: readonly WidgetDefinition[],
 ): LayoutItem[] {
-  const known = new Set(widgets.filter((w) => w.available !== false).map((w) => w.id));
+  const known = new Map(widgets.filter((w) => w.available !== false).map((w) => [w.id, w]));
   const seen = new Set<string>();
   const result: LayoutItem[] = [];
   for (const item of stored) {
-    if (!known.has(item.id) || seen.has(item.id)) continue;
+    const widget = known.get(item.id);
+    if (!widget || seen.has(item.id)) continue;
     seen.add(item.id);
+    const { minCols, minRows } = sizeLimits(widget);
     result.push({
       id: item.id,
-      cols: snapCols(item.cols),
-      rows: clamp(Math.round(item.rows), 1, MAX_ROWS),
+      cols: snapCols(item.cols, minCols),
+      rows: clamp(Math.round(item.rows), minRows, MAX_ROWS),
     });
   }
   return result;
@@ -122,8 +136,10 @@ export function resizeTo(
   id: string,
   cols: number,
   rows: number,
+  widget?: Pick<WidgetDefinition, 'minCols' | 'minRows'>,
 ): LayoutItem[] {
-  const next = { cols: snapCols(cols), rows: clamp(Math.round(rows), 1, MAX_ROWS) };
+  const { minCols, minRows } = sizeLimits(widget);
+  const next = { cols: snapCols(cols, minCols), rows: clamp(Math.round(rows), minRows, MAX_ROWS) };
   return layout.map((item) => (item.id === id ? { ...item, ...next } : item));
 }
 

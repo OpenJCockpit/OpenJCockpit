@@ -1,6 +1,8 @@
 import type { Workspace } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
 import { StatusChip, Icon } from '@openjcockpit/ui';
+import type { Project } from '@openjcockpit/api';
+import { useWorkspaceQuery } from '../DashboardView/useDashboardQueries';
 import styles from './StatusBar.module.scss';
 
 export function StatusBar({ footer }: { footer: Workspace['footer'] }) {
@@ -22,4 +24,10 @@ export function StatusBar({ footer }: { footer: Workspace['footer'] }) {
       <span>{t('statusBar.copyright')}</span>
     </footer>
   );
+}
+
+/** The footer for every screen: it follows the selected project and is absent without one. */
+export function HubStatusBar({ project }: { project: Project | null }) {
+  const workspace = useWorkspaceQuery(project).data;
+  return workspace ? <StatusBar footer={workspace.footer} /> : null;
 }

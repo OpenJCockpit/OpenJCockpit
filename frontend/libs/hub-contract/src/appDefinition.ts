@@ -23,8 +23,12 @@ export interface WidgetDefinition {
   descriptionKey?: string;
   /** Default width on the Home grid, in columns of its 5-column grid (1 to 5; 2 when omitted). */
   cols?: number;
-  /** Default height on the Home grid, in rows (1 to 4; 1 when omitted). */
+  /** Default height on the Home grid, in rows (2 to 8; 2 when omitted). */
   rows?: number;
+  /** Narrowest the user may make the tile, in columns (1 to 5; 2 when omitted). */
+  minCols?: number;
+  /** Shortest the user may make the tile, in rows (2 when omitted). */
+  minRows?: number;
   categoryKey?: string;
   icon?: string;
   available?: boolean;

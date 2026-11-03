@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from '@openjcockpit/i18n';
-import { useAppRegistry, useHubHeader, useHubSession } from '@openjcockpit/hub-contract';
+import { useAppRegistry, useHubHeader, useHubProject, useHubSession } from '@openjcockpit/hub-contract';
 import { AppShell, Button, Eyebrow, cx, pageClass, pageHeaderClass } from '@openjcockpit/ui';
 import {
   defaultLayout,
@@ -9,6 +9,7 @@ import {
   storeLayout,
   type LayoutItem,
 } from './homeLayout';
+import { CustomerHero } from '../components/CustomerHero/CustomerHero';
 import { HomeCustomiser } from './HomeCustomiser';
 import { WidgetCard } from './WidgetCard';
 import styles from './Home.module.scss';
@@ -19,6 +20,7 @@ export function Home() {
   const session = useHubSession();
   const { visibleWidgets } = useAppRegistry();
   const header = useHubHeader();
+  const { selected } = useHubProject();
   const userKey = session.user?.id ?? session.user?.username ?? 'anonymous';
 
   // `null` means the user never customised: the default follows the widgets they may see.
@@ -53,10 +55,14 @@ export function Home() {
       {header}
       <main className={cx(pageClass, styles.wide)} data-testid="home">
         <div className={cx(pageHeaderClass, styles.heading)}>
-          <div>
-            <Eyebrow>{t('home.eyebrow')}</Eyebrow>
-            <h1>{greeting ? t('home.greeting', { name: greeting }) : t('home.title')}</h1>
-          </div>
+          {selected ? (
+            <CustomerHero selectedProject={selected} />
+          ) : (
+            <div>
+              <Eyebrow>{t('home.eyebrow')}</Eyebrow>
+              <h1>{greeting ? t('home.greeting', { name: greeting }) : t('home.title')}</h1>
+            </div>
+          )}
           <div className={styles.toolbar}>
             <Button size="sm" onClick={() => setCustomising(true)} data-testid="home-customise">
               {t('home.customise')}

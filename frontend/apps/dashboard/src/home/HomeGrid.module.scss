@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   /* Fixed row height: a tile that is shorter than its content scrolls inside its body. */
-  grid-auto-rows: 180px;
+  grid-auto-rows: 110px;
   gap: 16px;
 }
 

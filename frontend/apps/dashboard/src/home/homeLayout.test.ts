@@ -43,7 +43,7 @@ describe('defaultLayout', () => {
       [widget('off', { available: false }), widget('on', { cols: 7, rows: 9 })],
       none,
     );
-    expect(layout).toEqual([{ id: 'on', cols: 5, rows: 4 }]);
+    expect(layout).toEqual([{ id: 'on', cols: 5, rows: 8 }]);
   });
 });
 
@@ -59,7 +59,7 @@ describe('resolveLayout', () => {
       ],
       widgets,
     );
-    expect(resolved).toEqual([{ id: 'a', cols: 5, rows: 1 }]);
+    expect(resolved).toEqual([{ id: 'a', cols: 5, rows: 2 }]);
   });
 });
 
@@ -85,8 +85,8 @@ describe('editing', () => {
 
   it('resizes to the nearest allowed span and clamps rows', () => {
     expect(resizeTo(base, 'a', 3.6, 2.4)[0]).toMatchObject({ cols: 4, rows: 2 });
-    expect(resizeTo(base, 'a', 99, 99)[0]).toMatchObject({ cols: 5, rows: 4 });
-    expect(resizeTo(base, 'a', 0, 0)[0]).toMatchObject({ cols: 1, rows: 1 });
+    expect(resizeTo(base, 'a', 99, 99)[0]).toMatchObject({ cols: 5, rows: 8 });
+    expect(resizeTo(base, 'a', 0, 0)[0]).toMatchObject({ cols: 2, rows: 2 });
     expect(resizeTo(base, 'missing', 5, 4)).toEqual(base);
   });
 

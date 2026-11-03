@@ -1,8 +1,13 @@
 .heading {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
+}
+
+/* The hero's own bottom margin would push the customise button below the project row. */
+.heading > section {
+  margin-bottom: 0;
 }
 
 .toolbar {

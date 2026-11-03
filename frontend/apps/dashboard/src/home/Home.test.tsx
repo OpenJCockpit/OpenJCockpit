@@ -3,8 +3,12 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router';
 import { withI18n } from '@openjcockpit/i18n/testing';
 import { AppRegistryProvider, type AppDefinition } from '@openjcockpit/hub-contract';
-import type { HubUser } from '@openjcockpit/hub-contract';
-import { FakeHubSession, FakeHubSessionProvider } from '@openjcockpit/hub-contract/testing';
+import type { HubProject, HubUser } from '@openjcockpit/hub-contract';
+import {
+  FakeHubProjectProvider,
+  FakeHubSession,
+  FakeHubSessionProvider,
+} from '@openjcockpit/hub-contract/testing';
 import { appResources } from '../i18nResources';
 import { clickAsync } from '../testUtils/dom';
 import { Home } from './Home';
@@ -40,19 +44,25 @@ function Where() {
   return <p data-testid="where">{useLocation().pathname}</p>;
 }
 
-async function renderHome(permissions: string[] = [], user?: HubUser | null) {
+async function renderHome(
+  permissions: string[] = [],
+  user?: HubUser | null,
+  project: HubProject | null = null,
+) {
   const session = new FakeHubSession(permissions);
   if (user !== undefined) session.user = user ?? undefined;
   await act(async () => {
     render(
       withI18n(
         <FakeHubSessionProvider session={session}>
+          <FakeHubProjectProvider selected={project}>
           <AppRegistryProvider apps={[demo]}>
             <MemoryRouter>
               <Home />
               <Where />
             </MemoryRouter>
           </AppRegistryProvider>
+          </FakeHubProjectProvider>
         </FakeHubSessionProvider>,
         appResources,
       ),
@@ -67,6 +77,16 @@ const order = () =>
 
 describe('Home', () => {
   beforeEach(() => localStorage.clear());
+
+  it('shows the selected project as the page header instead of the greeting', async () => {
+    await renderHome([], { firstName: 'Ada', username: 'ada' } as HubUser, {
+      id: 'p1',
+      name: 'Noordzee',
+      gitStatus: 'ACCESSIBLE',
+    } as HubProject);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Noordzee');
+    expect(screen.queryByText(/Ada/)).not.toBeInTheDocument();
+  });
 
   it('shows the default widgets the user may see, with their bodies', async () => {
     await renderHome();
@@ -107,7 +127,7 @@ describe('Home', () => {
     fireEvent.keyDown(grip, { key: 'ArrowRight' });
     expect(screen.getByTestId('widget-two')).toHaveAttribute('data-cols', '3');
     fireEvent.keyDown(grip, { key: 'ArrowDown' });
-    expect(screen.getByTestId('widget-two')).toHaveAttribute('data-rows', '2');
+    expect(screen.getByTestId('widget-two')).toHaveAttribute('data-rows', '3');
 
     await clickAsync(screen.getByTestId('widget-remove-one'));
     expect(order()).toEqual(['widget-two']);
@@ -119,7 +139,7 @@ describe('Home', () => {
     await clickAsync(screen.getByTestId('home-done'));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(order()).toEqual(['widget-two', 'widget-opt-in', 'widget-one']);
-    expect(stored()[0]).toEqual({ id: 'two', cols: 3, rows: 2 });
+    expect(stored()[0]).toEqual({ id: 'two', cols: 3, rows: 3 });
   });
 
   it('cancel drops the draft', async () => {
@@ -167,12 +187,12 @@ describe('Home', () => {
     const tile = screen.getByTestId('widget-one');
     // jsdom has no layout: give the grid and the tile the sizes a real browser would report.
     tile.parentElement!.getBoundingClientRect = () => ({ width: 1000 }) as DOMRect;
-    tile.getBoundingClientRect = () => ({ height: 140 }) as DOMRect;
+    tile.getBoundingClientRect = () => ({ height: 280 }) as DOMRect;
     const grip = screen.getByTestId('widget-resize-one');
     pointer(grip, 'pointerdown', 0, 0);
     pointer(grip, 'pointermove', 250, 150);
     expect(tile).toHaveAttribute('data-cols', '3');
-    expect(tile).toHaveAttribute('data-rows', '2');
+    expect(tile).toHaveAttribute('data-rows', '3');
     pointer(grip, 'pointerup', 250, 150);
     pointer(grip, 'pointermove', 900, 900);
     expect(tile).toHaveAttribute('data-cols', '3');
@@ -206,7 +226,7 @@ describe('Home', () => {
   it('restores a saved layout on the next visit; Reset then Done returns to following the default', async () => {
     localStorage.setItem(
       'openjcockpit.homeLayout.v2.fake-user',
-      JSON.stringify([{ id: 'two', cols: 5, rows: 1 }]),
+      JSON.stringify([{ id: 'two', cols: 5, rows: 2 }]),
     );
     await renderHome();
     expect(order()).toEqual(['widget-two']);

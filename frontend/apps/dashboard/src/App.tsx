@@ -17,6 +17,7 @@ import {
   RequirePermission,
 } from '@openjcockpit/hub-contract';
 import type { PortalId } from '@openjcockpit/landing-hub';
+import { HubStatusBar } from './components/StatusBar/StatusBar';
 import { SiteHeader } from './components/SiteHeader/SiteHeader';
 import { Forbidden } from './federation/Forbidden';
 import { HubProjectProvider } from './federation/HubProjectProvider';
@@ -222,6 +223,7 @@ function App() {
                 </Routes>
               </Suspense>
             </ErrorBoundary>
+            <HubStatusBar project={selectedProject} />
           </HubHeaderContext.Provider>
         </AppRegistryProvider>
       </HubProjectProvider>
