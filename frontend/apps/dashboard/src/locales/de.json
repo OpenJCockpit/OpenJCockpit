@@ -149,7 +149,7 @@
     "specPanel": {
       "error": "Die Specs konnten nicht geladen werden. Der Server hat nicht korrekt geantwortet.",
       "retry": "Erneut versuchen",
-      "title": "Spec",
+      "title": "Spec-Liste",
       "loading": "Specs werden geladen…",
       "viewAll": "Alle Specs anzeigen",
       "lastModified": "Zuletzt geändert: {{value}}",

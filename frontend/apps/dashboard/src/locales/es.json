@@ -149,7 +149,7 @@
     "specPanel": {
       "error": "No se pudieron cargar las specs. El servidor no respondió correctamente.",
       "retry": "Reintentar",
-      "title": "Especificación",
+      "title": "Lista de especificaciones",
       "loading": "Cargando especificaciones…",
       "viewAll": "Ver todas las especificaciones",
       "lastModified": "Última modificación: {{value}}",

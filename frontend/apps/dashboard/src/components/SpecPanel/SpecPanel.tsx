@@ -41,7 +41,7 @@ export function SpecPanel({
 
   return (
     <aside className={styles.specColumn}>
-      <PanelHeader simple>
+      <PanelHeader>
         <PanelTitle>
           <h2>{t('specPanel.title')}</h2>
         </PanelTitle>
