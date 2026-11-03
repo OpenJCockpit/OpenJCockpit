@@ -8,14 +8,14 @@ Release: `v_._._` · Release owner: ______ · Date: ______
 
 ## Gate: automated (must be green on the tagged commit)
 
-- [ ] `ci-summary` passed, including:
+- [ ] `ci-summary` passed **in both repositories** (this one and OpenJCockpit-frontend; tag both with the same `vX.Y.Z`), including:
   - [ ] backend: unit/integration tests + JaCoCo gates (authorization matrices, restart persistence, policy, hardening tests)
-  - [ ] frontend: lint, typecheck, tests, build
+  - [ ] frontend (OpenJCockpit-frontend `ci-summary`): lint, typecheck, tests, build, dashboard and remote images
   - [ ] **critical E2E** (login, unauthenticated rejection, session, API authorization)
   - [ ] infra: OPA `check --strict` + `opa test`; production compose and Kubernetes manifests valid; no
         Docker socket / privileged / hostPath; generated realm and PrometheusRule up to date; alert rules
         valid; deploy scripts shellcheck-clean; backup/restore drill passed
-- [ ] `release-images` published all five images for the tag (non-root check, no fixable CRITICAL CVE)
+- [ ] `release-images` published all images for the tag: four service images here, the `dashboard` image from OpenJCockpit-frontend (non-root check, no fixable CRITICAL CVE)
 
 ## Gate: manual
 

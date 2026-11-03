@@ -89,7 +89,7 @@ statements were outdated or incorrect and have been corrected in the new pages:
 | Realm file at `keycloak/openjcockpit-realm.json`; theme at `themes/openjcockpit/login`; mount `./themes:/opt/keycloak/themes:ro` | `infrastructure/keycloak/openjcockpit-realm.json`, `infrastructure/themes/openjcockpit/login`, mount `./infrastructure/themes:/opt/keycloak/themes:ro` | `docker-compose.yml` |
 | Vite dev server "usually http://localhost:5173" | Dashboard Vite dev server runs on port `4000` (5173 remains a registered redirect URI) | `frontend/apps/dashboard/vite.config.ts` |
 | Links to `docs/dashboard-feature-libraries.md`, `docs/delivery/ci-pipeline/`, `docs/delivery/playwright-e2e-testing/` | These files do not exist; links replaced by library READMEs, or noted as missing | Repository tree |
-| `e2e/README.md` | `frontend/e2e/README.md` | Repository tree |
+| `e2e/README.md` | `e2e/README.md` in OpenJCockpit-frontend | Repository tree |
 | Default workflows run built-in pipeline agents; *Implement spec* delivers only a plan; *Realise spec* writes code and opens a PR via `SpecGitPublisher` | Default workflows chain seeded catalogue A2A agents; runs on a project push a branch with per-agent checkpoints; no automatic PR | `default-workflows.json`, `OPERATIONS.md` §9b, removed classes |
 | Seven MCP Git tools; "one managed workspace clone per repository" | Nine tools (`git_list_files`, `git_read_file` added); per-run/per-job workspaces; server reached through LiteLLM, not published on the host; credentials server-side | `git-mcp-server` sources, `docker-compose.yml` |
 | Agent-id reconciliation runbook (`WorkflowAgentIdsReconciler`, `reconcile-agent-ids`) | No longer in the code; moved to historical notes | Source tree |

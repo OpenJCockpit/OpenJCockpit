@@ -58,8 +58,8 @@ if [ -n "$INFRA_ONLY" ]; then
 
   mf::log_info "Infrastructure is up. To run ai-control-service locally against it, first create the openjcockpit database:"
   mf::log_info "  docker compose ${COMPOSE_ARGS[*]} run --rm postgres-init"
-  mf::log_info "To run the dashboard frontend locally, start Vite yourself, e.g.:"
-  mf::log_info "  cd frontend/apps/dashboard && npm run dev"
+  mf::log_info "The dashboard lives in the OpenJCockpit-frontend repository. Start it from that checkout, e.g.:"
+  mf::log_info "  cd ../OpenJCockpit-frontend && npm run start:hub    # or: docker compose up -d --build"
   exit 0
 fi
 

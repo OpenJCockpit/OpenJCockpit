@@ -84,8 +84,8 @@ topics.
 | [`services/embabel-agent-service/docs/agent-integration/OPERATIONS.md`](../../services/embabel-agent-service/docs/agent-integration/OPERATIONS.md) | Authoritative operations guide for configuration-driven agents, A2A and git-workspace runs (Dutch). |
 | [`services/embabel-agent-service/AGENTS.md`](../../services/embabel-agent-service/AGENTS.md) | Spec-driven workflow rules for agents. |
 | [`services/embabel-agent-service/README.md`](../../services/embabel-agent-service/README.md) | Log keys and the workflow-definition write race statement. |
-| [`frontend/e2e/README.md`](../../frontend/e2e/README.md) | Playwright E2E harness in full detail. |
-| [`frontend/apps/dashboard/README.md`](../../frontend/apps/dashboard/README.md) and `frontend/libs/*/README.md` | Dashboard app and feature libraries. |
+| [`frontend/e2e/README.md`](https://github.com/OpenJCockpit/OpenJCockpit-frontend/blob/main/e2e/README.md) | Playwright E2E harness in full detail. |
+| [`frontend/apps/dashboard/README.md`](https://github.com/OpenJCockpit/OpenJCockpit-frontend/blob/main/apps/dashboard/README.md) and `frontend/libs/*/README.md` | Dashboard app and feature libraries. |
 | [`agents/README.md`](../../agents/README.md) | Local agent catalogue format. |
 | [`infrastructure/litellm/README.md`](../../infrastructure/litellm/README.md) | LiteLLM gateway configuration. |
 | [`infrastructure/keycloak/local-users/README.md`](../../infrastructure/keycloak/local-users/README.md) | Personal local Keycloak users. |

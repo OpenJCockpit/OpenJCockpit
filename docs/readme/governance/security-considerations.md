@@ -56,7 +56,7 @@ Rotating `LITELLM_SALT_KEY` invalidates every credential already encrypted in Li
   deployed environment. See [Skills Hub](../integrations/skills-marketplace.md#warning-skills_marketplace_allow_private_egress-must-never-be-set-in-any-deployed-environment).
 - **E2E artefacts contain live credentials.** Playwright traces, screenshots, videos and storage state
   can contain bearer tokens and Keycloak session cookies. See
-  [`frontend/e2e/README.md`](../../../frontend/e2e/README.md#warning-traces-screenshots-videos-and-storage-state-contain-live-credentials).
+  [`frontend/e2e/README.md`](https://github.com/OpenJCockpit/OpenJCockpit-frontend/blob/main/e2e/README.md#warning-traces-screenshots-videos-and-storage-state-contain-live-credentials).
 
 ## Authorization model
 

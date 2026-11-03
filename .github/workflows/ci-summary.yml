@@ -18,7 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.detect.outputs.backend }}
-      frontend: ${{ steps.detect.outputs.frontend }}
       infra: ${{ steps.detect.outputs.infra }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -38,10 +37,9 @@ jobs:
           fail_open() {
             echo "::warning::$1 - failing open, running all CI legs"
             echo "changed files: <unavailable, fail-open>"
-            echo "backend=true frontend=true infra=true"
+            echo "backend=true infra=true"
             {
               echo "backend=true"
-              echo "frontend=true"
               echo "infra=true"
             } >> "$GITHUB_OUTPUT"
             exit 0
@@ -67,24 +65,19 @@ jobs:
           echo "$changed_files"
 
           backend=false
-          frontend=false
           infra=false
 
           if echo "$changed_files" | grep -Eq '^(services/|pom\.xml$|shared/contracts/|\.github/workflows/(backend-ci|ci-summary)\.yml$)'; then
             backend=true
           fi
-          if echo "$changed_files" | grep -Eq '^(frontend/|\.github/workflows/(frontend-ci|ci-summary)\.yml$)'; then
-            frontend=true
-          fi
           if echo "$changed_files" | grep -Eq '^(docker-compose\.yml$|infrastructure/|deploy/|\.env\.example$|\.github/workflows/(infra-ci|ci-summary)\.yml$)'; then
             infra=true
           fi
 
-          echo "backend=$backend frontend=$frontend infra=$infra"
+          echo "backend=$backend infra=$infra"
 
           {
             echo "backend=$backend"
-            echo "frontend=$frontend"
             echo "infra=$infra"
           } >> "$GITHUB_OUTPUT"
 
@@ -94,14 +87,6 @@ jobs:
     uses: ./.github/workflows/backend-ci.yml
     permissions:
       contents: read
-
-  frontend:
-    needs: changes
-    if: needs.changes.outputs.frontend == 'true'
-    uses: ./.github/workflows/frontend-ci.yml
-    permissions:
-      contents: read
-      pull-requests: write
 
   infra:
     needs: changes
@@ -119,13 +104,13 @@ jobs:
 
   gate:
     name: ci-summary
-    needs: [changes, backend, frontend, infra, e2e]
+    needs: [changes, backend, infra, e2e]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Check CI leg results
         env:
-          RESULTS: "changes=${{ needs.changes.result }} backend=${{ needs.backend.result }} frontend=${{ needs.frontend.result }} infra=${{ needs.infra.result }} e2e=${{ needs.e2e.result }}"
+          RESULTS: "changes=${{ needs.changes.result }} backend=${{ needs.backend.result }} infra=${{ needs.infra.result }} e2e=${{ needs.e2e.result }}"
         run: |
           set -euo pipefail
           echo "$RESULTS"

@@ -23,7 +23,7 @@ Requirements:
 
 - JDK 25
 - Maven 3.9+
-- Node.js 22 and npm (see `frontend/.nvmrc`)
+- Node.js 22 and npm, only for the dashboard (separate repository, see below)
 - Docker with Docker Compose, for running the full stack
 - A local Ollama installation, as described in [LLM providers](docs/readme/integrations/llm-providers.md)
 
@@ -33,11 +33,6 @@ Common commands:
 # Backend services
 mvn -B verify
 mvn -B -pl :ai-control-service -am verify
-
-# Frontend (Nx workspace; run from the repo root)
-cd frontend
-npm ci
-npx nx affected -t lint typecheck test   # or `npm run check` for the full quick gate
 
 # Full stack
 docker compose up --build
@@ -54,9 +49,10 @@ See the [Quickstart](docs/readme/getting-started/quickstart.md) for the full sta
 - Never commit secrets, tokens or client secrets in code, configuration or the frontend bundle.
 - Avoid introducing unrelated refactors in the same change.
 
-## Frontend translations
+## Frontend
 
-User-facing dashboard copy goes through `t()` from `@openjcockpit/i18n`. Backend, docs and agent/workflow output are not translated.
+The dashboard lives in [OpenJCockpit-frontend](https://github.com/OpenJCockpit/OpenJCockpit-frontend), with its own contribution guide, CI and releases. Changes to
+`shared/contracts/openapi.yaml` also need the generated types regenerated there (`npx nx run api:generate`).
 
 - Strings live in `<lib>/src/locales/<locale>.json`, one namespace per lib. English (`en.json`) is the source; other locales must match its keys and `{{placeholders}}`.
 - Name keys `feature.component.element`, e.g. `queue.header.title`.

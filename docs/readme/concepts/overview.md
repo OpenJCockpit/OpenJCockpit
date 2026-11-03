@@ -58,14 +58,14 @@ and Logout, and two portals: **Business** and **Implementation**). From there yo
 | **Skills Hub** | Browse skills and register Skills Marketplace connections. |
 
 The UI uses a self-authored, futuristic animated/framed look, also applied to the custom Keycloak login
-theme. See [`frontend/libs/ui/README.md`](../../../frontend/libs/ui/README.md).
+theme. See [`frontend/libs/ui/README.md`](https://github.com/OpenJCockpit/OpenJCockpit-frontend/blob/main/libs/ui/README.md).
 
 ### Original feature list
 
 The original README listed the following under "What is in this project?". It is preserved here with
 corrected paths:
 
-- React/Vite frontend with a self-authored animated/framed UI (see `frontend/libs/ui/README.md`).
+- React/Vite frontend with a self-authored animated/framed UI (see [`libs/ui/README.md`](https://github.com/OpenJCockpit/OpenJCockpit-frontend/blob/main/libs/ui/README.md) in OpenJCockpit-frontend).
 - Keycloak-authentication with `keycloak-js`.
 - The landing page only shown with a valid auth token.
 - Intro-animation with `Hi <name>!`, where the name is retrieved from the Keycloak token (the code uses

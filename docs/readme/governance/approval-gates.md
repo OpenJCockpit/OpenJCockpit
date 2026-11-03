@@ -133,7 +133,7 @@ disposable) before starting the older version of `embabel-agent-service`.
 **This hazard is narrower than it might sound. Do not over-apply this
 warning:**
 
-- Rolling back **only the frontend** (`frontend/apps/dashboard`) is fine and needs no
+- Rolling back **only the frontend** (`apps/dashboard` in OpenJCockpit-frontend) is fine and needs no
   special step.
 - Rolling back **only the backend**, to a version that already includes this
   feature's initial groundwork (i.e. a version that can already parse
