@@ -12,10 +12,10 @@ Dashboard and run your first agent workflow.
 
 | Requirement | Why | Notes |
 | --- | --- | --- |
-| Docker with Docker Compose | Runs the stack (Keycloak, PostgreSQL, LiteLLM, OPA, the Java services and the dashboard). | Docker Desktop on macOS/Windows; Docker Engine on Linux (see the Linux warning in [LLM providers](../integrations/llm-providers.md#local-ollama-qwen-model-prerequisite-before-you-start-the-stack)). |
+| Docker with Docker Compose | Runs the stack (Keycloak, PostgreSQL, LiteLLM, OPA and the Java services here; the dashboard from the separate OpenJCockpit-frontend repository). | Docker Desktop on macOS/Windows; Docker Engine on Linux (see the Linux warning in [LLM providers](../integrations/llm-providers.md#local-ollama-qwen-model-prerequisite-before-you-start-the-stack)). |
 | [Ollama](https://ollama.com) on the **host** machine | Serves the default/coding LLM for every agent. Ollama is **not** part of the Compose stack. | Run `ollama pull qwen3.6:27b` before starting, and keep the daemon running while the stack is up. This is a large model; make sure your machine can run it. |
 | An OpenAI API key | `OPENAI_API_KEY` is **mandatory to boot the stack**. The `best`/`cheapest` LLM aliases and embeddings remain OpenAI-hosted. | Put it in `.env`. |
-| Free host ports | `4000` (dashboard), `4100` (LiteLLM), `8080` (Keycloak), `8091` (`embabel-agent-service`), `9080` (`ai-control-service`), `8181` (OPA). | |
+| Free host ports | `4000` (dashboard) and `4403`-`4406` (dashboard remotes), both from the frontend repository, `4100` (LiteLLM), `8080` (Keycloak), `8091` (`embabel-agent-service`), `9080` (`ai-control-service`), `8181` (OPA). | |
 | A Git repository and a GitHub token (optional for a first look) | Needed to run workflows against a real project repository. | See [Git integration](../workflows/git-integration.md) and the token scopes in [Spec queue](../workflows/spec-queue.md#github-token-scopes). |
 
 For building and testing from source (JDK 25, Maven 3.9+, Node.js 22) see
@@ -41,7 +41,17 @@ Keycloak service clients used between services (`local-seed`). They are idempote
 > unreachable. The first sign of a missing model is an LLM call failing at run time. See
 > [Troubleshooting](../operations/troubleshooting.md).
 
-## 3. Open the dashboard
+## 3. Start and open the dashboard
+
+The dashboard is its own repository, [OpenJCockpit-frontend](https://github.com/OpenJCockpit/OpenJCockpit-frontend). Check it out next to this one and start it
+after the backend; it proxies `/api` to `ai-control-service` on host port `9080` and logs in against Keycloak
+on `8080`, so both stacks find each other without any shared Compose network:
+
+```bash
+git clone https://github.com/OpenJCockpit/OpenJCockpit-frontend.git ../OpenJCockpit-frontend
+cd ../OpenJCockpit-frontend
+docker compose up --build        # or, for development with hot reload: npm install && npm run start:hub
+```
 
 | URL | What |
 | --- | --- |

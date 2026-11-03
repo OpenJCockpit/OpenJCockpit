@@ -26,7 +26,7 @@ review.
 ## What it scans
 
 Renovate auto-detects dependency files from its default managers: Maven (`pom.xml` in each reactor
-module), npm (the Nx workspace under `frontend/`: `frontend/package.json` with one `package-lock.json`,
+module), npm (the Nx workspace, now in the OpenJCockpit-frontend repository: `package.json` with one `package-lock.json`,
 plus the app and library `package.json` files), Docker image references and GitHub Actions
 (`.github/workflows/*.yml`). No manager list is restricted, so newly added supported files are picked up
 automatically. Presets pin GitHub Action and Docker image digests (`helpers:pinGitHubActionDigests`,

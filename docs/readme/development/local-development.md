@@ -7,7 +7,7 @@ How to build, run and verify OpenJCockpit from source. For contribution guidelin
 
 - JDK 25
 - Maven 3.9+
-- Node.js 22 and npm (see `frontend/.nvmrc`)
+- Node.js 22 and npm, only for the dashboard, which lives in the separate [OpenJCockpit-frontend](https://github.com/OpenJCockpit/OpenJCockpit-frontend) repository
 - Docker with Docker Compose, for running the full stack
 - A local Ollama installation with `qwen3.6:27b`, see [LLM providers](../integrations/llm-providers.md)
 
@@ -20,7 +20,6 @@ services/
   embabel-agent-runtime/   Spring Boot + Embabel: agent execution, LLMs, agent tools, inbound A2A (execution plane)
   git-mcp-server/          Spring AI MCP server: Git and GitHub tools
   service-common/          Shared Java code
-frontend/                  Nx workspace: apps/dashboard + libs/* + e2e
 agents/                    Local agent catalogue (Markdown agent definitions)
 infrastructure/            Keycloak realm + theme, LiteLLM, OPA policies, Postgres init, seeds, stubs
 shared/contracts/          OpenAPI contract (openapi.yaml)
@@ -52,30 +51,33 @@ Production uses different files entirely (`deploy/`, Spring profile `prod`); see
 
 ## Running parts of the stack
 
-### Local frontend development
+### Frontend (separate repository)
 
-You can run Keycloak and PostgreSQL via Docker, and the frontend locally with Vite:
+The dashboard and its federated remotes live in [OpenJCockpit-frontend](https://github.com/OpenJCockpit/OpenJCockpit-frontend), checked out next to this
+repository (`../OpenJCockpit-frontend`). The two stacks are independent Compose projects that find each
+other through ports published on the host: this stack publishes Keycloak on `8080` and `ai-control-service` on
+`9080`; the frontend publishes the dashboard on `4000` and the remotes on `4403`-`4406`.
 
 ```bash
-docker compose up postgres keycloak
-cd frontend
-npm install                  # installs the Nx workspace
-npx nx dev dashboard
+# this repository
+docker compose up -d --build          # backend stack (or only: docker compose up -d postgres keycloak ai-control-service)
+
+# OpenJCockpit-frontend
+docker compose up -d --build          # production-like dashboard + remotes in containers, proxying /api to :9080
+# or, for development with hot reload (Vite proxies /api to http://localhost:9080):
+npm install && npm run start:hub
 ```
 
-Then open the Vite URL, http://localhost:4000 (configured in `frontend/apps/dashboard/vite.config.ts`;
-it is a registered Keycloak redirect URI). The containerised `dashboard` also binds port `4000`, so do
-not run both at the same time. The dashboard calls the backend APIs, so start `ai-control-service` (and
-what it depends on) as well for anything beyond the login and landing hub.
-`./scripts/stack-start.sh --infra-only` starts only `postgres` and `keycloak` and prints the extra command
-to run `ai-control-service` locally plus the Vite dev-server instructions.
+The containerised dashboard and the Vite dev server both bind port `4000` (a registered Keycloak redirect
+URI), so run only one of them. The dashboard calls the backend APIs, so start `ai-control-service` (and what it
+depends on) for anything beyond the login and landing hub. `./scripts/stack-start.sh --infra-only` starts only
+`postgres` and `keycloak` and prints the extra command to run `ai-control-service` locally.
 
-The dashboard is one shell app (`frontend/apps/dashboard`) composing feature libraries under
-`frontend/libs/` (`api`, `project`, `skills-hub`, `spec-queue`, `spec-files`, `workflow`, plus `auth`, `ui`,
-`landing-hub`). Boundaries between them are enforced by `@nx/enforce-module-boundaries`. Each library
-has its own README, for example [`frontend/libs/workflow/README.md`](../../../frontend/libs/workflow/README.md)
-and [`frontend/libs/ui/README.md`](../../../frontend/libs/ui/README.md) (the self-authored animated/framed
-UI); see also [`frontend/apps/dashboard/README.md`](../../../frontend/apps/dashboard/README.md).
+The dashboard is one shell app (`apps/dashboard`) composing feature libraries under `libs/` (`api`, `project`,
+`skills-hub`, `spec-queue`, `spec-files`, `workflow`, plus `auth`, `ui`, `landing-hub`). Boundaries between
+them are enforced by `@nx/enforce-module-boundaries`. Each library has its own README, for example [`frontend/libs/workflow/README.md`](https://github.com/OpenJCockpit/OpenJCockpit-frontend/blob/main/libs/workflow/README.md)
+and [`frontend/libs/ui/README.md`](https://github.com/OpenJCockpit/OpenJCockpit-frontend/blob/main/libs/ui/README.md) (the self-authored animated/framed
+UI); see also [`frontend/apps/dashboard/README.md`](https://github.com/OpenJCockpit/OpenJCockpit-frontend/blob/main/apps/dashboard/README.md).
 
 ### Running a Java service on the host
 
@@ -101,19 +103,12 @@ mvn -pl services/embabel-agent-runtime -am verify
 
 `mvn verify` includes the JaCoCo line-coverage gate enforced in CI.
 
-Frontend verification (Nx workspace in `frontend/`: `apps/dashboard`, `libs/*` and `e2e`, one
-`package-lock.json`, Node 22 per `frontend/.nvmrc`):
+Frontend verification runs in the [OpenJCockpit-frontend](https://github.com/OpenJCockpit/OpenJCockpit-frontend) repository (see its README).
 
-```bash
-cd frontend
-npm ci
-npx nx run-many -t lint check-styles typecheck coverage build check-bundle   # what CI runs
-npx nx affected -t lint typecheck test build   # only what changed vs. main
-npm run check                        # quick gate: lint typecheck test format-check check-styles
-```
-
-After changing `shared/contracts/openapi.yaml`, run `npx nx run api:generate` and commit the result.
-CI fails when the generated types are stale.
+`shared/contracts/openapi.yaml` is owned by this repository, but the frontend generates its TypeScript types
+from it. After changing the contract, run `npx nx run api:generate` in the frontend checkout (it reads
+`../OpenJCockpit/shared/contracts/openapi.yaml`) and commit the result there. The frontend's CI fails when its
+generated types are stale against this repository's `main`.
 
 Compose configuration check (what the infra CI leg runs):
 

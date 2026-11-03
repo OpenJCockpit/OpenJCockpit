@@ -92,7 +92,7 @@ together with [Security considerations](../governance/security-considerations.md
   **Update:** the LLM-only path (a single-stage agent run's default/coding LLM call transiting the gateway
   to host Ollama, positively attributed to the expected virtual key and model) is covered by an
   automated, precondition-gated Playwright check (`npm run e2e:llm`; see
-  [`frontend/e2e/README.md`](../../../frontend/e2e/README.md)'s "The agent ⇄ LiteLLM ⇄ Ollama live check").
+  [`frontend/e2e/README.md`](https://github.com/OpenJCockpit/OpenJCockpit-frontend/blob/main/e2e/README.md)'s "The agent ⇄ LiteLLM ⇄ Ollama live check").
   **Update (A2A delivery, 2026-10-15):** the agent-integration operations guide records a live
   verification in which agents called `git_list_files`/`git_read_file` through LiteLLM in a job workspace
   without policy refusal. Automated end-to-end coverage of MCP tool calls through the gateway remains
@@ -130,7 +130,7 @@ together with [Security considerations](../governance/security-considerations.md
   contain live tokens). Full-stack E2E with an LLM remains a local / staging activity.
 - E2E coverage gaps (spec queue, positive admin-role coverage, `WorkflowPromptDialog` dialog semantics,
   wrong-password scenario, no ESLint in `e2e/`) are listed in
-  [`frontend/e2e/README.md`](../../../frontend/e2e/README.md#what-is-deliberately-excluded-and-why).
+  [`frontend/e2e/README.md`](https://github.com/OpenJCockpit/OpenJCockpit-frontend/blob/main/e2e/README.md#what-is-deliberately-excluded-and-why).
 
 ## Skills Hub
 

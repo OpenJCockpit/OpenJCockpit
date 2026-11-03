@@ -3,6 +3,7 @@ name: Release images
 # Publishes the deployable images for a release tag (vX.Y.Z) to GHCR with an immutable tag equal to the git
 # tag. deploy/scripts/deploy-compose.sh and deploy-k8s.sh only accept such tags, which is what makes a
 # rollback a redeploy of the previous tag. A CRITICAL vulnerability with a fix available blocks the release.
+# The dashboard image is published by the OpenJCockpit-frontend repository under the same vX.Y.Z tag.
 # Before tagging, the release checklist (docs/readme/operations/release-checklist.md) must be complete and
 # ci-summary must be green on the tagged commit.
 
@@ -32,7 +33,6 @@ jobs:
           - {name: embabel-agent-service, dockerfile: services/embabel-agent-service/Dockerfile, context: .}
           - {name: embabel-agent-runtime, dockerfile: services/embabel-agent-runtime/Dockerfile, context: .}
           - {name: git-mcp-server, dockerfile: services/git-mcp-server/Dockerfile, context: .}
-          - {name: dashboard, dockerfile: frontend/apps/dashboard/Dockerfile, context: frontend}
     env:
       IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.name }}
       TAG: ${{ github.ref_name }}

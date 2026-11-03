@@ -132,6 +132,14 @@ cp .env.example .env                 # then set OPENAI_API_KEY in .env
 docker compose up --build
 ```
 
+The dashboard lives in the separate [OpenJCockpit-frontend](https://github.com/OpenJCockpit/OpenJCockpit-frontend) repository. Check it out next to this one
+and start it too; the two stacks find each other through the ports they publish on the host:
+
+```bash
+git clone https://github.com/OpenJCockpit/OpenJCockpit-frontend.git ../OpenJCockpit-frontend
+cd ../OpenJCockpit-frontend && docker compose up --build
+```
+
 Open **http://localhost:4000** and sign in with a seeded local user (for example `tony` / `Welkom01!`).
 All seeded credentials are **local-development-only** examples.
 

@@ -24,7 +24,6 @@
 ## Testing
 
 - [ ] `./mvnw -B verify` (or targeted `-pl :artifactId -am verify`) — passed
-- [ ] `npm run test` (dashboard) — passed
 - [ ] Playwright scenarios — passed
 - [ ] 100% JaCoCo line coverage for handwritten production code in scope — measured and enforced
 - [ ] Sonar scan - passed

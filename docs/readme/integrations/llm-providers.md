@@ -110,9 +110,9 @@ The non-admin virtual keys are created by the idempotent `local-seed` one-shot o
 **Verifying the gateway path end to end.** An automated, live Playwright
 check proves a real agent LLM call actually transits this gateway to host
 Ollama and is attributed to the expected virtual key and model: run
-`npm run e2e:llm` from `frontend/e2e/`. It requires the full stack running (LiteLLM,
+`npm run e2e:llm` from `e2e/` in the OpenJCockpit-frontend repository. It requires the full stack running (LiteLLM,
 `embabel-agent-runtime`, host Ollama with the configured model pulled, plus
-Keycloak/`ai-control-service`/`dashboard`). See [`frontend/e2e/README.md`](../../../frontend/e2e/README.md)'s
+Keycloak/`ai-control-service`/`dashboard`). See [OpenJCockpit-frontend `e2e/README.md`](https://github.com/OpenJCockpit/OpenJCockpit-frontend/blob/main/e2e/README.md)'s
 "The agent ⇄ LiteLLM ⇄ Ollama live check" section for the exact
 preconditions, strict-mode flag, and what it does and does not prove.
 
