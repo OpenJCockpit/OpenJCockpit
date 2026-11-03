@@ -115,7 +115,6 @@
       "specFolder": "Spec folder",
       "loadingSpecs": "Loading specs…",
       "noSpecsFound": "No specs found",
-      "active": "Active",
       "workflow": "Workflow",
       "reloadSpecs": "⟳ Reload specs",
       "openPullRequest": "Open pull request",
@@ -149,7 +148,6 @@
       "retry": "Retry",
       "title": "Spec list",
       "loading": "Loading specs…",
-      "viewAll": "View all specs",
       "lastModified": "Last modified: {{value}}",
       "empty": {
         "title": "No specs found",

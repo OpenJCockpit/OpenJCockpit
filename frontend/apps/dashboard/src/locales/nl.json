@@ -115,7 +115,6 @@
       "specFolder": "Spec-map",
       "loadingSpecs": "Specs laden…",
       "noSpecsFound": "Geen specs gevonden",
-      "active": "Actief",
       "workflow": "Workflow",
       "reloadSpecs": "⟳ Specs opnieuw laden",
       "openPullRequest": "Pull request openen",
@@ -149,7 +148,6 @@
       "retry": "Opnieuw proberen",
       "title": "Speclijst",
       "loading": "Specs laden…",
-      "viewAll": "Alle specs bekijken",
       "lastModified": "Laatst gewijzigd: {{value}}",
       "empty": {
         "title": "Geen specs gevonden",

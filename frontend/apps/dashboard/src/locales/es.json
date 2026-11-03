@@ -115,7 +115,6 @@
       "specFolder": "Carpeta de especificaciones",
       "loadingSpecs": "Cargando especificaciones…",
       "noSpecsFound": "No se encontraron especificaciones",
-      "active": "Activo",
       "workflow": "Workflow",
       "reloadSpecs": "⟳ Recargar especificaciones",
       "openPullRequest": "Abrir pull request",
@@ -149,7 +148,6 @@
       "retry": "Reintentar",
       "title": "Lista de especificaciones",
       "loading": "Cargando especificaciones…",
-      "viewAll": "Ver todas las especificaciones",
       "lastModified": "Última modificación: {{value}}",
       "empty": {
         "title": "No se encontraron especificaciones",
