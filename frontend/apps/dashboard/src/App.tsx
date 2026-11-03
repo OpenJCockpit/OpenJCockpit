@@ -32,6 +32,7 @@ import { LandingHubRoute } from './routeViews/LandingHubRoute';
 import { LandingRoute } from './routeViews/LandingRoute';
 import { NotFound } from './routeViews/NotFound';
 import { Home } from './home/Home';
+import { RunRoute } from './routeViews/RunRoute';
 import { ProjectSelectionRoute } from './routeViews/ProjectSelectionRoute';
 import { RequireProject } from './routeViews/RequireProject';
 import type { ShellProps } from './routeViews/shell';
@@ -186,6 +187,14 @@ function App() {
                     element={
                       <RequireProject project={selectedProject}>
                         <DashboardRoute shell={shell} />
+                      </RequireProject>
+                    }
+                  />
+                  <Route
+                    path={`${ROUTES.dashboardRun}/:runId`}
+                    element={
+                      <RequireProject project={selectedProject}>
+                        <RunRoute shell={shell} />
                       </RequireProject>
                     }
                   />

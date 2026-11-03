@@ -22,11 +22,6 @@
     letter-spacing: -0.03em;
   }
 }
-.flowHeaderActions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
 .workflowLauncher {
   position: relative;
   z-index: 1;
@@ -51,12 +46,18 @@
   font-size: 12px;
   line-height: 1.6;
 }
-.workflowLauncherReset {
+.flowError {
   position: relative;
   z-index: 1;
-  margin: 0 28px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 18px 28px 8px;
+  & p {
+    margin: 0;
+  }
 }
-
 @media (max-width: 1280px) {
   .flowPanel {
     grid-column: auto;

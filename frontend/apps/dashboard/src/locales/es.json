@@ -93,6 +93,8 @@
       "specsFailedTitle": "No se pudieron cargar las specs",
       "specsFailed": "No se pudieron cargar las specs. El servidor no respondió correctamente.",
       "startNewWorkflow": "↺ Iniciar nuevo workflow",
+      "backToDashboard": "← Volver al panel",
+      "runNotFound": "No se encontró este workflow.",
       "currentSpec": "Especificación actual",
       "specFolder": "Carpeta de especificaciones",
       "loadingSpecs": "Cargando especificaciones…",

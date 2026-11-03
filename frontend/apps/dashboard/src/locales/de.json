@@ -93,6 +93,8 @@
       "specsFailedTitle": "Die Specs konnten nicht geladen werden",
       "specsFailed": "Die Specs konnten nicht geladen werden. Der Server hat nicht korrekt geantwortet.",
       "startNewWorkflow": "↺ Neuen Workflow starten",
+      "backToDashboard": "← Zurück zum Dashboard",
+      "runNotFound": "Dieser Workflow wurde nicht gefunden.",
       "currentSpec": "Aktuelle Spec",
       "specFolder": "Spec-Ordner",
       "loadingSpecs": "Specs werden geladen…",

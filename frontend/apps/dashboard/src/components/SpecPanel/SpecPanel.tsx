@@ -51,7 +51,7 @@ export function SpecPanel({
       <div className={specStyles.specList}>
         {loading && <p className={specStyles.specListLoading}>{t('specPanel.loading')}</p>}
         {!loading && error && (
-          <div role="alert" data-testid="specs-error">
+          <div role="alert" data-testid="specs-error" className={styles.specError}>
             <p className={feedbackErrorClass}>{t('specPanel.error')}</p>
             {onRetry && <Button onClick={onRetry}>{t('specPanel.retry')}</Button>}
           </div>

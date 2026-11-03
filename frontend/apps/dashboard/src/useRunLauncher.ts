@@ -15,6 +15,8 @@ interface Options {
   projectWorkflows: WorkflowDefinition[];
   selectedWorkflowId: string;
   selectedSpec: SpecFile | undefined;
+  /** Called once a run has started, so the host can open the run on its own screen. */
+  onStarted: (workflow: WorkflowDefinition, runId: string) => void;
 }
 
 /** Pre-flight, start and track a workflow run (or the spec-folder init) for the selected project. */
@@ -23,14 +25,10 @@ export function useRunLauncher({
   projectWorkflows,
   selectedWorkflowId,
   selectedSpec,
+  onStarted,
 }: Options) {
   const [buttonState, setButtonState] = useState<LauncherButtonState>('idle');
   const [preflightErrors, setPreflightErrors] = useState<PreflightError[] | null>(null);
-  const [activeRun, setActiveRun] = useState<{
-    workflow: WorkflowDefinition;
-    runId: string;
-  } | null>(null);
-  const [runEnded, setRunEnded] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
   const [initResult, setInitResult] = useState<SpecInitResult | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
@@ -44,8 +42,6 @@ export function useRunLauncher({
 
   /** Clears all run state, e.g. when another project is selected. */
   function reset() {
-    setActiveRun(null);
-    setRunEnded(false);
     setStartError(null);
     setInitResult(null);
     setInitError(null);
@@ -92,9 +88,8 @@ export function useRunLauncher({
         projectId: selectedProject?.id,
       });
       setPromptWorkflow(null);
-      setActiveRun({ workflow, runId: result.executionId });
-      setRunEnded(false);
       setButtonState('idle');
+      onStarted(workflow, result.executionId);
     } catch (error) {
       setStartError(error instanceof Error ? error.message : 'Failed to start workflow');
       setButtonState('error');
@@ -135,19 +130,11 @@ export function useRunLauncher({
     }
   }
 
-  function handleNewRun() {
-    setActiveRun(null);
-    setRunEnded(false);
-  }
-
   return {
     buttonState,
     preflightErrors,
     dismissPreflightErrors: () => setPreflightErrors(null),
-    activeRun,
-    runEnded,
     startError,
-    markRunEnded: () => setRunEnded(true),
     initResult,
     initError,
     promptWorkflow,
@@ -158,6 +145,5 @@ export function useRunLauncher({
     handlePromptSubmit,
     handleCreateSpecWithPrompt,
     handleInitSpecFolder,
-    handleNewRun,
   };
 }

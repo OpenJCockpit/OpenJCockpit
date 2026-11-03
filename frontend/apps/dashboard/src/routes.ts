@@ -5,6 +5,7 @@ export const ROUTES = {
   landing: '/landing',
   projects: '/projects',
   dashboard: '/dashboard',
+  dashboardRun: '/dashboard/run',
   settings: '/settings',
   projectSettings: '/project-settings',
   workflow: '/workflow',

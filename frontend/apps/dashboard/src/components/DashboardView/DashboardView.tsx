@@ -54,6 +54,8 @@ export function DashboardView({ projects, project, onProjectChange, onLogout, us
     projectWorkflows,
     selectedWorkflowId,
     selectedSpec: selected,
+    onStarted: (workflow, runId) =>
+      void navigate(`${ROUTES.dashboardRun}/${runId}?workflow=${encodeURIComponent(workflow.id)}`),
   });
   const { buttonState, promptWorkflow } = launcher;
 

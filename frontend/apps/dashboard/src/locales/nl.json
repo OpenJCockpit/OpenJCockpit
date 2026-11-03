@@ -93,6 +93,8 @@
       "specsFailedTitle": "De specs konden niet worden geladen",
       "specsFailed": "De specs konden niet worden geladen. De server antwoordde niet correct.",
       "startNewWorkflow": "↺ Nieuwe workflow starten",
+      "backToDashboard": "← Terug naar dashboard",
+      "runNotFound": "Deze workflow is niet gevonden.",
       "currentSpec": "Huidige spec",
       "specFolder": "Spec-map",
       "loadingSpecs": "Specs laden…",
