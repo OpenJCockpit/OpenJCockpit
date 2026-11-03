@@ -23,6 +23,7 @@ import {
   fieldHintClass,
   Select,
   cx,
+  Icon,
 } from '@openjcockpit/ui';
 import { useConfirmDelete } from '../shared/useConfirmDelete';
 import { readFileText, downloadWorkflowBundle } from '../../utils';
@@ -224,14 +225,14 @@ export function WorkflowsPanel() {
         </label>
         <div className={WorkflowDesignStyles.workflowDesignToolbarSpacer} />
         <Button variant="secondary" onClick={() => void handleExport()}>
-          {t('workflows.export')}
+          <Icon name="download" /> {t('workflows.export')}
         </Button>
         <FileImportButton
           accept="application/json,.json"
           inputLabel={t('workflows.importLabel')}
           onFile={(file) => void handleImportFile(file)}
         >
-          {t('workflows.import')}
+          <Icon name="upload" /> {t('workflows.import')}
         </FileImportButton>
       </div>
       <p className={fieldHintClass}>{t('workflows.intro')}</p>

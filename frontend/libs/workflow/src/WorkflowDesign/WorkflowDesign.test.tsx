@@ -745,8 +745,8 @@ describe('agents tab', () => {
     await openAgentsTab();
 
     const local = await screen.findByRole('region', { name: 'Local' });
-    const support = within(local).getByRole('heading', { name: '📁 support' });
-    const escalation = within(local).getByRole('heading', { name: '📁 escalation' });
+    const support = within(local).getByRole('heading', { name: 'support' });
+    const escalation = within(local).getByRole('heading', { name: 'escalation' });
     // escalation is nested inside support: the hierarchy follows the subfolders.
     expect(support.parentElement!.contains(escalation)).toBe(true);
     expect(within(local).getByText('Triage')).toBeInTheDocument();
@@ -888,7 +888,7 @@ describe('workflow export and import', () => {
       });
 
     await act(async () => {
-      screen.getByText('⬇ Export JSON').click();
+      screen.getByText('Export JSON').click();
     });
 
     await waitFor(() => {
@@ -1870,7 +1870,7 @@ describe('workflows panel actions', () => {
     vi.mocked(workflowApi.exportWorkflows).mockRejectedValue(new Error('down'));
     await renderWorkflowsTab();
     await act(async () => {
-      screen.getByText('⬇ Export JSON').click();
+      screen.getByText('Export JSON').click();
     });
     expect(await screen.findByText('Failed to export the workflows.')).toBeInTheDocument();
   });

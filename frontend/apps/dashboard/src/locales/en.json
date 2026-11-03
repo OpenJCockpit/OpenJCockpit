@@ -5,26 +5,37 @@
     "forbidden": "You do not have access to this page.",
     "notFound": "This page does not exist.",
     "backToDashboard": "Back to dashboard",
-    "unavailableApps": "Some apps are unavailable: {{names}}",
     "home": {
       "eyebrow": "Home",
       "title": "Welcome",
       "greeting": "Welcome, {{name}}",
+      "selectProject": "Select a project to see this.",
       "customise": "Customise",
       "done": "Done",
       "reset": "Reset to default",
       "empty": "No widgets on your Home yet. Choose Customise to add some.",
-      "available": "Available widgets",
-      "noneAvailable": "Every available widget is already on your Home.",
       "add": "Add",
-      "open": "Open",
+      "view": "View {{name}}",
       "moveEarlier": "Move earlier",
       "moveLater": "Move later",
-      "narrower": "Narrower",
-      "wider": "Wider",
-      "shorter": "Shorter",
-      "taller": "Taller",
-      "remove": "Remove"
+      "remove": "Remove",
+      "resize": "Resize",
+      "resizeHint": "Resize (drag the corner, or use the arrow keys)",
+      "customiseTitle": "Customise your Home",
+      "customiseHint": "Drag to reorder. Drag from the library to add, or back to it to remove. Only you see this layout.",
+      "cancel": "Cancel",
+      "libraryTitle": "Widget library",
+      "librarySubtitle": "Everything available to you",
+      "search": "Search widgets",
+      "all": "All",
+      "onHome": "On Home",
+      "noMatches": "No widgets match your search.",
+      "dragHandle": "Drag to move",
+      "sizeCompact": "Compact",
+      "sizeStandard": "Standard",
+      "sizeWide": "Wide",
+      "sizeFull": "Full width",
+      "dropToRemove": "Drop here to remove from Home"
     },
     "pageTitle": {
       "home": "Home",
@@ -39,19 +50,24 @@
       "activeProject": "Active project",
       "language": "Language",
       "theme": "Theme",
-      "themes": { "system": "System", "light": "Light", "dark": "Dark" },
+      "themes": {
+        "system": "System",
+        "light": "Light",
+        "dark": "Dark"
+      },
       "settings": "Settings",
       "projectSettings": "Project settings",
       "logOut": "Log out",
       "logout": "Logout",
       "nav": {
-        "platform": "Platform",
+        "platform": "Home",
         "workflow": "Workflow Design & Execution",
         "specFiles": "Spec Files",
         "specQueue": "Spec Queue",
         "skillsHub": "Skills Hub",
         "skillsHubBadge": "Connected marketplaces",
-        "hub": "Hub"
+        "evidence": "Execution evidence",
+        "quality": "Quality status"
       },
       "groups": {
         "work": "Work",
@@ -62,9 +78,9 @@
     },
     "sampleData": "Sample data",
     "statusBar": {
-      "environment": "● Environment: {{value}}",
-      "region": "☁ Region: {{value}}",
-      "classification": "⬡ Classification: {{value}}",
+      "environment": "Environment: {{value}}",
+      "region": "Region: {{value}}",
+      "classification": "Classification: {{value}}",
       "embabelVersion": "Embabel version: {{value}}",
       "springAiControlVersion": "Spring AI Control Service: {{value}}",
       "copyright": "© 2026 Metafactory B.V."
@@ -92,20 +108,21 @@
     "flow": {
       "specsFailedTitle": "Failed to load the specs",
       "specsFailed": "Failed to load the specs. The server did not respond correctly.",
-      "startNewWorkflow": "↺ Start new workflow",
+      "startNewWorkflow": "Start new workflow",
+      "backToDashboard": "Back to dashboard",
+      "runNotFound": "This workflow could not be found.",
       "currentSpec": "Current spec",
       "specFolder": "Spec folder",
       "loadingSpecs": "Loading specs…",
       "noSpecsFound": "No specs found",
-      "active": "Active",
       "workflow": "Workflow",
       "reloadSpecs": "⟳ Reload specs",
       "openPullRequest": "Open pull request",
       "start": {
         "preflight": "⟳ Running pre-flight checks…",
         "starting": "⟳ Starting…",
-        "error": "✕ Error",
-        "idle": "▶ Start"
+        "error": "Error",
+        "idle": "Start"
       },
       "specInit": {
         "option": "Spec folder initialization — spec template via pull request",
@@ -113,12 +130,12 @@
         "offered": "Pull request offered",
         "pending": "Pull request open",
         "pendingText": "A branch with the spec template is already prepared{{branch}}. Merge the corresponding pull request to add the .specify folder.",
-        "viewBranch": "⎇ View branch on the repository"
+        "viewBranch": "View branch on the repository"
       },
       "template": {
         "present": "Spec structure present",
         "text": "The repository already has a .specify folder, but no specs in the specs/ folder yet. Create the first spec with a prompt — the workflow combines your prompt with the repository contents (RAG) into a small, executable spec file.",
-        "createSpec": "✨ Create spec with prompt",
+        "createSpec": "Create spec with prompt",
         "unavailable": "De workflow \"Create spec from prompt (RAG)\" is not available for this project."
       },
       "launcher": {
@@ -129,16 +146,17 @@
     "specPanel": {
       "error": "Failed to load the specs. The server did not respond correctly.",
       "retry": "Retry",
-      "title": "Spec",
+      "title": "Spec list",
       "loading": "Loading specs…",
-      "viewAll": "View all specs",
       "lastModified": "Last modified: {{value}}",
       "empty": {
         "title": "No specs found",
         "text": "No specs/ folder with specifications in the repository",
-        "goToWorkflow": "⚡ Go to Workflow Design & Execution",
+        "goToWorkflow": "Go to Workflow Design & Execution",
         "hint": "Design or select a workflow there to create spec files."
-      }
+      },
+      "preview": "Preview",
+      "viewAllCount": "View all specs ({{count}})"
     },
     "evidence": {
       "title": "Execution evidence",
@@ -234,9 +252,8 @@
       }
     },
     "apps": {
-      "hello": {
-        "label": "Hello",
-        "widgetTitle": "Hello"
+      "specWorkspace": {
+        "widgetTitle": "Specs workspace"
       },
       "specQueue": {
         "widgetTitle": "Spec queue"
@@ -246,6 +263,12 @@
       },
       "specFiles": {
         "widgetTitle": "Spec files"
+      },
+      "evidence": {
+        "widgetTitle": "Execution evidence"
+      },
+      "quality": {
+        "widgetTitle": "Quality status"
       }
     }
   }

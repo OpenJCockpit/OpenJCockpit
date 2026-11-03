@@ -270,25 +270,11 @@ services:
       - "4000:8080"
     environment:
       # The browser loads remotes from the published host ports, so these are localhost origins.
-      FEDERATION_MANIFEST: '{"hello":"http://localhost:4401/mf-manifest.json","skillsHub":"http://localhost:4403/mf-manifest.json","specs":"http://localhost:4404/mf-manifest.json"}'
-      FEDERATION_ALLOWED_ORIGINS_JSON: '["http://localhost:4401","http://localhost:4403","http://localhost:4404"]'
-      FEDERATION_ALLOWED_ORIGINS: http://localhost:4401 http://localhost:4403 http://localhost:4404
+      FEDERATION_MANIFEST: '{"skillsHub":"http://localhost:4403/mf-manifest.json","specs":"http://localhost:4404/mf-manifest.json","evidence":"http://localhost:4405/mf-manifest.json","quality":"http://localhost:4406/mf-manifest.json"}'
+      FEDERATION_ALLOWED_ORIGINS_JSON: '["http://localhost:4403","http://localhost:4404","http://localhost:4405","http://localhost:4406"]'
+      FEDERATION_ALLOWED_ORIGINS: http://localhost:4403 http://localhost:4404 http://localhost:4405 http://localhost:4406
     depends_on:
       - ai-control-service
-
-  remote-hello:
-    build:
-      context: frontend
-      dockerfile: deploy/remote/Dockerfile
-      args:
-        REMOTE: remote-hello
-        BUILD_SHA: ${BUILD_SHA:-dev}
-    container_name: openjcockpit-remote-hello
-    restart: unless-stopped
-    ports:
-      - "4401:8080"
-    environment:
-      HOST_ORIGIN: http://localhost:4000
 
   remote-skills-hub:
     build:
@@ -315,6 +301,34 @@ services:
     restart: unless-stopped
     ports:
       - "4404:8080"
+    environment:
+      HOST_ORIGIN: http://localhost:4000
+
+  remote-evidence:
+    build:
+      context: frontend
+      dockerfile: deploy/remote/Dockerfile
+      args:
+        REMOTE: remote-evidence
+        BUILD_SHA: ${BUILD_SHA:-dev}
+    container_name: openjcockpit-remote-evidence
+    restart: unless-stopped
+    ports:
+      - "4405:8080"
+    environment:
+      HOST_ORIGIN: http://localhost:4000
+
+  remote-quality:
+    build:
+      context: frontend
+      dockerfile: deploy/remote/Dockerfile
+      args:
+        REMOTE: remote-quality
+        BUILD_SHA: ${BUILD_SHA:-dev}
+    container_name: openjcockpit-remote-quality
+    restart: unless-stopped
+    ports:
+      - "4406:8080"
     environment:
       HOST_ORIGIN: http://localhost:4000
 

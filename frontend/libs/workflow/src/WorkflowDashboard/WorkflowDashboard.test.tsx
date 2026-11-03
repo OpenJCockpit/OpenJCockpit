@@ -192,7 +192,7 @@ describe('WorkflowDashboard', () => {
     await renderAsync(<WorkflowDashboard project={PROJECT} onBack={vi.fn()} />);
     await screen.findByText('Customer Onboarding');
 
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
 
     await waitFor(() => {
       expect(screen.getByText('Workflow Execution')).toHaveClass(tabActiveClass);

@@ -18,5 +18,8 @@
   },
   "nx": {
     "includedScripts": []
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "2.1.10"
   }
 }

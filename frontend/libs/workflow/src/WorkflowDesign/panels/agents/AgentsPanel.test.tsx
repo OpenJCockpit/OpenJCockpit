@@ -149,7 +149,7 @@ describe('ProviderAgentsTable', () => {
     expect(api.getProviderAgentCard).toHaveBeenCalledWith('litellm', 'summarizer');
     expect(screen.getByText(/JSONRPC/)).toBeInTheDocument();
     expect(screen.getByText(/streaming yes · push notifications no/)).toBeInTheDocument();
-    expect(screen.getByText('text → text, json')).toBeInTheDocument();
+    expect(screen.getByText('text text, json')).toBeInTheDocument();
     expect(screen.getByText('Summarize')).toBeInTheDocument();
     expect(screen.getByText('s2')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Hide' }));
@@ -205,8 +205,8 @@ describe('LocalAgentsTree', () => {
         ]}
       />,
     );
-    const headings = screen.getAllByText(/📁/).map((h) => h.textContent);
-    expect(headings).toEqual(['📁 alpha', '📁 inner', '📁 zeta']);
+    const headings = screen.getAllByRole('heading').map((h) => h.textContent?.trim());
+    expect(headings).toEqual(['alpha', 'inner', 'zeta']);
     expect(screen.getByText('rooty')).toBeInTheDocument();
     expect(screen.getByText('deep')).toBeInTheDocument();
   });

@@ -7,30 +7,44 @@ export interface LayoutItem {
   rows: number;
 }
 
-export const GRID_COLUMNS = 12;
-export const COL_STEPS = [3, 6, 9, 12] as const;
-export const MAX_ROWS = 4;
+/** The Home grid is this many columns wide; a tile spans 1 to GRID_COLUMNS of them. */
+export const GRID_COLUMNS = 5;
+export const COL_STEPS = [1, 2, 3, 4, 5] as const;
+/** Smallest tile a widget gets unless it asks for less or more with `minCols` / `minRows`. */
+export const MIN_COLS = 2;
+export const MIN_ROWS = 2;
+export const MAX_ROWS = 8;
 
-const DEFAULT_COLS = 6;
-const DEFAULT_ROWS = 1;
-const STORAGE_PREFIX = 'openjcockpit.homeLayout.';
+const DEFAULT_COLS = 2;
+const DEFAULT_ROWS = MIN_ROWS;
+
+/** The smallest size a widget may be shown at. */
+export function sizeLimits(widget?: Pick<WidgetDefinition, 'minCols' | 'minRows'>) {
+  return {
+    minCols: clamp(Math.round(widget?.minCols ?? MIN_COLS), 1, GRID_COLUMNS),
+    minRows: clamp(Math.round(widget?.minRows ?? MIN_ROWS), 1, MAX_ROWS),
+  };
+}
+// v2: sizes became spans of a 5-column grid; layouts saved against the old 12 columns are not reused.
+const STORAGE_PREFIX = 'openjcockpit.homeLayout.v2.';
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
 /** Snaps to the closest allowed column span so stored or contributed sizes cannot break the grid. */
-function snapCols(cols: number): number {
-  return COL_STEPS.reduce((best, step) =>
+function snapCols(cols: number, min = MIN_COLS): number {
+  return COL_STEPS.filter((step) => step >= min).reduce((best, step) =>
     Math.abs(step - cols) < Math.abs(best - cols) ? step : best,
   );
 }
 
 function place(widget: WidgetDefinition): LayoutItem {
+  const { minCols, minRows } = sizeLimits(widget);
   return {
     id: widget.id,
-    cols: snapCols(widget.cols ?? DEFAULT_COLS),
-    rows: clamp(Math.round(widget.rows ?? DEFAULT_ROWS), 1, MAX_ROWS),
+    cols: snapCols(widget.cols ?? DEFAULT_COLS, minCols),
+    rows: clamp(Math.round(widget.rows ?? DEFAULT_ROWS), minRows, MAX_ROWS),
   };
 }
 
@@ -53,16 +67,18 @@ export function resolveLayout(
   stored: readonly LayoutItem[],
   widgets: readonly WidgetDefinition[],
 ): LayoutItem[] {
-  const known = new Set(widgets.filter((w) => w.available !== false).map((w) => w.id));
+  const known = new Map(widgets.filter((w) => w.available !== false).map((w) => [w.id, w]));
   const seen = new Set<string>();
   const result: LayoutItem[] = [];
   for (const item of stored) {
-    if (!known.has(item.id) || seen.has(item.id)) continue;
+    const widget = known.get(item.id);
+    if (!widget || seen.has(item.id)) continue;
     seen.add(item.id);
+    const { minCols, minRows } = sizeLimits(widget);
     result.push({
       id: item.id,
-      cols: snapCols(item.cols),
-      rows: clamp(Math.round(item.rows), 1, MAX_ROWS),
+      cols: snapCols(item.cols, minCols),
+      rows: clamp(Math.round(item.rows), minRows, MAX_ROWS),
     });
   }
   return result;
@@ -78,6 +94,21 @@ export function moveItem(layout: readonly LayoutItem[], id: string, delta: -1 | 
   return next;
 }
 
+/** Drops an item into the place of another one (drag and drop); unknown ids leave the layout as is. */
+export function moveItemTo(
+  layout: readonly LayoutItem[],
+  id: string,
+  targetId: string,
+): LayoutItem[] {
+  const from = layout.findIndex((item) => item.id === id);
+  const to = layout.findIndex((item) => item.id === targetId);
+  if (from < 0 || to < 0 || from === to) return [...layout];
+  const next = [...layout];
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved!);
+  return next;
+}
+
 export function removeItem(layout: readonly LayoutItem[], id: string): LayoutItem[] {
   return layout.filter((item) => item.id !== id);
 }
@@ -86,20 +117,30 @@ export function addItem(layout: readonly LayoutItem[], widget: WidgetDefinition)
   return layout.some((item) => item.id === widget.id) ? [...layout] : [...layout, place(widget)];
 }
 
-/** Steps the column span through `COL_STEPS`, stopping at the ends. */
-export function resizeCols(layout: readonly LayoutItem[], id: string, delta: -1 | 1): LayoutItem[] {
-  return layout.map((item) => {
-    if (item.id !== id) return item;
-    const index = COL_STEPS.indexOf(snapCols(item.cols) as (typeof COL_STEPS)[number]);
-    const cols = COL_STEPS[clamp(index + delta, 0, COL_STEPS.length - 1)]!;
-    return { ...item, cols };
-  });
+/** Adds a widget, in front of `beforeId` when given and present, otherwise at the end. */
+export function insertItem(
+  layout: readonly LayoutItem[],
+  widget: WidgetDefinition,
+  beforeId?: string,
+): LayoutItem[] {
+  if (layout.some((item) => item.id === widget.id)) return [...layout];
+  const at = layout.findIndex((item) => item.id === beforeId);
+  const next = [...layout];
+  next.splice(at < 0 ? next.length : at, 0, place(widget));
+  return next;
 }
 
-export function resizeRows(layout: readonly LayoutItem[], id: string, delta: -1 | 1): LayoutItem[] {
-  return layout.map((item) =>
-    item.id === id ? { ...item, rows: clamp(item.rows + delta, 1, MAX_ROWS) } : item,
-  );
+/** Sets an item's size from a (possibly fractional) span, snapped to the allowed steps. */
+export function resizeTo(
+  layout: readonly LayoutItem[],
+  id: string,
+  cols: number,
+  rows: number,
+  widget?: Pick<WidgetDefinition, 'minCols' | 'minRows'>,
+): LayoutItem[] {
+  const { minCols, minRows } = sizeLimits(widget);
+  const next = { cols: snapCols(cols, minCols), rows: clamp(Math.round(rows), minRows, MAX_ROWS) };
+  return layout.map((item) => (item.id === id ? { ...item, ...next } : item));
 }
 
 function isLayoutItem(value: unknown): value is LayoutItem {

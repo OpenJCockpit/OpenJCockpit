@@ -23,7 +23,7 @@ export function ProjectSelectionRoute({
       projects={projects}
       onSelect={(project) => {
         onSelect(project);
-        void navigate(from ?? ROUTES.dashboard, { replace: true });
+        void navigate(from ?? ROUTES.home, { replace: true });
       }}
       onSettings={() => void navigate(ROUTES.projectSettings)}
       onBack={() => void navigate(ROUTES.home)}

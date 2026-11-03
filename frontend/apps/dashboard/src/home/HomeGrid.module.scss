@@ -1,0 +1,47 @@
+/* The Home grid and its tiles: shared by Home and the customise screen so both look the same. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* Fixed row height: a tile that is shorter than its content scrolls inside its body. */
+  grid-auto-rows: 110px;
+  gap: 16px;
+}
+
+.tile {
+  grid-column: span var(--cols, 2);
+  grid-row: span var(--rows, 1);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tileHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px 0;
+}
+
+.tileTitle {
+  margin: 0;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.tileBody {
+  flex: 1;
+  min-height: 0;
+  padding: 16px 18px;
+  /* Keeps the scrollbar from shifting the content sideways. */
+  scrollbar-gutter: stable;
+  overflow: auto;
+}
+
+@media (max-width: 900px) {
+  .tile {
+    grid-column: 1 / -1;
+  }
+}

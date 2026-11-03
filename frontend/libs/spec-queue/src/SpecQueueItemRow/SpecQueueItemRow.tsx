@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import { useTranslation } from '@openjcockpit/i18n';
-import { StatusChip, Button } from '@openjcockpit/ui';
+import { StatusChip, Button, Icon } from '@openjcockpit/ui';
 import { failureReasonText, itemActions, itemPresentation, safeHttpUrl } from '../queueStatus';
 import type { SpecQueueItem } from '@openjcockpit/api';
 import styles from './SpecQueueItemRow.module.scss';
@@ -67,7 +67,8 @@ export function SpecQueueItemRow({
         </div>
         <span data-testid="queue-item-status">
           <StatusChip
-            label={`${presentation.icon} ${presentation.label}`}
+            icon={<Icon name={presentation.icon} />}
+            label={presentation.label}
             kind={presentation.kind}
           />
         </span>
@@ -124,7 +125,8 @@ export function SpecQueueItemRow({
             rel="noopener noreferrer"
             data-testid="queue-item-pr-link"
           >
-            {prUrls.length > 1 ? t('row.pullRequestN', { n: index + 1 }) : t('row.pullRequest')}
+            {prUrls.length > 1 ? t('row.pullRequestN', { n: index + 1 }) : t('row.pullRequest')}{' '}
+            <Icon name="external" />
           </a>
         ))}
         {runId && onOpenRun && (
@@ -135,7 +137,7 @@ export function SpecQueueItemRow({
             aria-label={t('row.viewRunAria', { spec })}
             onClick={() => onOpenRun(item.workflowId, runId)}
           >
-            {t('row.viewRun')}
+            {t('row.viewRun')} <Icon name="arrow-right" />
           </Button>
         )}
       </div>
@@ -151,7 +153,7 @@ export function SpecQueueItemRow({
               disabled={busy || queuedIndex === 0}
               onClick={() => onMove(item, 'up')}
             >
-              ↑
+              <Icon name="arrow-up" />
             </Button>
             <Button
               type="button"
@@ -161,7 +163,7 @@ export function SpecQueueItemRow({
               disabled={busy || queuedIndex === queuedCount - 1}
               onClick={() => onMove(item, 'down')}
             >
-              ↓
+              <Icon name="arrow-down" />
             </Button>
           </>
         )}

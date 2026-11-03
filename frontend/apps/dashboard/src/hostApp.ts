@@ -1,4 +1,5 @@
 import type { AppDefinition } from '@openjcockpit/hub-contract';
+import { ROUTES } from './routes';
 
 /**
  * The host's own contribution to the registry: it has no pages or nav entry, only settings
@@ -14,6 +15,20 @@ export const hostApp: AppDefinition = {
   requiredPermissions: [],
   showInNav: false,
   loadRoutes: () => Promise.resolve([]),
+  widgets: [
+    {
+      id: 'spec-workspace',
+      titleKey: 'apps.specWorkspace.widgetTitle',
+      sourceAppId: 'host',
+      requiredPermissions: [],
+      defaultFor: [],
+      link: ROUTES.home,
+      cols: 3,
+      rows: 5,
+      minRows: 5,
+      component: () => import('./components/SpecWorkspace/SpecWorkspaceWidget'),
+    },
+  ],
   settings: [
     {
       id: 'preferences',

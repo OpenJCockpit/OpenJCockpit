@@ -17,11 +17,11 @@ describe('isAllowedOrigin', () => {
   it('allows the host origin, listed origins and (in dev) localhost', () => {
     expect(isAllowedOrigin(`${window.location.origin}/x`, [], false)).toBe(true);
     expect(isAllowedOrigin('https://cdn.example/x', ['https://cdn.example'], false)).toBe(true);
-    expect(isAllowedOrigin('http://localhost:4401/x', [], true)).toBe(true);
+    expect(isAllowedOrigin('http://localhost:4403/x', [], true)).toBe(true);
   });
 
   it('rejects everything else, including malformed URLs', () => {
-    expect(isAllowedOrigin('http://localhost:4401/x', [], false)).toBe(false);
+    expect(isAllowedOrigin('http://localhost:4403/x', [], false)).toBe(false);
     expect(isAllowedOrigin('https://evil.example/x', [], true)).toBe(false);
     expect(isAllowedOrigin('http://[bad', [], true)).toBe(false);
   });
@@ -102,6 +102,6 @@ describe('registerManifestRemotes', () => {
   });
 
   it('defaults dev from the build mode', () => {
-    expect(registerManifestRemotes({ a: 'http://localhost:4401/m.json' }, []).names).toEqual(['a']);
+    expect(registerManifestRemotes({ a: 'http://localhost:4403/m.json' }, []).names).toEqual(['a']);
   });
 });

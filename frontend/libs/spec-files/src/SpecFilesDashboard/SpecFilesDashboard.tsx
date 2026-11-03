@@ -4,6 +4,7 @@ import { useFormatters, useTranslation } from '@openjcockpit/i18n';
 import { loadProjectSpecs, queryKeys, saveSpecFile } from '@openjcockpit/api';
 import type { Project, SpecFile, SpecInitResult } from '@openjcockpit/api';
 import {
+  Icon,
   IconBox,
   AppShell,
   AppHeader,
@@ -129,7 +130,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
             <Panel as="aside" className={cx(specStyles.specPanel, styles.specFilesPanel)}>
               <PanelHeader simple>
                 <PanelTitle>
-                  <IconBox label="📄" compact /> <h2>{t('specs')}</h2>
+                  <IconBox label={<Icon name="file" />} compact /> <h2>{t('specs')}</h2>
                 </PanelTitle>
               </PanelHeader>
 
@@ -143,7 +144,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                 )}
                 {!loading && !loadFailed && specs.length === 0 && (
                   <article className={cx(specStyles.specCard, specStyles.specCardEmpty)}>
-                    <IconBox label="📄" compact className={specStyles.icon} />
+                    <IconBox label={<Icon name="file" />} compact className={specStyles.icon} />
                     <div>
                       <h3>{t('noSpecsFound')}</h3>
                       <span>{t('noSpecsFolder')}</span>
@@ -161,7 +162,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                     aria-pressed={spec.id === selectedId}
                     onClick={() => handleSelect(project.id, spec)}
                   >
-                    <IconBox label="📄" compact className={specStyles.icon} />
+                    <IconBox label={<Icon name="file" />} compact className={specStyles.icon} />
                     <div>
                       <strong>{spec.fileName}</strong>
                       <span>{t('lastModified', { date: formatDateTime(spec.lastChanged) })}</span>
@@ -235,7 +236,7 @@ export function SpecFilesDashboard({ project, onBack, renderAddToQueue, header }
                           target="_blank"
                           rel="noreferrer"
                         >
-                          {t('openPullRequest')} <span>→</span>
+                          {t('openPullRequest')} <Icon name="arrow-right" />
                         </a>
                       )}
                     </div>

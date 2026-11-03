@@ -10,9 +10,10 @@ import { env } from './support/env.js';
 const AUTH_STATE_PATH = './.auth/storage-state.json';
 
 const REMOTES = [
-  { project: 'remote-hello', port: 4401 },
   { project: 'remote-skills-hub', port: 4403 },
   { project: 'remote-specs', port: 4404 },
+  { project: 'remote-evidence', port: 4405 },
+  { project: 'remote-quality', port: 4406 },
 ];
 
 export default defineConfig({

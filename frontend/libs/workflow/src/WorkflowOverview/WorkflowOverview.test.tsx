@@ -138,7 +138,7 @@ describe('WorkflowOverview', () => {
 
     expect(await screen.findByText('Spec folder initialization')).toBeInTheDocument();
     expect(screen.queryByText('Customer Onboarding')).not.toBeInTheDocument();
-    expect(screen.getByText('▶ Start')).toBeInTheDocument();
+    expect(screen.getByText('Start')).toBeInTheDocument();
   });
 
   it('does not call startWorkflow before the Start button is clicked', async () => {
@@ -157,7 +157,7 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
 
     await waitFor(() => {
       expect(workflowApi.startWorkflow).toHaveBeenCalledWith('wf-1', {});
@@ -177,7 +177,7 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Create spec from prompt (RAG)');
 
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
 
     expect(workflowApi.startWorkflow).not.toHaveBeenCalled();
     const dialog = screen.getByRole('dialog');
@@ -186,7 +186,7 @@ describe('WorkflowOverview', () => {
     fireEvent.change(screen.getByLabelText('Prompt'), {
       target: { value: 'Create a small spec for login' },
     });
-    await clickAsync(screen.getByText('▶ Start with prompt'));
+    await clickAsync(screen.getByText('Start with prompt'));
 
     await waitFor(() => {
       expect(workflowApi.startWorkflow).toHaveBeenCalledWith('wf-spec-create', {
@@ -208,7 +208,7 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Create spec from prompt (RAG)');
 
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
     await clickAsync(screen.getByText('Cancel'));
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -224,7 +224,7 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
 
     expect(
       await screen.findByText('A spec queue item is active for this project'),
@@ -238,12 +238,12 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
 
     await waitFor(() => {
       expect(screen.getByText(/Started — execution run-1/)).toBeInTheDocument();
     });
-    expect(screen.getByText('▶ Start')).not.toBeDisabled();
+    expect(screen.getByText('Start')).not.toBeDisabled();
   });
 
   it('calls onWorkflowStarted with the workflow and execution id after a successful start', async () => {
@@ -254,7 +254,7 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} onWorkflowStarted={onWorkflowStarted} />);
     await screen.findByText('Customer Onboarding');
 
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
 
     await waitFor(() => {
       expect(onWorkflowStarted).toHaveBeenCalledWith(WORKFLOW, 'run-1');
@@ -269,7 +269,7 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} onWorkflowStarted={onWorkflowStarted} />);
     await screen.findByText('Customer Onboarding');
 
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
 
     await waitFor(() => {
       expect(workflowApi.startWorkflow).toHaveBeenCalled();
@@ -414,7 +414,7 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await clickAsync(screen.getByText('⬇ Export decision logs'));
+    await clickAsync(screen.getByText('Export decision logs'));
 
     await waitFor(() => {
       expect(workflowApi.getWorkflowDecisionLogs).toHaveBeenCalledWith('wf-1');
@@ -478,7 +478,7 @@ describe('WorkflowOverview', () => {
 
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
-    await clickAsync(screen.getByText('⬇ Export decision logs'));
+    await clickAsync(screen.getByText('Export decision logs'));
 
     expect(await screen.findByText('export down')).toBeInTheDocument();
   });
@@ -490,7 +490,7 @@ describe('WorkflowOverview', () => {
 
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
-    await clickAsync(screen.getByText('⬇ Export decision logs'));
+    await clickAsync(screen.getByText('Export decision logs'));
 
     expect(await screen.findByText('Failed to export decision logs')).toBeInTheDocument();
   });
@@ -513,7 +513,7 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
 
     await waitFor(() => {
       expect(workflowApi.startWorkflow).toHaveBeenCalled();
@@ -538,7 +538,7 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
 
     await waitFor(() => {
       expect(workflowApi.startWorkflow).toHaveBeenCalled();
@@ -561,7 +561,7 @@ describe('WorkflowOverview', () => {
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
 
     await waitFor(() => {
       expect(workflowApi.startWorkflow).toHaveBeenCalled();
@@ -610,7 +610,7 @@ describe('WorkflowOverview — BLOCKED start outcomes and agent visibility (work
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
 
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
 
     await waitFor(() => {
       expect(
@@ -880,12 +880,12 @@ describe('WorkflowOverview — card details and failure paths', () => {
     await screen.findByText('Customer Onboarding');
 
     vi.mocked(workflowApi.getWorkflowDecisionLogs).mockRejectedValue(new Error('export failed'));
-    await clickAsync(screen.getByText('⬇ Export decision logs'));
+    await clickAsync(screen.getByText('Export decision logs'));
 
     await waitFor(() =>
       expect(warn).toHaveBeenCalledWith('Failed to export decision logs', expect.any(Error)),
     );
-    expect(screen.getByText('⬇ Export decision logs')).not.toBeDisabled();
+    expect(screen.getByText('Export decision logs')).not.toBeDisabled();
     warn.mockRestore();
   });
 
@@ -900,10 +900,10 @@ describe('WorkflowOverview — card details and failure paths', () => {
 
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Customer Onboarding');
-    await clickAsync(screen.getByText('▶ Start'));
+    await clickAsync(screen.getByText('Start'));
 
     expect(await screen.findByText(expected)).toBeInTheDocument();
-    expect(screen.getByText('▶ Start')).not.toBeDisabled();
+    expect(screen.getByText('Start')).not.toBeDisabled();
     warn.mockRestore();
   });
 
@@ -914,7 +914,7 @@ describe('WorkflowOverview — card details and failure paths', () => {
 
     await renderAsync(<WorkflowOverview project={null} />);
     await screen.findByText('Other Workflow');
-    await clickAsync(screen.getAllByText('▶ Start')[0]!);
+    await clickAsync(screen.getAllByText('Start')[0]!);
 
     await waitFor(() => expect(screen.getAllByText('Never run')).toHaveLength(1));
   });

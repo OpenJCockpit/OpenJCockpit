@@ -3,7 +3,7 @@
     "secretField": {
       "configuredHint": "(already configured — leave blank to keep)"
     },
-    "back": "← Back",
+    "back": "Back",
     "somethingWrong": "Something went wrong.",
     "reload": "Reload"
   }

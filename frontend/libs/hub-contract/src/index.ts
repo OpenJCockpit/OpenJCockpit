@@ -1,4 +1,4 @@
-export { HUB_CONTRACT_VERSION, isAppDefinition } from './appDefinition';
+export { HUB_CONTRACT_VERSION, isAppDefinition, OPT_IN_ONLY } from './appDefinition';
 export type {
   AppDefinition,
   LazyComponent,

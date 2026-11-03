@@ -38,7 +38,7 @@ describe('WorkflowLauncher', () => {
 
   it('starts the selected workflow', () => {
     const { onStart } = setup();
-    fireEvent.click(screen.getByRole('button', { name: '▶ Start' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Start' }));
     expect(onStart).toHaveBeenCalledTimes(1);
   });
 
@@ -46,14 +46,14 @@ describe('WorkflowLauncher', () => {
     setup({ workflows: [] });
     expect(screen.getByLabelText('Workflow')).toBeDisabled();
     expect(screen.getByText('No workflows available')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '▶ Start' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
     expect(screen.getByText(/No workflows for this project/)).toBeInTheDocument();
   });
 
   it.each([
     ['preflight', '⟳ Running pre-flight checks…', true],
     ['starting', '⟳ Starting…', true],
-    ['error', '✕ Error', false],
+    ['error', 'Error', false],
   ] as const)('shows the %s state', (buttonState, label, disabled) => {
     setup({ buttonState });
     const button = screen.getByRole('button', { name: label });

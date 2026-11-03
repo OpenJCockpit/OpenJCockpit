@@ -61,9 +61,9 @@ describe('landing hub entry view', () => {
     localStorage.setItem(FEATURE_FLAGS.hub, '1');
     renderRoutedApp();
     await clickAsync(await screen.findByTestId('portal-orb-implementation'));
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+    expect(await screen.findByText('Start')).toBeInTheDocument();
 
-    await clickAsync(screen.getByTestId('nav-hub'));
+    await clickAsync(screen.getByTestId('nav-platform'));
 
     expect(await screen.findByTestId('home')).toBeInTheDocument();
   });

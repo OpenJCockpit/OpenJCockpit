@@ -55,7 +55,7 @@ describe('SpecQueueItemRow', () => {
     setup(makeItem());
     expect(screen.getByTestId('queue-item-spec')).toHaveTextContent('a.md');
     expect(screen.getByTestId('queue-item-workflow')).toHaveTextContent('Build it');
-    expect(screen.getByTestId('queue-item-status')).toHaveTextContent('⏳ Queued');
+    expect(screen.getByTestId('queue-item-status')).toHaveTextContent('Queued');
     expect(screen.getByTestId('queue-item-position')).toHaveTextContent('2');
   });
 
@@ -145,7 +145,7 @@ describe('SpecQueueItemRow', () => {
     expect(links).toHaveLength(1);
     expect(links[0]).toHaveAttribute('rel', 'noopener noreferrer');
     expect(links[0]).toHaveAttribute('target', '_blank');
-    expect(links[0]).toHaveTextContent('Pull request ↗');
+    expect(links[0]).toHaveTextContent('Pull request');
   });
 
   it('numbers several PR links', () => {
@@ -155,9 +155,9 @@ describe('SpecQueueItemRow', () => {
         pullRequestUrls: ['https://github.com/o/r/pull/1', 'https://github.com/o/r/pull/2'],
       }),
     );
-    expect(screen.getAllByTestId('queue-item-pr-link').map((a) => a.textContent)).toEqual([
-      'Pull request 1 ↗',
-      'Pull request 2 ↗',
+    expect(screen.getAllByTestId('queue-item-pr-link').map((a) => a.textContent?.trim())).toEqual([
+      'Pull request 1',
+      'Pull request 2',
     ]);
   });
 

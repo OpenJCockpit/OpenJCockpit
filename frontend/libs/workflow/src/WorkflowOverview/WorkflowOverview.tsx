@@ -8,6 +8,7 @@ import {
   fieldHintClass,
   Button,
   StatusMessage,
+  Icon,
 } from '@openjcockpit/ui';
 import { WorkflowPromptDialog } from '../WorkflowPromptDialog/WorkflowPromptDialog';
 import { useWorkflowOverview } from './useWorkflowOverview';
@@ -195,17 +196,29 @@ export function WorkflowOverview({ project, onWorkflowStarted, onViewExecutionTa
                 onClick={() => void handleStart(workflow)}
                 disabled={startingId === workflow.id}
               >
-                {startingId === workflow.id ? t('overview.starting') : t('overview.start')}
+                {startingId === workflow.id ? (
+                  t('overview.starting')
+                ) : (
+                  <>
+                    <Icon name="play" /> {t('overview.start')}
+                  </>
+                )}
               </Button>
               <Button
                 onClick={() => void handleExportDecisionLogs(workflow)}
                 disabled={exportingId === workflow.id}
               >
-                {exportingId === workflow.id ? t('overview.exporting') : t('overview.export')}
+                {exportingId === workflow.id ? (
+                  t('overview.exporting')
+                ) : (
+                  <>
+                    <Icon name="download" /> {t('overview.export')}
+                  </>
+                )}
               </Button>
               {onViewExecutionTab && (
                 <Button variant="link" onClick={() => onViewExecutionTab(workflow)}>
-                  {t('overview.openExecution')} <span>→</span>
+                  {t('overview.openExecution')} <Icon name="arrow-right" />
                 </Button>
               )}
               {feedback[workflow.id] && (

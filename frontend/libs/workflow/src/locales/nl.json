@@ -300,7 +300,7 @@
       },
       "label": "Beschrijf in gewone taal de {{kind}} die je wilt",
       "generating": "⟳ Genereren…",
-      "generate": "✨ Concept genereren",
+      "generate": "Concept genereren",
       "hint": "Het genereren van een concept gebruikt de LLM van het platform. Hoe specifieker je bent over invoer, uitvoer en delegatie (zie het voorbeeld hierboven), hoe beter het concept. Laat het veld leeg om in plaats daarvan een voorbeeld-{{kind}} te genereren. Controleer en bewerk het gegenereerde concept voordat je het opslaat."
     },
     "skills": {
@@ -397,9 +397,9 @@
       "group": "Groep",
       "allGroups": "Alle groepen",
       "noGroup": "Geen groep",
-      "export": "⬇ JSON exporteren",
+      "export": "JSON exporteren",
       "importLabel": "Workflows-JSON importeren",
-      "import": "⬆ JSON importeren",
+      "import": "JSON importeren",
       "unresolved": "{{count}} verwijzing(en) kon(den) niet worden opgelost:",
       "saveFailed": "De workflow kon niet worden opgeslagen.",
       "deleteFailed": "De workflow kon niet worden verwijderd.",
@@ -420,7 +420,7 @@
       "emptyTitle": "Geen workflow actief",
       "empty": "Start een workflow vanaf het tabblad Overzicht om hem hier te zien draaien.",
       "stopping": "⟳ Stoppen…",
-      "stop": "◼ Stoppen",
+      "stop": "Stoppen",
       "noRun": "Geen actieve uitvoering voor deze workflow. Start hem vanaf het tabblad Overzicht of selecteer er een uit de geschiedenis hierboven om hem hier te volgen.",
       "childRun": "Onderliggende run:",
       "reviewApproval": "Openstaande goedkeuring beoordelen"
@@ -465,9 +465,9 @@
       "noDecisions": "Nog geen beslissingen vastgelegd",
       "decisionCounts": "Toegestaan {{allowed}} · Geweigerd {{denied}} · Goedkeuring vereist {{requiresApproval}}",
       "starting": "⟳ Starten…",
-      "start": "▶ Starten",
+      "start": "Starten",
       "exporting": "⟳ Exporteren…",
-      "export": "⬇ Beslissingslogs exporteren",
+      "export": "Beslissingslogs exporteren",
       "openExecution": "Workflowuitvoering openen"
     },
     "promptDialog": {
@@ -477,7 +477,7 @@
       "label": "Prompt",
       "placeholder": "Bijv.: Voeg een exportknop toe aan het klantoverzicht die de tabel als CSV downloadt.",
       "starting": "⟳ Starten…",
-      "start": "▶ Starten met prompt"
+      "start": "Starten met prompt"
     },
     "confirmDelete": {
       "title": "{{name}} verwijderen?",

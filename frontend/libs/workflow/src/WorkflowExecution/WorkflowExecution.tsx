@@ -23,6 +23,7 @@ import {
   fieldErrorClass,
   cx,
   Button,
+  Icon,
 } from '@openjcockpit/ui';
 import { ApprovalDecisionModal } from '../ApprovalDecisionModal/ApprovalDecisionModal';
 import { WorkflowExecutionHistory } from '../WorkflowExecutionHistory/WorkflowExecutionHistory';
@@ -230,7 +231,13 @@ export function WorkflowExecution({
           )}
           {selectedRunId && !isTerminalRunStatus(runStatus ?? '') && (
             <Button variant="danger" onClick={() => handleStop(selectedRunId)} disabled={stopping}>
-              {stopping ? t('workflowExecution.stopping') : t('workflowExecution.stop')}
+              {stopping ? (
+                t('workflowExecution.stopping')
+              ) : (
+                <>
+                  <Icon name="stop" /> {t('workflowExecution.stop')}
+                </>
+              )}
             </Button>
           )}
         </div>

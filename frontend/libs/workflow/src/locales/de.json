@@ -300,7 +300,7 @@
       },
       "label": "Beschreiben Sie in einfachen Worten, welchen {{kind}} Sie möchten",
       "generating": "⟳ Wird erzeugt…",
-      "generate": "✨ Entwurf erzeugen",
+      "generate": "Entwurf erzeugen",
       "hint": "Die Entwurfserzeugung nutzt das LLM der Plattform. Je genauer Sie Ein- und Ausgaben sowie Delegation beschreiben (siehe Beispiel oben), desto besser wird der Entwurf. Lassen Sie das Feld leer, um stattdessen einen Beispiel-{{kind}} zu erzeugen. Prüfen und bearbeiten Sie den erzeugten Entwurf vor dem Speichern."
     },
     "skills": {
@@ -397,9 +397,9 @@
       "group": "Gruppe",
       "allGroups": "Alle Gruppen",
       "noGroup": "Keine Gruppe",
-      "export": "⬇ JSON exportieren",
+      "export": "JSON exportieren",
       "importLabel": "Workflows-JSON importieren",
-      "import": "⬆ JSON importieren",
+      "import": "JSON importieren",
       "unresolved": "{{count}} Referenz(en) konnten nicht aufgelöst werden:",
       "saveFailed": "Der Workflow konnte nicht gespeichert werden.",
       "deleteFailed": "Der Workflow konnte nicht gelöscht werden.",
@@ -420,7 +420,7 @@
       "emptyTitle": "Kein Workflow aktiv",
       "empty": "Starten Sie einen Workflow im Tab Übersicht, um ihn hier laufen zu sehen.",
       "stopping": "⟳ Wird gestoppt…",
-      "stop": "◼ Stoppen",
+      "stop": "Stoppen",
       "noRun": "Keine aktive Ausführung für diesen Workflow. Starten Sie ihn im Tab Übersicht oder wählen Sie oben einen Eintrag aus dem Verlauf, um ihn hier zu verfolgen.",
       "childRun": "Untergeordneter Lauf:",
       "reviewApproval": "Ausstehende Freigabe prüfen"
@@ -465,9 +465,9 @@
       "noDecisions": "Noch keine Entscheidungen aufgezeichnet",
       "decisionCounts": "Erlaubt {{allowed}} · Abgelehnt {{denied}} · Freigabe erforderlich {{requiresApproval}}",
       "starting": "⟳ Wird gestartet…",
-      "start": "▶ Starten",
+      "start": "Starten",
       "exporting": "⟳ Wird exportiert…",
-      "export": "⬇ Entscheidungsprotokolle exportieren",
+      "export": "Entscheidungsprotokolle exportieren",
       "openExecution": "Workflow-Ausführung öffnen"
     },
     "promptDialog": {
@@ -477,7 +477,7 @@
       "label": "Prompt",
       "placeholder": "Z. B.: Füge der Kundenübersicht einen Export-Button hinzu, der die Tabelle als CSV herunterlädt.",
       "starting": "⟳ Wird gestartet…",
-      "start": "▶ Mit Prompt starten"
+      "start": "Mit Prompt starten"
     },
     "confirmDelete": {
       "title": "{{name}} löschen?",

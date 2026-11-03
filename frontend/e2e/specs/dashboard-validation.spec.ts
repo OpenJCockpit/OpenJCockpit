@@ -31,7 +31,7 @@ test.describe('AC-11: rejected empty submission on ProjectSettings is accessible
     await enterDashboard(page);
 
     // Navigate from the project-selection grid into project settings. The
-    // footer control's accessible name is "⚙ Manage projects" — matched
+    // footer control's accessible name is "Manage projects" — matched
     // by substring so the glyph prefix is not part of the locator (AC-22).
     await page.getByRole('button', { name: /Manage projects/ }).click();
 

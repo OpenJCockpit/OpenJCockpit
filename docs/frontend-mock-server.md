@@ -10,7 +10,7 @@ From `frontend/`:
 npm run start:hub:mock
 ```
 
-This starts the same four dev servers as `start:hub` (dashboard on 4000, remotes on 4401, 4403 and 4404) with `MOCK_API=1`. To run the dashboard alone:
+This starts the same four dev servers as `start:hub` (dashboard on 4000, remotes on 4403 and 4404) with `MOCK_API=1`. To run the dashboard alone:
 
 ```
 npm run dev:mock -w @openjcockpit/dashboard

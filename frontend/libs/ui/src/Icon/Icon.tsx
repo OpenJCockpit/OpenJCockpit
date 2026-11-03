@@ -1,50 +1,156 @@
-import type { SVGAttributes } from 'react';
+import type { ComponentType } from 'react';
+import { ArrowClockwiseIcon as ArrowClockwise } from '@phosphor-icons/react/dist/csr/ArrowClockwise';
+import { ArrowCounterClockwiseIcon as ArrowCounterClockwise } from '@phosphor-icons/react/dist/csr/ArrowCounterClockwise';
+import { ArrowDownIcon as ArrowDown } from '@phosphor-icons/react/dist/csr/ArrowDown';
+import { ArrowLeftIcon as ArrowLeft } from '@phosphor-icons/react/dist/csr/ArrowLeft';
+import { ArrowRightIcon as ArrowRight } from '@phosphor-icons/react/dist/csr/ArrowRight';
+import { ArrowSquareOutIcon as ArrowSquareOut } from '@phosphor-icons/react/dist/csr/ArrowSquareOut';
+import { ArrowUpIcon as ArrowUp } from '@phosphor-icons/react/dist/csr/ArrowUp';
+import { ArrowsLeftRightIcon as ArrowsLeftRight } from '@phosphor-icons/react/dist/csr/ArrowsLeftRight';
+import { ArrowsOutSimpleIcon as ArrowsOutSimple } from '@phosphor-icons/react/dist/csr/ArrowsOutSimple';
+import { BellIcon as Bell } from '@phosphor-icons/react/dist/csr/Bell';
+import { CardsIcon as Cards } from '@phosphor-icons/react/dist/csr/Cards';
+import { ChatCircleIcon as ChatCircle } from '@phosphor-icons/react/dist/csr/ChatCircle';
+import { CheckIcon as Check } from '@phosphor-icons/react/dist/csr/Check';
+import { CheckCircleIcon as CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { CircleNotchIcon as CircleNotch } from '@phosphor-icons/react/dist/csr/CircleNotch';
+import { ClipboardTextIcon as ClipboardText } from '@phosphor-icons/react/dist/csr/ClipboardText';
+import { CodeIcon as Code } from '@phosphor-icons/react/dist/csr/Code';
+import { CubeIcon as Cube } from '@phosphor-icons/react/dist/csr/Cube';
+import { DotsSixVerticalIcon as DotsSixVertical } from '@phosphor-icons/react/dist/csr/DotsSixVertical';
+import { DotsThreeIcon as DotsThree } from '@phosphor-icons/react/dist/csr/DotsThree';
+import { FileTextIcon as FileText } from '@phosphor-icons/react/dist/csr/FileText';
+import { FireIcon as Fire } from '@phosphor-icons/react/dist/csr/Fire';
+import { FlaskIcon as Flask } from '@phosphor-icons/react/dist/csr/Flask';
+import { FolderSimpleIcon as FolderSimple } from '@phosphor-icons/react/dist/csr/FolderSimple';
+import { GearIcon as Gear } from '@phosphor-icons/react/dist/csr/Gear';
+import { GithubLogoIcon as GithubLogo } from '@phosphor-icons/react/dist/csr/GithubLogo';
+import { HandWavingIcon as HandWaving } from '@phosphor-icons/react/dist/csr/HandWaving';
+import { HexagonIcon as Hexagon } from '@phosphor-icons/react/dist/csr/Hexagon';
+import { HourglassIcon as Hourglass } from '@phosphor-icons/react/dist/csr/Hourglass';
+import { HouseIcon as House } from '@phosphor-icons/react/dist/csr/House';
+import { ListBulletsIcon as ListBullets } from '@phosphor-icons/react/dist/csr/ListBullets';
+import { MagnifyingGlassIcon as MagnifyingGlass } from '@phosphor-icons/react/dist/csr/MagnifyingGlass';
+import { PauseIcon as Pause } from '@phosphor-icons/react/dist/csr/Pause';
+import { PlayIcon as Play } from '@phosphor-icons/react/dist/csr/Play';
+import { PlusIcon as Plus } from '@phosphor-icons/react/dist/csr/Plus';
+import { ProhibitIcon as Prohibit } from '@phosphor-icons/react/dist/csr/Prohibit';
+import { PulseIcon as Pulse } from '@phosphor-icons/react/dist/csr/Pulse';
+import { QuestionIcon as Question } from '@phosphor-icons/react/dist/csr/Question';
+import { ShieldCheckIcon as ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
+import { SidebarSimpleIcon as SidebarSimple } from '@phosphor-icons/react/dist/csr/SidebarSimple';
+import { SignOutIcon as SignOut } from '@phosphor-icons/react/dist/csr/SignOut';
+import { SkipForwardIcon as SkipForward } from '@phosphor-icons/react/dist/csr/SkipForward';
+import { SlidersHorizontalIcon as SlidersHorizontal } from '@phosphor-icons/react/dist/csr/SlidersHorizontal';
+import { SquareIcon as Square } from '@phosphor-icons/react/dist/csr/Square';
+import { SquaresFourIcon as SquaresFour } from '@phosphor-icons/react/dist/csr/SquaresFour';
+import { TreeStructureIcon as TreeStructure } from '@phosphor-icons/react/dist/csr/TreeStructure';
+import { UserCircleIcon as UserCircle } from '@phosphor-icons/react/dist/csr/UserCircle';
+import { WarningIcon as Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { XIcon as X } from '@phosphor-icons/react/dist/csr/X';
+import type { IconProps as PhosphorIconProps } from '@phosphor-icons/react';
+import { StopIcon as Stop } from '@phosphor-icons/react/dist/csr/Stop';
+import { GitBranchIcon as GitBranch } from '@phosphor-icons/react/dist/csr/GitBranch';
+import { SparkleIcon as Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { LightningIcon as Lightning } from '@phosphor-icons/react/dist/csr/Lightning';
+import { DownloadSimpleIcon as DownloadSimple } from '@phosphor-icons/react/dist/csr/DownloadSimple';
+import { UploadSimpleIcon as UploadSimple } from '@phosphor-icons/react/dist/csr/UploadSimple';
+import { CircleIcon as Circle } from '@phosphor-icons/react/dist/csr/Circle';
+import { CloudIcon as Cloud } from '@phosphor-icons/react/dist/csr/Cloud';
 import { cx } from '../cx';
 
 import styles from './Icon.module.scss';
 
-// Stroke paths on a 24x24 grid. Keeping them here (not in i18n strings) means the glyph looks
-// the same on every OS and a translator never has to carry it.
-const PATHS = {
-  check: 'M5 12.5l4.5 4.5L19 7.5',
-  close: 'M6 6l12 12M18 6L6 18',
-  refresh: 'M20 11a8 8 0 10-2.3 5.7M20 5v6h-6',
-  settings:
-    'M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM19.4 13.5a1.6 1.6 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.6 1.6 0 00-1.8-.3 1.6 1.6 0 00-1 1.5V19a2 2 0 11-4 0v-.1a1.6 1.6 0 00-1-1.5 1.6 1.6 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.6 1.6 0 00.3-1.8 1.6 1.6 0 00-1.5-1H5a2 2 0 110-4h.1a1.6 1.6 0 001.5-1 1.6 1.6 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.6 1.6 0 001.8.3h0a1.6 1.6 0 001-1.5V5a2 2 0 114 0v.1a1.6 1.6 0 001 1.5 1.6 1.6 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.6 1.6 0 00-.3 1.8v0a1.6 1.6 0 001.5 1h.1a2 2 0 110 4h-.1a1.6 1.6 0 00-1.5 1z',
-  search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
-  plus: 'M12 5v14M5 12h14',
-  'arrow-left': 'M19 12H5M11 6l-6 6 6 6',
-  'arrow-right': 'M5 12h14M13 6l6 6-6 6',
-  external: 'M14 5h5v5M19 5l-8 8M18 14v4a1 1 0 01-1 1H6a1 1 0 01-1-1V7a1 1 0 011-1h4',
-  spinner: 'M12 3a9 9 0 019 9',
-} as const;
+// Phosphor glyphs keyed by the app's own semantic names. Keeping the map here means call sites
+// never import the icon set directly, so swapping or adding a glyph is a one-file change.
+const ICONS = {
+  check: Check,
+  'check-circle': CheckCircle,
+  close: X,
+  refresh: ArrowClockwise,
+  settings: Gear,
+  search: MagnifyingGlass,
+  plus: Plus,
+  'arrow-left': ArrowLeft,
+  'arrow-right': ArrowRight,
+  external: ArrowSquareOut,
+  spinner: CircleNotch,
+  // Sidebar and hub apps
+  platform: House,
+  workflow: TreeStructure,
+  specFiles: FileText,
+  specQueue: ListBullets,
+  skillsHub: SquaresFour,
+  sliders: SlidersHorizontal,
+  project: FolderSimple,
+  logout: SignOut,
+  collapse: SidebarSimple,
+  pulse: Pulse,
+  quality: ShieldCheck,
+  app: Square,
+  hand: HandWaving,
+  // Content and status
+  file: FileText,
+  cube: Cube,
+  grid: SquaresFour,
+  profile: UserCircle,
+  notifications: Bell,
+  messages: ChatCircle,
+  fire: Fire,
+  hourglass: Hourglass,
+  play: Play,
+  pause: Pause,
+  swap: ArrowsLeftRight,
+  skip: SkipForward,
+  cancel: Prohibit,
+  warning: Warning,
+  github: GithubLogo,
+  agent: Hexagon,
+  requirement: ClipboardText,
+  'test-design': Flask,
+  code: Code,
+  evidence: Cards,
+  handle: DotsSixVertical,
+  resize: ArrowsOutSimple,
+  reset: ArrowCounterClockwise,
+  'arrow-up': ArrowUp,
+  'arrow-down': ArrowDown,
+  more: DotsThree,
+  unknown: Question,
+  stop: Stop,
+  branch: GitBranch,
+  sparkle: Sparkle,
+  lightning: Lightning,
+  download: DownloadSimple,
+  upload: UploadSimple,
+  circle: Circle,
+  cloud: Cloud,
+} as const satisfies Record<string, ComponentType<PhosphorIconProps>>;
 
-export type IconName = keyof typeof PATHS;
+export type IconName = keyof typeof ICONS;
 
-interface IconProps extends Omit<SVGAttributes<SVGSVGElement>, 'children'> {
+/** Whether `name` is a drawable icon; lets callers fall back for names they do not control. */
+export function isIconName(name: string): name is IconName {
+  return Object.hasOwn(ICONS, name);
+}
+
+interface IconProps extends Omit<PhosphorIconProps, 'children'> {
   name: IconName;
 }
 
 /**
- * Decorative inline icon, sized to the surrounding text and coloured by `currentColor`.
- * It is hidden from assistive tech: put the meaning in the adjacent label, or an `aria-label`
- * on the parent when the icon stands alone.
+ * Decorative inline Phosphor icon, sized to the surrounding text (1em) and coloured by
+ * `currentColor`. It is hidden from assistive tech: put the meaning in the adjacent label, or an
+ * `aria-label` on the parent when the icon stands alone.
  */
 export function Icon({ name, className, ...rest }: IconProps) {
+  const Glyph = ICONS[name];
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+    <Glyph
       aria-hidden="true"
       focusable="false"
       className={cx(styles.icon, name === 'spinner' && styles.spin, className)}
       {...rest}
-    >
-      <path d={PATHS[name]} />
-    </svg>
+    />
   );
 }

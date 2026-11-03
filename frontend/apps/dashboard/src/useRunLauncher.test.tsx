@@ -20,6 +20,8 @@ const prompted = { id: 'w2', name: 'Prompted', promptRequired: true } as Workflo
 const specCreate = { id: 'wf-spec-create', name: 'Create spec' } as WorkflowDefinition;
 const spec = { fileName: 'a.md' } as SpecFile;
 
+const onStarted = vi.fn();
+
 function setup(options: Partial<Parameters<typeof useRunLauncher>[0]> = {}) {
   return renderHook(() =>
     useRunLauncher({
@@ -27,6 +29,7 @@ function setup(options: Partial<Parameters<typeof useRunLauncher>[0]> = {}) {
       projectWorkflows: [plain, prompted],
       selectedWorkflowId: 'w1',
       selectedSpec: spec,
+      onStarted,
       ...options,
     }),
   );
@@ -39,13 +42,13 @@ describe('useRunLauncher', () => {
     vi.mocked(api.startWorkflow).mockResolvedValue({ executionId: 'run-1' } as never);
   });
 
-  it('starts idle with no run', () => {
+  it('starts idle and not started', () => {
     const { result } = setup();
     expect(result.current.buttonState).toBe('idle');
-    expect(result.current.activeRun).toBeNull();
+    expect(onStarted).not.toHaveBeenCalled();
   });
 
-  it('runs pre-flight, starts the workflow with the project context and tracks the run', async () => {
+  it('runs pre-flight, starts the workflow with the project context and reports the started run', async () => {
     const { result } = setup();
     await act(() => result.current.handleStartWorkflow());
     expect(api.checkWorkflowPreflight).toHaveBeenCalledWith('p1');
@@ -54,9 +57,8 @@ describe('useRunLauncher', () => {
       repositoryUrl: 'https://git/x',
       projectId: 'p1',
     });
-    expect(result.current.activeRun).toEqual({ workflow: plain, runId: 'run-1' });
+    expect(onStarted).toHaveBeenCalledWith(plain, 'run-1');
     expect(result.current.buttonState).toBe('idle');
-    expect(result.current.runEnded).toBe(false);
   });
 
   it('does nothing when the selected workflow is unknown', async () => {
@@ -77,7 +79,7 @@ describe('useRunLauncher', () => {
       expect.objectContaining({ prompt: 'do the thing' }),
     );
     expect(result.current.promptWorkflow).toBeNull();
-    expect(result.current.activeRun?.runId).toBe('run-1');
+    expect(onStarted).toHaveBeenCalledWith(prompted, 'run-1');
   });
 
   it('ignores a prompt submission without a pending prompt', async () => {
@@ -128,7 +130,7 @@ describe('useRunLauncher', () => {
     await act(() => result.current.handleStartWorkflow());
     expect(result.current.startError).toBe('queue item active');
     expect(result.current.buttonState).toBe('error');
-    expect(result.current.activeRun).toBeNull();
+    expect(onStarted).not.toHaveBeenCalled();
   });
 
   it('falls back to a generic message for a non-Error start failure', async () => {
@@ -146,23 +148,12 @@ describe('useRunLauncher', () => {
     expect(api.initSpecFolder).not.toHaveBeenCalled();
   });
 
-  it('marks a run as ended and clears it for a new run', async () => {
-    const { result } = setup();
-    await act(() => result.current.handleStartWorkflow());
-    act(() => result.current.markRunEnded());
-    expect(result.current.runEnded).toBe(true);
-    act(() => result.current.handleNewRun());
-    expect(result.current.activeRun).toBeNull();
-    expect(result.current.runEnded).toBe(false);
-  });
-
   it('resets all run state', async () => {
     vi.mocked(api.startWorkflow).mockRejectedValueOnce(new Error('x'));
     const { result } = setup();
     await act(() => result.current.handleStartWorkflow());
     act(() => result.current.reset());
     expect(result.current.startError).toBeNull();
-    expect(result.current.activeRun).toBeNull();
     expect(result.current.initResult).toBeNull();
     expect(result.current.initError).toBeNull();
   });

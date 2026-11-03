@@ -141,12 +141,17 @@ describe('App routing', () => {
     renderRoutedApp('/nope');
     expect(await screen.findByTestId('not-found')).toHaveTextContent('This page does not exist.');
     await clickAsync(screen.getByRole('button', { name: 'Back to dashboard' }));
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+    expect(await screen.findByText('Start')).toBeInTheDocument();
+  });
+
+  it('says so when a run screen names a workflow the project does not have', async () => {
+    renderRoutedApp(`${ROUTES.dashboardRun}/run-1?workflow=missing`);
+    expect(await screen.findByRole('alert')).toHaveTextContent('This workflow could not be found.');
   });
 
   it('opens the dashboard at the root', async () => {
     renderRoutedApp(ROUTES.root);
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+    expect(await screen.findByText('Start')).toBeInTheDocument();
   });
 
   it('returns to the originally requested view after choosing a project', async () => {
@@ -221,8 +226,8 @@ describe('App routing', () => {
       passed: false,
       errors: [{ code: 'GIT_AUTH_FAILED', message: 'denied' }],
     });
-    renderRoutedApp('/dashboard');
-    await clickAsync(await screen.findByText('▶ Start'));
+    renderRoutedApp('/home');
+    await clickAsync(await screen.findByText('Start'));
     await clickAsync(await screen.findByRole('button', { name: 'Check Git settings' }));
     expect(await screen.findByTestId('settings-section-projects')).toBeInTheDocument();
   });
@@ -231,13 +236,13 @@ describe('App routing', () => {
     localStorage.clear();
     renderRoutedApp('/projects');
     await clickAsync(await screen.findByRole('button', { name: 'Select Test Project' }));
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+    expect(await screen.findByText('Start')).toBeInTheDocument();
   });
 
   it('keeps the workflow the user picked in the launcher', async () => {
     const second = { ...WORKFLOW, id: 'wf-2', name: 'Second workflow' };
     vi.mocked(api.listWorkflows).mockResolvedValue([WORKFLOW, second]);
-    renderRoutedApp('/dashboard');
+    renderRoutedApp('/home');
     const picker = await screen.findByLabelText('Workflow');
     await waitFor(() => expect(picker).toHaveTextContent('Spec to pull request'));
     chooseOption(picker, 'Second workflow');
@@ -246,20 +251,20 @@ describe('App routing', () => {
 
   it('shows an error instead of the hero when the workspace fails to load', async () => {
     vi.mocked(api.loadWorkspace).mockRejectedValue(new Error('boom'));
-    renderRoutedApp('/dashboard');
+    renderRoutedApp('/home');
     expect(await screen.findByText('Failed to load the workspace.')).toBeInTheDocument();
   });
 });
 
 describe('App remote apps', () => {
   const remoteApp = (requiredPermissions: string[]) => ({
-    id: 'hello',
+    id: 'sample',
     labelKey: 'x',
     icon: 'x',
-    route: '/hello' as const,
+    route: '/sample' as const,
     order: 1,
     requiredPermissions,
-    loadRoutes: () => Promise.resolve([{ index: true, element: <p>hello remote</p> }]),
+    loadRoutes: () => Promise.resolve([{ index: true, element: <p>sample remote</p> }]),
   });
 
   beforeEach(() => {
@@ -272,19 +277,14 @@ describe('App remote apps', () => {
   });
 
   it('mounts a loaded remote app at its route', async () => {
-    renderRoutedApp('/hello', { apps: [remoteApp([])], failed: [] });
-    expect(await screen.findByText('hello remote')).toBeInTheDocument();
+    renderRoutedApp('/sample', { apps: [remoteApp([])], failed: [] });
+    expect(await screen.findByText('sample remote')).toBeInTheDocument();
   });
 
   it('sends a user without the permission to the 403 page', async () => {
-    renderRoutedApp('/hello', { apps: [remoteApp(['hello.read'])], failed: [] });
+    renderRoutedApp('/sample', { apps: [remoteApp(['sample.read'])], failed: [] });
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'You do not have access to this page.',
     );
-  });
-
-  it('lists remotes that failed to load', async () => {
-    renderRoutedApp(ROUTES.landing, { apps: [], failed: ['broken'] });
-    expect(await screen.findByRole('status')).toHaveTextContent('broken');
   });
 });

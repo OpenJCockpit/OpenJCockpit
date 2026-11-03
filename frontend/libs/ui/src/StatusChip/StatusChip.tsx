@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 import { cx } from '../cx';
 import styles from './StatusChip.module.scss';
 
@@ -30,12 +30,16 @@ const KIND_CLASS: Record<StatusKind, string> = {
 interface StatusChipProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
   label: string;
   kind: StatusKind;
+  /** Decorative glyph drawn before the label; the label carries the meaning. */
+  icon?: ReactNode;
 }
 
 /** The one status look: project, workflow, queue and Skills Hub state all render through it. */
-export function StatusChip({ label, kind, className, ...rest }: StatusChipProps) {
+export function StatusChip({ label, kind, icon, className, ...rest }: StatusChipProps) {
   return (
     <span className={cx(styles.statusChip, KIND_CLASS[kind], className)} {...rest}>
+      {icon}
+      {icon ? ' ' : null}
       {label}
     </span>
   );

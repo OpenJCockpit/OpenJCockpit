@@ -7,8 +7,8 @@ unavailable" notice. No host code changes to add an app.
 
 ## Steps
 
-1. Create `frontend/libs/<name>-hub` (tag `type:feature`) exporting an `AppDefinition` and its relative routes. See `libs/hello-hub`.
-2. Copy `frontend/apps/remote-hello` to `apps/remote-<name>` (tag `type:remote`): set `name` and `exposes['./app']` in `vite.config.ts`, a fixed dev port (4401+), and re-export the definition plus `contractVersion` in `src/app-entry.ts`.
+1. Create `frontend/libs/<name>-hub` (tag `type:feature`) exporting an `AppDefinition` and its relative routes. See `libs/skills-hub`.
+2. Copy `frontend/apps/remote-skills-hub` to `apps/remote-<name>` (tag `type:remote`): set `name` and `exposes['./app']` in `vite.config.ts`, a fixed dev port (4403+), and re-export the definition plus `contractVersion` in `src/app-entry.ts`.
 3. Add the lib alias to `tsconfig.base.json` and the remote to the `start:hub` / `build:hub` scripts.
 4. Add `"<name>": "<origin>/mf-manifest.json"` to the host manifest.
 
@@ -63,7 +63,7 @@ Host env, rendered by nginx at container start (all `no-store`):
 
 Keep the last two in step. Remote env: `HOST_ORIGIN` (default `http://localhost:4000`) is the only origin CORS allows. The remote serves `mf-manifest.json` and `remoteEntry.js` as `no-store`, `/assets/` as immutable, and answers a missing file with a plain 404 (no HTML fallback).
 
-`docker-compose.yml` runs the host plus the three remotes on ports 4401, 4403 and 4404 with these variables set.
+`docker-compose.yml` runs the host plus the remotes on ports 4403 (skills hub), 4404 (specs), 4405 (evidence) and 4406 (quality) with these variables set.
 
 Adding an app to a deployed hub: deploy the remote image, then add its origin to the three host variables and restart the host.
 

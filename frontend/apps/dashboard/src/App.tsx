@@ -17,11 +17,12 @@ import {
   RequirePermission,
 } from '@openjcockpit/hub-contract';
 import type { PortalId } from '@openjcockpit/landing-hub';
+import { HubStatusBar } from './components/StatusBar/StatusBar';
 import { SiteHeader } from './components/SiteHeader/SiteHeader';
 import { Forbidden } from './federation/Forbidden';
 import { HubProjectProvider } from './federation/HubProjectProvider';
 import { HubSessionProvider } from './federation/HubSessionProvider';
-import { RemoteFailuresNotice, useRemoteApps } from './federation/RemoteApps';
+import { useRemoteApps } from './federation/RemoteApps';
 import { RemoteRoutes } from './federation/RemoteRoutes';
 import { ViewLoading } from './federation/ViewLoading';
 import { APP_TITLE } from './appTitle';
@@ -32,6 +33,7 @@ import { LandingHubRoute } from './routeViews/LandingHubRoute';
 import { LandingRoute } from './routeViews/LandingRoute';
 import { NotFound } from './routeViews/NotFound';
 import { Home } from './home/Home';
+import { RunRoute } from './routeViews/RunRoute';
 import { ProjectSelectionRoute } from './routeViews/ProjectSelectionRoute';
 import { RequireProject } from './routeViews/RequireProject';
 import type { ShellProps } from './routeViews/shell';
@@ -45,7 +47,6 @@ const TITLE_KEYS = {
   [ROUTES.home]: 'pageTitle.home',
   [ROUTES.landing]: 'pageTitle.landing',
   [ROUTES.projects]: 'pageTitle.projects',
-  [ROUTES.dashboard]: 'siteHeader.nav.platform',
   [ROUTES.workflow]: 'siteHeader.nav.workflow',
   [ROUTES.specFiles]: 'siteHeader.nav.specFiles',
   [ROUTES.specQueue]: 'siteHeader.nav.specQueue',
@@ -104,7 +105,7 @@ function App() {
 
   function handleSelectPortal(portal: PortalId) {
     // RequireProject sends a project-less user to selection and then on to the chosen view.
-    void navigate(portal === 'business' ? ROUTES.specFiles : ROUTES.dashboard);
+    void navigate(portal === 'business' ? ROUTES.specFiles : ROUTES.home);
   }
 
   function handleLogout() {
@@ -137,7 +138,6 @@ function App() {
       >
         <AppRegistryProvider apps={apps}>
           <HubHeaderContext.Provider value={<SiteHeader {...shell} />}>
-            <RemoteFailuresNotice />
             <ErrorBoundary
               resetKeys={[location.pathname]}
               message={tCommon('somethingWrong')}
@@ -151,7 +151,9 @@ function App() {
                       isFeatureEnabled(FEATURE_FLAGS.hub) ? (
                         <Home />
                       ) : (
-                        <Navigate to={ROUTES.dashboard} replace />
+                        <RequireProject project={selectedProject}>
+                          <DashboardRoute shell={shell} />
+                        </RequireProject>
                       )
                     }
                   />
@@ -159,7 +161,7 @@ function App() {
                     path={ROUTES.root}
                     element={
                       <LandingRoute>
-                        <Navigate to={ROUTES.dashboard} replace />
+                        <Navigate to={ROUTES.home} replace />
                       </LandingRoute>
                     }
                   />
@@ -182,10 +184,10 @@ function App() {
                     }
                   />
                   <Route
-                    path={ROUTES.dashboard}
+                    path={`${ROUTES.dashboardRun}/:runId`}
                     element={
                       <RequireProject project={selectedProject}>
-                        <DashboardRoute shell={shell} />
+                        <RunRoute shell={shell} />
                       </RequireProject>
                     }
                   />
@@ -213,6 +215,7 @@ function App() {
                 </Routes>
               </Suspense>
             </ErrorBoundary>
+            <HubStatusBar project={selectedProject} />
           </HubHeaderContext.Provider>
         </AppRegistryProvider>
       </HubProjectProvider>

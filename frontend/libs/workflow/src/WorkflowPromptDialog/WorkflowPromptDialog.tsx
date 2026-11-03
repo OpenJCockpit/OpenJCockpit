@@ -8,6 +8,7 @@ import {
   fieldHintClass,
   formInputClass,
   Button,
+  Icon,
 } from '@openjcockpit/ui';
 import styles from './WorkflowPromptDialog.module.scss';
 
@@ -61,7 +62,13 @@ export function WorkflowPromptDialog({ workflowName, busy, onSubmit, onCancel }:
           onClick={() => onSubmit(prompt.trim())}
           disabled={busy || prompt.trim().length === 0}
         >
-          {busy ? t('promptDialog.starting') : t('promptDialog.start')}
+          {busy ? (
+            t('promptDialog.starting')
+          ) : (
+            <>
+              <Icon name="play" /> {t('promptDialog.start')}
+            </>
+          )}
         </Button>
         <Button variant="secondary" onClick={onCancel} disabled={busy}>
           {t('shared.cancel')}

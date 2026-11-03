@@ -1,6 +1,6 @@
 import { useTranslation } from '@openjcockpit/i18n';
 import type { WorkflowDefinition } from '@openjcockpit/api';
-import { StatusChip, Button, feedbackResultClass } from '@openjcockpit/ui';
+import { StatusChip, Button, feedbackResultClass, Icon } from '@openjcockpit/ui';
 import styles from './FlowPanel.module.scss';
 
 interface Props {
@@ -16,7 +16,7 @@ export function SpecTemplatePresent({ specCreateWorkflow, onCreateSpec }: Props)
       <StatusChip label={t('flow.template.present')} kind="ok" />
       <p>{t('flow.template.text')}</p>
       <Button variant="primary" onClick={onCreateSpec} disabled={!specCreateWorkflow}>
-        {t('flow.template.createSpec')}
+        <Icon name="sparkle" /> {t('flow.template.createSpec')}
       </Button>
       {!specCreateWorkflow && (
         <p className={styles.workflowLauncherHint}>{t('flow.template.unavailable')}</p>

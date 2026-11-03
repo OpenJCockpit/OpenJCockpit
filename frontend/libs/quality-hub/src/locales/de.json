@@ -1,0 +1,27 @@
+{
+  "quality": {
+    "loading": "Lädt…",
+    "failed": "Die Daten konnten nicht geladen werden.",
+    "retry": "Erneut versuchen",
+    "noProject": "Wähle ein Projekt, um dies zu sehen.",
+    "back": "Zurück zum Dashboard",
+    "sampleData": "Beispieldaten",
+    "title": "Qualitätsstatus",
+    "controls": {
+      "unitTestCoverage": "Unit-Test-Abdeckung",
+      "nist2": "NIST 2",
+      "owaspZap": "OWASP ZAP",
+      "iso25010": "ISO 25010",
+      "sast": "SAST",
+      "dependencyScan": "Abhängigkeitsprüfung",
+      "architectureRules": "Architekturregeln"
+    },
+    "details": {
+      "noCriticalIssues": "Keine kritischen Probleme",
+      "allAttributes": "8/8 Attribute",
+      "noHighIssues": "Keine schwerwiegenden Probleme",
+      "noKnownVulnerabilities": "Keine bekannten Schwachstellen",
+      "noDeviations": "0 Abweichungen"
+    }
+  }
+}

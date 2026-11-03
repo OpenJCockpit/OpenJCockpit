@@ -7,18 +7,18 @@ import type {
   StatusKind,
 } from '@openjcockpit/api';
 import { useTranslation, type TFunction } from '@openjcockpit/i18n';
-import { StatusChip, Tooltip, cx } from '@openjcockpit/ui';
+import { Icon, StatusChip, Tooltip, cx, type IconName } from '@openjcockpit/ui';
 import styles from './AgentSequencer.module.scss';
 
-const DEFAULT_AGENT_ICON = '⬡';
+const DEFAULT_AGENT_ICON: IconName = 'agent';
 
-const AGENT_ICON: Record<string, string> = {
-  requirement: '▣',
-  impact: '⌁',
-  'test-design': '△',
-  implementation: '</>',
-  review: '✓',
-  evidence: '▤',
+const AGENT_ICON: Record<string, IconName> = {
+  requirement: 'requirement',
+  impact: 'pulse',
+  'test-design': 'test-design',
+  implementation: 'code',
+  review: 'quality',
+  evidence: 'evidence',
 };
 
 function compactStatus(
@@ -124,8 +124,9 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
                   role="status"
                   aria-label={orbLabel}
                 >
-                  {/* eslint-disable-next-line i18next/no-literal-string -- decorative glyph */}
-                  <div className={styles.sequencerIcon}>⬢</div>
+                  <div className={styles.sequencerIcon}>
+                    <Icon name="agent" />
+                  </div>
                   <div className={styles.sequencerMeta}>
                     <strong>{node.referencedWorkflowName}</strong>
                     <span className={styles.sequencerOrbMode}>{orbMode}</span>
@@ -163,7 +164,7 @@ export function AgentSequencer({ nodes, definitions, latestEvents = {} }: Props)
                 onDragEnd={handleDragEnd}
               >
                 <div className={styles.sequencerIcon}>
-                  {AGENT_ICON[agent.id] ?? DEFAULT_AGENT_ICON}
+                  <Icon name={AGENT_ICON[agent.id] ?? DEFAULT_AGENT_ICON} />
                 </div>
                 <div className={styles.sequencerMeta}>
                   <strong>{agent.name}</strong>

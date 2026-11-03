@@ -9,18 +9,18 @@
       "compactNotReachable": "Git not reachable"
     },
     "selection": {
-      "backToHub": "← Hub",
+      "backToHub": "Hub",
       "repoReachable": "Git repository reachable",
       "repoNotReachable": "Git repository not reachable",
       "statusUnknown": "Git status unknown",
       "title": "Select a project",
       "subtitle": "Choose the project you want to work on",
       "empty": "No active projects available.",
-      "manageArrow": "Manage projects →",
-      "manageGear": "⚙ Manage projects",
+      "manageArrow": "Manage projects",
+      "manageGear": "Manage projects",
       "owner": "Owner: {{owner}}",
       "branch": "Branch: {{branch}}",
-      "notReachableNotice": "Repository not reachable. Update the project via ⚙ Manage projects."
+      "notReachableNotice": "Repository not reachable. Update the project via Manage projects."
     },
     "settings": {
       "loading": "Loading projects…",

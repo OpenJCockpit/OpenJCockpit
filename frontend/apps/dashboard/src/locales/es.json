@@ -5,26 +5,37 @@
     "forbidden": "No tienes acceso a esta página.",
     "notFound": "Esta página no existe.",
     "backToDashboard": "Volver al panel",
-    "unavailableApps": "Algunas aplicaciones no están disponibles: {{names}}",
     "home": {
       "eyebrow": "Inicio",
       "title": "Bienvenido",
       "greeting": "Bienvenido, {{name}}",
+      "selectProject": "Selecciona un proyecto para ver esto.",
       "customise": "Personalizar",
       "done": "Hecho",
       "reset": "Restablecer",
       "empty": "Aún no hay widgets en tu Inicio. Elige Personalizar para añadir algunos.",
-      "available": "Widgets disponibles",
-      "noneAvailable": "Todos los widgets disponibles ya están en tu Inicio.",
       "add": "Añadir",
-      "open": "Abrir",
+      "view": "Ver {{name}}",
       "moveEarlier": "Mover antes",
       "moveLater": "Mover después",
-      "narrower": "Más estrecho",
-      "wider": "Más ancho",
-      "shorter": "Más bajo",
-      "taller": "Más alto",
-      "remove": "Quitar"
+      "remove": "Quitar",
+      "resize": "Cambiar tamaño",
+      "resizeHint": "Cambiar tamaño (arrastra la esquina o usa las flechas)",
+      "customiseTitle": "Personaliza tu Inicio",
+      "customiseHint": "Arrastra para reordenar. Arrastra desde la biblioteca para añadir, o de vuelta para quitar. Solo tú ves este diseño.",
+      "cancel": "Cancelar",
+      "libraryTitle": "Biblioteca de widgets",
+      "librarySubtitle": "Todo lo disponible para ti",
+      "search": "Buscar widgets",
+      "all": "Todos",
+      "onHome": "En Inicio",
+      "noMatches": "Ningún widget coincide.",
+      "dragHandle": "Arrastrar para mover",
+      "sizeCompact": "Compacto",
+      "sizeStandard": "Estándar",
+      "sizeWide": "Ancho",
+      "sizeFull": "Ancho completo",
+      "dropToRemove": "Suelta aquí para quitar de Inicio"
     },
     "pageTitle": {
       "home": "Inicio",
@@ -39,19 +50,24 @@
       "activeProject": "Proyecto activo",
       "language": "Idioma",
       "theme": "Tema",
-      "themes": { "system": "Sistema", "light": "Claro", "dark": "Oscuro" },
+      "themes": {
+        "system": "Sistema",
+        "light": "Claro",
+        "dark": "Oscuro"
+      },
       "settings": "Ajustes",
       "projectSettings": "Ajustes del proyecto",
       "logOut": "Cerrar sesión",
       "logout": "Cerrar sesión",
       "nav": {
-        "platform": "Plataforma",
+        "platform": "Inicio",
         "workflow": "Diseño y ejecución de workflows",
         "specFiles": "Archivos de especificación",
         "specQueue": "Cola de especificaciones",
         "skillsHub": "Skills Hub",
         "skillsHubBadge": "Marketplaces conectados",
-        "hub": "Hub"
+        "evidence": "Evidencia de ejecución",
+        "quality": "Estado de calidad"
       },
       "groups": {
         "work": "Trabajo",
@@ -62,9 +78,9 @@
     },
     "sampleData": "Datos de ejemplo",
     "statusBar": {
-      "environment": "● Entorno: {{value}}",
-      "region": "☁ Región: {{value}}",
-      "classification": "⬡ Clasificación: {{value}}",
+      "environment": "Entorno: {{value}}",
+      "region": "Región: {{value}}",
+      "classification": "Clasificación: {{value}}",
       "embabelVersion": "Versión de Embabel: {{value}}",
       "springAiControlVersion": "Spring AI Control Service: {{value}}",
       "copyright": "© 2026 Metafactory B.V."
@@ -92,20 +108,21 @@
     "flow": {
       "specsFailedTitle": "No se pudieron cargar las specs",
       "specsFailed": "No se pudieron cargar las specs. El servidor no respondió correctamente.",
-      "startNewWorkflow": "↺ Iniciar nuevo workflow",
+      "startNewWorkflow": "Iniciar nuevo workflow",
+      "backToDashboard": "Volver al panel",
+      "runNotFound": "No se encontró este workflow.",
       "currentSpec": "Especificación actual",
       "specFolder": "Carpeta de especificaciones",
       "loadingSpecs": "Cargando especificaciones…",
       "noSpecsFound": "No se encontraron especificaciones",
-      "active": "Activo",
       "workflow": "Workflow",
       "reloadSpecs": "⟳ Recargar especificaciones",
       "openPullRequest": "Abrir pull request",
       "start": {
         "preflight": "⟳ Ejecutando comprobaciones previas…",
         "starting": "⟳ Iniciando…",
-        "error": "✕ Error",
-        "idle": "▶ Iniciar"
+        "error": "Error",
+        "idle": "Iniciar"
       },
       "specInit": {
         "option": "Inicialización de la carpeta de especificaciones — plantilla de especificación mediante pull request",
@@ -113,12 +130,12 @@
         "offered": "Pull request ofrecido",
         "pending": "Pull request abierto",
         "pendingText": "Ya hay preparada una rama con la plantilla de especificación{{branch}}. Fusiona el pull request correspondiente para añadir la carpeta .specify.",
-        "viewBranch": "⎇ Ver rama en el repositorio"
+        "viewBranch": "Ver rama en el repositorio"
       },
       "template": {
         "present": "Estructura de especificaciones presente",
         "text": "El repositorio ya tiene una carpeta .specify, pero todavía no hay especificaciones en la carpeta specs/. Crea la primera especificación con un prompt: el workflow combina tu prompt con el contenido del repositorio (RAG) en un archivo de especificación pequeño y ejecutable.",
-        "createSpec": "✨ Crear especificación con prompt",
+        "createSpec": "Crear especificación con prompt",
         "unavailable": "El workflow \"Crear especificación a partir de un prompt (RAG)\" no está disponible para este proyecto."
       },
       "launcher": {
@@ -129,16 +146,17 @@
     "specPanel": {
       "error": "No se pudieron cargar las specs. El servidor no respondió correctamente.",
       "retry": "Reintentar",
-      "title": "Especificación",
+      "title": "Lista de especificaciones",
       "loading": "Cargando especificaciones…",
-      "viewAll": "Ver todas las especificaciones",
       "lastModified": "Última modificación: {{value}}",
       "empty": {
         "title": "No se encontraron especificaciones",
         "text": "No hay carpeta specs/ con especificaciones en el repositorio",
-        "goToWorkflow": "⚡ Ir a Diseño y ejecución de workflows",
+        "goToWorkflow": "Ir a Diseño y ejecución de workflows",
         "hint": "Diseña o selecciona allí un workflow para crear archivos de especificación."
-      }
+      },
+      "preview": "Vista previa",
+      "viewAllCount": "Ver todas las specs ({{count}})"
     },
     "evidence": {
       "title": "Evidencia de ejecución",
@@ -234,9 +252,8 @@
       }
     },
     "apps": {
-      "hello": {
-        "label": "Hola",
-        "widgetTitle": "Hola"
+      "specWorkspace": {
+        "widgetTitle": "Espacio de specs"
       },
       "specQueue": {
         "widgetTitle": "Cola de specs"
@@ -246,6 +263,12 @@
       },
       "specFiles": {
         "widgetTitle": "Archivos de spec"
+      },
+      "evidence": {
+        "widgetTitle": "Evidencia de ejecución"
+      },
+      "quality": {
+        "widgetTitle": "Estado de calidad"
       }
     }
   }

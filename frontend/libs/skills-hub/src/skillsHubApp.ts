@@ -1,4 +1,4 @@
-import type { AppDefinition } from '@openjcockpit/hub-contract';
+import { OPT_IN_ONLY, type AppDefinition } from '@openjcockpit/hub-contract';
 import { SKILLS_HUB_ROUTE } from './skillsHubRoutes';
 import { useConnectedMarketplaces } from './contributions/useConnectedMarketplaces';
 
@@ -18,7 +18,7 @@ export const skillsHubApp: AppDefinition = {
       titleKey: 'siteHeader.nav.skillsHub',
       sourceAppId: 'skills-hub',
       requiredPermissions: [],
-      defaultFor: [],
+      defaultFor: OPT_IN_ONLY,
       link: SKILLS_HUB_ROUTE,
       component: () => import('./contributions/SkillsHubWidget'),
     },

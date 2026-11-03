@@ -1,16 +1,10 @@
 import type { SpecInitStatus, WorkflowDefinition } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
-import { WorkflowExecution } from '@openjcockpit/workflow';
 import type { useRunLauncher } from '../../useRunLauncher';
 import { PreflightAlert } from '../PreflightAlert/PreflightAlert';
-import {
-  StatusChip,
-  Eyebrow,
-  Panel,
-  PanelHeader,
-  Button,
-  feedbackErrorClass,
-} from '@openjcockpit/ui';
+import { Eyebrow, PanelHeader, Button, feedbackErrorClass } from '@openjcockpit/ui';
+import { specTitle } from '../SpecPanel/specMeta';
+import { SpecPreview } from './SpecPreview';
 import { SpecInitLauncher } from './SpecInitLauncher';
 import { SpecInitOffered } from './SpecInitOffered';
 import { SpecInitPending } from './SpecInitPending';
@@ -24,6 +18,7 @@ interface Props {
   specsError?: boolean;
   hasSpecs: boolean;
   selectedFileName: string | undefined;
+  selectedContent?: string;
   projectWorkflows: WorkflowDefinition[];
   selectedWorkflowId: string;
   onWorkflowChange: (id: string) => void;
@@ -38,6 +33,7 @@ export function FlowPanel({
   specsError = false,
   hasSpecs,
   selectedFileName,
+  selectedContent,
   projectWorkflows,
   selectedWorkflowId,
   onWorkflowChange,
@@ -46,39 +42,18 @@ export function FlowPanel({
   onOpenProjectSettings,
 }: Props) {
   const { t } = useTranslation('dashboard');
-  const {
-    buttonState,
-    preflightErrors,
-    activeRun,
-    runEnded,
-    startError,
-    initResult,
-    initError,
-    specCreateWorkflow,
-  } = launcher;
+  const { buttonState, preflightErrors, startError, initResult, initError, specCreateWorkflow } =
+    launcher;
+
+  const showPreview = hasSpecs && !specsLoading && !specsError && !!selectedContent;
 
   function renderTitle() {
     if (specsLoading) return t('flow.loadingSpecs');
     if (specsError) return t('flow.specsFailedTitle');
-    return hasSpecs ? selectedFileName : t('flow.noSpecsFound');
-  }
-
-  function renderActiveRun(run: NonNullable<typeof activeRun>) {
-    return (
-      <>
-        <WorkflowExecution
-          workflow={run.workflow}
-          runId={run.runId}
-          onRunEnded={launcher.markRunEnded}
-          showHistory={false}
-        />
-        {runEnded && (
-          <Button className={styles.workflowLauncherReset} onClick={launcher.handleNewRun}>
-            {t('flow.startNewWorkflow')}
-          </Button>
-        )}
-      </>
-    );
+    if (!hasSpecs) return t('flow.noSpecsFound');
+    return selectedFileName
+      ? specTitle({ fileName: selectedFileName, content: selectedContent })
+      : '';
   }
 
   function renderSpecInit() {
@@ -108,11 +83,10 @@ export function FlowPanel({
   }
 
   function renderBody() {
-    if (activeRun) return renderActiveRun(activeRun);
     if (specsLoading) return null;
     if (specsError) {
       return (
-        <div role="alert" data-testid="flow-specs-error">
+        <div role="alert" data-testid="flow-specs-error" className={styles.flowError}>
           <p className={feedbackErrorClass}>{t('flow.specsFailed')}</p>
           <Button onClick={onReloadSpecs}>{t('flow.reloadSpecs')}</Button>
         </div>
@@ -133,14 +107,11 @@ export function FlowPanel({
   }
 
   return (
-    <Panel className={styles.flowPanel}>
+    <div className={styles.flowPanel}>
       <PanelHeader className={styles.flowHeader}>
         <div>
           <Eyebrow>{hasSpecs ? t('flow.currentSpec') : t('flow.specFolder')}</Eyebrow>
           <h2>{renderTitle()}</h2>
-        </div>
-        <div className={styles.flowHeaderActions}>
-          {activeRun && !runEnded && <StatusChip label={t('flow.active')} kind="active" />}
         </div>
       </PanelHeader>
 
@@ -152,13 +123,22 @@ export function FlowPanel({
         />
       )}
 
-      {!activeRun && startError && (
+      {startError && (
         <p className={feedbackErrorClass} role="alert" data-testid="start-error">
           {startError}
         </p>
       )}
 
-      {renderBody()}
-    </Panel>
+      {showPreview ? (
+        <div className={styles.flowBody}>
+          {renderBody()}
+          <div className={styles.specPreview}>
+            <SpecPreview content={selectedContent} />
+          </div>
+        </div>
+      ) : (
+        renderBody()
+      )}
+    </div>
   );
 }

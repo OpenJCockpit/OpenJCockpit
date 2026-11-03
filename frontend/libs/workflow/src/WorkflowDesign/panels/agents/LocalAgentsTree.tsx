@@ -1,6 +1,6 @@
 import type { LocalCatalogAgent } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
-import { DataTable, fieldErrorClass } from '@openjcockpit/ui';
+import { DataTable, fieldErrorClass, Icon } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 interface FolderNode {
@@ -37,7 +37,7 @@ function FolderView({ node, depth }: { node: FolderNode; depth: number }) {
     <div className={depth > 0 ? WorkflowDesignStyles.agentCatalogFolder : undefined}>
       {depth > 0 && (
         <h4 className={WorkflowDesignStyles.agentCatalogFolderName} aria-level={3 + depth}>
-          📁 {node.name}
+          <Icon name="project" /> {node.name}
         </h4>
       )}
       {node.agents.length > 0 && <LocalAgentsTable agents={node.agents} />}

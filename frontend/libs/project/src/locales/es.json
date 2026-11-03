@@ -9,18 +9,18 @@
       "compactNotReachable": "Git no accesible"
     },
     "selection": {
-      "backToHub": "← Hub",
+      "backToHub": "Hub",
       "repoReachable": "Repositorio Git accesible",
       "repoNotReachable": "Repositorio Git no accesible",
       "statusUnknown": "Estado de Git desconocido",
       "title": "Selecciona un proyecto",
       "subtitle": "Elige el proyecto en el que quieres trabajar",
       "empty": "No hay proyectos activos disponibles.",
-      "manageArrow": "Gestionar proyectos →",
-      "manageGear": "⚙ Gestionar proyectos",
+      "manageArrow": "Gestionar proyectos",
+      "manageGear": "Gestionar proyectos",
       "owner": "Responsable: {{owner}}",
       "branch": "Rama: {{branch}}",
-      "notReachableNotice": "Repositorio no accesible. Actualiza el proyecto en ⚙ Gestionar proyectos."
+      "notReachableNotice": "Repositorio no accesible. Actualiza el proyecto en Gestionar proyectos."
     },
     "settings": {
       "loading": "Cargando proyectos…",

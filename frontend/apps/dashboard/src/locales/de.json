@@ -5,26 +5,37 @@
     "forbidden": "Du hast keinen Zugriff auf diese Seite.",
     "notFound": "Diese Seite existiert nicht.",
     "backToDashboard": "Zurück zum Dashboard",
-    "unavailableApps": "Einige Apps sind nicht verfügbar: {{names}}",
     "home": {
       "eyebrow": "Start",
       "title": "Willkommen",
       "greeting": "Willkommen, {{name}}",
+      "selectProject": "Wähle ein Projekt, um dies zu sehen.",
       "customise": "Anpassen",
       "done": "Fertig",
       "reset": "Auf Standard zurücksetzen",
       "empty": "Noch keine Widgets auf deiner Startseite. Wähle Anpassen, um welche hinzuzufügen.",
-      "available": "Verfügbare Widgets",
-      "noneAvailable": "Alle verfügbaren Widgets sind bereits auf deiner Startseite.",
       "add": "Hinzufügen",
-      "open": "Öffnen",
+      "view": "{{name}} ansehen",
       "moveEarlier": "Früher platzieren",
       "moveLater": "Später platzieren",
-      "narrower": "Schmaler",
-      "wider": "Breiter",
-      "shorter": "Niedriger",
-      "taller": "Höher",
-      "remove": "Entfernen"
+      "remove": "Entfernen",
+      "resize": "Größe ändern",
+      "resizeHint": "Größe ändern (Ecke ziehen oder Pfeiltasten nutzen)",
+      "customiseTitle": "Startseite anpassen",
+      "customiseHint": "Zum Sortieren ziehen. Aus der Bibliothek ziehen zum Hinzufügen, oder zurück zum Entfernen. Nur du siehst dieses Layout.",
+      "cancel": "Abbrechen",
+      "libraryTitle": "Widget-Bibliothek",
+      "librarySubtitle": "Alles, was dir zur Verfügung steht",
+      "search": "Widgets suchen",
+      "all": "Alle",
+      "onHome": "Auf Start",
+      "noMatches": "Keine passenden Widgets.",
+      "dragHandle": "Zum Verschieben ziehen",
+      "sizeCompact": "Kompakt",
+      "sizeStandard": "Standard",
+      "sizeWide": "Breit",
+      "sizeFull": "Volle Breite",
+      "dropToRemove": "Hier ablegen, um von der Startseite zu entfernen"
     },
     "pageTitle": {
       "home": "Start",
@@ -39,19 +50,24 @@
       "activeProject": "Aktives Projekt",
       "language": "Sprache",
       "theme": "Design",
-      "themes": { "system": "System", "light": "Hell", "dark": "Dunkel" },
+      "themes": {
+        "system": "System",
+        "light": "Hell",
+        "dark": "Dunkel"
+      },
       "settings": "Einstellungen",
       "projectSettings": "Projekteinstellungen",
       "logOut": "Abmelden",
       "logout": "Abmelden",
       "nav": {
-        "platform": "Plattform",
+        "platform": "Startseite",
         "workflow": "Workflow-Design & -Ausführung",
         "specFiles": "Spec-Dateien",
         "specQueue": "Spec-Warteschlange",
         "skillsHub": "Skills-Hub",
         "skillsHubBadge": "Verbundene Marktplätze",
-        "hub": "Hub"
+        "evidence": "Ausführungsnachweis",
+        "quality": "Qualitätsstatus"
       },
       "groups": {
         "work": "Arbeit",
@@ -62,9 +78,9 @@
     },
     "sampleData": "Beispieldaten",
     "statusBar": {
-      "environment": "● Umgebung: {{value}}",
-      "region": "☁ Region: {{value}}",
-      "classification": "⬡ Klassifizierung: {{value}}",
+      "environment": "Umgebung: {{value}}",
+      "region": "Region: {{value}}",
+      "classification": "Klassifizierung: {{value}}",
       "embabelVersion": "Embabel-Version: {{value}}",
       "springAiControlVersion": "Spring AI Control Service: {{value}}",
       "copyright": "© 2026 Metafactory B.V."
@@ -92,20 +108,21 @@
     "flow": {
       "specsFailedTitle": "Die Specs konnten nicht geladen werden",
       "specsFailed": "Die Specs konnten nicht geladen werden. Der Server hat nicht korrekt geantwortet.",
-      "startNewWorkflow": "↺ Neuen Workflow starten",
+      "startNewWorkflow": "Neuen Workflow starten",
+      "backToDashboard": "Zurück zum Dashboard",
+      "runNotFound": "Dieser Workflow wurde nicht gefunden.",
       "currentSpec": "Aktuelle Spec",
       "specFolder": "Spec-Ordner",
       "loadingSpecs": "Specs werden geladen…",
       "noSpecsFound": "Keine Specs gefunden",
-      "active": "Aktiv",
       "workflow": "Workflow",
       "reloadSpecs": "⟳ Specs neu laden",
       "openPullRequest": "Pull Request öffnen",
       "start": {
         "preflight": "⟳ Preflight-Prüfungen laufen…",
         "starting": "⟳ Wird gestartet…",
-        "error": "✕ Fehler",
-        "idle": "▶ Starten"
+        "error": "Fehler",
+        "idle": "Starten"
       },
       "specInit": {
         "option": "Initialisierung des Spec-Ordners — Spec-Vorlage per Pull Request",
@@ -113,12 +130,12 @@
         "offered": "Pull Request angeboten",
         "pending": "Pull Request offen",
         "pendingText": "Ein Branch mit der Spec-Vorlage ist bereits vorbereitet{{branch}}. Führen Sie den zugehörigen Pull Request zusammen, um den .specify-Ordner hinzuzufügen.",
-        "viewBranch": "⎇ Branch im Repository ansehen"
+        "viewBranch": "Branch im Repository ansehen"
       },
       "template": {
         "present": "Spec-Struktur vorhanden",
         "text": "Das Repository hat bereits einen .specify-Ordner, aber noch keine Specs im Ordner specs/. Erstellen Sie die erste Spec mit einem Prompt — der Workflow kombiniert Ihren Prompt mit dem Repository-Inhalt (RAG) zu einer kleinen, ausführbaren Spec-Datei.",
-        "createSpec": "✨ Spec mit Prompt erstellen",
+        "createSpec": "Spec mit Prompt erstellen",
         "unavailable": "Der Workflow „Spec aus Prompt erstellen (RAG)“ ist für dieses Projekt nicht verfügbar."
       },
       "launcher": {
@@ -129,16 +146,17 @@
     "specPanel": {
       "error": "Die Specs konnten nicht geladen werden. Der Server hat nicht korrekt geantwortet.",
       "retry": "Erneut versuchen",
-      "title": "Spec",
+      "title": "Spec-Liste",
       "loading": "Specs werden geladen…",
-      "viewAll": "Alle Specs anzeigen",
       "lastModified": "Zuletzt geändert: {{value}}",
       "empty": {
         "title": "Keine Specs gefunden",
         "text": "Kein specs/-Ordner mit Spezifikationen im Repository",
-        "goToWorkflow": "⚡ Zu Workflow-Design & -Ausführung",
+        "goToWorkflow": "Zu Workflow-Design & -Ausführung",
         "hint": "Entwerfen oder wählen Sie dort einen Workflow, um Spec-Dateien zu erstellen."
-      }
+      },
+      "preview": "Vorschau",
+      "viewAllCount": "Alle Specs anzeigen ({{count}})"
     },
     "evidence": {
       "title": "Ausführungsnachweis",
@@ -234,9 +252,8 @@
       }
     },
     "apps": {
-      "hello": {
-        "label": "Hallo",
-        "widgetTitle": "Hallo"
+      "specWorkspace": {
+        "widgetTitle": "Spec-Arbeitsbereich"
       },
       "specQueue": {
         "widgetTitle": "Spec-Warteschlange"
@@ -246,6 +263,12 @@
       },
       "specFiles": {
         "widgetTitle": "Spec-Dateien"
+      },
+      "evidence": {
+        "widgetTitle": "Ausführungsnachweis"
+      },
+      "quality": {
+        "widgetTitle": "Qualitätsstatus"
       }
     }
   }

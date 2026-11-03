@@ -1,6 +1,6 @@
 import type { EvidenceEvent } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
-import { IconBox, Panel, PanelHeader, PanelTitle, StatusChip } from '@openjcockpit/ui';
+import { Icon, IconBox, Panel, PanelHeader, PanelTitle, StatusChip } from '@openjcockpit/ui';
 import styles from './WorkspacePanels.module.scss';
 import { actorName, eventTitle } from './sampleData';
 
@@ -13,7 +13,7 @@ export function EvidencePanel({ events }: { events: EvidenceEvent[] }) {
     <Panel as="section" className={styles.evidencePanel}>
       <PanelHeader simple>
         <PanelTitle>
-          <IconBox label="⌁" compact /> <h2>{t('evidence.title')}</h2>
+          <IconBox label={<Icon name="pulse" />} compact /> <h2>{t('evidence.title')}</h2>
           <StatusChip label={t('sampleData')} kind="waiting" />
         </PanelTitle>
       </PanelHeader>

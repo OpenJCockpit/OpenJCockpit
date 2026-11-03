@@ -237,10 +237,11 @@ describe('AgentSequencer', () => {
       statusKind: 'waiting',
     };
     const custom: AgentCard = { ...agents[0]!, id: 'custom', name: 'Custom' };
-    render(<AgentSequencer nodes={[custom, orbNode]} definitions={[]} />);
+    const { container } = render(<AgentSequencer nodes={[custom, orbNode]} definitions={[]} />);
     expect(screen.getByLabelText('Workflow orb: Fan out, parallel')).toBeInTheDocument();
     expect(screen.getByText('parallel')).toBeInTheDocument();
-    expect(screen.getByText('⬡')).toBeInTheDocument();
+    // The unknown agent still gets a (default) icon.
+    expect(container.querySelector('svg')).toBeInTheDocument();
   });
 
   it('sorts agents missing from the definitions after the defined ones', () => {

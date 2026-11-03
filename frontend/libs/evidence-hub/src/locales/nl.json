@@ -1,0 +1,28 @@
+{
+  "evidence": {
+    "loading": "Laden…",
+    "failed": "De gegevens konden niet worden geladen.",
+    "retry": "Opnieuw proberen",
+    "noProject": "Kies een project om dit te zien.",
+    "back": "Terug naar dashboard",
+    "sampleData": "Voorbeelddata",
+    "title": "Uitvoeringsbewijs",
+    "by": "Door: {{actor}}",
+    "events": {
+      "specLoaded": "Specificatie geladen",
+      "impactAnalysisRecorded": "Impactanalyse vastgelegd",
+      "testSetGenerated": "Testset gegenereerd",
+      "implementationProposalSaved": "Implementatievoorstel opgeslagen",
+      "humanApprovalLogged": "Menselijke goedkeuring vastgelegd",
+      "evidenceDataRecorded": "Bewijsgegevens vastgelegd"
+    },
+    "actors": {
+      "requirement": "Requirement-agent",
+      "impact": "Impactanalyse-agent",
+      "testDesign": "Testontwerp-agent",
+      "implementation": "Implementatie-agent",
+      "review": "Review-agent",
+      "evidence": "Bewijs-agent"
+    }
+  }
+}
