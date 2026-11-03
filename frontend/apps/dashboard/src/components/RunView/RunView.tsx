@@ -27,7 +27,7 @@ export function RunView({ projects, project, onProjectChange, onLogout, user }: 
   const workflow = workflows.find((w) => w.id === params.get('workflow')) ?? null;
   const [ended, setEnded] = useState(false);
 
-  const backToDashboard = () => void navigate(ROUTES.dashboard);
+  const backToDashboard = () => void navigate(ROUTES.home);
 
   return (
     <AppShell>

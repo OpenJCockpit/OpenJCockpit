@@ -3,7 +3,7 @@ import { env } from './env.js';
 import { testIds, PORTAL_ORB_IDS, portalOrbTestId } from './testIds.js';
 
 /**
- * The portal landing hub. `/` redirects to `/dashboard` (and on to project
+ * The portal landing hub. `/` redirects to `/home` (and on to project
  * selection), so specs that need the hub, or a stable authenticated anchor
  * that does not depend on seeded projects, load this route explicitly.
  */

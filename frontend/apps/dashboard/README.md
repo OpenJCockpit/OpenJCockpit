@@ -26,7 +26,7 @@ The shell app of the OpenJCockpit frontend: React 19, Vite, React Router and Tan
 | ------------- | ------------------------------------------------- |
 | `/`           | Landing hub                                       |
 | `/projects`   | Projects                                          |
-| `/dashboard`  | Project dashboard                                 |
+| `/home`       | Home (project dashboard when the hub is off)      |
 | `/settings`   | Settings (`/settings/:sectionId`, one per section) |
 | `/project-settings` | Project settings (`/project-settings/:sectionId`) |
 | `/workflow`   | Workflows (`/workflow/:id/runs/:runId` for a run) |

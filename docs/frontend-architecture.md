@@ -15,7 +15,7 @@ Nx workspace in `frontend/`, npm workspaces `apps/*`, `libs/*`, `e2e`.
 | Project | Tag | Role |
 | --- | --- | --- |
 | `apps/dashboard` | `type:app` | Host: auth, shell, routing, federation loader, settings and landing. |
-| `apps/remote-hello`, `remote-skills-hub`, `remote-specs`, `remote-evidence`, `remote-quality` | `type:remote` | Federated bundles. Only re-export a feature lib's `AppDefinition`. |
+| `apps/remote-skills-hub`, `remote-specs`, `remote-evidence`, `remote-quality` | `type:remote` | Federated bundles. Only re-export a feature lib's `AppDefinition`. |
 | `libs/*-hub`, `workflow`, `project`, `spec-files`, `spec-queue`, `skills-hub`, `landing-hub` | `type:feature` | Screens and feature logic. |
 | `libs/hub-contract` | `type:contract` | Host/remote contract: `AppDefinition`, session, project, header, theme, permission hooks. |
 | `libs/ui` | `type:ui` | Components and design tokens (CSS modules + SCSS). |
@@ -46,7 +46,7 @@ The host reads `public/federation.manifest.json`, registers each entry with Modu
 ```
 browser ─► dashboard (host)
             ├─ auth (Keycloak) ─► setAuthToken / session context
-            ├─ federation loader ─► remote-specs, remote-skills-hub, remote-evidence, remote-quality, remote-hello
+            ├─ federation loader ─► remote-specs, remote-skills-hub, remote-evidence, remote-quality
             └─ providers: query client, i18n, router, theme, project, app registry
 ```
 

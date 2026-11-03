@@ -144,7 +144,7 @@ describe('evidenceApp', () => {
   it('goes back to the dashboard from the default header', async () => {
     vi.mocked(api.loadWorkspace).mockResolvedValue(WORKSPACE);
     const routes = [
-      { path: '/dashboard', element: <p>dashboard</p> },
+      { path: '/home', element: <p>dashboard</p> },
       { path: '/evidence', children: await evidenceApp.loadRoutes() },
     ];
     renderWith(

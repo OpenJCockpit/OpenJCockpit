@@ -8,7 +8,6 @@ import { BrandLogo, Select, cx } from '@openjcockpit/ui';
 import { useAppRegistry, useBadgeFor, type AppDefinition } from '@openjcockpit/hub-contract';
 import { SidebarIcon, toSidebarIconName, type SidebarIconName } from './SidebarIcon';
 import { ROUTES } from '../../routes';
-import { FEATURE_FLAGS, isFeatureEnabled } from '../../featureFlags';
 import { useScreenSections } from '../../settings/SettingsLayout';
 
 /** Only the host's own page has a fixed menu entry; the apps remotes ship are matched by route. */
@@ -16,7 +15,7 @@ export type SiteSection = 'platform';
 
 const HOME_ITEM: { section: SiteSection; path: string; testId: string; icon: SidebarIconName } = {
   section: 'platform',
-  path: ROUTES.dashboard,
+  path: ROUTES.home,
   testId: 'nav-platform',
   icon: 'platform',
 };
@@ -162,8 +161,6 @@ export function SiteHeader({
       </button>
     );
   }
-  const hubLabel = t('siteHeader.nav.hub');
-  const hubEnabled = isFeatureEnabled(FEATURE_FLAGS.hub);
   const collapseLabel = t(collapsed ? 'siteHeader.expand' : 'siteHeader.collapse');
   const displayName = user ? user.firstName || user.username : '';
 
@@ -175,7 +172,7 @@ export function SiteHeader({
       <button
         type="button"
         className={styles.brand}
-        onClick={() => void navigate(ROUTES.dashboard)}
+        onClick={() => void navigate(ROUTES.home)}
         title={t('siteHeader.backToHub')}
       >
         <BrandLogo compact={collapsed} />
@@ -190,19 +187,6 @@ export function SiteHeader({
         <p className={styles.group}>{t('siteHeader.groups.account')}</p>
         {hasProjectSettings && accountItem(projectSettingsLabel, PROJECT_SETTINGS_ITEM)}
         {hasSettings && accountItem(settingsLabel, SETTINGS_ITEM)}
-        {hubEnabled && (
-          <button
-            type="button"
-            className={styles.item}
-            aria-label={hubLabel}
-            title={t('siteHeader.backToHub')}
-            onClick={() => void navigate(ROUTES.home)}
-            data-testid="nav-hub"
-          >
-            <SidebarIcon name="hub" />
-            <span className={styles.label}>{hubLabel}</span>
-          </button>
-        )}
       </nav>
 
       <div className={styles.footer}>

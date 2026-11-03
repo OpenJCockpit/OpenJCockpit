@@ -1,7 +1,7 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
 /** Where the host shows a project's overview; remotes send a "back" action here. */
-export const DASHBOARD_PATH = '/dashboard';
+export const DASHBOARD_PATH = '/home';
 
 /** The host's shared header (its navigation), as a ready element. Absent in a standalone harness. */
 export const HubHeaderContext = createContext<ReactNode>(undefined);

@@ -5,7 +5,6 @@
     "forbidden": "No tienes acceso a esta página.",
     "notFound": "Esta página no existe.",
     "backToDashboard": "Volver al panel",
-    "unavailableApps": "Algunas aplicaciones no están disponibles: {{names}}",
     "home": {
       "eyebrow": "Inicio",
       "title": "Bienvenido",
@@ -61,15 +60,14 @@
       "logOut": "Cerrar sesión",
       "logout": "Cerrar sesión",
       "nav": {
-        "platform": "Plataforma",
+        "platform": "Inicio",
         "workflow": "Diseño y ejecución de workflows",
         "specFiles": "Archivos de especificación",
         "specQueue": "Cola de especificaciones",
         "skillsHub": "Skills Hub",
         "skillsHubBadge": "Marketplaces conectados",
         "evidence": "Evidencia de ejecución",
-        "quality": "Estado de calidad",
-        "hub": "Hub"
+        "quality": "Estado de calidad"
       },
       "groups": {
         "work": "Trabajo",
@@ -258,10 +256,6 @@
     "apps": {
       "specWorkspace": {
         "widgetTitle": "Espacio de specs"
-      },
-      "hello": {
-        "label": "Hola",
-        "widgetTitle": "Hola"
       },
       "specQueue": {
         "widgetTitle": "Cola de specs"

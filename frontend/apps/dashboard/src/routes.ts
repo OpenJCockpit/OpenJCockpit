@@ -4,8 +4,7 @@ export const ROUTES = {
   // Temporary: the portal landing keeps its own route until it is decided what happens to it.
   landing: '/landing',
   projects: '/projects',
-  dashboard: '/dashboard',
-  dashboardRun: '/dashboard/run',
+  dashboardRun: '/home/run',
   settings: '/settings',
   projectSettings: '/project-settings',
   workflow: '/workflow',

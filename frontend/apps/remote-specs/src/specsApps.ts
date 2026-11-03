@@ -1,4 +1,8 @@
-import type { AppDefinition, SettingsSectionDefinition } from '@openjcockpit/hub-contract';
+import {
+  OPT_IN_ONLY,
+  type AppDefinition,
+  type SettingsSectionDefinition,
+} from '@openjcockpit/hub-contract';
 import { useQueueAttention } from './contributions/useQueueAttention';
 import { useSpecFileBadge } from './contributions/useSpecFileCount';
 import { useWorkflowCount } from './contributions/useWorkflowCount';
@@ -41,7 +45,7 @@ export const specsApps: AppDefinition[] = [
         titleKey: 'apps.workflow.widgetTitle',
         sourceAppId: 'workflow',
         requiredPermissions: [],
-        defaultFor: [],
+        defaultFor: OPT_IN_ONLY,
         link: WORKFLOW_ROUTE,
         component: () => import('./contributions/WorkflowsWidget'),
       },
@@ -119,7 +123,7 @@ export const specsApps: AppDefinition[] = [
         titleKey: 'apps.specFiles.widgetTitle',
         sourceAppId: 'spec-files',
         requiredPermissions: [],
-        defaultFor: [],
+        defaultFor: OPT_IN_ONLY,
         link: SPEC_FILES_ROUTE,
         component: () => import('./contributions/SpecFilesWidget'),
       },
@@ -140,7 +144,7 @@ export const specsApps: AppDefinition[] = [
         titleKey: 'apps.specQueue.widgetTitle',
         sourceAppId: 'spec-queue',
         requiredPermissions: [],
-        defaultFor: [],
+        defaultFor: OPT_IN_ONLY,
         link: SPEC_QUEUE_ROUTE,
         component: () => import('./contributions/SpecQueueWidget'),
       },

@@ -5,7 +5,6 @@
     "forbidden": "You do not have access to this page.",
     "notFound": "This page does not exist.",
     "backToDashboard": "Back to dashboard",
-    "unavailableApps": "Some apps are unavailable: {{names}}",
     "home": {
       "eyebrow": "Home",
       "title": "Welcome",
@@ -61,15 +60,14 @@
       "logOut": "Log out",
       "logout": "Logout",
       "nav": {
-        "platform": "Platform",
+        "platform": "Home",
         "workflow": "Workflow Design & Execution",
         "specFiles": "Spec Files",
         "specQueue": "Spec Queue",
         "skillsHub": "Skills Hub",
         "skillsHubBadge": "Connected marketplaces",
         "evidence": "Execution evidence",
-        "quality": "Quality status",
-        "hub": "Hub"
+        "quality": "Quality status"
       },
       "groups": {
         "work": "Work",
@@ -258,10 +256,6 @@
     "apps": {
       "specWorkspace": {
         "widgetTitle": "Specs workspace"
-      },
-      "hello": {
-        "label": "Hello",
-        "widgetTitle": "Hello"
       },
       "specQueue": {
         "widgetTitle": "Spec queue"

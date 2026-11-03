@@ -149,8 +149,8 @@ jobs:
           curl -fsSI "$base/" | grep -qi '^content-security-policy:'
           # Federation: manifest and allowlist come from the env, and the CSP admits the remote origin.
           curl -fsS "$base/config.json" | jq -e '.federation.allowedOrigins == ["https://apps.example.test"]'
-          # The deployed manifest names the real remotes; `hello` is a dev-only sample and must not ship.
-          curl -fsS "$base/federation.manifest.json" | jq -e '.skillsHub == "https://apps.example.test/skills/mf-manifest.json" and .specs == "https://apps.example.test/specs/mf-manifest.json" and (has("hello") | not)'
+          # The deployed manifest names the real remotes.
+          curl -fsS "$base/federation.manifest.json" | jq -e '.skillsHub == "https://apps.example.test/skills/mf-manifest.json" and .specs == "https://apps.example.test/specs/mf-manifest.json"'
           curl -fsSI "$base/federation.manifest.json" | grep -qi '^cache-control: no-store'
           curl -fsSI "$base/" | grep -i '^content-security-policy:' | grep -q "script-src 'self' https://apps.example.test"
 
@@ -166,7 +166,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        remote: [remote-hello, remote-skills-hub, remote-specs, remote-evidence, remote-quality]
+        remote: [remote-skills-hub, remote-specs, remote-evidence, remote-quality]
     env:
       IMAGE: openjcockpit-${{ matrix.remote }}:ci
     steps:

@@ -22,7 +22,7 @@ export const hostApp: AppDefinition = {
       sourceAppId: 'host',
       requiredPermissions: [],
       defaultFor: [],
-      link: ROUTES.dashboard,
+      link: ROUTES.home,
       cols: 3,
       rows: 5,
       minRows: 5,

@@ -11,13 +11,19 @@ export const HUB_CONTRACT_VERSION = 2;
 /** A module whose default export is a component, so the host can wrap it in `React.lazy`. */
 export type LazyComponent = () => Promise<{ default: ComponentType }>;
 
+/**
+ * `defaultFor` value for a widget that stays off the default Home and is only added by choice.
+ * It names a permission nobody holds.
+ */
+export const OPT_IN_ONLY: readonly string[] = ['hub:opt-in-only'];
+
 export interface WidgetDefinition {
   id: string;
   titleKey: string;
   sourceAppId: string;
   requiredPermissions: readonly string[];
   component: LazyComponent;
-  /** Permissions whose holders get this widget on their default Home; empty means everyone who may see it. */
+  /** Permissions whose holders get this widget on their default Home; empty means everyone who may see it, `OPT_IN_ONLY` means nobody. */
   defaultFor: readonly string[];
   link: `/${string}`;
   descriptionKey?: string;

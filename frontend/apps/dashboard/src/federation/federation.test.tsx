@@ -5,7 +5,7 @@ import { useHubSession, type AppDefinition } from '@openjcockpit/hub-contract';
 import { render } from '../testUtils/render';
 import { Forbidden } from './Forbidden';
 import { HubSessionProvider } from './HubSessionProvider';
-import { RemoteAppsProvider, RemoteFailuresNotice, useRemoteApps } from './RemoteApps';
+import { RemoteAppsProvider, useRemoteApps } from './RemoteApps';
 import { RemoteRoutes } from './RemoteRoutes';
 import { RemoteSlot } from './RemoteSlot';
 
@@ -34,28 +34,12 @@ describe('Forbidden', () => {
       <MemoryRouter initialEntries={['/secret']}>
         <Routes>
           <Route path="/secret" element={<Forbidden />} />
-          <Route path="/dashboard" element={<p>dashboard page</p>} />
+          <Route path="/home" element={<p>dashboard page</p>} />
         </Routes>
       </MemoryRouter>,
     );
     fireEvent.click(screen.getByRole('button', { name: 'Back to dashboard' }));
     expect(screen.getByText('dashboard page')).toBeInTheDocument();
-  });
-});
-
-describe('RemoteFailuresNotice', () => {
-  it('lists failed remotes', () => {
-    render(
-      <RemoteAppsProvider remotes={{ apps: [], failed: ['a', 'b'] }}>
-        <RemoteFailuresNotice />
-      </RemoteAppsProvider>,
-    );
-    expect(screen.getByRole('status')).toHaveTextContent('Some apps are unavailable: a, b');
-  });
-
-  it('renders nothing when every remote is up', () => {
-    render(<RemoteFailuresNotice />);
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 });
 

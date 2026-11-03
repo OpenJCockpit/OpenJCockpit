@@ -32,7 +32,6 @@ function pickFrom(state: unknown) {
           path="/select"
           element={<ProjectSelectionRoute projects={[]} onSelect={vi.fn()} />}
         />
-        <Route path={ROUTES.dashboard} element={<p>dashboard</p>} />
         <Route path="/back" element={<p>back</p>} />
         <Route path={ROUTES.home} element={<p>home</p>} />
       </Routes>
@@ -66,7 +65,7 @@ describe('ProjectSelectionRoute', () => {
     'falls back to the dashboard for state %j',
     (state) => {
       pickFrom(state);
-      expect(screen.getByText('dashboard')).toBeInTheDocument();
+      expect(screen.getByText('home')).toBeInTheDocument();
     },
   );
 

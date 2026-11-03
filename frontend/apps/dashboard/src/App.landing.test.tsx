@@ -63,7 +63,7 @@ describe('landing hub entry view', () => {
     await clickAsync(await screen.findByTestId('portal-orb-implementation'));
     expect(await screen.findByText('Start')).toBeInTheDocument();
 
-    await clickAsync(screen.getByTestId('nav-hub'));
+    await clickAsync(screen.getByTestId('nav-platform'));
 
     expect(await screen.findByTestId('home')).toBeInTheDocument();
   });

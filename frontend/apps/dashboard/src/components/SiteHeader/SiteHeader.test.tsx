@@ -7,7 +7,6 @@ import { MemoryRouter, useLocation } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import type { Project } from '@openjcockpit/api';
 import { ROUTES } from '../../routes';
-import { FEATURE_FLAGS } from '../../featureFlags';
 import { SiteHeader } from './SiteHeader';
 import type { SiteSection } from './SiteHeader';
 
@@ -91,14 +90,10 @@ function setup(
 const path = () => screen.getByTestId('location').textContent;
 
 describe('SiteHeader', () => {
-  it.each([
-    ['nav-platform', ROUTES.dashboard],
-    ['nav-hub', ROUTES.home],
-  ])('%s navigates to %s', (testId, route) => {
-    localStorage.setItem(FEATURE_FLAGS.hub, '1');
+  it('navigates home from the Home item', () => {
     setup();
-    fireEvent.click(screen.getByTestId(testId));
-    expect(path()).toBe(route);
+    fireEvent.click(screen.getByTestId('nav-platform'));
+    expect(path()).toBe(ROUTES.home);
   });
 
   it('opens settings from the gear', () => {
@@ -132,7 +127,7 @@ describe('SiteHeader', () => {
   it('returns to the hub from the logo', () => {
     setup();
     fireEvent.click(screen.getAllByTitle('Back to hub')[0]!);
-    expect(path()).toBe(ROUTES.dashboard);
+    expect(path()).toBe(ROUTES.home);
   });
 
   it('marks only the current page, whether host or remote', () => {
@@ -148,7 +143,7 @@ describe('SiteHeader', () => {
     fireEvent.click(screen.getByTestId('nav-collapse'));
     expect(screen.getByTestId('nav-collapse')).toHaveAttribute('aria-label', 'Expand');
     expect(screen.queryByRole('combobox', { name: 'Active project' })).not.toBeInTheDocument();
-    expect(screen.getByTestId('nav-platform')).toHaveAttribute('title', 'Platform');
+    expect(screen.getByTestId('nav-platform')).toHaveAttribute('title', 'Home');
     expect(window.localStorage.getItem('openjcockpit.sidebarCollapsed')).toBe('1');
     fireEvent.click(screen.getByTestId('nav-collapse'));
     expect(screen.getByRole('combobox', { name: 'Active project' })).toBeInTheDocument();

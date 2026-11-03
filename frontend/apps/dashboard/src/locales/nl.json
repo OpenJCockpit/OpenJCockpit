@@ -5,7 +5,6 @@
     "forbidden": "Je hebt geen toegang tot deze pagina.",
     "notFound": "Deze pagina bestaat niet.",
     "backToDashboard": "Terug naar het dashboard",
-    "unavailableApps": "Sommige apps zijn niet beschikbaar: {{names}}",
     "home": {
       "eyebrow": "Home",
       "title": "Welkom",
@@ -61,15 +60,14 @@
       "logOut": "Uitloggen",
       "logout": "Uitloggen",
       "nav": {
-        "platform": "Platform",
+        "platform": "Home",
         "workflow": "Workflowontwerp en -uitvoering",
         "specFiles": "Spec-bestanden",
         "specQueue": "Spec-wachtrij",
         "skillsHub": "Skills Hub",
         "skillsHubBadge": "Gekoppelde marketplaces",
         "evidence": "Uitvoeringsbewijs",
-        "quality": "Kwaliteitsstatus",
-        "hub": "Hub"
+        "quality": "Kwaliteitsstatus"
       },
       "groups": {
         "work": "Werk",
@@ -258,10 +256,6 @@
     "apps": {
       "specWorkspace": {
         "widgetTitle": "Specwerkruimte"
-      },
-      "hello": {
-        "label": "Hallo",
-        "widgetTitle": "Hallo"
       },
       "specQueue": {
         "widgetTitle": "Spec-wachtrij"

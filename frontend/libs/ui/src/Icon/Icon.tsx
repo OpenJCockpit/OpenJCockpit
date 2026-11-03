@@ -25,7 +25,6 @@ import { FlaskIcon as Flask } from '@phosphor-icons/react/dist/csr/Flask';
 import { FolderSimpleIcon as FolderSimple } from '@phosphor-icons/react/dist/csr/FolderSimple';
 import { GearIcon as Gear } from '@phosphor-icons/react/dist/csr/Gear';
 import { GithubLogoIcon as GithubLogo } from '@phosphor-icons/react/dist/csr/GithubLogo';
-import { GlobeIcon as Globe } from '@phosphor-icons/react/dist/csr/Globe';
 import { HandWavingIcon as HandWaving } from '@phosphor-icons/react/dist/csr/HandWaving';
 import { HexagonIcon as Hexagon } from '@phosphor-icons/react/dist/csr/Hexagon';
 import { HourglassIcon as Hourglass } from '@phosphor-icons/react/dist/csr/Hourglass';
@@ -84,7 +83,6 @@ const ICONS = {
   skillsHub: SquaresFour,
   sliders: SlidersHorizontal,
   project: FolderSimple,
-  hub: Globe,
   logout: SignOut,
   collapse: SidebarSimple,
   pulse: Pulse,

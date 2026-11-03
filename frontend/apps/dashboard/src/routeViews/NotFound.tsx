@@ -9,7 +9,7 @@ export function NotFound() {
   return (
     <StatusMessage variant="page" role="alert" data-testid="not-found">
       <p>{t('notFound')}</p>
-      <Button variant="primary" onClick={() => void navigate(ROUTES.dashboard)}>
+      <Button variant="primary" onClick={() => void navigate(ROUTES.home)}>
         <Icon name="arrow-left" /> {t('backToDashboard')}
       </Button>
     </StatusMessage>

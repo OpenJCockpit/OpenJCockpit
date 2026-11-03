@@ -9,7 +9,7 @@ export function Forbidden() {
   return (
     <StatusMessage variant="page" role="alert">
       <p>{t('forbidden')}</p>
-      <Button variant="primary" onClick={() => void navigate(ROUTES.dashboard)}>
+      <Button variant="primary" onClick={() => void navigate(ROUTES.home)}>
         <Icon name="arrow-left" /> {t('backToDashboard')}
       </Button>
     </StatusMessage>
