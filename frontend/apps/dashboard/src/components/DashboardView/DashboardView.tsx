@@ -1,20 +1,13 @@
-import { Suspense, useState } from 'react';
-import { useNavigate } from 'react-router';
 import { useTranslation } from '@openjcockpit/i18n';
 import { AppShell, Panel, StatusMessage } from '@openjcockpit/ui';
-import { useProjectWorkflows } from '@openjcockpit/workflow/queries';
 import type { Project } from '@openjcockpit/api';
-import { WorkflowPromptDialog } from '../../lazyViews';
-import { ROUTES } from '../../routes';
-import { useRunLauncher } from '../../useRunLauncher';
 import { CustomerHero } from '../CustomerHero/CustomerHero';
-import { FlowPanel } from '../FlowPanel/FlowPanel';
 import { SiteHeader } from '../SiteHeader/SiteHeader';
-import { SpecPanel } from '../SpecPanel/SpecPanel';
+import { SpecWorkspace } from '../SpecWorkspace/SpecWorkspace';
 import { StatusBar } from '../StatusBar/StatusBar';
 import { EvidencePanel } from '../WorkspacePanels/EvidencePanel';
 import { QualityPanel } from '../WorkspacePanels/QualityPanel';
-import { useProjectSpecsQuery, useWorkspaceQuery } from './useDashboardQueries';
+import { useWorkspaceQuery } from './useDashboardQueries';
 import styles from './DashboardView.module.scss';
 
 interface Props {
@@ -28,52 +21,12 @@ interface Props {
 /** The project dashboard. Mounted with `key={project.id}` so all local state resets per project. */
 export function DashboardView({ projects, project, onProjectChange, onLogout, user }: Props) {
   const { t } = useTranslation('dashboard');
-  const navigate = useNavigate();
   const workspaceQuery = useWorkspaceQuery(project);
-  const specsQuery = useProjectSpecsQuery(project.id);
-  const projectWorkflows = useProjectWorkflows(project.name);
-  const [selectedSpecId, setSelectedSpecId] = useState('');
-  const [chosenWorkflowId, setSelectedWorkflowId] = useState('');
 
   const workspace = workspaceQuery.data;
-  const specs = specsQuery.data?.specs ?? [];
-  const specInitStatus = specsQuery.data?.specInitStatus ?? null;
-  const specsLoading = specsQuery.isLoading;
-  const selected =
-    specs.find((s) => s.id === selectedSpecId) ?? specs.find((s) => s.selected) ?? specs[0];
-  const specsError = specsQuery.isError && !specsQuery.data;
-  const hasSpecs = !specsLoading && specs.length > 0;
-
-  // Falls back to the first workflow while the chosen one is unset or no longer in the project.
-  const selectedWorkflowId = projectWorkflows.some((w) => w.id === chosenWorkflowId)
-    ? chosenWorkflowId
-    : (projectWorkflows[0]?.id ?? chosenWorkflowId);
-
-  const launcher = useRunLauncher({
-    selectedProject: project,
-    projectWorkflows,
-    selectedWorkflowId,
-    selectedSpec: selected,
-    onStarted: (workflow, runId) =>
-      void navigate(`${ROUTES.dashboardRun}/${runId}?workflow=${encodeURIComponent(workflow.id)}`),
-  });
-  const { buttonState, promptWorkflow } = launcher;
 
   return (
     <AppShell>
-      {promptWorkflow && (
-        <Suspense fallback={null}>
-          <WorkflowPromptDialog
-            workflowName={promptWorkflow.name}
-            busy={buttonState === 'preflight' || buttonState === 'starting'}
-            onSubmit={(prompt) => {
-              void launcher.handlePromptSubmit(prompt);
-            }}
-            onCancel={launcher.cancelPrompt}
-          />
-        </Suspense>
-      )}
-
       <SiteHeader
         active="platform"
         projects={projects}
@@ -97,31 +50,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout, us
 
         <section className={styles.dashboardGrid}>
           <Panel className={styles.specWorkspace}>
-            <SpecPanel
-              specs={specs}
-              loading={specsLoading}
-              error={specsError}
-              onRetry={() => void specsQuery.refetch()}
-              selectedSpecId={selected?.id ?? ''}
-              onSelect={setSelectedSpecId}
-              onGoToWorkflow={() => void navigate(ROUTES.workflow)}
-              onViewAll={() => void navigate(ROUTES.specFiles)}
-            />
-
-            <FlowPanel
-              launcher={launcher}
-              specsLoading={specsLoading}
-              specsError={specsError}
-              hasSpecs={hasSpecs}
-              selectedFileName={selected?.fileName}
-              selectedContent={selected?.content}
-              projectWorkflows={projectWorkflows}
-              selectedWorkflowId={selectedWorkflowId}
-              onWorkflowChange={setSelectedWorkflowId}
-              specInitStatus={specInitStatus}
-              onReloadSpecs={() => void specsQuery.refetch()}
-              onOpenProjectSettings={() => void navigate(ROUTES.projectSettings)}
-            />
+            <SpecWorkspace project={project} />
           </Panel>
 
           {workspace && (

@@ -10,6 +10,7 @@
       "eyebrow": "Home",
       "title": "Welkom",
       "greeting": "Welkom, {{name}}",
+      "selectProject": "Selecteer een project om dit te zien.",
       "customise": "Aanpassen",
       "done": "Klaar",
       "reset": "Standaard herstellen",
@@ -255,6 +256,9 @@
       }
     },
     "apps": {
+      "specWorkspace": {
+        "widgetTitle": "Specwerkruimte"
+      },
       "hello": {
         "label": "Hallo",
         "widgetTitle": "Hallo"

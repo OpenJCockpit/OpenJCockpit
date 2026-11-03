@@ -51,7 +51,7 @@ export function Home() {
   return (
     <AppShell>
       {header}
-      <main className={pageClass} data-testid="home">
+      <main className={cx(pageClass, styles.wide)} data-testid="home">
         <div className={cx(pageHeaderClass, styles.heading)}>
           <div>
             <Eyebrow>{t('home.eyebrow')}</Eyebrow>

@@ -13,3 +13,8 @@
 .empty {
   color: var(--muted);
 }
+
+/* Wider than the 1200px of other pages, so each of the 5 grid columns gets more room. */
+main.wide {
+  max-width: 1680px;
+}

@@ -10,6 +10,7 @@
       "eyebrow": "Home",
       "title": "Welcome",
       "greeting": "Welcome, {{name}}",
+      "selectProject": "Select a project to see this.",
       "customise": "Customise",
       "done": "Done",
       "reset": "Reset to default",
@@ -255,6 +256,9 @@
       }
     },
     "apps": {
+      "specWorkspace": {
+        "widgetTitle": "Specs workspace"
+      },
       "hello": {
         "label": "Hello",
         "widgetTitle": "Hello"

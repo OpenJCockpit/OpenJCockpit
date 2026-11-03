@@ -10,6 +10,7 @@
       "eyebrow": "Inicio",
       "title": "Bienvenido",
       "greeting": "Bienvenido, {{name}}",
+      "selectProject": "Selecciona un proyecto para ver esto.",
       "customise": "Personalizar",
       "done": "Hecho",
       "reset": "Restablecer",
@@ -255,6 +256,9 @@
       }
     },
     "apps": {
+      "specWorkspace": {
+        "widgetTitle": "Espacio de specs"
+      },
       "hello": {
         "label": "Hola",
         "widgetTitle": "Hola"
