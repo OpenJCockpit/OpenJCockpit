@@ -43,7 +43,7 @@ async function renderDashboard() {
   await enterDashboard();
   await waitFor(() => {
     expect(screen.getByLabelText('Workflow')).toHaveTextContent(WORKFLOW.name);
-    expect(screen.getByText('▶ Start')).toBeEnabled();
+    expect(screen.getByText('Start')).toBeEnabled();
   });
 }
 
@@ -62,7 +62,7 @@ describe('pre-flight checks before starting a workflow', () => {
       }),
     );
 
-    const startButton = screen.getByText('▶ Start');
+    const startButton = screen.getByText('Start');
     await act(async () => {
       startButton.click();
     });
@@ -82,7 +82,7 @@ describe('pre-flight checks before starting a workflow', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     await waitFor(() => {
@@ -101,7 +101,7 @@ describe('pre-flight checks before starting a workflow', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     await waitFor(() => {
@@ -121,7 +121,7 @@ describe('pre-flight checks before starting a workflow', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     await waitFor(() => {
@@ -140,11 +140,11 @@ describe('pre-flight checks before starting a workflow', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     await waitFor(() => {
-      const button = screen.getByText('▶ Start');
+      const button = screen.getByText('Start');
       expect(button).not.toBeDisabled();
     });
   });
@@ -171,7 +171,7 @@ describe('pre-flight checks before starting a workflow', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     await waitFor(() => {
@@ -192,7 +192,7 @@ describe('pre-flight checks before starting a workflow', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     expect(await screen.findByText('Pre-flight check failed: Quota exceeded.')).toBeInTheDocument();
@@ -221,20 +221,20 @@ describe('pre-flight checks before starting a workflow', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     vi.mocked(api.stopAgentRun).mockResolvedValue(undefined);
     await act(async () => {
-      (await screen.findByText('◼ Stop')).click();
+      (await screen.findByText('Stop')).click();
     });
 
-    const reset = await screen.findByText('↺ Start new workflow');
+    const reset = await screen.findByText('Start new workflow');
     await act(async () => {
       reset.click();
     });
 
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
-    expect(screen.queryByText('↺ Start new workflow')).not.toBeInTheDocument();
+    expect(await screen.findByText('Start')).toBeInTheDocument();
+    expect(screen.queryByText('Start new workflow')).not.toBeInTheDocument();
   });
 });

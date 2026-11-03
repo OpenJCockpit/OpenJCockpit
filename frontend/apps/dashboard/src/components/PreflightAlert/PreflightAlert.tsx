@@ -1,6 +1,6 @@
 import type { PreflightError } from '@openjcockpit/api';
 import { useTranslation, type TFunction } from '@openjcockpit/i18n';
-import { Button } from '@openjcockpit/ui';
+import { Button, Icon } from '@openjcockpit/ui';
 import styles from './PreflightAlert.module.scss';
 
 const PREFLIGHT_ERROR_CODES = [
@@ -48,7 +48,7 @@ export function PreflightAlert({
   return (
     <div className={styles.preflightAlert} role="alert">
       <span className={styles.preflightAlertIcon} aria-hidden="true">
-        ⚠
+        <Icon name="warning" />
       </span>
       <div className={styles.preflightAlertBody}>
         <h3 className={styles.preflightAlertTitle}>{t('preflight.title')}</h3>

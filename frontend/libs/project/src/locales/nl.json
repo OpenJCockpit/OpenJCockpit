@@ -9,18 +9,18 @@
       "compactNotReachable": "Git niet bereikbaar"
     },
     "selection": {
-      "backToHub": "← Hub",
+      "backToHub": "Hub",
       "repoReachable": "Git-repository bereikbaar",
       "repoNotReachable": "Git-repository niet bereikbaar",
       "statusUnknown": "Git-status onbekend",
       "title": "Selecteer een project",
       "subtitle": "Kies het project waaraan je wilt werken",
       "empty": "Geen actieve projecten beschikbaar.",
-      "manageArrow": "Projecten beheren →",
-      "manageGear": "⚙ Projecten beheren",
+      "manageArrow": "Projecten beheren",
+      "manageGear": "Projecten beheren",
       "owner": "Eigenaar: {{owner}}",
       "branch": "Branch: {{branch}}",
-      "notReachableNotice": "Repository niet bereikbaar. Pas het project aan via ⚙ Projecten beheren."
+      "notReachableNotice": "Repository niet bereikbaar. Pas het project aan via Projecten beheren."
     },
     "settings": {
       "loading": "Projecten laden…",

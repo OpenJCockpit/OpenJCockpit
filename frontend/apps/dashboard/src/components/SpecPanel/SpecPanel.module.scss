@@ -1,3 +1,11 @@
+.specColumn {
+  padding-bottom: 14px;
+  border-right: 1px solid var(--line-soft);
+  @media (max-width: 1280px) {
+    border-right: 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+}
 .specError {
   display: flex;
   flex-direction: column;

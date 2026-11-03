@@ -1,10 +1,8 @@
 import type { AgentDefinition } from '@openjcockpit/api';
 import { referenceLabel } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
-import { Button, fieldHintClass } from '@openjcockpit/ui';
+import { Button, Icon, fieldHintClass } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../../WorkflowDesign.module.scss';
-
-const REMOVE_GLYPH = '✕';
 
 interface AgentPickerProps {
   /** Linkable catalog agents (id = agent reference key, role = catalog section). */
@@ -79,7 +77,7 @@ export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPicker
                   disabled={index === 0}
                   onClick={() => move(index, -1)}
                 >
-                  ↑
+                  <Icon name="arrow-up" />
                 </Button>
                 <Button
                   type="button"
@@ -88,7 +86,7 @@ export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPicker
                   disabled={index === agentIds.length - 1}
                   onClick={() => move(index, 1)}
                 >
-                  ↓
+                  <Icon name="arrow-down" />
                 </Button>
                 <Button
                   type="button"
@@ -96,7 +94,7 @@ export function AgentPicker({ availableAgents, agentIds, onChange }: AgentPicker
                   aria-label={t('agentPicker.removeAgent', { name: agent?.name ?? id })}
                   onClick={() => toggle(id, false)}
                 >
-                  {REMOVE_GLYPH}
+                  <Icon name="close" />
                 </Button>
               </li>
             );

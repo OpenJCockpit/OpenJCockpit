@@ -141,12 +141,12 @@ describe('App routing', () => {
     renderRoutedApp('/nope');
     expect(await screen.findByTestId('not-found')).toHaveTextContent('This page does not exist.');
     await clickAsync(screen.getByRole('button', { name: 'Back to dashboard' }));
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+    expect(await screen.findByText('Start')).toBeInTheDocument();
   });
 
   it('opens the dashboard at the root', async () => {
     renderRoutedApp(ROUTES.root);
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+    expect(await screen.findByText('Start')).toBeInTheDocument();
   });
 
   it('returns to the originally requested view after choosing a project', async () => {
@@ -222,7 +222,7 @@ describe('App routing', () => {
       errors: [{ code: 'GIT_AUTH_FAILED', message: 'denied' }],
     });
     renderRoutedApp('/dashboard');
-    await clickAsync(await screen.findByText('▶ Start'));
+    await clickAsync(await screen.findByText('Start'));
     await clickAsync(await screen.findByRole('button', { name: 'Check Git settings' }));
     expect(await screen.findByTestId('settings-section-projects')).toBeInTheDocument();
   });
@@ -231,7 +231,7 @@ describe('App routing', () => {
     localStorage.clear();
     renderRoutedApp('/projects');
     await clickAsync(await screen.findByRole('button', { name: 'Select Test Project' }));
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+    expect(await screen.findByText('Start')).toBeInTheDocument();
   });
 
   it('keeps the workflow the user picked in the launcher', async () => {

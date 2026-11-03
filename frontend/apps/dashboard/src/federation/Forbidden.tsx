@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { useTranslation } from '@openjcockpit/i18n';
-import { Button, StatusMessage } from '@openjcockpit/ui';
+import { Button, StatusMessage, Icon } from '@openjcockpit/ui';
 import { ROUTES } from '../routes';
 
 export function Forbidden() {
@@ -10,7 +10,7 @@ export function Forbidden() {
     <StatusMessage variant="page" role="alert">
       <p>{t('forbidden')}</p>
       <Button variant="primary" onClick={() => void navigate(ROUTES.dashboard)}>
-        {t('backToDashboard')}
+        <Icon name="arrow-left" /> {t('backToDashboard')}
       </Button>
     </StatusMessage>
   );

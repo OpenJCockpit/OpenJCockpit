@@ -50,7 +50,11 @@
       "activeProject": "Aktives Projekt",
       "language": "Sprache",
       "theme": "Design",
-      "themes": { "system": "System", "light": "Hell", "dark": "Dunkel" },
+      "themes": {
+        "system": "System",
+        "light": "Hell",
+        "dark": "Dunkel"
+      },
       "settings": "Einstellungen",
       "projectSettings": "Projekteinstellungen",
       "logOut": "Abmelden",
@@ -75,9 +79,9 @@
     },
     "sampleData": "Beispieldaten",
     "statusBar": {
-      "environment": "● Umgebung: {{value}}",
-      "region": "☁ Region: {{value}}",
-      "classification": "⬡ Klassifizierung: {{value}}",
+      "environment": "Umgebung: {{value}}",
+      "region": "Region: {{value}}",
+      "classification": "Klassifizierung: {{value}}",
       "embabelVersion": "Embabel-Version: {{value}}",
       "springAiControlVersion": "Spring AI Control Service: {{value}}",
       "copyright": "© 2026 Metafactory B.V."
@@ -105,8 +109,8 @@
     "flow": {
       "specsFailedTitle": "Die Specs konnten nicht geladen werden",
       "specsFailed": "Die Specs konnten nicht geladen werden. Der Server hat nicht korrekt geantwortet.",
-      "startNewWorkflow": "↺ Neuen Workflow starten",
-      "backToDashboard": "← Zurück zum Dashboard",
+      "startNewWorkflow": "Neuen Workflow starten",
+      "backToDashboard": "Zurück zum Dashboard",
       "runNotFound": "Dieser Workflow wurde nicht gefunden.",
       "currentSpec": "Aktuelle Spec",
       "specFolder": "Spec-Ordner",
@@ -119,8 +123,8 @@
       "start": {
         "preflight": "⟳ Preflight-Prüfungen laufen…",
         "starting": "⟳ Wird gestartet…",
-        "error": "✕ Fehler",
-        "idle": "▶ Starten"
+        "error": "Fehler",
+        "idle": "Starten"
       },
       "specInit": {
         "option": "Initialisierung des Spec-Ordners — Spec-Vorlage per Pull Request",
@@ -128,12 +132,12 @@
         "offered": "Pull Request angeboten",
         "pending": "Pull Request offen",
         "pendingText": "Ein Branch mit der Spec-Vorlage ist bereits vorbereitet{{branch}}. Führen Sie den zugehörigen Pull Request zusammen, um den .specify-Ordner hinzuzufügen.",
-        "viewBranch": "⎇ Branch im Repository ansehen"
+        "viewBranch": "Branch im Repository ansehen"
       },
       "template": {
         "present": "Spec-Struktur vorhanden",
         "text": "Das Repository hat bereits einen .specify-Ordner, aber noch keine Specs im Ordner specs/. Erstellen Sie die erste Spec mit einem Prompt — der Workflow kombiniert Ihren Prompt mit dem Repository-Inhalt (RAG) zu einer kleinen, ausführbaren Spec-Datei.",
-        "createSpec": "✨ Spec mit Prompt erstellen",
+        "createSpec": "Spec mit Prompt erstellen",
         "unavailable": "Der Workflow „Spec aus Prompt erstellen (RAG)“ ist für dieses Projekt nicht verfügbar."
       },
       "launcher": {
@@ -151,7 +155,7 @@
       "empty": {
         "title": "Keine Specs gefunden",
         "text": "Kein specs/-Ordner mit Spezifikationen im Repository",
-        "goToWorkflow": "⚡ Zu Workflow-Design & -Ausführung",
+        "goToWorkflow": "Zu Workflow-Design & -Ausführung",
         "hint": "Entwerfen oder wählen Sie dort einen Workflow, um Spec-Dateien zu erstellen."
       },
       "preview": "Vorschau",

@@ -1,6 +1,6 @@
 import { useTranslation } from '@openjcockpit/i18n';
 import type { SpecInitStatus } from '@openjcockpit/api';
-import { StatusChip, Button, buttonClass, feedbackResultClass } from '@openjcockpit/ui';
+import { StatusChip, Button, Icon, buttonClass, feedbackResultClass } from '@openjcockpit/ui';
 
 interface Props {
   status: SpecInitStatus;
@@ -16,7 +16,7 @@ export function SpecInitPending({ status, onReload }: Props) {
       <p>{t('flow.specInit.pendingText', { branch: status.branch ? `: ${status.branch}` : '' })}</p>
       {status.branchUrl && (
         <a className={buttonClass()} href={status.branchUrl} target="_blank" rel="noreferrer">
-          {t('flow.specInit.viewBranch')}
+          <Icon name="branch" /> {t('flow.specInit.viewBranch')}
         </a>
       )}
       {status.pullRequestUrl && (
@@ -26,7 +26,7 @@ export function SpecInitPending({ status, onReload }: Props) {
           target="_blank"
           rel="noreferrer"
         >
-          {t('flow.openPullRequest')} <span>→</span>
+          {t('flow.openPullRequest')} <Icon name="arrow-right" />
         </a>
       )}
       <Button variant="secondary" onClick={onReload}>

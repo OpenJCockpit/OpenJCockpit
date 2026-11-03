@@ -50,7 +50,11 @@
       "activeProject": "Actief project",
       "language": "Taal",
       "theme": "Thema",
-      "themes": { "system": "Systeem", "light": "Licht", "dark": "Donker" },
+      "themes": {
+        "system": "Systeem",
+        "light": "Licht",
+        "dark": "Donker"
+      },
       "settings": "Instellingen",
       "projectSettings": "Projectinstellingen",
       "logOut": "Uitloggen",
@@ -75,9 +79,9 @@
     },
     "sampleData": "Voorbeelddata",
     "statusBar": {
-      "environment": "● Omgeving: {{value}}",
-      "region": "☁ Regio: {{value}}",
-      "classification": "⬡ Classificatie: {{value}}",
+      "environment": "Omgeving: {{value}}",
+      "region": "Regio: {{value}}",
+      "classification": "Classificatie: {{value}}",
       "embabelVersion": "Embabel-versie: {{value}}",
       "springAiControlVersion": "Spring AI Control Service: {{value}}",
       "copyright": "© 2026 Metafactory B.V."
@@ -105,8 +109,8 @@
     "flow": {
       "specsFailedTitle": "De specs konden niet worden geladen",
       "specsFailed": "De specs konden niet worden geladen. De server antwoordde niet correct.",
-      "startNewWorkflow": "↺ Nieuwe workflow starten",
-      "backToDashboard": "← Terug naar dashboard",
+      "startNewWorkflow": "Nieuwe workflow starten",
+      "backToDashboard": "Terug naar dashboard",
       "runNotFound": "Deze workflow is niet gevonden.",
       "currentSpec": "Huidige spec",
       "specFolder": "Spec-map",
@@ -119,8 +123,8 @@
       "start": {
         "preflight": "⟳ Pre-flight-controles uitvoeren…",
         "starting": "⟳ Starten…",
-        "error": "✕ Fout",
-        "idle": "▶ Starten"
+        "error": "Fout",
+        "idle": "Starten"
       },
       "specInit": {
         "option": "Initialisatie van de spec-map — spec-template via pull request",
@@ -128,12 +132,12 @@
         "offered": "Pull request aangeboden",
         "pending": "Pull request open",
         "pendingText": "Er staat al een branch met de spec-template klaar{{branch}}. Voeg de bijbehorende pull request samen om de .specify-map toe te voegen.",
-        "viewBranch": "⎇ Branch bekijken in de repository"
+        "viewBranch": "Branch bekijken in de repository"
       },
       "template": {
         "present": "Spec-structuur aanwezig",
         "text": "De repository heeft al een .specify-map, maar nog geen specs in de map specs/. Maak de eerste spec met een prompt — de workflow combineert je prompt met de inhoud van de repository (RAG) tot een klein, uitvoerbaar spec-bestand.",
-        "createSpec": "✨ Spec maken met prompt",
+        "createSpec": "Spec maken met prompt",
         "unavailable": "De workflow \"Create spec from prompt (RAG)\" is niet beschikbaar voor dit project."
       },
       "launcher": {
@@ -151,7 +155,7 @@
       "empty": {
         "title": "Geen specs gevonden",
         "text": "Geen specs/-map met specificaties in de repository",
-        "goToWorkflow": "⚡ Naar Workflowontwerp en -uitvoering",
+        "goToWorkflow": "Naar Workflowontwerp en -uitvoering",
         "hint": "Ontwerp of selecteer daar een workflow om spec-bestanden te maken."
       },
       "preview": "Voorbeeld",

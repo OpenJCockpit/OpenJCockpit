@@ -125,7 +125,7 @@ describe('AppShell', () => {
   it('AppHeader back button names its destination and fires', () => {
     const onBack = vi.fn();
     renderWithI18n(<AppHeader onBack={onBack} backTitle="Back to dashboard" />);
-    const back = screen.getByRole('button', { name: '← Back to dashboard' });
+    const back = screen.getByRole('button', { name: 'Back to dashboard' });
     expect(back).toHaveAttribute('title', 'Back to dashboard');
     fireEvent.click(back);
     expect(onBack).toHaveBeenCalledTimes(1);
@@ -133,17 +133,17 @@ describe('AppShell', () => {
 
   it('AppHeader back button falls back to the generic label', () => {
     renderWithI18n(<AppHeader onBack={vi.fn()} />);
-    expect(screen.getByRole('button', { name: '← Back' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
   });
 
   it('AppHeader supports a custom label and extra actions before the back button', () => {
     render(
-      <AppHeader onBack={vi.fn()} backLabel="← Projects">
+      <AppHeader onBack={vi.fn()} backLabel="Projects">
         <button>Extra</button>
       </AppHeader>,
     );
     const buttons = screen.getAllByRole('button').map((b) => b.textContent);
-    expect(buttons).toEqual(['Extra', '← Projects']);
+    expect(buttons).toEqual(['Extra', 'Projects']);
   });
 });
 

@@ -122,7 +122,7 @@ async function renderApp(queue: SpecQueue = queueWith(), remotes?: RemoteApps) {
 
   renderRoutedApp(ROUTES.landing, remotes);
   await enterDashboard();
-  await screen.findByText('▶ Start');
+  await screen.findByText('Start');
 }
 
 describe('spec queue in the app', () => {
@@ -139,7 +139,7 @@ describe('spec queue in the app', () => {
     expect(screen.getByTestId('nav-app-spec-queue')).toHaveAttribute('aria-current', 'page');
 
     fireEvent.click(screen.getByTestId('nav-platform'));
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+    expect(await screen.findByText('Start')).toBeInTheDocument();
   });
 
   it('shows the server message when a manual start is refused', async () => {
@@ -148,7 +148,7 @@ describe('spec queue in the app', () => {
       new Error('A spec queue item is active for this project'),
     );
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
     expect(await screen.findByTestId('start-error')).toHaveTextContent(
       'A spec queue item is active for this project',
@@ -159,7 +159,7 @@ describe('spec queue in the app', () => {
     await renderApp();
     vi.mocked(workflowApi.startWorkflow).mockRejectedValueOnce(new Error('Queue busy'));
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
     await screen.findByTestId('start-error');
 

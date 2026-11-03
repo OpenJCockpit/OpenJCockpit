@@ -26,7 +26,7 @@ async function generate(prompt?: string) {
   if (prompt !== undefined) {
     fireEvent.change(screen.getByPlaceholderText(/^An? /), { target: { value: prompt } });
   }
-  await clickAsync(screen.getByRole('button', { name: '✨ Generate draft' }));
+  await clickAsync(screen.getByRole('button', { name: 'Generate draft' }));
 }
 
 beforeEach(() => {
@@ -179,7 +179,7 @@ describe('SubagentsPanel', () => {
     await openPanel(<SubagentsPanel />, 'scanner');
     await generate();
     expect(await screen.findByText('Failed to generate the subagent draft.')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '✨ Generate draft' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Generate draft' })).toBeEnabled();
   });
 });
 

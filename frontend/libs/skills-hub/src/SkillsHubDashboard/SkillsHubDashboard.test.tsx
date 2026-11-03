@@ -10,7 +10,7 @@ describe('SkillsHubDashboard — Settings entry point', () => {
       resources: skillsHubResources,
     });
 
-    const settingsControl = screen.getByRole('button', { name: '⚙ Settings' });
+    const settingsControl = screen.getByRole('button', { name: 'Settings' });
     expect(settingsControl.tagName).toBe('BUTTON');
     expect(settingsControl).not.toHaveAttribute('href');
   });
@@ -21,7 +21,7 @@ describe('SkillsHubDashboard — Settings entry point', () => {
       resources: skillsHubResources,
     });
 
-    screen.getByRole('button', { name: '⚙ Settings' }).click();
+    screen.getByRole('button', { name: 'Settings' }).click();
 
     expect(onSettings).toHaveBeenCalledTimes(1);
   });
@@ -32,7 +32,7 @@ describe('SkillsHubDashboard — Settings entry point', () => {
       resources: skillsHubResources,
     });
 
-    screen.getByRole('button', { name: '← Back to dashboard' }).click();
+    screen.getByRole('button', { name: 'Back to dashboard' }).click();
 
     expect(onBack).toHaveBeenCalledTimes(1);
   });

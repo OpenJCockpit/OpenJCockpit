@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import {
+  Icon,
   IconBox,
+  type IconName,
   StatusChip,
   AppShell,
   AppHeader,
@@ -35,9 +37,9 @@ const CATEGORY_KINDS: Record<CategoryId, StatusKind> = {
   security: 'active',
 };
 
-const SKILL_CATALOG: { id: SkillId; icon: string; categories: CategoryId[] }[] = [
-  { id: 'grill-me', icon: '🔥', categories: ['security'] },
-  { id: 'software-quality', icon: '✅', categories: ['dev', 'ops'] },
+const SKILL_CATALOG: { id: SkillId; icon: IconName; categories: CategoryId[] }[] = [
+  { id: 'grill-me', icon: 'fire', categories: ['security'] },
+  { id: 'software-quality', icon: 'check-circle', categories: ['dev', 'ops'] },
 ];
 
 export function SkillsHubDashboard({ onBack, onSettings, header }: Props) {
@@ -88,7 +90,7 @@ export function SkillsHubDashboard({ onBack, onSettings, header }: Props) {
             <h1>{t('dashboard.title')}</h1>
           </div>
           <Button variant="secondary" onClick={onSettings} title={t('dashboard.settingsTitle')}>
-            {t('dashboard.settings')}
+            <Icon name="settings" /> {t('dashboard.settings')}
           </Button>
         </div>
 
@@ -102,7 +104,7 @@ export function SkillsHubDashboard({ onBack, onSettings, header }: Props) {
             aria-label={t('dashboard.searchLabel')}
           />
           <Button type="submit" size="sm">
-            {t('dashboard.search')}
+            <Icon name="search" /> {t('dashboard.search')}
           </Button>
         </form>
 
@@ -126,7 +128,7 @@ export function SkillsHubDashboard({ onBack, onSettings, header }: Props) {
                   </td>
                   <td>
                     <div className={styles.skillRow}>
-                      <IconBox label={skill.icon} compact />
+                      <IconBox label={<Icon name={skill.icon} />} compact />
                       <div>
                         <strong>{skill.name}</strong> <span>{skill.description}</span>
                       </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { useTranslation } from '@openjcockpit/i18n';
-import { AppShell, Button, Panel } from '@openjcockpit/ui';
+import { AppShell, Button, Panel, Icon } from '@openjcockpit/ui';
 import { WorkflowExecution } from '@openjcockpit/workflow';
 import { useProjectWorkflows } from '@openjcockpit/workflow/queries';
 import type { Project } from '@openjcockpit/api';
@@ -42,9 +42,13 @@ export function RunView({ projects, project, onProjectChange, onLogout, user }: 
       <main className={styles.runScreen}>
         <div className={styles.runActions}>
           <Button variant="link" onClick={backToDashboard}>
-            {t('flow.backToDashboard')}
+            <Icon name="arrow-left" /> {t('flow.backToDashboard')}
           </Button>
-          {ended && <Button onClick={backToDashboard}>{t('flow.startNewWorkflow')}</Button>}
+          {ended && (
+            <Button onClick={backToDashboard}>
+              <Icon name="reset" /> {t('flow.startNewWorkflow')}
+            </Button>
+          )}
         </div>
         {workflow ? (
           <WorkflowExecution

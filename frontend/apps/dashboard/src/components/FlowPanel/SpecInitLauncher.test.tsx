@@ -19,7 +19,7 @@ describe('SpecInitLauncher', () => {
     const onStart = vi.fn();
     render(<SpecInitLauncher buttonState="idle" error={null} onStart={onStart} />);
     fireEvent.click(screen.getByRole('button', { name: 'change workflow' }));
-    fireEvent.click(screen.getByRole('button', { name: '▶ Start' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Start' }));
     expect(onStart).toHaveBeenCalledTimes(1);
   });
 

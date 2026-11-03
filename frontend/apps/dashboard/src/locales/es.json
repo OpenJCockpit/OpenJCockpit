@@ -50,7 +50,11 @@
       "activeProject": "Proyecto activo",
       "language": "Idioma",
       "theme": "Tema",
-      "themes": { "system": "Sistema", "light": "Claro", "dark": "Oscuro" },
+      "themes": {
+        "system": "Sistema",
+        "light": "Claro",
+        "dark": "Oscuro"
+      },
       "settings": "Ajustes",
       "projectSettings": "Ajustes del proyecto",
       "logOut": "Cerrar sesión",
@@ -75,9 +79,9 @@
     },
     "sampleData": "Datos de ejemplo",
     "statusBar": {
-      "environment": "● Entorno: {{value}}",
-      "region": "☁ Región: {{value}}",
-      "classification": "⬡ Clasificación: {{value}}",
+      "environment": "Entorno: {{value}}",
+      "region": "Región: {{value}}",
+      "classification": "Clasificación: {{value}}",
       "embabelVersion": "Versión de Embabel: {{value}}",
       "springAiControlVersion": "Spring AI Control Service: {{value}}",
       "copyright": "© 2026 Metafactory B.V."
@@ -105,8 +109,8 @@
     "flow": {
       "specsFailedTitle": "No se pudieron cargar las specs",
       "specsFailed": "No se pudieron cargar las specs. El servidor no respondió correctamente.",
-      "startNewWorkflow": "↺ Iniciar nuevo workflow",
-      "backToDashboard": "← Volver al panel",
+      "startNewWorkflow": "Iniciar nuevo workflow",
+      "backToDashboard": "Volver al panel",
       "runNotFound": "No se encontró este workflow.",
       "currentSpec": "Especificación actual",
       "specFolder": "Carpeta de especificaciones",
@@ -119,8 +123,8 @@
       "start": {
         "preflight": "⟳ Ejecutando comprobaciones previas…",
         "starting": "⟳ Iniciando…",
-        "error": "✕ Error",
-        "idle": "▶ Iniciar"
+        "error": "Error",
+        "idle": "Iniciar"
       },
       "specInit": {
         "option": "Inicialización de la carpeta de especificaciones — plantilla de especificación mediante pull request",
@@ -128,12 +132,12 @@
         "offered": "Pull request ofrecido",
         "pending": "Pull request abierto",
         "pendingText": "Ya hay preparada una rama con la plantilla de especificación{{branch}}. Fusiona el pull request correspondiente para añadir la carpeta .specify.",
-        "viewBranch": "⎇ Ver rama en el repositorio"
+        "viewBranch": "Ver rama en el repositorio"
       },
       "template": {
         "present": "Estructura de especificaciones presente",
         "text": "El repositorio ya tiene una carpeta .specify, pero todavía no hay especificaciones en la carpeta specs/. Crea la primera especificación con un prompt: el workflow combina tu prompt con el contenido del repositorio (RAG) en un archivo de especificación pequeño y ejecutable.",
-        "createSpec": "✨ Crear especificación con prompt",
+        "createSpec": "Crear especificación con prompt",
         "unavailable": "El workflow \"Crear especificación a partir de un prompt (RAG)\" no está disponible para este proyecto."
       },
       "launcher": {
@@ -151,7 +155,7 @@
       "empty": {
         "title": "No se encontraron especificaciones",
         "text": "No hay carpeta specs/ con especificaciones en el repositorio",
-        "goToWorkflow": "⚡ Ir a Diseño y ejecución de workflows",
+        "goToWorkflow": "Ir a Diseño y ejecución de workflows",
         "hint": "Diseña o selecciona allí un workflow para crear archivos de especificación."
       },
       "preview": "Vista previa",

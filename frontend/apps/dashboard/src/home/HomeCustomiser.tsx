@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { useTranslation } from '@openjcockpit/i18n';
 import { useAppRegistry, type WidgetDefinition } from '@openjcockpit/hub-contract';
-import { Button, IconBox, ModalShell, Panel, cx, formInputClass } from '@openjcockpit/ui';
+import { Button, Icon, IconBox, ModalShell, Panel, cx, formInputClass } from '@openjcockpit/ui';
 import { RemoteSlot } from '../federation/RemoteSlot';
 import {
   COL_STEPS,
@@ -39,14 +39,14 @@ interface Props {
 }
 
 const GLYPH = {
-  earlier: '←',
-  later: '→',
-  handle: '⠿',
-  grip: '◢',
-  check: '✓',
-  plus: '+',
-  reset: '↺',
-  remove: '×',
+  earlier: <Icon name="arrow-left" />,
+  later: <Icon name="arrow-right" />,
+  handle: <Icon name="handle" />,
+  grip: <Icon name="resize" />,
+  check: <Icon name="check" />,
+  plus: <Icon name="plus" />,
+  reset: <Icon name="reset" />,
+  remove: <Icon name="close" />,
 } as const;
 
 type Translate = (key: never) => string;
@@ -425,7 +425,7 @@ export function HomeCustomiser({ initial, defaultItems, widgets, onDone, onCance
                   onDragEnd={endDrag}
                   data-testid={`library-${widget.id}`}
                 >
-                  <IconBox label="▦" compact />
+                  <IconBox label={<Icon name="grid" />} compact />
                   <div className={styles.entryText}>
                     <strong>{text(widget.titleKey)}</strong>
                     {widget.descriptionKey && <span>{text(widget.descriptionKey)}</span>}

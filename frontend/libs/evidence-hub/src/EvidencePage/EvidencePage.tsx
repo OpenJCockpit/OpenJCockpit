@@ -3,6 +3,7 @@ import {
   AppHeader,
   AppShell,
   ErrorState,
+  Icon,
   IconBox,
   LoadingState,
   Panel,
@@ -45,7 +46,7 @@ export function EvidencePage({ onBack, header }: Props) {
         <div className={pageHeaderClass}>
           <div>
             <h1>
-              <IconBox label="⌁" compact /> {t('title')}
+              <IconBox label={<Icon name="pulse" />} compact /> {t('title')}
             </h1>
             <StatusChip label={t('sampleData')} kind="waiting" />
           </div>

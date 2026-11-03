@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from '@openjcockpit/i18n';
-import { FrameOctagon, Reveal } from '@openjcockpit/ui';
+import { FrameOctagon, Icon, Reveal } from '@openjcockpit/ui';
 import { NavButton } from '../NavButton/NavButton';
 import type { HubUser } from '../types';
 import styles from './TopBar.module.scss';
 
 const navActions = [
-  { icon: '◉', type: 'profile' },
-  { icon: '◇', type: 'notifications' },
-  { icon: '✦', type: 'messages' },
+  { icon: 'profile', type: 'profile' },
+  { icon: 'notifications', type: 'notifications' },
+  { icon: 'messages', type: 'messages' },
 ] as const;
 
 type TopBarProps = { user: HubUser; onLogout: () => void };
@@ -36,7 +36,7 @@ export function TopBar({ user, onLogout }: TopBarProps) {
             type="button"
             onClick={() => setActivePanel(activePanel === action.type ? null : action.type)}
           >
-            <span aria-hidden="true">{action.icon}</span>
+            <Icon name={action.icon} />
             <span>{t(`topBar.actions.${action.type}`)}</span>
           </NavButton>
         ))}

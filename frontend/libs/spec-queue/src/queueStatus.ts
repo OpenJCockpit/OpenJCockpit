@@ -7,26 +7,27 @@ import type {
   StatusKind,
 } from '@openjcockpit/api';
 import type { TFunction } from '@openjcockpit/i18n';
+import type { IconName } from '@openjcockpit/ui';
 
 export interface StatusPresentation {
   label: string;
-  icon: string;
+  icon: IconName;
   kind: StatusKind;
 }
 
 // Labels come from the `specQueue` namespace; the status enum stays the API identifier.
 const STATUS: Record<SpecQueueItemStatus, Omit<StatusPresentation, 'label'>> = {
-  QUEUED: { icon: '⏳', kind: 'waiting' },
-  STARTING: { icon: '⟳', kind: 'active' },
-  RUNNING: { icon: '▶', kind: 'active' },
-  AWAITING_MERGE: { icon: '⏸', kind: 'review' },
-  MERGING: { icon: '⇄', kind: 'active' },
-  MERGED: { icon: '✔', kind: 'ok' },
-  COMPLETED_NO_CHANGES: { icon: '✔', kind: 'ok' },
-  FAILED: { icon: '✕', kind: 'changes' },
-  SKIPPED: { icon: '⤼', kind: 'done' },
-  CANCELLED: { icon: '⊘', kind: 'done' },
-  REMOVED: { icon: '⊘', kind: 'done' },
+  QUEUED: { icon: 'hourglass', kind: 'waiting' },
+  STARTING: { icon: 'refresh', kind: 'active' },
+  RUNNING: { icon: 'play', kind: 'active' },
+  AWAITING_MERGE: { icon: 'pause', kind: 'review' },
+  MERGING: { icon: 'swap', kind: 'active' },
+  MERGED: { icon: 'check', kind: 'ok' },
+  COMPLETED_NO_CHANGES: { icon: 'check', kind: 'ok' },
+  FAILED: { icon: 'close', kind: 'changes' },
+  SKIPPED: { icon: 'skip', kind: 'done' },
+  CANCELLED: { icon: 'cancel', kind: 'done' },
+  REMOVED: { icon: 'cancel', kind: 'done' },
 };
 
 export function itemStatusPresentation(
@@ -41,7 +42,7 @@ export function itemPresentation(
   t: TFunction<'specQueue'>,
 ): StatusPresentation {
   if (item.status === 'RUNNING' && item.runStatus === 'AWAITING_APPROVAL') {
-    return { label: t('status.AWAITING_APPROVAL'), icon: '⏸', kind: 'review' };
+    return { label: t('status.AWAITING_APPROVAL'), icon: 'pause', kind: 'review' };
   }
   return itemStatusPresentation(item.status, t);
 }

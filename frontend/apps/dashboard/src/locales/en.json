@@ -50,7 +50,11 @@
       "activeProject": "Active project",
       "language": "Language",
       "theme": "Theme",
-      "themes": { "system": "System", "light": "Light", "dark": "Dark" },
+      "themes": {
+        "system": "System",
+        "light": "Light",
+        "dark": "Dark"
+      },
       "settings": "Settings",
       "projectSettings": "Project settings",
       "logOut": "Log out",
@@ -75,9 +79,9 @@
     },
     "sampleData": "Sample data",
     "statusBar": {
-      "environment": "● Environment: {{value}}",
-      "region": "☁ Region: {{value}}",
-      "classification": "⬡ Classification: {{value}}",
+      "environment": "Environment: {{value}}",
+      "region": "Region: {{value}}",
+      "classification": "Classification: {{value}}",
       "embabelVersion": "Embabel version: {{value}}",
       "springAiControlVersion": "Spring AI Control Service: {{value}}",
       "copyright": "© 2026 Metafactory B.V."
@@ -105,8 +109,8 @@
     "flow": {
       "specsFailedTitle": "Failed to load the specs",
       "specsFailed": "Failed to load the specs. The server did not respond correctly.",
-      "startNewWorkflow": "↺ Start new workflow",
-      "backToDashboard": "← Back to dashboard",
+      "startNewWorkflow": "Start new workflow",
+      "backToDashboard": "Back to dashboard",
       "runNotFound": "This workflow could not be found.",
       "currentSpec": "Current spec",
       "specFolder": "Spec folder",
@@ -119,8 +123,8 @@
       "start": {
         "preflight": "⟳ Running pre-flight checks…",
         "starting": "⟳ Starting…",
-        "error": "✕ Error",
-        "idle": "▶ Start"
+        "error": "Error",
+        "idle": "Start"
       },
       "specInit": {
         "option": "Spec folder initialization — spec template via pull request",
@@ -128,12 +132,12 @@
         "offered": "Pull request offered",
         "pending": "Pull request open",
         "pendingText": "A branch with the spec template is already prepared{{branch}}. Merge the corresponding pull request to add the .specify folder.",
-        "viewBranch": "⎇ View branch on the repository"
+        "viewBranch": "View branch on the repository"
       },
       "template": {
         "present": "Spec structure present",
         "text": "The repository already has a .specify folder, but no specs in the specs/ folder yet. Create the first spec with a prompt — the workflow combines your prompt with the repository contents (RAG) into a small, executable spec file.",
-        "createSpec": "✨ Create spec with prompt",
+        "createSpec": "Create spec with prompt",
         "unavailable": "De workflow \"Create spec from prompt (RAG)\" is not available for this project."
       },
       "launcher": {
@@ -151,7 +155,7 @@
       "empty": {
         "title": "No specs found",
         "text": "No specs/ folder with specifications in the repository",
-        "goToWorkflow": "⚡ Go to Workflow Design & Execution",
+        "goToWorkflow": "Go to Workflow Design & Execution",
         "hint": "Design or select a workflow there to create spec files."
       },
       "preview": "Preview",

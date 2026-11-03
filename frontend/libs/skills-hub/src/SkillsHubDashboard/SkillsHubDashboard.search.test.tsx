@@ -12,7 +12,7 @@ function setup() {
 
 function search(term: string) {
   fireEvent.change(screen.getByLabelText('Search for a skill'), { target: { value: term } });
-  fireEvent.click(screen.getByRole('button', { name: '⌕ Search' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Search' }));
 }
 
 describe('SkillsHubDashboard — search', () => {
@@ -71,6 +71,6 @@ describe('SkillsHubDashboard — header', () => {
       { resources: skillsHubResources },
     );
     expect(screen.getByText('Shared menu')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: '← Back' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Back' })).not.toBeInTheDocument();
   });
 });

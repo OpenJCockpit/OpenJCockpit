@@ -1,6 +1,6 @@
 import type { QualityControl } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
-import { IconBox } from '@openjcockpit/ui';
+import { Icon, IconBox } from '@openjcockpit/ui';
 import { controlDetail, controlName } from '../sampleData';
 import styles from './QualityList.module.scss';
 
@@ -13,7 +13,7 @@ export function QualityList({ controls }: { controls: QualityControl[] }) {
     <div className={styles.qualityList}>
       {controls.map((control) => (
         <article className={styles.qualityRow} key={control.name}>
-          <IconBox label="⌬" compact />
+          <IconBox label={<Icon name="agent" />} compact />
           <div>
             <strong>{controlName(t, control.name)}</strong>
             {control.statusText && <small>{controlDetail(t, control.statusText)}</small>}

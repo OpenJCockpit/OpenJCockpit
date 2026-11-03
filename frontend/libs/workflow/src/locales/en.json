@@ -300,7 +300,7 @@
       },
       "label": "Describe the {{kind}} you want in plain language",
       "generating": "⟳ Generating…",
-      "generate": "✨ Generate draft",
+      "generate": "Generate draft",
       "hint": "Draft generation uses the platform's LLM. The more specific you are about inputs, outputs, and delegation (see the example above), the higher-quality the draft. Leave the field empty to generate an example {{kind}} instead. Review and edit the generated draft before saving."
     },
     "skills": {
@@ -397,9 +397,9 @@
       "group": "Group",
       "allGroups": "All groups",
       "noGroup": "No group",
-      "export": "⬇ Export JSON",
+      "export": "Export JSON",
       "importLabel": "Import workflows JSON",
-      "import": "⬆ Import JSON",
+      "import": "Import JSON",
       "unresolved": "{{count}} reference(s) could not be resolved:",
       "saveFailed": "Failed to save the workflow.",
       "deleteFailed": "Failed to delete the workflow.",
@@ -420,7 +420,7 @@
       "emptyTitle": "No workflow running",
       "empty": "Start a workflow from the Overview tab to see it running here.",
       "stopping": "⟳ Stopping…",
-      "stop": "◼ Stop",
+      "stop": "Stop",
       "noRun": "No active execution for this workflow. Start it from the Overview tab or select one from the history above to watch it here.",
       "childRun": "Child run:",
       "reviewApproval": "Review pending approval"
@@ -465,9 +465,9 @@
       "noDecisions": "No decisions recorded yet",
       "decisionCounts": "Allowed {{allowed}} · Denied {{denied}} · Requires approval {{requiresApproval}}",
       "starting": "⟳ Starting…",
-      "start": "▶ Start",
+      "start": "Start",
       "exporting": "⟳ Exporting…",
-      "export": "⬇ Export decision logs",
+      "export": "Export decision logs",
       "openExecution": "Open Workflow Execution"
     },
     "promptDialog": {
@@ -477,7 +477,7 @@
       "label": "Prompt",
       "placeholder": "E.g.: Add an export button to the customer overview that downloads the table as CSV.",
       "starting": "⟳ Starting…",
-      "start": "▶ Start with prompt"
+      "start": "Start with prompt"
     },
     "confirmDelete": {
       "title": "Delete {{name}}?",

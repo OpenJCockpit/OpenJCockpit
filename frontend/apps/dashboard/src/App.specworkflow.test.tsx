@@ -77,7 +77,7 @@ async function renderDashboard(specs: SpecFile[], workflows: WorkflowDefinition[
 
   renderRoutedApp(ROUTES.landing, specsRemotes);
   await enterDashboard();
-  await screen.findByText('▶ Start');
+  await screen.findByText('Start');
 }
 
 describe('when the specs cannot be loaded', () => {
@@ -99,7 +99,7 @@ describe('when the specs cannot be loaded', () => {
     await renderFailing();
     expect(screen.getByTestId('specs-error')).toBeInTheDocument();
     expect(screen.getByText('Failed to load the specs')).toBeInTheDocument();
-    expect(screen.queryByText('▶ Start')).not.toBeInTheDocument();
+    expect(screen.queryByText('Start')).not.toBeInTheDocument();
   });
 
   it.each([['Retry'], ['⟳ Reload specs']])('recovers through "%s"', async (label) => {
@@ -108,7 +108,7 @@ describe('when the specs cannot be loaded', () => {
     await act(async () => {
       screen.getByRole('button', { name: label }).click();
     });
-    expect(await screen.findByText('▶ Start')).toBeInTheDocument();
+    expect(await screen.findByText('Start')).toBeInTheDocument();
     expect(screen.queryByTestId('flow-specs-error')).not.toBeInTheDocument();
   });
 });
@@ -212,7 +212,7 @@ describe('workflow selection in the center pane', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     await waitFor(() => {
@@ -243,7 +243,7 @@ describe('workflow selection in the center pane', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     await waitFor(() => {
@@ -283,19 +283,19 @@ describe('workflow selection in the center pane', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     expect(workflowApi.startWorkflow).not.toHaveBeenCalled();
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
-    expect(screen.getByText('▶ Start with prompt')).toBeDisabled();
+    expect(screen.getByText('Start with prompt')).toBeDisabled();
 
     fireEvent.change(screen.getByLabelText('Prompt'), {
       target: { value: 'Add a CSV export' },
     });
     await act(async () => {
-      screen.getByText('▶ Start with prompt').click();
+      screen.getByText('Start with prompt').click();
     });
 
     await waitFor(() => {
@@ -327,7 +327,7 @@ describe('workflow selection in the center pane', () => {
   it('disables Start when the project has no workflows', async () => {
     await renderDashboard(SPECS, []);
 
-    expect(screen.getByText('▶ Start')).toBeDisabled();
+    expect(screen.getByText('Start')).toBeDisabled();
     expect(screen.getByText(/No workflows for this project/)).toBeInTheDocument();
   });
 });
@@ -360,7 +360,7 @@ describe('when a spec-init pull request is already open', () => {
   it('hides the init Start button and shows a link to the branch on the web', async () => {
     await renderWithPendingBranch();
 
-    expect(screen.queryByText('▶ Start')).not.toBeInTheDocument();
+    expect(screen.queryByText('Start')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Workflow')).not.toBeInTheDocument();
     const branchLink = screen.getByRole('link', { name: /View branch on the repository/ });
     expect(branchLink).toHaveAttribute(
@@ -409,7 +409,7 @@ describe('when a spec-init pull request is already open', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Spec folder initialization/)).toBeInTheDocument();
-      expect(screen.getByText('▶ Start')).toBeInTheDocument();
+      expect(screen.getByText('Start')).toBeInTheDocument();
     });
   });
 });
@@ -452,7 +452,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
 
     renderRoutedApp();
     await enterDashboard();
-    await screen.findByText('✨ Create spec with prompt');
+    await screen.findByText('Create spec with prompt');
   }
 
   it('offers the spec-create workflow instead of the init pull-request flow', async () => {
@@ -468,7 +468,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
 
     expect(screen.queryByText('Pull request open')).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /Open pull request/ })).not.toBeInTheDocument();
-    expect(screen.getByText('✨ Create spec with prompt')).toBeInTheDocument();
+    expect(screen.getByText('Create spec with prompt')).toBeInTheDocument();
   });
 
   it('opens the themed prompt dialog and starts the spec-create workflow', async () => {
@@ -493,7 +493,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
     });
 
     await act(async () => {
-      screen.getByText('✨ Create spec with prompt').click();
+      screen.getByText('Create spec with prompt').click();
     });
 
     const dialog = screen.getByRole('dialog');
@@ -503,7 +503,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
       target: { value: 'Create a spec for the login page' },
     });
     await act(async () => {
-      screen.getByText('▶ Start with prompt').click();
+      screen.getByText('Start with prompt').click();
     });
 
     await waitFor(() => {
@@ -519,7 +519,7 @@ describe('when the .specify folder already exists but there are no specs yet', (
   it('disables the button when the spec-create workflow is not available', async () => {
     await renderWithExistingTemplate([]);
 
-    expect(screen.getByText('✨ Create spec with prompt')).toBeDisabled();
+    expect(screen.getByText('Create spec with prompt')).toBeDisabled();
     expect(screen.getByText(/is not available for this project/)).toBeInTheDocument();
   });
 });
@@ -553,7 +553,7 @@ describe('spec folder initialisation when no specs are found', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     await waitFor(() => {
@@ -581,7 +581,7 @@ describe('spec folder initialisation when no specs are found', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
     await screen.findByText('Pull request offered');
 
@@ -603,7 +603,7 @@ describe('spec folder initialisation when no specs are found', () => {
     );
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     await waitFor(() => {
@@ -621,7 +621,7 @@ describe('spec folder initialisation when no specs are found', () => {
     });
 
     await act(async () => {
-      screen.getByText('▶ Start').click();
+      screen.getByText('Start').click();
     });
 
     await waitFor(() => {

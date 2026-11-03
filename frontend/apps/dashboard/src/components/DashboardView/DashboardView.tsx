@@ -1,7 +1,7 @@
 import { Suspense, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from '@openjcockpit/i18n';
-import { AppShell, StatusMessage } from '@openjcockpit/ui';
+import { AppShell, Panel, StatusMessage } from '@openjcockpit/ui';
 import { useProjectWorkflows } from '@openjcockpit/workflow/queries';
 import type { Project } from '@openjcockpit/api';
 import { WorkflowPromptDialog } from '../../lazyViews';
@@ -96,31 +96,33 @@ export function DashboardView({ projects, project, onProjectChange, onLogout, us
         )}
 
         <section className={styles.dashboardGrid}>
-          <SpecPanel
-            specs={specs}
-            loading={specsLoading}
-            error={specsError}
-            onRetry={() => void specsQuery.refetch()}
-            selectedSpecId={selected?.id ?? ''}
-            onSelect={setSelectedSpecId}
-            onGoToWorkflow={() => void navigate(ROUTES.workflow)}
-            onViewAll={() => void navigate(ROUTES.specFiles)}
-          />
+          <Panel className={styles.specWorkspace}>
+            <SpecPanel
+              specs={specs}
+              loading={specsLoading}
+              error={specsError}
+              onRetry={() => void specsQuery.refetch()}
+              selectedSpecId={selected?.id ?? ''}
+              onSelect={setSelectedSpecId}
+              onGoToWorkflow={() => void navigate(ROUTES.workflow)}
+              onViewAll={() => void navigate(ROUTES.specFiles)}
+            />
 
-          <FlowPanel
-            launcher={launcher}
-            specsLoading={specsLoading}
-            specsError={specsError}
-            hasSpecs={hasSpecs}
-            selectedFileName={selected?.fileName}
-            selectedContent={selected?.content}
-            projectWorkflows={projectWorkflows}
-            selectedWorkflowId={selectedWorkflowId}
-            onWorkflowChange={setSelectedWorkflowId}
-            specInitStatus={specInitStatus}
-            onReloadSpecs={() => void specsQuery.refetch()}
-            onOpenProjectSettings={() => void navigate(ROUTES.projectSettings)}
-          />
+            <FlowPanel
+              launcher={launcher}
+              specsLoading={specsLoading}
+              specsError={specsError}
+              hasSpecs={hasSpecs}
+              selectedFileName={selected?.fileName}
+              selectedContent={selected?.content}
+              projectWorkflows={projectWorkflows}
+              selectedWorkflowId={selectedWorkflowId}
+              onWorkflowChange={setSelectedWorkflowId}
+              specInitStatus={specInitStatus}
+              onReloadSpecs={() => void specsQuery.refetch()}
+              onOpenProjectSettings={() => void navigate(ROUTES.projectSettings)}
+            />
+          </Panel>
 
           {workspace && (
             <>

@@ -2,7 +2,7 @@ import type { SpecInitStatus, WorkflowDefinition } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
 import type { useRunLauncher } from '../../useRunLauncher';
 import { PreflightAlert } from '../PreflightAlert/PreflightAlert';
-import { Eyebrow, Panel, PanelHeader, Button, feedbackErrorClass } from '@openjcockpit/ui';
+import { Eyebrow, PanelHeader, Button, feedbackErrorClass } from '@openjcockpit/ui';
 import { specTitle } from '../SpecPanel/specMeta';
 import { SpecPreview } from './SpecPreview';
 import { SpecInitLauncher } from './SpecInitLauncher';
@@ -107,7 +107,7 @@ export function FlowPanel({
   }
 
   return (
-    <Panel className={styles.flowPanel}>
+    <div className={styles.flowPanel}>
       <PanelHeader className={styles.flowHeader}>
         <div>
           <Eyebrow>{hasSpecs ? t('flow.currentSpec') : t('flow.specFolder')}</Eyebrow>
@@ -139,6 +139,6 @@ export function FlowPanel({
       ) : (
         renderBody()
       )}
-    </Panel>
+    </div>
   );
 }

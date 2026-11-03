@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from '@openjcockpit/i18n';
-import { fieldHintClass, formInputClass, Button } from '@openjcockpit/ui';
+import { fieldHintClass, formInputClass, Button, Icon } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 export type PromptGeneratorKind = 'agent' | 'subagent' | 'skill';
@@ -38,7 +38,13 @@ export function PromptGenerator({
         />
       </label>
       <Button variant="primary" onClick={() => void handleGenerate()} disabled={generating}>
-        {generating ? t('promptGenerator.generating') : t('promptGenerator.generate')}
+        {generating ? (
+          t('promptGenerator.generating')
+        ) : (
+          <>
+            <Icon name="sparkle" /> {t('promptGenerator.generate')}
+          </>
+        )}
       </Button>
       <p className={fieldHintClass}>
         {t('promptGenerator.hint', { kind: t(`promptGenerator.kind.${kind}`) })}

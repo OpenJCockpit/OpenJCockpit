@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { cx } from '../cx';
 import styles from './IconBox.module.scss';
 
@@ -10,7 +11,7 @@ export function IconBox({
   compact,
   className,
 }: {
-  label: string;
+  label: ReactNode;
   variant?: 'hero';
   compact?: boolean;
   className?: string;

@@ -4,6 +4,7 @@ import styles from './AppShell.module.scss';
 import { Button } from '../Button/Button';
 import { Backdrop } from '../Backdrop/Backdrop';
 import { BrandLogo } from '../BrandLogo/BrandLogo';
+import { Icon } from '../Icon/Icon';
 
 /** Page chrome shared by every dashboard view: the animated background and the content wrapper. */
 export function AppShell({ children }: { children: ReactNode }) {
@@ -17,7 +18,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 interface AppHeaderProps {
   onBack?: () => void;
-  backLabel?: string;
+  backLabel?: ReactNode;
   backTitle?: string;
   /** Extra header buttons, rendered before the back button. */
   children?: ReactNode;
@@ -36,7 +37,11 @@ export function AppHeader({ onBack, backLabel, backTitle, children }: AppHeaderP
         {onBack && (
           <Button variant="secondary" onClick={onBack} title={backTitle}>
             {/* The label names the destination; the generic one is the last resort. */}
-            {backLabel ?? (backTitle ? `← ${backTitle}` : t('back'))}
+            {backLabel ?? (
+              <>
+                <Icon name="arrow-left" /> {backTitle ?? t('back')}
+              </>
+            )}
           </Button>
         )}
       </div>

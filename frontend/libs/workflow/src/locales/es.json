@@ -300,7 +300,7 @@
       },
       "label": "Describe con tus propias palabras el {{kind}} que quieres",
       "generating": "⟳ Generando…",
-      "generate": "✨ Generar borrador",
+      "generate": "Generar borrador",
       "hint": "La generación del borrador usa el LLM de la plataforma. Cuanto más específico seas sobre las entradas, las salidas y la delegación (consulta el ejemplo anterior), mejor será la calidad del borrador. Deja el campo vacío para generar un {{kind}} de ejemplo. Revisa y edita el borrador generado antes de guardarlo."
     },
     "skills": {
@@ -397,9 +397,9 @@
       "group": "Grupo",
       "allGroups": "Todos los grupos",
       "noGroup": "Sin grupo",
-      "export": "⬇ Exportar JSON",
+      "export": "Exportar JSON",
       "importLabel": "Importar JSON de workflows",
-      "import": "⬆ Importar JSON",
+      "import": "Importar JSON",
       "unresolved": "No se pudieron resolver {{count}} referencia(s):",
       "saveFailed": "No se pudo guardar el workflow.",
       "deleteFailed": "No se pudo eliminar el workflow.",
@@ -420,7 +420,7 @@
       "emptyTitle": "Ningún workflow en ejecución",
       "empty": "Inicia un workflow desde la pestaña Resumen para verlo en ejecución aquí.",
       "stopping": "⟳ Deteniendo…",
-      "stop": "◼ Detener",
+      "stop": "Detener",
       "noRun": "No hay ninguna ejecución activa para este workflow. Inícialo desde la pestaña Resumen o selecciona una del historial de arriba para verla aquí.",
       "childRun": "Ejecución hija:",
       "reviewApproval": "Revisar aprobación pendiente"
@@ -465,9 +465,9 @@
       "noDecisions": "Aún no se han registrado decisiones",
       "decisionCounts": "Permitidas {{allowed}} · Denegadas {{denied}} · Requieren aprobación {{requiresApproval}}",
       "starting": "⟳ Iniciando…",
-      "start": "▶ Iniciar",
+      "start": "Iniciar",
       "exporting": "⟳ Exportando…",
-      "export": "⬇ Exportar registros de decisiones",
+      "export": "Exportar registros de decisiones",
       "openExecution": "Abrir ejecución del workflow"
     },
     "promptDialog": {
@@ -477,7 +477,7 @@
       "label": "Prompt",
       "placeholder": "Por ejemplo: añade un botón de exportación a la vista general de clientes que descargue la tabla como CSV.",
       "starting": "⟳ Iniciando…",
-      "start": "▶ Iniciar con prompt"
+      "start": "Iniciar con prompt"
     },
     "confirmDelete": {
       "title": "¿Eliminar {{name}}?",

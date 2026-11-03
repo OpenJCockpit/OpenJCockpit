@@ -119,7 +119,7 @@ describe('WorkflowExecution', () => {
       render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
-    expect(screen.getByText('◼ Stop')).toBeInTheDocument();
+    expect(screen.getByText('Stop')).toBeInTheDocument();
     expect(screen.getByText('Running')).toBeInTheDocument();
   });
 
@@ -130,7 +130,7 @@ describe('WorkflowExecution', () => {
       render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
 
-    expect(screen.getByText('◼ Stop')).toBeInTheDocument();
+    expect(screen.getByText('Stop')).toBeInTheDocument();
   });
 
   it('still renders the run status when listWorkflows rejects', async () => {
@@ -299,7 +299,7 @@ describe('WorkflowExecution', () => {
     });
 
     await act(async () => {
-      screen.getByText('◼ Stop').click();
+      screen.getByText('Stop').click();
     });
 
     await waitFor(() => expect(api.stopAgentRun).toHaveBeenCalledWith('run-1'));
@@ -313,7 +313,7 @@ describe('WorkflowExecution', () => {
       render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
     });
     await act(async () => {
-      screen.getByText('◼ Stop').click();
+      screen.getByText('Stop').click();
     });
 
     expect((await screen.findByText('⟳ Stopping…')).closest('button')).toBeDisabled();
@@ -328,11 +328,11 @@ describe('WorkflowExecution', () => {
     });
 
     await act(async () => {
-      screen.getByText('◼ Stop').click();
+      screen.getByText('Stop').click();
     });
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Stop refused');
-    expect(screen.getByText('◼ Stop')).toBeEnabled();
+    expect(screen.getByText('Stop')).toBeEnabled();
   });
 
   describe('human approval gate', () => {
@@ -588,7 +588,7 @@ describe('WorkflowExecution', () => {
       });
 
       await act(async () => {
-        screen.getByText('◼ Stop').click();
+        screen.getByText('Stop').click();
       });
 
       await waitFor(() => expect(onRunEnded).toHaveBeenCalled());
@@ -686,7 +686,7 @@ describe('WorkflowExecution', () => {
         render(withQueryClient(<WorkflowExecution workflow={WORKFLOW} runId="run-1" />));
       });
 
-      expect(screen.getByText('◼ Stop')).toBeInTheDocument();
+      expect(screen.getByText('Stop')).toBeInTheDocument();
       expect(screen.getByText('Running')).toBeInTheDocument();
       expect(await screen.findByText('Requirement Agent')).toBeInTheDocument();
     });
@@ -744,7 +744,7 @@ describe('WorkflowExecution', () => {
         expect(workflowApi.getWorkflowExecution).toHaveBeenCalledWith('wf-1', 'run-9'),
       );
       await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
-      expect(screen.getByText('◼ Stop')).toBeInTheDocument();
+      expect(screen.getByText('Stop')).toBeInTheDocument();
     });
 
     it('surfaces the approval UI when an already-AWAITING_APPROVAL row is selected from the history list', async () => {
@@ -1169,7 +1169,7 @@ describe('WorkflowExecution', () => {
 
       expect(workflowApi.listWorkflowExecutions).not.toHaveBeenCalled();
       expect(screen.queryByRole('table')).not.toBeInTheDocument();
-      expect(screen.getByText('◼ Stop')).toBeInTheDocument();
+      expect(screen.getByText('Stop')).toBeInTheDocument();
       expect(screen.getByText('Running')).toBeInTheDocument();
       expect(await screen.findByText('Requirement Agent')).toBeInTheDocument();
     });

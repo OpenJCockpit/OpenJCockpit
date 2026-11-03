@@ -10,6 +10,17 @@
     grid-template-columns: 1fr;
     grid-template-rows: auto;
   }
+  .specWorkspace {
+    grid-column: auto;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.specWorkspace {
+  display: grid;
+  grid-column: 1 / span 2;
+  grid-template-columns: 286px minmax(0, 1fr);
+  overflow: hidden;
 }
 
 .workspace {

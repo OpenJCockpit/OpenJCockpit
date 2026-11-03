@@ -2,7 +2,7 @@ import { Fragment, useState } from 'react';
 import { getProviderAgentCard } from '@openjcockpit/api';
 import type { A2AAgentCard, ProviderCatalogAgent } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
-import { StatusMessage, Button, DataTable } from '@openjcockpit/ui';
+import { StatusMessage, Button, DataTable, Icon } from '@openjcockpit/ui';
 import WorkflowDesignStyles from '../../WorkflowDesign.module.scss';
 
 interface ProviderAgentsTableProps {
@@ -130,7 +130,8 @@ function AgentCardDetails({ state, cardUrl }: { state?: CardState; cardUrl?: str
         </dd>
         <dt>{t('providerAgents.io')}</dt>
         <dd>
-          {(card.defaultInputModes ?? []).join(', ')} → {(card.defaultOutputModes ?? []).join(', ')}
+          {(card.defaultInputModes ?? []).join(', ')} <Icon name="arrow-right" />{' '}
+          {(card.defaultOutputModes ?? []).join(', ')}
         </dd>
       </dl>
       {skills.length > 0 && (

@@ -1,6 +1,6 @@
 import { useTranslation } from '@openjcockpit/i18n';
 import type { SpecInitResult } from '@openjcockpit/api';
-import { StatusChip, Button, buttonClass, feedbackResultClass } from '@openjcockpit/ui';
+import { StatusChip, Button, Icon, buttonClass, feedbackResultClass } from '@openjcockpit/ui';
 
 interface Props {
   result: SpecInitResult;
@@ -21,7 +21,7 @@ export function SpecInitOffered({ result, onReload }: Props) {
           target="_blank"
           rel="noreferrer"
         >
-          {t('flow.openPullRequest')} <span>→</span>
+          {t('flow.openPullRequest')} <Icon name="arrow-right" />
         </a>
       )}
       <Button variant="secondary" onClick={onReload}>

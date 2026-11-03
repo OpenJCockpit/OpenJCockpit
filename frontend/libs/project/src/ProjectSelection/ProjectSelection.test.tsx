@@ -29,13 +29,13 @@ describe('ProjectSelection', () => {
   it('shows the empty state and opens settings from it', () => {
     const { onSettings } = setup([]);
     expect(screen.getByTestId('project-selection-empty')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('Manage projects →'));
+    fireEvent.click(screen.getAllByText('Manage projects')[0]!);
     expect(onSettings).toHaveBeenCalledTimes(1);
   });
 
   it('opens settings from the footer', () => {
     const { onSettings } = setup([project()]);
-    fireEvent.click(screen.getByText('⚙ Manage projects'));
+    fireEvent.click(screen.getAllByText('Manage projects')[0]!);
     expect(onSettings).toHaveBeenCalledTimes(1);
   });
 

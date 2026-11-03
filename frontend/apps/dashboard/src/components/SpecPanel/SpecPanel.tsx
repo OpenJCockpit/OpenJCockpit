@@ -1,12 +1,12 @@
 import type { SpecFile } from '@openjcockpit/api';
 import { useTranslation } from '@openjcockpit/i18n';
 import {
-  Panel,
   PanelHeader,
   PanelTitle,
   Button,
   specStyles,
   feedbackErrorClass,
+  Icon,
 } from '@openjcockpit/ui';
 import { NoSpecsFound } from './NoSpecsFound';
 import { SpecCardButton } from './SpecCardButton';
@@ -40,7 +40,7 @@ export function SpecPanel({
   const hasSpecs = !loading && specs.length > 0;
 
   return (
-    <Panel as="aside" className={specStyles.specPanel}>
+    <aside className={styles.specColumn}>
       <PanelHeader simple>
         <PanelTitle>
           <h2>{t('specPanel.title')}</h2>
@@ -74,9 +74,9 @@ export function SpecPanel({
 
       {hasSpecs && specs.length > MAX_VISIBLE && (
         <Button variant="link" onClick={onViewAll}>
-          {t('specPanel.viewAllCount', { count: specs.length })} <span>→</span>
+          {t('specPanel.viewAllCount', { count: specs.length })} <Icon name="arrow-right" />
         </Button>
       )}
-    </Panel>
+    </aside>
   );
 }

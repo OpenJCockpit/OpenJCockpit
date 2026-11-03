@@ -1,13 +1,8 @@
 import type { GitStatus, Project } from '@openjcockpit/api';
 import styles from './ProjectSelection.module.scss';
-import { AppHeader, AppShell, Button, cx } from '@openjcockpit/ui';
+import { AppHeader, AppShell, Button, Icon, cx } from '@openjcockpit/ui';
 import { useTranslation } from '@openjcockpit/i18n';
 import gitStyles from '../GitStatusBadge/GitStatusBadge.module.scss';
-
-const PROJECT_ICON = '◇';
-const ICON_OK = '✓';
-const ICON_ERROR = '✗';
-const ICON_UNKNOWN = '…';
 
 interface Props {
   projects: Project[];
@@ -22,7 +17,7 @@ function GitStatusIndicator({ status }: { status: GitStatus }) {
     return (
       <span className={gitStyles.ok} aria-label={t('selection.repoReachable')}>
         {' '}
-        {ICON_OK}
+        <Icon name="check" />
       </span>
     );
   }
@@ -30,14 +25,14 @@ function GitStatusIndicator({ status }: { status: GitStatus }) {
     return (
       <span className={gitStyles.error} aria-label={t('selection.repoNotReachable')}>
         {' '}
-        {ICON_ERROR}
+        <Icon name="close" />
       </span>
     );
   }
   return (
     <span className={gitStyles.unknown} aria-label={t('selection.statusUnknown')}>
       {' '}
-      {ICON_UNKNOWN}
+      <Icon name="more" />
     </span>
   );
 }
@@ -57,7 +52,14 @@ export function ProjectSelection({ projects, onSelect, onSettings, onBack }: Pro
 
   return (
     <AppShell>
-      <AppHeader onBack={onBack} backLabel={t('selection.backToHub')} />
+      <AppHeader
+        onBack={onBack}
+        backLabel={
+          <>
+            <Icon name="arrow-left" /> {t('selection.backToHub')}
+          </>
+        }
+      />
 
       <main className={styles.projectSelectionContent}>
         <div className={styles.projectSelectionHeader}>
@@ -69,7 +71,7 @@ export function ProjectSelection({ projects, onSelect, onSettings, onBack }: Pro
           <div className={styles.projectEmpty}>
             <p data-testid="project-selection-empty">{t('selection.empty')}</p>
             <Button variant="secondary" onClick={onSettings}>
-              {t('selection.manageArrow')}
+              {t('selection.manageArrow')} <Icon name="arrow-right" />
             </Button>
           </div>
         ) : (
@@ -86,7 +88,9 @@ export function ProjectSelection({ projects, onSelect, onSettings, onBack }: Pro
                   disabled={!selectable}
                   data-testid="project-card"
                 >
-                  <div className={styles.projectCardIcon}>{PROJECT_ICON}</div>
+                  <div className={styles.projectCardIcon}>
+                    <Icon name="cube" />
+                  </div>
                   <div className={styles.projectCardBody}>
                     <span className={styles.projectCardName}>
                       {project.name}
@@ -111,7 +115,7 @@ export function ProjectSelection({ projects, onSelect, onSettings, onBack }: Pro
                     )}
                   </div>
                   <span className={styles.projectCardArrow} aria-hidden="true">
-                    →
+                    <Icon name="arrow-right" />
                   </span>
                 </button>
               );
@@ -121,7 +125,7 @@ export function ProjectSelection({ projects, onSelect, onSettings, onBack }: Pro
 
         <div className={styles.projectSelectionFooter}>
           <Button variant="secondary" onClick={onSettings}>
-            {t('selection.manageGear')}
+            <Icon name="settings" /> {t('selection.manageGear')}
           </Button>
         </div>
       </main>
