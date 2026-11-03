@@ -166,7 +166,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        remote: [remote-hello, remote-skills-hub, remote-specs]
+        remote: [remote-hello, remote-skills-hub, remote-specs, remote-evidence, remote-quality]
     env:
       IMAGE: openjcockpit-${{ matrix.remote }}:ci
     steps:

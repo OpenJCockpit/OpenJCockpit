@@ -1,0 +1,34 @@
+.qualityList {
+  display: grid;
+  gap: 3px;
+  padding: 4px 16px 12px;
+}
+.qualityRow {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 24px;
+  overflow-wrap: anywhere;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgb(var(--accent-rgb) / 0.075);
+  & strong {
+    font-size: 13px;
+    font-weight: 550;
+  }
+  & small {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+.check {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--teal);
+  border: 1px solid rgb(var(--teal-rgb) / 0.72);
+  box-shadow: 0 0 18px rgb(var(--teal-rgb) / 0.12);
+  font-size: 12px;
+}

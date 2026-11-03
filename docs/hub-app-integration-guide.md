@@ -63,7 +63,7 @@ Host env, rendered by nginx at container start (all `no-store`):
 
 Keep the last two in step. Remote env: `HOST_ORIGIN` (default `http://localhost:4000`) is the only origin CORS allows. The remote serves `mf-manifest.json` and `remoteEntry.js` as `no-store`, `/assets/` as immutable, and answers a missing file with a plain 404 (no HTML fallback).
 
-`docker-compose.yml` runs the host plus the three remotes on ports 4401, 4403 and 4404 with these variables set.
+`docker-compose.yml` runs the host plus the five remotes on ports 4401, 4403, 4404, 4405 (evidence) and 4406 (quality) with these variables set.
 
 Adding an app to a deployed hub: deploy the remote image, then add its origin to the three host variables and restart the host.
 

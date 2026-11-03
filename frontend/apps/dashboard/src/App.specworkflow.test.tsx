@@ -8,7 +8,6 @@ import * as workflowApi from '@openjcockpit/api';
 import { mockWorkspace } from '@openjcockpit/api/testing';
 import type { SpecFile, WorkflowDefinition } from '@openjcockpit/api';
 import { mockDashboardApis, PROJECT, WORKFLOW } from './testUtils/dashboardFixtures';
-import { specStyles } from '@openjcockpit/ui';
 import { enterDashboard } from './testUtils/dom';
 vi.mock(
   '@openjcockpit/landing-hub',
@@ -129,22 +128,21 @@ describe('spec files in the left pane', () => {
     expect(screen.queryByText('No specs found')).not.toBeInTheDocument();
   });
 
-  it('selects another spec when clicked and shows it in the center header', async () => {
+  it('selects another spec when clicked and shows its title in the center header', async () => {
     await renderDashboard(SPECS);
 
     await act(async () => {
       screen.getByText('pricing-rules.md').click();
     });
 
-    expect(screen.getByRole('heading', { name: 'pricing-rules.md' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Pricing rules' })).toBeInTheDocument();
   });
 
-  it('shows an unclickable No specs found record when the repository has no specs', async () => {
+  it('shows a non-interactive No specs found state when the repository has no specs', async () => {
     await renderDashboard([]);
 
-    const record = screen.getByText('No specs found', { selector: 'strong' }).closest('article')!;
-    expect(record).not.toHaveAttribute('role');
-    expect(record.className).toContain(specStyles.specCardEmpty);
+    const title = screen.getByText('No specs found', { selector: 'strong' });
+    expect(title.closest('button')).toBeNull();
   });
 
   it('offers a button to the workflow design screen when there are no specs', async () => {
@@ -161,10 +159,15 @@ describe('spec files in the left pane', () => {
   });
 
   it('navigates to the Spec Files Dashboard when "View all specs" is clicked', async () => {
-    await renderDashboard(SPECS);
+    const many = Array.from({ length: 5 }, (_, i) => ({
+      ...SPECS[0]!,
+      id: `spec-${i}`,
+      fileName: `spec-${i}.md`,
+    }));
+    await renderDashboard(many);
 
     await act(async () => {
-      screen.getByText(/View all specs/).click();
+      screen.getByText(/View all specs \(5\)/).click();
     });
 
     await waitFor(() =>

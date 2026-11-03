@@ -3,6 +3,8 @@ import { useTranslation } from '@openjcockpit/i18n';
 import type { useRunLauncher } from '../../useRunLauncher';
 import { PreflightAlert } from '../PreflightAlert/PreflightAlert';
 import { Eyebrow, Panel, PanelHeader, Button, feedbackErrorClass } from '@openjcockpit/ui';
+import { specTitle } from '../SpecPanel/specMeta';
+import { SpecPreview } from './SpecPreview';
 import { SpecInitLauncher } from './SpecInitLauncher';
 import { SpecInitOffered } from './SpecInitOffered';
 import { SpecInitPending } from './SpecInitPending';
@@ -16,6 +18,7 @@ interface Props {
   specsError?: boolean;
   hasSpecs: boolean;
   selectedFileName: string | undefined;
+  selectedContent?: string;
   projectWorkflows: WorkflowDefinition[];
   selectedWorkflowId: string;
   onWorkflowChange: (id: string) => void;
@@ -30,6 +33,7 @@ export function FlowPanel({
   specsError = false,
   hasSpecs,
   selectedFileName,
+  selectedContent,
   projectWorkflows,
   selectedWorkflowId,
   onWorkflowChange,
@@ -41,10 +45,15 @@ export function FlowPanel({
   const { buttonState, preflightErrors, startError, initResult, initError, specCreateWorkflow } =
     launcher;
 
+  const showPreview = hasSpecs && !specsLoading && !specsError && !!selectedContent;
+
   function renderTitle() {
     if (specsLoading) return t('flow.loadingSpecs');
     if (specsError) return t('flow.specsFailedTitle');
-    return hasSpecs ? selectedFileName : t('flow.noSpecsFound');
+    if (!hasSpecs) return t('flow.noSpecsFound');
+    return selectedFileName
+      ? specTitle({ fileName: selectedFileName, content: selectedContent })
+      : '';
   }
 
   function renderSpecInit() {
@@ -120,7 +129,16 @@ export function FlowPanel({
         </p>
       )}
 
-      {renderBody()}
+      {showPreview ? (
+        <div className={styles.flowBody}>
+          {renderBody()}
+          <div className={styles.specPreview}>
+            <SpecPreview content={selectedContent} />
+          </div>
+        </div>
+      ) : (
+        renderBody()
+      )}
     </Panel>
   );
 }

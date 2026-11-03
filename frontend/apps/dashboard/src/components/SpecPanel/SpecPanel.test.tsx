@@ -11,7 +11,6 @@ function setup(props: { onRetry?: () => void } = {}) {
       error
       onRetry={props.onRetry}
       selectedSpecId=""
-      selected={undefined}
       onSelect={vi.fn()}
       onGoToWorkflow={vi.fn()}
       onViewAll={vi.fn()}

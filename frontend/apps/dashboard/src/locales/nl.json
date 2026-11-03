@@ -62,6 +62,8 @@
         "specQueue": "Spec-wachtrij",
         "skillsHub": "Skills Hub",
         "skillsHubBadge": "Gekoppelde marketplaces",
+        "evidence": "Uitvoeringsbewijs",
+        "quality": "Kwaliteitsstatus",
         "hub": "Hub"
       },
       "groups": {
@@ -151,7 +153,9 @@
         "text": "Geen specs/-map met specificaties in de repository",
         "goToWorkflow": "⚡ Naar Workflowontwerp en -uitvoering",
         "hint": "Ontwerp of selecteer daar een workflow om spec-bestanden te maken."
-      }
+      },
+      "preview": "Voorbeeld",
+      "viewAllCount": "Alle specs bekijken ({{count}})"
     },
     "evidence": {
       "title": "Uitvoeringsbewijs",
@@ -259,6 +263,12 @@
       },
       "specFiles": {
         "widgetTitle": "Specbestanden"
+      },
+      "evidence": {
+        "widgetTitle": "Uitvoeringsbewijs"
+      },
+      "quality": {
+        "widgetTitle": "Kwaliteitsstatus"
       }
     }
   }

@@ -2,7 +2,8 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  grid-auto-rows: minmax(140px, auto);
+  /* Fixed row height: a tile that is shorter than its content scrolls inside its body. */
+  grid-auto-rows: 180px;
   gap: 16px;
 }
 
@@ -34,6 +35,8 @@
   flex: 1;
   min-height: 0;
   padding: 16px 18px;
+  /* Keeps the scrollbar from shifting the content sideways. */
+  scrollbar-gutter: stable;
   overflow: auto;
 }
 

@@ -1,0 +1,27 @@
+{
+  "quality": {
+    "loading": "Laden…",
+    "failed": "De gegevens konden niet worden geladen.",
+    "retry": "Opnieuw proberen",
+    "noProject": "Kies een project om dit te zien.",
+    "back": "Terug naar dashboard",
+    "sampleData": "Voorbeelddata",
+    "title": "Kwaliteitsstatus",
+    "controls": {
+      "unitTestCoverage": "Unittestdekking",
+      "nist2": "NIST 2",
+      "owaspZap": "OWASP ZAP",
+      "iso25010": "ISO 25010",
+      "sast": "SAST",
+      "dependencyScan": "Afhankelijkhedenscan",
+      "architectureRules": "Architectuurregels"
+    },
+    "details": {
+      "noCriticalIssues": "Geen kritieke problemen",
+      "allAttributes": "8/8 attributen",
+      "noHighIssues": "Geen ernstige problemen",
+      "noKnownVulnerabilities": "Geen bekende kwetsbaarheden",
+      "noDeviations": "0 afwijkingen"
+    }
+  }
+}

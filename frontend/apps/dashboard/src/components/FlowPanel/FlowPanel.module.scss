@@ -1,4 +1,6 @@
 .flowPanel {
+  display: flex;
+  flex-direction: column;
   grid-column: 2;
   grid-row: 1;
   position: relative;
@@ -21,6 +23,34 @@
     font-size: 26px;
     letter-spacing: -0.03em;
   }
+}
+.flowBody {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  gap: 28px;
+  flex: 1;
+  min-height: 320px;
+  align-items: start;
+  margin: 18px 28px 0;
+  & .workflowLauncher {
+    margin: 0;
+  }
+  @media (max-width: 720px) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+}
+.specPreview {
+  position: relative;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  background: rgb(var(--base-rgb) / 0.82);
+  backdrop-filter: blur(6px);
 }
 .workflowLauncher {
   position: relative;

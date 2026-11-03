@@ -1,0 +1,28 @@
+{
+  "evidence": {
+    "loading": "Cargando…",
+    "failed": "No se pudieron cargar los datos.",
+    "retry": "Reintentar",
+    "noProject": "Selecciona un proyecto para verlo.",
+    "back": "Volver al panel",
+    "sampleData": "Datos de ejemplo",
+    "title": "Evidencia de ejecución",
+    "by": "Por: {{actor}}",
+    "events": {
+      "specLoaded": "Especificación cargada",
+      "impactAnalysisRecorded": "Análisis de impacto registrado",
+      "testSetGenerated": "Conjunto de pruebas generado",
+      "implementationProposalSaved": "Propuesta de implementación guardada",
+      "humanApprovalLogged": "Aprobación humana registrada",
+      "evidenceDataRecorded": "Datos de evidencia registrados"
+    },
+    "actors": {
+      "requirement": "Agente de requisitos",
+      "impact": "Agente de análisis de impacto",
+      "testDesign": "Agente de diseño de pruebas",
+      "implementation": "Agente de implementación",
+      "review": "Agente de revisión",
+      "evidence": "Agente de evidencia"
+    }
+  }
+}

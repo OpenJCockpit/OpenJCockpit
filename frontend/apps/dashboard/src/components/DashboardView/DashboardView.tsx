@@ -102,7 +102,6 @@ export function DashboardView({ projects, project, onProjectChange, onLogout, us
             error={specsError}
             onRetry={() => void specsQuery.refetch()}
             selectedSpecId={selected?.id ?? ''}
-            selected={selected}
             onSelect={setSelectedSpecId}
             onGoToWorkflow={() => void navigate(ROUTES.workflow)}
             onViewAll={() => void navigate(ROUTES.specFiles)}
@@ -114,6 +113,7 @@ export function DashboardView({ projects, project, onProjectChange, onLogout, us
             specsError={specsError}
             hasSpecs={hasSpecs}
             selectedFileName={selected?.fileName}
+            selectedContent={selected?.content}
             projectWorkflows={projectWorkflows}
             selectedWorkflowId={selectedWorkflowId}
             onWorkflowChange={setSelectedWorkflowId}

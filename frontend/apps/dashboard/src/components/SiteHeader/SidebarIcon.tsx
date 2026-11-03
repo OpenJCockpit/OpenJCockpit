@@ -10,10 +10,12 @@ export type SidebarIconName =
   | 'logout'
   | 'collapse'
   | 'pulse'
+  | 'quality'
   | 'app';
 
 const PATHS: Record<SidebarIconName, string[]> = {
   pulse: ['M3 12h4l3-8 4 16 3-8h4'],
+  quality: ['M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z', 'M8.5 12l2.5 2.5 4.5-5'],
   app: ['M4 4h16v16H4z'],
   platform: ['M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z'],
   workflow: [

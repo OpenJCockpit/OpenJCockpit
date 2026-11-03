@@ -62,6 +62,8 @@
         "specQueue": "Cola de especificaciones",
         "skillsHub": "Skills Hub",
         "skillsHubBadge": "Marketplaces conectados",
+        "evidence": "Evidencia de ejecución",
+        "quality": "Estado de calidad",
         "hub": "Hub"
       },
       "groups": {
@@ -151,7 +153,9 @@
         "text": "No hay carpeta specs/ con especificaciones en el repositorio",
         "goToWorkflow": "⚡ Ir a Diseño y ejecución de workflows",
         "hint": "Diseña o selecciona allí un workflow para crear archivos de especificación."
-      }
+      },
+      "preview": "Vista previa",
+      "viewAllCount": "Ver todas las specs ({{count}})"
     },
     "evidence": {
       "title": "Evidencia de ejecución",
@@ -259,6 +263,12 @@
       },
       "specFiles": {
         "widgetTitle": "Archivos de spec"
+      },
+      "evidence": {
+        "widgetTitle": "Evidencia de ejecución"
+      },
+      "quality": {
+        "widgetTitle": "Estado de calidad"
       }
     }
   }

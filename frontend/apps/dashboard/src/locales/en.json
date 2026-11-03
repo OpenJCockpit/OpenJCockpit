@@ -62,6 +62,8 @@
         "specQueue": "Spec Queue",
         "skillsHub": "Skills Hub",
         "skillsHubBadge": "Connected marketplaces",
+        "evidence": "Execution evidence",
+        "quality": "Quality status",
         "hub": "Hub"
       },
       "groups": {
@@ -151,7 +153,9 @@
         "text": "No specs/ folder with specifications in the repository",
         "goToWorkflow": "⚡ Go to Workflow Design & Execution",
         "hint": "Design or select a workflow there to create spec files."
-      }
+      },
+      "preview": "Preview",
+      "viewAllCount": "View all specs ({{count}})"
     },
     "evidence": {
       "title": "Execution evidence",
@@ -259,6 +263,12 @@
       },
       "specFiles": {
         "widgetTitle": "Spec files"
+      },
+      "evidence": {
+        "widgetTitle": "Execution evidence"
+      },
+      "quality": {
+        "widgetTitle": "Quality status"
       }
     }
   }
