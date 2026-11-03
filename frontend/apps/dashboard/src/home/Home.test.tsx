@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { act, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router';
 import { withI18n } from '@openjcockpit/i18n/testing';
 import { AppRegistryProvider, type AppDefinition } from '@openjcockpit/hub-contract';
@@ -79,22 +79,34 @@ describe('Home', () => {
     expect(order()).toContain('widget-admin-only');
   });
 
-  it('opens the widget page from the card', async () => {
-    await renderHome();
-    await clickAsync(screen.getByTestId('widget-open-one'));
-    expect(screen.getByTestId('where')).toHaveTextContent('/one');
-  });
+  const dataTransfer = {
+    effectAllowed: '',
+    dropEffect: '',
+    setData: () => undefined,
+    setDragImage: () => undefined,
+  };
+  const drag = (source: HTMLElement, target: HTMLElement) => {
+    fireEvent.dragStart(source, { dataTransfer });
+    fireEvent.dragEnter(target, { dataTransfer });
+    fireEvent.dragOver(target, { dataTransfer });
+    fireEvent.drop(target, { dataTransfer });
+    fireEvent.dragEnd(source, { dataTransfer });
+  };
+  const stored = () =>
+    JSON.parse(localStorage.getItem('openjcockpit.homeLayout.v2.fake-user') ?? 'null');
 
-  it('customises: reorders, resizes, removes, adds, and persists per user', async () => {
+  it('customises on a draft: reorders, resizes, removes, adds, and saves per user on Done', async () => {
     await renderHome();
     await clickAsync(screen.getByTestId('home-customise'));
+    expect(screen.getByRole('dialog', { name: 'Customise your Home' })).toBeInTheDocument();
 
     await clickAsync(screen.getByTestId('widget-later-one'));
     expect(order().slice(0, 2)).toEqual(['widget-two', 'widget-one']);
 
-    await clickAsync(screen.getByTestId('widget-wider-two'));
-    expect(screen.getByTestId('widget-two')).toHaveAttribute('data-cols', '9');
-    await clickAsync(screen.getByTestId('widget-taller-two'));
+    const grip = screen.getByTestId('widget-resize-two');
+    fireEvent.keyDown(grip, { key: 'ArrowRight' });
+    expect(screen.getByTestId('widget-two')).toHaveAttribute('data-cols', '3');
+    fireEvent.keyDown(grip, { key: 'ArrowDown' });
     expect(screen.getByTestId('widget-two')).toHaveAttribute('data-rows', '2');
 
     await clickAsync(screen.getByTestId('widget-remove-one'));
@@ -102,15 +114,99 @@ describe('Home', () => {
     await clickAsync(screen.getByTestId('widget-add-opt-in'));
     await clickAsync(screen.getByTestId('widget-add-one'));
     expect(order()).toEqual(['widget-two', 'widget-opt-in', 'widget-one']);
+    expect(stored()).toBeNull();
 
-    const stored = localStorage.getItem('openjcockpit.homeLayout.fake-user');
-    expect(JSON.parse(stored ?? 'null')[0]).toEqual({ id: 'two', cols: 9, rows: 2 });
+    await clickAsync(screen.getByTestId('home-done'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(order()).toEqual(['widget-two', 'widget-opt-in', 'widget-one']);
+    expect(stored()[0]).toEqual({ id: 'two', cols: 3, rows: 2 });
   });
 
-  it('restores a saved layout on the next visit and resets to the default', async () => {
+  it('cancel drops the draft', async () => {
+    await renderHome();
+    await clickAsync(screen.getByTestId('home-customise'));
+    await clickAsync(screen.getByTestId('widget-remove-one'));
+    await clickAsync(screen.getByTestId('home-cancel'));
+    expect(order()).toEqual(['widget-one', 'widget-two']);
+    expect(stored()).toBeNull();
+  });
+
+  it('reorders by dragging a tile onto another', async () => {
+    await renderHome();
+    await clickAsync(screen.getByTestId('home-customise'));
+    expect(screen.getByTestId('widget-one')).not.toHaveAttribute('draggable', 'true');
+    expect(screen.getByTestId('widget-handle-one')).toHaveAttribute('draggable', 'true');
+    drag(screen.getByTestId('widget-handle-one'), screen.getByTestId('widget-two'));
+    expect(order().slice(0, 2)).toEqual(['widget-two', 'widget-one']);
+    await clickAsync(screen.getByTestId('home-done'));
+    expect(stored().map((i: { id: string }) => i.id)).toEqual(['two', 'one']);
+  });
+
+  it('adds by dragging from the library onto the grid or a tile, and removes by dragging back', async () => {
+    await renderHome();
+    await clickAsync(screen.getByTestId('home-customise'));
+
+    drag(screen.getByTestId('library-opt-in'), screen.getByTestId('widget-two'));
+    expect(order()).toEqual(['widget-one', 'widget-opt-in', 'widget-two']);
+
+    drag(screen.getByTestId('widget-handle-one'), screen.getByTestId('home-library'));
+    expect(order()).toEqual(['widget-opt-in', 'widget-two']);
+
+    const grid = screen.getByTestId('home-grid');
+    drag(screen.getByTestId('library-one'), grid.parentElement!);
+    expect(order()).toEqual(['widget-opt-in', 'widget-two', 'widget-one']);
+  });
+
+  // jsdom has no PointerEvent, so coordinates travel on a MouseEvent carrying the pointer event's name.
+  const pointer = (el: HTMLElement, type: string, clientX: number, clientY: number) =>
+    fireEvent(el, new MouseEvent(type, { bubbles: true, clientX, clientY }));
+
+  it('resizes by dragging the bottom-right corner, snapped to the allowed sizes', async () => {
+    await renderHome();
+    await clickAsync(screen.getByTestId('home-customise'));
+    const tile = screen.getByTestId('widget-one');
+    // jsdom has no layout: give the grid and the tile the sizes a real browser would report.
+    tile.parentElement!.getBoundingClientRect = () => ({ width: 1000 }) as DOMRect;
+    tile.getBoundingClientRect = () => ({ height: 140 }) as DOMRect;
+    const grip = screen.getByTestId('widget-resize-one');
+    pointer(grip, 'pointerdown', 0, 0);
+    pointer(grip, 'pointermove', 250, 150);
+    expect(tile).toHaveAttribute('data-cols', '3');
+    expect(tile).toHaveAttribute('data-rows', '2');
+    pointer(grip, 'pointerup', 250, 150);
+    pointer(grip, 'pointermove', 900, 900);
+    expect(tile).toHaveAttribute('data-cols', '3');
+  });
+
+  it('marks widgets already on Home and does not let them be dragged in again', async () => {
+    await renderHome();
+    await clickAsync(screen.getByTestId('home-customise'));
+    const placed = screen.getByTestId('library-one');
+    expect(within(placed).getByText(/On Home/)).toBeInTheDocument();
+    expect(placed).toHaveAttribute('draggable', 'false');
+    expect(screen.getByTestId('library-opt-in')).toHaveAttribute('draggable', 'true');
+  });
+
+  it('filters the library by search and category', async () => {
+    await renderHome();
+    await clickAsync(screen.getByTestId('home-customise'));
+    const library = within(screen.getByTestId('home-library'));
+    expect(library.getByRole('button', { name: /All/ })).toHaveTextContent('All 3');
+    await clickAsync(library.getByRole('button', { name: /demo/ }));
+    expect(screen.getByTestId('library-one')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByTestId('library-search'), { target: { value: 'opt' } });
+    expect(screen.queryByTestId('library-one')).not.toBeInTheDocument();
+    expect(screen.getByTestId('library-opt-in')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByTestId('library-search'), { target: { value: 'zzz' } });
+    expect(screen.getByText('No widgets match your search.')).toBeInTheDocument();
+  });
+
+  it('restores a saved layout on the next visit; Reset then Done returns to following the default', async () => {
     localStorage.setItem(
-      'openjcockpit.homeLayout.fake-user',
-      JSON.stringify([{ id: 'two', cols: 12, rows: 1 }]),
+      'openjcockpit.homeLayout.v2.fake-user',
+      JSON.stringify([{ id: 'two', cols: 5, rows: 1 }]),
     );
     await renderHome();
     expect(order()).toEqual(['widget-two']);
@@ -118,19 +214,22 @@ describe('Home', () => {
     await clickAsync(screen.getByTestId('home-customise'));
     await clickAsync(screen.getByTestId('home-reset'));
     expect(order()).toEqual(['widget-one', 'widget-two']);
-    expect(localStorage.getItem('openjcockpit.homeLayout.fake-user')).toBeNull();
+    expect(stored()).toHaveLength(1);
+    await clickAsync(screen.getByTestId('home-done'));
+    expect(localStorage.getItem('openjcockpit.homeLayout.v2.fake-user')).toBeNull();
   });
 
-  it('disables moving at the ends and hides the controls outside customise mode', async () => {
+  it('disables moving at the ends and has no edit controls outside customise mode', async () => {
     await renderHome();
     expect(screen.queryByTestId('widget-later-one')).not.toBeInTheDocument();
+    expect(screen.getByTestId('widget-one')).not.toHaveAttribute('draggable', 'true');
     await clickAsync(screen.getByTestId('home-customise'));
     expect(screen.getByTestId('widget-earlier-one')).toBeDisabled();
     expect(screen.getByTestId('widget-later-two')).toBeDisabled();
   });
 
   it('explains an empty Home', async () => {
-    localStorage.setItem('openjcockpit.homeLayout.fake-user', '[]');
+    localStorage.setItem('openjcockpit.homeLayout.v2.fake-user', '[]');
     await renderHome();
     expect(screen.getByTestId('home-empty')).toBeInTheDocument();
   });
@@ -150,7 +249,8 @@ describe('Home', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/^Welcome$/);
     await clickAsync(screen.getByTestId('home-customise'));
     await clickAsync(screen.getByTestId('widget-remove-one'));
-    expect(localStorage.getItem('openjcockpit.homeLayout.anonymous')).not.toBeNull();
+    await clickAsync(screen.getByTestId('home-done'));
+    expect(localStorage.getItem('openjcockpit.homeLayout.v2.anonymous')).not.toBeNull();
   });
 
   it('describes addable widgets', async () => {

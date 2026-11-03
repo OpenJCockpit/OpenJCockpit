@@ -1,0 +1,21 @@
+/* Small text link at the bottom of a card on the hub. */
+.tileFooter {
+  display: flex;
+  justify-content: flex-start;
+  padding: 0 18px 12px;
+}
+
+.openLink {
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--cyan);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+  }
+}

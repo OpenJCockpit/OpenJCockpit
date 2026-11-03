@@ -10,32 +10,23 @@
   gap: 8px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-auto-rows: minmax(140px, auto);
-  gap: 16px;
+.draggable {
+  cursor: grab;
 }
 
-.card {
-  grid-column: span var(--cols, 6);
-  grid-row: span var(--rows, 1);
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+.dragging {
+  opacity: 0.45;
+}
+
+.dropTarget {
+  outline: 2px dashed var(--cyan, currentColor);
+  outline-offset: 2px;
 }
 
 .controls {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-}
-
-.body {
-  flex: 1;
-  min-height: 0;
-  padding: 16px 18px;
-  overflow: auto;
 }
 
 .empty {
@@ -80,11 +71,5 @@
 
   & li > :last-child {
     margin-left: auto;
-  }
-}
-
-@media (max-width: 900px) {
-  .card {
-    grid-column: span 12;
   }
 }

@@ -21,7 +21,9 @@ export interface WidgetDefinition {
   defaultFor: readonly string[];
   link: `/${string}`;
   descriptionKey?: string;
+  /** Default width on the Home grid, in columns of its 5-column grid (1 to 5; 2 when omitted). */
   cols?: number;
+  /** Default height on the Home grid, in rows (1 to 4; 1 when omitted). */
   rows?: number;
   categoryKey?: string;
   icon?: string;
