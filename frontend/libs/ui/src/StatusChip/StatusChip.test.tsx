@@ -24,4 +24,11 @@ describe('StatusChip', () => {
     expect(chip.classList).toHaveLength(2);
     expect(chip.className).not.toContain('undefined');
   });
+
+  it('draws the icon before the label, separated by a space', () => {
+    render(<StatusChip label="Done" kind="done" icon={<i data-testid="glyph" />} />);
+    const chip = screen.getByText(/Done/);
+    expect(chip.firstChild).toBe(screen.getByTestId('glyph'));
+    expect(chip.textContent).toBe(' Done');
+  });
 });

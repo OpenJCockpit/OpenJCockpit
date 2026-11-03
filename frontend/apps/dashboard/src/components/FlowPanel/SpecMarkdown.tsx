@@ -29,16 +29,22 @@ function headingLevel(line: string): number {
 /** Splits markdown into the few block kinds a spec preview needs. */
 export function parseBlocks(markdown: string): Block[] {
   const blocks: Block[] = [];
-  const lines = markdown.split('\n');
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i] ?? '';
+  const queue = markdown.split('\n');
+  let previous = '';
+  for (let line = queue.shift(); line !== undefined; line = queue.shift()) {
     const trimmed = line.trim();
+    const continues = previous !== '';
+    previous = trimmed;
     if (!trimmed) continue;
 
     if (trimmed.startsWith('```')) {
       const code: string[] = [];
-      for (i++; i < lines.length && !(lines[i] ?? '').trim().startsWith('```'); i++) {
-        code.push(lines[i] ?? '');
+      for (
+        let next = queue.shift();
+        next !== undefined && !next.trim().startsWith('```');
+        next = queue.shift()
+      ) {
+        code.push(next);
       }
       blocks.push({ kind: 'code', text: code.join('\n') });
       continue;
@@ -49,14 +55,13 @@ export function parseBlocks(markdown: string): Block[] {
       continue;
     }
     const item = listItem(line);
+    const last = blocks[blocks.length - 1];
     if (item) {
-      const last = blocks[blocks.length - 1];
       if (last?.kind === 'list' && last.ordered === item.ordered) last.items.push(item.text);
       else blocks.push({ kind: 'list', ordered: item.ordered, items: [item.text] });
       continue;
     }
-    const last = blocks[blocks.length - 1];
-    if (last?.kind === 'paragraph' && lines[i - 1]?.trim()) last.text += ` ${trimmed}`;
+    if (last?.kind === 'paragraph' && continues) last.text += ` ${trimmed}`;
     else blocks.push({ kind: 'paragraph', text: trimmed });
   }
   return blocks;

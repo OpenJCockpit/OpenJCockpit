@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { Icon } from './Icon';
+import { Icon, isIconName } from './Icon';
 import type { IconName } from './Icon';
 
 const NAMES: IconName[] = [
@@ -29,5 +29,11 @@ describe('Icon', () => {
   it('forwards a className', () => {
     const { container } = render(<Icon name="check" className="extra" />);
     expect(container.querySelector('svg')).toHaveClass('extra');
+  });
+
+  it('recognises drawable icon names only', () => {
+    expect(isIconName('check')).toBe(true);
+    expect(isIconName('not-an-icon')).toBe(false);
+    expect(isIconName('toString')).toBe(false);
   });
 });

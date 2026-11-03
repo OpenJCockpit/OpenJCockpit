@@ -10,7 +10,7 @@ export function specTitle(spec: Pick<SpecFile, 'fileName' | 'content'>): string 
     .find((line) => line.startsWith(HEADING_PREFIX));
   if (heading) return heading.slice(HEADING_PREFIX.length).trim();
 
-  const base = spec.fileName.split('/').pop() ?? spec.fileName;
+  const base = spec.fileName.slice(spec.fileName.lastIndexOf('/') + 1);
   const dot = base.lastIndexOf('.');
   const stem = (dot > 0 ? base.slice(0, dot) : base).split('-').join(' ').split('_').join(' ');
   return stem.charAt(0).toUpperCase() + stem.slice(1);

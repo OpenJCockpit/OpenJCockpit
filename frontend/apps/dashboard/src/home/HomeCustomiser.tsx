@@ -27,7 +27,8 @@ import {
 import styles from './HomeCustomiser.module.scss';
 import gridStyles from './HomeGrid.module.scss';
 
-type Drag = { kind: 'tile' | 'library'; id: string };
+type Drag =
+  { kind: 'tile'; id: string } | { kind: 'library'; id: string; widget: WidgetDefinition };
 
 interface Props {
   initial: LayoutItem[];
@@ -142,18 +143,12 @@ export function HomeCustomiser({ initial, defaultItems, widgets, onDone, onCance
 
   function dropOnTile(targetId: string) {
     if (drag?.kind === 'tile') change(moveItemTo(layout, drag.id, targetId));
-    else if (drag?.kind === 'library') {
-      const widget = widgetsById.get(drag.id);
-      if (widget) change(insertItem(layout, widget, targetId));
-    }
+    else if (drag?.kind === 'library') change(insertItem(layout, drag.widget, targetId));
     endDrag();
   }
 
   function dropOnGrid() {
-    if (drag?.kind === 'library') {
-      const widget = widgetsById.get(drag.id);
-      if (widget) change(insertItem(layout, widget));
-    }
+    if (drag?.kind === 'library') change(insertItem(layout, drag.widget));
     endDrag();
   }
 
@@ -164,9 +159,9 @@ export function HomeCustomiser({ initial, defaultItems, widgets, onDone, onCance
 
   /** Corner resize: the pointer's travel is turned into grid spans and snapped to the allowed sizes. */
   function startResize(event: PointerEvent<HTMLElement>, item: LayoutItem) {
-    const tile = event.currentTarget.closest('article');
-    const grid = tile?.parentElement;
-    if (!tile || !grid) return;
+    // The grip only renders inside a tile, and tiles only inside the grid.
+    const tile = event.currentTarget.closest('article')!;
+    const grid = tile.parentElement!;
     event.preventDefault();
     event.currentTarget.setPointerCapture?.(event.pointerId);
     resizing.current = {
@@ -325,8 +320,7 @@ export function HomeCustomiser({ initial, defaultItems, widgets, onDone, onCance
                       draggable
                       onDragStart={(e: DragEvent<HTMLElement>) => {
                         // Only the handle starts a drag, but the whole tile is what is shown moving.
-                        const tile = e.currentTarget.closest('article');
-                        if (tile) e.dataTransfer.setDragImage(tile, 24, 24);
+                        e.dataTransfer.setDragImage(e.currentTarget.closest('article')!, 24, 24);
                         startDrag(e, { kind: 'tile', id: item.id });
                       }}
                       onDragEnd={endDrag}
@@ -426,7 +420,9 @@ export function HomeCustomiser({ initial, defaultItems, widgets, onDone, onCance
                   key={widget.id}
                   className={styles.entry}
                   draggable={!placed}
-                  onDragStart={(e) => !placed && startDrag(e, { kind: 'library', id: widget.id })}
+                  onDragStart={(e) =>
+                    !placed && startDrag(e, { kind: 'library', id: widget.id, widget })
+                  }
                   onDragEnd={endDrag}
                   data-testid={`library-${widget.id}`}
                 >

@@ -144,6 +144,11 @@ describe('App routing', () => {
     expect(await screen.findByText('Start')).toBeInTheDocument();
   });
 
+  it('says so when a run screen names a workflow the project does not have', async () => {
+    renderRoutedApp(`${ROUTES.dashboardRun}/run-1?workflow=missing`);
+    expect(await screen.findByRole('alert')).toHaveTextContent('This workflow could not be found.');
+  });
+
   it('opens the dashboard at the root', async () => {
     renderRoutedApp(ROUTES.root);
     expect(await screen.findByText('Start')).toBeInTheDocument();

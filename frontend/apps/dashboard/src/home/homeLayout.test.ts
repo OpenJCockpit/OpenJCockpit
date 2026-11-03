@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type { WidgetDefinition } from '@openjcockpit/hub-contract';
 import {
   addItem,
+  insertItem,
   defaultLayout,
   loadStoredLayout,
   moveItem,
@@ -116,5 +117,25 @@ describe('storage', () => {
     expect(loadStoredLayout('u1')).toBeNull();
     localStorage.setItem('openjcockpit.homeLayout.v2.u1', JSON.stringify([null]));
     expect(loadStoredLayout('u1')).toBeNull();
+  });
+});
+
+describe('insertItem', () => {
+  const layout = [
+    { id: 'a', cols: 2, rows: 2 },
+    { id: 'b', cols: 2, rows: 2 },
+  ];
+
+  it('inserts in front of the given widget', () => {
+    expect(insertItem(layout, widget('c'), 'b').map((i) => i.id)).toEqual(['a', 'c', 'b']);
+  });
+
+  it('appends when no anchor is given or the anchor is absent', () => {
+    expect(insertItem(layout, widget('c')).map((i) => i.id)).toEqual(['a', 'b', 'c']);
+    expect(insertItem(layout, widget('c'), 'gone').map((i) => i.id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('leaves the layout unchanged when the widget is already placed', () => {
+    expect(insertItem(layout, widget('a'), 'b')).toEqual(layout);
   });
 });
