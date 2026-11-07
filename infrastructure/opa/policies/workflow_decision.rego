@@ -12,7 +12,7 @@ decision = result {
 	missing_identifier
 	result := {
 		"allowed": false,
-		"reason": "workflowId and customerId are required for a policy decision.",
+		"reason": "workflowId is required for a policy decision.",
 		"requiredApproval": false,
 		"riskLevel": "medium",
 		"auditTags": ["missing-identifier"],
@@ -65,18 +65,6 @@ missing_identifier {
 
 missing_identifier {
 	input.workflowId == ""
-}
-
-missing_identifier {
-	not input.customerId
-}
-
-missing_identifier {
-	input.customerId == null
-}
-
-missing_identifier {
-	input.customerId == ""
 }
 
 # ── Tool guardrails ──────────────────────────────────────────────────────────────────────────────

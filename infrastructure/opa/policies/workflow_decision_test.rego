@@ -15,9 +15,15 @@ test_missing_workflow_id_is_denied {
 	d.auditTags == ["missing-identifier"]
 }
 
-test_missing_customer_id_is_denied {
-	d := decision with input as {"workflowId": "wf-1", "customerId": "", "action": "workflow.start"}
-	d.allowed == false
+test_missing_customer_id_is_allowed {
+	every input_without_customer in [
+		{"workflowId": "wf-1", "action": "workflow.start"},
+		{"workflowId": "wf-1", "customerId": null, "action": "workflow.start"},
+		{"workflowId": "wf-1", "customerId": "", "action": "workflow.start"},
+	] {
+		d := decision with input as input_without_customer
+		d.allowed == true
+	}
 }
 
 test_a2a_tool_call_without_workflow_is_denied {

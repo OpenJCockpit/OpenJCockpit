@@ -1,0 +1,45 @@
+{
+  "cookies": [
+    {
+      "name": "AUTH_SESSION_ID",
+      "value": "ZjM5aVNPdXk4d2NUVVJBV2Q0M1RmdDdhLmpwQmg0Nk9DaVp0YVREVmw1T3RtcFl0SXZQT0RoX21OT1BlY0pKZFF0MnFjOTNwVldKRVZMSUxuT2Y2ZlRReVFRTGthM24xWlNtSlNzRjd1X3UxZ3pn",
+      "domain": "localhost",
+      "path": "/realms/openjcockpit/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KC_AUTH_SESSION_HASH",
+      "value": "\"+0kd+pvLDzK3BhQhV/RilFIMEcp2HMpurLOfBGcVJdE\"",
+      "domain": "localhost",
+      "path": "/realms/openjcockpit/",
+      "expires": 1793515290.101546,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KEYCLOAK_IDENTITY",
+      "value": "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI0NDU4YjMxNS1jZDkxLTQ3MWUtODVjNy00NzU0ZDJhN2YyNzMifQ.eyJleHAiOjE3OTM1NTEyMzAsImlhdCI6MTc5MzUxNTIzMCwianRpIjoiYTAyZTdiZDEtMTk4OS00YmZmLWRiOTUtZmI3NDE0NjUwNzU4IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9vcGVuamNvY2twaXQiLCJzdWIiOiJkM2EyODY3ZC1mMDdhLTQwNTAtYmZmNy1mOWQ3NmMyYzc0MWYiLCJ0eXAiOiJTZXJpYWxpemVkLUlEIiwic2lkIjoiZjM5aVNPdXk4d2NUVVJBV2Q0M1RmdDdhIiwic3RhdGVfY2hlY2tlciI6IjBtdGNrc2M4VmEzbGZvQ0t0X3JreGFZSnMtc2RXanRGbHBaa3g1aTRXd2MifQ.2dG-tAmKtTzjcpMajQ1g3Zp4oKnzRKhw3o4tBpc6wByxDeLGAxu_QoA3p7haZ5zUDZfmmbtQi7W-fG3Ywaf17w",
+      "domain": "localhost",
+      "path": "/realms/openjcockpit/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KEYCLOAK_SESSION",
+      "value": "-0kd-pvLDzK3BhQhV_RilFIMEcp2HMpurLOfBGcVJdE",
+      "domain": "localhost",
+      "path": "/realms/openjcockpit/",
+      "expires": 1793551230.60121,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    }
+  ],
+  "origins": []
+}

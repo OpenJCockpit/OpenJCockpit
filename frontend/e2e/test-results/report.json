@@ -1,0 +1,108 @@
+{
+  "config": {
+    "argv": [
+      "/opt/homebrew/Cellar/node/26.10.0_1/bin/node",
+      "/Users/rickyvanrijn/IdeaProjects/OpenJCockpit/frontend/node_modules/.bin/playwright",
+      "test",
+      "specs/critical-authorization.spec.ts",
+      "specs/api-unauthenticated.spec.ts",
+      "specs/auth-login.spec.ts",
+      "specs/dashboard-session.spec.ts"
+    ],
+    "configFile": "/Users/rickyvanrijn/IdeaProjects/OpenJCockpit/frontend/e2e/playwright.config.ts",
+    "rootDir": "/Users/rickyvanrijn/IdeaProjects/OpenJCockpit/frontend/e2e/specs",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "/Users/rickyvanrijn/IdeaProjects/OpenJCockpit/frontend/e2e/support/globalSetup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/rickyvanrijn/IdeaProjects/OpenJCockpit/frontend/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "setup",
+        "name": "setup",
+        "testDir": "/Users/rickyvanrijn/IdeaProjects/OpenJCockpit/frontend/e2e/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.setup\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/rickyvanrijn/IdeaProjects/OpenJCockpit/frontend/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "dashboard",
+        "name": "dashboard",
+        "testDir": "/Users/rickyvanrijn/IdeaProjects/OpenJCockpit/frontend/e2e/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/report.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/junit.xml"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [],
+  "errors": [
+    {
+      "message": "Error: http://localhost:4000 is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.",
+      "stack": "Error: http://localhost:4000 is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer."
+    }
+  ],
+  "stats": {
+    "startTime": "2026-11-01T06:56:49.524Z",
+    "duration": 12.088999999999999,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
