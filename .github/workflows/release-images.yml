@@ -4,6 +4,9 @@ name: Release images
 # tag. deploy/scripts/deploy-compose.sh and deploy-k8s.sh only accept such tags, which is what makes a
 # rollback a redeploy of the previous tag. A CRITICAL vulnerability with a fix available blocks the release.
 # The dashboard image is published by the OpenJCockpit-frontend repository under the same vX.Y.Z tag.
+# Images marked `public` in the matrix must be anonymously pullable. GHCR has no API to change a package's
+# visibility, so a maintainer sets it once per package (Package settings → Change visibility → Public; the
+# org must allow public packages). Later pushes keep it. The release verifies it after each push.
 # Before tagging, the release checklist (docs/readme/operations/release-checklist.md) must be complete and
 # ci-summary must be green on the tagged commit.
 
@@ -29,15 +32,21 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - {name: ai-control-service, dockerfile: services/ai-control-service/Dockerfile, context: .}
-          - {name: embabel-agent-service, dockerfile: services/embabel-agent-service/Dockerfile, context: .}
-          - {name: embabel-agent-runtime, dockerfile: services/embabel-agent-runtime/Dockerfile, context: .}
-          - {name: git-mcp-server, dockerfile: services/git-mcp-server/Dockerfile, context: .}
+          - {name: ai-control-service, dockerfile: services/ai-control-service/Dockerfile, context: ., public: true}
+          - {name: embabel-agent-service, dockerfile: services/embabel-agent-service/Dockerfile, context: ., public: true}
+          - {name: embabel-agent-runtime, dockerfile: services/embabel-agent-runtime/Dockerfile, context: ., public: true}
+          - {name: git-mcp-server, dockerfile: services/git-mcp-server/Dockerfile, context: ., public: false}
     env:
-      IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.name }}
       TAG: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      # Image references must be lowercase; the org name (OpenJCockpit) is not.
+      - name: Image name
+        run: |
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          echo "OWNER=$owner" >> "$GITHUB_ENV"
+          echo "IMAGE=ghcr.io/$owner/${{ matrix.name }}" >> "$GITHUB_ENV"
 
       - name: Refuse anything but an immutable version tag
         run: |
@@ -73,3 +82,21 @@ jobs:
         run: |
           docker push "$IMAGE:$TAG"
           echo "### ${{ matrix.name }}: \`$IMAGE@$(docker inspect --format '{{index .RepoDigests 0}}' "$IMAGE:$TAG" | cut -d@ -f2)\`" >> "$GITHUB_STEP_SUMMARY"
+
+      # Runs after the push: on a first release the package only exists from this point. A warning, not a
+      # failure, because the tag is already published and immutable; a rerun would be refused above.
+      - name: Verify the image is publicly pullable
+        if: matrix.public
+        run: |
+          repo="$OWNER/${{ matrix.name }}"
+          token="$(curl -fsS "https://ghcr.io/token?scope=repository:$repo:pull" | jq -r '.token // empty' || true)"
+          status="$(curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${token:-none}" \
+            -H 'Accept: application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json' \
+            "https://ghcr.io/v2/$repo/manifests/$TAG")"
+          if [ "$status" = 200 ]; then
+            echo "Public: \`docker pull $IMAGE:$TAG\` works without login" >> "$GITHUB_STEP_SUMMARY"
+          else
+            msg="$IMAGE:$TAG is not publicly pullable (HTTP $status). Set the package to Public once: https://github.com/orgs/$OWNER/packages/container/${{ matrix.name }}/settings"
+            echo "::warning::$msg"
+            echo ":warning: $msg" >> "$GITHUB_STEP_SUMMARY"
+          fi
