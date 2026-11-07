@@ -2,8 +2,9 @@
 # Reproducible, re-runnable Kubernetes deployment (also the rollback path: deploy the previous tag):
 #   deploy/scripts/deploy-k8s.sh <overlay-dir> <release-tag> <env-file> [--dry-run]
 # Example: deploy/scripts/deploy-k8s.sh deploy/k8s/overlays/production v1.4.2 ~/secure/openjcockpit-prod.env
-# Steps: validate env -> render manifests (tag pinned) -> schema-safe server dry run -> secret from the env
-# file -> apply -> bootstrap job -> rollout status -> smoke test -> record release on the namespace.
+# Steps: validate env -> render manifests (tag pinned) -> schema-safe server dry run -> build and push
+# git-mcp-server from the tag's source (it is not published; the overlay names the registry) -> secret from
+# the env file -> apply -> bootstrap job -> rollout status -> smoke test -> record release on the namespace.
 set -euo pipefail
 
 OVERLAY="${1:?overlay dir}"; TAG="${2:?release tag}"; ENV_FILE="${3:?env file}"; DRY="${4:-}"
@@ -19,6 +20,10 @@ kubectl kustomize --load-restrictor LoadRestrictionsNone "$OVERLAY" | sed "s/:RE
   || { echo "deploy-k8s: overlay still contains placeholders (RELEASE_TAG / example.invalid / REPLACE_ME)"; exit 1; }
 kubectl apply --dry-run=server -f "$RENDERED" > /dev/null
 [ "$DRY" = "--dry-run" ] && { echo "deploy-k8s: dry run OK"; exit 0; }
+
+GIT_MCP_IMAGE="$(grep -oE 'image: [^ ]+/git-mcp-server:[^ ]+' "$RENDERED" | head -n 1 | cut -d' ' -f2)"
+[ -n "$GIT_MCP_IMAGE" ] || { echo "deploy-k8s: no git-mcp-server image in the rendered manifests"; exit 1; }
+"$DIR/scripts/build-git-mcp-server.sh" "$TAG" "$GIT_MCP_IMAGE" --push
 
 PREVIOUS="$(kubectl get ns "$NS" -o jsonpath='{.metadata.annotations.openjcockpit\.io/release}' 2>/dev/null || true)"
 echo "deploy-k8s: $PREVIOUS -> $TAG"

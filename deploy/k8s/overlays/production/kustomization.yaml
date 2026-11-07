@@ -24,7 +24,9 @@ images:
   - {name: ghcr.io/openjcockpit/ai-control-service, newTag: RELEASE_TAG}
   - {name: ghcr.io/openjcockpit/embabel-agent-service, newTag: RELEASE_TAG}
   - {name: ghcr.io/openjcockpit/embabel-agent-runtime, newTag: RELEASE_TAG}
-  - {name: ghcr.io/openjcockpit/git-mcp-server, newTag: RELEASE_TAG}
+  # git-mcp-server is not published: deploy-k8s.sh builds it from the release tag's source and pushes it
+  # here. Use a registry the cluster can pull from (add an imagePullSecret to the deployment if private).
+  - {name: openjcockpit/git-mcp-server, newName: registry.example.com/openjcockpit/git-mcp-server, newTag: RELEASE_TAG}   # CHANGE
   - {name: ghcr.io/openjcockpit/dashboard, newTag: RELEASE_TAG}
 replicas:
   - {name: dashboard, count: 2}

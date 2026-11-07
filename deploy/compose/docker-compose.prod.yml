@@ -115,7 +115,10 @@ services:
 
   git-mcp-server:
     <<: *java-service
-    image: ${OPENJCOCKPIT_REGISTRY:-ghcr.io/openjcockpit}/git-mcp-server:${OPENJCOCKPIT_IMAGE_TAG:?}
+    # Not published to a registry: deploy-compose.sh builds it from the release tag's source
+    # (build-git-mcp-server.sh). pull_policy: never keeps `compose pull` and `up` from looking for it.
+    image: openjcockpit/git-mcp-server:${OPENJCOCKPIT_IMAGE_TAG:?}
+    pull_policy: never
     environment:
       SPRING_PROFILES_ACTIVE: prod
       MANAGEMENT_PORT: "9090"           # actuator port (image HEALTHCHECK, Prometheus); never published

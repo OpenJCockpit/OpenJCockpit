@@ -24,7 +24,7 @@ never be exposed: see [Local development](../development/local-development.md).
 | Network | One flat network, many published ports | VM: only 80/443 published, internal `backend` network. K8s: default-deny NetworkPolicies |
 | Actuator | Same port as the API | Separate management port 9090, never routed publicly |
 | Logs | Plain text | JSON (ECS) on stdout |
-| Images | Built locally | Immutable release tags from GHCR (`release-images.yml`) |
+| Images | Built locally | Immutable release tags from GHCR (`release-images.yml`); `git-mcp-server` is built from the tag's source at deploy time |
 
 ## Prerequisites
 
@@ -33,6 +33,11 @@ never be exposed: see [Local development](../development/local-development.md).
 - An LLM endpoint: an Ollama-compatible server reachable from LiteLLM (`OLLAMA_BASE_URL`; private network
   or TLS), plus an OpenAI API key (still required by the services, see [Known limitations](known-limitations.md)).
 - A release tag published by `release-images.yml` (for example `v1.0.0`). Never deploy `latest`.
+- A git checkout of this repository on the machine that runs the deploy script, with the release tag
+  fetched (`git fetch --tags`). `git-mcp-server` is not published to a registry;
+  `deploy/scripts/build-git-mcp-server.sh` builds it from `git archive <tag>`. On Kubernetes it is pushed to
+  the registry named in the overlay (`CHANGE` next to `git-mcp-server`), which the cluster must be able to
+  pull from.
 - Kubernetes: `kubectl` ≥ 1.27, an nginx ingress controller in namespace `ingress-nginx`, a TLS issuer
   (for example cert-manager) creating `openjcockpit-tls` / `openjcockpit-auth-tls`, a CNI that enforces
   NetworkPolicy, optionally the prometheus-operator.
