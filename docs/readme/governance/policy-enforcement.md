@@ -42,7 +42,7 @@ The OPA client settings can also be viewed and changed in the dashboard's Workfl
 [`workflow_decision.rego`](../../../infrastructure/opa/policies/workflow_decision.rego) is explicitly
 *a starting point, not final governance logic*. Rules are evaluated top to bottom:
 
-1. **Missing identifiers** (`workflowId` or `customerId`) → denied, risk `medium`.
+1. **Missing identifier** (`workflowId`) → denied, risk `medium`. `customerId` is optional.
 2. **Forbidden tool operation** (guardrail): a tool call whose operation is destructive or rewrites history
    (`force_push`, `reset_hard`, `reset`, `rebase`, `delete_branch`, `delete_repository`, `exec`, `shell`,
    `run_command`, as tool suffix of `git.`/`git_` or as `mcpToolOperation`) → denied, risk `critical`,

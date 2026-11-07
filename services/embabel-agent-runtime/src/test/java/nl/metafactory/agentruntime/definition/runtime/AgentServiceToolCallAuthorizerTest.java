@@ -39,13 +39,13 @@ class AgentServiceToolCallAuthorizerTest {
     void anAgentRunOutsideAnyWorkflowHasNoWorkflowSoThePolicyCanRefuseIt() {
         var agentService = mock(AgentServiceClient.class);
         when(agentService.decideToolInvocation(any()))
-                .thenReturn(new ToolInvocationDecision(false, "workflowId and customerId are required"));
+                .thenReturn(new ToolInvocationDecision(false, "workflowId is required"));
         var run = new RunContext("agent-run-1", "trace-1", "local", "business-analyst", "1.1.0", "hash", "svc");
 
         var decision = new AgentServiceToolCallAuthorizer(agentService).authorize(run, "git.read_file");
 
         assertThat(decision.allowed()).isFalse();
-        assertThat(decision.reason()).isEqualTo("workflowId and customerId are required");
+        assertThat(decision.reason()).isEqualTo("workflowId is required");
         var request = ArgumentCaptor.forClass(ToolInvocationDecision.Request.class);
         verify(agentService).decideToolInvocation(request.capture());
         assertThat(request.getValue().workflowId()).isNull();
