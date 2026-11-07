@@ -56,7 +56,5 @@ images:
     newName: ghcr.io/openjcockpit/embabel-agent-service
   - name: openjcockpit/embabel-agent-runtime
     newName: ghcr.io/openjcockpit/embabel-agent-runtime
-  - name: openjcockpit/git-mcp-server
-    newName: ghcr.io/openjcockpit/git-mcp-server
   - name: openjcockpit/dashboard
     newName: ghcr.io/openjcockpit/dashboard

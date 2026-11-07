@@ -2,7 +2,8 @@
 # Reproducible, re-runnable production deployment on a VM/VPS:
 #   deploy/scripts/deploy-compose.sh            # deploy OPENJCOCKPIT_IMAGE_TAG from deploy/compose/.env
 #   deploy/scripts/deploy-compose.sh v1.4.2     # deploy that tag (written into .env first)
-# Steps: validate env -> pre-upgrade backup -> pull pinned images -> start in dependency order ->
+# Steps: validate env -> pre-upgrade backup -> pull pinned images, build git-mcp-server from the tag's
+# source (it is not published) -> start in dependency order ->
 # wait for health -> smoke test -> record the tag in .deploy-history (rollback-compose.sh reads it).
 # A failed health wait or smoke test exits non-zero and leaves the previous tag recorded for rollback.
 set -euo pipefail
@@ -28,6 +29,7 @@ if compose ps --status running --services 2>/dev/null | grep -qx postgres; then
 fi
 
 compose pull --quiet
+"$DIR/scripts/build-git-mcp-server.sh" "$TAG" "openjcockpit/git-mcp-server:$TAG"
 # Data and identity first, then the bootstrap job (idempotent), then the application tier.
 compose up -d --remove-orphans postgres keycloak opa git-mcp-server litellm
 compose up -d --remove-orphans --wait --wait-timeout 600 \

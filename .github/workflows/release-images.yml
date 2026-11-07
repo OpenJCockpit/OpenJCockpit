@@ -4,9 +4,10 @@ name: Release images
 # tag. deploy/scripts/deploy-compose.sh and deploy-k8s.sh only accept such tags, which is what makes a
 # rollback a redeploy of the previous tag. A CRITICAL vulnerability with a fix available blocks the release.
 # The dashboard image is published by the OpenJCockpit-frontend repository under the same vX.Y.Z tag.
-# Images marked `public` in the matrix must be anonymously pullable. GHCR has no API to change a package's
-# visibility, so a maintainer sets it once per package (Package settings → Change visibility → Public; the
-# org must allow public packages). Later pushes keep it. The release verifies it after each push.
+# git-mcp-server is not published. The published images must be anonymously pullable. GHCR has no API to
+# change a package's visibility, so a maintainer sets it once per package (Package settings → Change
+# visibility → Public; the org must allow public packages). Later pushes keep it. The release verifies it
+# after each push.
 # Before tagging, the release checklist (docs/readme/operations/release-checklist.md) must be complete and
 # ci-summary must be green on the tagged commit.
 
@@ -32,10 +33,9 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - {name: ai-control-service, dockerfile: services/ai-control-service/Dockerfile, context: ., public: true}
-          - {name: embabel-agent-service, dockerfile: services/embabel-agent-service/Dockerfile, context: ., public: true}
-          - {name: embabel-agent-runtime, dockerfile: services/embabel-agent-runtime/Dockerfile, context: ., public: true}
-          - {name: git-mcp-server, dockerfile: services/git-mcp-server/Dockerfile, context: ., public: false}
+          - {name: ai-control-service, dockerfile: services/ai-control-service/Dockerfile, context: .}
+          - {name: embabel-agent-service, dockerfile: services/embabel-agent-service/Dockerfile, context: .}
+          - {name: embabel-agent-runtime, dockerfile: services/embabel-agent-runtime/Dockerfile, context: .}
     env:
       TAG: ${{ github.ref_name }}
     steps:
@@ -86,7 +86,6 @@ jobs:
       # Runs after the push: on a first release the package only exists from this point. A warning, not a
       # failure, because the tag is already published and immutable; a rerun would be refused above.
       - name: Verify the image is publicly pullable
-        if: matrix.public
         run: |
           repo="$OWNER/${{ matrix.name }}"
           token="$(curl -fsS "https://ghcr.io/token?scope=repository:$repo:pull" | jq -r '.token // empty' || true)"
