@@ -29,6 +29,8 @@
         <spring-ai.version>2.0.1</spring-ai.version>
         <embabel-agent.version>1.5.4</embabel-agent.version>
         <mcp-sdk.version>2.0.1</mcp-sdk.version>
+        <!-- Pulled in transitively via docker-java-core; pinned for CVE-2025-14813 and CVE-2026-8763 -->
+        <bouncycastle.version>1.86</bouncycastle.version>
     </properties>
 
     <dependencyManagement>
@@ -46,6 +48,21 @@
                 <version>${mcp-sdk.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcutil-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
