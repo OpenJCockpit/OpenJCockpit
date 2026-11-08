@@ -53,7 +53,7 @@ jobs:
           python3 deploy/scripts/render-prod-realm.py --check
           deploy/scripts/render-prometheusrule.sh --check
       - name: Shellcheck deployment scripts
-        run: docker run --rm -v "$PWD:/w:ro" -w /w koalaman/shellcheck:v0.10.0 -S warning deploy/scripts/*.sh deploy/compose/postgres/*.sh
+        run: docker run --rm -v "$PWD:/w:ro" -w /w koalaman/shellcheck:v0.10.0 -S warning deploy/scripts/*.sh deploy/compose/postgres/*.sh services/docker/*.sh
       - name: validate-env rejects the template and accepts a generated environment
         run: |
           set -euo pipefail

@@ -35,7 +35,10 @@ class ComposeRuntimeWiringContractTest {
         assertThat(runtime.path("image").asString()).startsWith("openjcockpit/embabel-agent-runtime:");
         assertThat(runtime.path("container_name").asString()).isEqualTo("openjcockpit-embabel-runtime");
         assertThat(runtime.path("ports").get(0).asString()).isEqualTo("8092:8082");
-        assertThat(runtime.path("healthcheck").path("test").toString()).contains("/actuator/health/readiness");
+        // The image's shared healthcheck script probes readiness over HTTP or HTTPS on the given port.
+        assertThat(runtime.path("healthcheck").path("test").valueStream().map(JsonNode::asString).toList())
+                .containsExactly("CMD", "/usr/local/bin/healthcheck.sh", "8082");
+        assertThat(Files.readString(ROOT.resolve("services/docker/healthcheck.sh"))).contains("/actuator/health/readiness");
         assertThat(Files.exists(ROOT.resolve("services/embabel-agent-runtime/Dockerfile"))).isTrue();
     }
 

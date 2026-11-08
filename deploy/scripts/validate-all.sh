@@ -18,7 +18,7 @@ python3 deploy/scripts/render-prod-realm.py --check
 deploy/scripts/render-prometheusrule.sh --check
 
 step "Shellcheck"
-docker run --rm -v "$ROOT:/w:ro" -w /w koalaman/shellcheck:v0.10.0 -S warning deploy/scripts/*.sh deploy/compose/postgres/*.sh
+docker run --rm -v "$ROOT:/w:ro" -w /w koalaman/shellcheck:v0.10.0 -S warning deploy/scripts/*.sh deploy/compose/postgres/*.sh services/docker/*.sh
 
 step "Environment validation (template rejected, generated env accepted)"
 cp deploy/compose/.env.prod.example "$TMP/template.env"; chmod 600 "$TMP/template.env"
