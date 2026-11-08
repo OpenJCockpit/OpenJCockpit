@@ -445,8 +445,8 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
-      # readiness of the runtime itself (no database); the image ships bash but no curl
-      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8082 && printf 'GET /actuator/health/readiness HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && grep -q '\"status\":\"UP\"' <&3"]
+      # readiness of the runtime itself (no database); HTTP or HTTPS, see services/docker/healthcheck.sh
+      test: ["CMD", "/usr/local/bin/healthcheck.sh", "8082"]
       interval: 15s
       timeout: 5s
       retries: 20
