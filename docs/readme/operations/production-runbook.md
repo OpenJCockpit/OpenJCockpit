@@ -222,11 +222,43 @@ Never rotate `LITELLM_SALT_KEY`, `ENCRYPTION_SECRET`/`_SALT` or `A2A_SERVICE_ENC
 migration plan: data encrypted with them becomes unreadable (stored Git credentials, A2A secrets, LiteLLM
 credentials).
 
-## 8. Assumptions
+## 8. TLS on the Java services
+
+Every Java service image (`ai-control-service`, `embabel-agent-service`, `embabel-agent-runtime`,
+`git-mcp-server`) serves HTTPS on its application port when a PEM certificate and private key are
+mounted, and plain HTTP when they are not. Use this when a service runs on a different host than its
+callers and the traffic leaves a private network.
+
+| Path / variable | Purpose |
+| --- | --- |
+| `/etc/openjcockpit/tls/tls.crt` | Certificate, leaf first, followed by any intermediates (`TLS_CERT_FILE` to override) |
+| `/etc/openjcockpit/tls/tls.key` | Private key, PKCS#1, PKCS#8 or SEC1 (`TLS_KEY_FILE` to override) |
+| `/etc/openjcockpit/tls/ca.crt` | Optional: extra CA certificates the service trusts, for example the private CA of the services it calls (`TLS_CA_FILE` to override) |
+| `TLS_KEY_PASSWORD` | Only for an encrypted private key |
+| `MANAGEMENT_SERVER_SSL_ENABLED` | `false` by default: the separate management port stays HTTP for probes and Prometheus |
+
+```bash
+docker run -v /srv/openjcockpit/tls:/etc/openjcockpit/tls:ro ... ghcr.io/openjcockpit/ai-control-service:<tag>
+```
+
+- Both files must be readable by UID 10001. Only one of the two present stops the container with
+  `TLS misconfigured: ...` instead of falling back to HTTP.
+- A renewed certificate (cert-manager, certbot) is picked up from the mounted files without a restart.
+- The container logs `TLS enabled` or `TLS disabled` at startup; the image `HEALTHCHECK` works in both modes.
+- Every certificate in `tls.crt` and `ca.crt` is added to a copy of the JDK's default truststore, which the
+  JVM uses for its outgoing calls (`TLS trust: added N certificate(s)` in the log). Public CAs stay trusted.
+  The truststore is built at startup, so a renewed certificate is trusted after the next restart.
+- Callers must switch their URL for that service to `https://` (for example `GIT_MCP_AI_CONTROL_URL`). A
+  certificate from a public CA needs nothing else. For a self-signed or private-CA certificate, mount that
+  certificate or CA as `ca.crt` on every calling service; a service that serves the same CA's certificates
+  already trusts it when its own `tls.crt` contains the issuing CA or intermediate.
+
+## 9. Assumptions
 
 - TLS terminates at caddy (VM) or the ingress controller (Kubernetes); service-to-service traffic stays
-  on the private network and is not encrypted in transit. Use a service mesh with mTLS if your policy
-  requires it.
+  on the private network and is not encrypted in transit unless a service serves its own certificate
+  (see [TLS on the Java services](#8-tls-on-the-java-services)). Use a service mesh with mTLS if your
+  policy requires it.
 - One tenant per deployment (`AGENT_WORKFLOWS_TENANT`).
 - `embabel-agent-service` and `ai-control-service` run as a single replica (see
   [Known limitations](known-limitations.md)); availability relies on fast restarts and durable state.

@@ -13,10 +13,13 @@ COPY --from=build /workspace/services/embabel-agent-runtime/target/*.jar app.jar
 # The seeded configuration-driven agents ship with the image, so the runtime needs no shared filesystem;
 # a deployment can override them with a read-only mount at /agent-definitions.
 COPY --from=build /workspace/services/embabel-agent-runtime/agent-definitions /agent-definitions
+# HTTPS when a PEM certificate and key are mounted at /etc/openjcockpit/tls/tls.crt and tls.key, plain
+# HTTP otherwise (services/docker/entrypoint.sh).
+COPY --chmod=0755 services/docker/entrypoint.sh services/docker/healthcheck.sh /usr/local/bin/
 USER 10001
 EXPOSE 8082
 ENV AGENT_DEFINITIONS_LOCAL_ROOT=/agent-definitions
 # Readiness is the runtime's own (no database); dependencies are checked per request, failing closed.
 HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=10 \
-  CMD ["bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/${MANAGEMENT_PORT:-8082} && printf 'GET /actuator/health/readiness HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '\"status\":\"UP\"' <&3"]
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]
+  CMD ["/usr/local/bin/healthcheck.sh", "8082"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
