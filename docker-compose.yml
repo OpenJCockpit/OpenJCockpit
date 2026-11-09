@@ -27,7 +27,7 @@ x-a2a-service-encryption-salt: &a2a-service-encryption-salt ${A2A_SERVICE_ENCRYP
 x-spec-queue-runner-secret: &spec-queue-runner-secret ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:-local-only-spec-queue-runner-secret-CHANGE-ME-outside-local}
 services:
   postgres:
-    image: postgres:16-alpine@sha256:0cefaabd882e42bcb2a2f3dc56d3ce4770560ba62fd7f197f1a2e008fd5731ab
+    image: postgres:16-alpine@sha256:aa6cb33cf4c19c765cefcf48d96176258800870a9a1e930ad126200f9d825139
     container_name: openjcockpit-postgres
     restart: unless-stopped
     environment:
@@ -40,7 +40,7 @@ services:
       timeout: 5s
       retries: 10
   postgres-init:
-    image: postgres:16-alpine@sha256:0cefaabd882e42bcb2a2f3dc56d3ce4770560ba62fd7f197f1a2e008fd5731ab
+    image: postgres:16-alpine@sha256:aa6cb33cf4c19c765cefcf48d96176258800870a9a1e930ad126200f9d825139
     depends_on:
       postgres:
         condition: service_healthy
@@ -247,7 +247,7 @@ services:
   # One-shot: the service images run as UID 10001. Named volumes created by an older stack (when the
   # services ran as root) are handed over once; fresh volumes already inherit the image's ownership.
   volume-permissions:
-    image: postgres:16-alpine@sha256:0cefaabd882e42bcb2a2f3dc56d3ce4770560ba62fd7f197f1a2e008fd5731ab
+    image: postgres:16-alpine@sha256:aa6cb33cf4c19c765cefcf48d96176258800870a9a1e930ad126200f9d825139
     user: "0:0"
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -269,7 +269,7 @@ services:
   #   AGENTIC_CONTAINER_ENABLED=true docker compose --profile docker-jobs up
   # Nothing executes in the job container yet, so the default stack runs without it.
   docker-socat:
-    image: alpine/socat@sha256:466c8a0383e16463fabdb7df01008292fb78d07da60224a46cb5d3142ce122ed
+    image: alpine/socat@sha256:e8a6e8868a8e6e01d9c2c321a8f8d4474d2d741d962462e5c5a124a8e66a0055
     container_name: openjcockpit-docker-socat
     profiles: ["docker-jobs"]
     restart: unless-stopped
