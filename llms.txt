@@ -75,7 +75,7 @@ Key facts for reasoning about the project:
 
 ## Optional
 
-- [Documentation site](https://openjcockpit.github.io/OpenJCockpit/): Published HTML site with an illustrated first-run tutorial and spec queue details.
+- [Documentation site](https://openjcockpit.github.io/OpenJCockpit/): Published overview page with spec queue details; links to the tutorials on the docs site.
 - [Agent integration operations guide (Dutch)](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/services/embabel-agent-service/docs/agent-integration/OPERATIONS.md): Detailed operations guide for configuration-driven agents, A2A and git-workspace runs.
 - [Spec workflow rules](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/services/embabel-agent-service/AGENTS.md): Spec folder rules (`spec.md`, `plan.md`, `tasks.md`, `review.md`) applied to work on the agent service.
 - [End-to-end test harness](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit-frontend/main/e2e/README.md): Full Playwright harness details and deliberate coverage exclusions.
