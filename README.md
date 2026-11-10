@@ -11,7 +11,8 @@
 <p align="center">
   <a href="docs/readme/getting-started/quickstart.md">Getting started</a> ·
   <a href="docs/readme/README.md">Documentation</a> ·
-  <a href="https://openjcockpit.github.io/OpenJCockpit/">Docs site</a> ·
+  <a href="https://openjcockpit.github.io/OpenJCockpit-docs/">Docs site</a> ·
+  <a href="https://openjcockpit.github.io/OpenJCockpit/">Overview</a> ·
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
@@ -190,6 +191,9 @@ extension point. They are not yet a verified target. → [Architecture](docs/rea
 
 Looking for a section of the previous README? See the
 [documentation migration map](docs/readme/reference/documentation-migration-map.md).
+
+The same pages, plus guided tutorials, are published at
+[OpenJCockpit Docs](https://openjcockpit.github.io/OpenJCockpit-docs/).
 
 For AI assistants, [`llms.txt`](llms.txt) gives a compact project summary and a curated index of
 these documents.

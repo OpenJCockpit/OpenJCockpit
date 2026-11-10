@@ -80,7 +80,8 @@ topics.
 
 | Document | Topic |
 | --- | --- |
-| [docs-site](https://openjcockpit.github.io/OpenJCockpit/) ([source](../../docs-site/index.html)) | Public documentation site: about, spec queue details, illustrated first-run tutorial. |
+| [OpenJCockpit Docs](https://openjcockpit.github.io/OpenJCockpit-docs/) | Published documentation: these pages plus guided tutorials and video scripts. |
+| [docs-site](https://openjcockpit.github.io/OpenJCockpit/) ([source](../../docs-site/index.html)) | Project overview page: about, spec queue details, illustrated first-run tutorial. |
 | [`services/embabel-agent-service/docs/agent-integration/OPERATIONS.md`](../../services/embabel-agent-service/docs/agent-integration/OPERATIONS.md) | Authoritative operations guide for configuration-driven agents, A2A and git-workspace runs (Dutch). |
 | [`services/embabel-agent-service/AGENTS.md`](../../services/embabel-agent-service/AGENTS.md) | Spec-driven workflow rules for agents. |
 | [`services/embabel-agent-service/README.md`](../../services/embabel-agent-service/README.md) | Log keys and the workflow-definition write race statement. |

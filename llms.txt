@@ -19,6 +19,7 @@ Key facts for reasoning about the project:
 
 - [README](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/README.md): Product introduction, how a run works end to end, technology stack and documentation map.
 - [Overview](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/concepts/overview.md): Core concepts (project, spec, agent, workflow, gate, policy, tool, skill, queue), dashboard features, and a vision vs. current-status table.
+- [OpenJCockpit Docs](https://openjcockpit.github.io/OpenJCockpit-docs/): Published documentation site with guided tutorials (Learn) and these reference pages (Reference).
 - [Documentation index](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/README.md): Goal-based entry point to every documentation page.
 
 ## Getting Started
