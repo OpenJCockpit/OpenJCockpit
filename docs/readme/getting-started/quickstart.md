@@ -66,8 +66,8 @@ passwords are listed in [Authentication](authentication.md). They are **local-on
 
 ## 4. Your first workflow run
 
-The repository's documentation site has an illustrated tutorial
-(["Tutorial: your first project and workflow run"](https://openjcockpit.github.io/OpenJCockpit/)).
+This is the short version. The docs site has the full, illustrated tutorial
+["Your first spec-driven change"](https://openjcockpit.github.io/OpenJCockpit-docs/learn/tutorials/first-spec-driven-change).
 In short:
 
 1. **Add your project** in the dashboard, with its Git repository URL, and add a Git credential
