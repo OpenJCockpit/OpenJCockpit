@@ -80,8 +80,11 @@ topics.
 ### Reference
 
 - [Configuration reference](reference/configuration-reference.md): environment variables and defaults.
-- [Historical notes](reference/historical-notes.md): superseded behaviour preserved for traceability.
-- [Documentation migration map](reference/documentation-migration-map.md): where each former README section now lives.
+
+### Archive
+
+- [Historical notes](archive/historical-notes.md): superseded behaviour preserved for traceability.
+- [Documentation migration map](archive/documentation-migration-map.md): where each former README section now lives.
 
 ## Other documentation in the repository
 

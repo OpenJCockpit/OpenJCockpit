@@ -150,7 +150,7 @@ this purpose. Both `embabel-agent-service` and `ai-control-service` use
 `spring.web.error.include-message: always` consistently, and Spring Boot's own default
 `BasicErrorController` is active, untouched. The history of how this setting was first a no-op and
 then required a workaround bean (`ErrorHandlingConfig`) that has since been removed is preserved in
-[Historical notes](../reference/historical-notes.md#error-message-disclosure-history-d-qa-1-remediation-and-framework-upgrade).
+[Historical notes](../archive/historical-notes.md#error-message-disclosure-history-d-qa-1-remediation-and-framework-upgrade).
 
 ### Rollback hazard: removing a saved `approvalGate:` configuration before rolling back past this feature
 
