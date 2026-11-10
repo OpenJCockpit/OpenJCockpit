@@ -80,4 +80,4 @@ Key facts for reasoning about the project:
 - [Spec workflow rules](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/services/embabel-agent-service/AGENTS.md): Spec folder rules (`spec.md`, `plan.md`, `tasks.md`, `review.md`) applied to work on the agent service.
 - [End-to-end test harness](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit-frontend/main/e2e/README.md): Full Playwright harness details and deliberate coverage exclusions.
 - [Dependency management](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/operations/dependency-management.md): Renovate configuration.
-- [Historical notes](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/reference/historical-notes.md): Superseded behaviour kept for traceability; not current behaviour.
+- [Historical notes](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/archive/historical-notes.md): Superseded behaviour kept for traceability; not current behaviour.

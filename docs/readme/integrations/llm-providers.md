@@ -190,7 +190,7 @@ _start_.
 > The list of agents in the release note above describes the built-in pipeline as it existed when
 > the change was made. That pipeline has since been replaced by catalogue agents; see
 > [Agents and workflows](../workflows/agents-and-workflows.md) and
-> [Historical notes](../reference/historical-notes.md).
+> [Historical notes](../archive/historical-notes.md).
 
 **Release note (LiteLLM gateway).** The default/coding LLM now has a hard
 dependency on the `litellm` gateway container. A developer who previously
