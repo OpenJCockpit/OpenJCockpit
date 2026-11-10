@@ -1,0 +1,35 @@
+name: Notify docs site
+
+# Rebuilds https://openjcockpit.github.io/OpenJCockpit-docs/ when the product docs change.
+# Needs a secret DOCS_SITE_DISPATCH_TOKEN: a fine-grained token with "Contents: read and write"
+# on OpenJCockpit/OpenJCockpit-docs (repository_dispatch needs that permission).
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/readme/**"
+      - ".github/workflows/docs-site-notify.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger docs site rebuild
+        env:
+          TOKEN: ${{ secrets.DOCS_SITE_DISPATCH_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::warning::DOCS_SITE_DISPATCH_TOKEN is not set; the docs site rebuilds on its weekly schedule instead."
+            exit 0
+          fi
+          curl --fail-with-body -sS -X POST \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/OpenJCockpit/OpenJCockpit-docs/dispatches \
+            -d '{"event_type":"product-docs-updated"}'

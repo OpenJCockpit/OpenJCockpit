@@ -3,7 +3,7 @@
 Agents can be equipped with **skills**: reusable instruction packages in the Agent Skills format
 (`skills/<id>/SKILL.md`, with optional text references). Skills for configuration-driven agents live
 next to the agent definitions in
-[`services/embabel-agent-service/agent-definitions/skills/`](../../../services/embabel-agent-service/agent-definitions/skills/).
+[`services/embabel-agent-runtime/agent-definitions/skills/`](../../../services/embabel-agent-runtime/agent-definitions/skills/).
 A skill never grants tools: `allowed-tools` in a skill and text in instructions are ignored for tool
 access. See [A2A and configuration-driven agents](a2a-agents.md).
 
