@@ -6,6 +6,13 @@ topics.
 
 > New here? Read the [project README](../../README.md) first, then the [Overview](concepts/overview.md).
 
+**Which doc do I read?**
+
+- **Learn by doing:** the guided tutorials on the
+  [docs site](https://openjcockpit.github.io/OpenJCockpit-docs/learn/tutorials/).
+- **Look something up:** this index (published as Reference on the docs site).
+- **Just visiting on GitHub:** the [project README](../../README.md).
+
 ## By goal
 
 | I want to… | Start here | Then |
