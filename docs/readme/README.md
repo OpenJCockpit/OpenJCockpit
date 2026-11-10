@@ -59,7 +59,7 @@ topics.
 - [LLM providers](integrations/llm-providers.md): Ollama, LiteLLM, OpenAI, reverts, release notes.
 - [MCP tools](integrations/mcp-tools.md): the Git MCP server, policy-checked tools, workspace isolation.
 - [Agents and A2A](integrations/a2a-agents.md): agent catalogue, configuration-driven agents, A2A.
-- [Skills Hub](integrations/skills-marketplace.md): skills and the dev-only marketplace double.
+- [Skills Hub](integrations/skills-marketplace.md): skills and the dev-only mock marketplace.
 
 ### Development
 

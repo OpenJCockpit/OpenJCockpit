@@ -1,6 +1,6 @@
 # OpenJCockpit
 
-> OpenJCockpit is the open-source AI Software Factory: an AI Orchestration Dashboard and backend platform for governed agentic software development. It runs teams of role-based AI agents (business analyst, solution architect, software developer, QA engineer) through specification-driven workflows, with Open Policy Agent checks, human approval gates and reviewable Git delivery built in. Java-first, Apache 2.0 licensed, in active development, and not yet production-hardened.
+> OpenJCockpit is the open-source AI Software Factory: a dashboard and backend platform for governed agentic software development. It runs teams of role-based AI agents (business analyst, solution architect, software developer, QA engineer) through specification-driven workflows, with Open Policy Agent checks, human approval gates and reviewable Git delivery built in. Java-first, Apache 2.0 licensed, in active development, and not yet production-hardened.
 
 OpenJCockpit is not a code-generation assistant. It is the orchestration and governance layer around coding agents. Humans decide what gets built, which agents may use which tools, and where a human must approve. The agents then work on a dedicated Git branch that the team reviews through its normal pull-request process.
 
@@ -54,7 +54,7 @@ Key facts for reasoning about the project:
 - [MCP tools](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/integrations/mcp-tools.md): The Git MCP server, policy-checked tools and workspace isolation.
 - [Agents and A2A](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/integrations/a2a-agents.md): Agent catalogue, configuration-driven Markdown agents, remote A2A agents and their limitations.
 - [Local agent format](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/agents/README.md): Frontmatter fields and folder conventions for local agent definitions.
-- [Skills Hub](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/integrations/skills-marketplace.md): Agent skills and the development-only marketplace mock.
+- [Skills Hub and Skills Marketplace](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/docs/readme/integrations/skills-marketplace.md): Agent skills and the development-only marketplace mock.
 - [LiteLLM gateway configuration](https://raw.githubusercontent.com/OpenJCockpit/OpenJCockpit/main/infrastructure/litellm/README.md): Gateway keys, model routing and the salt-key rotation hazard.
 
 ## Development and Extension
