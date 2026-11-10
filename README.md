@@ -23,7 +23,7 @@
 
 ---
 
-**OpenJCockpit** is an open-source **AI Orchestration Dashboard and platform for governed agentic
+**OpenJCockpit** is an open-source **AI Software Factory for governed agentic
 software development**. Instead of one AI assistant writing code in isolation, it runs **teams of
 specialised AI agents** (business analyst, solution architect, software developer, QA engineer) through
 **specification-driven workflows**, with **policy checks, human approval gates and reviewable Git

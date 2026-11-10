@@ -1,7 +1,6 @@
 # Quickstart
 
-Run the complete OpenJCockpit stack locally with Docker Compose, log in to the AI Orchestration
-Dashboard and run your first agent workflow.
+Run the complete OpenJCockpit stack locally with Docker Compose, log in to the dashboard and run your first agent workflow.
 
 > **Local development stack.** Everything below starts a local, single-machine development
 > environment with seeded, publicly known credentials. It is not a production deployment. Read
@@ -55,7 +54,7 @@ docker compose up --build        # or, for development with hot reload: npm inst
 
 | URL | What |
 | --- | --- |
-| http://localhost:4000 | AI Orchestration Dashboard |
+| http://localhost:4000 | Dashboard |
 | http://localhost:8080/admin | Keycloak admin console |
 | http://localhost:4100 | LiteLLM gateway admin UI (separate, non-Keycloak login) |
 
