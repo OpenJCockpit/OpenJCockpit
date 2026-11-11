@@ -28,7 +28,7 @@
         <java.version>25</java.version>
         <spring-ai.version>2.0.2</spring-ai.version>
         <embabel-agent.version>1.5.4</embabel-agent.version>
-        <mcp-sdk.version>2.0.1</mcp-sdk.version>
+        <mcp-sdk.version>2.1.0</mcp-sdk.version>
         <!-- Pulled in transitively via docker-java-core; pinned for CVE-2025-14813 and CVE-2026-8763 -->
         <bouncycastle.version>1.86</bouncycastle.version>
     </properties>
