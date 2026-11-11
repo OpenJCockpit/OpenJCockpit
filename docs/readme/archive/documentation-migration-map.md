@@ -15,17 +15,17 @@ in [Historical notes](historical-notes.md), with the current behaviour documente
 | # | Former README heading | Status | New location |
 | --- | --- | --- | --- |
 | 1 | `# OpenJCockpit + Keycloak + Custom Login Theme` (title, logo, tagline) | Updated | Root [`README.md`](../../../README.md) hero |
-| 2 | `## What is in this project?` | Moved | [Overview → Original feature list](../concepts/overview.md#original-feature-list); dashboard description in [Overview → The AI Orchestration Dashboard](../concepts/overview.md#the-ai-orchestration-dashboard) |
+| 2 | `## What is in this project?` | Moved | [Overview → Original feature list](../concepts/overview.md#original-feature-list); dashboard description in [Overview → The dashboard](../concepts/overview.md#the-dashboard) |
 | 3 | `## Starting the application with Docker Compose` | Moved | [Quickstart](../getting-started/quickstart.md) |
 | 4 | `### Local Ollama Qwen model (prerequisite, before you start the stack)` | Moved | [LLM providers → Local Ollama Qwen model](../integrations/llm-providers.md#local-ollama-qwen-model-prerequisite-before-you-start-the-stack) |
 | 5 | `### LiteLLM gateway` (variables, verification, warnings, durations) | Updated | [LLM providers → LiteLLM gateway](../integrations/llm-providers.md#litellm-gateway) |
 | 5a | ↳ Revert A / Revert B | Moved + verification note | [LLM providers → Reverting the default LLM](../integrations/llm-providers.md#reverting-the-default-llm) |
 | 5b | ↳ Release note / Release note (LiteLLM gateway) | Moved | [LLM providers → Release notes](../integrations/llm-providers.md#release-notes) |
-| 5c | ↳ `cp .env.example .env` … URLs, login redirect | Moved | [Quickstart → Configure and start](../getting-started/quickstart.md#2-configure-and-start), [Open the dashboard](../getting-started/quickstart.md#3-open-the-dashboard) |
+| 5c | ↳ `cp .env.example .env` … URLs, login redirect | Moved | [Quickstart → Configure and start](../getting-started/quickstart.md#2-configure-and-start), [Start and open the dashboard](../getting-started/quickstart.md#3-start-and-open-the-dashboard) |
 | 6 | `## Keycloak data` | Moved | [Authentication → Keycloak data](../getting-started/authentication.md#keycloak-data) |
 | 7 | `## Custom login theme` | Updated | [Authentication → Custom login theme](../getting-started/authentication.md#custom-login-theme) |
 | 8 | `## Re-importing the realm` (incl. landing-app note) | Moved + warning | [Authentication → Re-importing the realm](../getting-started/authentication.md#re-importing-the-realm) |
-| 9 | `## Local frontend development` | Updated | [Local development → Local frontend development](../development/local-development.md#local-frontend-development) |
+| 9 | `## Local frontend development` | Updated | [Local development → Frontend (separate repository)](../development/local-development.md#frontend-separate-repository) |
 | 10 | `## End-to-end tests (Playwright)` | Updated | [Testing → End-to-end tests](../development/testing.md#end-to-end-tests-playwright) |
 | 11 | `## Spec queue` | Moved | [Spec queue](../workflows/spec-queue.md) |
 | 12 | `### How to use it` | Moved | [Spec queue → How to use it](../workflows/spec-queue.md#how-to-use-it) |
