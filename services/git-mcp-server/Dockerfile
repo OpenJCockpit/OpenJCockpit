@@ -1,4 +1,4 @@
-FROM maven:3.9-eclipse-temurin-25@sha256:93b8a14ea2f412782e4e842651273b4d903e35cc496284f178fbbe2d67d00976 AS build
+FROM maven:3.10-eclipse-temurin-25@sha256:047a82fc82c613266cfb1b66fd920be9c8ba51fd67edc68245e4542768f45e36 AS build
 WORKDIR /workspace
 COPY . .
 RUN mvn -pl services/git-mcp-server -am package -DskipTests --no-transfer-progress

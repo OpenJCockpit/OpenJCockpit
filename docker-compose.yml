@@ -52,7 +52,7 @@ services:
     restart: "no"
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.6.4@sha256:0aae0de7fca85525f727d3354df17896092de8bb26ae4c12d89c77e5df8cbce4
+    image: quay.io/keycloak/keycloak:26.8.2@sha256:723b1d6e254c0fc96d5cffec860c7e0744d6a3277822b865bb538cf891575e41
     container_name: openjcockpit-keycloak
     restart: unless-stopped
     command: ["start-dev", "--import-realm"]
@@ -96,7 +96,7 @@ services:
   # Keycloak databases, where --import-realm is skipped). See
   # infrastructure/keycloak/seed-realm-roles.sh.
   keycloak-realm-roles:
-    image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
+    image: curlimages/curl:8.23.0@sha256:3fb7e13e5d179a845c97d78204f3f1064d1907037f26a3ebf91710571151fd93
     depends_on:
       keycloak:
         condition: service_healthy
@@ -117,7 +117,7 @@ services:
   # See infrastructure/keycloak/local-users/README.md. No-op when the directory
   # contains no *.local.json files, which is the default for a fresh checkout.
   keycloak-local-users:
-    image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
+    image: curlimages/curl:8.23.0@sha256:3fb7e13e5d179a845c97d78204f3f1064d1907037f26a3ebf91710571151fd93
     depends_on:
       keycloak:
         condition: service_healthy
@@ -139,7 +139,7 @@ services:
   # One-shot seeding of the fixed Playwright E2E test user into the
   # openjcockpit realm. See infrastructure/keycloak/seed-e2e-user.sh.
   keycloak-e2e-user:
-    image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
+    image: curlimages/curl:8.23.0@sha256:3fb7e13e5d179a845c97d78204f3f1064d1907037f26a3ebf91710571151fd93
     depends_on:
       keycloak:
         condition: service_healthy
@@ -166,7 +166,7 @@ services:
   # only route embabel-agent-runtime takes to the local model (BR-13: OpenAI is NOT
   # proxied). Host port 4100 -- LiteLLM's conventional 4000 collides with the frontend dashboard (OpenJCockpit-frontend).
   litellm:
-    image: ghcr.io/berriai/litellm:v1.101.6@sha256:fc0e36a0965e4ffe75bc509b3a1085f5d6c6b78b16efa2ffbb525e122e51f83b
+    image: ghcr.io/berriai/litellm:v1.109.0@sha256:26aecfb02fb17ac6590f0549478561f9fbb3f69314317320b2e32a21beed4006
     container_name: openjcockpit-litellm
     restart: unless-stopped
     ports:
@@ -211,7 +211,7 @@ services:
   # (runtime model key, agent service MCP key, the one LiteLLM A2A key, ai-control MCP key).
   # See infrastructure/local-seed/seed-local.sh.
   local-seed:
-    image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
+    image: curlimages/curl:8.23.0@sha256:3fb7e13e5d179a845c97d78204f3f1064d1907037f26a3ebf91710571151fd93
     depends_on:
       litellm:
         condition: service_healthy
