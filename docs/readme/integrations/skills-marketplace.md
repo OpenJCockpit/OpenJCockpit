@@ -1,4 +1,4 @@
-# Skills Hub and the local Skills Marketplace double (opt-in, dev-only)
+# Skills Hub and the local mock Skills Marketplace (opt-in, dev-only)
 
 Agents can be equipped with **skills**: reusable instruction packages in the Agent Skills format
 (`skills/<id>/SKILL.md`, with optional text references). Skills for configuration-driven agents live

@@ -95,7 +95,7 @@ Workflow runs deliver a **pushed branch**. Opening the pull request is part of y
 > **Verify before relying on auto-merge.** In the current code, no default workflow or job step emits a
 > `pull-request:` run artifact, so spec-queue items wait for a human merge unless a custom
 > workflow produces one. Earlier versions opened pull requests automatically; see
-> [Historical notes](../reference/historical-notes.md#spec-and-implementation-publishing-to-git-deterministic).
+> [Historical notes](../archive/historical-notes.md#spec-and-implementation-publishing-to-git-deterministic).
 
 ## Spec initialization branch
 

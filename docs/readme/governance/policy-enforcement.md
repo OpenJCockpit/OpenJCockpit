@@ -61,6 +61,52 @@ risk requirements before relying on them.
 > therefore denied tool access by this policy. Every workflow run carries its workflow id and execution
 > id to its agents for this purpose.
 
+#### Try a decision against the running OPA
+
+With the local stack up, query the decision document directly. This is the same call the policy client makes.
+
+```bash
+curl -s localhost:8181/v1/data/openjcockpit/workflow/decision \
+  -d '{"input": {"workflowId": "wf-1", "customerId": "acme",
+        "action": "mcp.tool.invoke", "mcpToolName": "git.force_push"}}'
+```
+
+```json
+{
+  "result": {
+    "allowed": false,
+    "auditTags": ["guardrail", "forbidden-operation"],
+    "reason": "Tool operation 'git.force_push' is forbidden by policy.",
+    "requiredApproval": false,
+    "riskLevel": "critical"
+  }
+}
+```
+
+Change the input to see the other branches: drop `workflowId` for rule 1, or send
+`"action": "workflow.start"` with `"projectClassification": "restricted"` for rule 4. That one is allowed,
+with `requiredApproval: true` and risk `high`.
+
+#### Example: forbid one more tool operation
+
+Forbidden operations are a set in
+[`workflow_decision.rego`](../../../infrastructure/opa/policies/workflow_decision.rego). To also deny
+`git.clean` (and `git_clean`), add it to that set:
+
+```rego
+forbidden_tool_operations := {
+	"force_push", "push_force", "reset_hard", "reset", "rebase", "delete_branch",
+	"delete_repository", "exec", "shell", "run_command",
+	"clean",
+}
+```
+
+Restart the `opa` container to pick up the edit (`docker compose restart opa`). The same call as above with
+`"mcpToolName": "git.clean"` is then denied with risk `critical`. Add a matching case to
+`workflow_decision_test.rego` and run the unit tests listed under
+[Validating policy enforcement](#validating-policy-enforcement). Tools outside the `git.`/`git_` families are
+already denied as unknown; adding a new family means extending `known_tool_prefixes`.
+
 ### Validating policy enforcement
 
 | Level | What it proves | How |
@@ -116,8 +162,8 @@ the `workflow-definitions` volume and can be queried per workflow and execution
 
 These are important for any enterprise assessment:
 
-- **No fine-grained authorization.** Apart from `openjcockpit-admin` (spec queue auto-merge setting),
-  any authenticated user can start workflows and approve, deny or comment on approval gates.
+- **Authorization is role-based, not per project or per tenant.** Roles are admin, operator, approver and
+  viewer (see [Authorization model](authorization-model.md)); an approver can decide gates on every project.
 - **The default OPA policy is permissive** (default allow) and not tailored to any organization.
 - **`requiredApproval` in a policy decision is recorded**, but approval gates are configured per
   workflow; verify the end-to-end behaviour you need before relying on policy-driven approvals.

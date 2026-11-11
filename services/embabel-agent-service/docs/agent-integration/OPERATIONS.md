@@ -1,7 +1,7 @@
 # Configuration-driven agents + A2A — operations guide (SPEC-002)
 
 This guide is self-contained: a developer can reproduce the local demo with it without any prior
-context. Progress and evidence per step: `IMPLEMENTATION_PROGRESS.md`.
+context.
 
 > **Since the management/execution split** the configuration-driven agents, the inbound A2A endpoints,
 > the `openjcockpit.agent-definitions.*` settings, the LLM routes and `agent-definitions/` run in
