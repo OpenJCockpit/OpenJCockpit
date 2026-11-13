@@ -151,7 +151,8 @@ The `openjcockpit.agent-definitions.*` properties (`AGENT_DEFINITIONS_*`, `A2A_E
 documented in §2 of the
 [agent-integration operations guide](../../../services/embabel-agent-service/docs/agent-integration/OPERATIONS.md).
 In Compose they are set through the runtime's `local` Spring profile
-(`services/embabel-agent-runtime/src/main/resources/application-local.yml`); the runtime enables agent
+(`embabel-agent-runtime/src/main/resources/application-local.yml` in the
+[OpenJCockpit-Agent-Runtime](https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime) repository); the runtime enables agent
 definitions by default and ships its definitions in the image (`/agent-definitions`). New:
 `LITELLM_REGISTRY_URL` / `LITELLM_REGISTRY_KEY` (the LiteLLM management API, needed only for gateway
 guardrails) replace the former reuse of the A2A provider client.
