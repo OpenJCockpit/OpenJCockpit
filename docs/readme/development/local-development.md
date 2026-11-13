@@ -130,8 +130,8 @@ End-to-end tests: see [Testing](testing.md).
 
 ## Running the agent service and the agent runtime
 
-`docker compose up` starts both as separate containers (the runtime image is built from the
-[OpenJCockpit-Agent-Runtime](https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime) checkout next to this repository, or `AGENT_RUNTIME_DIR`): `embabel-agent-service` on host port 8091 and
+`docker compose up` starts both as separate containers (the runtime is the released image
+`ghcr.io/openjcockpit/embabel-agent-runtime:v0.1.8` of the [OpenJCockpit-Agent-Runtime](https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime) repository): `embabel-agent-service` on host port 8091 and
 `embabel-agent-runtime` on host port 8092. They start independently (neither waits for the other); until
 the runtime is reachable, local agents and definition drafts fail with "agent runtime unavailable".
 

@@ -409,13 +409,9 @@ services:
   # LiteLLM routes to. No database and no shared volume: tenant bindings, workflow runs and tool-call policy
   # decisions come from embabel-agent-service over HTTP, so this container can run on another host by
   # changing EMBABEL_AGENT_SERVICE_BASE_URL / A2A_PUBLIC_BASE_URL (and the LiteLLM agent URLs) only.
-  # Built from the OpenJCockpit-Agent-Runtime repository, checked out next to this one by default
-  # (AGENT_RUNTIME_DIR overrides the location). Releases pull ghcr.io/openjcockpit/embabel-agent-runtime.
+  # Pulled as the released image of the OpenJCockpit-Agent-Runtime repository (GitHub Packages).
   embabel-agent-runtime:
-    build:
-      context: ${AGENT_RUNTIME_DIR:-../OpenJCockpit-Agent-Runtime}
-      dockerfile: Dockerfile
-    image: openjcockpit/embabel-agent-runtime:${OPENJCOCKPIT_IMAGE_TAG:-local}
+    image: ghcr.io/openjcockpit/embabel-agent-runtime:v0.1.8
     container_name: openjcockpit-embabel-runtime
     restart: unless-stopped
     ports:
@@ -458,9 +454,6 @@ services:
         condition: service_healthy                    # BR-16
       local-seed:
         condition: service_completed_successfully     # the model key and the service clients must exist
-    volumes:
-      # optional local override of the definitions baked into the image (edit without rebuilding)
-      - ${AGENT_RUNTIME_DIR:-../OpenJCockpit-Agent-Runtime}/embabel-agent-runtime/agent-definitions:/agent-definitions:ro
 
   # Separate MCP server that exposes the git integration as tools (checkout, create branch,
   # pull, read/write files, commit, push). Registered with LiteLLM (infrastructure/litellm/config.yaml,
