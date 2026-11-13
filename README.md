@@ -129,9 +129,14 @@ OpenAI).
 
 ```bash
 ollama pull qwen3.6:27b              # on the host; keep Ollama running
+git clone https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime.git ../OpenJCockpit-Agent-Runtime
 cp .env.example .env                 # then set OPENAI_API_KEY in .env
 docker compose up --build
 ```
+
+The agent runtime (`embabel-agent-runtime`) lives in the separate
+[OpenJCockpit-Agent-Runtime](https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime) repository; Compose builds it
+from the checkout next to this one (`AGENT_RUNTIME_DIR` in `.env` points elsewhere).
 
 The dashboard lives in the separate [OpenJCockpit-frontend](https://github.com/OpenJCockpit/OpenJCockpit-frontend) repository. Check it out next to this one
 and start it too; the two stacks find each other through the ports they publish on the host:

@@ -96,7 +96,8 @@ supported (A2A `message/stream` is rejected explicitly, as before).
 
 - Health: `GET /actuator/health/readiness` (runtime has no database; dependencies are checked per request).
 - Logs carry `runId`, `traceId`, `tenantId`, `agentId`, `agentVersion` in the MDC; message content is never logged.
-- Image: `openjcockpit/embabel-agent-runtime`, built from `services/embabel-agent-runtime/Dockerfile`,
+- Image: `openjcockpit/embabel-agent-runtime`, built from the `Dockerfile` of the
+  [OpenJCockpit-Agent-Runtime](https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime) repository,
   unprivileged user, served definitions in `/agent-definitions`.
 
 ## Related

@@ -1,4 +1,4 @@
-package nl.metafactory.agentruntime.ops;
+package nl.metafactory.agents.ops;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.dataformat.yaml.YAMLMapper;

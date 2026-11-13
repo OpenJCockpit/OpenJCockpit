@@ -10,8 +10,20 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # Contract tests compare this repository's compose and LiteLLM wiring with the runtime's own files
+    # (services/embabel-agent-service ops tests); with AGENT_RUNTIME_DIR set they require the checkout.
+    env:
+      AGENT_RUNTIME_DIR: ${{ github.workspace }}/.agent-runtime
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Check out the agent runtime (OpenJCockpit-Agent-Runtime)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: OpenJCockpit/OpenJCockpit-Agent-Runtime
+          ref: ${{ vars.AGENT_RUNTIME_REF || 'main' }}
+          path: .agent-runtime
+          token: ${{ secrets.CROSS_REPO_TOKEN || github.token }}
 
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
@@ -38,14 +50,15 @@ jobs:
             **/target/site/jacoco/**
 
   # Every service is a separate deployable: each image must build on its own from the reactor (no push; the
-  # build validates the Dockerfile, the non-root user and the module's -am closure).
+  # build validates the Dockerfile, the non-root user and the module's -am closure). embabel-agent-runtime is
+  # built by the OpenJCockpit-Agent-Runtime repository.
   agent-images:
     needs: verify
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        service: [ai-control-service, embabel-agent-service, embabel-agent-runtime, git-mcp-server]
+        service: [ai-control-service, embabel-agent-service, git-mcp-server]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
