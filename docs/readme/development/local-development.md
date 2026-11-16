@@ -135,6 +135,15 @@ End-to-end tests: see [Testing](testing.md).
 `embabel-agent-runtime` on host port 8092. They start independently (neither waits for the other); until
 the runtime is reachable, local agents and definition drafts fail with "agent runtime unavailable".
 
+The runtime serves the agent definitions and skills baked into its image. To edit them without a new runtime
+release, clone the runtime repository next to this one (or set `AGENT_RUNTIME_DIR`) and add the opt-in overlay,
+which mounts its `embabel-agent-runtime/agent-definitions` read-only; edits apply on the next lookup:
+
+```bash
+git clone https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime.git ../OpenJCockpit-Agent-Runtime
+docker compose -f docker-compose.yml -f docker-compose.agent-definitions.yml up -d
+```
+
 To run one of them on the host against the rest of the stack, point it at the other by URL:
 
 ```bash

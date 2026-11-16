@@ -1,0 +1,17 @@
+# Opt-in overlay for editing the agent definitions and skills without a new embabel-agent-runtime release.
+# It mounts them read-only from a checkout of the OpenJCockpit-Agent-Runtime repository over the ones baked
+# into the image; the runtime picks up changes without a restart. Like docker-compose.local-marketplace.yml,
+# it is never merged automatically and must be started with an explicit second -f:
+#
+#   git clone https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime.git ../OpenJCockpit-Agent-Runtime
+#   docker compose -f docker-compose.yml -f docker-compose.agent-definitions.yml up -d
+#
+# AGENT_RUNTIME_DIR points to a checkout elsewhere. Clone it first: Docker creates a missing mount source
+# as an empty folder, and the runtime then serves no agents.
+#
+# Do not move this mount into docker-compose.yml: CI, e2e and fresh clones have no runtime checkout.
+
+services:
+  embabel-agent-runtime:
+    volumes:
+      - ${AGENT_RUNTIME_DIR:-../OpenJCockpit-Agent-Runtime}/embabel-agent-runtime/agent-definitions:/agent-definitions:ro

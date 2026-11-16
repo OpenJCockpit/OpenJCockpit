@@ -20,6 +20,7 @@ class ComposeRuntimeWiringContractTest {
 
     static final Path ROOT = Path.of("../..");
     static final String RUNTIME_IMAGE = "ghcr.io/openjcockpit/embabel-agent-runtime:";
+    static final String DEFINITIONS_OVERLAY = "docker-compose.agent-definitions.yml";
 
     static JsonNode yaml(String file) throws IOException {
         return YAMLMapper.builder().build().readTree(Files.newInputStream(ROOT.resolve(file)));
@@ -50,6 +51,17 @@ class ComposeRuntimeWiringContractTest {
         assertThat(runtime.path("depends_on").has("postgres")).isFalse();
         assertThat(runtime.path("depends_on").has("embabel-agent-service")).isFalse();
         assertThat(runtime.has("volumes")).isFalse();
+    }
+
+    @Test
+    void localDefinitionsAreMountedOnlyThroughTheOptInOverlay() throws IOException {
+        JsonNode overlay = yaml(DEFINITIONS_OVERLAY).path("services");
+        assertThat(overlay.propertyNames()).containsExactly("embabel-agent-runtime");
+        assertThat(overlay.path("embabel-agent-runtime").path("volumes").valueStream().map(JsonNode::asString).toList())
+                .containsExactly("${AGENT_RUNTIME_DIR:-../OpenJCockpit-Agent-Runtime}/embabel-agent-runtime/agent-definitions"
+                        + ":/agent-definitions:ro");
+        assertThat(services().path("embabel-agent-runtime").path("environment").path("AGENT_DEFINITIONS_LOCAL_ROOT")
+                .asString()).isEqualTo("/agent-definitions");
     }
 
     @Test
