@@ -73,6 +73,13 @@ class ComposeRuntimeWiringContractTest {
                 .isEqualTo("${EMBABEL_AGENT_SERVICE_BASE_URL:-http://embabel-agent-service:8081}");
         assertThat(env.path("A2A_PUBLIC_BASE_URL").asString())
                 .isEqualTo("${A2A_PUBLIC_BASE_URL:-http://embabel-agent-runtime:8082}");
+        assertThat(env.path("ENABLE_KEYCLOAK").asString()).isEqualTo("${ENABLE_KEYCLOAK:-true}");
+        assertThat(env.path("KEYCLOAK_URL").asString()).isEqualTo("${KEYCLOAK_URL:-http://keycloak:8080}");
+        assertThat(env.path("KEYCLOAK_REALM").asString()).isEqualTo("${KEYCLOAK_REALM:-openjcockpit}");
+        assertThat(env.path("KEYCLOAK_CLIENT_ID").asString())
+                .isEqualTo("${AGENT_RUNTIME_CLIENT_ID:-openjcockpit-agent-runtime}");
+        assertThat(env.path("KEYCLOAK_ISSUER").asString())
+                .isEqualTo("${KEYCLOAK_ISSUER:-http://localhost:8080/realms/${KEYCLOAK_REALM:-openjcockpit}}");
         assertThat(env.path("AGENT_RUNTIME_CLIENT_SECRET").asString())
                 .isEqualTo(services.path("local-seed").path("environment").path("AGENT_RUNTIME_CLIENT_SECRET").asString());
         assertThat(env.path("LITELLM_VIRTUAL_KEY").asString())

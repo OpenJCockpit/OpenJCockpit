@@ -411,7 +411,7 @@ services:
   # changing EMBABEL_AGENT_SERVICE_BASE_URL / A2A_PUBLIC_BASE_URL (and the LiteLLM agent URLs) only.
   # Pulled as the released image of the OpenJCockpit-Agent-Runtime repository (GitHub Packages).
   embabel-agent-runtime:
-    image: ghcr.io/openjcockpit/embabel-agent-runtime:v0.1.8
+    image: ghcr.io/openjcockpit/embabel-agent-runtime:v0.1.9
     container_name: openjcockpit-embabel-runtime
     restart: unless-stopped
     ports:
@@ -432,6 +432,12 @@ services:
       LITELLM_VIRTUAL_KEY: *litellm-virtual-key
       # The management plane and this runtime's identity towards it (client openjcockpit-agent-runtime).
       EMBABEL_AGENT_SERVICE_BASE_URL: ${EMBABEL_AGENT_SERVICE_BASE_URL:-http://embabel-agent-service:8081}
+      # The Keycloak settings; ENABLE_KEYCLOAK=false permits every request without a token
+      ENABLE_KEYCLOAK: ${ENABLE_KEYCLOAK:-true}
+      KEYCLOAK_URL: ${KEYCLOAK_URL:-http://keycloak:8080}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-openjcockpit}
+      KEYCLOAK_CLIENT_ID: ${AGENT_RUNTIME_CLIENT_ID:-openjcockpit-agent-runtime}
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://localhost:8080/realms/${KEYCLOAK_REALM:-openjcockpit}}
       AGENT_RUNTIME_CLIENT_SECRET: *agent-runtime-client-secret
       # Address advertised in Agent Cards; LiteLLM forwards to it (infrastructure/litellm/config.yaml).
       A2A_PUBLIC_BASE_URL: ${A2A_PUBLIC_BASE_URL:-http://embabel-agent-runtime:8082}
