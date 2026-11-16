@@ -56,6 +56,20 @@
         "pkce.code.challenge.method": "S256",
         "post.logout.redirect.uris": "${OPENJCOCKPIT_PUBLIC_URL}/*"
       },
+      "protocolMappers": [
+        {
+          "name": "openjcontroltower-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "openjcontroltower",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ],
       "defaultClientScopes": [
         "web-origins",
         "acr",

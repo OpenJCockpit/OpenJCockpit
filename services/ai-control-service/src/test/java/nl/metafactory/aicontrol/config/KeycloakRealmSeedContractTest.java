@@ -78,6 +78,43 @@ class KeycloakRealmSeedContractTest {
         assertThat(seedScript).contains("ensure_not_default");
     }
 
+    @Test
+    void dashboardTokensCarryTheControlTowerAudience() {
+        JsonNode mappers = clientNamed("openjcockpit").path("protocolMappers");
+        boolean found = false;
+        for (JsonNode m : mappers) {
+            if ("oidc-audience-mapper".equals(m.path("protocolMapper").asString())
+                    && "openjcontroltower".equals(m.path("config").path("included.custom.audience").asString())
+                    && "true".equals(m.path("config").path("access.token.claim").asString())) {
+                found = true;
+            }
+        }
+        assertThat(found).as("audience mapper for openjcontroltower on client openjcockpit").isTrue();
+    }
+
+    @Test
+    void theServiceClientSeedGrantsControlTowerTheOperatorRoleAndTheAudienceForExistingRealms() throws Exception {
+        Path dir = Paths.get(System.getProperty("user.dir")).toAbsolutePath();
+        while (dir != null && !Files.exists(dir.resolve("infrastructure/local-seed/keycloak-service-clients.sh"))) {
+            dir = dir.getParent();
+        }
+        assertThat(dir).isNotNull();
+        String script = Files.readString(dir.resolve("infrastructure/local-seed/keycloak-service-clients.sh"));
+        assertThat(script).contains("CONTROLTOWER_CLIENT_ID:-openjcontroltower-service")
+                .contains("CONTROLTOWER_SERVICE_ROLE:-" + OPERATOR_ROLE)
+                .contains("CONTROLTOWER_AUDIENCE:-openjcontroltower")
+                .contains("oidc-audience-mapper");
+    }
+
+    private static JsonNode clientNamed(String clientId) {
+        for (JsonNode c : realm.path("clients")) {
+            if (clientId.equals(c.path("clientId").asString())) {
+                return c;
+            }
+        }
+        throw new AssertionError("client not in realm: " + clientId);
+    }
+
     private static List<String> realmRoles(String username) {
         for (JsonNode user : realm.path("users")) {
             if (username.equals(user.path("username").asString())) {

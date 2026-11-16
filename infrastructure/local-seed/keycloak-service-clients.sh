@@ -12,7 +12,13 @@
 #                           drafts (/internal/v1/**); the runtime refuses every other caller.
 #  - openjcockpit-agent-runtime  embabel-agent-runtime -> embabel-agent-service: reads tenant bindings, active
 #                           workflow runs and tool-call policy decisions (/internal/agent-runtime/v1/**).
-# Re-running reconciles the secrets and adds the tenant mapper when missing.
+#  - openjcontroltower-service  OpenJControlTower -> ai-control-service: enqueues dispatched specs
+#                           (POST /api/projects/{id}/spec-queue/items). Its service account holds the
+#                           openjcockpit-operator realm role, which that endpoint requires. Seeded only when
+#                           CONTROLTOWER_CLIENT_SECRET is set (ControlTower is a separate, optional deployment).
+# Also adds the audience `openjcontroltower` to the access tokens of the dashboard client `openjcockpit`, so the
+# ControlTower backend (which validates `aud`) accepts the dashboard user's token.
+# Re-running reconciles the secrets and adds the tenant and audience mappers when missing.
 set -e
 trap 'rm -f /tmp/kc-seed-resp.json' EXIT
 
@@ -25,6 +31,10 @@ GIT_MCP_CLIENT_ID="${GIT_MCP_CLIENT_ID:-openjcockpit-git-mcp}"
 AI_CONTROL_CLIENT_ID="${AI_CONTROL_CLIENT_ID:-openjcockpit-ai-control}"
 AGENT_SERVICE_CLIENT_ID="${AGENT_SERVICE_CLIENT_ID:-openjcockpit-agent-service}"
 AGENT_RUNTIME_CLIENT_ID="${AGENT_RUNTIME_CLIENT_ID:-openjcockpit-agent-runtime}"
+DASHBOARD_CLIENT_ID="${DASHBOARD_CLIENT_ID:-openjcockpit}"
+CONTROLTOWER_AUDIENCE="${CONTROLTOWER_AUDIENCE:-openjcontroltower}"
+CONTROLTOWER_CLIENT_ID="${CONTROLTOWER_CLIENT_ID:-openjcontroltower-service}"
+CONTROLTOWER_SERVICE_ROLE="${CONTROLTOWER_SERVICE_ROLE:-openjcockpit-operator}"
 
 if [ -z "$KC_BOOTSTRAP_ADMIN_USERNAME" ] || [ -z "$KC_BOOTSTRAP_ADMIN_PASSWORD" ] || [ -z "$A2A_CLIENT_SECRET" ] \
    || [ -z "$GIT_MCP_CLIENT_SECRET" ] || [ -z "$AI_CONTROL_CLIENT_SECRET" ] \
@@ -116,3 +126,65 @@ else
   fi
   echo "local-seed[keycloak]: tenant mapper ${A2A_TENANT_CLAIM}=${A2A_TENANT} added"
 fi
+
+# Audience mapper on the dashboard client: adds CONTROLTOWER_AUDIENCE to the access token's aud claim.
+dash_id=$(client_uuid "$DASHBOARD_CLIENT_ID")
+if [ -z "$dash_id" ]; then
+  echo "local-seed[keycloak]: dashboard client '${DASHBOARD_CLIENT_ID}' not found"
+  exit 1
+fi
+AUD_MAPPER_NAME="${CONTROLTOWER_AUDIENCE}-audience"
+AUD_MAPPER=$(printf '{"name":"%s","protocol":"openid-connect","protocolMapper":"oidc-audience-mapper","config":{"included.custom.audience":"%s","access.token.claim":"true","id.token.claim":"false","introspection.token.claim":"true"}}' \
+  "$AUD_MAPPER_NAME" "$CONTROLTOWER_AUDIENCE")
+status=$(curl -s -o /tmp/kc-seed-resp.json -w '%{http_code}' \
+  -H "Authorization: Bearer ${TOKEN}" \
+  "${KC_URL}/admin/realms/${KC_REALM}/clients/${dash_id}/protocol-mappers/models")
+if [ "$status" != "200" ]; then
+  echo "local-seed[keycloak]: GET dashboard protocol mappers -> ${status}"
+  exit 1
+fi
+if grep -q "\"name\":\"${AUD_MAPPER_NAME}\"" /tmp/kc-seed-resp.json; then
+  echo "local-seed[keycloak]: audience mapper present"
+else
+  status=$(curl -s -o /tmp/kc-seed-resp.json -w '%{http_code}' -X POST \
+    -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" \
+    -d "$AUD_MAPPER" "${KC_URL}/admin/realms/${KC_REALM}/clients/${dash_id}/protocol-mappers/models")
+  if [ "$status" != "201" ]; then
+    echo "local-seed[keycloak]: POST audience mapper -> ${status}"
+    exit 1
+  fi
+  echo "local-seed[keycloak]: audience ${CONTROLTOWER_AUDIENCE} added to ${DASHBOARD_CLIENT_ID} access tokens"
+fi
+
+# ControlTower dispatch identity: a client_credentials client whose service account may enqueue specs.
+if [ -z "$CONTROLTOWER_CLIENT_SECRET" ]; then
+  echo "local-seed[keycloak]: CONTROLTOWER_CLIENT_SECRET not set, skipping client '${CONTROLTOWER_CLIENT_ID}'"
+  exit 0
+fi
+seed_client "$CONTROLTOWER_CLIENT_ID" "$CONTROLTOWER_CLIENT_SECRET" "OpenJControlTower dispatch (local)"
+ct_id=$(client_uuid "$CONTROLTOWER_CLIENT_ID")
+status=$(curl -s -o /tmp/kc-seed-resp.json -w '%{http_code}' \
+  -H "Authorization: Bearer ${TOKEN}" \
+  "${KC_URL}/admin/realms/${KC_REALM}/clients/${ct_id}/service-account-user")
+sa_id=$(sed -n 's/^{"id":"\([^"]*\)".*/\1/p' /tmp/kc-seed-resp.json | head -n1)
+if [ "$status" != "200" ] || [ -z "$sa_id" ]; then
+  echo "local-seed[keycloak]: GET service-account-user of ${CONTROLTOWER_CLIENT_ID} -> ${status}"
+  exit 1
+fi
+status=$(curl -s -o /tmp/kc-seed-resp.json -w '%{http_code}' \
+  -H "Authorization: Bearer ${TOKEN}" \
+  "${KC_URL}/admin/realms/${KC_REALM}/roles/${CONTROLTOWER_SERVICE_ROLE}")
+role_id=$(sed -n 's/.*"id":"\([^"]*\)".*/\1/p' /tmp/kc-seed-resp.json | head -n1)
+if [ "$status" != "200" ] || [ -z "$role_id" ]; then
+  echo "local-seed[keycloak]: role '${CONTROLTOWER_SERVICE_ROLE}' not found (GET -> ${status}); run seed-realm-roles.sh first"
+  exit 1
+fi
+status=$(curl -s -o /tmp/kc-seed-resp.json -w '%{http_code}' -X POST \
+  -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" \
+  -d "$(printf '[{"id":"%s","name":"%s"}]' "$role_id" "$CONTROLTOWER_SERVICE_ROLE")" \
+  "${KC_URL}/admin/realms/${KC_REALM}/users/${sa_id}/role-mappings/realm")
+if [ "$status" != "204" ]; then
+  echo "local-seed[keycloak]: POST role-mapping ${CONTROLTOWER_SERVICE_ROLE} for ${CONTROLTOWER_CLIENT_ID} -> ${status}"
+  exit 1
+fi
+echo "local-seed[keycloak]: ${CONTROLTOWER_CLIENT_ID} service account holds ${CONTROLTOWER_SERVICE_ROLE}"

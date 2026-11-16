@@ -195,6 +195,7 @@ services:
       AI_CONTROL_CLIENT_SECRET: ${AI_CONTROL_CLIENT_SECRET:?}
       AGENT_SERVICE_CLIENT_SECRET: ${AGENT_SERVICE_CLIENT_SECRET:?}
       AGENT_RUNTIME_CLIENT_SECRET: ${AGENT_RUNTIME_CLIENT_SECRET:?}
+      CONTROLTOWER_CLIENT_SECRET: ${CONTROLTOWER_CLIENT_SECRET:-}   # optional: set to seed client openjcontroltower-service
     volumes:
       - ../../infrastructure/local-seed:/seed:ro
       - ../../infrastructure/keycloak/seed-realm-roles.sh:/seed-realm-roles.sh:ro

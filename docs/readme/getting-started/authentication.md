@@ -66,6 +66,18 @@ clients used between services, all with local-only secrets from `.env.example` /
 | `openjcockpit-a2a` | LiteLLM A2A callers, `embabel-agent-service` | Client-credentials identity for A2A calls; tokens carry `tenant_id=local`. |
 | `openjcockpit-ai-control` | `ai-control-service` | Starts workflows in `embabel-agent-service` and issues git-workspace tickets. |
 | `openjcockpit-git-mcp` | `git-mcp-server` | Pulls a running job's Git credentials from `ai-control-service`, server-side. |
+| `openjcontroltower-service` | OpenJControlTower | Enqueues dispatched specs in the spec queue. Its service account holds `openjcockpit-operator`. Seeded only when `CONTROLTOWER_CLIENT_SECRET` is set. |
+
+### OpenJControlTower backend
+
+OpenJControlTower is a separate backend that the dashboard reaches through its own upstream
+(`/controltower-api/`). It has no realm of its own: it validates the Cockpit realm's tokens and reuses the
+existing roles (`openjcockpit-viewer` reads, `openjcockpit-operator` or `-admin` writes, `-admin` changes
+settings). Because it checks `aud`, the seed adds the audience `openjcontroltower` to the access tokens of the
+`openjcockpit` client: through a protocol mapper in the realm import file for new realms, and through
+`keycloak-service-clients.sh` for existing realms. Operators run the ControlTower backend on host port `9180`
+(`CONTROLTOWER_UPSTREAM` on the dashboard) and point its `KEYCLOAK_ISSUER_URI` / `KEYCLOAK_JWKS_URI` at the
+`openjcockpit` realm and `COCKPIT_TOKEN_URI` / `COCKPIT_CLIENT_ID` at `openjcontroltower-service`.
 
 The spec queue runner is not a Keycloak identity; it uses a short-lived HS256 token. See
 [Spec queue](../workflows/spec-queue.md#the-openjcockpit-admin-role).
