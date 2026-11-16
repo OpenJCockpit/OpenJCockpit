@@ -111,7 +111,7 @@ already denied as unknown; adding a new family means extending `known_tool_prefi
 
 | Level | What it proves | How |
 | --- | --- | --- |
-| Policy unit tests | Every rule allows/denies what it should (12 cases, incl. guardrails) | `docker run --rm -v "$PWD/infrastructure/opa/policies:/p:ro" openpolicyagent/opa:0.70.0 test /p -v` (CI: `infra-ci.yml`) |
+| Policy unit tests | Every rule allows/denies what it should (12 cases, incl. guardrails) | `docker run --rm -v "$PWD/infrastructure/opa/policies:/p:ro" openpolicyagent/opa:1.22.4 test /p -v` (CI: `infra-ci.yml`) |
 | Service tests | Fail-closed when OPA is down, decisions audited, tool calls refused on deny, config lock | `mvn -pl services/embabel-agent-service -am verify` (`DefaultPolicyDecisionServiceTest`, `PolicyGuardedMcpToolGateway*Test`, `OpaConfigControllerTest`) |
 | Live deployment | The running OPA allows a valid start and denies a forbidden tool and an unidentified request | `deploy/scripts/smoke-test.sh compose` or `... k8s` (runs after every deploy) |
 | Metrics | Denials and unavailability are visible | `openjcockpit_policy_decisions_total{action,result}`; alerts `OpenJCockpitPolicy*` |

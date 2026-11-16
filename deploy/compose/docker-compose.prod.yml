@@ -100,7 +100,7 @@ services:
 
   opa:
     <<: *hardened
-    image: openpolicyagent/opa:1.22.4@sha256:df5932c3c68a1299290da5338db5f34344bc758bcf42ababab656ad7e2cf8d9a
+    image: openpolicyagent/opa:1.22.4@sha256:ff50f50332ff9e722ffafe2658c195ced1f9b6d4f3064000c2ecfa8cdf7acccf
     read_only: true
     user: "1000:1000"
     command: ["run", "--server", "--addr=0.0.0.0:8181", "--config-file=/config/config.yaml",

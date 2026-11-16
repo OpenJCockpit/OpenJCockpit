@@ -8,7 +8,7 @@
 package openjcockpit.workflow
 
 # Rules are evaluated top to bottom; the first matching branch wins.
-decision = result {
+decision := result if {
 	missing_identifier
 	result := {
 		"allowed": false,
@@ -17,7 +17,7 @@ decision = result {
 		"riskLevel": "medium",
 		"auditTags": ["missing-identifier"],
 	}
-} else = result {
+} else := result if {
 	forbidden_tool
 	result := {
 		"allowed": false,
@@ -26,7 +26,7 @@ decision = result {
 		"riskLevel": "critical",
 		"auditTags": ["guardrail", "forbidden-operation"],
 	}
-} else = result {
+} else := result if {
 	unknown_tool
 	result := {
 		"allowed": false,
@@ -35,7 +35,7 @@ decision = result {
 		"riskLevel": "high",
 		"auditTags": ["guardrail", "unknown-tool"],
 	}
-} else = result {
+} else := result if {
 	input.projectClassification == "restricted"
 	not input.humanApproval
 	result := {
@@ -45,7 +45,7 @@ decision = result {
 		"riskLevel": "high",
 		"auditTags": ["restricted-project"],
 	}
-} else = result {
+} else := result if {
 	result := {
 		"allowed": true,
 		"reason": "No matching policy rule; default allow.",
@@ -55,15 +55,15 @@ decision = result {
 	}
 }
 
-missing_identifier {
+missing_identifier if {
 	not input.workflowId
 }
 
-missing_identifier {
+missing_identifier if {
 	input.workflowId == null
 }
 
-missing_identifier {
+missing_identifier if {
 	input.workflowId == ""
 }
 
@@ -71,7 +71,7 @@ missing_identifier {
 # Agents' tools (embabel-agent-runtime) are `git.<op>`; the MCP gateway uses `git_<op>`. Anything
 # else is unknown and denied; destructive or history-rewriting operations are denied explicitly.
 
-tool_call {
+tool_call if {
 	input.action == "mcp.tool.invoke"
 }
 
@@ -80,7 +80,7 @@ known_tool_prefixes := {"git.", "git_"}
 # Never undefined: a reason built from an undefined value would make a deny branch fall through to allow.
 default tool_label := "<none>"
 
-tool_label := input.mcpToolName {
+tool_label := input.mcpToolName if {
 	is_string(input.mcpToolName)
 }
 
@@ -89,35 +89,35 @@ forbidden_tool_operations := {
 	"delete_repository", "exec", "shell", "run_command",
 }
 
-tool_operation := op {
+tool_operation := op if {
 	startswith(input.mcpToolName, "git.")
 	op := substring(input.mcpToolName, 4, -1)
-} else := op {
+} else := op if {
 	startswith(input.mcpToolName, "git_")
 	op := substring(input.mcpToolName, 4, -1)
 } else := lower(input.mcpToolName)
 
-forbidden_tool {
+forbidden_tool if {
 	tool_call
 	forbidden_tool_operations[tool_operation]
 }
 
-forbidden_tool {
+forbidden_tool if {
 	tool_call
 	lower(input.mcpToolOperation) == forbidden_tool_operations[_]
 }
 
-unknown_tool {
+unknown_tool if {
 	tool_call
 	not input.mcpToolName
 }
 
-unknown_tool {
+unknown_tool if {
 	tool_call
 	is_string(input.mcpToolName)
 	not has_known_prefix(input.mcpToolName)
 }
 
-has_known_prefix(name) {
+has_known_prefix(name) if {
 	startswith(name, known_tool_prefixes[_])
 }

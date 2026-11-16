@@ -39,7 +39,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
       - name: opa
-        image: openpolicyagent/opa:0.70.0@sha256:2b1c4b231f6dfa6a2baea4af4109203b10cd4b65e836d72f03bfe5d8dfce7095
+        image: openpolicyagent/opa:1.22.4@sha256:ff50f50332ff9e722ffafe2658c195ced1f9b6d4f3064000c2ecfa8cdf7acccf
         imagePullPolicy: IfNotPresent
         ports:
         - name: http
