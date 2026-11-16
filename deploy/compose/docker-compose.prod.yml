@@ -35,7 +35,7 @@ x-java-service: &java-service
 services:
   postgres:
     <<: *hardened
-    image: postgres:16-alpine@sha256:aa6cb33cf4c19c765cefcf48d96176258800870a9a1e930ad126200f9d825139
+    image: postgres:16-alpine@sha256:81e77a4833487b8132fe4b00bedd39dc3f74b8641e387f19312a48f7de218c2e
     # The entrypoint initialises the data directory as root and drops to the postgres user.
     cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
     environment:
@@ -61,7 +61,7 @@ services:
 
   keycloak:
     <<: *hardened
-    image: quay.io/keycloak/keycloak:26.8.2@sha256:723b1d6e254c0fc96d5cffec860c7e0744d6a3277822b865bb538cf891575e41
+    image: quay.io/keycloak/keycloak:26.8.2@sha256:c68e286cacd87b942ac1939a0a1481461109d6acd3a57dc496969a319a76bbf0
     command: ["start", "--import-realm"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:?}
@@ -100,7 +100,7 @@ services:
 
   opa:
     <<: *hardened
-    image: openpolicyagent/opa:0.70.0@sha256:2b1c4b231f6dfa6a2baea4af4109203b10cd4b65e836d72f03bfe5d8dfce7095
+    image: openpolicyagent/opa:1.22.4@sha256:df5932c3c68a1299290da5338db5f34344bc758bcf42ababab656ad7e2cf8d9a
     read_only: true
     user: "1000:1000"
     command: ["run", "--server", "--addr=0.0.0.0:8181", "--config-file=/config/config.yaml",
@@ -137,7 +137,7 @@ services:
 
   litellm:
     <<: *hardened
-    image: ghcr.io/berriai/litellm:v1.109.0@sha256:26aecfb02fb17ac6590f0549478561f9fbb3f69314317320b2e32a21beed4006
+    image: ghcr.io/berriai/litellm:v1.109.1@sha256:11175975a3093e05e92faee2fe2fe3412a3ae2fcaa849eb0fe25d5f0d8bcb2e9
     environment:
       CONFIG_FILE_PATH: /app/config.yaml
       DATABASE_URL: postgresql://litellm_app:${LITELLM_DB_PASSWORD:?}@postgres:5432/litellm
@@ -323,7 +323,7 @@ services:
 
   caddy:
     <<: *hardened
-    image: caddy:2.11.9-alpine@sha256:0bbb055bda6793c999bde78b1b5ce3e89f829fb031af2cf50056ea1246559fee
+    image: caddy:2.11.9-alpine@sha256:003a97808e781aa9f7e75cc2f43d34d461099031faf5e20faefb9f61126836f0
     cap_add: [NET_BIND_SERVICE]
     environment:
       OPENJCOCKPIT_HOST: ${OPENJCOCKPIT_HOST:?}
