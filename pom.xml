@@ -20,7 +20,6 @@
         <module>services/service-common</module>
         <module>services/ai-control-service</module>
         <module>services/embabel-agent-service</module>
-        <module>services/embabel-agent-runtime</module>
         <module>services/git-mcp-server</module>
     </modules>
 

@@ -59,7 +59,8 @@ address. The protocol, card content, error codes and authentication are unchange
 ## The seeded agents
 
 The local stack seeds four role-based agents, defined in
-[`services/embabel-agent-runtime/agent-definitions/agents/`](../../../services/embabel-agent-runtime/agent-definitions/agents/)
+[`embabel-agent-runtime/agent-definitions/agents/`](https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime/tree/main/embabel-agent-runtime/agent-definitions/agents)
+of the OpenJCockpit-Agent-Runtime repository
 (shipped in the `openjcockpit/embabel-agent-runtime` image) and served over A2A through LiteLLM by
 `embabel-agent-runtime`:
 

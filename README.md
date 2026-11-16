@@ -133,6 +133,10 @@ cp .env.example .env                 # then set OPENAI_API_KEY in .env
 docker compose up --build
 ```
 
+The agent runtime (`embabel-agent-runtime`) lives in the separate
+[OpenJCockpit-Agent-Runtime](https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime) repository; Compose pulls its
+released image `ghcr.io/openjcockpit/embabel-agent-runtime:v0.1.8`.
+
 The dashboard lives in the separate [OpenJCockpit-frontend](https://github.com/OpenJCockpit/OpenJCockpit-frontend) repository. Check it out next to this one
 and start it too; the two stacks find each other through the ports they publish on the host:
 

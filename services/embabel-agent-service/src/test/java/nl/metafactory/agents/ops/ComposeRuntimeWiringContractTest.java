@@ -1,4 +1,4 @@
-package nl.metafactory.agentruntime.ops;
+package nl.metafactory.agents.ops;
 
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
@@ -7,17 +7,19 @@ import tools.jackson.dataformat.yaml.YAMLMapper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * `docker compose up` runs the runtime as its own container: own image and port, no database, no shared
  * volume, the agent service and its own public A2A address by configurable URL, and LiteLLM routing A2A
- * agents to it.
+ * agents to it. The image is the released one of the OpenJCockpit-Agent-Runtime repository.
  */
 class ComposeRuntimeWiringContractTest {
 
     static final Path ROOT = Path.of("../..");
+    static final String RUNTIME_IMAGE = "ghcr.io/openjcockpit/embabel-agent-runtime:";
 
     static JsonNode yaml(String file) throws IOException {
         return YAMLMapper.builder().build().readTree(Files.newInputStream(ROOT.resolve(file)));
@@ -28,18 +30,16 @@ class ComposeRuntimeWiringContractTest {
     }
 
     @Test
-    void theRuntimeIsASeparatelyBuiltAndPublishedContainer() throws IOException {
+    void theRuntimeIsPulledAsItsReleasedImageInASeparateContainer() throws IOException {
         JsonNode runtime = services().path("embabel-agent-runtime");
-        assertThat(runtime.path("build").path("context").asString()).isEqualTo(".");
-        assertThat(runtime.path("build").path("dockerfile").asString()).isEqualTo("services/embabel-agent-runtime/Dockerfile");
-        assertThat(runtime.path("image").asString()).startsWith("openjcockpit/embabel-agent-runtime:");
+        assertThat(runtime.has("build")).isFalse();
+        assertThat(runtime.path("image").asString()).matches(Pattern.quote(RUNTIME_IMAGE) + "v\\d+\\.\\d+\\.\\d+");
         assertThat(runtime.path("container_name").asString()).isEqualTo("openjcockpit-embabel-runtime");
         assertThat(runtime.path("ports").get(0).asString()).isEqualTo("8092:8082");
-        // The image's shared healthcheck script probes readiness over HTTP or HTTPS on the given port.
         assertThat(runtime.path("healthcheck").path("test").valueStream().map(JsonNode::asString).toList())
                 .containsExactly("CMD", "/usr/local/bin/healthcheck.sh", "8082");
-        assertThat(Files.readString(ROOT.resolve("services/docker/healthcheck.sh"))).contains("/actuator/health/readiness");
-        assertThat(Files.exists(ROOT.resolve("services/embabel-agent-runtime/Dockerfile"))).isTrue();
+        assertThat(Files.exists(ROOT.resolve("services/embabel-agent-runtime"))).as("the runtime left this repository")
+                .isFalse();
     }
 
     @Test
@@ -49,8 +49,7 @@ class ComposeRuntimeWiringContractTest {
         assertThat(env.has("DB_URL")).isFalse();
         assertThat(runtime.path("depends_on").has("postgres")).isFalse();
         assertThat(runtime.path("depends_on").has("embabel-agent-service")).isFalse();
-        assertThat(runtime.path("volumes").valueStream().map(JsonNode::asString).toList())
-                .containsExactly("./services/embabel-agent-runtime/agent-definitions:/agent-definitions:ro");
+        assertThat(runtime.has("volumes")).isFalse();
     }
 
     @Test
@@ -69,10 +68,9 @@ class ComposeRuntimeWiringContractTest {
     }
 
     @Test
-    void litellmForwardsToTheAddressTheLocalProfileAdvertises() throws IOException {
-        JsonNode profile = YAMLMapper.builder().build().readTree(getClass().getResourceAsStream("/application-local.yml"));
-        String advertised = profile.path("openjcockpit").path("agent-definitions").path("a2a")
-                .path("public-base-url").asString().replaceAll("\\$\\{[A-Z0-9_]+:(.*)}", "$1");
+    void litellmForwardsToTheAddressComposeAdvertises() throws IOException {
+        String advertised = services().path("embabel-agent-runtime").path("environment").path("A2A_PUBLIC_BASE_URL")
+                .asString().replaceAll("\\$\\{[A-Z0-9_]+:-(.*)}", "$1");
         assertThat(advertised).isEqualTo("http://embabel-agent-runtime:8082");
         int agents = 0;
         for (JsonNode agent : yaml("infrastructure/litellm/config.yaml").path("agents")) {
@@ -81,16 +79,16 @@ class ComposeRuntimeWiringContractTest {
             agents++;
         }
         assertThat(agents).isEqualTo(4);
-        assertThat(profile.path("openjcockpit").path("agent-service").path("base-url").asString())
-                .isEqualTo("${EMBABEL_AGENT_SERVICE_BASE_URL:http://embabel-agent-service:8081}");
     }
 
     @Test
-    void theImageCarriesItsDefinitionsAndRunsUnprivileged() throws IOException {
-        String dockerfile = Files.readString(ROOT.resolve("services/embabel-agent-runtime/Dockerfile"));
-        assertThat(dockerfile).contains("-pl services/embabel-agent-runtime -am package",
-                "COPY --from=build /workspace/services/embabel-agent-runtime/agent-definitions /agent-definitions",
-                "USER 10001", "HEALTHCHECK", "EXPOSE 8082")
-                .doesNotContain("embabel-agent-service");
+    void theRuntimesLocalProfileMatchesTheComposeAddresses() throws IOException {
+        JsonNode profile = YAMLMapper.builder().build().readTree(Files.newInputStream(
+                AgentRuntimeCheckout.module().resolve("src/main/resources/application-local.yml")));
+        String advertised = profile.path("openjcockpit").path("agent-definitions").path("a2a")
+                .path("public-base-url").asString().replaceAll("\\$\\{[A-Z0-9_]+:(.*)}", "$1");
+        assertThat(advertised).isEqualTo("http://embabel-agent-runtime:8082");
+        assertThat(profile.path("openjcockpit").path("agent-service").path("base-url").asString())
+                .isEqualTo("${EMBABEL_AGENT_SERVICE_BASE_URL:http://embabel-agent-service:8081}");
     }
 }
