@@ -1,5 +1,6 @@
 package nl.metafactory.agents.runtime;
 
+import nl.metafactory.agents.config.SecurityConfig;
 import nl.metafactory.agents.definition.binding.AgentTenantBindingRepository;
 import nl.metafactory.agents.policy.PolicyDecisionService;
 import nl.metafactory.agents.policy.model.PolicyDecisionContext;
@@ -12,6 +13,7 @@ import nl.metafactory.common.agentruntime.WorkflowRunDescriptor;
 import nl.metafactory.common.security.ServiceCallers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +31,8 @@ import java.time.Instant;
  * Internal, service-to-service: the management data the agent runtime needs to run agents, owned here —
  * tenant bindings ({@code agent_tenant_bindings}), the scope of active workflow runs (this engine's
  * registry) and tool-call policy decisions (OPA, with this service's runtime-editable OPA configuration and
- * decision log). Only the runtime's identity ({@code azp}) may call it; every other caller gets 403.
+ * decision log). Only the runtime's identity ({@code azp}) may call it; every other caller gets 403. Without
+ * Keycloak ({@code ENABLE_KEYCLOAK=false}) there is no caller identity and every caller is admitted.
  */
 @RestController
 public class AgentRuntimeManagementController {
@@ -40,13 +43,16 @@ public class AgentRuntimeManagementController {
     private final WorkflowRunScopes runScopes;
     private final PolicyDecisionService policy;
     private final AgentRuntimeProperties properties;
+    private final boolean keycloak;
 
     public AgentRuntimeManagementController(AgentTenantBindingRepository bindings, WorkflowRunScopes runScopes,
-                                            PolicyDecisionService policy, AgentRuntimeProperties properties) {
+                                            PolicyDecisionService policy, AgentRuntimeProperties properties,
+                                            @Value("${" + SecurityConfig.KEYCLOAK_ENABLED + ":true}") boolean keycloak) {
         this.bindings = bindings;
         this.runScopes = runScopes;
         this.policy = policy;
         this.properties = properties;
+        this.keycloak = keycloak;
     }
 
     @GetMapping(path = AgentRuntimeApi.TENANT_BINDING, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -95,7 +101,7 @@ public class AgentRuntimeManagementController {
     }
 
     private boolean fromRuntime(Jwt jwt) {
-        if (ServiceCallers.is(jwt, properties.getRuntimeClientId())) {
+        if (!keycloak || ServiceCallers.is(jwt, properties.getRuntimeClientId())) {
             return true;
         }
         log.warn("agent-runtime.management.denied reason=caller-not-allowed caller={}", ServiceCallers.clientId(jwt));

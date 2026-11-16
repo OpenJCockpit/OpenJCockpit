@@ -55,7 +55,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:${openjcockpit.keycloak.realm-url}/protocol/openid-connect/certs}
 
 management:
   endpoints:
@@ -87,8 +87,19 @@ info:
     version: "@project.version@"
 
 openjcockpit:
+  # The Keycloak realm this service validates tokens of and gets its own service token from; the JWK set, the
+  # issuer and the token URL derive from it unless set explicitly.
+  keycloak:
+    url: ${KEYCLOAK_URL:http://localhost:8080}
+    realm: ${KEYCLOAK_REALM:openjcockpit}
+    client-id: ${KEYCLOAK_CLIENT_ID:${AI_CONTROL_SERVICE_CLIENT_ID:openjcockpit-ai-control}}
+    realm-url: ${openjcockpit.keycloak.url}/realms/${openjcockpit.keycloak.realm}
   security:
-    jwt-issuer: http://localhost:8080/realms/openjcockpit
+    # false: no Keycloak at all -- every request is permitted as one local identity and no token is relayed or
+    # fetched (KeycloakDisabledSecurityConfig). Refused with profile prod.
+    keycloak:
+      enabled: ${ENABLE_KEYCLOAK:true}
+    jwt-issuer: ${KEYCLOAK_ISSUER:${openjcockpit.keycloak.realm-url}}
   embabel-agent-service:
     base-url: ${EMBABEL_AGENT_SERVICE_BASE_URL:http://localhost:8081}
   spec-repository:
@@ -106,8 +117,8 @@ openjcockpit:
   git-workspace:
     credential-client-id: ${GIT_WORKSPACE_CREDENTIAL_CLIENT_ID:openjcockpit-git-mcp}
     service-identity:
-      token-url: ${AI_CONTROL_SERVICE_TOKEN_URL:}
-      client-id: ${AI_CONTROL_SERVICE_CLIENT_ID:}
+      token-url: ${AI_CONTROL_SERVICE_TOKEN_URL:${openjcockpit.keycloak.realm-url}/protocol/openid-connect/token}
+      client-id: ${openjcockpit.keycloak.client-id}
       client-secret: ${AI_CONTROL_SERVICE_CLIENT_SECRET:}
     gateway:
       base-url: ${LITELLM_MCP_BASE_URL:}

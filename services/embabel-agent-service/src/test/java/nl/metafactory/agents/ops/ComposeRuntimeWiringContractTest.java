@@ -87,6 +87,21 @@ class ComposeRuntimeWiringContractTest {
     }
 
     @Test
+    void theBackendServicesShareTheKeycloakSettingsEachWithItsOwnClient() throws IOException {
+        JsonNode services = services();
+        JsonNode runtime = services.path("embabel-agent-runtime").path("environment");
+        for (String name : new String[] {"embabel-agent-service", "ai-control-service"}) {
+            JsonNode service = services.path(name).path("environment");
+            for (String shared : new String[] {"ENABLE_KEYCLOAK", "KEYCLOAK_URL", "KEYCLOAK_REALM", "KEYCLOAK_ISSUER"}) {
+                assertThat(service.path(shared).asString()).as(name + " " + shared)
+                        .isEqualTo(runtime.path(shared).asString());
+            }
+        }
+        assertThat(services.path("embabel-agent-service").path("environment").path("KEYCLOAK_CLIENT_ID").asString())
+                .isEqualTo("${AGENT_SERVICE_CLIENT_ID:-openjcockpit-agent-service}");
+    }
+
+    @Test
     void litellmForwardsToTheAddressComposeAdvertises() throws IOException {
         String advertised = services().path("embabel-agent-runtime").path("environment").path("A2A_PUBLIC_BASE_URL")
                 .asString().replaceAll("\\$\\{[A-Z0-9_]+:-(.*)}", "$1");

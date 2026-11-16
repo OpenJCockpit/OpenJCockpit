@@ -38,6 +38,9 @@ helps you find them.
 
 ## Identity and service clients
 
+The Keycloak instance itself (URL, realm, client ids, or none at all) is set under
+[Keycloak (backend services)](#keycloak-backend-services).
+
 | Variable | Compose default | Docs |
 | --- | --- | --- |
 | `A2A_CLIENT_SECRET` | `openjcockpit-a2a-local-secret` | [Authentication](../getting-started/authentication.md#service-identities) |
@@ -124,12 +127,27 @@ and [`deploy/compose/.env.prod.example`](../../../deploy/compose/.env.prod.examp
 `SKILLS_MARKETPLACE_ALLOW_PRIVATE_EGRESS` (never in a deployed environment): see
 [Skills Hub](../integrations/skills-marketplace.md#skills_marketplace_-environment-variables).
 
+## Keycloak (backend services)
+
+`ai-control-service`, `embabel-agent-service` and `embabel-agent-runtime` read the same variables; Compose passes
+the same values to all three, each with its own client id.
+
+| Variable | Compose default | Meaning |
+| --- | --- | --- |
+| `ENABLE_KEYCLOAK` | `true` | `false`: no Keycloak at all. Every request is permitted as one local user (`developer`) holding every role, and the services call each other without tokens; the runtime then needs its `standalone` profile for tenant bindings. Switch it for all three together. Refused with profile `prod`. |
+| `KEYCLOAK_URL` / `KEYCLOAK_REALM` | `http://keycloak:8080` / `openjcockpit` | The Keycloak realm; the JWKS, token and (outside `local`) issuer URLs derive from it. |
+| `KEYCLOAK_CLIENT_ID` | `AI_CONTROL_SERVICE_CLIENT_ID` / `AGENT_SERVICE_CLIENT_ID` / `AGENT_RUNTIME_CLIENT_ID` | Each service's own client id. |
+| `KEYCLOAK_ISSUER` | `http://localhost:8080/realms/<realm>` | The `iss` in tokens (Keycloak's public hostname); set when it differs from `KEYCLOAK_URL`. |
+| `KEYCLOAK_JWK_SET_URI`, `AI_CONTROL_SERVICE_TOKEN_URL`, `AGENT_SERVICE_TOKEN_URL`, `AGENT_RUNTIME_TOKEN_URL` | derived | Overrides of the derived JWKS and token URLs. |
+
+The `prod` profile does not derive: it requires `KEYCLOAK_ISSUER`, `KEYCLOAK_JWK_SET_URI` and the token URLs explicitly.
+
 ## Agent service ↔ agent runtime
 
 | Variable | Compose default | Used by | Meaning |
 | --- | --- | --- | --- |
 | `EMBABEL_AGENT_RUNTIME_BASE_URL` | `http://embabel-agent-runtime:8082` | `embabel-agent-service` | Where local agents and definition drafts run. Any host or HTTPS URL. |
-| `AGENT_SERVICE_TOKEN_URL` | Keycloak token endpoint (local profile) | `embabel-agent-service` | Token endpoint of its identity towards the runtime. |
+| `AGENT_SERVICE_TOKEN_URL` | derived from `KEYCLOAK_URL` / `KEYCLOAK_REALM` | `embabel-agent-service` | Token endpoint of its identity towards the runtime; set only to override. |
 | `AGENT_SERVICE_CLIENT_ID` / `AGENT_SERVICE_CLIENT_SECRET` | `openjcockpit-agent-service` / local placeholder | `embabel-agent-service` | Keycloak client the runtime trusts (`openjcockpit.agent-runtime.trusted-client-id` on the runtime). |
 | `AGENT_RUNTIME_EXECUTION_TIMEOUT` | `60m` | `embabel-agent-service` | Max wait for one agent execution (never retried). |
 | `AGENT_RUNTIME_DRAFT_TIMEOUT` | `10m` | `embabel-agent-service` | Max wait for one definition draft. |
@@ -139,7 +157,6 @@ and [`deploy/compose/.env.prod.example`](../../../deploy/compose/.env.prod.examp
 | `A2A_PUBLIC_BASE_URL` | `http://embabel-agent-runtime:8082` | `embabel-agent-runtime` | Base URL advertised in Agent Cards; LiteLLM agent URLs must match. |
 | `LITELLM_VIRTUAL_KEY` | `sk-openjcockpit-embabel-local` | `embabel-agent-runtime` | Model + git MCP key (LiteLLM alias `embabel-agent-runtime`). |
 | `LITELLM_AGENT_SERVICE_KEY` | `sk-openjcockpit-agent-service-local` | `embabel-agent-service` | MCP-only key for checkpoint commits (alias `embabel-agent-service-mcp`). |
-| `KEYCLOAK_ISSUER` / `KEYCLOAK_JWK_SET_URI` | `http://localhost:8080/realms/openjcockpit` / `http://keycloak:8080/.../certs` | both | Token validation; set for a runtime on another host. |
 | `OPENJCOCKPIT_IMAGE_TAG` | `local` | Compose | Tag of `openjcockpit/embabel-agent-service` and `openjcockpit/embabel-agent-runtime`. |
 
 See [Agent runtime](../concepts/agent-runtime.md) and [Remote agent runtime](../operations/remote-agent-runtime.md).

@@ -2,6 +2,7 @@ package nl.metafactory.aicontrol.config;
 
 import nl.metafactory.common.security.KeycloakRealmRoleConverter;
 import nl.metafactory.common.security.ResourceServerSecurityConfig;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -27,13 +28,17 @@ import static org.springframework.http.HttpMethod.PUT;
  * Role-based, deny-by-default authorisation of the dashboard API. Every route is mapped explicitly to
  * the least role that may call it ({@code OpenJCockpitRoles}; the role hierarchy makes admin imply
  * every role and operator/approver imply viewer). Anything not mapped, including a newly added endpoint,
- * is denied until it is added here. See docs/readme/governance/authorization-model.md.
+ * is denied until it is added here. See docs/readme/governance/authorization-model.md. Active unless
+ * {@code ENABLE_KEYCLOAK=false} ({@link KeycloakDisabledSecurityConfig}).
  */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@ConditionalOnBooleanProperty(name = SecurityConfig.KEYCLOAK_ENABLED, matchIfMissing = true)
 @Import(ResourceServerSecurityConfig.class)
 public class SecurityConfig {
+
+    public static final String KEYCLOAK_ENABLED = "openjcockpit.security.keycloak.enabled";
 
     private static final String[] DEFINITION_COLLECTIONS = {
             "/api/agent-definitions", "/api/skill-definitions", "/api/subagent-definitions"};

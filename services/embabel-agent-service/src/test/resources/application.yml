@@ -26,5 +26,12 @@ spring:
   flyway:
     locations: classpath:db/migration
 openjcockpit:
+  keycloak:
+    url: ${KEYCLOAK_URL:http://localhost:8080}
+    realm: ${KEYCLOAK_REALM:openjcockpit}
+    client-id: ${KEYCLOAK_CLIENT_ID:${AGENT_SERVICE_CLIENT_ID:openjcockpit-agent-service}}
+    realm-url: ${openjcockpit.keycloak.url}/realms/${openjcockpit.keycloak.realm}
   security:
+    keycloak:
+      enabled: ${ENABLE_KEYCLOAK:true}
     jwt-issuer: http://localhost:8080/realms/openjcockpit

@@ -8,6 +8,11 @@ spring:
     locations: classpath:db/migration,classpath:db/seed-local
 
 openjcockpit:
+  # Keycloak is reached by its compose service name; its tokens carry the public issuer (KC_HOSTNAME).
+  keycloak:
+    url: ${KEYCLOAK_URL:http://keycloak:8080}
+  security:
+    jwt-issuer: ${KEYCLOAK_ISSUER:http://localhost:8080/realms/${openjcockpit.keycloak.realm}}
   # One A2A client per A2A provider; locally that is the LiteLLM A2A Gateway.
   a2a-providers:
     - type: litellm
@@ -17,7 +22,7 @@ openjcockpit:
       api-key: ${LITELLM_A2A_KEY:}
       # identity used when workflow runs call agents through LiteLLM (token carries tenant_id=local)
       caller-auth:
-        token-url: ${A2A_TOKEN_URL:http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token}
+        token-url: ${A2A_TOKEN_URL:${openjcockpit.keycloak.realm-url}/protocol/openid-connect/token}
         client-id: openjcockpit-a2a
         client-secret: ${A2A_CLIENT_SECRET:}
   # Workflows reference catalog agents; local (/agents) agents run on the runtime for this tenant.
@@ -26,7 +31,6 @@ openjcockpit:
   # The execution plane (separate container locally; any host or HTTPS URL elsewhere).
   agent-runtime:
     base-url: ${EMBABEL_AGENT_RUNTIME_BASE_URL:http://embabel-agent-runtime:8082}
-    token-url: ${AGENT_SERVICE_TOKEN_URL:http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token}
   # Checkpoint commits reach the git MCP server through LiteLLM (mcp_servers.openjcockpit_git, granted to this
   # MCP-only key by local-seed). Runs on a project are bound to the workspace ai-control prepared, through a
   # ticket only ai-control (azp openjcockpit-ai-control) may issue.

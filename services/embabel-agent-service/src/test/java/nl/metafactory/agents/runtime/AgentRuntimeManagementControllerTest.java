@@ -34,7 +34,7 @@ class AgentRuntimeManagementControllerTest {
     private final WorkflowRunScopes runScopes = new WorkflowRunScopes();
     private final PolicyDecisionService policy = mock(PolicyDecisionService.class);
     private final AgentRuntimeManagementController management =
-            new AgentRuntimeManagementController(bindings, runScopes, policy, new AgentRuntimeProperties());
+            new AgentRuntimeManagementController(bindings, runScopes, policy, new AgentRuntimeProperties(), true);
 
     private static Jwt caller(String azp) {
         return Jwt.withTokenValue("t").header("alg", "RS256").subject("s").claim("azp", azp)
@@ -42,6 +42,15 @@ class AgentRuntimeManagementControllerTest {
     }
 
     private static final Jwt RUNTIME = caller("openjcockpit-agent-runtime");
+
+    @Test
+    void withoutKeycloakEveryCallerGetsAnswers() {
+        var open = new AgentRuntimeManagementController(bindings, runScopes, policy, new AgentRuntimeProperties(), false);
+        when(bindings.find("local", "qa")).thenReturn(Optional.empty());
+
+        assertThat(open.tenantBinding("local", "qa", caller("openjcockpit-dashboard")).getStatusCode())
+                .isEqualTo(HttpStatus.NOT_FOUND);
+    }
 
     @Test
     void onlyTheRuntimeIdentityGetsAnswers() {

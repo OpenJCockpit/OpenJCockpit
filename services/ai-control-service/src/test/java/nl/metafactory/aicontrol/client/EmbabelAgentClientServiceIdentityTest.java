@@ -146,4 +146,12 @@ class EmbabelAgentClientServiceIdentityTest {
         assertThat(input.toString()).doesNotContain("git-secret").doesNotContain("ticket-secret").contains("p-1");
         assertThat(WorkflowStartInputDto.empty().toString()).contains("gitWorkspaceTicket=null");
     }
+
+    @Test
+    void withoutAnIdentityProviderNoAuthorizationIsSent() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(204));
+        client.stopAgentRunAs(null, "run-1");
+
+        assertThat(server.takeRequest().getHeader("Authorization")).isNull();
+    }
 }

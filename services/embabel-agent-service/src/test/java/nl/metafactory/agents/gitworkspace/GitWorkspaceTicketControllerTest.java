@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class GitWorkspaceTicketControllerTest {
 
     private final GitWorkspaceTickets tickets = new GitWorkspaceTickets(new GitWorkspaceProperties());
-    private final GitWorkspaceTicketController controller = new GitWorkspaceTicketController(tickets, new GitWorkspaceProperties());
+    private final GitWorkspaceTicketController controller = new GitWorkspaceTicketController(tickets, new GitWorkspaceProperties(), true);
 
     private static Jwt token(String azp, String sub) {
         return Jwt.withTokenValue("t").header("alg", "RS256").subject(sub).claim("azp", azp)
@@ -44,6 +44,16 @@ class GitWorkspaceTicketControllerTest {
         assertThat(controller.issue(request("alice-sub"), token("openjcockpit-dashboard", "alice-sub")).getStatusCode())
                 .isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(controller.issue(request("alice-sub"), null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    void withoutKeycloakAnyCallerGetsATicket() {
+        var open = new GitWorkspaceTicketController(tickets, new GitWorkspaceProperties(), false);
+
+        var response = open.issue(request("alice-sub"), token("openjcockpit-dashboard", "developer"));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(tickets.redeem(response.getBody().ticket(), "wf-1", "alice-sub")).isPresent();
     }
 
     @Test

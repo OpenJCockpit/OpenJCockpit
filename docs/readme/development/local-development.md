@@ -150,9 +150,8 @@ To run one of them on the host against the rest of the stack, point it at the ot
 # runtime on the host (from the OpenJCockpit-Agent-Runtime checkout), agent service in Compose
 cd ../OpenJCockpit-Agent-Runtime
 EMBABEL_AGENT_SERVICE_BASE_URL=http://localhost:8091 \
-AGENT_RUNTIME_TOKEN_URL=http://localhost:8080/realms/openjcockpit/protocol/openid-connect/token \
 AGENT_RUNTIME_CLIENT_SECRET=openjcockpit-agent-runtime-local-secret \
-KEYCLOAK_JWK_SET_URI=http://localhost:8080/realms/openjcockpit/protocol/openid-connect/certs \
+KEYCLOAK_URL=http://localhost:8080 \
 AGENT_DEFINITIONS_LOCAL_ROOT=embabel-agent-runtime/agent-definitions \
 mvn -pl embabel-agent-runtime -am spring-boot:run
 ```

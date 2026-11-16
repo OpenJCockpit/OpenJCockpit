@@ -11,6 +11,7 @@ import nl.metafactory.common.security.ResourceServerSecurityConfig;
 import nl.metafactory.common.security.ServiceCallers;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -44,12 +45,16 @@ import static nl.metafactory.common.security.OpenJCockpitRoles.OPERATOR;
  * the spec-queue runner ({@link #SPEC_QUEUE_RUNNER}, limited to a fixed route list) and ai-control-service's
  * own client ({@link #AI_CONTROL_SERVICE}, by {@code azp}), which may start and stop the workflow runs of
  * git-workspace jobs. {@code /internal/**} is authorised by {@code azp} in its controllers. Remaining
- * routes (reads) stay open to any authenticated caller that is not the runner.
+ * routes (reads) stay open to any authenticated caller that is not the runner. Active unless
+ * {@code ENABLE_KEYCLOAK=false} ({@link KeycloakDisabledSecurityConfig}).
  */
 @Configuration
 @EnableWebSecurity
+@ConditionalOnBooleanProperty(name = SecurityConfig.KEYCLOAK_ENABLED, matchIfMissing = true)
 @Import(ResourceServerSecurityConfig.class)
 public class SecurityConfig {
+
+    public static final String KEYCLOAK_ENABLED = "openjcockpit.security.keycloak.enabled";
 
     public static final String SPEC_QUEUE_RUNNER = "SPEC_QUEUE_RUNNER";
 

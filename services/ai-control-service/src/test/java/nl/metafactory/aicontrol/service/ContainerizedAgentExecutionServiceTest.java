@@ -50,7 +50,7 @@ class ContainerizedAgentExecutionServiceTest {
         serviceTokens = mock(ClientCredentialsTokens.class);
         when(serviceTokens.authorization()).thenReturn(Optional.of(AUTH));
         when(agentClient.issueGitWorkspaceTicketAs(eq(AUTH), any())).thenReturn("ticket-1");
-        service = new ContainerizedAgentExecutionService(agentClient, eventRepo, properties, serviceTokens);
+        service = new ContainerizedAgentExecutionService(agentClient, eventRepo, properties, serviceTokens, true);
     }
 
     private GitWorkspaceJob job(String workflowId) {
@@ -285,5 +285,14 @@ class ContainerizedAgentExecutionServiceTest {
                     assertThat(e.getErrorCode()).isEqualTo(GitWorkspaceJobErrorCode.AGENT_EXECUTION_FAILED);
                     assertThat(e.getMessage()).endsWith("ai-control service identity token could not be obtained");
                 });
+    }
+
+    @Test
+    void withoutKeycloakEmbabelIsCalledWithoutAServiceToken() {
+        var open = new ContainerizedAgentExecutionService(agentClient, eventRepo, new AgenticWorkflowProperties(),
+                serviceTokens, false);
+
+        assertThat(open.serviceAuthorization()).isNull();
+        verifyNoInteractions(serviceTokens);
     }
 }

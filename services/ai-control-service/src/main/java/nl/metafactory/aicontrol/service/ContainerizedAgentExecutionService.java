@@ -5,6 +5,7 @@ import nl.metafactory.aicontrol.client.EmbabelAgentClient;
 import nl.metafactory.aicontrol.client.WorkflowStartInputDto;
 import nl.metafactory.aicontrol.client.WorkflowStartResponseDto;
 import nl.metafactory.aicontrol.config.AgenticWorkflowProperties;
+import nl.metafactory.aicontrol.config.SecurityConfig;
 import nl.metafactory.aicontrol.model.GitWorkspaceJob;
 import nl.metafactory.aicontrol.model.GitWorkspaceJobErrorCode;
 import nl.metafactory.aicontrol.model.Project;
@@ -13,6 +14,7 @@ import nl.metafactory.common.oauth.ClientCredentialsTokens;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
@@ -25,7 +27,8 @@ import java.util.UUID;
  * ai-control's service identity), bound through a single-use ticket to the job's workspace in the git MCP
  * server. The workflow's agents read and write the cloned repository there through LiteLLM, and after
  * each agent embabel commits and pushes a checkpoint (including that agent's full output under
- * agent-output/&lt;run-id&gt;/). The job's final commit and push pick up anything left.
+ * agent-output/&lt;run-id&gt;/). The job's final commit and push pick up anything left. Without Keycloak
+ * ({@code ENABLE_KEYCLOAK=false}) embabel is called without a service token.
  */
 @Service
 public class ContainerizedAgentExecutionService {
@@ -39,15 +42,18 @@ public class ContainerizedAgentExecutionService {
     private final GitWorkspaceJobEventRepository eventRepo;
     private final AgenticWorkflowProperties properties;
     private final ClientCredentialsTokens serviceTokens;
+    private final boolean keycloak;
 
     public ContainerizedAgentExecutionService(EmbabelAgentClient agentClient,
                                               GitWorkspaceJobEventRepository eventRepo,
                                               AgenticWorkflowProperties properties,
-                                              @Qualifier("jobServiceTokens") ClientCredentialsTokens serviceTokens) {
+                                              @Qualifier("jobServiceTokens") ClientCredentialsTokens serviceTokens,
+                                              @Value("${" + SecurityConfig.KEYCLOAK_ENABLED + ":true}") boolean keycloak) {
         this.agentClient = agentClient;
         this.eventRepo = eventRepo;
         this.properties = properties;
         this.serviceTokens = serviceTokens;
+        this.keycloak = keycloak;
     }
 
     public void runAgentsInsideContainer(GitWorkspaceJob job, String containerId, Path specPath,
@@ -92,6 +98,9 @@ public class ContainerizedAgentExecutionService {
     }
 
     String serviceAuthorization() {
+        if (!keycloak) {
+            return null;
+        }
         try {
             return serviceTokens.authorization().orElseThrow(() -> new GitWorkspaceException(
                     GitWorkspaceJobErrorCode.AGENT_EXECUTION_FAILED,

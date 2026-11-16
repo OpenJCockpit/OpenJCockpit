@@ -8,8 +8,8 @@ configuration change.
 
 | Dependency | Setting (runtime) | Credential |
 | --- | --- | --- |
-| `embabel-agent-service` (bindings, run scopes, tool decisions) | `EMBABEL_AGENT_SERVICE_BASE_URL` | Keycloak client `openjcockpit-agent-runtime` (`AGENT_RUNTIME_TOKEN_URL`, `AGENT_RUNTIME_CLIENT_ID`, `AGENT_RUNTIME_CLIENT_SECRET`) |
-| Keycloak (token validation) | `KEYCLOAK_JWK_SET_URI`, `KEYCLOAK_ISSUER` | — |
+| `embabel-agent-service` (bindings, run scopes, tool decisions) | `EMBABEL_AGENT_SERVICE_BASE_URL` | Keycloak client `openjcockpit-agent-runtime` (`KEYCLOAK_CLIENT_ID`, `AGENT_RUNTIME_CLIENT_SECRET`) |
+| Keycloak (token validation and the runtime's own token) | `KEYCLOAK_URL`, `KEYCLOAK_REALM`, `KEYCLOAK_ISSUER` | — |
 | LiteLLM (models, git MCP) | `LITELLM_BASE_URL` (with `/v1`), `GIT_WORKSPACE_GATEWAY_BASE_URL` / `LITELLM_PROXY_URL` | `LITELLM_VIRTUAL_KEY` (models + git MCP server) |
 | OpenAI (optional roles) | — | `OPENAI_API_KEY` |
 | Ollama (only with `LLM_CODING_ROUTE=direct`) | `OLLAMA_BASE_URL` | — |
@@ -30,9 +30,9 @@ And who needs to reach the runtime:
    docker run -d --name embabel-agent-runtime -p 8082:8082 \
      -e SPRING_PROFILES_ACTIVE=local \
      -e EMBABEL_AGENT_SERVICE_BASE_URL=https://agent-service.example.com \
-     -e AGENT_RUNTIME_TOKEN_URL=https://sso.example.com/realms/openjcockpit/protocol/openid-connect/token \
      -e AGENT_RUNTIME_CLIENT_SECRET=<from your secret store> \
-     -e KEYCLOAK_JWK_SET_URI=https://sso.example.com/realms/openjcockpit/protocol/openid-connect/certs \
+     -e KEYCLOAK_URL=https://sso.example.com \
+     -e KEYCLOAK_REALM=openjcockpit \
      -e KEYCLOAK_ISSUER=https://sso.example.com/realms/openjcockpit \
      -e LITELLM_BASE_URL=https://llm-gateway.example.com/v1 \
      -e LITELLM_PROXY_URL=https://llm-gateway.example.com \

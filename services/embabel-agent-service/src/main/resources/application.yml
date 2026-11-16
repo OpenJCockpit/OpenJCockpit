@@ -34,7 +34,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:${openjcockpit.keycloak.realm-url}/protocol/openid-connect/certs}
   # Frozen Contract #2 (workflow-approval-gate work plan §5) — implemented verbatim. Makes
   # today's implicit Spring Boot defaults explicit and tunable; not load-bearing for correctness
   # under the return-and-resume design (a parked run holds no thread), but documentation-as-
@@ -93,13 +93,20 @@ info:
     version: "@project.version@"
 
 openjcockpit:
+  # The Keycloak realm this service validates tokens of and gets its own service token from; the JWK set, the
+  # issuer and the token URL derive from it unless set explicitly.
+  keycloak:
+    url: ${KEYCLOAK_URL:http://localhost:8080}
+    realm: ${KEYCLOAK_REALM:openjcockpit}
+    client-id: ${KEYCLOAK_CLIENT_ID:${AGENT_SERVICE_CLIENT_ID:openjcockpit-agent-service}}
+    realm-url: ${openjcockpit.keycloak.url}/realms/${openjcockpit.keycloak.realm}
   # The execution plane. Every agent (local catalog agents directly, A2A agents through LiteLLM) and every LLM
   # call runs in embabel-agent-runtime; this service reaches it with its own service identity. Any host or
   # HTTPS URL works; blank -> local agents and definition drafts report "runtime not configured".
   agent-runtime:
     base-url: ${EMBABEL_AGENT_RUNTIME_BASE_URL:}
-    token-url: ${AGENT_SERVICE_TOKEN_URL:}
-    client-id: ${AGENT_SERVICE_CLIENT_ID:openjcockpit-agent-service}
+    token-url: ${AGENT_SERVICE_TOKEN_URL:${openjcockpit.keycloak.realm-url}/protocol/openid-connect/token}
+    client-id: ${openjcockpit.keycloak.client-id}
     client-secret: ${AGENT_SERVICE_CLIENT_SECRET:}
     connect-timeout: ${AGENT_RUNTIME_CONNECT_TIMEOUT:5s}
     # one synchronous agent run (never retried); keep >= the runtime's LLM budget x expected LLM turns
@@ -124,7 +131,11 @@ openjcockpit:
       - name: git
         url: ${GIT_MCP_SERVER_URL:http://localhost:8093}
   security:
-    jwt-issuer: ${KEYCLOAK_ISSUER:http://localhost:8080/realms/openjcockpit}
+    # false: no Keycloak at all -- every request is permitted as one local identity and no service token is
+    # fetched (KeycloakDisabledSecurityConfig). Refused with profile prod.
+    keycloak:
+      enabled: ${ENABLE_KEYCLOAK:true}
+    jwt-issuer: ${KEYCLOAK_ISSUER:${openjcockpit.keycloak.realm-url}}
     spec-queue-runner:
       # Blank secret disables this auth path. Issuer/audience must match ai-control-service.
       secret: ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:}

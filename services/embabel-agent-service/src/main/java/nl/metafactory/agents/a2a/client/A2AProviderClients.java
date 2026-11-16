@@ -1,5 +1,8 @@
 package nl.metafactory.agents.a2a.client;
 
+import nl.metafactory.agents.config.SecurityConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -13,7 +16,8 @@ import java.util.stream.Stream;
  * Creates exactly one {@link A2AProviderClient} per provider and hands out those instances; nothing
  * else constructs provider HTTP clients. Providers come from configuration (fixed at startup; unknown
  * types or duplicates fail startup) and from the dashboard (A2A services stored in the database,
- * replaced as a whole by {@link #replaceAdded(List)} whenever they change).
+ * replaced as a whole by {@link #replaceAdded(List)} whenever they change). Without Keycloak
+ * ({@code ENABLE_KEYCLOAK=false}) the configured providers call agents without a caller token.
  */
 @Component
 public class A2AProviderClients {
@@ -22,7 +26,13 @@ public class A2AProviderClients {
     private volatile List<A2AProviderClient> added = List.of();
 
     public A2AProviderClients(A2AProvidersProperties properties) {
-        this.configured = create(properties.getA2aProviders(), Set.of());
+        this(properties, true);
+    }
+
+    @Autowired
+    public A2AProviderClients(A2AProvidersProperties properties,
+                              @Value("${" + SecurityConfig.KEYCLOAK_ENABLED + ":true}") boolean keycloak) {
+        this.configured = create(properties.getA2aProviders(), Set.of(), keycloak);
     }
 
     public List<A2AProviderClient> all() {
@@ -42,7 +52,7 @@ public class A2AProviderClients {
     public synchronized void replaceAdded(List<A2AProvidersProperties.Provider> providers) {
         var reserved = new HashSet<String>();
         configured.forEach(c -> reserved.add(c.id()));
-        this.added = create(providers, reserved);
+        this.added = create(providers, reserved, true);
     }
 
     /**
@@ -54,12 +64,13 @@ public class A2AProviderClients {
                 .map(LiteLlmA2AProviderClient.class::cast).filter(LiteLlmA2AProviderClient::configured).findFirst();
     }
 
-    private static List<A2AProviderClient> create(List<A2AProvidersProperties.Provider> providers, Set<String> reserved) {
+    private static List<A2AProviderClient> create(List<A2AProvidersProperties.Provider> providers, Set<String> reserved,
+                                                  boolean callerIdentity) {
         var created = new ArrayList<A2AProviderClient>();
         var ids = new HashSet<>(reserved);
         for (var provider : providers) {
             A2AProviderClient client = switch (provider.getType() == null ? "" : provider.getType()) {
-                case LiteLlmA2AProviderClient.TYPE -> new LiteLlmA2AProviderClient(provider);
+                case LiteLlmA2AProviderClient.TYPE -> new LiteLlmA2AProviderClient(provider, callerIdentity);
                 default -> throw new IllegalStateException("Unsupported A2A provider type: " + provider.getType());
             };
             if (!ids.add(client.id())) {

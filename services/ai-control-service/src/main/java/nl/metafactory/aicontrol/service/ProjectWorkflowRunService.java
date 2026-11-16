@@ -3,6 +3,7 @@ package nl.metafactory.aicontrol.service;
 import nl.metafactory.aicontrol.client.EmbabelAgentClient;
 import nl.metafactory.aicontrol.client.WorkflowStartInputDto;
 import nl.metafactory.aicontrol.client.WorkflowStartResponseDto;
+import nl.metafactory.aicontrol.config.SecurityConfig;
 import nl.metafactory.aicontrol.model.Project;
 import nl.metafactory.aicontrol.repository.ProjectRepository;
 import nl.metafactory.common.oauth.ClientCredentialsTokens;
@@ -10,6 +11,7 @@ import nl.metafactory.common.security.CurrentUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,6 +32,7 @@ import java.util.UUID;
  *       push when the run ends.</li>
  * </ol>
  * Runs without a project (or with a project without repository) start as before, without a workspace.
+ * Without Keycloak ({@code ENABLE_KEYCLOAK=false}) the ticket is requested without a service token.
  */
 @Service
 public class ProjectWorkflowRunService {
@@ -42,13 +45,16 @@ public class ProjectWorkflowRunService {
     private final GitWorkspaceJobService jobs;
     private final EmbabelAgentClient client;
     private final ClientCredentialsTokens serviceTokens;
+    private final boolean keycloak;
 
     public ProjectWorkflowRunService(ProjectRepository projects, GitWorkspaceJobService jobs, EmbabelAgentClient client,
-                                     @Qualifier("jobServiceTokens") ClientCredentialsTokens serviceTokens) {
+                                     @Qualifier("jobServiceTokens") ClientCredentialsTokens serviceTokens,
+                                     @Value("${" + SecurityConfig.KEYCLOAK_ENABLED + ":true}") boolean keycloak) {
         this.projects = projects;
         this.jobs = jobs;
         this.client = client;
         this.serviceTokens = serviceTokens;
+        this.keycloak = keycloak;
     }
 
     /**
@@ -120,6 +126,9 @@ public class ProjectWorkflowRunService {
     }
 
     private String serviceAuthorization() {
+        if (!keycloak) {
+            return null;
+        }
         try {
             return serviceTokens.authorization().orElseThrow(() -> new ResponseStatusException(
                     HttpStatus.SERVICE_UNAVAILABLE, "Git workspaces are not configured: ai-control has no service identity"));

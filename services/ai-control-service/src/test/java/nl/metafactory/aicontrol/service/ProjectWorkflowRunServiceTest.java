@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 class ProjectWorkflowRunServiceTest {
@@ -36,7 +37,7 @@ class ProjectWorkflowRunServiceTest {
     private final GitWorkspaceJobService jobs = mock(GitWorkspaceJobService.class);
     private final EmbabelAgentClient client = mock(EmbabelAgentClient.class);
     private final ClientCredentialsTokens tokens = mock(ClientCredentialsTokens.class);
-    private final ProjectWorkflowRunService service = new ProjectWorkflowRunService(projects, jobs, client, tokens);
+    private final ProjectWorkflowRunService service = new ProjectWorkflowRunService(projects, jobs, client, tokens, true);
 
     private final UUID projectId = UUID.randomUUID();
     private final UUID jobId = UUID.randomUUID();
@@ -172,5 +173,18 @@ class ProjectWorkflowRunServiceTest {
         assertThat(ProjectWorkflowRunService.specRef("wf-1", "spec-1.md")).isEqualTo("spec-1.md");
         assertThat(ProjectWorkflowRunService.specRef("wf-1", "# Spec\n\nbody")).isEqualTo("workflow:wf-1");
         assertThat(ProjectWorkflowRunService.specRef("wf-1", null)).isEqualTo("workflow:wf-1");
+    }
+
+    @Test
+    void withoutKeycloakTheTicketIsRequestedWithoutAServiceToken() {
+        var open = new ProjectWorkflowRunService(projects, jobs, client, tokens, false);
+        when(client.issueGitWorkspaceTicketAs(isNull(), any())).thenReturn("ticket-1");
+        when(client.startWorkflow(eq("wf-1"), any())).thenReturn(
+                new WorkflowStartResponseDto("wf-1", "run-1", "RUNNING", Instant.now(), "Workflow started"));
+
+        assertThat(open.startOnProjectWorkspace("wf-1", "spec-1.md", input())).isPresent();
+
+        verify(client).issueGitWorkspaceTicketAs(isNull(), any());
+        verify(tokens, never()).authorization();
     }
 }
