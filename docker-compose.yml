@@ -27,7 +27,7 @@ x-a2a-service-encryption-salt: &a2a-service-encryption-salt ${A2A_SERVICE_ENCRYP
 x-spec-queue-runner-secret: &spec-queue-runner-secret ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:-local-only-spec-queue-runner-secret-CHANGE-ME-outside-local}
 services:
   postgres:
-    image: postgres:16-alpine@sha256:81e77a4833487b8132fe4b00bedd39dc3f74b8641e387f19312a48f7de218c2e
+    image: postgres:18-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
     container_name: openjcockpit-postgres
     restart: unless-stopped
     environment:
@@ -40,7 +40,7 @@ services:
       timeout: 5s
       retries: 10
   postgres-init:
-    image: postgres:16-alpine@sha256:81e77a4833487b8132fe4b00bedd39dc3f74b8641e387f19312a48f7de218c2e
+    image: postgres:18-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
     depends_on:
       postgres:
         condition: service_healthy
@@ -247,7 +247,7 @@ services:
   # One-shot: the service images run as UID 10001. Named volumes created by an older stack (when the
   # services ran as root) are handed over once; fresh volumes already inherit the image's ownership.
   volume-permissions:
-    image: postgres:16-alpine@sha256:81e77a4833487b8132fe4b00bedd39dc3f74b8641e387f19312a48f7de218c2e
+    image: postgres:18-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
     user: "0:0"
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -454,6 +454,9 @@ services:
         condition: service_healthy                    # BR-16
       local-seed:
         condition: service_completed_successfully     # the model key and the service clients must exist
+    volumes:
+      # optional local override of the definitions baked into the image (edit without rebuilding)
+      - ./services/embabel-agent-runtime/agent-definitions:/agent-definitions:ro
 
   # Separate MCP server that exposes the git integration as tools (checkout, create branch,
   # pull, read/write files, commit, push). Registered with LiteLLM (infrastructure/litellm/config.yaml,
