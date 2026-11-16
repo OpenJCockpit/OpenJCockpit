@@ -91,7 +91,7 @@ to these workflows are preserved. Disable it with
 > implementation, review, realisation, evidence) in which *Implement spec* produced only a plan and
 > *Realise spec (code)* wrote code and opened a pull request. That pipeline was removed when workflows
 > moved to catalogue agents. The original description is preserved in
-> [Historical notes](../reference/historical-notes.md).
+> [Historical notes](../archive/historical-notes.md).
 
 ## Prompt-driven workflows
 

@@ -1,6 +1,6 @@
 # OpenJCockpit overview
 
-OpenJCockpit is an **open-source AI Software Factory**: an AI Orchestration Dashboard and backend
+OpenJCockpit is an **open-source AI Software Factory**: a dashboard and backend
 platform for **governed agentic software development**. It coordinates AI agents in structured,
 specification-driven workflows, with policy checks, human approval gates and reviewable Git delivery
 around them.
@@ -28,7 +28,7 @@ matter.
 
 | Concept | What it is | Read more |
 | --- | --- | --- |
-| **AI Orchestration Dashboard** | The web UI where you select a project, design and start workflows, follow agent runs, take approval decisions and manage specs, skills and queues. | [Below](#the-ai-orchestration-dashboard) |
+| **Dashboard** | The web UI where you select a project, design and start workflows, follow agent runs, take approval decisions and manage specs, skills and queues. | [Below](#the-dashboard) |
 | **Project** | A software project with its Git repository and credentials. Runs on a project work in that repository. | [Git integration](../workflows/git-integration.md) |
 | **Spec** | A Markdown specification with requirements and acceptance criteria, stored in the project's `specs/` folder. | [Spec-driven development](../workflows/spec-driven-development.md) |
 | **Agent** | A role-based AI agent (for example Software Developer) with a model alias, instructions, skills, tools and guardrails. Defined locally in Markdown or served over A2A. | [Agents](../integrations/a2a-agents.md) |
@@ -39,7 +39,7 @@ matter.
 | **Skill** | A reusable instruction package for agents (Agent Skills format). | [Skills Hub](../integrations/skills-marketplace.md) |
 | **Spec queue** | A per-project queue that runs specs one at a time, optionally auto-merging results. | [Spec queue](../workflows/spec-queue.md) |
 
-## The AI Orchestration Dashboard
+## The dashboard
 
 The dashboard is a React application behind Keycloak login. After signing in, you see an animated
 landing hub (an intro greeting with your first name, a top bar with Profile, Notifications, Messages

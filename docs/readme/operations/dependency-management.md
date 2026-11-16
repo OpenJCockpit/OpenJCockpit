@@ -8,7 +8,7 @@ review.
 > This page reflects [`renovate-config.json`](../../../renovate-config.json) and
 > [`.github/workflows/renovate.yml`](../../../.github/workflows/renovate.yml). If they change, they win.
 > The earlier README description ("never merges anything itself", daily 08:00 UTC run, no grouping) was
-> outdated; see the [migration map](../reference/documentation-migration-map.md#corrections-made-during-migration).
+> outdated; see the [migration map](../archive/documentation-migration-map.md#corrections-made-during-migration).
 
 ## Where it runs from
 

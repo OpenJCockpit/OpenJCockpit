@@ -18,6 +18,47 @@ configured; add one where you want a human decision.
 > "stage" is an agent reference (for example `a2a:litellm:software-developer`). Where the text below says
 > "the `realisation` stage", read "the agent the gate is anchored to".
 
+## Example: configure a gate and decide it
+
+A gate is stored in the workflow definition YAML as an `approvalGate` block. `placementStage` is the
+agent reference the gate is anchored to; it must be one of the workflow's own agents.
+
+```yaml
+approvalGate:
+  enabled: true
+  placementStage: a2a:litellm:software-developer
+```
+
+You normally set this in Workflow Design. The dashboard decides gates for you; the same three endpoints
+are available over the API for scripting. Replace `$API` with your `ai-control-service` base URL (`http://localhost:9080` in the local stack) and
+`$TOKEN` with a Keycloak access token. Reading needs the viewer role; deciding needs
+`openjcockpit-approver` (see [Authorization model](authorization-model.md)).
+
+```bash
+# 1. Read the context of the open gate (404 if no gate is open for this run)
+curl -s -H "Authorization: Bearer $TOKEN" "$API/api/agent-runs/$RUN_ID/approval-gate"
+
+# 2. Accept with comments. "iteration" must be the iteration shown in the context.
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  "$API/api/agent-runs/$RUN_ID/approval-gate/decision" \
+  -d '{"decision": "ACCEPT_WITH_COMMENTS", "iteration": 1,
+       "comment": "Add a unit test for the empty-input case."}'
+
+# 3. Read the audit trail of decisions for the run
+curl -s -H "Authorization: Bearer $TOKEN" "$API/api/agent-runs/$RUN_ID/approval-decisions"
+```
+
+`decision` is one of `ACCEPT`, `DENY` or `ACCEPT_WITH_COMMENTS`; `comment` is optional and at most
+`APPROVAL_GATE_COMMENT_MAX_LENGTH` characters (4000 by default). The decision call returns
+`{ "runId", "status", "iteration", "message" }`. Error codes:
+
+| Code | Meaning |
+| --- | --- |
+| `400` | Invalid comment, feedback not supported at this gate, or the feedback iteration bound is exhausted. |
+| `403` | The token lacks the `openjcockpit-approver` role. |
+| `404` | Unknown run. |
+| `409` | This iteration was already decided, or the run is not awaiting approval. |
+
 ## Operations runbook
 
 This section documents the operational consequences of the workflow approval gate
@@ -109,7 +150,7 @@ this purpose. Both `embabel-agent-service` and `ai-control-service` use
 `spring.web.error.include-message: always` consistently, and Spring Boot's own default
 `BasicErrorController` is active, untouched. The history of how this setting was first a no-op and
 then required a workaround bean (`ErrorHandlingConfig`) that has since been removed is preserved in
-[Historical notes](../reference/historical-notes.md#error-message-disclosure-history-d-qa-1-remediation-and-framework-upgrade).
+[Historical notes](../archive/historical-notes.md#error-message-disclosure-history-d-qa-1-remediation-and-framework-upgrade).
 
 ### Rollback hazard: removing a saved `approvalGate:` configuration before rolling back past this feature
 
@@ -206,6 +247,9 @@ Also note that a git-workspace job follows its run for at most `WORKFLOW_AGENT_T
 [Git integration](../workflows/git-integration.md#known-limitations-of-workspace-runs).
 
 ### No new authentication or authorization role is introduced
+
+> **Superseded.** Deciding a gate now requires the `openjcockpit-approver` role (see
+> [Authorization model](authorization-model.md)). The text below describes the state when the gate was introduced.
 
 Approving, denying, or commenting on an approval gate is available to any
 authenticated user of the platform. This matches how every other feature in

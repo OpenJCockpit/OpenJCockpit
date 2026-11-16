@@ -6,6 +6,13 @@ topics.
 
 > New here? Read the [project README](../../README.md) first, then the [Overview](concepts/overview.md).
 
+**Which doc do I read?**
+
+- **Learn by doing:** the guided tutorials on the
+  [docs site](https://openjcockpit.github.io/OpenJCockpit-docs/learn/tutorials/).
+- **Look something up:** this index (published as Reference on the docs site).
+- **Just visiting on GitHub:** the [project README](../../README.md).
+
 ## By goal
 
 | I want to… | Start here | Then |
@@ -52,7 +59,7 @@ topics.
 - [LLM providers](integrations/llm-providers.md): Ollama, LiteLLM, OpenAI, reverts, release notes.
 - [MCP tools](integrations/mcp-tools.md): the Git MCP server, policy-checked tools, workspace isolation.
 - [Agents and A2A](integrations/a2a-agents.md): agent catalogue, configuration-driven agents, A2A.
-- [Skills Hub](integrations/skills-marketplace.md): skills and the dev-only marketplace double.
+- [Skills Hub](integrations/skills-marketplace.md): skills and the dev-only mock marketplace.
 
 ### Development
 
@@ -73,15 +80,18 @@ topics.
 ### Reference
 
 - [Configuration reference](reference/configuration-reference.md): environment variables and defaults.
-- [Historical notes](reference/historical-notes.md): superseded behaviour preserved for traceability.
-- [Documentation migration map](reference/documentation-migration-map.md): where each former README section now lives.
+
+### Archive
+
+- [Historical notes](archive/historical-notes.md): superseded behaviour preserved for traceability.
+- [Documentation migration map](archive/documentation-migration-map.md): where each former README section now lives.
 
 ## Other documentation in the repository
 
 | Document | Topic |
 | --- | --- |
 | [OpenJCockpit Docs](https://openjcockpit.github.io/OpenJCockpit-docs/) | Published documentation: these pages plus guided tutorials and video scripts. |
-| [docs-site](https://openjcockpit.github.io/OpenJCockpit/) ([source](../../docs-site/index.html)) | Project overview page: about, spec queue details, illustrated first-run tutorial. |
+| [docs-site](https://openjcockpit.github.io/OpenJCockpit/) ([source](../../docs-site/index.html)) | Project overview page: about and spec queue details. Tutorials live on the docs site (Learn). |
 | [`services/embabel-agent-service/docs/agent-integration/OPERATIONS.md`](../../services/embabel-agent-service/docs/agent-integration/OPERATIONS.md) | Authoritative operations guide for configuration-driven agents, A2A and git-workspace runs (Dutch). |
 | [`services/embabel-agent-service/AGENTS.md`](../../services/embabel-agent-service/AGENTS.md) | Spec-driven workflow rules for agents. |
 | [`services/embabel-agent-service/README.md`](../../services/embabel-agent-service/README.md) | Log keys and the workflow-definition write race statement. |

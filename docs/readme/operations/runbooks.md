@@ -8,7 +8,7 @@ feature:
 - [Spec queue rollback](../workflows/spec-queue.md#rollback).
 - [Per-run Git workspace cleanup and rollback](../integrations/mcp-tools.md#per-run-workspace-isolation-workspacekey).
 - [LLM reverts A and B](../integrations/llm-providers.md#reverting-the-default-llm).
-- Historical: [workflow agent-id reconciliation runbook](../reference/historical-notes.md#operations-runbook-workflow-agent-id-reconciliation).
+- Historical: [workflow agent-id reconciliation runbook](../archive/historical-notes.md#operations-runbook-workflow-agent-id-reconciliation).
 
 ## Services, ports and health
 
