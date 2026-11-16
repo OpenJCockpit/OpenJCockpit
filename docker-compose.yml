@@ -454,6 +454,9 @@ services:
         condition: service_healthy                    # BR-16
       local-seed:
         condition: service_completed_successfully     # the model key and the service clients must exist
+    volumes:
+      # optional local override of the definitions baked into the image (edit without rebuilding)
+      - ./services/embabel-agent-runtime/agent-definitions:/agent-definitions:ro
 
   # Separate MCP server that exposes the git integration as tools (checkout, create branch,
   # pull, read/write files, commit, push). Registered with LiteLLM (infrastructure/litellm/config.yaml,
