@@ -3,7 +3,8 @@
 Agents can be equipped with **skills**: reusable instruction packages in the Agent Skills format
 (`skills/<id>/SKILL.md`, with optional text references). Skills for configuration-driven agents live
 next to the agent definitions in
-[`services/embabel-agent-runtime/agent-definitions/skills/`](../../../services/embabel-agent-runtime/agent-definitions/skills/).
+[`embabel-agent-runtime/agent-definitions/skills/`](https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime/tree/main/embabel-agent-runtime/agent-definitions/skills)
+of the OpenJCockpit-Agent-Runtime repository.
 A skill never grants tools: `allowed-tools` in a skill and text in instructions are ignored for tool
 access. See [A2A and configuration-driven agents](a2a-agents.md).
 

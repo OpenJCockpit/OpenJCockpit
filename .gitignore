@@ -5,6 +5,9 @@ dist/
 # Frontend CI checkout (the e2e workflow checks the OpenJCockpit-frontend repo out here)
 .frontend/
 
+# Agent runtime CI checkout (backend CI checks the OpenJCockpit-Agent-Runtime repo out here)
+.agent-runtime/
+
 # Stray Nx cache when Nx is run from the repository root
 .nx/
 

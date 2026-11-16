@@ -20,7 +20,6 @@
         <module>services/service-common</module>
         <module>services/ai-control-service</module>
         <module>services/embabel-agent-service</module>
-        <module>services/embabel-agent-runtime</module>
         <module>services/git-mcp-server</module>
     </modules>
 
@@ -28,9 +27,12 @@
         <java.version>25</java.version>
         <spring-ai.version>2.0.2</spring-ai.version>
         <embabel-agent.version>1.5.4</embabel-agent.version>
-        <mcp-sdk.version>2.1.0</mcp-sdk.version>
+        <mcp-sdk.version>2.2.0</mcp-sdk.version>
         <!-- Pulled in transitively via docker-java-core; pinned for CVE-2025-14813 and CVE-2026-8763 -->
-        <bouncycastle.version>1.86</bouncycastle.version>
+        <bouncycastle.version>1.87</bouncycastle.version>
+        <!-- One okhttp line for spring-ai-openai (okhttp) and mockwebserver (okhttp-jvm): mixing 4.x and 5.x
+             puts two copies of okhttp3.internal on the classpath -->
+        <okhttp.version>5.5.1</okhttp.version>
     </properties>
 
     <dependencyManagement>
@@ -46,6 +48,13 @@
                 <groupId>io.modelcontextprotocol.sdk</groupId>
                 <artifactId>mcp-bom</artifactId>
                 <version>${mcp-sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp-bom</artifactId>
+                <version>${okhttp.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
