@@ -27,7 +27,7 @@ x-a2a-service-encryption-salt: &a2a-service-encryption-salt ${A2A_SERVICE_ENCRYP
 x-spec-queue-runner-secret: &spec-queue-runner-secret ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:-local-only-spec-queue-runner-secret-CHANGE-ME-outside-local}
 services:
   postgres:
-    image: postgres:16-alpine@sha256:aa6cb33cf4c19c765cefcf48d96176258800870a9a1e930ad126200f9d825139
+    image: postgres:16-alpine@sha256:81e77a4833487b8132fe4b00bedd39dc3f74b8641e387f19312a48f7de218c2e
     container_name: openjcockpit-postgres
     restart: unless-stopped
     environment:
@@ -40,7 +40,7 @@ services:
       timeout: 5s
       retries: 10
   postgres-init:
-    image: postgres:16-alpine@sha256:aa6cb33cf4c19c765cefcf48d96176258800870a9a1e930ad126200f9d825139
+    image: postgres:16-alpine@sha256:81e77a4833487b8132fe4b00bedd39dc3f74b8641e387f19312a48f7de218c2e
     depends_on:
       postgres:
         condition: service_healthy
@@ -52,7 +52,7 @@ services:
     restart: "no"
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.8.2@sha256:723b1d6e254c0fc96d5cffec860c7e0744d6a3277822b865bb538cf891575e41
+    image: quay.io/keycloak/keycloak:26.8.2@sha256:c68e286cacd87b942ac1939a0a1481461109d6acd3a57dc496969a319a76bbf0
     container_name: openjcockpit-keycloak
     restart: unless-stopped
     command: ["start-dev", "--import-realm"]
@@ -166,7 +166,7 @@ services:
   # only route embabel-agent-runtime takes to the local model (BR-13: OpenAI is NOT
   # proxied). Host port 4100 -- LiteLLM's conventional 4000 collides with the frontend dashboard (OpenJCockpit-frontend).
   litellm:
-    image: ghcr.io/berriai/litellm:v1.109.0@sha256:26aecfb02fb17ac6590f0549478561f9fbb3f69314317320b2e32a21beed4006
+    image: ghcr.io/berriai/litellm:v1.109.1@sha256:11175975a3093e05e92faee2fe2fe3412a3ae2fcaa849eb0fe25d5f0d8bcb2e9
     container_name: openjcockpit-litellm
     restart: unless-stopped
     ports:
@@ -247,7 +247,7 @@ services:
   # One-shot: the service images run as UID 10001. Named volumes created by an older stack (when the
   # services ran as root) are handed over once; fresh volumes already inherit the image's ownership.
   volume-permissions:
-    image: postgres:16-alpine@sha256:aa6cb33cf4c19c765cefcf48d96176258800870a9a1e930ad126200f9d825139
+    image: postgres:16-alpine@sha256:81e77a4833487b8132fe4b00bedd39dc3f74b8641e387f19312a48f7de218c2e
     user: "0:0"
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -269,7 +269,7 @@ services:
   #   AGENTIC_CONTAINER_ENABLED=true docker compose --profile docker-jobs up
   # Nothing executes in the job container yet, so the default stack runs without it.
   docker-socat:
-    image: alpine/socat@sha256:e8a6e8868a8e6e01d9c2c321a8f8d4474d2d741d962462e5c5a124a8e66a0055
+    image: alpine/socat@sha256:71131702f671a88b3808a70b7330f9679cd9b9933adcafadc191508edfe55bba
     container_name: openjcockpit-docker-socat
     profiles: ["docker-jobs"]
     restart: unless-stopped
