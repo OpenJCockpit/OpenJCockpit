@@ -5,7 +5,7 @@ context. Progress and evidence per step: `IMPLEMENTATION_PROGRESS.md`.
 
 > **Since the management/execution split** the configuration-driven agents, the inbound A2A endpoints,
 > the `openjcockpit.agent-definitions.*` settings, the LLM routes and `agent-definitions/` run in
-> **`embabel-agent-runtime`** (`services/embabel-agent-runtime`, port 8092 locally), no longer in
+> **`embabel-agent-runtime`** (the [OpenJCockpit-Agent-Runtime](https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime) repository, port 8092 locally), no longer in
 > `embabel-agent-service`. Wherever `embabel-agent-service` appears below as the A2A server or agent runtime,
 > read `embabel-agent-runtime`. Tenant bindings (`agent_tenant_bindings`), workflow runs and
 > OPA decisions remain owned by `embabel-agent-service`; the runtime reads them via
@@ -342,9 +342,9 @@ git-workspace job that starts a workflow.
 
 ```bash
 # everything (from the repo root)
-mvn -o -pl services/embabel-agent-service,services/embabel-agent-runtime -am test
-# SPEC-002 only (the runtime now owns definitions and inbound A2A)
-mvn -o -pl services/embabel-agent-runtime -am test -Dsurefire.failIfNoSpecifiedTests=false \
+mvn -o -pl services/embabel-agent-service -am test
+# SPEC-002 only (the runtime owns definitions and inbound A2A; run in the OpenJCockpit-Agent-Runtime checkout)
+mvn -o -pl embabel-agent-runtime -am test -Dsurefire.failIfNoSpecifiedTests=false \
   -Dtest='nl.metafactory.agentruntime.definition.**.*Test,nl.metafactory.agentruntime.a2a.*Test'
 # live roundtrip (requires a running stack, see §9)
 LITELLM_KEY=… A2A_JWT=… ./scripts/a2a-roundtrip.sh

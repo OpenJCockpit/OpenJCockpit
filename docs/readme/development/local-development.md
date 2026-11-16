@@ -81,7 +81,8 @@ UI); see also [`frontend/apps/dashboard/README.md`](https://github.com/OpenJCock
 
 ### Running a Java service on the host
 
-A host-run `embabel-agent-runtime` (for example `mvn -pl services/embabel-agent-runtime spring-boot:run`) uses `http://localhost:11434` for
+A host-run `embabel-agent-runtime` (for example `mvn -pl embabel-agent-runtime -am spring-boot:run` in the
+[OpenJCockpit-Agent-Runtime](https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime) checkout) uses `http://localhost:11434` for
 Ollama by default, and stores workflow definitions in `${java.io.tmpdir}/embabel-workflow-definitions`
 rather than the Compose volume. See
 [LLM providers](../integrations/llm-providers.md#local-ollama-qwen-model-prerequisite-before-you-start-the-stack) and
@@ -98,10 +99,13 @@ mvn verify
 # or just this module:
 mvn -pl services/embabel-agent-service -am test
 mvn -pl services/embabel-agent-service -am verify
-mvn -pl services/embabel-agent-runtime -am verify
 ```
 
-`mvn verify` includes the JaCoCo line-coverage gate enforced in CI.
+`mvn verify` includes the JaCoCo line-coverage gate enforced in CI. The contract tests in
+`services/embabel-agent-service` (`ops` package) that compare this repository's Compose and LiteLLM wiring with
+the agent runtime read the [OpenJCockpit-Agent-Runtime](https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime) checkout next to this one (or
+`AGENT_RUNTIME_DIR`); without it they are skipped locally, and backend CI always checks it out. The runtime itself is
+verified in its own repository.
 
 Frontend verification runs in the [OpenJCockpit-frontend](https://github.com/OpenJCockpit/OpenJCockpit-frontend) repository (see its README).
 
@@ -126,20 +130,22 @@ End-to-end tests: see [Testing](testing.md).
 
 ## Running the agent service and the agent runtime
 
-`docker compose up` starts both as separate containers: `embabel-agent-service` on host port 8091 and
+`docker compose up` starts both as separate containers (the runtime is the released image
+`ghcr.io/openjcockpit/embabel-agent-runtime:v0.1.8` of the [OpenJCockpit-Agent-Runtime](https://github.com/OpenJCockpit/OpenJCockpit-Agent-Runtime) repository): `embabel-agent-service` on host port 8091 and
 `embabel-agent-runtime` on host port 8092. They start independently (neither waits for the other); until
 the runtime is reachable, local agents and definition drafts fail with "agent runtime unavailable".
 
 To run one of them on the host against the rest of the stack, point it at the other by URL:
 
 ```bash
-# runtime on the host, agent service in Compose
+# runtime on the host (from the OpenJCockpit-Agent-Runtime checkout), agent service in Compose
+cd ../OpenJCockpit-Agent-Runtime
 EMBABEL_AGENT_SERVICE_BASE_URL=http://localhost:8091 \
 AGENT_RUNTIME_TOKEN_URL=http://localhost:8080/realms/openjcockpit/protocol/openid-connect/token \
 AGENT_RUNTIME_CLIENT_SECRET=openjcockpit-agent-runtime-local-secret \
 KEYCLOAK_JWK_SET_URI=http://localhost:8080/realms/openjcockpit/protocol/openid-connect/certs \
-AGENT_DEFINITIONS_LOCAL_ROOT=services/embabel-agent-runtime/agent-definitions \
-mvn -pl services/embabel-agent-runtime spring-boot:run
+AGENT_DEFINITIONS_LOCAL_ROOT=embabel-agent-runtime/agent-definitions \
+mvn -pl embabel-agent-runtime -am spring-boot:run
 ```
 
 and set `EMBABEL_AGENT_RUNTIME_BASE_URL=http://host.docker.internal:8082` for the agent service container.
