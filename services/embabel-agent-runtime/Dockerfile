@@ -1,10 +1,10 @@
-FROM maven:3.10-eclipse-temurin-25@sha256:047a82fc82c613266cfb1b66fd920be9c8ba51fd67edc68245e4542768f45e36 AS build
+FROM maven:3.10-eclipse-temurin-25@sha256:a4734fd7909a9c2beddcacfa1229bd308a349f000bea1ec8db3287c8a16ca2a3 AS build
 WORKDIR /workspace
 COPY . .
 # Reactor build of the runtime and what it needs (service-common) only; the management plane is not built.
 RUN mvn -pl services/embabel-agent-runtime -am package -DskipTests --no-transfer-progress
 
-FROM eclipse-temurin:25-jre@sha256:ecdc0adb37bde1a281c4d245a3cd535004b1fc8322d560f5b09463b248c81df0
+FROM eclipse-temurin:25-jre@sha256:a640968ae55027b322cedd5f8228b01a84baff0b9e9360e47601c6a111ba1699
 WORKDIR /app
 # Unprivileged user; the only writable places are /tmp (per-run skill directories) and the optional
 # last-known-good cache directory an operator mounts.
