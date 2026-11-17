@@ -11,6 +11,8 @@ x-litellm-agent-service-key: &litellm-agent-service-key ${LITELLM_AGENT_SERVICE_
 # embabel-agent-service -> embabel-agent-runtime (run agents, drafts) and back (bindings, run scopes, policy).
 x-agent-service-client-secret: &agent-service-client-secret ${AGENT_SERVICE_CLIENT_SECRET:-openjcockpit-agent-service-local-secret}
 x-agent-runtime-client-secret: &agent-runtime-client-secret ${AGENT_RUNTIME_CLIENT_SECRET:-openjcockpit-agent-runtime-local-secret}
+# OpenJControlTower -> ai-control-service (enqueue dispatched specs); seeded by local-seed as client openjcontroltower-service.
+x-controltower-client-secret: &controltower-client-secret ${CONTROLTOWER_CLIENT_SECRET:-openjcontroltower-service-local-secret}
 # The one A2A client of the LiteLLM provider (seeded by local-seed): LiteLLM key + Keycloak client
 # secret (client openjcockpit-a2a issues the JWT, with tenant_id=local, that embabel requires).
 x-litellm-a2a-key: &litellm-a2a-key ${LITELLM_A2A_KEY:-sk-openjcockpit-a2a-local}
@@ -239,6 +241,7 @@ services:
       LITELLM_AGENT_SERVICE_KEY: *litellm-agent-service-key
       AGENT_SERVICE_CLIENT_SECRET: *agent-service-client-secret
       AGENT_RUNTIME_CLIENT_SECRET: *agent-runtime-client-secret
+      CONTROLTOWER_CLIENT_SECRET: *controltower-client-secret
     volumes:
       - ./infrastructure/local-seed:/local-seed:ro
     entrypoint: ["/bin/sh", "/local-seed/seed-local.sh"]

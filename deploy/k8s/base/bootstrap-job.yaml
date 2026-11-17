@@ -51,6 +51,7 @@ spec:
             - {name: AI_CONTROL_CLIENT_SECRET, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: AI_CONTROL_CLIENT_SECRET}}}
             - {name: AGENT_SERVICE_CLIENT_SECRET, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: AGENT_SERVICE_CLIENT_SECRET}}}
             - {name: AGENT_RUNTIME_CLIENT_SECRET, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: AGENT_RUNTIME_CLIENT_SECRET}}}
+            - {name: CONTROLTOWER_CLIENT_SECRET, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: CONTROLTOWER_CLIENT_SECRET, optional: true}}}
           volumeMounts:
             - {name: seed, mountPath: /seed, readOnly: true}
             - {name: tmp, mountPath: /tmp}
