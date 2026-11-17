@@ -428,7 +428,12 @@ services:
       - "8092:8082"
     environment:
       SPRING_PROFILES_ACTIVE: local
+      # LiteLLM (default) routes the models through the gateway below; OpenAI / Anthropic run every model role on
+      # AI_MODEL directly at that provider; Other has no model (every call logs "Not configured" and fails).
+      AI_PROVIDER: ${AI_PROVIDER:-LiteLLM}
+      AI_MODEL: ${AI_MODEL:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       # Local Ollama for the default/coding LLM. The container reaches the HOST's Ollama daemon via
       # host.docker.internal (see extra_hosts below); the in-code default is loopback for host-run execution.
       # No Ollama container is part of this stack -- the operator installs Ollama on the host and runs

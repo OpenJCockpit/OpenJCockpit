@@ -33,6 +33,9 @@ helps you find them.
 | `LITELLM_AI_CONTROL_KEY` | `sk-openjcockpit-ai-control-local` | [MCP tools](../integrations/mcp-tools.md#how-it-is-reached) |
 | `LITELLM_UI_USERNAME` / `LITELLM_UI_PASSWORD` | `ricky` / `Welkom01!` | [LLM providers](../integrations/llm-providers.md#litellm-gateway) |
 | `LITELLM_PUBLIC_URL` | `http://localhost:4100` | [A2A agents](../integrations/a2a-agents.md#the-agent-catalogue) |
+| `AI_PROVIDER` | `LiteLLM` | [Choosing the AI provider](../integrations/llm-providers.md#choosing-the-ai-provider) |
+| `AI_MODEL` | unset (required for `OpenAI` / `Anthropic`) | [Choosing the AI provider](../integrations/llm-providers.md#choosing-the-ai-provider) |
+| `ANTHROPIC_API_KEY` | unset (required for `Anthropic`) | [Choosing the AI provider](../integrations/llm-providers.md#choosing-the-ai-provider) |
 | `LLM_CODING_ROUTE` | unset → `gateway` (application default) | [Revert B](../integrations/llm-providers.md#reverting-the-default-llm) |
 | `EMBABEL_MODELS_DEFAULT_LLM` | unset | [Revert A](../integrations/llm-providers.md#reverting-the-default-llm) |
 
