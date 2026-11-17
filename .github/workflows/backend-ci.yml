@@ -30,6 +30,10 @@ jobs:
           distribution: temurin
           java-version: "25"
           cache: maven
+          # This repository's modules only (not .agent-runtime), so agent-images restores the same cache.
+          cache-dependency-path: |
+            pom.xml
+            services/*/pom.xml
 
       - name: Report Maven version
         run: mvn -v
@@ -62,8 +66,22 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
+      # The Maven repository the verify job cached seeds the image build (build context maven-repository), so
+      # the parallel image builds do not each download every dependency from Maven Central (HTTP 429).
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+          cache-dependency-path: |
+            pom.xml
+            services/*/pom.xml
+
       - name: Build ${{ matrix.service }} image
-        run: docker build --file services/${{ matrix.service }}/Dockerfile --tag openjcockpit/${{ matrix.service }}:ci .
+        run: |
+          mkdir -p ~/.m2/repository
+          docker build --build-context maven-repository="$HOME/.m2/repository" \
+            --file services/${{ matrix.service }}/Dockerfile --tag openjcockpit/${{ matrix.service }}:ci .
 
       - name: Image runs as a non-root user
         run: |

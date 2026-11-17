@@ -50,6 +50,22 @@ jobs:
 
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
+      # Seeds the image builds with the Maven repository Backend CI cached (build context maven-repository),
+      # so they do not download every dependency from Maven Central (HTTP 429).
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+          cache-dependency-path: |
+            pom.xml
+            services/*/pom.xml
+
+      - name: Maven repository seed
+        run: |
+          mkdir -p ~/.m2/repository
+          echo "MAVEN_SEED=$HOME/.m2/repository" >> "$GITHUB_ENV"
+
       - name: Refuse anything but an immutable version tag
         run: |
           [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] || { echo "::error::'$TAG' is not a release tag"; exit 1; }
@@ -67,6 +83,7 @@ jobs:
             for platform in $PLATFORMS; do
               echo "::group::$name ($platform)"
               docker buildx build --file "services/$name/Dockerfile" --platform "$platform" --load \
+                --build-context maven-repository="$MAVEN_SEED" \
                 --label org.opencontainers.image.source="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
                 --label org.opencontainers.image.revision="$GITHUB_SHA" \
                 --label org.opencontainers.image.version="$TAG" \
@@ -114,6 +131,7 @@ jobs:
         run: |
           for name in $SERVICES; do
             docker buildx build --file "services/$name/Dockerfile" --platform "${PLATFORMS// /,}" --push \
+              --build-context maven-repository="$MAVEN_SEED" \
               --metadata-file "$RUNNER_TEMP/$name.json" \
               --label org.opencontainers.image.source="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
               --label org.opencontainers.image.revision="$GITHUB_SHA" \
