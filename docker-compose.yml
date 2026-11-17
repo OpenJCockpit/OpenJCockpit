@@ -319,9 +319,13 @@ services:
       # and start the workflow in embabel with ai-control's own service identity (seeded by local-seed).
       LITELLM_MCP_BASE_URL: http://litellm:4000
       LITELLM_AI_CONTROL_KEY: *litellm-ai-control-key
-      AI_CONTROL_SERVICE_TOKEN_URL: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
-      AI_CONTROL_SERVICE_CLIENT_ID: openjcockpit-ai-control
       AI_CONTROL_SERVICE_CLIENT_SECRET: *ai-control-client-secret
+      # The Keycloak settings; ENABLE_KEYCLOAK=false permits every request without a token
+      ENABLE_KEYCLOAK: ${ENABLE_KEYCLOAK:-true}
+      KEYCLOAK_URL: ${KEYCLOAK_URL:-http://keycloak:8080}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-openjcockpit}
+      KEYCLOAK_CLIENT_ID: ${AI_CONTROL_SERVICE_CLIENT_ID:-openjcockpit-ai-control}
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://localhost:8080/realms/${KEYCLOAK_REALM:-openjcockpit}}
     depends_on:
       postgres:
         condition: service_healthy
@@ -365,6 +369,12 @@ services:
       # The execution plane and this service's identity towards it (client openjcockpit-agent-service).
       EMBABEL_AGENT_RUNTIME_BASE_URL: ${EMBABEL_AGENT_RUNTIME_BASE_URL:-http://embabel-agent-runtime:8082}
       AGENT_SERVICE_CLIENT_SECRET: *agent-service-client-secret
+      # The Keycloak settings; ENABLE_KEYCLOAK=false permits every request without a token
+      ENABLE_KEYCLOAK: ${ENABLE_KEYCLOAK:-true}
+      KEYCLOAK_URL: ${KEYCLOAK_URL:-http://keycloak:8080}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-openjcockpit}
+      KEYCLOAK_CLIENT_ID: ${AGENT_SERVICE_CLIENT_ID:-openjcockpit-agent-service}
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://localhost:8080/realms/${KEYCLOAK_REALM:-openjcockpit}}
       LITELLM_A2A_KEY: *litellm-a2a-key
       A2A_CLIENT_SECRET: *a2a-client-secret
       A2A_SERVICE_ENCRYPTION_SECRET: *a2a-service-encryption-secret
@@ -414,14 +424,19 @@ services:
   # changing EMBABEL_AGENT_SERVICE_BASE_URL / A2A_PUBLIC_BASE_URL (and the LiteLLM agent URLs) only.
   # Pulled as the released image of the OpenJCockpit-Agent-Runtime repository (GitHub Packages).
   embabel-agent-runtime:
-    image: ghcr.io/openjcockpit/embabel-agent-runtime:v0.1.9
+    image: ghcr.io/openjcockpit/embabel-agent-runtime:v0.1.10
     container_name: openjcockpit-embabel-runtime
     restart: unless-stopped
     ports:
       - "8092:8082"
     environment:
       SPRING_PROFILES_ACTIVE: local
+      # LiteLLM (default) routes the models through the gateway below; OpenAI / Anthropic run every model role on
+      # AI_MODEL directly at that provider; Other has no model (every call logs "Not configured" and fails).
+      AI_PROVIDER: ${AI_PROVIDER:-LiteLLM}
+      AI_MODEL: ${AI_MODEL:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       # Local Ollama for the default/coding LLM. The container reaches the HOST's Ollama daemon via
       # host.docker.internal (see extra_hosts below); the in-code default is loopback for host-run execution.
       # No Ollama container is part of this stack -- the operator installs Ollama on the host and runs
@@ -462,7 +477,7 @@ services:
       litellm:
         condition: service_healthy
       local-seed:
-        condition: service_completed_successfully     # the model key and the service clients must exist
+        condition: service_completed_successfully
     # The definitions baked into the image are used. To edit them without a new runtime release, add
     # docker-compose.agent-definitions.yml (mounts them from an OpenJCockpit-Agent-Runtime checkout).
 

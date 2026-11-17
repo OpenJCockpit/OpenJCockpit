@@ -48,11 +48,18 @@ public class EmbabelAgentClient {
     // ── Calls made with an explicit service identity (git-workspace jobs run asynchronously,
     //    without a user token to relay) ──────────────────────────────────────────
 
+    /** A null {@code authorization} (no identity provider, {@code ENABLE_KEYCLOAK=false}) sends none. */
+    private static void authorize(org.springframework.http.HttpHeaders headers, String authorization) {
+        if (authorization != null) {
+            headers.set(org.springframework.http.HttpHeaders.AUTHORIZATION, authorization);
+        }
+    }
+
     /** Starts a workflow as the given service identity ({@code Bearer <token>}). */
     public WorkflowStartResponseDto startWorkflowAs(String authorization, String id, WorkflowStartInputDto input) {
         try {
             return webClient.post().uri("/api/workflows/{id}/start", id)
-                    .header(org.springframework.http.HttpHeaders.AUTHORIZATION, authorization)
+                    .headers(headers -> authorize(headers, authorization))
                     .bodyValue(input != null ? input : WorkflowStartInputDto.empty()).retrieve()
                     .bodyToMono(WorkflowStartResponseDto.class).block();
         } catch (WebClientResponseException.NotFound e) {
@@ -63,7 +70,7 @@ public class EmbabelAgentClient {
     public Optional<AgentRunDto> getLatestRunAs(String authorization, String runId) {
         try {
             return Optional.ofNullable(webClient.get().uri("/api/agent-runs/{runId}", runId)
-                    .header(org.springframework.http.HttpHeaders.AUTHORIZATION, authorization)
+                    .headers(headers -> authorize(headers, authorization))
                     .retrieve().bodyToMono(AgentRunDto.class).block());
         } catch (Exception e) {
             return Optional.empty();
@@ -72,7 +79,7 @@ public class EmbabelAgentClient {
 
     public List<AgentRunOutputDto> getAgentRunOutputsAs(String authorization, String runId) {
         var outputs = webClient.get().uri("/api/agent-runs/{runId}/outputs", runId)
-                .header(org.springframework.http.HttpHeaders.AUTHORIZATION, authorization)
+                .headers(headers -> authorize(headers, authorization))
                 .retrieve().bodyToFlux(AgentRunOutputDto.class).collectList().block();
         return outputs != null ? outputs : List.of();
     }
@@ -96,7 +103,7 @@ public class EmbabelAgentClient {
      */
     public String issueGitWorkspaceTicketAs(String authorization, GitWorkspaceTicketRequest request) {
         var response = webClient.post().uri("/internal/git-workspace-tickets")
-                .header(org.springframework.http.HttpHeaders.AUTHORIZATION, authorization)
+                .headers(headers -> authorize(headers, authorization))
                 .bodyValue(request).retrieve()
                 .bodyToMono(GitWorkspaceTicketResponse.class).block();
         if (response == null || response.ticket() == null || response.ticket().isBlank()) {
@@ -108,7 +115,7 @@ public class EmbabelAgentClient {
     /** Stops a run as the given service identity (a timed-out git-workspace job). */
     public void stopAgentRunAs(String authorization, String runId) {
         webClient.delete().uri("/api/agent-runs/{runId}", runId)
-                .header(org.springframework.http.HttpHeaders.AUTHORIZATION, authorization)
+                .headers(headers -> authorize(headers, authorization))
                 .retrieve().toBodilessEntity().block();
     }
 

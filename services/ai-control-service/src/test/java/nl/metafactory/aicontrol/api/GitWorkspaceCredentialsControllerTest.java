@@ -25,7 +25,7 @@ class GitWorkspaceCredentialsControllerTest {
     @BeforeEach
     void setUp() {
         service = mock(GitWorkspaceCredentialService.class);
-        controller = new GitWorkspaceCredentialsController(service, new GitWorkspaceProperties());
+        controller = new GitWorkspaceCredentialsController(service, new GitWorkspaceProperties(), true);
     }
 
     private static Jwt token(String azp) {
@@ -63,5 +63,14 @@ class GitWorkspaceCredentialsControllerTest {
         when(service.credentialsFor(any(), any())).thenReturn(Optional.empty());
 
         assertThat(controller.credentials("job-2", REPO, token("openjcockpit-git-mcp")).getStatusCode().value()).isEqualTo(404);
+    }
+
+    @Test
+    void withoutKeycloakAnyCallerGetsTheCredentials() {
+        var open = new GitWorkspaceCredentialsController(service, new GitWorkspaceProperties(), false);
+        when(service.credentialsFor("job-1", REPO)).thenReturn(Optional.of(
+                new GitWorkspaceCredentialService.WorkspaceCredentials("bot", "t0k")));
+
+        assertThat(open.credentials("job-1", REPO, null).getStatusCode().value()).isEqualTo(200);
     }
 }

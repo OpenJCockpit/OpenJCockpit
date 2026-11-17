@@ -151,6 +151,18 @@ class AgentRuntimeClientTest {
     }
 
     @Test
+    void withoutKeycloakTheRuntimeIsCalledWithoutAServiceToken() throws Exception {
+        var properties = new AgentRuntimeProperties();
+        properties.setBaseUrl(server.url("/").toString());
+        json(200, """
+                {"executionId":"run-1:e-1","agentId":"triage","version":"3","contentHash":"h","traceId":"t","text":"done"}""");
+
+        assertThat(AgentRuntimeClient.create(properties, false).execute(request).text()).isEqualTo("done");
+
+        assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader("Authorization")).isNull();
+    }
+
+    @Test
     void aConfiguredRuntimeCanBeAnyHttpsHost() {
         var properties = new AgentRuntimeProperties();
         properties.setBaseUrl("https://agents.example.com/runtime/");

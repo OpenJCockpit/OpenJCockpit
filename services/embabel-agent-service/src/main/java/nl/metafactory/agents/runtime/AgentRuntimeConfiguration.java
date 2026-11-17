@@ -1,7 +1,9 @@
 package nl.metafactory.agents.runtime;
 
+import nl.metafactory.agents.config.SecurityConfig;
 import nl.metafactory.agents.definition.binding.AgentTenantBindingRepository;
 import nl.metafactory.common.agentdefinition.AgentMarkdownParser;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -11,8 +13,9 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 public class AgentRuntimeConfiguration {
 
     @Bean
-    AgentRuntimeClient agentRuntimeClient(AgentRuntimeProperties properties) {
-        return AgentRuntimeClient.create(properties);
+    AgentRuntimeClient agentRuntimeClient(AgentRuntimeProperties properties,
+            @Value("${" + SecurityConfig.KEYCLOAK_ENABLED + ":true}") boolean keycloak) {
+        return AgentRuntimeClient.create(properties, keycloak);
     }
 
     @Bean

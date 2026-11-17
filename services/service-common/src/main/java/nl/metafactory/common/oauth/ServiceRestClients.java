@@ -22,13 +22,20 @@ public final class ServiceRestClients {
 
     public static RestClient create(String baseUrl, ClientCredentialsTokens tokens, Duration connectTimeout,
                                     Duration readTimeout) {
+        return create(baseUrl, connectTimeout, readTimeout).mutate().requestInterceptor(bearer(tokens)).build();
+    }
+
+    /**
+     * As {@link #create(String, ClientCredentialsTokens, Duration, Duration)}, but sends no {@code Authorization}
+     * at all: only for a deployment that runs without an identity provider ({@code ENABLE_KEYCLOAK=false}).
+     */
+    public static RestClient create(String baseUrl, Duration connectTimeout, Duration readTimeout) {
         var factory = new JdkClientHttpRequestFactory(HttpClient.newBuilder()
                 .connectTimeout(connectTimeout).followRedirects(HttpClient.Redirect.NEVER).build());
         factory.setReadTimeout(readTimeout);
         return RestClient.builder()
                 .baseUrl(normalizeBaseUrl(baseUrl))
                 .requestFactory(factory)
-                .requestInterceptor(bearer(tokens))
                 .build();
     }
 

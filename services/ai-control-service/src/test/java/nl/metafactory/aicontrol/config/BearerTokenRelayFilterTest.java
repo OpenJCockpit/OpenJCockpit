@@ -58,4 +58,14 @@ class BearerTokenRelayFilterTest {
 
         assertThat(authorizationSent(serviceCall)).containsExactly("Bearer svc");
     }
+
+    @Test
+    void theLocalIdentityWithoutKeycloakIsNeverRelayed() throws Exception {
+        var identity = Jwt.withTokenValue("local").header("alg", "none").subject("developer").build();
+        new KeycloakDisabledSecurityConfig.LocalIdentityFilter(identity).doFilter(
+                new org.springframework.mock.web.MockHttpServletRequest(),
+                new org.springframework.mock.web.MockHttpServletResponse(),
+                (request, response) -> assertThat(authorizationSent(
+                        ClientRequest.create(HttpMethod.GET, URI.create("http://e/api")).build())).isNull());
+    }
 }

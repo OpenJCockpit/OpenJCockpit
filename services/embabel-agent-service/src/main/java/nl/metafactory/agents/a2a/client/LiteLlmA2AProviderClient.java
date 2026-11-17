@@ -33,6 +33,11 @@ public class LiteLlmA2AProviderClient implements A2AProviderClient {
     private final ClientCredentialsTokens callerTokens;
 
     public LiteLlmA2AProviderClient(A2AProvidersProperties.Provider config) {
+        this(config, true);
+    }
+
+    /** {@code callerIdentity} false: agents are called without a caller token, even when one is configured. */
+    public LiteLlmA2AProviderClient(A2AProvidersProperties.Provider config, boolean callerIdentity) {
         this.config = config;
         boolean usable = config.getBaseUrl() != null && !config.getBaseUrl().isBlank()
                 && config.getApiKey() != null && !config.getApiKey().isBlank();
@@ -41,7 +46,9 @@ public class LiteLlmA2AProviderClient implements A2AProviderClient {
         this.messageHttp = usable ? new LiteLlmHttpClient(config.getBaseUrl(), config.getApiKey(),
                 config.getConnectTimeout(), config.getMessageTimeout()) : null;
         this.registry = usable ? new LiteLlmAgentMetadataClient(http) : null;
-        this.callerTokens = new ClientCredentialsTokens(config.getCallerAuth(), java.time.Clock.systemUTC());
+        this.callerTokens = new ClientCredentialsTokens(
+                callerIdentity ? config.getCallerAuth() : new A2AProvidersProperties.Provider.CallerAuth(),
+                java.time.Clock.systemUTC());
     }
 
     /** The provider's HTTP connection, for LiteLLM-specific management calls (e.g. policy checks). */

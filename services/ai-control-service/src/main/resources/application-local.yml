@@ -5,3 +5,10 @@ spring:
     # Approved schema migrations + the local-only demo projects (V2/V3/V12 keep their original version
     # numbers and checksums, so databases created before the split keep validating).
     locations: classpath:db/migration,classpath:db/seed-local
+
+openjcockpit:
+  # Keycloak is reached by its compose service name; its tokens carry the public issuer (KC_HOSTNAME).
+  keycloak:
+    url: ${KEYCLOAK_URL:http://keycloak:8080}
+  security:
+    jwt-issuer: ${KEYCLOAK_ISSUER:http://localhost:8080/realms/${openjcockpit.keycloak.realm}}

@@ -143,6 +143,22 @@ A whole workflow run can take much longer than one call. Locally, `ai-control-se
 `WORKFLOW_AGENT_TIMEOUT` (default `3600` seconds in Compose) for a run, because several agents on the
 local model with Git tool calls take well over the 600-second service default.
 
+## Choosing the AI provider
+
+`AI_PROVIDER` on `embabel-agent-runtime` selects where every model call goes:
+
+| `AI_PROVIDER` | Models |
+| --- | --- |
+| `LiteLLM` (default) | Through the LiteLLM gateway, as described on this page. |
+| `OpenAI` | Every model role (default, coding, `best`, `cheapest`, `agent-chat`, `customer-chat`) runs on `AI_MODEL` (e.g. `gpt-4o`) directly at OpenAI with `OPENAI_API_KEY`; embeddings stay `text-embedding-3-small`. |
+| `Anthropic` | Every model role runs on `AI_MODEL` (e.g. `claude-sonnet-4-5`) directly at Anthropic with `ANTHROPIC_API_KEY`. There are no embeddings. |
+| `Other` | No model. Startup and every model call log `Not configured`; the call fails, so the agent run fails. |
+
+`OpenAI` and `Anthropic` refuse to start without `AI_MODEL`. They only replace the models: the agents'
+git tools, the definition registry and A2A still go through LiteLLM, and compose still starts it. The
+`prod` profile still requires `OPENAI_API_KEY` and `LITELLM_VIRTUAL_KEY`, and the `mock` profile ignores
+`AI_PROVIDER`.
+
 ## Reverting the default LLM
 
 **Revert A: to OpenAI.** There is no automatic fallback between providers.

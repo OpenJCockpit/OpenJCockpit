@@ -152,7 +152,8 @@ class ComposeA2AWiringContractTest {
                 .isEqualTo(services.path("local-seed").path("environment").path("GIT_MCP_CLIENT_SECRET").asString());
 
         JsonNode aiControl = services.path("ai-control-service");
-        assertThat(aiControl.path("environment").path("AI_CONTROL_SERVICE_CLIENT_ID").asString()).isEqualTo("openjcockpit-ai-control");
+        assertThat(aiControl.path("environment").path("KEYCLOAK_CLIENT_ID").asString())
+                .isEqualTo("${AI_CONTROL_SERVICE_CLIENT_ID:-openjcockpit-ai-control}");
         assertThat(aiControl.path("environment").path("LITELLM_AI_CONTROL_KEY").asString())
                 .isEqualTo(services.path("local-seed").path("environment").path("LITELLM_AI_CONTROL_KEY").asString());
         assertThat(aiControl.path("depends_on").path("local-seed").path("condition").asString())

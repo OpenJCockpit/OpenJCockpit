@@ -43,8 +43,20 @@ public class AgentRuntimeClient {
 
     /** Unconfigured (blank base URL) yields a client whose every call fails as {@link #RUNTIME_UNAVAILABLE}. */
     public static AgentRuntimeClient create(AgentRuntimeProperties properties) {
+        return create(properties, true);
+    }
+
+    /** {@code keycloak} false: calls the runtime without a service token ({@code ENABLE_KEYCLOAK=false}). */
+    public static AgentRuntimeClient create(AgentRuntimeProperties properties, boolean keycloak) {
         if (properties.getBaseUrl() == null || properties.getBaseUrl().isBlank()) {
             return new AgentRuntimeClient(null, null);
+        }
+        if (!keycloak) {
+            return new AgentRuntimeClient(
+                    ServiceRestClients.create(properties.getBaseUrl(), properties.getConnectTimeout(),
+                            properties.getExecutionTimeout()),
+                    ServiceRestClients.create(properties.getBaseUrl(), properties.getConnectTimeout(),
+                            properties.getDraftTimeout()));
         }
         var tokens = new ClientCredentialsTokens(new ClientCredentialsTokens.Config(properties.getTokenUrl(),
                 properties.getClientId(), properties.getClientSecret()));

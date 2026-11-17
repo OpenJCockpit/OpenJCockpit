@@ -1,9 +1,11 @@
 package nl.metafactory.aicontrol.api;
 
 import nl.metafactory.aicontrol.config.GitWorkspaceProperties;
+import nl.metafactory.aicontrol.config.SecurityConfig;
 import nl.metafactory.aicontrol.service.GitWorkspaceCredentialService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +23,8 @@ import java.util.Map;
  * Internal, service-to-service: the git MCP server pulls the git credentials of an active job
  * workspace. Not part of the public API contract and not proxied by the dashboard ({@code /api/} only).
  * Only the git MCP server's own Keycloak client ({@code azp}) is answered; every other caller,
- * including any user token, gets 403.
+ * including any user token, gets 403. Without Keycloak ({@code ENABLE_KEYCLOAK=false}) there is no caller
+ * identity and every caller is answered.
  */
 @RestController
 public class GitWorkspaceCredentialsController {
@@ -30,10 +33,13 @@ public class GitWorkspaceCredentialsController {
 
     private final GitWorkspaceCredentialService credentials;
     private final GitWorkspaceProperties properties;
+    private final boolean keycloak;
 
-    public GitWorkspaceCredentialsController(GitWorkspaceCredentialService credentials, GitWorkspaceProperties properties) {
+    public GitWorkspaceCredentialsController(GitWorkspaceCredentialService credentials, GitWorkspaceProperties properties,
+                                             @Value("${" + SecurityConfig.KEYCLOAK_ENABLED + ":true}") boolean keycloak) {
         this.credentials = credentials;
         this.properties = properties;
+        this.keycloak = keycloak;
     }
 
     @GetMapping("/internal/git-workspaces/{workspaceKey}/credentials")
@@ -41,7 +47,7 @@ public class GitWorkspaceCredentialsController {
                                                            @RequestParam String repositoryUrl,
                                                            @AuthenticationPrincipal Jwt jwt) {
         String caller = jwt == null ? null : jwt.getClaimAsString("azp");
-        if (caller == null || !caller.equals(properties.getCredentialClientId())) {
+        if (keycloak && (caller == null || !caller.equals(properties.getCredentialClientId()))) {
             log.warn("git.workspace.credentials.denied workspace={} reason=caller-not-allowed", workspaceKey);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

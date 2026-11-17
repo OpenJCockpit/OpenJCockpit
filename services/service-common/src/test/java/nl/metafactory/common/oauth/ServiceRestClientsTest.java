@@ -49,6 +49,20 @@ class ServiceRestClientsTest {
     }
 
     @Test
+    void withoutAnIdentityProviderRequestsAreSentWithoutAuthorization() throws Exception {
+        try (var server = new MockWebServer()) {
+            server.enqueue(new MockResponse().setBody("ok"));
+            var client = ServiceRestClients.create(server.url("/base").toString(), Duration.ofSeconds(1),
+                    Duration.ofSeconds(1));
+
+            assertThat(client.get().uri("/ping").retrieve().body(String.class)).isEqualTo("ok");
+            var request = server.takeRequest();
+            assertThat(request.getPath()).isEqualTo("/base/ping");
+            assertThat(request.getHeader("Authorization")).isNull();
+        }
+    }
+
+    @Test
     void aReadTimeoutIsReportedAsAnAccessFailure() throws Exception {
         try (var server = new MockWebServer()) {
             server.enqueue(new MockResponse().setBody("late").setHeadersDelay(2, java.util.concurrent.TimeUnit.SECONDS));

@@ -98,4 +98,15 @@ class A2AProviderClientsTest {
         assertThatThrownBy(() -> clients.replaceAdded(java.util.List.of(added("acme"), added("acme")))).hasMessageContaining("twice");
         assertThat(clients.all()).extracting(A2AProviderClient::id).containsExactly("litellm");
     }
+
+    @Test
+    void withoutKeycloakConfiguredProvidersCallAgentsWithoutACallerToken() {
+        var props = props("litellm");
+        var callerAuth = props.getA2aProviders().getFirst().getCallerAuth();
+        callerAuth.setTokenUrl("http://keycloak.invalid/token");
+        callerAuth.setClientId("openjcockpit-a2a");
+        callerAuth.setClientSecret("s");
+
+        assertThat(new A2AProviderClients(props, false).litellm().orElseThrow().callerAuthorization()).isEmpty();
+    }
 }

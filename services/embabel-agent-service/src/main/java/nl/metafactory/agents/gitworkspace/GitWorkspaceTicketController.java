@@ -1,7 +1,9 @@
 package nl.metafactory.agents.gitworkspace;
 
+import nl.metafactory.agents.config.SecurityConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
  * Internal, service-to-service: ai-control's service identity issues a single-use ticket that binds one
  * workflow start to a git workspace it prepared. The ticket is for one workflow and one subject: the
  * user who starts the run (with their own token, so policy and run attribution stay theirs), or — when
- * {@code subject} is omitted — ai-control itself (git-workspace jobs). Every other caller gets 403.
+ * {@code subject} is omitted — ai-control itself (git-workspace jobs). Every other caller gets 403. Without
+ * Keycloak ({@code ENABLE_KEYCLOAK=false}) there is no caller identity and every caller is admitted.
  */
 @RestController
 public class GitWorkspaceTicketController {
@@ -28,17 +31,20 @@ public class GitWorkspaceTicketController {
 
     private final GitWorkspaceTickets tickets;
     private final GitWorkspaceProperties properties;
+    private final boolean keycloak;
 
-    public GitWorkspaceTicketController(GitWorkspaceTickets tickets, GitWorkspaceProperties properties) {
+    public GitWorkspaceTicketController(GitWorkspaceTickets tickets, GitWorkspaceProperties properties,
+                                        @Value("${" + SecurityConfig.KEYCLOAK_ENABLED + ":true}") boolean keycloak) {
         this.tickets = tickets;
         this.properties = properties;
+        this.keycloak = keycloak;
     }
 
     @PostMapping("/internal/git-workspace-tickets")
     public ResponseEntity<GitWorkspaceTickets.Issued> issue(@RequestBody TicketRequest request,
                                                             @AuthenticationPrincipal Jwt jwt) {
         String caller = jwt == null ? null : jwt.getClaimAsString("azp");
-        if (caller == null || !caller.equals(properties.getTrustedClientId())) {
+        if (keycloak && (caller == null || !caller.equals(properties.getTrustedClientId()))) {
             log.warn("git.workspace.ticket.denied reason=caller-not-allowed caller={}", caller);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
