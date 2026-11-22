@@ -5,8 +5,12 @@ import nl.metafactory.aicontrol.model.Project;
 import nl.metafactory.aicontrol.model.ProjectGitCredential;
 import nl.metafactory.aicontrol.repository.ProjectGitCredentialRepository;
 import nl.metafactory.aicontrol.repository.ProjectRepository;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
@@ -16,8 +20,13 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class GitConnectivityServiceTest {
@@ -278,9 +287,84 @@ class GitConnectivityServiceTest {
     }
 
     @Test
-    void friendlyMessage_returnsDetailedMessageForOtherErrors() {
+    void friendlyMessage_returnsTlsMessageForCertificateErrors() {
         assertThat(GitConnectivityService.friendlyMessage(new RuntimeException("SSL handshake failed")))
-                .isEqualTo("Git check failed: SSL handshake failed");
+                .isEqualTo("TLS certificate error");
+    }
+
+    @Test
+    void friendlyMessage_neverEchoesRawExceptionText() {
+        assertThat(GitConnectivityService.friendlyMessage(new RuntimeException("connect to 10.0.0.5:8080 refused")))
+                .isEqualTo("Git check failed");
+    }
+
+    @Test
+    void checkGitAccess_rejectsUnsupportedScheme_withoutContactingTheHost() throws Exception {
+        var result = service.checkGitAccess("file:///etc", null);
+        assertThat(result.status()).isEqualTo(GitStatus.NOT_ACCESSIBLE);
+        assertThat(result.message()).isEqualTo("Unsupported URL: use https, ssh or git");
+        verify(jGitPort, never()).checkReachable(any(), any(), anyInt());
+    }
+
+    @Test
+    void checkGitConnection_usesPlainSecret_andReturnsNoWarningsForPublicHost() throws Exception {
+        doThrow(new RuntimeException("auth required")).doNothing()
+                .when(jGitPort).checkReachable(eq("https://example.com/org/repo"), any(), anyInt());
+
+        var check = service.checkGitConnection("https://example.com/org/repo", "bob", "s3cret", null);
+
+        assertThat(check.result().status()).isEqualTo(GitStatus.ACCESSIBLE);
+        assertThat(check.result().message()).isEqualTo("Reachable with credentials");
+        verifyNoInteractions(encryptionService, projectRepo, credRepo);
+    }
+
+    @Test
+    void checkGitConnection_flagsHostThatResolvesToLoopback_butStillChecks() throws Exception {
+        var check = service.checkGitConnection("https://localhost/org/repo", null, null, null);
+
+        assertThat(check.warnings()).containsExactly("host_loopback");
+        assertThat(check.result().status()).isEqualTo(GitStatus.ACCESSIBLE);
+        verify(jGitPort).checkReachable(eq("https://localhost/org/repo"), any(), anyInt());
+    }
+
+    @Test
+    void checkGitConnection_flagsGitHubApiHost() {
+        var check = service.checkGitConnection("https://example.com/org/repo", "u", "s", "https://127.0.0.1/api");
+        assertThat(check.warnings()).containsExactly("host_loopback");
+    }
+
+    @Test
+    void checkGitConnection_rejectsBadSchemes() throws Exception {
+        assertThatThrownBy(() -> service.checkGitConnection("http://example.com/r", null, null, null))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> service.checkGitConnection("https://example.com/r", "u", "s", "http://example.com"))
+                .isInstanceOf(IllegalArgumentException.class);
+        verify(jGitPort, never()).checkReachable(any(), any(), anyInt());
+    }
+
+    @Test
+    void checkGitConnection_neverReturnsRawExceptionText() throws Exception {
+        doThrow(new RuntimeException("connect to 10.0.0.5:9999 refused"))
+                .when(jGitPort).checkReachable(any(), any(), anyInt());
+        var check = service.checkGitConnection("https://example.com/r", null, null, null);
+        assertThat(check.result().message()).isEqualTo("Git check failed").doesNotContain("10.0.0.5");
+    }
+
+    @Test
+    void checkGitConnection_writesAuditLineWithoutSecretOrFullUrl() {
+        var audit = (Logger) LoggerFactory.getLogger("nl.metafactory.aicontrol.audit.GitCheck");
+        var appender = new ListAppender<ILoggingEvent>();
+        appender.start();
+        audit.addAppender(appender);
+        try {
+            service.checkGitConnection("https://localhost/org/private-repo?x=1", "bob", "s3cret", null);
+        } finally {
+            audit.detachAppender(appender);
+        }
+        assertThat(appender.list).hasSize(1);
+        var line = appender.list.getFirst().getFormattedMessage();
+        assertThat(line).contains("host=localhost", "classification=host_loopback", "outcome=ACCESSIBLE");
+        assertThat(line).doesNotContain("s3cret", "private-repo", "bob:");
     }
 
     private Project project(UUID id, String gitUrl) {

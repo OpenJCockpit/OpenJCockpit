@@ -83,6 +83,8 @@ public class SecurityConfig {
         auth.requestMatchers("/actuator/**").hasRole(ADMIN)
                 .requestMatchers("/api/projects/*/git-credentials").hasRole(ADMIN)
                 .requestMatchers(POST, "/api/projects").hasRole(ADMIN)
+                // Makes the server contact a caller-supplied host: admin only, whatever the per-project check needs.
+                .requestMatchers(POST, "/api/projects/git-check").hasRole(ADMIN)
                 .requestMatchers(PUT, "/api/projects/*").hasRole(ADMIN)
                 .requestMatchers(PATCH, "/api/projects/*/activate", "/api/projects/*/deactivate",
                         "/api/projects/*/new-project").hasRole(ADMIN)

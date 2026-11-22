@@ -27,6 +27,8 @@ paths:
     $ref: 'paths/project-integration-config.yaml#/jiraConfig'
   /api/projects/{id}/document-folder-config:
     $ref: 'paths/project-integration-config.yaml#/documentFolderConfig'
+  /api/projects/git-check:
+    $ref: 'paths/git-check.yaml#/gitCheckStateless'
   /api/projects/{id}/git-check:
     $ref: 'paths/git-check.yaml#/gitCheckTrigger'
   /api/projects/{id}/git-status:
@@ -194,6 +196,10 @@ components:
       $ref: 'schemas/git.yaml#/ProjectGitCredentialDto'
     ProjectGitCredentialRequest:
       $ref: 'schemas/git.yaml#/ProjectGitCredentialRequest'
+    GitConnectionCheckRequest:
+      $ref: 'schemas/git.yaml#/GitConnectionCheckRequest'
+    GitConnectionCheckResult:
+      $ref: 'schemas/git.yaml#/GitConnectionCheckResult'
     SpecInitResult:
       $ref: 'schemas/spec.yaml#/SpecInitResult'
     SpecInitStatus:
