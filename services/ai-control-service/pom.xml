@@ -237,6 +237,8 @@
                                 <importMapping>ProjectGitStatusDto=nl.metafactory.aicontrol.model.ProjectGitStatusDto</importMapping>
                                 <importMapping>ProjectGitCredentialDto=nl.metafactory.aicontrol.model.ProjectGitCredentialDto</importMapping>
                                 <importMapping>ProjectGitCredentialRequest=nl.metafactory.aicontrol.model.ProjectGitCredentialRequest</importMapping>
+                                <importMapping>GitConnectionCheckRequest=nl.metafactory.aicontrol.model.GitConnectionCheckRequest</importMapping>
+                                <importMapping>GitConnectionCheckResult=nl.metafactory.aicontrol.model.GitConnectionCheckResult</importMapping>
                                 <importMapping>SpecInitResult=nl.metafactory.aicontrol.model.SpecInitResult</importMapping>
                                 <importMapping>SpecInitStatus=nl.metafactory.aicontrol.model.SpecInitStatus</importMapping>
                                 <importMapping>SpecFileSaveRequest=nl.metafactory.aicontrol.model.SpecFileSaveRequest</importMapping>
@@ -334,6 +336,8 @@
                                 <schemaMapping>ProjectGitStatusDto=nl.metafactory.aicontrol.model.ProjectGitStatusDto</schemaMapping>
                                 <schemaMapping>ProjectGitCredentialDto=nl.metafactory.aicontrol.model.ProjectGitCredentialDto</schemaMapping>
                                 <schemaMapping>ProjectGitCredentialRequest=nl.metafactory.aicontrol.model.ProjectGitCredentialRequest</schemaMapping>
+                                <schemaMapping>GitConnectionCheckRequest=nl.metafactory.aicontrol.model.GitConnectionCheckRequest</schemaMapping>
+                                <schemaMapping>GitConnectionCheckResult=nl.metafactory.aicontrol.model.GitConnectionCheckResult</schemaMapping>
                                 <schemaMapping>SpecInitResult=nl.metafactory.aicontrol.model.SpecInitResult</schemaMapping>
                                 <schemaMapping>SpecInitStatus=nl.metafactory.aicontrol.model.SpecInitStatus</schemaMapping>
                                 <schemaMapping>SpecFileSaveRequest=nl.metafactory.aicontrol.model.SpecFileSaveRequest</schemaMapping>

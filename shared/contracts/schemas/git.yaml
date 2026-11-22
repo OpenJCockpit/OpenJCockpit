@@ -61,3 +61,45 @@ ProjectGitCredentialRequest:
       nullable: true
     githubApiUrl:
       type: string
+
+GitConnectionCheckRequest:
+  type: object
+  description: >-
+    A Git URL and credentials to test before any project exists. Nothing is persisted.
+    The secret is used for this call only and is never logged or echoed.
+  required:
+    - gitUrl
+  properties:
+    gitUrl:
+      type: string
+      description: Must use the https, ssh or git scheme (scp-style git@host:org/repo is treated as ssh).
+    credentialType:
+      $ref: '#/GitCredentialType'
+    username:
+      type: string
+    secret:
+      type: string
+      nullable: true
+      writeOnly: true
+    githubApiUrl:
+      type: string
+      description: Optional GitHub Enterprise API base URL; must use https.
+
+GitConnectionCheckResult:
+  type: object
+  required:
+    - gitStatus
+    - warnings
+  properties:
+    gitStatus:
+      $ref: '#/GitStatus'
+    message:
+      type: string
+      description: A fixed, friendly message. Never raw exception text.
+    warnings:
+      type: array
+      description: >-
+        Non-blocking findings about the target host, resolved from its IP addresses.
+        Known values are host_loopback, host_link_local and host_private.
+      items:
+        type: string

@@ -117,6 +117,7 @@ class AuthorizationMatrixTest {
             e(GET, "/api/projects/{id}/document-folder-config", VIEWER),
             e(POST, "/api/projects/{id}/document-folder-config", ADMIN),
             e(DELETE, "/api/projects/{id}/document-folder-config", ADMIN),
+            e(POST, "/api/projects/git-check", ADMIN),
             e(POST, "/api/projects/{id}/git-check", OPERATOR),
             e(GET, "/api/projects/{id}/git-status", VIEWER),
             e(GET, "/api/projects/{id}/git-credentials", ADMIN),
