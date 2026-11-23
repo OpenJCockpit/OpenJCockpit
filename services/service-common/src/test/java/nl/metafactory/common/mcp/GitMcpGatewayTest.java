@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.headerDoesNotExist;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withException;
@@ -48,7 +49,8 @@ class GitMcpGatewayTest {
     @Test
     void callsTheToolThroughLiteLlmsRestBridgeWithoutAnyCredentialArgument() {
         server.expect(requestTo("http://litellm:4000/mcp-rest/tools/call")).andExpect(method(HttpMethod.POST))
-                .andExpect(header("Authorization", "Bearer sk-ai-control"))
+                .andExpect(header("x-litellm-api-key", "Bearer sk-ai-control"))
+                .andExpect(headerDoesNotExist("Authorization"))
                 .andExpect(content().json("{\"server_id\":\"openjcockpit_git\",\"name\":\"git_create_branch\","
                         + "\"arguments\":{\"repositoryUrl\":\"" + REPO + "\",\"baseBranch\":\"main\","
                         + "\"newBranch\":\"agentic/x\",\"workspaceKey\":\"job-1\"}}", true))
@@ -133,6 +135,30 @@ class GitMcpGatewayTest {
 
         assertThat(result.text()).isEqualTo("a\nb");
         assertThat(result.error()).isFalse();
+    }
+
+    @Test
+    void sendsTheKeycloakTokenInAuthorizationAndRefusesWithoutOne() {
+        var builder = RestClient.builder();
+        var withToken = MockRestServiceServer.bindTo(builder).build();
+        var client = new LiteLlmMcpToolClient(new LiteLlmMcpToolClient.Config("http://litellm:4000", "sk-agent",
+                "openjcockpit_git", Duration.ofSeconds(5), () -> java.util.Optional.of("Bearer kc-1")), builder.build());
+        withToken.expect(requestTo("http://litellm:4000/mcp-rest/tools/call"))
+                .andExpect(header("x-litellm-api-key", "Bearer sk-agent"))
+                .andExpect(header("Authorization", "Bearer kc-1"))
+                .andRespond(withSuccess(toolResult("{}", false), MediaType.APPLICATION_JSON));
+
+        assertThat(client.call("git_push", java.util.Map.of()).error()).isFalse();
+        withToken.verify();
+
+        var failing = new LiteLlmMcpToolClient(new LiteLlmMcpToolClient.Config("http://litellm:4000", "sk-agent",
+                "openjcockpit_git", Duration.ofSeconds(5), () -> {
+                    throw new IllegalStateException("token endpoint down");
+                }), RestClient.builder().build());
+        assertThatThrownBy(() -> failing.call("git_push", java.util.Map.of()))
+                .isInstanceOf(LiteLlmMcpToolClient.McpCallException.class).hasMessageContaining("no Keycloak token");
+        // A null supplier means no token, like the four-argument constructor.
+        assertThat(new LiteLlmMcpToolClient.Config("u", "k", "s", null, null).authorization().get()).isEmpty();
     }
 
     @Test

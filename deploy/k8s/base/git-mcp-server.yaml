@@ -1,4 +1,5 @@
-# git-mcp-server: unauthenticated MCP server, reachable only from LiteLLM and embabel-agent-service (NetworkPolicy).
+# git-mcp-server: MCP server that requires a Keycloak JWT on every MCP request (KEYCLOAK_ENABLED=true) and is in
+# addition reachable only from LiteLLM and embabel-agent-service (NetworkPolicy).
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -58,6 +59,50 @@ spec:
             secretKeyRef:
               name: openjcockpit-secrets
               key: GIT_MCP_CLIENT_SECRET
+        # INCOMING MCP authentication (callers -> this server), independent of the outgoing credentials above.
+        # Non-secret settings; a value change needs a rollout restart, not a new image.
+        - name: KEYCLOAK_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: openjcockpit-settings
+              key: KEYCLOAK_HOST
+        - name: KEYCLOAK_ENABLED
+          value: 'true'
+        - name: KEYCLOAK_ISSUER_URI
+          value: https://$(KEYCLOAK_HOST)/realms/openjcockpit
+        - name: KEYCLOAK_JWK_SET_URI
+          value: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs
+        - name: KEYCLOAK_EXPECTED_AUDIENCE
+          value: openjcockpit-git-mcp
+        - name: KEYCLOAK_ALLOWED_AZP
+          value: openjcockpit-litellm-git,openjcockpit-agent-service
+        # Optional HTTPS on the MCP port: the image's entrypoint loads this certificate and key into the server's
+        # keystore (PEM or base64 PEM). Keys absent from the secret = plain HTTP. With TLS on, callers must use
+        # https://git-mcp-server:8093 and trust the certificate.
+        - name: TLS_CERT
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: GIT_MCP_TLS_CERT
+              optional: true
+        - name: TLS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: GIT_MCP_TLS_KEY
+              optional: true
+        - name: TLS_KEY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: GIT_MCP_TLS_KEY_PASSWORD
+              optional: true
+        - name: TLS_CA
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: GIT_MCP_TLS_CA
+              optional: true
         resources:
           requests:
             cpu: 100m

@@ -23,6 +23,9 @@ class McpClientPropertiesTest {
         var server = new McpClientProperties.McpServer();
         server.setName("git");
         server.setUrl("http://git-mcp-server:8093");
+        server.setTokenUrl("http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token");
+        server.setClientId("openjcockpit-agent-service");
+        server.setClientSecret("secret");
 
         properties.setEnabled(true);
         properties.setRequestTimeoutSeconds(30);
@@ -33,5 +36,8 @@ class McpClientPropertiesTest {
         assertThat(properties.getServers()).hasSize(1);
         assertThat(properties.getServers().get(0).getName()).isEqualTo("git");
         assertThat(properties.getServers().get(0).getUrl()).isEqualTo("http://git-mcp-server:8093");
+        assertThat(properties.getServers().get(0).getTokenUrl()).endsWith("/token");
+        assertThat(properties.getServers().get(0).getClientId()).isEqualTo("openjcockpit-agent-service");
+        assertThat(properties.getServers().get(0).getClientSecret()).isEqualTo("secret");
     }
 }

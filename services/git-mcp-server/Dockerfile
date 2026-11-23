@@ -3,7 +3,7 @@
 # parallel builds each fetch the full dependency set). Without it this empty stage is used.
 FROM scratch AS maven-repository
 
-FROM maven:3.10-eclipse-temurin-25@sha256:a4734fd7909a9c2beddcacfa1229bd308a349f000bea1ec8db3287c8a16ca2a3 AS build
+FROM --platform=$BUILDPLATFORM maven:3.10-eclipse-temurin-25@sha256:a4734fd7909a9c2beddcacfa1229bd308a349f000bea1ec8db3287c8a16ca2a3 AS build
 WORKDIR /workspace
 COPY . .
 RUN --mount=type=bind,from=maven-repository,target=/maven-repository \
@@ -19,7 +19,7 @@ RUN useradd --system --uid 10001 --home-dir /app --shell /usr/sbin/nologin app \
  && chown 10001:10001 /git-mcp-workspaces
 COPY --from=build /workspace/services/git-mcp-server/target/*.jar app.jar
 # HTTPS when a PEM certificate and key are mounted at /etc/openjcockpit/tls/tls.crt and tls.key, plain
-# HTTP otherwise (services/docker/entrypoint.sh).
+# HTTP otherwise; or pass the PEM as TLS_CERT and TLS_KEY (services/docker/entrypoint.sh).
 COPY --chmod=0755 services/docker/entrypoint.sh services/docker/healthcheck.sh /usr/local/bin/
 USER 10001
 EXPOSE 8093

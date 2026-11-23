@@ -25,6 +25,14 @@ public class GitWorkspaceProperties {
     /** LiteLLM virtual key granted the git MCP server ({@code object_permission.mcp_servers}). */
     private String gatewayApiKey;
 
+    /**
+     * This service's Keycloak identity on the gateway calls ({@code Authorization: Bearer <token>}, for a proxy in
+     * front of LiteLLM; the virtual key goes in {@code x-litellm-api-key}). Blank token URL: no token is sent.
+     */
+    private String gatewayTokenUrl;
+    private String gatewayClientId;
+    private String gatewayClientSecret;
+
     /** {@code mcp_servers} entry of the git MCP server in the LiteLLM config. */
     private String serverId = "openjcockpit_git";
 
@@ -47,6 +55,12 @@ public class GitWorkspaceProperties {
     public void setGatewayBaseUrl(String gatewayBaseUrl) { this.gatewayBaseUrl = gatewayBaseUrl; }
     public String getGatewayApiKey() { return gatewayApiKey; }
     public void setGatewayApiKey(String gatewayApiKey) { this.gatewayApiKey = gatewayApiKey; }
+    public String getGatewayTokenUrl() { return gatewayTokenUrl; }
+    public void setGatewayTokenUrl(String gatewayTokenUrl) { this.gatewayTokenUrl = gatewayTokenUrl; }
+    public String getGatewayClientId() { return gatewayClientId; }
+    public void setGatewayClientId(String gatewayClientId) { this.gatewayClientId = gatewayClientId; }
+    public String getGatewayClientSecret() { return gatewayClientSecret; }
+    public void setGatewayClientSecret(String gatewayClientSecret) { this.gatewayClientSecret = gatewayClientSecret; }
     public String getServerId() { return serverId; }
     public void setServerId(String serverId) { this.serverId = serverId; }
     public Duration getTimeout() { return timeout; }

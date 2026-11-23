@@ -3,6 +3,7 @@ package nl.metafactory.agents.policy;
 import nl.metafactory.agents.policy.config.OpaProperties;
 import nl.metafactory.agents.policy.model.OpaDecisionRequest;
 import nl.metafactory.agents.policy.model.OpaDecisionResponse;
+import nl.metafactory.common.oauth.ClientCredentialsTokens;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -23,10 +24,13 @@ public class HttpOpenPolicyAgentClient implements OpenPolicyAgentClient {
 
     private final WebClient webClient;
     private final OpaProperties properties;
+    private final ClientCredentialsTokens serviceTokens;
 
     public HttpOpenPolicyAgentClient(WebClient.Builder webClientBuilder, OpaProperties properties) {
         this.webClient = webClientBuilder.build();
         this.properties = properties;
+        this.serviceTokens = new ClientCredentialsTokens(new ClientCredentialsTokens.Config(
+                properties.getTokenUrl(), properties.getClientId(), properties.getClientSecret()));
     }
 
     @Override
@@ -68,6 +72,8 @@ public class HttpOpenPolicyAgentClient implements OpenPolicyAgentClient {
         String token = properties.getAuthToken();
         if (token != null && !token.isBlank()) {
             headers.setBearerAuth(token);
+        } else {
+            serviceTokens.authorization().ifPresent(value -> headers.set(HttpHeaders.AUTHORIZATION, value));
         }
     }
 

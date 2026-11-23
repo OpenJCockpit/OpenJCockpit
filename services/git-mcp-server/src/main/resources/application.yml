@@ -29,6 +29,16 @@ openjcockpit:
       token-url: ${GIT_MCP_TOKEN_URL:}
       client-id: ${GIT_MCP_CLIENT_ID:}
       client-secret: ${GIT_MCP_CLIENT_SECRET:}
+    # INCOMING MCP authentication (callers -> this server); independent of the outgoing credentials above.
+    # false (default): every request is permitted, no Keycloak involved -- local development or a trusted,
+    # network-isolated deployment only. true: a Keycloak bearer JWT with this issuer, audience and one of the
+    # allowed client ids (azp) is required on every MCP request; startup fails when one of them is blank.
+    security:
+      keycloak-enabled: ${KEYCLOAK_ENABLED:false}
+      issuer-uri: ${KEYCLOAK_ISSUER_URI:}
+      jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:}
+      expected-audience: ${KEYCLOAK_EXPECTED_AUDIENCE:}
+      allowed-azp: ${KEYCLOAK_ALLOWED_AZP:}
 
 management:
   endpoints:

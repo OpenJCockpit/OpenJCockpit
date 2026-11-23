@@ -123,6 +123,64 @@ class HttpOpenPolicyAgentClientTest {
         assertThat(recorded.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer test-token");
     }
 
+    private HttpOpenPolicyAgentClient clientWithServiceIdentity() {
+        properties.setTokenUrl(server.url("/token").toString());
+        properties.setClientId("openjcockpit-agent-service");
+        properties.setClientSecret("s3cret");
+        return new HttpOpenPolicyAgentClient(WebClient.builder(), properties);
+    }
+
+    private void enqueueAllowed() throws Exception {
+        var response = new OpaDecisionResponse(
+                new OpaDecisionResponse.OpaResult(true, "allowed", false, "low", List.of()), "decision-1");
+        server.enqueue(new MockResponse()
+                .setBody(mapper.writeValueAsString(response))
+                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+    }
+
+    @Test
+    void evaluateSendsTheServiceAccountTokenOfTheConfiguredKeycloakClient() throws Exception {
+        var keycloakClient = clientWithServiceIdentity();
+        server.enqueue(new MockResponse()
+                .setBody("{\"access_token\":\"kc-token\",\"expires_in\":300}")
+                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+        enqueueAllowed();
+        enqueueAllowed();
+
+        keycloakClient.evaluate(request());
+        keycloakClient.evaluate(request());
+
+        var tokenRequest = server.takeRequest();
+        assertThat(tokenRequest.getPath()).isEqualTo("/token");
+        assertThat(tokenRequest.getBody().readUtf8())
+                .contains("grant_type=client_credentials", "client_id=openjcockpit-agent-service", "client_secret=s3cret");
+        assertThat(server.takeRequest().getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer kc-token");
+        assertThat(server.takeRequest().getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer kc-token");
+        assertThat(server.getRequestCount()).isEqualTo(3);
+    }
+
+    @Test
+    void aConfiguredAuthTokenTakesPrecedenceOverTheServiceAccount() throws Exception {
+        var keycloakClient = clientWithServiceIdentity();
+        properties.setAuthToken("static-token");
+        enqueueAllowed();
+
+        keycloakClient.evaluate(request());
+
+        var recorded = server.takeRequest();
+        assertThat(recorded.getPath()).isEqualTo("/v1/data/openjcockpit/workflow/decision");
+        assertThat(recorded.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer static-token");
+    }
+
+    @Test
+    void aFailingTokenEndpointFailsTheEvaluation() {
+        var keycloakClient = clientWithServiceIdentity();
+        server.enqueue(new MockResponse().setResponseCode(401));
+
+        assertThatThrownBy(() -> keycloakClient.evaluate(request()))
+                .isInstanceOf(OpaClientException.class);
+    }
+
     @Test
     void evaluateOmitsAuthorizationHeaderWhenTokenBlank() throws Exception {
         var response = new OpaDecisionResponse(

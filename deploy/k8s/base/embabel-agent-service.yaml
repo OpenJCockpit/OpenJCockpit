@@ -85,7 +85,14 @@ spec:
         - name: MCP_CLIENT_ENABLED
           value: 'true'
         - name: GIT_MCP_SERVER_URL
-          value: http://git-mcp-server:8093
+          value: http://git-mcp-server:8093   # https:// when git-mcp-server has GIT_MCP_TLS_CERT/KEY
+        # Optional extra CA certificates this service trusts (PEM or base64 PEM), e.g. git-mcp-server's CA.
+        - name: TLS_CA
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: EMBABEL_AGENT_SERVICE_TLS_CA
+              optional: true
         - name: EMBABEL_AGENT_RUNTIME_BASE_URL
           value: http://embabel-agent-runtime:8082
         - name: AGENT_SERVICE_CLIENT_SECRET

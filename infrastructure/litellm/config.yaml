@@ -80,8 +80,12 @@ policy_attachments:
 #  - server_id is pinned so key grants (object_permission.mcp_servers) survive edits of url/transport;
 #  - allow_all_keys: false -> only keys granted this server can use it (local-seed grants the
 #    embabel-agent-runtime and embabel-agent-service keys); available_on_public_internet: false -> private-network callers only.
-# The server has no own authentication; it is reachable only on the compose network (no LiteLLM auth
-# headers are forwarded to it).
+# Upstream authentication (git-mcp-server with KEYCLOAK_ENABLED=true, the production setting): LiteLLM fetches
+# its OWN Keycloak service token (client openjcockpit-litellm-git, client_credentials) and sends it as
+# `Authorization: Bearer` to git-mcp-server. Callers' LiteLLM keys and end-user tokens are never forwarded.
+# Verified against the pinned v1.109.1 source (proxy/mcp_server/mcp_server_manager.py, MCPServer
+# .has_client_credentials): M2M needs the explicit `oauth2_flow: client_credentials`; `os.environ/` values are
+# resolved for the whole config. Locally git-mcp-server runs with KEYCLOAK_ENABLED=false and ignores the token.
 mcp_servers:
   openjcockpit_git:
     server_id: openjcockpit_git
@@ -90,6 +94,11 @@ mcp_servers:
     description: "OpenJCockpit git tools: checkout, create branch, pull, commit, push (local git-mcp-server)"
     allow_all_keys: false
     available_on_public_internet: false
+    auth_type: oauth2
+    oauth2_flow: client_credentials
+    token_url: os.environ/LITELLM_GIT_MCP_TOKEN_URL
+    client_id: os.environ/LITELLM_GIT_MCP_CLIENT_ID
+    client_secret: os.environ/LITELLM_GIT_MCP_CLIENT_SECRET
 
 # Seeded A2A agents, served by embabel-agent-runtime (definitions in
 # embabel-agent-runtime/agent-definitions/agents/ of the OpenJCockpit-Agent-Runtime repository). The url is the runtime's A2A_PUBLIC_BASE_URL +

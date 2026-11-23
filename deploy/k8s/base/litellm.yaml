@@ -85,6 +85,16 @@ spec:
             configMapKeyRef:
               name: openjcockpit-settings
               key: OLLAMA_MODEL
+        # LiteLLM's own Keycloak identity towards git-mcp-server (config.yaml mcp_servers.openjcockpit_git).
+        - name: LITELLM_GIT_MCP_TOKEN_URL
+          value: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
+        - name: LITELLM_GIT_MCP_CLIENT_ID
+          value: openjcockpit-litellm-git
+        - name: LITELLM_GIT_MCP_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: openjcockpit-secrets
+              key: LITELLM_GIT_MCP_CLIENT_SECRET
         - name: JSON_LOGS
           value: 'True'
         - name: HOME

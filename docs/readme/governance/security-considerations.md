@@ -37,9 +37,10 @@ Rotating `LITELLM_SALT_KEY` invalidates every credential already encrypted in Li
   exposed without TLS on the internal Compose network so `ai-control-service` can start (hardened, no
   network, read-only) job containers; every container on that network then effectively controls the
   host. Never in production: no production manifest mounts a Docker socket.
-- **`git-mcp-server` has no authentication of its own.** It is not published on the host and is only
-  reachable through LiteLLM with keys that are explicitly granted the server. Anything that can reach
-  it on the Compose network can use it.
+- **`git-mcp-server` has no incoming authentication locally** (`KEYCLOAK_ENABLED=false`). It is not
+  published on the host and is only reachable through LiteLLM with keys that are explicitly granted the
+  server. Anything that can reach it on the Compose network can use it. Production enables Keycloak JWT
+  authentication ([git-mcp-server](../../../services/git-mcp-server/README.md)).
 - **LiteLLM admin UI** (port `4100`) authenticates against LiteLLM's own credential store, not Keycloak:
   a second authentication surface.
 - **Ollama on Linux.** Making the host Ollama reachable from containers on Linux can expose an
@@ -99,8 +100,8 @@ the [Release checklist](../operations/release-checklist.md); they implement the 
 
 1. Replace every seeded credential, secret, salt and key, and remove seeded users.
 2. Remove the `docker-socat` Docker daemon proxy and choose an isolated job execution model.
-3. Put authentication in front of, or remove network reachability to, `git-mcp-server`, OPA and the
-   LiteLLM admin UI. Serve `embabel-agent-runtime` and `embabel-agent-service` over HTTPS when they run on
+3. Enable `KEYCLOAK_ENABLED=true` on `git-mcp-server` (the `prod` profile default), and put
+   authentication in front of, or remove network reachability to, OPA and the LiteLLM admin UI. Serve `embabel-agent-runtime` and `embabel-agent-service` over HTTPS when they run on
    different hosts, and give their Keycloak clients real secrets.
 4. Replace the default OPA policy with your organization's rules and decide on role-based authorization
    for workflow starts and approvals.

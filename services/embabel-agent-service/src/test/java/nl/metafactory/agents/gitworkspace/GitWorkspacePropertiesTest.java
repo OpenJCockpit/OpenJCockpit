@@ -17,6 +17,9 @@ class GitWorkspacePropertiesTest {
                 "openjcockpit.git-workspace.trusted-client-id", "ai-control",
                 "openjcockpit.git-workspace.gateway-base-url", "http://litellm:4000",
                 "openjcockpit.git-workspace.gateway-api-key", "sk-mcp",
+                "openjcockpit.git-workspace.gateway-token-url", "http://keycloak:8080/token",
+                "openjcockpit.git-workspace.gateway-client-id", "openjcockpit-agent-service",
+                "openjcockpit.git-workspace.gateway-client-secret", "s3cret",
                 "openjcockpit.git-workspace.checkpoints", "false",
                 "openjcockpit.git-workspace.ticket-ttl", "2m",
                 "openjcockpit.git-workspace.server-id", "git",
@@ -27,6 +30,9 @@ class GitWorkspacePropertiesTest {
         assertThat(properties.getTrustedClientId()).isEqualTo("ai-control");
         assertThat(properties.getGatewayBaseUrl()).isEqualTo("http://litellm:4000");
         assertThat(properties.getGatewayApiKey()).isEqualTo("sk-mcp");
+        assertThat(properties.getGatewayTokenUrl()).isEqualTo("http://keycloak:8080/token");
+        assertThat(properties.getGatewayClientId()).isEqualTo("openjcockpit-agent-service");
+        assertThat(properties.getGatewayClientSecret()).isEqualTo("s3cret");
         assertThat(properties.isCheckpoints()).isFalse();
         assertThat(properties.getTicketTtl()).isEqualTo(Duration.ofMinutes(2));
         assertThat(properties.getServerId()).isEqualTo("git");

@@ -41,14 +41,16 @@ public class LiteLlmA2AProviderClient implements A2AProviderClient {
         this.config = config;
         boolean usable = config.getBaseUrl() != null && !config.getBaseUrl().isBlank()
                 && config.getApiKey() != null && !config.getApiKey().isBlank();
-        this.http = usable ? new LiteLlmHttpClient(config.getBaseUrl(), config.getApiKey(),
-                config.getConnectTimeout(), config.getReadTimeout()) : null;
-        this.messageHttp = usable ? new LiteLlmHttpClient(config.getBaseUrl(), config.getApiKey(),
-                config.getConnectTimeout(), config.getMessageTimeout()) : null;
-        this.registry = usable ? new LiteLlmAgentMetadataClient(http) : null;
         this.callerTokens = new ClientCredentialsTokens(
                 callerIdentity ? config.getCallerAuth() : new A2AProvidersProperties.Provider.CallerAuth(),
                 java.time.Clock.systemUTC());
+        // Every LiteLLM request: the virtual key in x-litellm-api-key, the caller identity's Keycloak token in
+        // Authorization (for a proxy in front of LiteLLM). No caller identity: no Authorization header.
+        this.http = usable ? new LiteLlmHttpClient(config.getBaseUrl(), config.getApiKey(),
+                config.getConnectTimeout(), config.getReadTimeout(), callerTokens::authorization) : null;
+        this.messageHttp = usable ? new LiteLlmHttpClient(config.getBaseUrl(), config.getApiKey(),
+                config.getConnectTimeout(), config.getMessageTimeout(), callerTokens::authorization) : null;
+        this.registry = usable ? new LiteLlmAgentMetadataClient(http) : null;
     }
 
     /** The provider's HTTP connection, for LiteLLM-specific management calls (e.g. policy checks). */

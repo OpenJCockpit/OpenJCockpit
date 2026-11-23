@@ -48,6 +48,7 @@ spec:
             - {name: A2A_TENANT_CLAIM, value: tenant_id}
             - {name: A2A_TENANT, valueFrom: {configMapKeyRef: {name: openjcockpit-settings, key: AGENT_WORKFLOWS_TENANT}}}
             - {name: GIT_MCP_CLIENT_SECRET, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: GIT_MCP_CLIENT_SECRET}}}
+            - {name: LITELLM_GIT_MCP_CLIENT_SECRET, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: LITELLM_GIT_MCP_CLIENT_SECRET}}}
             - {name: AI_CONTROL_CLIENT_SECRET, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: AI_CONTROL_CLIENT_SECRET}}}
             - {name: AGENT_SERVICE_CLIENT_SECRET, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: AGENT_SERVICE_CLIENT_SECRET}}}
             - {name: AGENT_RUNTIME_CLIENT_SECRET, valueFrom: {secretKeyRef: {name: openjcockpit-secrets, key: AGENT_RUNTIME_CLIENT_SECRET}}}

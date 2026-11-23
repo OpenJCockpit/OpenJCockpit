@@ -111,6 +111,7 @@ row to `AuthorizationMatrixTest.ENDPOINTS` and to this table. Until then the end
 | Spec-queue runner (ai-control → embabel) | Token from the runner issuer (`openjcockpit.security.spec-queue-runner`), authority `SPEC_QUEUE_RUNNER` | embabel only: `POST /api/workflows/*/start` and `GET /api/workflows/*`, `/api/workflow-groups/*`, `/api/agent-runs/*`. Everything else is 403. |
 | ai-control-service (client credentials) | embabel: `azp` = `openjcockpit.git-workspace.trusted-client-id` (default `openjcockpit-ai-control`), authority `AI_CONTROL_SERVICE` | embabel: start (`POST /api/workflows/*/start`) and stop (`DELETE /api/agent-runs/*`) runs, reads, `POST /internal/git-workspace-tickets` |
 | Git MCP server | ai-control: `azp` = `openjcockpit.git-workspace.credential-client-id` | ai-control: `GET /internal/git-workspaces/*/credentials` only |
+| LiteLLM (`openjcockpit-litellm-git`), embabel-agent-service | git-mcp-server (`KEYCLOAK_ENABLED=true`): `iss`, `aud` = `KEYCLOAK_EXPECTED_AUDIENCE`, `azp` in `KEYCLOAK_ALLOWED_AZP` | git-mcp-server: every MCP endpoint and tool |
 | embabel-agent-runtime | embabel: `azp` = the configured runtime client id | embabel: `/internal/agent-runtime/v1/**` |
 
 The `/internal/**` endpoints check the `azp` claim in their controller. A human token, even an admin's,

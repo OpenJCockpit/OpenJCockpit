@@ -33,10 +33,24 @@ public class McpClientProperties {
     public static class McpServer {
         private String name;
         private String url;
+        /**
+         * Keycloak client whose client-credentials token is sent as {@code Authorization: Bearer} on every
+         * request to this server (the SSE handshake and each message). Required when the server authenticates
+         * its callers (git-mcp-server with KEYCLOAK_ENABLED=true); all blank -> no Authorization header.
+         */
+        private String tokenUrl;
+        private String clientId;
+        private String clientSecret;
 
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
         public String getUrl() { return url; }
         public void setUrl(String url) { this.url = url; }
+        public String getTokenUrl() { return tokenUrl; }
+        public void setTokenUrl(String tokenUrl) { this.tokenUrl = tokenUrl; }
+        public String getClientId() { return clientId; }
+        public void setClientId(String clientId) { this.clientId = clientId; }
+        public String getClientSecret() { return clientSecret; }
+        public void setClientSecret(String clientSecret) { this.clientSecret = clientSecret; }
     }
 }

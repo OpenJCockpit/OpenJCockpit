@@ -19,6 +19,8 @@ x-litellm-a2a-key: &litellm-a2a-key ${LITELLM_A2A_KEY:-sk-openjcockpit-a2a-local
 x-a2a-client-secret: &a2a-client-secret ${A2A_CLIENT_SECRET:-openjcockpit-a2a-local-secret}
 # Local-only secrets of the git-workspace flow (git MCP server via LiteLLM, credentials pulled server-side).
 x-git-mcp-client-secret: &git-mcp-client-secret ${GIT_MCP_CLIENT_SECRET:-openjcockpit-git-mcp-local-secret}
+# LiteLLM's own identity towards git-mcp-server (Keycloak client openjcockpit-litellm-git, client_credentials).
+x-litellm-git-mcp-client-secret: &litellm-git-mcp-client-secret ${LITELLM_GIT_MCP_CLIENT_SECRET:-openjcockpit-litellm-git-local-secret}
 x-ai-control-client-secret: &ai-control-client-secret ${AI_CONTROL_CLIENT_SECRET:-openjcockpit-ai-control-local-secret}
 x-litellm-ai-control-key: &litellm-ai-control-key ${LITELLM_AI_CONTROL_KEY:-sk-openjcockpit-ai-control-local}
 # Local-only key that encrypts the secrets of A2A services added in the dashboard (salt: hex).
@@ -184,6 +186,11 @@ services:
       STORE_MODEL_IN_DB: "True"
       OLLAMA_BASE_URL: *ollama-base-url
       OLLAMA_MODEL: *ollama-model
+      # Upstream token for git-mcp-server (mcp_servers.openjcockpit_git in config.yaml); ignored by git-mcp-server
+      # while it runs with KEYCLOAK_ENABLED=false, required when it is true.
+      LITELLM_GIT_MCP_TOKEN_URL: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
+      LITELLM_GIT_MCP_CLIENT_ID: openjcockpit-litellm-git
+      LITELLM_GIT_MCP_CLIENT_SECRET: *litellm-git-mcp-client-secret
       # OPENAI_API_KEY is deliberately ABSENT (BR-13, AC-12).
     volumes:
       - ./infrastructure/litellm/config.yaml:/app/config.yaml:ro
@@ -236,6 +243,7 @@ services:
       A2A_TENANT_CLAIM: tenant_id
       A2A_TENANT: local
       GIT_MCP_CLIENT_SECRET: *git-mcp-client-secret
+      LITELLM_GIT_MCP_CLIENT_SECRET: *litellm-git-mcp-client-secret
       AI_CONTROL_CLIENT_SECRET: *ai-control-client-secret
       LITELLM_AI_CONTROL_KEY: *litellm-ai-control-key
       LITELLM_AGENT_SERVICE_KEY: *litellm-agent-service-key
@@ -363,6 +371,8 @@ services:
       OPA_BASE_URL: http://opa:8181
       MCP_CLIENT_ENABLED: ${MCP_CLIENT_ENABLED:-true}
       GIT_MCP_SERVER_URL: http://git-mcp-server:8093
+      # This service's Keycloak token on every git MCP request (needed once git-mcp-server has KEYCLOAK_ENABLED=true).
+      GIT_MCP_SERVER_TOKEN_URL: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
       # Spring profile `local` (application-local.yml): agent catalog, the LiteLLM A2A provider client, the
       # agent runtime connection and the tenant 'local' seed. Only container paths and secrets are set here.
       SPRING_PROFILES_ACTIVE: local
@@ -496,8 +506,8 @@ services:
     depends_on:
       volume-permissions:
         condition: service_completed_successfully
-    # Not published on the host: it has no authentication of its own and resolves job credentials
-    # server-side, so the only way in is LiteLLM (key + object_permission.mcp_servers).
+    # Not published on the host: locally it runs without incoming authentication (KEYCLOAK_ENABLED=false) and
+    # resolves job credentials server-side, so the only way in is LiteLLM (key + object_permission.mcp_servers).
     expose:
       - "8093"
     environment:
@@ -512,6 +522,15 @@ services:
       GIT_MCP_TOKEN_URL: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
       GIT_MCP_CLIENT_ID: openjcockpit-git-mcp
       GIT_MCP_CLIENT_SECRET: *git-mcp-client-secret
+      # INCOMING MCP authentication (callers -> git-mcp-server), separate from the outgoing credentials above.
+      # Off for local development. GIT_MCP_KEYCLOAK_ENABLED=true + `docker compose up -d git-mcp-server` tries the
+      # production mode against the local Keycloak without a rebuild (LiteLLM and embabel-agent-service already
+      # send their tokens).
+      KEYCLOAK_ENABLED: ${GIT_MCP_KEYCLOAK_ENABLED:-false}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER:-http://localhost:8080/realms/${KEYCLOAK_REALM:-openjcockpit}}
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs
+      KEYCLOAK_EXPECTED_AUDIENCE: openjcockpit-git-mcp
+      KEYCLOAK_ALLOWED_AZP: openjcockpit-litellm-git,openjcockpit-agent-service
     volumes:
       - git-mcp-workspaces:/git-mcp-workspaces
 

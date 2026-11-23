@@ -25,7 +25,7 @@ ENV AGENT_CATALOG_LOCAL_PATH=/agents
 # the app user. The initializer recreates the folder when /tmp is a tmpfs/emptyDir mount.
 ENV SPEC_WORKFLOW_BASE=/tmp/spec-workflow
 # HTTPS when a PEM certificate and key are mounted at /etc/openjcockpit/tls/tls.crt and tls.key, plain
-# HTTP otherwise (services/docker/entrypoint.sh).
+# HTTP otherwise; or pass the PEM as TLS_CERT and TLS_KEY (services/docker/entrypoint.sh).
 COPY --chmod=0755 services/docker/entrypoint.sh services/docker/healthcheck.sh /usr/local/bin/
 USER 10001
 EXPOSE 8081

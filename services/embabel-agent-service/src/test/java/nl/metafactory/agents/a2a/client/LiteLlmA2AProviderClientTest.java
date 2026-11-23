@@ -55,7 +55,49 @@ class LiteLlmA2AProviderClientTest {
         assertThat(first.skills()).containsExactly("Customer support");
         var request = server.takeRequest();
         assertThat(request.getPath()).isEqualTo("/v1/agents");
-        assertThat(request.getHeader("Authorization")).isEqualTo("Bearer sk-a2a");
+        assertThat(request.getHeader("x-litellm-api-key")).isEqualTo("Bearer sk-a2a");
+        assertThat(request.getHeader("Authorization")).isNull();   // no caller identity configured
+    }
+
+    @Test
+    void sendsTheCallerIdentitysKeycloakTokenInAuthorizationAndTheKeyInItsOwnHeader() throws Exception {
+        try (var keycloak = new MockWebServer()) {
+            keycloak.enqueue(new MockResponse().setBody("{\"access_token\":\"kc-1\",\"expires_in\":300}"));
+            var provider = config(server.url("/").toString(), "sk-a2a");
+            provider.getCallerAuth().setTokenUrl(keycloak.url("/token").toString());
+            provider.getCallerAuth().setClientId("openjcockpit-a2a");
+            provider.getCallerAuth().setClientSecret("s3cret");
+            var withIdentity = new LiteLlmA2AProviderClient(provider);
+
+            server.enqueue(new MockResponse().setBody("[]"));
+            server.enqueue(new MockResponse().setBody("""
+                    {"jsonrpc":"2.0","id":"1","result":{"kind":"message","role":"agent","messageId":"m",
+                     "parts":[{"kind":"text","text":"ok"}]}}"""));
+            assertThat(withIdentity.listAgents().status()).isEqualTo(Status.OK);
+            assertThat(withIdentity.sendMessage("business-analyst", "hi", "Bearer jwt-123").status()).isEqualTo(Status.OK);
+
+            for (int i = 0; i < 2; i++) {
+                var request = server.takeRequest(1, TimeUnit.SECONDS);
+                assertThat(request.getHeader("x-litellm-api-key")).isEqualTo("Bearer sk-a2a");
+                assertThat(request.getHeader("Authorization")).isEqualTo("Bearer kc-1");
+            }
+            // The token is cached: one token request for both calls.
+            assertThat(keycloak.getRequestCount()).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void withoutAKeycloakTokenLiteLlmIsNotCalled() {
+        var provider = config(server.url("/").toString(), "sk-a2a");
+        provider.getCallerAuth().setTokenUrl("http://127.0.0.1:1/token");   // nothing listens there
+        provider.getCallerAuth().setClientId("openjcockpit-a2a");
+        provider.getCallerAuth().setClientSecret("s3cret");
+
+        var listing = new LiteLlmA2AProviderClient(provider).listAgents();
+
+        assertThat(listing.status()).isEqualTo(Status.UNAVAILABLE);
+        assertThat(listing.reason()).isEqualTo("Keycloak token unavailable");
+        assertThat(server.getRequestCount()).isZero();
     }
 
     @Test
@@ -95,7 +137,7 @@ class LiteLlmA2AProviderClientTest {
         assertThat(result.text()).isEqualTo("REQ-001 Reset password");
         var request = server.takeRequest(1, TimeUnit.SECONDS);
         assertThat(request.getPath()).isEqualTo("/a2a/business-analyst");
-        assertThat(request.getHeader("Authorization")).isEqualTo("Bearer sk-a2a");
+        assertThat(request.getHeader("x-litellm-api-key")).isEqualTo("Bearer sk-a2a");
         assertThat(request.getHeader("x-a2a-business-analyst-authorization")).isEqualTo("Bearer jwt-123");
         assertThat(request.getBody().readUtf8()).contains("\"method\":\"message/send\"", "\"role\":\"user\"",
                 "\"text\":\"Write requirements\"");
