@@ -126,10 +126,26 @@ services:
       GIT_MCP_AI_CONTROL_URL: http://ai-control-service:8080
       KEYCLOAK_TOKEN_URL: &token-url http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/token
       GIT_MCP_CLIENT_SECRET: ${GIT_MCP_CLIENT_SECRET:?}
+      # INCOMING MCP authentication (LiteLLM / embabel-agent-service -> this server): a Keycloak JWT with this
+      # issuer, audience and client (azp) is required on every MCP request. Independent of the outgoing
+      # credentials above. The defaults match the clients and audience mappers the bootstrap service seeds;
+      # override with GIT_MCP_KEYCLOAK_* in .env. Changing them needs a restart, not a rebuild.
+      KEYCLOAK_ENABLED: "true"
+      KEYCLOAK_ISSUER_URI: ${GIT_MCP_KEYCLOAK_ISSUER_URI:-https://${KEYCLOAK_HOST:?}/realms/openjcockpit}
+      KEYCLOAK_JWK_SET_URI: ${GIT_MCP_KEYCLOAK_JWK_SET_URI:-http://keycloak:8080/realms/openjcockpit/protocol/openid-connect/certs}
+      KEYCLOAK_EXPECTED_AUDIENCE: ${GIT_MCP_KEYCLOAK_AUDIENCE:-openjcockpit-git-mcp}
+      KEYCLOAK_ALLOWED_AZP: ${GIT_MCP_KEYCLOAK_ALLOWED_AZP:-openjcockpit-litellm-git,openjcockpit-agent-service}
+      # Optional HTTPS on the MCP port: the image's entrypoint loads this certificate and key into the server's
+      # keystore (PEM text or base64-encoded PEM). Unset = plain HTTP on the internal network. With TLS on, set
+      # GIT_MCP_SERVER_URL to https://git-mcp-server:8093 and change the url in infrastructure/litellm/config.yaml.
+      TLS_CERT: ${GIT_MCP_TLS_CERT:-}
+      TLS_KEY: ${GIT_MCP_TLS_KEY:-}
+      TLS_KEY_PASSWORD: ${GIT_MCP_TLS_KEY_PASSWORD:-}
+      TLS_CA: ${GIT_MCP_TLS_CA:-}
     volumes:
       - git-mcp-workspaces:/git-mcp-workspaces
-    # Unauthenticated MCP server: reachable on `backend` only (LiteLLM, embabel-agent-service); `egress`
-    # lets it clone from and push to the Git host.
+    # Authenticated MCP server (KEYCLOAK_ENABLED=true), and in addition reachable on `backend` only (LiteLLM,
+    # embabel-agent-service); `egress` lets it clone from and push to the Git host.
     networks: [backend, egress]
     deploy:
       resources:
@@ -149,6 +165,10 @@ services:
       STORE_MODEL_IN_DB: "True"
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:?}
       OLLAMA_MODEL: ${OLLAMA_MODEL:?}
+      # LiteLLM's own Keycloak identity towards git-mcp-server (config.yaml mcp_servers.openjcockpit_git).
+      LITELLM_GIT_MCP_TOKEN_URL: *token-url
+      LITELLM_GIT_MCP_CLIENT_ID: openjcockpit-litellm-git
+      LITELLM_GIT_MCP_CLIENT_SECRET: ${LITELLM_GIT_MCP_CLIENT_SECRET:?}
       JSON_LOGS: "True"
     volumes:
       - ../../infrastructure/litellm/config.yaml:/app/config.yaml:ro
@@ -192,6 +212,7 @@ services:
       A2A_TENANT_CLAIM: tenant_id
       A2A_TENANT: ${AGENT_WORKFLOWS_TENANT:?}
       GIT_MCP_CLIENT_SECRET: ${GIT_MCP_CLIENT_SECRET:?}
+      LITELLM_GIT_MCP_CLIENT_SECRET: ${LITELLM_GIT_MCP_CLIENT_SECRET:?}
       AI_CONTROL_CLIENT_SECRET: ${AI_CONTROL_CLIENT_SECRET:?}
       AGENT_SERVICE_CLIENT_SECRET: ${AGENT_SERVICE_CLIENT_SECRET:?}
       AGENT_RUNTIME_CLIENT_SECRET: ${AGENT_RUNTIME_CLIENT_SECRET:?}
@@ -246,7 +267,9 @@ services:
       WORKFLOW_DEFINITIONS_PATH: /workflow-definitions
       OPA_BASE_URL: http://opa:8181
       MCP_CLIENT_ENABLED: "true"
-      GIT_MCP_SERVER_URL: http://git-mcp-server:8093
+      GIT_MCP_SERVER_URL: ${GIT_MCP_SERVER_URL:-http://git-mcp-server:8093}
+      # Extra CA certificates this service trusts (PEM or base64 PEM), e.g. the CA of git-mcp-server's certificate.
+      TLS_CA: ${EMBABEL_AGENT_SERVICE_TLS_CA:-}
       EMBABEL_AGENT_RUNTIME_BASE_URL: http://embabel-agent-runtime:8082
       AGENT_SERVICE_CLIENT_SECRET: ${AGENT_SERVICE_CLIENT_SECRET:?}
       LITELLM_PROXY_URL: *litellm

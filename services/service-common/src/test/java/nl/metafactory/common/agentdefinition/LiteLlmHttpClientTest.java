@@ -32,14 +32,50 @@ class LiteLlmHttpClientTest {
     }
 
     @Test
-    void successSendsBearerAndParsesJson() throws Exception {
+    void successSendsTheKeyInItsOwnHeaderAndParsesJson() throws Exception {
         server.enqueue(new MockResponse().setBody("{\"agent_id\":\"a1\"}").addHeader("Content-Type", "application/json"));
         var r = client.get("/v1/agents/{id}", "a1");
         assertThat(r.status()).isEqualTo(SourceStatus.FOUND);
         assertThat(r.body().get("agent_id").asString()).isEqualTo("a1");
         var request = server.takeRequest(1, TimeUnit.SECONDS);
-        assertThat(request.getHeader("Authorization")).isEqualTo("Bearer sk-test-key");
+        assertThat(request.getHeader("x-litellm-api-key")).isEqualTo("Bearer sk-test-key");
+        assertThat(request.getHeader("Authorization")).isNull();
         assertThat(request.getPath()).isEqualTo("/v1/agents/a1");
+    }
+
+    @Test
+    void sendsTheKeycloakTokenInAuthorizationResolvedPerRequest() throws Exception {
+        var tokens = new java.util.ArrayDeque<>(java.util.List.of("Bearer kc-1", "Bearer kc-2"));
+        var withToken = new LiteLlmHttpClient(server.url("/").toString(), "sk-test-key", Duration.ofSeconds(1),
+                Duration.ofMillis(300), () -> java.util.Optional.of(tokens.removeFirst()));
+        server.enqueue(new MockResponse().setBody("[]"));
+        server.enqueue(new MockResponse().setBody("{}"));
+
+        withToken.get("/v1/agents");
+        withToken.post("/a2a/x", java.util.Map.of(), java.util.Map.of("x-a2a-x-authorization", "Bearer user"));
+
+        var get = server.takeRequest(1, TimeUnit.SECONDS);
+        assertThat(get.getHeader("x-litellm-api-key")).isEqualTo("Bearer sk-test-key");
+        assertThat(get.getHeader("Authorization")).isEqualTo("Bearer kc-1");
+        var post = server.takeRequest(1, TimeUnit.SECONDS);
+        assertThat(post.getHeader("Authorization")).isEqualTo("Bearer kc-2");
+        assertThat(post.getHeader("x-a2a-x-authorization")).isEqualTo("Bearer user");
+    }
+
+    @Test
+    void aFailingKeycloakTokenIsUnavailableWithoutCallingLiteLlm() {
+        var noToken = new LiteLlmHttpClient(server.url("/").toString(), "sk-test-key", Duration.ofSeconds(1),
+                Duration.ofMillis(300), () -> {
+                    throw new IllegalStateException("token endpoint down");
+                });
+
+        var get = noToken.get("/v1/agents");
+        var post = noToken.post("/a2a/x", java.util.Map.of());
+
+        assertThat(get.status()).isEqualTo(SourceStatus.UNAVAILABLE);
+        assertThat(get.reason()).isEqualTo("Keycloak token unavailable");
+        assertThat(post.status()).isEqualTo(SourceStatus.UNAVAILABLE);
+        assertThat(server.getRequestCount()).isZero();
     }
 
     @Test

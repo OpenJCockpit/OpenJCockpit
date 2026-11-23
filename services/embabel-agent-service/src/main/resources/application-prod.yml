@@ -71,8 +71,20 @@ openjcockpit:
   git-workspace:
     gateway-base-url: ${LITELLM_PROXY_URL}
     gateway-api-key: ${LITELLM_AGENT_SERVICE_KEY}
+    gateway-token-url: ${KEYCLOAK_TOKEN_URL}
+    gateway-client-id: ${openjcockpit.keycloak.client-id}
+    gateway-client-secret: ${AGENT_SERVICE_CLIENT_SECRET}
   agent-catalog:
     local-path: ${AGENT_CATALOG_LOCAL_PATH:/agents}
+  mcp:
+    # git-mcp-server authenticates its callers in production (KEYCLOAK_ENABLED=true there): this service's own
+    # Keycloak identity, which must be in git-mcp-server's KEYCLOAK_ALLOWED_AZP and carry its audience.
+    servers:
+      - name: git
+        url: ${GIT_MCP_SERVER_URL:http://git-mcp-server:8093}
+        token-url: ${KEYCLOAK_TOKEN_URL}
+        client-id: ${openjcockpit.keycloak.client-id}
+        client-secret: ${AGENT_SERVICE_CLIENT_SECRET}
   workflow-definitions:
     path: ${WORKFLOW_DEFINITIONS_PATH}
   a2a-services:
@@ -87,6 +99,9 @@ openjcockpit:
     # Enforcement, fail mode and the OPA endpoint cannot be changed through the API in production.
     config-locked: true
     auth-token: ${OPA_AUTH_TOKEN:}
+    token-url: ${KEYCLOAK_TOKEN_URL}
+    client-id: ${openjcockpit.keycloak.client-id}
+    client-secret: ${AGENT_SERVICE_CLIENT_SECRET}
   production-guard:
     required-secrets: >-
       spring.datasource.password,

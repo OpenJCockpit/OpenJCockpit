@@ -1,9 +1,13 @@
-# Profile `prod`: shared and production deployments (deploy/k8s, deploy/compose). The server has no
-# authentication of its own; it must only be reachable from LiteLLM and embabel-agent-service (Kubernetes
-# NetworkPolicy deploy/k8s/base/networkpolicies.yaml, compose network `backend` without published ports).
+# Profile `prod`: shared and production deployments (deploy/k8s, deploy/compose). Incoming MCP requests need a
+# Keycloak JWT by default (KEYCLOAK_ENABLED defaults to true here; the issuer, audience and allowed azp then
+# must be set or startup fails). In addition the server must only be reachable from LiteLLM and
+# embabel-agent-service (Kubernetes NetworkPolicy deploy/k8s/base/networkpolicies.yaml, compose network
+# `backend` without published ports).
 # Credentials and endpoints come from the environment WITHOUT a fallback: a missing value fails startup.
 openjcockpit:
   git-mcp:
+    security:
+      keycloak-enabled: ${KEYCLOAK_ENABLED:true}
     workspace-base-path: ${GIT_MCP_WORKSPACE_BASE}
     credentials:
       ai-control-url: ${GIT_MCP_AI_CONTROL_URL}

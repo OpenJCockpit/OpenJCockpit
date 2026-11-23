@@ -9,6 +9,12 @@
 # All files must be readable by the container user (UID 10001). Only one of certificate and key present is
 # a misconfiguration and stops the container instead of silently falling back to HTTP.
 #
+# Where mounting files is not possible, pass the same material through the environment instead: TLS_CERT,
+# TLS_KEY and TLS_CA hold the PEM text itself (or that PEM text base64-encoded, for platforms without
+# multi-line variables). It is written to a private directory under /tmp and used exactly like the files
+# above; the variables are removed before the JVM starts. A variable and its file (mounted or *_FILE) both
+# set is a misconfiguration. Material from the environment is not reloaded: a new certificate needs a restart.
+#
 # TLS applies to the application port only. A separate management port (MANAGEMENT_PORT, used by probes
 # and the metrics scraper and never routed externally) stays HTTP unless MANAGEMENT_SERVER_SSL_ENABLED=true.
 # The certificate files are watched, so a renewed certificate is served without a restart.
@@ -21,6 +27,37 @@ set -euo pipefail
 cert="${TLS_CERT_FILE:-/etc/openjcockpit/tls/tls.crt}"
 key="${TLS_KEY_FILE:-/etc/openjcockpit/tls/tls.key}"
 ca="${TLS_CA_FILE:-/etc/openjcockpit/tls/ca.crt}"
+
+# Usage: from_env <content variable> <file variable> <path variable> <file name>. When the content variable
+# is set, writes its PEM (decoding base64 first if needed) to a private file and points the path variable at it.
+material_dir=""
+from_env() {
+  local content="${!1:-}"
+  [[ -n "$content" ]] || return 0
+  if [[ -n "${!2:-}" ]]; then
+    echo "TLS misconfigured: $1 and $2 are both set; use one of them" >&2
+    exit 1
+  fi
+  if [[ -e "${!3}" ]]; then
+    echo "TLS misconfigured: $1 is set and ${!3} is mounted; use the variable or the file, not both" >&2
+    exit 1
+  fi
+  if [[ "$content" != *"-----BEGIN "* ]]; then
+    if ! content="$(printf '%s' "$content" | base64 -d 2>/dev/null)" || [[ "$content" != *"-----BEGIN "* ]]; then
+      echo "TLS misconfigured: $1 is neither PEM nor base64-encoded PEM" >&2
+      exit 1
+    fi
+  fi
+  if [[ -z "$material_dir" ]]; then
+    material_dir="$(mktemp -d)"
+  fi
+  (umask 077 && printf '%s\n' "$content" > "$material_dir/$4")
+  printf -v "$3" '%s' "$material_dir/$4"
+}
+from_env TLS_CERT TLS_CERT_FILE cert tls.crt
+from_env TLS_KEY TLS_KEY_FILE key tls.key
+from_env TLS_CA TLS_CA_FILE ca ca.crt
+unset TLS_CERT TLS_KEY TLS_CA
 
 require_readable() {
   if [[ ! -e "$1" ]]; then

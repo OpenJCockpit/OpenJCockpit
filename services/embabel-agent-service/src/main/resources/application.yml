@@ -121,6 +121,11 @@ openjcockpit:
     trusted-client-id: ${GIT_WORKSPACE_TRUSTED_CLIENT_ID:openjcockpit-ai-control}
     gateway-base-url: ${GIT_WORKSPACE_GATEWAY_BASE_URL:}
     gateway-api-key: ${GIT_WORKSPACE_GATEWAY_API_KEY:}
+    # This service's Keycloak token in Authorization on the gateway calls (a proxy in front of LiteLLM checks it;
+    # the virtual key goes in x-litellm-api-key). Blank token URL: no token.
+    gateway-token-url: ${GIT_WORKSPACE_GATEWAY_TOKEN_URL:}
+    gateway-client-id: ${GIT_WORKSPACE_GATEWAY_CLIENT_ID:${openjcockpit.keycloak.client-id}}
+    gateway-client-secret: ${GIT_WORKSPACE_GATEWAY_CLIENT_SECRET:${AGENT_SERVICE_CLIENT_SECRET:}}
     server-id: ${GIT_WORKSPACE_GIT_MCP_SERVER_ID:openjcockpit_git}
     ticket-ttl: ${GIT_WORKSPACE_TICKET_TTL:PT2M}
     checkpoints: ${GIT_WORKSPACE_CHECKPOINTS:true}
@@ -130,6 +135,11 @@ openjcockpit:
     servers:
       - name: git
         url: ${GIT_MCP_SERVER_URL:http://localhost:8093}
+        # Keycloak client-credentials token sent on every MCP request; required when git-mcp-server runs with
+        # KEYCLOAK_ENABLED=true (its KEYCLOAK_ALLOWED_AZP must list this client). Blank token URL -> no token.
+        token-url: ${GIT_MCP_SERVER_TOKEN_URL:}
+        client-id: ${GIT_MCP_SERVER_CLIENT_ID:${openjcockpit.keycloak.client-id}}
+        client-secret: ${GIT_MCP_SERVER_CLIENT_SECRET:${AGENT_SERVICE_CLIENT_SECRET:}}
   security:
     # false: no Keycloak at all -- every request is permitted as one local identity and no service token is
     # fetched (KeycloakDisabledSecurityConfig). Refused with profile prod.
@@ -171,6 +181,9 @@ openjcockpit:
     customer-label: ${OPA_CUSTOMER_LABEL:}
     project-label: ${OPA_PROJECT_LABEL:}
     auth-token: ${OPA_AUTH_TOKEN:}
+    token-url: ${OPA_TOKEN_URL:}
+    client-id: ${OPA_CLIENT_ID:}
+    client-secret: ${OPA_CLIENT_SECRET:}
     # true refuses PUT /api/opa-config (always true under the `prod` profile).
     config-locked: ${OPA_CONFIG_LOCKED:false}
   # Frozen Contract #2 (workflow-approval-gate work plan §5) — implemented verbatim.

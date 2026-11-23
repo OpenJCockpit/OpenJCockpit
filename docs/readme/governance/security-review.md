@@ -25,8 +25,10 @@ an internal engineering review, not an independent penetration test or certifica
 
 ## Residual risks (accepted for this release, tracked in Known limitations)
 
-- **`git-mcp-server` has no authentication of its own.** Mitigated by network isolation only (internal
-  network / NetworkPolicy allowing LiteLLM and embabel-agent-service).
+- **`git-mcp-server` authorizes callers by client, not by tool.** In production it requires a Keycloak JWT
+  (issuer, audience `openjcockpit-git-mcp`, `azp` allowlist) in addition to network isolation; any
+  allowlisted caller may use every tool. Locally (`KEYCLOAK_ENABLED=false`) network isolation is the only
+  control.
 - **Project-scoped authorization does not exist.** Roles apply to all projects of the deployment;
   separate deployments per tenant if projects must be isolated from each other's users.
 - **embabel-agent-service read endpoints** accept any authenticated token without a role (reads through

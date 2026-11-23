@@ -235,6 +235,7 @@ callers and the traffic leaves a private network.
 | `/etc/openjcockpit/tls/tls.key` | Private key, PKCS#1, PKCS#8 or SEC1 (`TLS_KEY_FILE` to override) |
 | `/etc/openjcockpit/tls/ca.crt` | Optional: extra CA certificates the service trusts, for example the private CA of the services it calls (`TLS_CA_FILE` to override) |
 | `TLS_KEY_PASSWORD` | Only for an encrypted private key |
+| `TLS_CERT`, `TLS_KEY`, `TLS_CA` | Instead of mounted files: the PEM text itself, or that PEM base64-encoded (one line). Written to a private file under `/tmp` and removed from the JVM's environment |
 | `MANAGEMENT_SERVER_SSL_ENABLED` | `false` by default: the separate management port stays HTTP for probes and Prometheus |
 
 ```bash
@@ -244,6 +245,12 @@ docker run -v /srv/openjcockpit/tls:/etc/openjcockpit/tls:ro ... ghcr.io/openjco
 - Both files must be readable by UID 10001. Only one of the two present stops the container with
   `TLS misconfigured: ...` instead of falling back to HTTP.
 - A renewed certificate (cert-manager, certbot) is picked up from the mounted files without a restart.
+- Passing the material as variables suits platforms where mounting files is awkward. A variable and its file
+  (mounted, or set through `*_FILE`) both present stops the container. Material from variables is not reloaded:
+  a new certificate needs a restart. The private key is then visible to anyone who can inspect the container
+  (`docker inspect`, the pod spec), so keep it in a secret store (`.env` with mode 600, a Kubernetes Secret).
+  Production Compose and Kubernetes wire this for `git-mcp-server` as `GIT_MCP_TLS_CERT`, `GIT_MCP_TLS_KEY`,
+  `GIT_MCP_TLS_KEY_PASSWORD` and `GIT_MCP_TLS_CA` (see [git-mcp-server](../../../services/git-mcp-server/README.md#14-tls-https)).
 - The container logs `TLS enabled` or `TLS disabled` at startup; the image `HEALTHCHECK` works in both modes.
 - Every certificate in `tls.crt` and `ca.crt` is added to a copy of the JDK's default truststore, which the
   JVM uses for its outgoing calls (`TLS trust: added N certificate(s)` in the log). Public CAs stay trusted.

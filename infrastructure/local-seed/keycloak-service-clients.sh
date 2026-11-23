@@ -6,6 +6,9 @@
 #                           tenant_id=local) that selects the agent_tenant_bindings rows of the local seed.
 #  - openjcockpit-git-mcp   git-mcp-server -> ai-control: pulls the git credentials of an active
 #                           git-workspace job workspace (GET /internal/git-workspaces/{key}/credentials).
+#  - openjcockpit-litellm-git  LiteLLM -> git-mcp-server: LiteLLM's own token on the upstream MCP connection
+#                           (mcp_servers.openjcockpit_git, oauth2_flow client_credentials). Seeded only when
+#                           LITELLM_GIT_MCP_CLIENT_SECRET is set.
 #  - openjcockpit-ai-control ai-control -> embabel: git-workspace jobs start their workflow with this
 #                           identity; only it may bind a run to a job's git workspace.
 #  - openjcockpit-agent-service  embabel-agent-service -> embabel-agent-runtime: runs agents and definition
@@ -17,7 +20,10 @@
 #                           openjcockpit-operator realm role, which that endpoint requires. Seeded only when
 #                           CONTROLTOWER_CLIENT_SECRET is set (ControlTower is a separate, optional deployment).
 # Also adds the audience `openjcontroltower` to the access tokens of the dashboard client `openjcockpit`, so the
-# ControlTower backend (which validates `aud`) accepts the dashboard user's token.
+# ControlTower backend (which validates `aud`) accepts the dashboard user's token, and the audience
+# `openjcockpit-git-mcp` (GIT_MCP_AUDIENCE) to the tokens of the git-mcp-server callers openjcockpit-litellm-git and
+# openjcockpit-agent-service, which git-mcp-server requires with KEYCLOAK_ENABLED=true (its KEYCLOAK_ALLOWED_AZP
+# lists the same two clients).
 # Re-running reconciles the secrets and adds the tenant and audience mappers when missing.
 set -e
 trap 'rm -f /tmp/kc-seed-resp.json' EXIT
@@ -28,6 +34,8 @@ A2A_CLIENT_ID="${A2A_CLIENT_ID:-openjcockpit-a2a}"
 A2A_TENANT_CLAIM="${A2A_TENANT_CLAIM:-tenant_id}"
 A2A_TENANT="${A2A_TENANT:-local}"
 GIT_MCP_CLIENT_ID="${GIT_MCP_CLIENT_ID:-openjcockpit-git-mcp}"
+GIT_MCP_AUDIENCE="${GIT_MCP_AUDIENCE:-openjcockpit-git-mcp}"
+LITELLM_GIT_MCP_CLIENT_ID="${LITELLM_GIT_MCP_CLIENT_ID:-openjcockpit-litellm-git}"
 AI_CONTROL_CLIENT_ID="${AI_CONTROL_CLIENT_ID:-openjcockpit-ai-control}"
 AGENT_SERVICE_CLIENT_ID="${AGENT_SERVICE_CLIENT_ID:-openjcockpit-agent-service}"
 AGENT_RUNTIME_CLIENT_ID="${AGENT_RUNTIME_CLIENT_ID:-openjcockpit-agent-runtime}"
@@ -127,34 +135,49 @@ else
   echo "local-seed[keycloak]: tenant mapper ${A2A_TENANT_CLAIM}=${A2A_TENANT} added"
 fi
 
-# Audience mapper on the dashboard client: adds CONTROLTOWER_AUDIENCE to the access token's aud claim.
-dash_id=$(client_uuid "$DASHBOARD_CLIENT_ID")
-if [ -z "$dash_id" ]; then
-  echo "local-seed[keycloak]: dashboard client '${DASHBOARD_CLIENT_ID}' not found"
-  exit 1
-fi
-AUD_MAPPER_NAME="${CONTROLTOWER_AUDIENCE}-audience"
-AUD_MAPPER=$(printf '{"name":"%s","protocol":"openid-connect","protocolMapper":"oidc-audience-mapper","config":{"included.custom.audience":"%s","access.token.claim":"true","id.token.claim":"false","introspection.token.claim":"true"}}' \
-  "$AUD_MAPPER_NAME" "$CONTROLTOWER_AUDIENCE")
-status=$(curl -s -o /tmp/kc-seed-resp.json -w '%{http_code}' \
-  -H "Authorization: Bearer ${TOKEN}" \
-  "${KC_URL}/admin/realms/${KC_REALM}/clients/${dash_id}/protocol-mappers/models")
-if [ "$status" != "200" ]; then
-  echo "local-seed[keycloak]: GET dashboard protocol mappers -> ${status}"
-  exit 1
-fi
-if grep -q "\"name\":\"${AUD_MAPPER_NAME}\"" /tmp/kc-seed-resp.json; then
-  echo "local-seed[keycloak]: audience mapper present"
-else
-  status=$(curl -s -o /tmp/kc-seed-resp.json -w '%{http_code}' -X POST \
-    -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" \
-    -d "$AUD_MAPPER" "${KC_URL}/admin/realms/${KC_REALM}/clients/${dash_id}/protocol-mappers/models")
-  if [ "$status" != "201" ]; then
-    echo "local-seed[keycloak]: POST audience mapper -> ${status}"
+# ensure_audience_mapper <clientId> <audience>: adds <audience> to the aud claim of the client's access tokens
+# (mapper "<audience>-audience"), unless that mapper is already present.
+ensure_audience_mapper() {
+  cid=$(client_uuid "$1")
+  if [ -z "$cid" ]; then
+    echo "local-seed[keycloak]: client '$1' not found"
     exit 1
   fi
-  echo "local-seed[keycloak]: audience ${CONTROLTOWER_AUDIENCE} added to ${DASHBOARD_CLIENT_ID} access tokens"
+  mapper_name="$2-audience"
+  mapper=$(printf '{"name":"%s","protocol":"openid-connect","protocolMapper":"oidc-audience-mapper","config":{"included.custom.audience":"%s","access.token.claim":"true","id.token.claim":"false","introspection.token.claim":"true"}}' \
+    "$mapper_name" "$2")
+  status=$(curl -s -o /tmp/kc-seed-resp.json -w '%{http_code}' \
+    -H "Authorization: Bearer ${TOKEN}" \
+    "${KC_URL}/admin/realms/${KC_REALM}/clients/${cid}/protocol-mappers/models")
+  if [ "$status" != "200" ]; then
+    echo "local-seed[keycloak]: GET protocol mappers of $1 -> ${status}"
+    exit 1
+  fi
+  if grep -q "\"name\":\"${mapper_name}\"" /tmp/kc-seed-resp.json; then
+    echo "local-seed[keycloak]: audience $2 already on $1 access tokens"
+  else
+    status=$(curl -s -o /tmp/kc-seed-resp.json -w '%{http_code}' -X POST \
+      -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" \
+      -d "$mapper" "${KC_URL}/admin/realms/${KC_REALM}/clients/${cid}/protocol-mappers/models")
+    if [ "$status" != "201" ]; then
+      echo "local-seed[keycloak]: POST audience mapper $2 on $1 -> ${status}"
+      exit 1
+    fi
+    echo "local-seed[keycloak]: audience $2 added to $1 access tokens"
+  fi
+}
+
+# Dashboard user tokens are accepted by the ControlTower backend (which validates aud).
+ensure_audience_mapper "$DASHBOARD_CLIENT_ID" "$CONTROLTOWER_AUDIENCE"
+
+# Callers of git-mcp-server (incoming MCP authentication): LiteLLM's upstream identity and embabel-agent-service.
+if [ -n "$LITELLM_GIT_MCP_CLIENT_SECRET" ]; then
+  seed_client "$LITELLM_GIT_MCP_CLIENT_ID" "$LITELLM_GIT_MCP_CLIENT_SECRET" "LiteLLM -> git-mcp-server"
+  ensure_audience_mapper "$LITELLM_GIT_MCP_CLIENT_ID" "$GIT_MCP_AUDIENCE"
+else
+  echo "local-seed[keycloak]: LITELLM_GIT_MCP_CLIENT_SECRET not set, skipping client '${LITELLM_GIT_MCP_CLIENT_ID}'"
 fi
+ensure_audience_mapper "$AGENT_SERVICE_CLIENT_ID" "$GIT_MCP_AUDIENCE"
 
 # ControlTower dispatch identity: a client_credentials client whose service account may enqueue specs.
 if [ -z "$CONTROLTOWER_CLIENT_SECRET" ]; then

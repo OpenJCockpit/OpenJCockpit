@@ -2,6 +2,7 @@ package nl.metafactory.agents.gitworkspace;
 
 import nl.metafactory.common.mcp.GitMcpGateway;
 import nl.metafactory.common.mcp.LiteLlmMcpToolClient;
+import nl.metafactory.common.oauth.ClientCredentialsTokens;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,8 +12,10 @@ public class GitWorkspaceConfiguration {
 
     @Bean
     GitMcpGateway agentGitMcpGateway(GitWorkspaceProperties properties) {
+        var tokens = new ClientCredentialsTokens(new ClientCredentialsTokens.Config(properties.getGatewayTokenUrl(),
+                properties.getGatewayClientId(), properties.getGatewayClientSecret()));
         return new GitMcpGateway(new LiteLlmMcpToolClient(new LiteLlmMcpToolClient.Config(
                 properties.getGatewayBaseUrl(), properties.getGatewayApiKey(), properties.getServerId(),
-                properties.getTimeout())));
+                properties.getTimeout(), tokens::authorization)));
     }
 }

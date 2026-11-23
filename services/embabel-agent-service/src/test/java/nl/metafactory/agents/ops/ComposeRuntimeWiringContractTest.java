@@ -34,7 +34,9 @@ class ComposeRuntimeWiringContractTest {
     void theRuntimeIsPulledAsItsReleasedImageInASeparateContainer() throws IOException {
         JsonNode runtime = services().path("embabel-agent-runtime");
         assertThat(runtime.has("build")).isFalse();
-        assertThat(runtime.path("image").asString()).matches(Pattern.quote(RUNTIME_IMAGE) + "v\\d+\\.\\d+\\.\\d+");
+        // A release tag, optionally pinned to its digest (Renovate pins images as <tag>@sha256:<digest>).
+        assertThat(runtime.path("image").asString())
+                .matches(Pattern.quote(RUNTIME_IMAGE) + "v\\d+\\.\\d+\\.\\d+(@sha256:[0-9a-f]{64})?");
         assertThat(runtime.path("container_name").asString()).isEqualTo("openjcockpit-embabel-runtime");
         assertThat(runtime.path("ports").get(0).asString()).isEqualTo("8092:8082");
         assertThat(runtime.path("healthcheck").path("test").valueStream().map(JsonNode::asString).toList())

@@ -49,6 +49,11 @@ The Keycloak instance itself (URL, realm, client ids, or none at all) is set und
 | `A2A_CLIENT_SECRET` | `openjcockpit-a2a-local-secret` | [Authentication](../getting-started/authentication.md#service-identities) |
 | `AI_CONTROL_CLIENT_SECRET` | `openjcockpit-ai-control-local-secret` | [Authentication](../getting-started/authentication.md#service-identities) |
 | `GIT_MCP_CLIENT_SECRET` | `openjcockpit-git-mcp-local-secret` | [Authentication](../getting-started/authentication.md#service-identities) |
+| `LITELLM_GIT_MCP_CLIENT_SECRET` | `openjcockpit-litellm-git-local-secret` | Keycloak client `openjcockpit-litellm-git`: LiteLLM's token for `git-mcp-server`. Required in production. |
+| `GIT_MCP_KEYCLOAK_ENABLED` | `false` (production Compose/Kubernetes: always `true`) | `KEYCLOAK_ENABLED` of `git-mcp-server`. [git-mcp-server](../../../services/git-mcp-server/README.md) |
+| `KEYCLOAK_ENABLED`, `KEYCLOAK_ISSUER_URI`, `KEYCLOAK_JWK_SET_URI`, `KEYCLOAK_EXPECTED_AUDIENCE`, `KEYCLOAK_ALLOWED_AZP` (git-mcp-server) | `false` (`prod` profile: `true`), blank | Incoming MCP authentication. Production Compose overrides: `GIT_MCP_KEYCLOAK_ISSUER_URI`, `GIT_MCP_KEYCLOAK_JWK_SET_URI`, `GIT_MCP_KEYCLOAK_AUDIENCE`, `GIT_MCP_KEYCLOAK_ALLOWED_AZP`. [git-mcp-server](../../../services/git-mcp-server/README.md) |
+| `GIT_MCP_SERVER_TOKEN_URL`, `GIT_MCP_SERVER_CLIENT_ID`, `GIT_MCP_SERVER_CLIENT_SECRET` | Compose: the Keycloak token URL; application defaults: blank, `openjcockpit-agent-service`, `AGENT_SERVICE_CLIENT_SECRET` (`prod`: `KEYCLOAK_TOKEN_URL`) | Token that embabel-agent-service's MCP client sends to `git-mcp-server`. Blank token URL: no token. |
+| `GIT_MCP_TLS_CERT`, `GIT_MCP_TLS_KEY`, `GIT_MCP_TLS_KEY_PASSWORD`, `GIT_MCP_TLS_CA` | blank (HTTP) | Production Compose/Kubernetes: HTTPS on `git-mcp-server`; passed to the image entrypoint as `TLS_CERT`/`TLS_KEY`/`TLS_KEY_PASSWORD`/`TLS_CA` (PEM or base64 PEM). With TLS on, also set `GIT_MCP_SERVER_URL` to `https://…` and `EMBABEL_AGENT_SERVICE_TLS_CA` for a private CA. [git-mcp-server](../../../services/git-mcp-server/README.md#14-tls-https) |
 
 ## Encryption
 
@@ -95,6 +100,7 @@ Application properties without a Compose variable:
 | `OPA_ENABLED` | Compose `true` (application default `false`) | [Policy enforcement](../governance/policy-enforcement.md#policy-client-configuration-openjcockpitopa) |
 | `OPA_CONFIG_LOCKED` | `false` (`prod`: always `true`) | Refuses runtime changes through `PUT /api/opa-config`. [Policy enforcement](../governance/policy-enforcement.md#locking-the-policy-client-in-production) |
 | `OPA_BASE_URL`, `OPA_POLICY_PATH`, `OPA_HEALTH_PATH`, `OPA_TIMEOUT_SECONDS`, `OPA_FAIL_MODE`, `OPA_DECISION_LOGGING_ENABLED`, `OPA_DECISION_LOG_EXPORT_ENABLED` | see docs | [Policy enforcement](../governance/policy-enforcement.md#policy-client-configuration-openjcockpitopa) |
+| `OPA_TOKEN_URL`, `OPA_CLIENT_ID`, `OPA_CLIENT_SECRET` | empty (`prod`: the Keycloak token URL, `openjcockpit-agent-service`, `AGENT_SERVICE_CLIENT_SECRET`) | Keycloak client whose client-credentials token embabel-agent-service sends to OPA. A non-empty `OPA_AUTH_TOKEN` is sent instead. |
 | `MCP_CLIENT_ENABLED` | Compose `true` (application default `false`) | [MCP tools](../integrations/mcp-tools.md#central-mcp-client-remotemcptoolexecutor) |
 | `GIT_MCP_RUN_WORKSPACE_RETENTION` | `PT24H` | [MCP tools](../integrations/mcp-tools.md#per-run-workspace-isolation-workspacekey) |
 | `GIT_MCP_RUN_WORKSPACE_REAP_INTERVAL` | `PT1H` | [MCP tools](../integrations/mcp-tools.md#per-run-workspace-isolation-workspacekey) |

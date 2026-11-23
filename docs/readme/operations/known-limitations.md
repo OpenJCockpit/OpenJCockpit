@@ -14,7 +14,7 @@ together with [Security considerations](../governance/security-considerations.md
 | Multi-tenancy | Tenant claim only for the local service client (`tenant_id=local`). |
 | LLM providers | Local Ollama via LiteLLM plus OpenAI; `OPENAI_API_KEY` required to boot. No automatic provider fallback. |
 | Approval persistence | Runs paused at an approval gate and all decisions are persisted and survive a restart; runs executing an agent or waiting for a child workflow do not. |
-| Tool security | `git-mcp-server` has no authentication of its own; reachable only via LiteLLM and embabel-agent-service (internal network / NetworkPolicy). |
+| Tool security | `git-mcp-server` requires a Keycloak JWT (issuer, audience, allowlisted `azp`) in production (`KEYCLOAK_ENABLED=true`) and is reachable only via LiteLLM and embabel-agent-service (internal network / NetworkPolicy). Locally it runs unauthenticated. Every authenticated caller may use every tool; per-tool control is LiteLLM key grants and OPA. |
 | Policy | The default OPA policy allows identified workflow actions and denies destructive and unknown tool operations; extend it with your organization's rules. Production locks the policy client configuration. |
 | Pull requests | Workflow runs push a branch; no default workflow opens a PR automatically. |
 | Language focus | Java projects are the primary focus; other languages are not yet a verified target. |
@@ -34,10 +34,11 @@ together with [Security considerations](../governance/security-considerations.md
   "Streamable HTTP" transport and the `embabel-agent-service` client side was not migrated to it in that
   delivery. Migrating both ends to the newer Streamable HTTP transport is a deliberate, named follow-up
   for a future delivery, not an oversight. LiteLLM also registers the server over SSE.
-- **`git-mcp-server` remains unauthenticated.** This is a pre-existing condition. It is now not
-  published on the host and is reachable only through LiteLLM with explicitly granted keys, but the
-  server itself still has no authentication. Hardening it (adding authentication) is a standing, known
-  risk to address in a separate piece of work.
+- **`git-mcp-server` is unauthenticated in local development only.** Production deployments run it with
+  `KEYCLOAK_ENABLED=true` (Keycloak JWT with issuer, audience and `azp` allowlist). With
+  `KEYCLOAK_ENABLED=false` it relies on network isolation alone. LiteLLM's virtual-key path combined with
+  the upstream `auth_type: oauth2` was not verified end to end
+  ([details](../../../services/git-mcp-server/README.md#13-callers-litellm-and-direct-clients)).
 - **No Docker Compose healthchecks for the Java services.** Currently `postgres`, `keycloak` and
   `litellm` have Compose healthchecks; `ai-control-service`, `embabel-agent-service`, and `git-mcp-server`
   are instead verified via their `/actuator/health` endpoints. Adding Compose-level healthchecks for these

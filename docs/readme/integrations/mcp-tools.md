@@ -28,8 +28,11 @@ implementation changes, that happens in one place.
 
 ### How it is reached
 
-`git-mcp-server` is **not published on the host**. It has no authentication of its own, so the only
-way in is through the LiteLLM gateway:
+`git-mcp-server` is **not published on the host**. In production it also requires a Keycloak JWT on
+every MCP request (`KEYCLOAK_ENABLED=true`, audience `openjcockpit-git-mcp`, callers
+`openjcockpit-litellm-git` and `openjcockpit-agent-service`). Locally it runs without incoming
+authentication. See [git-mcp-server incoming authentication](../../../services/git-mcp-server/README.md).
+Agents reach it through the LiteLLM gateway:
 
 - `infrastructure/litellm/config.yaml` registers it under `mcp_servers.openjcockpit_git`
   (SSE, `http://git-mcp-server:8093/sse`, pinned `server_id`, `allow_all_keys: false`, private
@@ -130,8 +133,9 @@ the legacy shared-workspace behaviour unchanged.
 ## Transport and security limitations
 
 - The MCP transport is pinned to SSE (`spring.ai.mcp.server.protocol: sse`).
-- `git-mcp-server` has no authentication of its own; it relies on not being published and on
-  LiteLLM key permissions.
+- `git-mcp-server` authenticates its callers with Keycloak JWTs only when `KEYCLOAK_ENABLED=true` (the
+  production default). Locally it relies on not being published and on LiteLLM key permissions
+  ([details](../../../services/git-mcp-server/README.md)).
 - MCP tool-call fidelity through the LiteLLM gateway is not covered end to end by automated tests.
 
 Details for all three: [Known limitations](../operations/known-limitations.md).

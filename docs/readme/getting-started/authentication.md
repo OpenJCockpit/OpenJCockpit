@@ -66,6 +66,11 @@ clients used between services, all with local-only secrets from `.env.example` /
 | `openjcockpit-a2a` | LiteLLM A2A callers, `embabel-agent-service` | Client-credentials identity for A2A calls; tokens carry `tenant_id=local`. |
 | `openjcockpit-ai-control` | `ai-control-service` | Starts workflows in `embabel-agent-service` and issues git-workspace tickets. |
 | `openjcockpit-git-mcp` | `git-mcp-server` | Pulls a running job's Git credentials from `ai-control-service`, server-side. |
+| `openjcockpit-litellm-git` | LiteLLM | Its own token on the upstream connection to `git-mcp-server` (client credentials, audience `openjcockpit-git-mcp`). Seeded when `LITELLM_GIT_MCP_CLIENT_SECRET` is set. |
+
+`openjcockpit-agent-service` also gets the audience `openjcockpit-git-mcp`, for its direct MCP client. Only
+these two clients may call `git-mcp-server` when it runs with `KEYCLOAK_ENABLED=true`. See
+[git-mcp-server incoming authentication](../../../services/git-mcp-server/README.md).
 | `openjcontroltower-service` | OpenJControlTower | Enqueues dispatched specs in the spec queue. Its service account holds `openjcockpit-operator`. Seeded only when `CONTROLTOWER_CLIENT_SECRET` is set. |
 
 ### OpenJControlTower backend

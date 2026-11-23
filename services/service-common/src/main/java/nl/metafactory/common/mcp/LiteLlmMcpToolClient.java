@@ -10,19 +10,41 @@ import tools.jackson.databind.json.JsonMapper;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Calls a tool of an MCP server registered with the LiteLLM gateway through LiteLLM's REST bridge
  * {@code POST /mcp-rest/tools/call} ({@code server_id} + upstream tool name + arguments; verified
  * against the pinned v1.101.2 source, {@code proxy/_experimental/mcp_server/rest_endpoints.py}).
- * The caller's LiteLLM virtual key must be granted the server ({@code object_permission.mcp_servers}).
+ * The caller's LiteLLM virtual key must be granted the server ({@code object_permission.mcp_servers}). It is
+ * sent in {@code x-litellm-api-key}, which LiteLLM reads before {@code Authorization} (verified against the
+ * pinned v1.109.1 source), so {@code Authorization} can carry the caller's Keycloak token for a proxy in front
+ * of LiteLLM.
  *
  * <p>Tool arguments and results are never logged: they can contain repository content.
  */
 public class LiteLlmMcpToolClient {
 
-    /** Gateway root (e.g. {@code http://litellm:4000}), virtual key and MCP server id. */
-    public record Config(String baseUrl, String apiKey, String serverId, Duration timeout) {
+    /** LiteLLM's header for the virtual key ({@code Bearer <key>}). */
+    public static final String API_KEY_HEADER = "x-litellm-api-key";
+
+    /**
+     * Gateway root (e.g. {@code http://litellm:4000}), virtual key, MCP server id, and the {@code Authorization}
+     * value per request ({@code Bearer <Keycloak token>}; empty sends none).
+     */
+    public record Config(String baseUrl, String apiKey, String serverId, Duration timeout,
+                         Supplier<Optional<String>> authorization) {
+
+        /** Without a Keycloak identity: only the virtual key is sent. */
+        public Config(String baseUrl, String apiKey, String serverId, Duration timeout) {
+            this(baseUrl, apiKey, serverId, timeout, Optional::empty);
+        }
+
+        public Config {
+            authorization = authorization != null ? authorization : Optional::empty;
+        }
+
         public boolean configured() {
             return baseUrl != null && !baseUrl.isBlank() && apiKey != null && !apiKey.isBlank()
                     && serverId != null && !serverId.isBlank();
@@ -72,10 +94,18 @@ public class LiteLlmMcpToolClient {
         if (!configured()) {
             throw new McpCallException("LiteLLM MCP gateway is not configured");
         }
+        Optional<String> authorization;
+        try {
+            authorization = config.authorization().get();
+        } catch (RuntimeException e) {
+            throw new McpCallException("MCP tool " + toolName + " via LiteLLM: no Keycloak token ("
+                    + e.getClass().getSimpleName() + ")");
+        }
         byte[] body;
         try {
             body = rest.post().uri(config.baseUrl().replaceAll("/+$", "") + "/mcp-rest/tools/call")
-                    .header("Authorization", "Bearer " + config.apiKey())
+                    .header(API_KEY_HEADER, "Bearer " + config.apiKey())
+                    .headers(h -> authorization.ifPresent(a -> h.set("Authorization", a)))
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(Map.of("server_id", config.serverId(), "name", toolName, "arguments", arguments))
                     .retrieve().body(byte[].class);
