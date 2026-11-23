@@ -424,7 +424,7 @@ services:
   # changing EMBABEL_AGENT_SERVICE_BASE_URL / A2A_PUBLIC_BASE_URL (and the LiteLLM agent URLs) only.
   # Pulled as the released image of the OpenJCockpit-Agent-Runtime repository (GitHub Packages).
   embabel-agent-runtime:
-    image: ghcr.io/openjcockpit/embabel-agent-runtime:v0.1.11
+    image: ghcr.io/openjcockpit/embabel-agent-runtime:v0.1.11@sha256:ecb76816b882a78cf99dc976c191ef54b6ecbe2d7406d702e96514d2783a960f
     container_name: openjcockpit-embabel-runtime
     restart: unless-stopped
     ports:
