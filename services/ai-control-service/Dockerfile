@@ -3,14 +3,14 @@
 # parallel builds each fetch the full dependency set). Without it this empty stage is used.
 FROM scratch AS maven-repository
 
-FROM --platform=$BUILDPLATFORM maven:3.10-eclipse-temurin-25@sha256:a4734fd7909a9c2beddcacfa1229bd308a349f000bea1ec8db3287c8a16ca2a3 AS build
+FROM --platform=$BUILDPLATFORM maven:3.10-eclipse-temurin-25@sha256:84bd96155bf37d1be2858433aee89320f487c2d21faf06406640e7dc2b82d686 AS build
 WORKDIR /workspace
 COPY . .
 RUN --mount=type=bind,from=maven-repository,target=/maven-repository \
     --mount=type=cache,target=/root/.m2/repository \
     mvn -pl services/ai-control-service -am package -DskipTests --no-transfer-progress -Dmaven.repo.local.tail=/maven-repository
 
-FROM eclipse-temurin:25-jre@sha256:a640968ae55027b322cedd5f8228b01a84baff0b9e9360e47601c6a111ba1699
+FROM eclipse-temurin:25-jre@sha256:4ed132f6832e9804b123e89a849a7b4502756ae64a4ee08ebab939d9d5d0a9fa
 WORKDIR /app
 # Unprivileged user (same UID as embabel-agent-runtime). The only writable places are /tmp and the
 # data directories below, which are created here so fresh volumes inherit the ownership.

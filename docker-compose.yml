@@ -31,7 +31,7 @@ x-a2a-service-encryption-salt: &a2a-service-encryption-salt ${A2A_SERVICE_ENCRYP
 x-spec-queue-runner-secret: &spec-queue-runner-secret ${SPEC_QUEUE_RUNNER_TOKEN_SECRET:-local-only-spec-queue-runner-secret-CHANGE-ME-outside-local}
 services:
   postgres:
-    image: postgres:18-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
+    image: postgres:18-alpine@sha256:0115267ab5a509022df9319c77be365cef335adb71556c75f60f5360ee247e71
     container_name: openjcockpit-postgres
     restart: unless-stopped
     environment:
@@ -44,7 +44,7 @@ services:
       timeout: 5s
       retries: 10
   postgres-init:
-    image: postgres:18-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
+    image: postgres:18-alpine@sha256:0115267ab5a509022df9319c77be365cef335adb71556c75f60f5360ee247e71
     depends_on:
       postgres:
         condition: service_healthy
@@ -56,7 +56,7 @@ services:
     restart: "no"
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.8.2@sha256:c68e286cacd87b942ac1939a0a1481461109d6acd3a57dc496969a319a76bbf0
+    image: quay.io/keycloak/keycloak:26.8.2@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3
     container_name: openjcockpit-keycloak
     restart: unless-stopped
     command: ["start-dev", "--import-realm"]
@@ -170,7 +170,7 @@ services:
   # only route embabel-agent-runtime takes to the local model (BR-13: OpenAI is NOT
   # proxied). Host port 4100 -- LiteLLM's conventional 4000 collides with the frontend dashboard (OpenJCockpit-frontend).
   litellm:
-    image: ghcr.io/berriai/litellm:v1.109.1@sha256:11175975a3093e05e92faee2fe2fe3412a3ae2fcaa849eb0fe25d5f0d8bcb2e9
+    image: ghcr.io/berriai/litellm:1.110.2@sha256:ef798594ca3db8d81bad2e1439f536f49b71fe095ee9f20416f5e149b4e22035
     container_name: openjcockpit-litellm
     restart: unless-stopped
     ports:
@@ -258,7 +258,7 @@ services:
   # One-shot: the service images run as UID 10001. Named volumes created by an older stack (when the
   # services ran as root) are handed over once; fresh volumes already inherit the image's ownership.
   volume-permissions:
-    image: postgres:18-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
+    image: postgres:18-alpine@sha256:0115267ab5a509022df9319c77be365cef335adb71556c75f60f5360ee247e71
     user: "0:0"
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -280,7 +280,7 @@ services:
   #   AGENTIC_CONTAINER_ENABLED=true docker compose --profile docker-jobs up
   # Nothing executes in the job container yet, so the default stack runs without it.
   docker-socat:
-    image: alpine/socat@sha256:71131702f671a88b3808a70b7330f9679cd9b9933adcafadc191508edfe55bba
+    image: alpine/socat@sha256:5aa280c6fc5bee94dbd2bbdf2a58d30f50396eaa110be84b03636945b157ae68
     container_name: openjcockpit-docker-socat
     profiles: ["docker-jobs"]
     restart: unless-stopped
@@ -434,7 +434,7 @@ services:
   # changing EMBABEL_AGENT_SERVICE_BASE_URL / A2A_PUBLIC_BASE_URL (and the LiteLLM agent URLs) only.
   # Pulled as the released image of the OpenJCockpit-Agent-Runtime repository (GitHub Packages).
   embabel-agent-runtime:
-    image: ghcr.io/openjcockpit/embabel-agent-runtime:v0.1.11
+    image: ghcr.io/openjcockpit/embabel-agent-runtime:v0.1.11@sha256:ecb76816b882a78cf99dc976c191ef54b6ecbe2d7406d702e96514d2783a960f
     container_name: openjcockpit-embabel-runtime
     restart: unless-stopped
     ports:

@@ -35,7 +35,7 @@ x-java-service: &java-service
 services:
   postgres:
     <<: *hardened
-    image: postgres:18-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
+    image: postgres:18-alpine@sha256:0115267ab5a509022df9319c77be365cef335adb71556c75f60f5360ee247e71
     # The entrypoint initialises the data directory as root and drops to the postgres user.
     cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
     environment:
@@ -61,7 +61,7 @@ services:
 
   keycloak:
     <<: *hardened
-    image: quay.io/keycloak/keycloak:26.8.2@sha256:c68e286cacd87b942ac1939a0a1481461109d6acd3a57dc496969a319a76bbf0
+    image: quay.io/keycloak/keycloak:26.8.2@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3
     command: ["start", "--import-realm"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:?}
@@ -153,7 +153,7 @@ services:
 
   litellm:
     <<: *hardened
-    image: ghcr.io/berriai/litellm:v1.109.1@sha256:11175975a3093e05e92faee2fe2fe3412a3ae2fcaa849eb0fe25d5f0d8bcb2e9
+    image: ghcr.io/berriai/litellm:1.110.2@sha256:ef798594ca3db8d81bad2e1439f536f49b71fe095ee9f20416f5e149b4e22035
     environment:
       CONFIG_FILE_PATH: /app/config.yaml
       DATABASE_URL: postgresql://litellm_app:${LITELLM_DB_PASSWORD:?}@postgres:5432/litellm
@@ -388,7 +388,7 @@ services:
   node-exporter:
     <<: *hardened
     profiles: ["monitoring"]
-    image: prom/node-exporter:v1.12.1@sha256:1b4e4438faca4dd7e001dd445d161a4a2091b0fededa84093b3a8dfeae1f1be0
+    image: prom/node-exporter:v1.13.1@sha256:7296504d4ada44b7d7ab4431e27e9f9900d8488f8d55842f4b12ae2704e16dfe
     read_only: true
     user: "65534:65534"
     command: ["--path.rootfs=/host", "--collector.textfile.directory=/textfile"]

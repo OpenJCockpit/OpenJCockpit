@@ -6,6 +6,8 @@ import nl.metafactory.aicontrol.service.GitWorkspaceOperations;
 import nl.metafactory.aicontrol.service.JGitPort;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
+import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -37,9 +39,13 @@ public class GitAdapterConfig {
     @Bean
     public JGitPort jGitPort() {
         return (url, credentials, timeoutSeconds) -> {
-            var cmd = Git.lsRemoteRepository().setRemote(url).setTimeout(timeoutSeconds);
-            if (credentials != null) cmd.setCredentialsProvider(credentials);
-            cmd.call();
+            // Redirects are not followed: the host that was classified must be the host that is contacted.
+            try (var repo = new InMemoryRepository(new DfsRepositoryDescription("git-check"))) {
+                repo.getConfig().setString("http", null, "followRedirects", "false");
+                var cmd = new Git(repo).lsRemote().setRemote(url).setTimeout(timeoutSeconds);
+                if (credentials != null) cmd.setCredentialsProvider(credentials);
+                cmd.call();
+            }
         };
     }
 

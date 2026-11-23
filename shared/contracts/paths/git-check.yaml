@@ -29,3 +29,31 @@ gitStatus:
           application/json:
             schema:
               $ref: '../schemas/git.yaml#/ProjectGitStatusDto'
+
+gitCheckStateless:
+  post:
+    tags:
+      - GitCheck
+    operationId: checkGitConnection
+    summary: Test a Git URL and credentials without a project (nothing is persisted)
+    description: >-
+      Admin only. The server contacts the supplied host, so redirects are not followed, the call is
+      rate limited per user and audited, and loopback, link-local and private targets are reported
+      in `warnings` rather than blocked.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/git.yaml#/GitConnectionCheckRequest'
+    responses:
+      '200':
+        description: Result of the connectivity check (also when the repository is not reachable)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/git.yaml#/GitConnectionCheckResult'
+      '400':
+        description: Unsupported URL scheme, or a secret is missing for the chosen credential type
+      '429':
+        description: Too many checks from this user; retry later
