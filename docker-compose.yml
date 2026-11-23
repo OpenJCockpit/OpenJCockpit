@@ -168,7 +168,7 @@ services:
   # only route embabel-agent-runtime takes to the local model (BR-13: OpenAI is NOT
   # proxied). Host port 4100 -- LiteLLM's conventional 4000 collides with the frontend dashboard (OpenJCockpit-frontend).
   litellm:
-    image: ghcr.io/berriai/litellm:v1.109.1@sha256:11175975a3093e05e92faee2fe2fe3412a3ae2fcaa849eb0fe25d5f0d8bcb2e9
+    image: ghcr.io/berriai/litellm:1.110.2@sha256:ef798594ca3db8d81bad2e1439f536f49b71fe095ee9f20416f5e149b4e22035
     container_name: openjcockpit-litellm
     restart: unless-stopped
     ports:
