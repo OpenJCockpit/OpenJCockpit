@@ -1,0 +1,176 @@
+EvidenceSource:
+  type: string
+  description: Where an evidence event came from.
+  enum:
+    - agent
+    - approval
+    - git
+
+EvidenceStatus:
+  type: string
+  enum:
+    - ok
+    - running
+    - waiting
+    - failed
+
+EvidenceTimelineEvent:
+  type: object
+  description: One entry of the merged agent, approval and git timeline of a run.
+  required:
+    - timestamp
+    - source
+    - title
+    - status
+  properties:
+    timestamp:
+      type: string
+      format: date-time
+    source:
+      $ref: '#/EvidenceSource'
+    agentId:
+      type: string
+      nullable: true
+      description: Agent that produced the event (agent source only).
+    actor:
+      type: string
+      nullable: true
+      description: Person who made the decision (approval source only).
+    title:
+      type: string
+      description: Short, single-line summary.
+    detail:
+      type: string
+      nullable: true
+      description: Remainder of the text when the title was shortened, or the decision comment or git message.
+    outputRef:
+      type: string
+      nullable: true
+      description: Agent key to pass to the outputs endpoint for the full output. Never the raw agent-output URI.
+    status:
+      $ref: '#/EvidenceStatus'
+
+EvidenceRunDetails:
+  type: object
+  required:
+    - runId
+    - status
+    - artifacts
+  properties:
+    runId:
+      type: string
+    workflowId:
+      type: string
+      nullable: true
+    status:
+      type: string
+      description: Run status reported by the agent service, or the git job status when the agent service is unreachable.
+    startedBy:
+      type: string
+      nullable: true
+    startedAt:
+      type: string
+      format: date-time
+      nullable: true
+    completedAt:
+      type: string
+      format: date-time
+      nullable: true
+    branch:
+      type: string
+      nullable: true
+    commitHash:
+      type: string
+      nullable: true
+    artifacts:
+      type: array
+      items:
+        type: string
+    failureSummary:
+      type: string
+      nullable: true
+
+EvidenceRun:
+  type: object
+  required:
+    - details
+    - events
+  properties:
+    details:
+      $ref: '#/EvidenceRunDetails'
+    events:
+      type: array
+      description: All events sorted by timestamp, oldest first.
+      items:
+        $ref: '#/EvidenceTimelineEvent'
+
+EvidenceRunSummary:
+  type: object
+  required:
+    - runId
+    - status
+  properties:
+    runId:
+      type: string
+    workflowId:
+      type: string
+      nullable: true
+    status:
+      type: string
+    startedAt:
+      type: string
+      format: date-time
+      nullable: true
+    completedAt:
+      type: string
+      format: date-time
+      nullable: true
+    startedBy:
+      type: string
+      nullable: true
+    branch:
+      type: string
+      nullable: true
+    eventCount:
+      type: integer
+      format: int32
+      nullable: true
+      description: Agent events of the run. Null when the agent service could not be reached.
+    failedEventCount:
+      type: integer
+      format: int32
+      nullable: true
+
+EvidenceRunPage:
+  type: object
+  required:
+    - items
+    - total
+    - limit
+    - offset
+  properties:
+    items:
+      type: array
+      description: Runs of the project, newest first. Empty when the project has no run yet.
+      items:
+        $ref: '#/EvidenceRunSummary'
+    total:
+      type: integer
+      format: int64
+    limit:
+      type: integer
+      format: int32
+    offset:
+      type: integer
+      format: int32
+
+EvidenceOutput:
+  type: object
+  required:
+    - agentKey
+    - output
+  properties:
+    agentKey:
+      type: string
+    output:
+      type: string

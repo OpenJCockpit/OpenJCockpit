@@ -200,6 +200,7 @@ public class GitWorkspaceJobService {
     public void finishWorkflowRunAsync(PreparedWorkspace workspace, String runId) {
         UUID jobId = workspace.jobId();
         try {
+            saveRunId(jobId, runId);
             updateStatus(jobId, GitWorkspaceJobStatus.AGENTS_RUNNING, "Workflow run started: " + runId);
             agentService.pollAgentRun(runId, jobId);
             GitWorkspaceJob job = loadJob(jobId);
@@ -321,6 +322,14 @@ public class GitWorkspaceJobService {
     void saveContainerId(UUID jobId, String containerId) {
         jobRepo.findById(jobId).ifPresent(job -> {
             job.setContainerId(containerId);
+            jobRepo.save(job);
+        });
+    }
+
+    @Transactional
+    void saveRunId(UUID jobId, String runId) {
+        jobRepo.findById(jobId).ifPresent(job -> {
+            job.setRunId(runId);
             jobRepo.save(job);
         });
     }

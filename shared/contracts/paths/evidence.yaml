@@ -1,0 +1,109 @@
+evidenceRuns:
+  get:
+    tags:
+      - Evidence
+    operationId: listEvidenceRuns
+    summary: List the workflow runs of a project, newest first
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '../schemas/common.yaml#/parameters/WorkflowExecutionsLimitParam'
+      - $ref: '../schemas/common.yaml#/parameters/WorkflowExecutionsOffsetParam'
+    responses:
+      '200':
+        description: Paged runs (empty when the project has none)
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/evidence.yaml#/EvidenceRunPage'
+      '404':
+        description: Project not found
+
+evidenceRun:
+  get:
+    tags:
+      - Evidence
+    operationId: getEvidenceRun
+    summary: Get the merged evidence of one run
+    description: The runId must belong to a job of the project, otherwise 404.
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Run details and merged timeline
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/evidence.yaml#/EvidenceRun'
+      '404':
+        description: Project not found, or the run does not belong to it
+
+evidenceRunLatest:
+  get:
+    tags:
+      - Evidence
+    operationId: getLatestEvidenceRun
+    summary: Get the merged evidence of the project's latest run
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: Run details and merged timeline
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/evidence.yaml#/EvidenceRun'
+      '404':
+        description: Project not found, or it has no run yet
+
+evidenceRunOutput:
+  get:
+    tags:
+      - Evidence
+    operationId: getEvidenceRunOutput
+    summary: Get the full output of one agent in a run
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: agentKey
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Agent output
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/evidence.yaml#/EvidenceOutput'
+      '404':
+        description: Project, run or agent output not found
