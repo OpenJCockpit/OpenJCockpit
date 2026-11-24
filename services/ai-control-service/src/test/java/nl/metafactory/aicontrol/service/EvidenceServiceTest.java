@@ -243,4 +243,17 @@ class EvidenceServiceTest {
         return new ApprovalDecisionAuditEntryDto("d", "run-1", "wf-1", "review", 1, kind, null, "bob", "sub",
                 null, null, null, T0.plusSeconds(seconds));
     }
+
+    @Test
+    void listRunIdsOfAProjectOrOfOneWorkflowAreDeduplicated() {
+        var from = T0.minusSeconds(60);
+        var to = T0.plusSeconds(60);
+        when(jobRepo.findRunIds(eq(projectId), eq(from), eq(to), any(Pageable.class)))
+                .thenReturn(List.of("run-1", "run-2", "run-1"));
+        when(jobRepo.findRunIdsByWorkflow(eq(projectId), eq("wf-1"), eq(from), eq(to), any(Pageable.class)))
+                .thenReturn(List.of("run-2"));
+
+        assertThat(service.listRunIds(projectId, null, from, to, 10)).containsExactly("run-1", "run-2");
+        assertThat(service.listRunIds(projectId, "wf-1", from, to, 10)).containsExactly("run-2");
+    }
 }

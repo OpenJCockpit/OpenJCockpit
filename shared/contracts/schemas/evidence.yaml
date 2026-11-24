@@ -174,3 +174,173 @@ EvidenceOutput:
       type: string
     output:
       type: string
+
+EvidenceExportFormat:
+  type: string
+  enum:
+    - json
+    - csv
+    - markdown
+    - pdf
+
+EvidenceExportScope:
+  type: string
+  enum:
+    - run
+    - workflow
+    - project
+
+EvidenceExportOutput:
+  type: object
+  description: Full output of one agent, as included in a JSON export.
+  required:
+    - agentKey
+    - output
+  properties:
+    agentKey:
+      type: string
+    output:
+      type: string
+    truncated:
+      type: boolean
+      description: True when the output was cut at the size cap.
+
+EvidenceExportRun:
+  type: object
+  description: One run in an export. `error` is set (and details/events empty) when the run could not be loaded.
+  required:
+    - runId
+    - events
+  properties:
+    runId:
+      type: string
+    details:
+      $ref: '#/EvidenceRunDetails'
+    events:
+      type: array
+      items:
+        $ref: '#/EvidenceTimelineEvent'
+    outputs:
+      type: array
+      description: Present only with includeOutputs=true.
+      items:
+        $ref: '#/EvidenceExportOutput'
+    outputsUnavailable:
+      type: boolean
+      description: True when outputs were requested but the agent service could not be reached.
+    error:
+      type: string
+      nullable: true
+
+EvidenceExportBundle:
+  type: object
+  description: JSON export of a workflow or project.
+  required:
+    - scope
+    - exportedAt
+    - runs
+  properties:
+    scope:
+      $ref: '#/EvidenceExportScope'
+    workflowId:
+      type: string
+      nullable: true
+    exportedAt:
+      type: string
+      format: date-time
+    runs:
+      type: array
+      items:
+        $ref: '#/EvidenceExportRun'
+
+EvidenceExportRequest:
+  type: object
+  required:
+    - scope
+    - format
+  properties:
+    scope:
+      type: string
+      enum:
+        - workflow
+        - project
+    workflowId:
+      type: string
+      nullable: true
+      description: Required for workflow scope.
+    format:
+      $ref: '#/EvidenceExportFormat'
+    includeOutputs:
+      type: boolean
+      default: false
+    from:
+      type: string
+      format: date-time
+      nullable: true
+    to:
+      type: string
+      format: date-time
+      nullable: true
+
+EvidenceExportJobStatus:
+  type: string
+  enum:
+    - queued
+    - running
+    - done
+    - failed
+    - cancelled
+
+EvidenceExportJobCreated:
+  type: object
+  required:
+    - jobId
+    - status
+  properties:
+    jobId:
+      type: string
+      format: uuid
+    status:
+      $ref: '#/EvidenceExportJobStatus'
+
+EvidenceExportProgress:
+  type: object
+  required:
+    - runsDone
+    - runsTotal
+  properties:
+    runsDone:
+      type: integer
+      format: int32
+    runsTotal:
+      type: integer
+      format: int32
+
+EvidenceExportJob:
+  type: object
+  required:
+    - jobId
+    - status
+    - progress
+  properties:
+    jobId:
+      type: string
+      format: uuid
+    status:
+      $ref: '#/EvidenceExportJobStatus'
+    progress:
+      $ref: '#/EvidenceExportProgress'
+    filename:
+      type: string
+      nullable: true
+    sizeBytes:
+      type: integer
+      format: int64
+      nullable: true
+    error:
+      type: string
+      nullable: true
+    expiresAt:
+      type: string
+      format: date-time
+      nullable: true

@@ -51,7 +51,8 @@ public class SecurityConfig {
             "/api/projects/*/spec-files", "/api/projects/*/spec-init/status",
             "/api/projects/*/spec-queue", "/api/projects/*/spec-queue/settings",
             "/api/projects/*/evidence/runs", "/api/projects/*/evidence/runs/*", "/api/projects/*/evidence/latest",
-            "/api/projects/*/evidence/runs/*/outputs/*",
+            "/api/projects/*/evidence/runs/*/outputs/*", "/api/projects/*/evidence/runs/*/export",
+            "/api/projects/*/evidence/exports/*", "/api/projects/*/evidence/exports/*/download",
             "/api/agent-runs/*", "/api/agent-runs/*/approval-gate", "/api/agent-runs/*/approval-decisions",
             "/api/agent-catalog", "/api/agent-catalog/providers/*/agents/*/card",
             "/api/git-workspace-jobs/*", "/api/git-workspace-jobs/*/events",
@@ -125,7 +126,9 @@ public class SecurityConfig {
         // ── viewer: read-only ───────────────────────────────────────────────────────
         // Listed one by one (no /api/** wildcard), so a new read endpoint is denied until it is added here.
         // Model routing is a side-effect-free computation, exposed as POST for its request body.
-        auth.requestMatchers(POST, "/api/model-routing/decision").hasRole(VIEWER)
+        // Evidence export jobs are project access only (viewer); who may see a job is checked per job.
+        auth.requestMatchers(POST, "/api/model-routing/decision", "/api/projects/*/evidence/exports").hasRole(VIEWER)
+                .requestMatchers(DELETE, "/api/projects/*/evidence/exports/*").hasRole(VIEWER)
                 .requestMatchers(GET, VIEWER_READS).hasRole(VIEWER)
                 .requestMatchers(GET, DEFINITION_COLLECTIONS).hasRole(VIEWER)
                 .requestMatchers(GET, suffixed(DEFINITION_COLLECTIONS, "/*")).hasRole(VIEWER);
