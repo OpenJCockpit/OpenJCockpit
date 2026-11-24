@@ -103,6 +103,14 @@ paths:
     $ref: 'paths/evidence.yaml#/evidenceRun'
   /api/projects/{id}/evidence/runs/{runId}/outputs/{agentKey}:
     $ref: 'paths/evidence.yaml#/evidenceRunOutput'
+  /api/projects/{id}/evidence/runs/{runId}/export:
+    $ref: 'paths/evidence.yaml#/evidenceRunExport'
+  /api/projects/{id}/evidence/exports:
+    $ref: 'paths/evidence.yaml#/evidenceExports'
+  /api/projects/{id}/evidence/exports/{jobId}:
+    $ref: 'paths/evidence.yaml#/evidenceExportJob'
+  /api/projects/{id}/evidence/exports/{jobId}/download:
+    $ref: 'paths/evidence.yaml#/evidenceExportDownload'
   /api/projects/{id}/evidence/latest:
     $ref: 'paths/evidence.yaml#/evidenceRunLatest'
   /api/workflows:
@@ -176,6 +184,26 @@ components:
       $ref: 'schemas/evidence.yaml#/EvidenceRunPage'
     EvidenceOutput:
       $ref: 'schemas/evidence.yaml#/EvidenceOutput'
+    EvidenceExportFormat:
+      $ref: 'schemas/evidence.yaml#/EvidenceExportFormat'
+    EvidenceExportScope:
+      $ref: 'schemas/evidence.yaml#/EvidenceExportScope'
+    EvidenceExportOutput:
+      $ref: 'schemas/evidence.yaml#/EvidenceExportOutput'
+    EvidenceExportRun:
+      $ref: 'schemas/evidence.yaml#/EvidenceExportRun'
+    EvidenceExportBundle:
+      $ref: 'schemas/evidence.yaml#/EvidenceExportBundle'
+    EvidenceExportRequest:
+      $ref: 'schemas/evidence.yaml#/EvidenceExportRequest'
+    EvidenceExportJobStatus:
+      $ref: 'schemas/evidence.yaml#/EvidenceExportJobStatus'
+    EvidenceExportJobCreated:
+      $ref: 'schemas/evidence.yaml#/EvidenceExportJobCreated'
+    EvidenceExportProgress:
+      $ref: 'schemas/evidence.yaml#/EvidenceExportProgress'
+    EvidenceExportJob:
+      $ref: 'schemas/evidence.yaml#/EvidenceExportJob'
     QualityControl:
       $ref: 'schemas/workspace.yaml#/QualityControl'
     StackServiceStatus:

@@ -176,6 +176,11 @@ class AuthorizationMatrixTest {
             e(GET, "/api/projects/{projectId}/evidence/runs/{runId}", VIEWER),
             e(GET, "/api/projects/{projectId}/evidence/runs/{runId}/outputs/{agentKey}", VIEWER),
             e(GET, "/api/projects/{projectId}/evidence/latest", VIEWER),
+            e(GET, "/api/projects/{projectId}/evidence/runs/{runId}/export", VIEWER),
+            e(POST, "/api/projects/{projectId}/evidence/exports", VIEWER),
+            e(GET, "/api/projects/{projectId}/evidence/exports/{jobId}", VIEWER),
+            e(GET, "/api/projects/{projectId}/evidence/exports/{jobId}/download", VIEWER),
+            e(DELETE, "/api/projects/{projectId}/evidence/exports/{jobId}", VIEWER),
             // workflows and groups
             e(GET, "/api/workflows", VIEWER),
             e(POST, "/api/workflows", OPERATOR),

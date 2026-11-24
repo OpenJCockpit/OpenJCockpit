@@ -107,3 +107,192 @@ evidenceRunOutput:
               $ref: '../schemas/evidence.yaml#/EvidenceOutput'
       '404':
         description: Project, run or agent output not found
+
+evidenceRunExport:
+  get:
+    tags:
+      - Evidence
+    operationId: exportEvidenceRun
+    summary: Download the evidence of one run as a file
+    description: |
+      Synchronous download of one whole run (never a filtered view). The run must belong to the
+      project, otherwise 404. `format=pdf` is rejected with 400 until PDF support ships.
+
+      The JSON body is an `EvidenceExportRun`. Every media type is declared as binary on purpose:
+      the code generator types a multi-media-type response from the first entry, which would make
+      the CSV, Markdown and PDF variants unrepresentable.
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: format
+        in: query
+        required: true
+        schema:
+          $ref: '../schemas/evidence.yaml#/EvidenceExportFormat'
+      - name: includeOutputs
+        in: query
+        required: false
+        description: Include agent outputs (json, markdown, pdf). CSV only carries the outputRef.
+        schema:
+          type: boolean
+          default: false
+    responses:
+      '200':
+        description: The export file, sent as an attachment
+        headers:
+          Content-Disposition:
+            description: attachment; filename="evidence-<runId>.<ext>"
+            schema:
+              type: string
+        content:
+          application/json:
+            schema:
+              type: string
+              format: binary
+          text/csv:
+            schema:
+              type: string
+              format: binary
+          text/markdown:
+            schema:
+              type: string
+              format: binary
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+      '400':
+        description: Unknown or unsupported format
+      '404':
+        description: Project not found, or the run does not belong to it
+
+evidenceExports:
+  post:
+    tags:
+      - Evidence
+    operationId: createEvidenceExport
+    summary: Start an export job for all runs of a workflow or a project
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/evidence.yaml#/EvidenceExportRequest'
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+    responses:
+      '202':
+        description: Job accepted
+        headers:
+          Location:
+            description: URL of the job
+            schema:
+              type: string
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/evidence.yaml#/EvidenceExportJobCreated'
+      '400':
+        description: Unknown format, missing workflowId for workflow scope, or invalid date range
+      '404':
+        description: Project or workflow not found
+      '429':
+        description: Too many concurrent export jobs in this project
+
+evidenceExportJob:
+  get:
+    tags:
+      - Evidence
+    operationId: getEvidenceExport
+    summary: Status and progress of an export job
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: Job status
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/evidence.yaml#/EvidenceExportJob'
+      '404':
+        description: Project or job not found, or the job is not visible to the caller
+  delete:
+    tags:
+      - Evidence
+    operationId: cancelEvidenceExport
+    summary: Cancel a running export job, or delete a finished file
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '204':
+        description: Job cancelled or deleted
+      '404':
+        description: Project or job not found, or the job is not visible to the caller
+
+evidenceExportDownload:
+  get:
+    tags:
+      - Evidence
+    operationId: downloadEvidenceExport
+    summary: Download the file of a finished export job
+    description: The JSON body is an `EvidenceExportBundle`. Media types are declared as binary, see `exportEvidenceRun`.
+    parameters:
+      - $ref: '../schemas/common.yaml#/parameters/ProjectIdPathParam'
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: The export file, sent as an attachment
+        headers:
+          Content-Disposition:
+            description: attachment; filename="..."
+            schema:
+              type: string
+        content:
+          application/json:
+            schema:
+              type: string
+              format: binary
+          text/csv:
+            schema:
+              type: string
+              format: binary
+          text/markdown:
+            schema:
+              type: string
+              format: binary
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+      '404':
+        description: Project or job not found, or the job is not visible to the caller
+      '409':
+        description: The job is not done yet
+      '410':
+        description: The export has expired
