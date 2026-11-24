@@ -5,14 +5,13 @@ import nl.metafactory.aicontrol.model.EvidenceExportJob;
 import nl.metafactory.aicontrol.model.EvidenceExportJobCreated;
 import nl.metafactory.aicontrol.model.EvidenceExportRequest;
 import nl.metafactory.aicontrol.model.EvidenceExportFormat;
+import nl.metafactory.aicontrol.service.evidenceexport.EvidenceExportJobService;
 import nl.metafactory.aicontrol.service.evidenceexport.EvidenceExportService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.server.ResponseStatusException;
 import nl.metafactory.aicontrol.model.EvidenceOutput;
 import nl.metafactory.aicontrol.model.EvidenceRun;
 import nl.metafactory.aicontrol.model.EvidenceRunPage;
@@ -20,6 +19,7 @@ import nl.metafactory.aicontrol.service.EvidenceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.util.UUID;
 
 @RestController
@@ -27,10 +27,13 @@ public class EvidenceController implements EvidenceApi {
 
     private final EvidenceService evidenceService;
     private final EvidenceExportService exportService;
+    private final EvidenceExportJobService jobService;
 
-    public EvidenceController(EvidenceService evidenceService, EvidenceExportService exportService) {
+    public EvidenceController(EvidenceService evidenceService, EvidenceExportService exportService,
+                              EvidenceExportJobService jobService) {
         this.evidenceService = evidenceService;
         this.exportService = exportService;
+        this.jobService = jobService;
     }
 
     @Override
@@ -64,29 +67,33 @@ public class EvidenceController implements EvidenceApi {
                 .body(new ByteArrayResource(file.content()));
     }
 
-    // The export job API is part of the contract from phase 1a; its implementation follows in phase 1b.
-
     @Override
     public ResponseEntity<EvidenceExportJobCreated> createEvidenceExport(UUID id, EvidenceExportRequest request) {
-        throw notImplemented();
+        var created = jobService.create(id, request);
+        return ResponseEntity.accepted()
+                .location(URI.create("/api/projects/" + id + "/evidence/exports/" + created.jobId()))
+                .body(created);
     }
 
     @Override
     public ResponseEntity<EvidenceExportJob> getEvidenceExport(UUID id, UUID jobId) {
-        throw notImplemented();
+        return ResponseEntity.ok(jobService.get(id, jobId));
     }
 
     @Override
     public ResponseEntity<Void> cancelEvidenceExport(UUID id, UUID jobId) {
-        throw notImplemented();
+        jobService.cancel(id, jobId);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
     public ResponseEntity<Resource> downloadEvidenceExport(UUID id, UUID jobId) {
-        throw notImplemented();
-    }
-
-    private static ResponseStatusException notImplemented() {
-        return new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Export jobs are not available yet");
+        var file = jobService.download(id, jobId);
+        var response = ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(file.mediaType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment().filename(file.filename()).build().toString());
+        if (file.sizeBytes() >= 0) response.contentLength(file.sizeBytes());
+        return response.body(file.content());
     }
 }

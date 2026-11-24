@@ -174,7 +174,7 @@ public class EvidenceExportService {
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
-    private static void requireSupported(EvidenceExportFormat format) {
+    static void requireSupported(EvidenceExportFormat format) {
         if (format == EvidenceExportFormat.PDF) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PDF export is not available yet");
         }
@@ -182,8 +182,14 @@ public class EvidenceExportService {
 
     private void audit(UUID projectId, EvidenceExportScope scope, String target, EvidenceExportFormat format,
                        boolean includeOutputs, int runs) {
+        audit(projectId, scope, target, format, includeOutputs, runs, currentUser());
+    }
+
+    /** Audit line for an export; the job worker passes the job creator because it has no security context. */
+    void audit(UUID projectId, EvidenceExportScope scope, String target, EvidenceExportFormat format,
+               boolean includeOutputs, int runs, String user) {
         log.info("Evidence export: project={} scope={} target={} format={} includeOutputs={} runs={} user={}",
-                projectId, scope.getValue(), sanitise(target), format.getValue(), includeOutputs, runs, currentUser());
+                projectId, scope.getValue(), sanitise(target), format.getValue(), includeOutputs, runs, sanitise(user));
     }
 
     private static String currentUser() {

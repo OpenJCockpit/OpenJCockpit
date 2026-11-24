@@ -67,6 +67,20 @@ public class EvidenceService {
         return new EvidenceRunPage(items, page.getTotalElements(), limit, offset);
     }
 
+    /**
+     * Run ids of a project (or of one workflow when {@code workflowId} is set) created in the window,
+     * oldest first and without duplicates. Returns at most {@code limit} ids.
+     */
+    @Transactional(readOnly = true)
+    public List<String> listRunIds(UUID projectId, String workflowId, Instant from, Instant to, int limit) {
+        projectService.getOrThrow(projectId);
+        Pageable pageable = new OffsetPageRequest(0, limit);
+        List<String> ids = workflowId == null
+                ? jobRepo.findRunIds(projectId, from, to, pageable)
+                : jobRepo.findRunIdsByWorkflow(projectId, workflowId, from, to, pageable);
+        return ids.stream().distinct().toList();
+    }
+
     @Transactional(readOnly = true)
     public EvidenceRun getRun(UUID projectId, String runId) {
         projectService.getOrThrow(projectId);

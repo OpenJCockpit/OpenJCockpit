@@ -8,7 +8,13 @@ import nl.metafactory.aicontrol.model.EvidenceSource;
 import nl.metafactory.aicontrol.model.EvidenceStatus;
 import nl.metafactory.aicontrol.model.EvidenceTimelineEvent;
 import nl.metafactory.aicontrol.service.EvidenceService;
+import nl.metafactory.aicontrol.service.evidenceexport.EvidenceExportJobService;
 import nl.metafactory.aicontrol.service.evidenceexport.EvidenceExportService;
+import nl.metafactory.aicontrol.model.EvidenceExportJob;
+import nl.metafactory.aicontrol.model.EvidenceExportJobCreated;
+import nl.metafactory.aicontrol.model.EvidenceExportJobStatus;
+import nl.metafactory.aicontrol.model.EvidenceExportProgress;
+import org.springframework.core.io.ByteArrayResource;
 import nl.metafactory.aicontrol.model.EvidenceExportFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -42,6 +48,7 @@ class EvidenceControllerTest {
     @Autowired MockMvc mockMvc;
     @MockitoBean EvidenceService evidenceService;
     @MockitoBean EvidenceExportService exportService;
+    @MockitoBean EvidenceExportJobService jobService;
 
     private EvidenceRun run() {
         var details = new EvidenceRunDetails("run-1", "wf", "OK", "alice", Instant.parse("2026-01-01T10:00:00Z"),
@@ -168,13 +175,85 @@ class EvidenceControllerTest {
     }
 
     @Test
-    void exportJobApiIsNotImplementedYet() throws Exception {
+    void createJobIs202WithLocation() throws Exception {
         var job = UUID.randomUUID();
+        when(jobService.create(org.mockito.ArgumentMatchers.eq(PROJECT), org.mockito.ArgumentMatchers.any()))
+                .thenReturn(new EvidenceExportJobCreated(job, EvidenceExportJobStatus.QUEUED));
+
         mockMvc.perform(post("/api/projects/{id}/evidence/exports", PROJECT)
                         .contentType(MediaType.APPLICATION_JSON).content("{\"scope\":\"project\",\"format\":\"csv\"}"))
-               .andExpect(status().isNotImplemented());
-        mockMvc.perform(get("/api/projects/{id}/evidence/exports/{job}", PROJECT, job)).andExpect(status().isNotImplemented());
-        mockMvc.perform(get("/api/projects/{id}/evidence/exports/{job}/download", PROJECT, job)).andExpect(status().isNotImplemented());
-        mockMvc.perform(delete("/api/projects/{id}/evidence/exports/{job}", PROJECT, job)).andExpect(status().isNotImplemented());
+               .andExpect(status().isAccepted())
+               .andExpect(header().string(HttpHeaders.LOCATION, "/api/projects/" + PROJECT + "/evidence/exports/" + job))
+               .andExpect(jsonPath("$.jobId").value(job.toString()))
+               .andExpect(jsonPath("$.status").value("queued"));
+    }
+
+    @Test
+    void createJobPropagatesBadRequestAndTooManyRequests() throws Exception {
+        when(jobService.create(org.mockito.ArgumentMatchers.eq(PROJECT), org.mockito.ArgumentMatchers.any()))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "workflowId is required"))
+                .thenThrow(new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "busy"));
+        var req = post("/api/projects/{id}/evidence/exports", PROJECT)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"scope\":\"workflow\",\"format\":\"csv\"}");
+
+        mockMvc.perform(req).andExpect(status().isBadRequest());
+        mockMvc.perform(req).andExpect(status().isTooManyRequests());
+    }
+
+    @Test
+    void jobStatusIsServed() throws Exception {
+        var job = UUID.randomUUID();
+        when(jobService.get(PROJECT, job)).thenReturn(new EvidenceExportJob(job, EvidenceExportJobStatus.RUNNING,
+                new EvidenceExportProgress(12, 80), null, null, null, null));
+
+        mockMvc.perform(get("/api/projects/{id}/evidence/exports/{job}", PROJECT, job))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.status").value("running"))
+               .andExpect(jsonPath("$.progress.runsDone").value(12))
+               .andExpect(jsonPath("$.progress.runsTotal").value(80));
+    }
+
+    @Test
+    void jobOfAnotherProjectOrUserIs404() throws Exception {
+        var job = UUID.randomUUID();
+        when(jobService.get(PROJECT, job)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "no"));
+
+        mockMvc.perform(get("/api/projects/{id}/evidence/exports/{job}", PROJECT, job))
+               .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void downloadSendsTheFileAsAttachment() throws Exception {
+        var job = UUID.randomUUID();
+        when(jobService.download(PROJECT, job)).thenReturn(new EvidenceExportJobService.DownloadFile(
+                "evidence-wf-runs.csv", "text/csv", new ByteArrayResource("a,b\r\n".getBytes()), 5));
+
+        mockMvc.perform(get("/api/projects/{id}/evidence/exports/{job}/download", PROJECT, job))
+               .andExpect(status().isOk())
+               .andExpect(content().contentTypeCompatibleWith("text/csv"))
+               .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION,
+                       org.hamcrest.Matchers.containsString("evidence-wf-runs.csv")))
+               .andExpect(content().string("a,b\r\n"));
+    }
+
+    @Test
+    void downloadIs409BeforeDoneAnd410AfterExpiry() throws Exception {
+        var job = UUID.randomUUID();
+        when(jobService.download(PROJECT, job))
+                .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "not done"))
+                .thenThrow(new ResponseStatusException(HttpStatus.GONE, "expired"));
+
+        mockMvc.perform(get("/api/projects/{id}/evidence/exports/{job}/download", PROJECT, job))
+               .andExpect(status().isConflict());
+        mockMvc.perform(get("/api/projects/{id}/evidence/exports/{job}/download", PROJECT, job))
+               .andExpect(status().isGone());
+    }
+
+    @Test
+    void cancelIs204() throws Exception {
+        var job = UUID.randomUUID();
+        mockMvc.perform(delete("/api/projects/{id}/evidence/exports/{job}", PROJECT, job))
+               .andExpect(status().isNoContent());
+        org.mockito.Mockito.verify(jobService).cancel(PROJECT, job);
     }
 }
