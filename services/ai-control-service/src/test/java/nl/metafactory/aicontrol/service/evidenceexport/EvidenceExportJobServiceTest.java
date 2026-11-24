@@ -168,6 +168,20 @@ class EvidenceExportJobServiceTest {
     }
 
     @Test
+    void projectScopePdfJobWritesAParsablePdf() throws Exception {
+        runsExist("r1", "r2");
+        var job = queued(EvidenceExportScope.PROJECT, null, EvidenceExportFormat.PDF);
+
+        service.run(job.getId(), "evidence-my-project-all.pdf");
+
+        var done = repository.findById(job.getId()).orElseThrow();
+        assertThat(done.getStatus()).isEqualTo(EvidenceExportJobStatus.DONE);
+        try (var doc = org.apache.pdfbox.Loader.loadPDF(Path.of(done.getFilePath()).toFile())) {
+            assertThat(new org.apache.pdfbox.text.PDFTextStripper().getText(doc)).contains("Run 1: r1", "Run 2: r2", "Done r2");
+        }
+    }
+
+    @Test
     void workflowScopePassesTheWorkflowId() {
         runsExist("r1");
         var job = queued(EvidenceExportScope.WORKFLOW, "wf-1", EvidenceExportFormat.JSON);
@@ -287,8 +301,6 @@ class EvidenceExportJobServiceTest {
         assertStatus(() -> service.create(projectId, request(EvidenceExportScope.WORKFLOW, null, EvidenceExportFormat.CSV)),
                 HttpStatus.BAD_REQUEST);
         assertStatus(() -> service.create(projectId, request(EvidenceExportScope.WORKFLOW, " ", EvidenceExportFormat.CSV)),
-                HttpStatus.BAD_REQUEST);
-        assertStatus(() -> service.create(projectId, request(EvidenceExportScope.PROJECT, null, EvidenceExportFormat.PDF)),
                 HttpStatus.BAD_REQUEST);
         assertStatus(() -> service.create(projectId, new EvidenceExportRequest(EvidenceExportScope.PROJECT, null,
                 EvidenceExportFormat.CSV, false, Instant.parse("2026-02-01T00:00:00Z"),

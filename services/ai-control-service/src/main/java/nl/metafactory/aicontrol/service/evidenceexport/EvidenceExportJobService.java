@@ -331,7 +331,6 @@ public class EvidenceExportJobService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Export jobs are for workflow and project scope; export a single run directly");
         }
-        EvidenceExportService.requireSupported(r.format());
         if (r.scope() == EvidenceExportScope.WORKFLOW && (r.workflowId() == null || r.workflowId().isBlank())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "workflowId is required for workflow scope");
         }

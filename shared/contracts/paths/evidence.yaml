@@ -116,7 +116,7 @@ evidenceRunExport:
     summary: Download the evidence of one run as a file
     description: |
       Synchronous download of one whole run (never a filtered view). The run must belong to the
-      project, otherwise 404. `format=pdf` is rejected with 400 until PDF support ships.
+      project, otherwise 404.
 
       The JSON body is an `EvidenceExportRun`. Every media type is declared as binary on purpose:
       the code generator types a multi-media-type response from the first entry, which would make

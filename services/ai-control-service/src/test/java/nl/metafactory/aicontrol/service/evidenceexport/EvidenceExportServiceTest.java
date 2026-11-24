@@ -70,10 +70,14 @@ class EvidenceExportServiceTest {
     }
 
     @Test
-    void pdfIsRejectedUntilItShips() {
-        assertThatThrownBy(() -> service.exportRun(project, "run-1", EvidenceExportFormat.PDF, false))
-                .isInstanceOfSatisfying(ResponseStatusException.class,
-                        e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
+    void exportsARunAsPdf() throws Exception {
+        var pdf = service.exportRun(project, "run-1", EvidenceExportFormat.PDF, false);
+
+        assertThat(pdf.filename()).isEqualTo("evidence-run-1.pdf");
+        assertThat(pdf.mediaType()).isEqualTo("application/pdf");
+        try (var doc = org.apache.pdfbox.Loader.loadPDF(pdf.content())) {
+            assertThat(new org.apache.pdfbox.text.PDFTextStripper().getText(doc)).contains("run-1", "Pushed");
+        }
     }
 
     @Test

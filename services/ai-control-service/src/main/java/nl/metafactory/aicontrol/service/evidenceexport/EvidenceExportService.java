@@ -14,12 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.ByteArrayOutputStream;
@@ -74,12 +72,12 @@ public class EvidenceExportService {
         this.exporters = Map.of(
                 EvidenceExportFormat.JSON, new EvidenceJsonExporter(jsonMapper),
                 EvidenceExportFormat.CSV, new EvidenceCsvExporter(),
-                EvidenceExportFormat.MARKDOWN, new EvidenceMarkdownExporter());
+                EvidenceExportFormat.MARKDOWN, new EvidenceMarkdownExporter(),
+                EvidenceExportFormat.PDF, new EvidencePdfExporter());
     }
 
     /** Run scope: one whole run, rendered in memory. 404 when the run is not in the project. */
     public ExportedFile exportRun(UUID projectId, String runId, EvidenceExportFormat format, boolean includeOutputs) {
-        requireSupported(format);
         EvidenceExportRun run = loadRun(projectId, runId, includeOutputs);
         EvidenceExportModel model = new EvidenceExportModel(EvidenceExportScope.RUN, null, clock.instant(), List.of(run));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -90,7 +88,6 @@ public class EvidenceExportService {
 
     /** Renders a model to the stream; the stream stays open. */
     public void render(EvidenceExportModel model, EvidenceExportFormat format, OutputStream out) {
-        requireSupported(format);
         try {
             exporters.get(format).write(model, out);
         } catch (IOException e) {
@@ -173,12 +170,6 @@ public class EvidenceExportService {
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
-
-    static void requireSupported(EvidenceExportFormat format) {
-        if (format == EvidenceExportFormat.PDF) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PDF export is not available yet");
-        }
-    }
 
     private void audit(UUID projectId, EvidenceExportScope scope, String target, EvidenceExportFormat format,
                        boolean includeOutputs, int runs) {

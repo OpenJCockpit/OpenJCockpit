@@ -124,9 +124,10 @@ class EvidenceControllerTest {
         stubExport(EvidenceExportFormat.JSON, "json", "{}");
         stubExport(EvidenceExportFormat.CSV, "csv", "a,b");
         stubExport(EvidenceExportFormat.MARKDOWN, "md", "# x");
+        stubExport(EvidenceExportFormat.PDF, "pdf", "%PDF");
 
         for (var c : List.of(new String[]{"json", "application/json", "json"}, new String[]{"csv", "text/csv", "csv"},
-                new String[]{"markdown", "text/markdown", "md"})) {
+                new String[]{"markdown", "text/markdown", "md"}, new String[]{"pdf", "application/pdf", "pdf"})) {
             mockMvc.perform(get("/api/projects/{id}/evidence/runs/run-1/export?format=" + c[0], PROJECT)
                             .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isOk())
@@ -154,15 +155,6 @@ class EvidenceControllerTest {
         mockMvc.perform(get("/api/projects/{id}/evidence/runs/run-1/export", PROJECT))
                .andExpect(status().isBadRequest());
         verifyNoInteractions(exportService);
-    }
-
-    @Test
-    void exportPdfIs400WhenTheServiceRejectsIt() throws Exception {
-        when(exportService.exportRun(PROJECT, "run-1", EvidenceExportFormat.PDF, false))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "PDF export is not available yet"));
-
-        mockMvc.perform(get("/api/projects/{id}/evidence/runs/run-1/export?format=pdf", PROJECT))
-               .andExpect(status().isBadRequest());
     }
 
     @Test
