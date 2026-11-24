@@ -346,6 +346,17 @@ class GitWorkspaceJobServiceTest {
     }
 
     @Test
+    void aDashboardRunRecordsItsRunIdOnTheJobBeforePolling() {
+        var ws = new GitWorkspaceJobService.PreparedWorkspace(jobId, workspaceKey(), "https://github.com/org/repo", "agentic/wf-1/x");
+        doThrow(new GitWorkspaceException(GitWorkspaceJobErrorCode.AGENT_EXECUTION_FAILED, "failed"))
+                .when(agentService).pollAgentRun("run-1", jobId);
+
+        service.finishWorkflowRunAsync(ws, "run-1");
+
+        assertThat(job.getRunId()).isEqualTo("run-1");
+    }
+
+    @Test
     void aDashboardRunThatDoesNotCompleteFailsTheJobWithoutAFinalPush() {
         var ws = new GitWorkspaceJobService.PreparedWorkspace(jobId, workspaceKey(), "https://github.com/org/repo", "agentic/wf-1/x");
         doThrow(new GitWorkspaceException(GitWorkspaceJobErrorCode.AGENT_EXECUTION_FAILED, "Agent run ended with status: FAILED"))

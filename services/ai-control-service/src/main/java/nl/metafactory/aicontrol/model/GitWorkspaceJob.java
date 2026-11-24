@@ -21,6 +21,9 @@ public class GitWorkspaceJob {
     @Column(name = "workflow_id", length = 128)
     private String workflowId;
 
+    @Column(name = "run_id", length = 128)
+    private String runId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private GitWorkspaceJobStatus status = GitWorkspaceJobStatus.CREATED;
@@ -103,6 +106,9 @@ public class GitWorkspaceJob {
     public void setCompletedAt(Instant completedAt) { this.completedAt = completedAt; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
+
+    public String getRunId() { return runId; }
+    public void setRunId(String runId) { this.runId = runId; }
 
     public String getWorkflowId() {
         return workflowId;
