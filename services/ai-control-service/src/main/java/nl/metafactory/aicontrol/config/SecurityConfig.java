@@ -50,6 +50,8 @@ public class SecurityConfig {
             "/api/projects/*/hermes-config", "/api/projects/*/jira-config", "/api/projects/*/document-folder-config",
             "/api/projects/*/spec-files", "/api/projects/*/spec-init/status",
             "/api/projects/*/spec-queue", "/api/projects/*/spec-queue/settings",
+            "/api/projects/*/evidence/runs", "/api/projects/*/evidence/runs/*", "/api/projects/*/evidence/latest",
+            "/api/projects/*/evidence/runs/*/outputs/*",
             "/api/agent-runs/*", "/api/agent-runs/*/approval-gate", "/api/agent-runs/*/approval-decisions",
             "/api/agent-catalog", "/api/agent-catalog/providers/*/agents/*/card",
             "/api/git-workspace-jobs/*", "/api/git-workspace-jobs/*/events",

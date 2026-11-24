@@ -171,6 +171,11 @@ class AuthorizationMatrixTest {
             e(POST, "/api/agentic-workflows/preflight", OPERATOR),
             e(GET, "/api/git-workspace-jobs/{jobId}", VIEWER),
             e(GET, "/api/git-workspace-jobs/{jobId}/events", VIEWER),
+            // execution evidence
+            e(GET, "/api/projects/{projectId}/evidence/runs", VIEWER),
+            e(GET, "/api/projects/{projectId}/evidence/runs/{runId}", VIEWER),
+            e(GET, "/api/projects/{projectId}/evidence/runs/{runId}/outputs/{agentKey}", VIEWER),
+            e(GET, "/api/projects/{projectId}/evidence/latest", VIEWER),
             // workflows and groups
             e(GET, "/api/workflows", VIEWER),
             e(POST, "/api/workflows", OPERATOR),

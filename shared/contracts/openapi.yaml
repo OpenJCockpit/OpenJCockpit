@@ -97,6 +97,14 @@ paths:
     $ref: 'paths/agentic-workflows.yaml#/gitWorkspaceJobById'
   /api/git-workspace-jobs/{jobId}/events:
     $ref: 'paths/agentic-workflows.yaml#/gitWorkspaceJobEvents'
+  /api/projects/{id}/evidence/runs:
+    $ref: 'paths/evidence.yaml#/evidenceRuns'
+  /api/projects/{id}/evidence/runs/{runId}:
+    $ref: 'paths/evidence.yaml#/evidenceRun'
+  /api/projects/{id}/evidence/runs/{runId}/outputs/{agentKey}:
+    $ref: 'paths/evidence.yaml#/evidenceRunOutput'
+  /api/projects/{id}/evidence/latest:
+    $ref: 'paths/evidence.yaml#/evidenceRunLatest'
   /api/workflows:
     $ref: 'paths/workflows.yaml#/workflowsCollection'
   /api/workflows/export:
@@ -156,6 +164,22 @@ components:
       $ref: 'schemas/workspace.yaml#/EvidenceEvent'
     EvidenceDetails:
       $ref: 'schemas/workspace.yaml#/EvidenceDetails'
+    EvidenceSource:
+      $ref: 'schemas/evidence.yaml#/EvidenceSource'
+    EvidenceStatus:
+      $ref: 'schemas/evidence.yaml#/EvidenceStatus'
+    EvidenceTimelineEvent:
+      $ref: 'schemas/evidence.yaml#/EvidenceTimelineEvent'
+    EvidenceRunDetails:
+      $ref: 'schemas/evidence.yaml#/EvidenceRunDetails'
+    EvidenceRun:
+      $ref: 'schemas/evidence.yaml#/EvidenceRun'
+    EvidenceRunSummary:
+      $ref: 'schemas/evidence.yaml#/EvidenceRunSummary'
+    EvidenceRunPage:
+      $ref: 'schemas/evidence.yaml#/EvidenceRunPage'
+    EvidenceOutput:
+      $ref: 'schemas/evidence.yaml#/EvidenceOutput'
     QualityControl:
       $ref: 'schemas/workspace.yaml#/QualityControl'
     StackServiceStatus:
