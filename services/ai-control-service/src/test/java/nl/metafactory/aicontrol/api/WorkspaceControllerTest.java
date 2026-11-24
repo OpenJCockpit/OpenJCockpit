@@ -32,8 +32,7 @@ class WorkspaceControllerTest {
     void getWorkspaceReturnsOk() throws Exception {
         var workspace = new Workspace(
             new CustomerSummary("cust", "Cust NV", "IT", "Prod", "now", "Internal", "eu-west-1"),
-            "spec.md", List.of(), List.of(), List.of(), List.of(),
-            new EvidenceDetails("v1", "run-1", "flow", "now"),
+            "spec.md", List.of(), List.of(), List.of(),
             List.of(), List.of(),
             new FooterStatus("Prod", "eu-west-1", "Internal", "1.0", "1.0")
         );

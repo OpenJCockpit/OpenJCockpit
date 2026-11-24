@@ -31,20 +31,6 @@ class ModelRecordsTest {
     }
 
     @Test
-    void evidenceDetails() {
-        var r = new EvidenceDetails("v1", "run-1", "flow", "now");
-        assertThat(r.specVersion()).isEqualTo("v1");
-        assertThat(r.runId()).isEqualTo("run-1");
-    }
-
-    @Test
-    void evidenceEvent() {
-        var r = new EvidenceEvent("13:00", "title", "actor", "ok");
-        assertThat(r.time()).isEqualTo("13:00");
-        assertThat(r.status()).isEqualTo("ok");
-    }
-
-    @Test
     void footerStatus() {
         var r = new FooterStatus("Prod", "eu-west-1", "Internal", "1.0", "2.0");
         assertThat(r.environment()).isEqualTo("Prod");
@@ -100,8 +86,7 @@ class ModelRecordsTest {
     void workspace() {
         var w = new Workspace(
             new CustomerSummary("id", "n", "s", "e", "t", "i", "r"),
-            "spec.md", List.of(), List.of(), List.of(), List.of(),
-            new EvidenceDetails("v", "r", "f", "t"),
+            "spec.md", List.of(), List.of(), List.of(),
             List.of(), List.of(),
             new FooterStatus("e", "r", "d", "ev", "sv")
         );

@@ -160,10 +160,6 @@ components:
       $ref: 'schemas/workspace.yaml#/AgentCard'
     PullRequestSummary:
       $ref: 'schemas/workspace.yaml#/PullRequestSummary'
-    EvidenceEvent:
-      $ref: 'schemas/workspace.yaml#/EvidenceEvent'
-    EvidenceDetails:
-      $ref: 'schemas/workspace.yaml#/EvidenceDetails'
     EvidenceSource:
       $ref: 'schemas/evidence.yaml#/EvidenceSource'
     EvidenceStatus:
