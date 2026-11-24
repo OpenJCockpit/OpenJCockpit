@@ -147,4 +147,54 @@ class EvidencePdfExporterTest {
 
         assertThat(text(pdf)).contains("Evidence: all runs of workflow wf-1", "first", "second");
     }
+
+    private static nl.metafactory.aicontrol.model.EvidenceTimelineEvent eventWithStatus(
+            nl.metafactory.aicontrol.model.EvidenceStatus status, String title, String detail) {
+        return new nl.metafactory.aicontrol.model.EvidenceTimelineEvent(T0, EvidenceSource.GIT, null, null, title,
+                detail, null, status);
+    }
+
+    @Test
+    void failureSummaryAndAllEventStatusesRender() throws Exception {
+        var d = new nl.metafactory.aicontrol.model.EvidenceRunDetails("run-1", "wf-1", "FAILED", "alice", T0,
+                T0.plusSeconds(60), "b", "c", List.of(), "Build exploded");
+        var events = List.of(
+                eventWithStatus(nl.metafactory.aicontrol.model.EvidenceStatus.FAILED, "bad", null),
+                eventWithStatus(nl.metafactory.aicontrol.model.EvidenceStatus.WAITING, "wait", null),
+                eventWithStatus(nl.metafactory.aicontrol.model.EvidenceStatus.RUNNING, "run", null),
+                eventWithStatus(null, "none", null));
+        var run = new EvidenceExportRun("run-1", d, events, null, false, null);
+
+        assertThat(text(pdf(model(EvidenceExportScope.RUN, run)))).contains("Build exploded", "bad", "wait", "none");
+    }
+
+    @Test
+    void eventLargerThanAPageFlowsAcrossPages() throws Exception {
+        String huge = ("word ".repeat(40) + "\n").repeat(120);
+        byte[] pdf = pdf(model(EvidenceExportScope.RUN, run("run-1",
+                event(EvidenceSource.GIT, "before", null), event(EvidenceSource.GIT, "huge", huge),
+                event(EvidenceSource.GIT, "after", null))));
+
+        assertThat(pages(pdf)).isGreaterThan(3);
+        assertThat(text(pdf)).contains("before", "huge", "after");
+    }
+
+    @Test
+    void hugeEventAtStartOfFreshPageAndOverviewPaginationRender() throws Exception {
+        List<EvidenceExportRun> runs = new ArrayList<>();
+        for (int i = 0; i < 80; i++) runs.add(run("run-" + i, event(EvidenceSource.GIT, "e" + i, null)));
+        byte[] pdf = pdf(model(EvidenceExportScope.PROJECT, runs.toArray(new EvidenceExportRun[0])));
+
+        assertThat(text(pdf)).contains("Run 80: run-79", "Overview");
+        assertThat(pages(pdf)).isGreaterThan(82);
+    }
+
+    @Test
+    void overlongRunningTitleIsTruncatedWithEllipsis() throws Exception {
+        var m = new nl.metafactory.aicontrol.model.EvidenceExportModel(EvidenceExportScope.WORKFLOW,
+                "wf-" + "z".repeat(400), T0, List.of(run("run-1", event(EvidenceSource.GIT, "a", null)),
+                run("run-2", event(EvidenceSource.GIT, "b", null))));
+
+        assertThat(pages(pdf(m))).isGreaterThan(2);
+    }
 }

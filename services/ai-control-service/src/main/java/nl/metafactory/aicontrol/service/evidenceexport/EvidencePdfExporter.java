@@ -107,8 +107,9 @@ public class EvidencePdfExporter implements EvidenceExporter {
     }
 
     private static PDImageXObject loadLogo(PDDocument doc) throws IOException {
-        try (InputStream in = EvidencePdfExporter.class.getResourceAsStream(LOGO)) {
-            if (in == null) return null;
+        InputStream in = EvidencePdfExporter.class.getResourceAsStream(LOGO);
+        if (in == null) return null;
+        try (in) {
             return PDImageXObject.createFromByteArray(doc, in.readAllBytes(), "logo");
         }
     }
