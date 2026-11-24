@@ -89,12 +89,17 @@ class EvidenceExportJobServiceTest {
     }
 
     private EvidenceExportJobService serviceAt(Clock clock, int maxRuns) {
+        return serviceWith(repository, clock, maxRuns, 1_000_000);
+    }
+
+    private EvidenceExportJobService serviceWith(EvidenceExportJobRepository repo, Clock clock, int maxRuns,
+                                                 long maxDiskBytes) {
         var exportService = new EvidenceExportService(evidenceService, mock(EmbabelAgentClient.class),
                 JsonMapper.builder().build(), Clock.fixed(ExportFixtures.T0, ZoneOffset.UTC), 100, 1000);
         var projects = mock(ProjectService.class);
         when(projects.findById(any())).thenAnswer(i -> projectDto(i.getArgument(0)));
-        return new EvidenceExportJobService(repository, exportService, evidenceService, projects, clock, tempDir,
-                Duration.ofMinutes(60), Duration.ofMinutes(10), maxRuns, 2, 1_000_000, 1, 5);
+        return new EvidenceExportJobService(repo, exportService, evidenceService, projects, clock, tempDir,
+                Duration.ofMinutes(60), Duration.ofMinutes(10), maxRuns, 2, maxDiskBytes, 1, 5);
     }
 
     private static ProjectDto projectDto(UUID id) {
@@ -328,6 +333,72 @@ class EvidenceExportJobServiceTest {
         assertThat(EvidenceExportJobService.filename(
                 request(EvidenceExportScope.PROJECT, null, EvidenceExportFormat.JSON), "  Mé Project!! "))
                 .isEqualTo("evidence-m-project-all.json");
+    }
+
+    @Test
+    void createRequiresScopeAndFormat() {
+        assertStatus(() -> service.create(projectId, request(null, null, EvidenceExportFormat.CSV)), HttpStatus.BAD_REQUEST);
+        assertStatus(() -> service.create(projectId, null), HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void createIs429AndLeavesNoRowWhenTheQueueIsClosed() {
+        service.shutdown();
+
+        assertStatus(() -> service.create(projectId, request(EvidenceExportScope.PROJECT, null, EvidenceExportFormat.CSV)),
+                HttpStatus.TOO_MANY_REQUESTS);
+        assertThat(repository.count()).isZero();
+    }
+
+    @Test
+    void jobFailsWhenExportStorageIsFull() throws Exception {
+        runsExist("r1");
+        var first = queued(EvidenceExportScope.PROJECT, null, EvidenceExportFormat.CSV);
+        service.run(first.getId(), "a.csv");
+        var full = serviceWith(repository, Clock.systemUTC(), 5000, 1);
+        var second = queued(EvidenceExportScope.PROJECT, null, EvidenceExportFormat.CSV);
+
+        full.run(second.getId(), "b.csv");
+
+        var failed = repository.findById(second.getId()).orElseThrow();
+        assertThat(failed.getStatus()).isEqualTo(EvidenceExportJobStatus.FAILED);
+        assertThat(failed.getError()).contains("storage is full");
+        assertThat(filesInTempDir()).isEqualTo(1);
+    }
+
+    @Test
+    void cancelDuringTheLastRunDiscardsTheRenderedFile() throws Exception {
+        runsExist("r1");
+        var job = queued(EvidenceExportScope.PROJECT, null, EvidenceExportFormat.CSV);
+        when(evidenceService.getRun(projectId, "r1")).thenAnswer(i -> {
+            service.cancel(projectId, job.getId());
+            return new EvidenceRun(details("r1"), List.of());
+        });
+
+        service.run(job.getId(), "x.csv");
+
+        assertThat(repository.findById(job.getId()).orElseThrow().getStatus())
+                .isEqualTo(EvidenceExportJobStatus.CANCELLED);
+        assertThat(filesInTempDir()).isZero();
+    }
+
+    @Test
+    void sweepSurvivesAFailingRepositoryAndAFileItCannotDelete() throws Exception {
+        var broken = mock(EvidenceExportJobRepository.class);
+        when(broken.findAllByStatusAndExpiresAtBeforeAndFilePathIsNotNull(any(), any()))
+                .thenThrow(new IllegalStateException("db down"));
+        serviceWith(broken, Clock.systemUTC(), 5000, 1_000_000).sweep();
+
+        Path notAFile = Files.createDirectory(tempDir.resolve("stuck"));
+        Files.writeString(notAFile.resolve("inner"), "x");
+        var job = queued(EvidenceExportScope.PROJECT, null, EvidenceExportFormat.CSV);
+        repository.markRunning(job.getId(), Instant.now());
+        repository.markDone(job.getId(), "f.csv", 1, notAFile.toString(), Instant.now().minusSeconds(5), Instant.now());
+
+        service.sweep();
+
+        assertThat(notAFile).exists();
+        assertThat(repository.findById(job.getId()).orElseThrow().getFilePath()).isNull();
     }
 
     // ── Visibility ───────────────────────────────────────────────────────────

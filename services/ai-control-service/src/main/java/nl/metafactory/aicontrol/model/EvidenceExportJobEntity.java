@@ -77,11 +77,6 @@ public class EvidenceExportJobEntity {
         updatedAt = createdAt;
     }
 
-    @PreUpdate
-    void onUpdate() {
-        updatedAt = Instant.now();
-    }
-
     public UUID getId() { return id; }
     public UUID getProjectId() { return projectId; }
     public void setProjectId(UUID projectId) { this.projectId = projectId; }
@@ -98,7 +93,6 @@ public class EvidenceExportJobEntity {
     public Instant getToAt() { return toAt; }
     public void setToAt(Instant toAt) { this.toAt = toAt; }
     public EvidenceExportJobStatus getStatus() { return status; }
-    public void setStatus(EvidenceExportJobStatus status) { this.status = status; }
     public int getRunsDone() { return runsDone; }
     public int getRunsTotal() { return runsTotal; }
     public String getFilename() { return filename; }
@@ -108,6 +102,4 @@ public class EvidenceExportJobEntity {
     public String getCreatedBy() { return createdBy; }
     public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
     public Instant getExpiresAt() { return expiresAt; }
-    public Instant getCreatedAt() { return createdAt; }
-    public Instant getUpdatedAt() { return updatedAt; }
 }

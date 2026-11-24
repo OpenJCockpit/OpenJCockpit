@@ -188,14 +188,9 @@ public class EvidenceExportJobService {
     /** Cancels an active job, or deletes a finished one together with its file. */
     public void cancel(UUID projectId, UUID jobId) {
         EvidenceExportJobEntity job = visible(projectId, jobId);
-        if (ACTIVE.contains(job.getStatus())) {
-            repository.markCancelled(jobId, clock.instant());
-            // The worker notices and removes its own temp file; a queued job never wrote one.
-            if (repository.findStatusById(jobId).orElse(null) != EvidenceExportJobStatus.CANCELLED) {
-                deleteJob(job); // finished in the meantime
-            }
-            return;
-        }
+        // The worker notices a cancel and removes its own temp file; a queued job never wrote one.
+        // If the job finished in the meantime the update matches nothing and it is deleted like any finished job.
+        if (ACTIVE.contains(job.getStatus()) && repository.markCancelled(jobId, clock.instant()) > 0) return;
         deleteJob(job);
     }
 
