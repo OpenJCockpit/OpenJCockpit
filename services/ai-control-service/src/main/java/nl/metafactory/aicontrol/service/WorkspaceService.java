@@ -62,9 +62,6 @@ public class WorkspaceService {
             specs,
             agents,
             pullRequests(),
-            evidenceEvents(),
-            new EvidenceDetails("v1.3.2", "run_2025-05-06_1303",
-                                "RQ → IA → TD → IMP → RV → EV", "13:24 today"),
             qualityControls(),
             List.of(
                 new StackServiceStatus("Embabel Orchestrator", "Orchestration of AI agents", "live"),
@@ -130,17 +127,6 @@ public class WorkspaceService {
                                    "Yesterday 16:22", "Reviewer", "Lisa van Dijk", "In review", "review"),
             new PullRequestSummary("468", "add audit logging", "feature/audit-logging",
                                    "2 May 14:08", "Author", "Pieter Smit", "Open", "open")
-        );
-    }
-
-    private List<EvidenceEvent> evidenceEvents() {
-        return List.of(
-            new EvidenceEvent("13:04", "Spec loaded", "Requirement Agent", "ok"),
-            new EvidenceEvent("13:07", "Impact analysis recorded", "Impact Analysis Agent", "ok"),
-            new EvidenceEvent("13:12", "Test set generated", "Test Design Agent", "ok"),
-            new EvidenceEvent("13:16", "Implementation proposal saved", "Implementation Agent", "ok"),
-            new EvidenceEvent("13:22", "Human approval logged", "Review Agent", "ok"),
-            new EvidenceEvent("13:24", "Evidence data recorded", "Evidence Agent", "ok")
         );
     }
 

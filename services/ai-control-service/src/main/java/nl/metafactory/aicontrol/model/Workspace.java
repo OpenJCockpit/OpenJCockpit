@@ -8,8 +8,6 @@ public record Workspace(
         List<SpecFile> specs,
         List<AgentCard> agents,
         List<PullRequestSummary> pullRequests,
-        List<EvidenceEvent> evidenceEvents,
-        EvidenceDetails evidenceDetails,
         List<QualityControl> qualityControls,
         List<StackServiceStatus> stack,
         FooterStatus footer

@@ -6,8 +6,6 @@ Workspace:
     - specs
     - agents
     - pullRequests
-    - evidenceEvents
-    - evidenceDetails
     - qualityControls
     - stack
     - footer
@@ -28,12 +26,6 @@ Workspace:
       type: array
       items:
         $ref: '#/PullRequestSummary'
-    evidenceEvents:
-      type: array
-      items:
-        $ref: '#/EvidenceEvent'
-    evidenceDetails:
-      $ref: '#/EvidenceDetails'
     qualityControls:
       type: array
       items:
@@ -163,40 +155,6 @@ PullRequestSummary:
         - review
         - changes
         - ok
-
-EvidenceEvent:
-  type: object
-  required:
-    - time
-    - title
-    - actor
-    - status
-  properties:
-    time:
-      type: string
-    title:
-      type: string
-    actor:
-      type: string
-    status:
-      type: string
-
-EvidenceDetails:
-  type: object
-  required:
-    - specVersion
-    - runId
-    - agentFlow
-    - lastUpdate
-  properties:
-    specVersion:
-      type: string
-    runId:
-      type: string
-    agentFlow:
-      type: string
-    lastUpdate:
-      type: string
 
 QualityControl:
   type: object

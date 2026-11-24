@@ -215,8 +215,6 @@
                                 <importMapping>CustomerSummary=nl.metafactory.aicontrol.model.CustomerSummary</importMapping>
                                 <importMapping>AgentCard=nl.metafactory.aicontrol.model.AgentCard</importMapping>
                                 <importMapping>PullRequestSummary=nl.metafactory.aicontrol.model.PullRequestSummary</importMapping>
-                                <importMapping>EvidenceEvent=nl.metafactory.aicontrol.model.EvidenceEvent</importMapping>
-                                <importMapping>EvidenceDetails=nl.metafactory.aicontrol.model.EvidenceDetails</importMapping>
                                 <importMapping>EvidenceSource=nl.metafactory.aicontrol.model.EvidenceSource</importMapping>
                                 <importMapping>EvidenceStatus=nl.metafactory.aicontrol.model.EvidenceStatus</importMapping>
                                 <importMapping>EvidenceTimelineEvent=nl.metafactory.aicontrol.model.EvidenceTimelineEvent</importMapping>
@@ -322,8 +320,6 @@
                                 <schemaMapping>CustomerSummary=nl.metafactory.aicontrol.model.CustomerSummary</schemaMapping>
                                 <schemaMapping>AgentCard=nl.metafactory.aicontrol.model.AgentCard</schemaMapping>
                                 <schemaMapping>PullRequestSummary=nl.metafactory.aicontrol.model.PullRequestSummary</schemaMapping>
-                                <schemaMapping>EvidenceEvent=nl.metafactory.aicontrol.model.EvidenceEvent</schemaMapping>
-                                <schemaMapping>EvidenceDetails=nl.metafactory.aicontrol.model.EvidenceDetails</schemaMapping>
                                 <schemaMapping>EvidenceSource=nl.metafactory.aicontrol.model.EvidenceSource</schemaMapping>
                                 <schemaMapping>EvidenceStatus=nl.metafactory.aicontrol.model.EvidenceStatus</schemaMapping>
                                 <schemaMapping>EvidenceTimelineEvent=nl.metafactory.aicontrol.model.EvidenceTimelineEvent</schemaMapping>
