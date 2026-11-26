@@ -14,13 +14,19 @@ FROM eclipse-temurin:25-jre@sha256:4ed132f6832e9804b123e89a849a7b4502756ae64a4ee
 WORKDIR /app
 # Unprivileged user (same UID as embabel-agent-runtime). The only writable places are /tmp and the
 # data directories below, which are created here so fresh volumes inherit the ownership.
-RUN useradd --system --uid 10001 --home-dir /app --shell /usr/sbin/nologin app \
- && mkdir -p /git-mcp-workspaces \
- && chown 10001:10001 /git-mcp-workspaces
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --system --uid 10001 --home-dir /app --shell /usr/sbin/nologin app \
+    && mkdir -p /git-mcp-workspaces \
+    && chown 10001:10001 /git-mcp-workspaces
 COPY --from=build /workspace/services/git-mcp-server/target/*.jar app.jar
 # HTTPS when a PEM certificate and key are mounted at /etc/openjcockpit/tls/tls.crt and tls.key, plain
 # HTTP otherwise; or pass the PEM as TLS_CERT and TLS_KEY (services/docker/entrypoint.sh).
 COPY --chmod=0755 services/docker/entrypoint.sh services/docker/healthcheck.sh /usr/local/bin/
+# JGit writes filesystem-timestamp config to $XDG_CONFIG_HOME/jgit; /app is not writable
+# for UID 10001 (and the prod rootfs is read-only), so point it at writable /tmp.
+ENV XDG_CONFIG_HOME=/tmp/.config
 USER 10001
 EXPOSE 8093
 HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=10 \
