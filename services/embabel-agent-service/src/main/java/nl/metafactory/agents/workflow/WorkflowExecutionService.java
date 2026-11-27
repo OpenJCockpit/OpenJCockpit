@@ -187,6 +187,18 @@ public class WorkflowExecutionService implements ChildWorkflowStarter {
             repositoryUrl = gitWorkspace.repositoryUrl();
         }
 
+        // Fail fast: a workflow that declares git tools cannot run without a bound git workspace.
+        // Starting it unbound would only surface later as the runtime's "No git workspace is bound
+        // to this run" error, by which point the agent has already begun hallucinating around
+        // unavailable tools. ai-control prepares the workspace and issues the ticket; any other
+        // start path (spec queue, A2A, workflow-orb child) is blocked here instead.
+        if (gitWorkspace == null && requiresGitWorkspace(workflow)) {
+            log.warn("Workflow {} start refused: git tools require a git workspace, but none is bound", workflowId);
+            return new WorkflowStartResponse(workflowId, null, "BLOCKED", Instant.now(),
+                    "Workflow '" + workflowId + "' requires a git workspace. Select a project with a git "
+                    + "repository and start it from the project workspace so a workspace can be prepared.");
+        }
+
         String startedBy = currentUserProvider.currentUsername().orElse(null);
         // MADP-54: baseBranch has no ExecutionConfig counterpart (spec §4 non-goal) — the start
         // input is the only source. Blank → null, which the publishers fall back on
@@ -301,6 +313,21 @@ public class WorkflowExecutionService implements ChildWorkflowStarter {
     private WorkflowDefinition loadWorkflow(String workflowId) {
         return workflowRepository.findById(workflowId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Workflow not found: " + workflowId));
+    }
+
+    /**
+     * True when the workflow declares any git MCP tool ({@code git_*}). Such a workflow can only
+     * run meaningfully against a repository bound to the run as a git workspace; without one the
+     * runtime refuses its git tools with "No git workspace is bound to this run".
+     */
+    private static boolean requiresGitWorkspace(WorkflowDefinition workflow) {
+        List<nl.metafactory.agents.workflow.model.McpToolRef> tools = workflow.mcpTools();
+        if (tools == null) {
+            return false;
+        }
+        return tools.stream()
+                .filter(tool -> tool != null && tool.name() != null)
+                .anyMatch(tool -> tool.name().startsWith("git_"));
     }
 
     private PolicyDecisionContext buildContext(WorkflowDefinition workflow, String triggerSource,

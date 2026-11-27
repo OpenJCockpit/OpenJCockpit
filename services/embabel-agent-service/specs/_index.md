@@ -4,3 +4,4 @@
 |---|---|---|---|---|---|---|---|
 | WF-001 | SPEC-001 | example-feature | draft | internal | enterprise_cloud | - | specs/001-example-feature/spec.md |
 | WF-002 | SPEC-002 | agent-definition-a2a | in_progress | internal | enterprise_cloud | - | specs/002-agent-definition-a2a/spec.md |
+| WF-003 | SPEC-003 | git-workspace-start-guard | draft | internal | enterprise_cloud | - | specs/003-git-workspace-start-guard/spec.md |

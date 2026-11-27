@@ -10,6 +10,7 @@ import nl.metafactory.agents.policy.PolicyDecisionService;
 import nl.metafactory.agents.policy.model.PolicyDecision;
 import nl.metafactory.agents.security.CurrentUserProvider;
 import nl.metafactory.agents.workflow.model.ExecutionConfig;
+import nl.metafactory.agents.workflow.model.McpToolRef;
 import nl.metafactory.agents.workflow.model.WorkflowDefinition;
 import nl.metafactory.agents.workflow.model.WorkflowStartInput;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,12 @@ class WorkflowExecutionServiceGitWorkspaceTest {
         when(users.currentUsername()).thenReturn(Optional.of("alice"));
         when(repository.findById("wf-1")).thenReturn(Optional.of(new WorkflowDefinition("wf-1", "Impl", "P", null, "d",
                 List.of("a2a:litellm:software-developer"), List.of(), List.of(), List.of(), null,
+                new ExecutionConfig("cust1", "", 300), false, null, "ACTIVE", null, null, null, null)));
+        // A workflow that declares git tools: it may only start bound to a git workspace.
+        when(repository.findById("wf-git")).thenReturn(Optional.of(new WorkflowDefinition("wf-git", "Git", "P", null, "d",
+                List.of("a2a:litellm:software-developer"), List.of(), List.of(),
+                List.of(new McpToolRef("git_commit", "stage and commit"),
+                        new McpToolRef("git_push", "push the branch")), null,
                 new ExecutionConfig("cust1", "", 300), false, null, "ACTIVE", null, null, null, null)));
         var run = new AgentRun("run-1", "cust1", "spec", REPO, "RUNNING", Instant.now(), List.of(), List.of(), null, null, null, null);
         when(orchestrator.start(any())).thenReturn(run);
@@ -107,5 +114,26 @@ class WorkflowExecutionServiceGitWorkspaceTest {
 
         verify(orchestrator).start(any());
         verify(orchestrator, never()).start(any(), any());
+    }
+
+    @Test
+    void aGitWorkflowWithoutATicketIsBlockedBeforeTheOrchestratorRuns() {
+        var response = service.startWorkflow("wf-git", WorkflowStartInput.empty(), ALICE);
+
+        assertThat(response.status()).isEqualTo("BLOCKED");
+        assertThat(response.message()).contains("requires a git workspace");
+        verify(orchestrator, never()).start(any());
+        verify(orchestrator, never()).start(any(), any());
+    }
+
+    @Test
+    void aTicketBindsAGitWorkflow() {
+        String ticket = tickets.issue(WORKSPACE, "wf-git", "alice-sub").ticket();
+
+        var response = service.startWorkflow("wf-git", withTicket(ticket), ALICE);
+
+        assertThat(response.status()).isNotEqualTo("BLOCKED");
+        assertThat(response.executionId()).isEqualTo("run-1");
+        verify(orchestrator).start(any(), eq(WORKSPACE));
     }
 }
